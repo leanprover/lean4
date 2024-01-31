@@ -65,7 +65,7 @@ variable [Functor m]
   (·.root) <$> read
 
 @[inherit_doc Workspace.findPackage?, inline]
-def findPackage? (name : Name) : m (Option (NPackage name)) :=
+def findPackage? (name : SimpleName) : m (Option (NPackage name)) :=
   (·.findPackage? name) <$> getWorkspace
 
 @[inherit_doc Workspace.findModule?, inline]
@@ -73,15 +73,15 @@ def findModule? (name : Name) : m (Option Module) :=
   (·.findModule? name) <$> getWorkspace
 
 @[inherit_doc Workspace.findLeanExe?, inline]
-def findLeanExe? (name : Name) : m (Option LeanExe) :=
+def findLeanExe? (name : SimpleName) : m (Option LeanExe) :=
   (·.findLeanExe? name) <$> getWorkspace
 
 @[inherit_doc Workspace.findLeanLib?, inline]
-def findLeanLib? (name : Name) : m (Option LeanLib) :=
+def findLeanLib? (name : SimpleName) : m (Option LeanLib) :=
   (·.findLeanLib? name) <$> getWorkspace
 
 @[inherit_doc Workspace.findExternLib?, inline]
-def findExternLib? (name : Name) : m (Option ExternLib) :=
+def findExternLib? (name : SimpleName) : m (Option ExternLib) :=
   (·.findExternLib? name) <$> getWorkspace
 
 /-- Get the paths added to `LEAN_PATH` by the context's workspace. -/
@@ -125,7 +125,7 @@ variable [MonadLakeEnv m]
 variable [Functor m]
 
 /-- Get the `LAKE_PACKAGE_URL_MAP` for the Lake environment. Empty if none. -/
-@[inline] def getPkgUrlMap : m (NameMap String) :=
+@[inline] def getPkgUrlMap : m (SimpleNameMap String) :=
   (·.pkgUrlMap) <$> getLakeEnv
 
 /-- Get the name of Elan toolchain for the Lake environment. Empty if none. -/

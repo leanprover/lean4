@@ -45,7 +45,7 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
   if spec.isEmpty then
     return ws.root
   else
-    match ws.findPackage? <| stringToLegalOrSimpleName spec with
+    match ws.findPackage? spec with
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
@@ -84,8 +84,8 @@ def resolveExternLibTarget (lib : ExternLib) (facet : Name) : Except CliError Bu
   else
     throw <| CliError.unknownFacet "external library" facet
 
-def resolveCustomTarget (pkg : Package)
-(name facet : Name) (config : TargetConfig pkg.name name) : Except CliError BuildSpec :=
+def resolveCustomTarget (pkg : Package) (name : SimpleName)
+(facet : Name) (config : TargetConfig pkg.name name) : Except CliError BuildSpec :=
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
   else do
@@ -94,7 +94,7 @@ def resolveCustomTarget (pkg : Package)
     return {info, getBuildJob := h ▸ config.getJob}
 
 def resolveTargetInPackage (ws : Workspace)
-(pkg : Package) (target facet : Name) : Except CliError (Array BuildSpec) :=
+(pkg : Package) (target : String) (facet : Name) : Except CliError (Array BuildSpec) :=
   if let some config := pkg.findTargetConfig? target then
     Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := pkg.findLeanExe? target then
@@ -103,13 +103,13 @@ def resolveTargetInPackage (ws : Workspace)
     Array.singleton <$> resolveExternLibTarget lib facet
   else if let some lib := pkg.findLeanLib? target then
     resolveLibTarget ws lib facet
-  else if let some mod := pkg.findTargetModule? target then
+  else if let some mod := pkg.findTargetModule? target.toName then
     Array.singleton <$> resolveModuleTarget ws mod facet
   else
-    throw <| CliError.missingTarget pkg.name (target.toString false)
+    throw <| CliError.missingTarget pkg.name target
 
 def resolveDefaultPackageTarget (ws : Workspace) (pkg : Package) : Except CliError (Array BuildSpec) :=
-  pkg.defaultTargets.concatMapM (resolveTargetInPackage ws pkg · .anonymous)
+  pkg.defaultTargets.concatMapM (resolveTargetInPackage ws pkg ·.toString .anonymous)
 
 def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Except CliError (Array BuildSpec) :=
   if facet.isAnonymous then
@@ -120,7 +120,7 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Excep
     throw <| CliError.unknownFacet "package" facet
 
 def resolveTargetInWorkspace (ws : Workspace)
-(target : Name) (facet : Name) : Except CliError (Array BuildSpec) :=
+(target : String) (facet : Name) : Except CliError (Array BuildSpec) :=
   if let some ⟨pkg, config⟩ := ws.findTargetConfig? target then
     Array.singleton <$> resolveCustomTarget pkg target facet config
   else if let some exe := ws.findLeanExe? target then
@@ -131,7 +131,7 @@ def resolveTargetInWorkspace (ws : Workspace)
     resolveLibTarget ws lib facet
   else if let some pkg := ws.findPackage? target then
     resolvePackageTarget ws pkg facet
-  else if let some mod := ws.findTargetModule? target then
+  else if let some mod := ws.findTargetModule? target.toName then
     Array.singleton <$> resolveModuleTarget ws mod facet
   else
     throw <| CliError.unknownTarget target
@@ -152,7 +152,7 @@ def resolveTargetBaseSpec
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
+      resolveTargetInWorkspace ws spec facet
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec
@@ -165,22 +165,20 @@ def resolveTargetBaseSpec
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec) facet
+      resolveTargetInPackage ws pkg targetSpec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
 def parseExeTargetSpec (ws : Workspace) (spec : String) : Except CliError LeanExe := do
   match spec.splitOn "/" with
   | [targetSpec] =>
-    let targetName := stringToLegalOrSimpleName targetSpec
-    match ws.findLeanExe? targetName with
+    match ws.findLeanExe? targetSpec with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec
-    let targetName := stringToLegalOrSimpleName targetSpec
-    match pkg.findLeanExe? targetName with
+    match pkg.findLeanExe? targetSpec with
     | some exe => return exe
     | none => throw <| CliError.unknownExe spec
   | _ =>

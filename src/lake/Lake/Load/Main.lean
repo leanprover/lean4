@@ -22,9 +22,9 @@ The main definitions for loading a workspace and resolving dependencies.
 
 namespace Lake
 
-/-- Load the tagged `Dependency` definitions from a package configuration environment. -/
-def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
-  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts Dependency ``Dependency)
+/-- Load the tagged `PackageDepConfig` definitions from a package configuration environment. -/
+def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array PackageDepConfig) := do
+  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts PackageDepConfig ``PackageDepConfig)
 
 /--
 Elaborate a dependency's configuration file into a `Package`.
@@ -74,7 +74,7 @@ Finalize the workspace's root and its transitive dependencies
 and add them to the workspace.
 -/
 def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
-  have : MonadStore Name Package (StateT Workspace LogIO) := {
+  have : MonadStore SimpleName Package (StateT Workspace LogIO) := {
     fetch? := fun name => return (← get).findPackage? name
     store := fun _ pkg => modify (·.addPackage pkg)
   }
@@ -93,6 +93,17 @@ def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
       s!"oops! dependency load cycle detected (this likely indicates a bug in Lake):\n" ++
       "\n".intercalate cycle
 
+structure UpdateState where
+  pkgs : SimpleNameMap Package := {}
+  mdeps : SimpleNameMap MaterializedDep := {}
+  entries : SimpleNameMap PackageEntry := {}
+
+abbrev UpdateT := EStateT (Cycle Name) UpdateState
+@[inline] def UpdateT.run [Functor m] (x : UpdateT m α) : m (Except (Cycle Name) α × UpdateState)  :=
+  EStateT.run {} x
+@[inline] def addEntry [Monad m] [MonadStateOf UpdateState m] (entry : PackageEntry) : m PUnit :=
+   modify fun s => {s with entries := s.entries.insert entry.name entry}
+
 /--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
 
@@ -104,16 +115,15 @@ root dependencies. Otherwise, only update the root dependencies specified.
 If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
 -/
 def Workspace.updateAndMaterialize (ws : Workspace)
-(toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
-  let res ← StateT.run (s := mkNameMap MaterializedDep) <|
-    StateT.run' (s := mkNameMap PackageEntry) <| EStateT.run' (mkNameMap Package) do
+(toUpdate : SimpleNameSet := {}) (reconfigure := true) : LogIO Workspace := do
+  let res ← UpdateT.run do
     -- Use manifest versions of root packages that should not be updated
     match (← Manifest.load ws.manifestFile |>.toBaseIO) with
     | .ok manifest =>
       unless toUpdate.isEmpty do
         manifest.packages.forM fun entry => do
           unless entry.inherited || toUpdate.contains entry.name do
-            modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
+            addEntry entry
       if let some oldRelPkgsDir := manifest.packagesDir? then
         let oldPkgsDir := ws.dir / oldRelPkgsDir
         if oldPkgsDir != ws.pkgsDir && (← oldPkgsDir.pathExists) then
@@ -134,37 +144,42 @@ def Workspace.updateAndMaterialize (ws : Workspace)
       let inherited := pkg.name != ws.root.name
       -- Materialize this package's dependencies first
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
-      let deps ← deps.mapM fun dep => fetchOrCreate dep.name do
-        if let some entry := (← getThe (NameMap PackageEntry)).find? dep.name then
-          entry.materialize dep ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
+      let deps ← deps.mapM fun dep => do
+        if let some dep := (← get).mdeps.find? dep.name then
+          return dep
         else
-          dep.materialize inherited ws.dir ws.relPkgsDir pkg.relDir ws.lakeEnv.pkgUrlMap
+          let dep ←
+            if let some entry := (← get).entries.find? dep.name then
+              entry.materialize dep ws.dir ws.relPkgsDir ws.lakeEnv
+            else
+              dep.materialize inherited ws.dir ws.relPkgsDir pkg.relDir ws.lakeEnv
+          modify fun s => {s with mdeps := s.mdeps.insert dep.name dep}
+          return dep
       -- Load dependency packages and materialize their locked dependencies
       let deps ← deps.mapM fun dep => do
-        if let some pkg := (← getThe (NameMap Package)).find? dep.name then
+        if let some pkg := (← get).pkgs.find? dep.name then
           return pkg
         else
           -- Load the package
           let depPkg ← dep.loadPackage ws.dir pkg.leanOpts reconfigure
           if depPkg.name ≠ dep.name then
-            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+            error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
           | .ok manifest =>
             manifest.packages.forM fun entry => do
-              unless (← getThe (NameMap PackageEntry)).contains entry.name do
-                let entry := entry.setInherited.inDirectory dep.relPkgDir
-                modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
+              unless (← get).entries.contains entry.name do
+                addEntry <| entry.setInherited.inDirectory dep.relPkgDir
           | .error (.noFileOrDirectory ..) =>
             logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
           | .error e =>
             logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
-          modifyThe (NameMap Package) (·.insert dep.name depPkg)
+          modify fun s => {s with pkgs := s.pkgs.insert dep.name depPkg}
           return depPkg
       -- Resolve dependencies's dependencies recursively
       return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
   match res with
-  | (.ok root, deps) =>
+  | (.ok root, s) =>
     let ws : Workspace ← {ws with root}.finalize
     let manifest : Manifest := {
       name := ws.root.name
@@ -172,7 +187,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
       packagesDir? := ws.relPkgsDir
     }
     let manifest := ws.packages.foldl (init := manifest) fun manifest pkg =>
-      match deps.find? pkg.name with
+      match s.mdeps.find? pkg.name with
       | some dep => manifest.addPackage <|
         dep.manifestEntry.setManifestFile pkg.relManifestFile
       | none => manifest -- should only be the case for the root
@@ -198,7 +213,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
   let pkgEntries := manifest.packages.foldl (init := mkNameMap PackageEntry)
     fun map entry => map.insert entry.name entry
-  let res ← EStateT.run' (mkNameMap Package) do
+  let res ← EStateT.run' (mkSimpleNameMap Package) do
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let topLevel := pkg.name = ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
@@ -211,15 +226,23 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
               s!"manifest out of date: {what} of dependency '{dep.name}' changed; " ++
               s!"use `lake update {dep.name}` to update it"
           if let .some entry := pkgEntries.find? dep.name then
-          match dep.src, entry with
-          | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
+          match dep.source?, entry.source with
+          | some <| .git (url := url) (rev? := rev?) ..,
+            .git (url := url') (inputRev? := rev?')  .. =>
             if url ≠ url' then warnOutOfDate "git url"
-            if rev ≠ rev' then warnOutOfDate "git revision"
-          | .path .., .path .. => pure ()
-          | _, _ => warnOutOfDate "source kind (git/path)"
-      let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
+            if rev? ≠ rev?' then warnOutOfDate "git revision"
+          | some <| .github (owner := owner) (repo := repo) (rev? := rev?) ..,
+            .github (owner := owner') (repo := repo') (inputRev? := rev?')  .. =>
+            if owner ≠ owner' ∨  repo ≠ repo' then warnOutOfDate "github repository"
+            if rev? ≠ rev?' then warnOutOfDate "git revision"
+          | some <| .path .., .path .. => pure ()
+          | none, .registry (inputRev? := rev?) .. =>
+            if dep.version? ≠ rev? then warnOutOfDate "git revision"
+          | _, _ => warnOutOfDate "source kind (path, git, etc.)"
+      let depPkgs ← deps.filterMapM fun dep =>
+        if !dep.enable then return none else some <$> fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then
-          let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
+          let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv
           result.loadPackage ws.dir pkg.leanOpts reconfigure
         else if topLevel then
           error <|
@@ -254,7 +277,7 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
     ws.updateAndMaterialize {} rc
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
-def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
+def updateManifest (config : LoadConfig) (toUpdate : SimpleNameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   discard <| ws.updateAndMaterialize toUpdate rc

@@ -27,7 +27,7 @@ inductive BuildInfo
 | staticExternLib (lib : ExternLib)
 | sharedExternLib (lib : ExternLib)
 | dynlibExternLib (lib : ExternLib)
-| target (package : Package) (target : Name)
+| target (package : Package) (target : SimpleName)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Keys                                                      -/
@@ -41,7 +41,7 @@ abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
 abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
   .packageFacet self.name facet
 
-abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
+abbrev Package.targetBuildKey (target : SimpleName) (self : Package) : BuildKey :=
   .customTarget self.name target
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
@@ -235,7 +235,7 @@ abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet
 
 /-- Build info for a custom package target. -/
-abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
+abbrev Package.target (target : SimpleName) (self : Package) : BuildInfo :=
   .target self target
 
 /-- Build info of the Lean library's Lean binaries. -/

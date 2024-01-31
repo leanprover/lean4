@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.DSL.Config
+import Lake.Util.Name
 import Lake.Util.Binder
 import Lean.Parser.Command
 
@@ -24,6 +25,38 @@ def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
     | _ => #[]
   else
     #[]
+
+syntax identOrStr :=
+  ident <|> str
+
+abbrev IdentOrStr := TSyntax ``identOrStr
+
+def expandIdentOrStrAsString (stx : IdentOrStr) : MacroM String :=
+  match stx with
+  | `(identOrStr|$x:ident) => return x.getId.toString (escape := false)
+  | `(identOrStr|$x:str) => return x.getString
+  | _ => Macro.throwErrorAt stx "ill-formed syntax; expected identifier or string literal"
+
+def expandIdentOrStrAsName (stx : IdentOrStr) : MacroM Name :=
+  match stx with
+  | `(identOrStr|$x:ident) => return x.getId
+  | `(identOrStr|$x:str) => return Name.mkSimple x.getString
+  | _ => Macro.throwErrorAt stx "ill-formed syntax; expected identifier or string literal"
+
+def expandIdentOrStrAsIdent (stx : IdentOrStr) : MacroM Ident :=
+  match stx with
+  | `(identOrStr|$x:ident) => return x
+  | `(identOrStr|$x:str) => return mkIdentFrom x (Name.mkSimple x.getString)
+  | _ => Macro.throwErrorAt stx "ill-formed syntax; expected identifier or string literal"
+
+def mkStrLitFrom (ref : Syntax) (val : String) : StrLit :=
+  Syntax.mkStrLit val <| SourceInfo.fromRef ref
+
+def mkSimpleNameFrom (ref : Syntax) (name : String) : Term :=
+  Syntax.mkApp (mkCIdentFrom ref ``SimpleName.mk) #[mkStrLitFrom ref name]
+
+def expandIdentOrStr (stx : TSyntax ``identOrStr) : MacroM Term :=
+  return mkSimpleNameFrom stx <| ← expandIdentOrStrAsString stx
 
 syntax declField :=
   ident ":=" term
@@ -46,11 +79,8 @@ syntax declValTyped :=
 syntax declValOptTyped :=
   (Term.typeSpec)? declValSimple
 
-syntax simpleDeclSig :=
-  ident Term.typeSpec declValSimple
-
 syntax structDeclSig :=
-  ident (declValWhere <|> declValOptTyped <|> declValStruct)?
+  identOrStr (declValWhere <|> declValOptTyped <|> declValStruct)?
 
 syntax bracketedSimpleBinder :=
   "(" ident (" : " term)? ")"
@@ -72,29 +102,38 @@ def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
     | _ => `(funBinder| _)
   | none => `(funBinder| _)
 
-def fixName (id : Ident) : Option Name → Ident
-| some n => mkIdentFrom id n
-| none => id
-
 def expandDeclField : TSyntax ``declField → MacroM (TSyntax ``Term.structInstField)
 | `(declField| $id :=%$tk $val) => `(Term.structInstField| $id:ident :=%$tk $val)
 | x => Macro.throwErrorAt x "ill-formed field declaration"
 
-def mkConfigDecl (name? : Option Name)
-(doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
-: (spec : Syntax) → MacroM Syntax.Command
-| `(structDeclSig| $id:ident) =>
-  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty :=
-    {name := $(quote id.getId)})
-| `(structDeclSig| $id:ident where $fs;* $[$wds?:whereDecls]?) => do
-  let fields ← fs.getElems.mapM expandDeclField
-  let defn ← `({ name := $(quote id.getId), $fields,* })
-  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
-| `(structDeclSig| $id:ident $[: $ty?]? :=%$defTk $defn $[$wds?]?) => do
-  let notice ← withRef defTk `(#eval IO.eprintln s!" warning: {__dir__}: `:=` syntax for configurations has been deprecated")
-  `($notice $[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
-| `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?:whereDecls]?) => do
-  let fields ← fs.mapM expandDeclField
-  let defn ← `({ name := $(quote id.getId), $fields,* })
-  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
-| stx => Macro.throwErrorAt stx "ill-formed configuration syntax"
+def mkConfigDecl
+(declName? : Option Name) (doc? : Option DocComment)
+(attrs : Array AttrInstance) (ty : Term) (spec : Syntax)
+: MacroM Syntax.Command := do
+  match spec with
+  | `(structDeclSig| $nameStx:identOrStr) =>
+    let declName ← expandIdentOrStrAsName nameStx
+    let declId := mkIdentFrom nameStx <| declName?.getD declName
+    let rawName := Name.quoteFrom nameStx declName
+    `($[$doc?]? @[$attrs,*] abbrev $declId : $ty :=
+      {name := $(← expandIdentOrStr nameStx), rawName := $rawName})
+  | `(structDeclSig| $nameStx where $fs;* $[$wds?:whereDecls]?) => do
+    let declName ← expandIdentOrStrAsName nameStx
+    let declId := mkIdentFrom nameStx <| declName?.getD declName
+    let rawName := Name.quoteFrom nameStx declName
+    let fields ← fs.getElems.mapM expandDeclField
+    let defn ← `({ name := $(← expandIdentOrStr nameStx), rawName := $rawName, $fields,* })
+    `($[$doc?]? @[$attrs,*] abbrev $declId : $ty := $defn $[$wds?:whereDecls]?)
+  | `(structDeclSig| $nameStx $[: $ty?]? :=%$defTk $defn $[$wds?]?) => do
+    let declName ← expandIdentOrStrAsName nameStx
+    let declId := mkIdentFrom nameStx <| declName?.getD declName
+    let notice ← withRef defTk `(#eval IO.eprintln s!" warning: {__dir__}: `:=` syntax for configurations has been deprecated")
+    `($notice $[$doc?]? @[$attrs,*] abbrev $declId : $ty := $defn $[$wds?]?)
+  | `(structDeclSig| $nameStx { $[$fs $[,]?]* } $[$wds?:whereDecls]?) => do
+    let declName ← expandIdentOrStrAsName nameStx
+    let declId := mkIdentFrom nameStx <| declName?.getD declName
+    let rawName := Name.quoteFrom nameStx declName
+    let fields ← fs.mapM expandDeclField
+    let defn ← `({ name := $(← expandIdentOrStr nameStx), rawName := $rawName, $fields,* })
+    `($[$doc?]? @[$attrs,*] abbrev $declId : $ty := $defn $[$wds?:whereDecls]?)
+  | stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

@@ -25,8 +25,12 @@ structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
+  /-- The root URL to use for GitHub clones (e.g., `https://github.com`) -/
+  githubUrl : String
+  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
+  reservoirUrl : String
   /-- A name-to-URL mapping of URL overwrites for the named packages. -/
-  pkgUrlMap : NameMap String
+  pkgUrlMap : SimpleNameMap String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -46,6 +50,8 @@ def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstal
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
+    githubUrl := (← IO.getEnv "LAKE_GITHUB_URL").getD "https://github.com"
+    reservoirUrl := (← IO.getEnv "LAKE_RESERVOIR_URL").getD "https://reservoir.lean-lang.org/api"
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
     initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",

@@ -22,7 +22,7 @@ structure Workspace : Type where
   /-- The packages within the workspace (in `require` declaration order). -/
   packages : Array Package := {}
   /-- Name-package map of packages within the workspace. -/
-  packageMap : DNameMap NPackage := {}
+  packageMap : DSimpleNameMap NPackage := {}
   /-- Name-configuration map of module facets defined in the workspace. -/
   moduleFacetConfigs : DNameMap ModuleFacetConfig
   /-- Name-configuration map of package facets defined in the workspace. -/
@@ -71,7 +71,7 @@ def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}
 
 /-- Try to find a package within the workspace with the given name. -/
-@[inline] def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
+@[inline] def findPackage? (name : SimpleName) (self : Workspace) : Option (NPackage name) :=
   self.packageMap.find? name
 
 /-- Try to find a script in the workspace with the given name. -/
@@ -95,19 +95,19 @@ def findTargetModule? (mod : Name) (self : Workspace) : Option Module :=
   self.packages.findSomeRev? (·.findTargetModule? mod)
 
 /-- Try to find a Lean library in the workspace with the given name. -/
-def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
+def findLeanLib? (name : SimpleName) (self : Workspace) : Option LeanLib :=
   self.packages.findSomeRev? fun pkg => pkg.findLeanLib? name
 
 /-- Try to find a Lean executable in the workspace with the given name. -/
-def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
+def findLeanExe? (name : SimpleName) (self : Workspace) : Option LeanExe :=
   self.packages.findSomeRev? fun pkg => pkg.findLeanExe? name
 
 /-- Try to find an external library in the workspace with the given name. -/
-def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
+def findExternLib? (name : SimpleName) (self : Workspace) : Option ExternLib :=
   self.packages.findSomeRev? fun pkg => pkg.findExternLib? name
 
 /-- Try to find a target configuration in the workspace with the given name. -/
-def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
+def findTargetConfig? (name : SimpleName) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
   self.packages.findSomeRev? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- Add a module facet to the workspace. -/

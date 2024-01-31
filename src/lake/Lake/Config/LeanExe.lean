@@ -20,7 +20,7 @@ structure LeanExe where
   self.leanExeConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
 
 /-- Try to find a Lean executable in the package with the given name. -/
-@[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
+@[inline] def Package.findLeanExe? (name : SimpleName) (self : Package) : Option LeanExe :=
   self.leanExeConfigs.find? name |>.map (⟨self, ·⟩)
 
 /--
@@ -39,7 +39,7 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
 namespace LeanExe
 
 /-- The executable's well-formed name. -/
-@[inline] def name (self : LeanExe) : Name :=
+abbrev name (self : LeanExe) : SimpleName :=
   self.config.name
 
 /-- Converts the executable into a library with a single module (the root). -/

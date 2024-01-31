@@ -15,7 +15,7 @@ namespace Lake
 
 /-- Fetch the build job of the specified package target. -/
 def Package.fetchTargetJob (self : Package)
-(target : Name) : IndexBuildM (BuildJob Unit) :=  do
+(target : SimpleName) : IndexBuildM (BuildJob Unit) :=  do
   let some config := self.findTargetConfig? target
     | error s!"package '{self.name}' has no target '{target}'"
   return config.getJob (← fetch <| self.target target)

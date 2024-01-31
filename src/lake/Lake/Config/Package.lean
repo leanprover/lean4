@@ -8,7 +8,7 @@ import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
-import Lake.Config.Dependency
+import Lake.Config.PackageDepConfig
 import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
@@ -27,14 +27,6 @@ def nameToArchive (name? : Option String) : String :=
   match name? with
   | none => s!"{platformDescriptor}.tar.gz"
   | some name => s!"{name}-{platformDescriptor}.tar.gz"
-
-/--
-First tries to convert a string into a legal name.
-If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
-Currently used for package and target names taken from the CLI.
--/
-def stringToLegalOrSimpleName (s : String) : Name :=
-  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
 --------------------------------------------------------------------------------
 /-! # Defaults -/
@@ -62,8 +54,11 @@ def defaultIrDir : FilePath := "ir"
 /-- A `Package`'s declarative configuration. -/
 structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
-  /-- The `Name` of the package. -/
-  name : Name
+  /-- The name of the package. -/
+  name : SimpleName
+
+  /-- The name the library was declared with. **Internal Use Only** -/
+  rawName : Name := name
 
   /--
   **This field is deprecated.**
@@ -169,7 +164,7 @@ deriving Inhabited
 --------------------------------------------------------------------------------
 
 
-declare_opaque_type OpaquePostUpdateHook (pkg : Name)
+declare_opaque_type OpaquePostUpdateHook (pkg : SimpleName)
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
@@ -192,18 +187,18 @@ structure Package where
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
-  leanLibConfigs : OrdNameMap LeanLibConfig := {}
+  leanLibConfigs : OrdSimpleNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
-  leanExeConfigs : OrdNameMap LeanExeConfig := {}
+  leanExeConfigs : OrdSimpleNameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
-  externLibConfigs : DNameMap (ExternLibConfig config.name) := {}
+  externLibConfigs : DSimpleNameMap (ExternLibConfig config.name) := {}
   /-- (Opaque references to) targets defined in the package. -/
-  opaqueTargetConfigs : DNameMap (OpaqueTargetConfig config.name) := {}
+  opaqueTargetConfigs : DSimpleNameMap (OpaqueTargetConfig config.name) := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
   -/
-  defaultTargets : Array Name := #[]
+  defaultTargets : Array SimpleName := #[]
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /--
@@ -220,21 +215,12 @@ instance : Nonempty Package :=
 
 hydrate_opaque_type OpaquePackage Package
 
-instance : Hashable Package where hash pkg := hash pkg.config.name
-instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
-
-abbrev PackageSet := HashSet Package
-@[inline] def PackageSet.empty : PackageSet := HashSet.empty
-
-abbrev OrdPackageSet := OrdHashSet Package
-@[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
-
 /-- The package's name. -/
-abbrev Package.name (self : Package) : Name :=
+abbrev Package.name (self : Package) : SimpleName :=
   self.config.name
 
 /-- A package with a name known at type-level. -/
-structure NPackage (name : Name) extends Package where
+structure NPackage (name : SimpleName) extends Package where
   name_eq : toPackage.name = name
 
 attribute [simp] NPackage.name_eq
@@ -245,20 +231,29 @@ instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 /-- The package's name. -/
 abbrev NPackage.name (_ : NPackage n) := n
 
+instance : Hashable Package where hash pkg := hash pkg.name
+instance : BEq Package where beq p1 p2 := p1.name == p2.name
+
+abbrev PackageSet := HashSet Package
+@[inline] def PackageSet.empty : PackageSet := HashSet.empty
+
+abbrev OrdPackageSet := OrdHashSet Package
+@[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
+
 /--
 The type of a post-update hooks monad.
 `IO` equipped with logging ability and information about the Lake configuration.
 -/
-abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
+abbrev PostUpdateFn (pkgName : SimpleName) := NPackage pkgName → LakeT LogIO PUnit
 
-structure PostUpdateHook (pkgName : Name) where
+structure PostUpdateHook (pkgName : SimpleName) where
   fn : PostUpdateFn pkgName
   deriving Inhabited
 
 hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
 
 structure PostUpdateHookDecl where
-  pkg : Name
+  pkg : SimpleName
   fn : PostUpdateFn pkg
 
 namespace Package
@@ -292,8 +287,8 @@ namespace Package
   self.dir / self.config.buildDir
 
 /-- The package's `extraDepTargets` configuration. -/
-@[inline] def extraDepTargets (self : Package) : Array Name :=
-  self.config.extraDepTargets
+@[inline] def extraDepTargets (self : Package) : Array SimpleName :=
+  self.config.extraDepTargets.map fun n => SimpleName.mk <| n.toString false
 
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=

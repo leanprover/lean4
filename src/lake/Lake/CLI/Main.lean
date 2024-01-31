@@ -298,7 +298,7 @@ protected def update : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
-  let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
+  let toUpdate := (← getArgs).foldl (·.insert ·) {}
   liftM <| (updateManifest config toUpdate).run (MonadLog.io opts.verbosity)
 
 protected def upload : CliM PUnit := do
@@ -328,7 +328,7 @@ protected def clean : CliM PUnit := do
     ws.clean
   else
     let pkgs ← pkgSpecs.mapM fun pkgSpec =>
-      match ws.findPackage? <| stringToLegalOrSimpleName pkgSpec with
+      match ws.findPackage? (.mk pkgSpec) with
       | none => throw <| .unknownPackage pkgSpec
       | some pkg => pure pkg.toPackage
     pkgs.forM (·.clean)

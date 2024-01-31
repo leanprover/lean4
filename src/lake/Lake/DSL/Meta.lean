@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Elab.Eval
 import Lean.Elab.ElabRules
+import Lake.DSL.Require
 
 /-!
 Syntax for elaboration time control flow.
@@ -12,6 +13,8 @@ Syntax for elaboration time control flow.
 
 namespace Lake.DSL
 open Lean Meta Elab Command Term
+
+/-- ## `meta if` -/
 
 @[implemented_by Term.evalTerm]
 opaque evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α
@@ -63,6 +66,20 @@ elab_rules : command | `(meta if $c then $t $[else $e?]?) => do
     let cmd := mkNullNode (expandCmdDo e)
     withMacroExpansion (← getRef) cmd <| elabCommand cmd
 
+/--
+Auto-migrate `meta if ... then require ...` to `require ... if ...`,
+and warn the user to update their configuration file accordingly
+-/
+elab_rules : command
+| `(meta if $c then $[$doc?]? require $fullName $[if $c?]? $[$fromC?]? $[$withC?]?) => do
+  let stx ← getRef
+  let c ← if let some c' := c? then `($c && $c') else pure c
+  let cmd ← `($[$doc?]? require $fullName if $c $[$fromC?]? $[$withC?]?)
+  logWarning m!"the following syntax is deprecated:{indentD stx}\nplease replace it with:{indentD cmd}"
+  withMacroExpansion stx cmd <| elabCommand cmd
+
+/-- ## `run_io` -/
+
 @[implemented_by Meta.evalExpr]
 opaque evalExpr (α) (expectedType : Expr) (value : Expr) (safety := DefinitionSafety.safe) : MetaM α
 
@@ -101,4 +118,3 @@ def elabRunIO : TermElab := fun stx expectedType? =>
 instance : ToExpr System.FilePath where
   toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
   toTypeExpr := mkConst ``System.FilePath
-

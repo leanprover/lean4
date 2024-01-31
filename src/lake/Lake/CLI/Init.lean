@@ -139,9 +139,7 @@ def InitTemplate.configFileContents (pkgName : Name) (root : String) : InitTempl
 | .math => mathConfigFileContents (escapeName! pkgName) root
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
-def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
-  let pkgName := stringToLegalOrSimpleName name
-
+def initPkg (dir : FilePath) (pkgName : Name) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
   -- determine the name to use for the root
   -- use upper camel case unless the specific module name already exists
   let (root, rootFile, rootExists) ← do
@@ -222,6 +220,13 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
+/--
+First tries to convert a string into a legal name.
+If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
+-/
+def stringToLegalOrSimpleName (s : String) : Name :=
+  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
+
 def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let pkgName ← do
     if pkgName == "." then
@@ -234,11 +239,12 @@ def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePat
   let pkgName := pkgName.trim
   validatePkgName pkgName
   IO.FS.createDirAll cwd
-  initPkg cwd pkgName tmp env
+  initPkg cwd (stringToLegalOrSimpleName pkgName) tmp env
 
 def new (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let pkgName := pkgName.trim
   validatePkgName pkgName
-  let dirName := cwd / pkgName.map fun chr => if chr == '.' then '-' else chr
+  let pkgName := stringToLegalOrSimpleName pkgName
+  let dirName := cwd / pkgName.toStringWithSep "-" false
   IO.FS.createDirAll dirName
   initPkg dirName pkgName tmp env

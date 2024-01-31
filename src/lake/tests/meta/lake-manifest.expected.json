@@ -1,0 +1,16 @@
+{"version": 8,
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"url": "./foo",
+   "type": "git",
+   "subDir": null,
+   "rev": "b89452b44125611e3876e9f9f27a1726effa2440",
+   "name": "foo",
+   "manifestFile": "lake-manifest.json",
+   "inputRev": null,
+   "inherited": false,
+   "fullName": "foo",
+   "configFile": "lakefile.lean",
+   "conditional": true}],
+ "name": "test_meta",
+ "lakeDir": ".lake"}

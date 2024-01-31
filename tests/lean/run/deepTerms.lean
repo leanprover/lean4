@@ -1,25 +1,25 @@
 /-!
-# Testing the `pp.omitDeepTerms true` option
+# Testing the `pp.deepTerms false` option
 
 Implemented in PR #3201.
 -/
 
-set_option pp.omitDeepTerms true
-set_option pp.omitDeepTerms.threshold 8
+set_option pp.deepTerms false
+set_option pp.deepTerms.threshold 8
 
 /-!
-Subterms of terms with depth <= pp.omitDeepTerms.threshold are not omitted
+Subterms of terms with depth <= pp.deepTerms.threshold are not omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ
 
 /-!
-Shallow subterms (subterms with depth <= pp.omitDeepTerms.threshold/4) of terms with
-depth > pp.omitDeepTerms.threshold are not omitted
+Shallow subterms (subterms with depth <= pp.deepTerms.threshold/4) of terms with
+depth > pp.deepTerms.threshold are not omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ
 
 /-!
-Deep subterms of terms with depth > pp.omitDeepTerms.threshold are omitted
+Deep subterms of terms with depth > pp.deepTerms.threshold are omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ
 

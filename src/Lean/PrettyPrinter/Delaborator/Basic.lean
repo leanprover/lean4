@@ -40,7 +40,7 @@ structure Context where
   openDecls      : List OpenDecl
   inPattern      : Bool := false -- true when delaborating `match` patterns
   subExpr        : SubExpr
-  /-- Current recursion depth during delaboration. Used by the `pp.omitDeepTerms` option. -/
+  /-- Current recursion depth during delaboration. Used by the `pp.deepTerms false` option. -/
   depth          : Nat := 0
 
 structure State where
@@ -241,7 +241,7 @@ where
 
 /--
 Runs the delaborator `act` with increased depth.
-The depth is used when `pp.omitDeepTerms` is `true` to determine what is a deep term.
+The depth is used when `pp.deepTerms` is `false` to determine what is a deep term.
 See also `Lean.PrettyPrinter.Delaborator.Context.depth`.
 -/
 def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
@@ -249,17 +249,17 @@ def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
 
 /--
 Returns `true` if, at the current depth, we should omit the term and use `⋯` rather than
-delaborating it. This function can only return `true` if `pp.omitDeepTerms` is set to `true`.
+delaborating it. This function can only return `true` if `pp.deepTerms` is set to `false`.
 It also contains a heuristic to allow "shallow terms" to be delaborated, even if they appear deep in
 an expression, which prevents terms such as atomic expressions or `OfNat.ofNat` literals from being
 delaborated as `⋯`.
 -/
 def shouldOmitExpr (e : Expr) : DelabM Bool := do
-  if ! (← getPPOption getPPOmitDeepTerms) then
+  if ← getPPOption getPPDeepTerms then
     return false
 
   let depth := (← read).depth
-  let depthThreshold ← getPPOption getPPOmitDeepTermsThreshold
+  let depthThreshold ← getPPOption getPPDeepTermsThreshold
   let approxDepth := e.approxDepth.toNat
   let depthExcess := depth - depthThreshold
 

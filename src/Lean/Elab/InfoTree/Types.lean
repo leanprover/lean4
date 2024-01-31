@@ -156,7 +156,7 @@ structure FieldRedeclInfo where
 
 /--
 Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
-due to `pp.omitDeepTerms true`. Omission needs to be treated differently from regular terms because
+due to `pp.deepTerms false`. Omission needs to be treated differently from regular terms because
 it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
 Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
 regular delaboration settings.

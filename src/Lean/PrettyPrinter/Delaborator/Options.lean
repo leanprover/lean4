@@ -125,15 +125,15 @@ register_builtin_option pp.instanceTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
 }
-register_builtin_option pp.omitDeepTerms : Bool := {
-  defValue := false
+register_builtin_option pp.deepTerms : Bool := {
+  defValue := true
   group    := "pp"
-  descr    := "(pretty printer) omit deeply nested terms, replacing them with `⋯`"
+  descr    := "(pretty printer) display deeply nested terms, replacing them with `⋯` if set to false"
 }
-register_builtin_option pp.omitDeepTerms.threshold : Nat := {
+register_builtin_option pp.deepTerms.threshold : Nat := {
   defValue := 20
   group    := "pp"
-  descr    := "(pretty printer) when `pp.omitDeepTerms` is true, the depth at which terms start being replaced with `⋯`"
+  descr    := "(pretty printer) when `pp.deepTerms` is false, the depth at which terms start being replaced with `⋯`"
 }
 register_builtin_option pp.motives.pi : Bool := {
   defValue := true
@@ -215,7 +215,7 @@ def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name 
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
 def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
-def getPPOmitDeepTerms (o : Options) : Bool := o.get pp.omitDeepTerms.name pp.omitDeepTerms.defValue
-def getPPOmitDeepTermsThreshold (o : Options) : Nat := o.get pp.omitDeepTerms.threshold.name pp.omitDeepTerms.threshold.defValue
+def getPPDeepTerms (o : Options) : Bool := o.get pp.deepTerms.name pp.deepTerms.defValue
+def getPPDeepTermsThreshold (o : Options) : Nat := o.get pp.deepTerms.threshold.name pp.deepTerms.threshold.defValue
 
 end Lean

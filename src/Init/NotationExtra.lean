@@ -173,7 +173,7 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
 /--
 Denotes a term that was omitted by the pretty printer.
 This is only used for pretty printing, and it cannot be elaborated.
-The presence of `⋯` is controlled by the `pp.omitDeepTerms` and `pp.omitDeepTerms.threshold`
+The presence of `⋯` is controlled by the `pp.deepTerms` and `pp.deepTerms.threshold`
 options.
 -/
 syntax "⋯" : term
@@ -181,8 +181,8 @@ syntax "⋯" : term
 macro_rules | `(⋯) => Macro.throwError "\
   Error: The '⋯' token is used by the pretty printer to indicate omitted terms, \
   and it cannot be elaborated. \
-  Its presence in pretty printing output is controlled by the 'pp.omitDeepTerms' and \
-  `pp.omitDeepTerms.threshold` options."
+  Its presence in pretty printing output is controlled by the 'pp.deepTerms' and \
+  `pp.deepTerms.threshold` options."
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

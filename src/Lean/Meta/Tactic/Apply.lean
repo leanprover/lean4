@@ -7,6 +7,7 @@ import Lean.Util.FindMVar
 import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
+import Lean.PrettyPrinter
 
 namespace Lean.Meta
 /-- Controls which new mvars are turned in to goals by the `apply` tactic.
@@ -50,8 +51,15 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   pure numArgs
 
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-  throwTacticEx `apply mvarId m!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
+  let explanation : MessageData := .ofPPFormat { pp := fun
+    | some ctx => ctx.runMetaM do
+        let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
+        let ⟨eTypeF, _infos1⟩ ← ppExprWithInfos eType
+        let ⟨targetTypeF, _infos2⟩ ← ppExprWithInfos targetType
+        return f!"{Format.nest 2 (Format.line ++ eTypeF)}\nwith{Format.nest 2 (Format.line ++ targetTypeF)}"
+    | none     => return f!"(no context?)"  -- should never happen
+  }
+  throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit :=

@@ -302,7 +302,7 @@ namespace Package
   self.config.extraDepTargets
 
 /-- The package's `platformIndependent` configuration. -/
-@[inline] def platformIndependent (self : Package) : Bool :=
+@[inline] def platformIndependent (self : Package) : Option Bool :=
   self.config.platformIndependent
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/

@@ -81,10 +81,11 @@ Is true if either the package or the library have `precompileModules` set.
 
 /--
 Whether to the library's Lean code is platform-independent.
-Is true if *either* the package or the library have `platformIndependent` set.
+Returns the library's `platformIndependent` configuration if non-`none`.
+Otherwise, falls back to the package's.
 -/
-@[inline] def platformIndependent (self : LeanLib) : Bool :=
-  self.pkg.platformIndependent || self.config.platformIndependent
+@[inline] def platformIndependent (self : LeanLib) : Option Bool :=
+  self.config.platformIndependent <|> self.pkg.platformIndependent
 
 /-- The library's `defaultFacets` configuration. -/
 @[inline] def defaultFacets (self : LeanLib) : Array Name :=

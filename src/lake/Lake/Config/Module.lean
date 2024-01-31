@@ -135,7 +135,7 @@ def dynlibSuffix := "-1"
 @[inline] def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
 
-@[inline] def platformIndependent (self : Module) : Bool :=
+@[inline] def platformIndependent (self : Module) : Option Bool :=
   self.lib.platformIndependent
 
 @[inline] def shouldPrecompile (self : Module) : Bool :=

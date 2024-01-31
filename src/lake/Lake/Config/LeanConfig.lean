@@ -163,10 +163,25 @@ structure LeanConfig where
   -/
   backend : Backend := .default
   /--
-  Asserts Lake should assume the Lean code is platform-independent.
-  This means Lake will exclude platform-dependent elements (such as shared libraries)
-  from a module's trace and will not re-elaborate Lean code for different platforms.
-  Defaults to `false`.
+  Asserts whether Lake should assume Lean modules are platform-independent.
+
+  * If `false`, Lake will add `System.Platform.target` to the module traces
+  within the code unit (e.g., package or library). This will force Lean code
+  to be re-elaborated on different platforms.
+
+  * If `true`, Lake will exclude platform-dependent elements
+  (e.g., precompiled modules, external libraries) from a module's trace,
+  preventing re-elaboration on different platforms. Note that this will not
+  effect  modules outside the code unit in question. For example, a
+  platform-independent package which depends on a platform-dependent library
+  will still be platform-dependent.
+
+  * If `none`, Lake will construct traces as natural. That is, it will include
+  platform-dependent artifacts in the trace if they module depends on them,
+  but otherwise not force modules to be platform-dependent.
+
+  There is no check  for correctness here, so a configuration can lie
+  and Lake will not catch it. Defaults to `none`.
   -/
-  platformIndependent : Bool := false
+  platformIndependent : Option Bool := none
 deriving Inhabited, Repr

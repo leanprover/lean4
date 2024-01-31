@@ -159,7 +159,7 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Build & Run
 
-* `platformIndependent`: Asserts Lake should assume the Lean code is platform-independent. This means Lake will exclude platform-dependent elements (such as shared libraries) from the a module's trace and will not re-elaborate Lean code for different platforms. Defaults to `false`.
+* `platformIndependent`: Asserts whether Lake should assume Lean modules are platform-independent. That is, whether lake should include the platform and platform-dependent elements in a module's trace. See the docstring of `Lake.LeanConfig.platformIndependent` for more details. Defaults to `none`.
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
 * `moreServerOptions`: An `Array` of additional options to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
 * `moreGlobalServerArgs`: An `Array` of additional arguments to pass to `lean --server` which apply both to this package and anything else in the same server session (e.g. when browsing other packages from the same session via go-to-definition)
@@ -204,7 +204,7 @@ lean_lib «target-name» where
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the library's modules.
 * `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the library's static and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
-* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are platform-independent and/or precompiled if either the library or package are, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
+* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are, `platformIndependent` falls back to the package on `none`, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### Binary Executables
 
@@ -225,7 +225,7 @@ lean_exe «target-name» where
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the executable's modules.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the executable. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
 * `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
-* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The executable's arguments come after, modules are platform-independent and/or precompiled if either the library or package are, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
+* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are, `platformIndependent` falls back to the package on `none`, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### External Libraries
 

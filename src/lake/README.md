@@ -159,7 +159,7 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Build & Run
 
-* `postUpdate?`: A post-`lake update` hook. The monadic action is run after a successful `lake update` execution on this package or one of its downstream dependents. Defaults to `none`. See the option's docstring for a complete example.
+* `platformIndependent`: Asserts whether Lake should assume Lean modules are platform-independent. That is, whether lake should include the platform and platform-dependent elements in a module's trace. See the docstring of `Lake.LeanConfig.platformIndependent` for more details. Defaults to `none`.
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
 * `moreServerOptions`: An `Array` of additional options to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
 * `moreGlobalServerArgs`: An `Array` of additional arguments to pass to `lean --server` which apply both to this package and anything else in the same server session (e.g. when browsing other packages from the same session via go-to-definition)
@@ -175,9 +175,9 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Cloud Releases
 
-* `releaseRepo?`: The optional URL of the GitHub repository to upload and download releases of this package.  If `none` (the default), for downloads, Lake uses the URL the package was download from (if it is a dependency) and for uploads, uses `gh`'s default.
-* `buildArchive?`: The name of the build archive on GitHub. Defaults to `none`.
-The archive's full file name will end up being `nameToArchive buildArchive?`.
+* `releaseRepo`: The URL of the GitHub repository to upload and download releases of this package.  If `none` (the default), for downloads, Lake uses the URL the package was download from (if it is a dependency) and for uploads, uses `gh`'s default.
+* `buildArchive`: The name of the build archive for the GitHub cloud release.
+Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
 * `preferReleaseBuild`: Whether to prefer downloading a prebuilt release (from GitHub) rather than building this package from the source when this package is used as a dependency.
 
 ## Defining Build Targets
@@ -204,7 +204,7 @@ lean_lib «target-name» where
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the library's modules.
 * `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the library's static and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
-* `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
+* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are, `platformIndependent` falls back to the package on `none`, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### Binary Executables
 
@@ -225,7 +225,7 @@ lean_exe «target-name» where
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the executable's modules.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the executable. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
 * `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
-* `precompileModules`, `buildType`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
+* `platformIndependent`, `precompileModules`, `buildType`, `leanOptions`, `<more|weak><Lean|Leanc|Link>Args`, `moreServerOptions`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are, `platformIndependent` falls back to the package on `none`, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### External Libraries
 

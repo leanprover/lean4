@@ -77,55 +77,13 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
-/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
-def reverseAux : List α → List α → List α
-  | [],   r => r
-  | a::l, r => reverseAux l (a::r)
-
-/--
-`O(|as|)`. Reverse of a list:
-* `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
-
-Note that because of the "functional but in place" optimization implemented by Lean's compiler,
-this function works without any allocations provided that the input list is unshared:
-it simply walks the linked list and reverses all the node pointers.
--/
-def reverse (as : List α) : List α :=
-  reverseAux as []
-
 theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
   induction as generalizing bs with
   | nil => rfl
   | cons a as ih => simp [reverseAux, ih]
 
-theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
-  induction as generalizing bs cs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
-
 @[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
   simp [reverse]; rw [reverseAux_reverseAux_nil]; rfl
-
-/--
-`O(|xs|)`: append two lists. `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
-It takes time proportional to the first list.
--/
-protected def append : (xs ys : List α) → List α
-  | [],    bs => bs
-  | a::as, bs => a :: List.append as bs
-
-/-- Tail-recursive version of `List.append`. -/
-def appendTR (as bs : List α) : List α :=
-  reverseAux as.reverse bs
-
-@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
-  apply funext; intro α; apply funext; intro as; apply funext; intro bs
-  simp [appendTR, reverse]
-  induction as with
-  | nil  => rfl
-  | cons a as ih =>
-    rw [reverseAux, reverseAux_reverseAux]
-    simp [List.append, ih, reverseAux]
 
 instance : Append (List α) := ⟨List.append⟩
 

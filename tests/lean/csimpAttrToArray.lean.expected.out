@@ -1,0 +1,7 @@
+
+[init]
+def f (x_1 : obj) : obj :=
+  let x_2 : obj := List.redLength._rarg x_1;
+  let x_3 : obj := Array.mkEmpty ◾ x_2;
+  let x_4 : obj := List.toArrayAux._rarg x_1 x_3;
+  ret x_4

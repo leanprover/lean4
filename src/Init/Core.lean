@@ -1603,6 +1603,98 @@ instance : Subsingleton (Squash α) where
     apply Quot.sound
     trivial
 
+/-! # List primitives -/
+
+/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
+def List.reverseAux : List α → List α → List α
+  | nil,    r => r
+  | a :: l, r => reverseAux l (a :: r)
+
+/--
+`O(|as|)`. Reverse of a list:
+* `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
+
+Note that because of the "functional but in place" optimization implemented by Lean's compiler,
+this function works without any allocations provided that the input list is unshared:
+it simply walks the linked list and reverses all the node pointers.
+-/
+def List.reverse (as : List α) : List α := reverseAux as nil
+
+theorem List.reverseAux_reverseAux (as bs cs : List α) :
+    reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as nil) cs) := by
+  induction as generalizing bs with
+  | nil => rfl
+  | cons a as ih =>
+    rw [reverseAux, reverseAux, ih (a :: bs),
+        reverseAux, ih (a :: nil),
+        reverseAux, reverseAux]
+
+/--
+`O(|xs|)`: append two lists. `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
+It takes time proportional to the first list.
+-/
+protected def List.append : (xs ys : List α) → List α
+  | nil,    bs => bs
+  | a ::as, bs => a :: List.append as bs
+
+/-- Tail-recursive version of `List.append`. -/
+def List.appendTR (as bs : List α) : List α := reverseAux as.reverse bs
+
+@[csimp] theorem List.append_eq_appendTR : @List.append = @appendTR := by
+  apply funext; intro α; apply funext; intro as; apply funext; intro bs
+  induction as with
+  | nil  => rfl
+  | cons a as ih =>
+    rw [appendTR, reverse, reverseAux, reverseAux_reverseAux]
+    exact congrArg (cons a) ih
+
+/-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
+@[inline, match_pattern]
+abbrev List.toArray := @Array.mk
+
+/-- Auxiliary definition for `toArray`. -/
+@[inline_if_reduce]
+def List.toArrayAux : List α → Array α → Array α
+  | nil,     r => r
+  | a :: as, r => toArrayAux as (r.push a)
+
+/-- A non-tail-recursive version of `List.length`, used for `List.toArray`. -/
+@[inline_if_reduce]
+def List.redLength : List α → Nat
+  | nil     => 0
+  | _ :: as => as.redLength.succ
+
+/-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
+-- This function is exported to C, where it is called by `Array.mk`
+-- (the constructor) to implement this functionality.
+@[inline, export lean_list_to_array]
+def List.toArrayTR (as : List α) : Array α := as.toArrayAux (Array.mkEmpty as.redLength)
+
+theorem List.toArrayAux_eq_mk (l r : List α) : toArrayAux l ⟨r⟩ = { data := List.append r l } := by
+  induction l generalizing r with
+  | nil =>
+    rw [toArrayAux]
+    apply congrArg Array.mk
+    induction r with
+    | nil => rw [List.append]
+    | cons b r ind => rw [List.append, ←ind]
+  | cons a l ind =>
+    rw [toArrayAux, Array.push, ind]
+    clear ind
+    apply congrArg Array.mk
+    induction r generalizing l with
+    | nil => rfl
+    | cons b r ind =>
+      rw [concat, List.append, List.append]
+      exact congrArg (cons b) (ind l)
+
+@[csimp] theorem List.toArray_eq_mk : @toArray = @toArrayTR := by
+  apply funext ; intro α
+  apply funext ; intro l
+  unfold toArrayTR
+  unfold Array.mkEmpty
+  rw [toArrayAux_eq_mk, List.append]
+
 /-! # Relations -/
 
 /--

@@ -239,21 +239,33 @@ where
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
   }
 
+/--
+Runs the delaborator `act` with increased depth.
+The depth is used when `pp.omitDeepTerms` is `true` to determine what is a deep term.
+See also `Lean.PrettyPrinter.Delaborator.Context.depth`.
+-/
 def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
   act { ctx with depth := ctx.depth + 1 }
 
-def isMaxDepthReached (e : Expr) : DelabM Bool := do
+/--
+Returns `true` if, at the current depth, we should omit the term and use `⋯` rather than
+delaborating it. This function can only return `true` if `pp.omitDeepTerms` is set to `true`.
+It also contains a heuristic to allow "shallow terms" to be delaborated, even if they appear deep in
+an expression, which prevents terms such as atomic expressions or `OfNat.ofNat` literals from being
+delaborated as `⋯`.
+-/
+def shouldOmitExpr (e : Expr) : DelabM Bool := do
   if ! (← getPPOption getPPOmitDeepTerms) then
     return false
 
   let depth := (← read).depth
-  let maxDepth ← getPPOption getPPMaxTermDepth
+  let depthThreshold ← getPPOption getPPOmitDeepTermsThreshold
   let approxDepth := e.approxDepth.toNat
-  let depthExcess := depth - maxDepth
+  let depthExcess := depth - depthThreshold
 
   let isMaxedOutApproxDepth := approxDepth >= 255
   let isShallowExpression :=
-    !isMaxedOutApproxDepth && approxDepth <= maxDepth/4 - depthExcess
+    !isMaxedOutApproxDepth && approxDepth <= depthThreshold/4 - depthExcess
 
   return depthExcess > 0 && !isShallowExpression
 
@@ -262,6 +274,11 @@ def annotateTermInfo (stx : Term) : Delab := do
   addTermInfo (← getPos) stx (← getExpr)
   pure stx
 
+
+/--
+Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the
+subterm omitted by `⋯` is delaborated when hovered over.
+-/
 def omission : Delab := do
   let stx ← `(⋯)
   let stx ← annotateCurPos stx
@@ -279,7 +296,7 @@ partial def delab : Delab := do
   checkSystem "delab"
   let e ← getExpr
 
-  if ← isMaxDepthReached e then
+  if ← shouldOmitExpr e then
     return ← omission
 
   -- no need to hide atomic proofs

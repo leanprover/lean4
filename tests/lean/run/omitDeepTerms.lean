@@ -5,21 +5,21 @@ Implemented in PR #3201.
 -/
 
 set_option pp.omitDeepTerms true
-set_option pp.maxTermDepth 8
+set_option pp.omitDeepTerms.threshold 8
 
 /-!
-Subterms of terms with depth <= pp.maxTermDepth are not omitted
+Subterms of terms with depth <= pp.omitDeepTerms.threshold are not omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ
 
 /-!
-Shallow subterms (terms with depth <= pp.maxTermDepth/4) of terms with depth > pp.maxTermDepth
-are not omitted
+Shallow subterms (subterms with depth <= pp.omitDeepTerms.threshold/4) of terms with
+depth > pp.omitDeepTerms.threshold are not omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ
 
 /-!
-Deep subterms of terms with depth > pp.maxTermDepth are omitted
+Deep subterms of terms with depth > pp.omitDeepTerms.threshold are omitted
 -/
 #check Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ
 

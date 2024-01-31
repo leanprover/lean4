@@ -130,10 +130,10 @@ register_builtin_option pp.omitDeepTerms : Bool := {
   group    := "pp"
   descr    := "(pretty printer) omit deeply nested terms, replacing them with `⋯`"
 }
-register_builtin_option pp.maxTermDepth : Nat := {
+register_builtin_option pp.omitDeepTerms.threshold : Nat := {
   defValue := 20
   group    := "pp"
-  descr    := "(pretty printer) the maximum expression depth used by `pp.omitDeepTerms` when replacing terms with `⋯`"
+  descr    := "(pretty printer) when `pp.omitDeepTerms` is true, the depth at which terms start being replaced with `⋯`"
 }
 register_builtin_option pp.motives.pi : Bool := {
   defValue := true
@@ -216,6 +216,6 @@ def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives
 def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
 def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
 def getPPOmitDeepTerms (o : Options) : Bool := o.get pp.omitDeepTerms.name pp.omitDeepTerms.defValue
-def getPPMaxTermDepth (o : Options) : Nat := o.get pp.maxTermDepth.name pp.maxTermDepth.defValue
+def getPPOmitDeepTermsThreshold (o : Options) : Nat := o.get pp.omitDeepTerms.threshold.name pp.omitDeepTerms.threshold.defValue
 
 end Lean

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.System.Platform
-// Imports: Init.Data.Nat.Basic
+// Imports: Init.Data.Nat.Basic Init.Data.String.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,8 +22,12 @@ LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);
 uint8_t lean_system_platform_osx(lean_object*);
 static uint8_t l_System_Platform_isWindows___closed__1;
+static lean_object* l_System_Platform_target___closed__1;
+LEAN_EXPORT lean_object* l_System_Platform_target;
 static uint8_t l_System_Platform_isOSX___closed__1;
 LEAN_EXPORT uint8_t l_System_Platform_isWindows;
+lean_object* lean_system_platform_target(lean_object*);
+LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* x_1) {
 _start:
@@ -103,7 +107,33 @@ x_1 = l_System_Platform_isEmscripten___closed__1;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_System_Platform_getTarget___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_system_platform_target(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_System_Platform_target___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_system_platform_target(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_System_Platform_target() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_System_Platform_target___closed__1;
+return x_1;
+}
+}
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_System_Platform(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -112,12 +142,19 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 l_System_Platform_isWindows___closed__1 = _init_l_System_Platform_isWindows___closed__1();
 l_System_Platform_isWindows = _init_l_System_Platform_isWindows();
 l_System_Platform_isOSX___closed__1 = _init_l_System_Platform_isOSX___closed__1();
 l_System_Platform_isOSX = _init_l_System_Platform_isOSX();
 l_System_Platform_isEmscripten___closed__1 = _init_l_System_Platform_isEmscripten___closed__1();
 l_System_Platform_isEmscripten = _init_l_System_Platform_isEmscripten();
+l_System_Platform_target___closed__1 = _init_l_System_Platform_target___closed__1();
+lean_mark_persistent(l_System_Platform_target___closed__1);
+l_System_Platform_target = _init_l_System_Platform_target();
+lean_mark_persistent(l_System_Platform_target);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

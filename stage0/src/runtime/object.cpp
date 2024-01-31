@@ -957,8 +957,9 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
     return lean_apply_1(f, v);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio,
+      bool sync, bool keep_alive) {
+    if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio, keep_alive);
@@ -999,8 +1000,9 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     return nullptr; /* notify queue that task did not finish yet. */
 }
 
-extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,
+      bool sync, bool keep_alive) {
+    if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
         return apply_1(f, lean_task_get_own(x));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio, keep_alive);

@@ -467,7 +467,7 @@ x_4 = 1;
 x_5 = 0;
 x_6 = l_Lean_Elab_elabSimprocPattern___closed__3;
 x_7 = l_Lean_Elab_elabSimprocPattern___closed__4;
-x_8 = lean_alloc_ctor(0, 8, 9);
+x_8 = lean_alloc_ctor(0, 8, 10);
 lean_ctor_set(x_8, 0, x_1);
 lean_ctor_set(x_8, 1, x_2);
 lean_ctor_set(x_8, 2, x_3);
@@ -480,11 +480,12 @@ lean_ctor_set_uint8(x_8, sizeof(void*)*8, x_4);
 lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 1, x_4);
 lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 2, x_5);
 lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 3, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 4, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 4, x_4);
 lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 5, x_5);
 lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 6, x_5);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 7, x_4);
-lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 8, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 7, x_5);
+lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 8, x_4);
+lean_ctor_set_uint8(x_8, sizeof(void*)*8 + 9, x_5);
 return x_8;
 }
 }

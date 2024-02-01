@@ -46,11 +46,15 @@ export MonadFileMap (getFileMap)
 
 namespace FileMap
 
+/-- The last line should always be `positions.size - 1`. -/
+def getLastLine (fmap : FileMap) : Nat :=
+  fmap.positions.size - 1
+
 /-- The line numbers associated with the `positions` of the `FileMap`.
 `fmap.getLine i` is the iᵗʰ entry of `#[1, 2, …, n-1, n-1]`
 where `n` is the `size` of `positions`. -/
 def getLine (fmap : FileMap) (x : Nat) : Nat :=
-  min (x + 1) (fmap.positions.size - 1)
+  min (x + 1) fmap.getLastLine
 
 partial def ofString (s : String) : FileMap :=
   let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) : FileMap :=
@@ -85,7 +89,7 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
       -- Some systems like the delaborator use synthetic positions without an input file,
       -- which would violate `toPositionAux`'s invariant.
       -- Can also happen with EOF errors, which are not strictly inside the file.
-      ⟨fmap.positions.size - 1, (pos - ps.back).byteIdx⟩
+      ⟨fmap.getLastLine, (pos - ps.back).byteIdx⟩
 
 end FileMap
 end Lean

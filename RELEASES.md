@@ -30,7 +30,7 @@ v4.5.0
   Migration guide: Use `termination_by` instead, e.g.:
   ```diff
   -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
-  +termination_by go i _ => as.size - i
+  +termination_by i _ => as.size - i
   ```
 
   If the well-founded relation you want to use is not the one that the
@@ -38,7 +38,7 @@ v4.5.0
   you can use `WellFounded.wrap` from the std libarary to explicitly give one:
   ```diff
   -termination_by' ⟨r, hwf⟩
-  +termination_by _ x => hwf.wrap x
+  +termination_by x => hwf.wrap x
   ```
 
 * Support snippet edits in LSP `TextEdit`s. See `Lean.Lsp.SnippetString` for more details.
@@ -47,7 +47,7 @@ v4.5.0
   - `Widget.UserWidgetDefinition` is deprecated in favour of `Widget.Module`. The annotation `@[widget]` is deprecated in favour of `@[widget_module]`. To migrate a definition of type `UserWidgetDefinition`, remove the `name` field and replace the type with `Widget.Module`. Removing the `name` results in a title bar no longer being drawn above your panel widget. To add it back, draw it as part of the component using `<details open=true><summary class='mv2 pointer'>{name}</summary>{rest_of_widget}</details>`. See an example migration [here](https://github.com/leanprover/std4/pull/475/files#diff-857376079661a0c28a53b7ff84701afabbdf529836a6944d106c5294f0e68109R43-R83).
   - The new command `show_panel_widgets` allows displaying always-on and locally-on panel widgets.
   - `RpcEncodable` widget props can now be stored in the infotree.
-  - See [RFC 2963](https://github.com/leanprover/lean4/issues/2963) for more details and motivation. 
+  - See [RFC 2963](https://github.com/leanprover/lean4/issues/2963) for more details and motivation.
 
 * If no usable lexicographic order can be found automatically for a termination proof, explain why.
   See [feat: GuessLex: if no measure is found, explain why](https://github.com/leanprover/lean4/pull/2960).
@@ -68,7 +68,7 @@ v4.5.0
 * Tactics with `withLocation *` [no longer fail](https://github.com/leanprover/lean4/pull/2917) if they close the main goal.
 
 * Implementation of a `test_extern` command for writing tests for `@[extern]` and `@[implemented_by]` functions.
-  Usage is 
+  Usage is
   ```
   import Lean.Util.TestExtern
 
@@ -76,8 +76,8 @@ v4.5.0
   ```
   The head symbol must be the constant with the `@[extern]` or `@[implemented_by]` attribute. The return type must have a `DecidableEq` instance.
 
-Bug fixes for 
-[#2853](https://github.com/leanprover/lean4/issues/2853), [#2953](https://github.com/leanprover/lean4/issues/2953), [#2966](https://github.com/leanprover/lean4/issues/2966), 
+Bug fixes for
+[#2853](https://github.com/leanprover/lean4/issues/2853), [#2953](https://github.com/leanprover/lean4/issues/2953), [#2966](https://github.com/leanprover/lean4/issues/2966),
 [#2971](https://github.com/leanprover/lean4/issues/2971), [#2990](https://github.com/leanprover/lean4/issues/2990), [#3094](https://github.com/leanprover/lean4/issues/3094).
 
 Bug fix for [eager evaluation of default value](https://github.com/leanprover/lean4/pull/3043) in `Option.getD`.
@@ -90,19 +90,19 @@ v4.4.0
 ---------
 
 * Lake and the language server now support per-package server options using the `moreServerOptions` config field, as well as options that apply to both the language server and `lean` using the `leanOptions` config field. Setting either of these fields instead of `moreServerArgs` ensures that viewing files from a dependency uses the options for that dependency. Additionally, `moreServerArgs` is being deprecated in favor of the `moreGlobalServerArgs` field. See PR [#2858](https://github.com/leanprover/lean4/pull/2858).
-  
+
   A Lakefile with the following deprecated package declaration:
   ```lean
   def moreServerArgs := #[
     "-Dpp.unicode.fun=true"
   ]
   def moreLeanArgs := moreServerArgs
-  
+
   package SomePackage where
     moreServerArgs := moreServerArgs
     moreLeanArgs := moreLeanArgs
   ```
-  
+
   ... can be updated to the following package declaration to use per-package options:
   ```lean
   package SomePackage where

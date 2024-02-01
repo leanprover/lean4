@@ -680,14 +680,81 @@ def delabLetE : Delab := do
 def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
-  | Literal.natVal n => pure $ quote n
-  | Literal.strVal s => pure $ quote s
+  | Literal.natVal n =>
+    if ← getPPOption getPPNatLit then
+      `(nat_lit $(quote n))
+    else
+      return quote n
+  | Literal.strVal s => return quote s
 
--- `@OfNat.ofNat _ n _` ~> `n`
+/--
+Core function that delaborates a natural number (an `OfNat.ofNat` literal).
+-/
+def delabOfNatCore (showType : Bool := false) : Delab := do
+  let .app (.app (.app (.const ``OfNat.ofNat ..) _) (.lit (.natVal n))) _ ← getExpr | failure
+  let stx ← annotateTermInfo <| quote n
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Core function that delaborates a negative integer literal (a `Neg.neg` applied to `OfNat.ofNat`).
+-/
+def delabNegIntCore (showType : Bool := false) : Delab := do
+  guard <| (← getExpr).isAppOfArity ``Neg.neg 3
+  let n ← withAppArg delabOfNatCore
+  let stx ← annotateTermInfo (← `(- $n))
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Core function that delaborates a rational literal that is the division of an integer literal
+by a natural number literal.
+The division must be homogeneous for it to count as a rational literal.
+-/
+def delabDivRatCore (showType : Bool := false) : Delab := do
+  let e ← getExpr
+  guard <| e.isAppOfArity ``HDiv.hDiv 6
+  guard <| e.getArg! 0 == e.getArg! 1
+  guard <| e.getArg! 0 == e.getArg! 2
+  let p ← withAppFn <| withAppArg <| (delabOfNatCore <|> delabNegIntCore)
+  let q ← withAppArg <| delabOfNatCore
+  let stx ← annotateTermInfo (← `($p / $q))
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Delaborates an `OfNat.ofNat` literal.
+`@OfNat.ofNat _ n _` ~> `n`.
+-/
 @[builtin_delab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions <| withOverApp 3 do
-  let .app (.app _ (.lit (.natVal n))) _ ← getExpr | failure
-  return quote n
+  delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
+
+/--
+Delaborates the negative of an `OfNat.ofNat` literal.
+`-@OfNat.ofNat _ n _` ~> `-n`
+-/
+@[builtin_delab app.Neg.neg]
+def delabNeg : Delab := whenPPOption getPPCoercions do
+  delabNegIntCore (showType := (← getPPOption getPPNumericTypes))
+
+/--
+Delaborates a rational number literal.
+`@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `n / m`
+and `-@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `-n / m`
+-/
+@[builtin_delab app.HDiv.hDiv]
+def delabHDiv : Delab := whenPPOption getPPCoercions do
+  delabDivRatCore (showType := (← getPPOption getPPNumericTypes))
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
 @[builtin_delab app.OfScientific.ofScientific]

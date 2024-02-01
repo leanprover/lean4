@@ -215,6 +215,11 @@ simproc [my_simp] reduceFoo (foo _) := ...
 
 * Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
 
+* Add pretty printer options `pp.numeralTypes` and `pp.natLit`.
+  When `pp.numeralTypes` is true, then natural number literals, integer literals, and rational number literals
+  are pretty printed with type ascriptions, such as `(2 : Rat)`, `(-2 : Rat)`, and `(-2 / 3 : Rat)`.
+  When `pp.natLit` is true, then raw natural number literals are pretty printed as `nat_lit 2`.
+  [PR #2933](https://github.com/leanprover/lean4/pull/2933) and [RFC #3021](https://github.com/leanprover/lean4/issues/3021).
 
 v4.5.0
 ---------

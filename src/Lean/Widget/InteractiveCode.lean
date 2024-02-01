@@ -77,12 +77,13 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
   if pp.raw.get (← getOptions) then
     return .text (toString e)
   let delab := open PrettyPrinter.Delaborator in
-    if explicit then
-      withOptionAtCurrPos pp.tagAppFns.name true do
-      withOptionAtCurrPos pp.explicit.name true do
-        delabApp
-    else
-      delab
+    withOptionAtCurrPos pp.proofs.name true do
+      if explicit then
+        withOptionAtCurrPos pp.tagAppFns.name true do
+        withOptionAtCurrPos pp.explicit.name true do
+          delabApp
+      else
+          delab
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {

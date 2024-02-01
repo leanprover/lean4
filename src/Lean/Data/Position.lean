@@ -46,6 +46,12 @@ export MonadFileMap (getFileMap)
 
 namespace FileMap
 
+/-- The line numbers associated with the `positions` of the `FileMap`.
+`fmap.getLine i` is the iᵗʰ entry of `#[1, 2, …, n-1, n-1]`
+where `n` is the `size` of `positions`. -/
+def getLine (fmap : FileMap) (x : Nat) : Nat :=
+  min (x + 1) (fmap.positions.size - 1)
+
 partial def ofString (s : String) : FileMap :=
   let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) : FileMap :=
     if s.atEnd i then { source := s, positions := ps.push i }
@@ -55,12 +61,6 @@ partial def ofString (s : String) : FileMap :=
       if c == '\n' then loop i (line+1) (ps.push i)
       else loop i line ps
   loop 0 1 (#[0])
-
-/-- The line numbers associated with the `positions` of the `FileMap`.
-`fmap.getLine i` is the iᵗʰ entry of `#[1, 2, …, n-1, n-1]`
-where `n` is the `size` of `positions`. -/
-def getLine (fmap : FileMap) (x : Nat) : Nat :=
-  min (x + 1) (fmap.positions.size - 1)
 
 partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
   match fmap with

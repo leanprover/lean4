@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget___boxed(lean_object*);
 uint8_t l_Lean_Meta_Linear_isLinearCnstr(lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__7;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_parentIsTarget___boxed(lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Linear_parentIsTarget(lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__8;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__4;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 uint8_t l_Lean_Meta_Linear_isLinearTerm(lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__1;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Linear_parentIsTarget(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -67,11 +67,11 @@ return x_6;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_parentIsTarget___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(x_1);
+x_2 = l_Lean_Meta_Linear_parentIsTarget(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -181,7 +181,7 @@ return x_11;
 else
 {
 uint8_t x_12; 
-x_12 = l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(x_2);
+x_12 = l_Lean_Meta_Linear_parentIsTarget(x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 

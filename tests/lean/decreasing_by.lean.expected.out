@@ -12,7 +12,7 @@ The arguments relate at each recursive call as follows:
 1) 66:29-43 = ?
 2) 66:46-62 ? _
 Please use `termination_by` to specify a decreasing measure.
-decreasing_by.lean:81:13-83:3: error: unexpected token 'end'; expected '{' or tactic
+decreasing_by.lean:83:0: error: expected '{' or indented tactic sequence
 decreasing_by.lean:81:0-81:13: error: unsolved goals
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1

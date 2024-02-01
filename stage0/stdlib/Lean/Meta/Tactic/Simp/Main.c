@@ -29,7 +29,6 @@ lean_object* l_Lean_Meta_reduceRecMatcher_x3f(lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Meta_Simp_simpLambda___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_lambdaTelescopeDSimp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_cacheResult___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_dsimp___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpForall___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -343,7 +342,6 @@ lean_object* l_Lean_Meta_Simp_pre(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_Simp_simpArrow___lambda__4___closed__9;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceStep___lambda__2___closed__2;
-lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
 lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpImpl_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -377,7 +375,6 @@ lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_obj
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpLet___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simpForall___closed__1;
-static lean_object* l_Lean_Meta_dsimp___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_unfold_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_trySimpCongrTheorem_x3f___spec__1___closed__4;
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
@@ -695,7 +692,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Sim
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpLambda___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimpImpl___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_assertHypotheses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Instances_erased___default___spec__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_Simp_processCongrHypothesis___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 lean_object* l_Lean_Expr_bindingInfo_x21(lean_object*);
@@ -33801,30 +33797,8 @@ return x_24;
 static lean_object* _init_l_Lean_Meta_dsimp___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_empty(lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_dsimp___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_dsimp___closed__1;
-x_2 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Instances_erased___default___spec__1;
-x_3 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_2);
-lean_ctor_set(x_3, 3, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_dsimp___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_dsimp___closed__2;
+x_1 = l_Lean_Meta_Simp_lambdaTelescopeDSimp___rarg___closed__1;
 x_2 = l_Lean_Meta_simp___closed__1;
 x_3 = l_Lean_Meta_Simp_mkMethods(x_1, x_2);
 return x_3;
@@ -33836,7 +33810,7 @@ _start:
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_ctor_get(x_6, 2);
 lean_inc(x_9);
-x_10 = l_Lean_Meta_dsimp___closed__3;
+x_10 = l_Lean_Meta_dsimp___closed__1;
 x_11 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_dsimpMain), 9, 4);
 lean_closure_set(x_11, 0, x_1);
 lean_closure_set(x_11, 1, x_2);
@@ -43733,10 +43707,6 @@ l_Lean_Meta_simp___closed__1 = _init_l_Lean_Meta_simp___closed__1();
 lean_mark_persistent(l_Lean_Meta_simp___closed__1);
 l_Lean_Meta_dsimp___closed__1 = _init_l_Lean_Meta_dsimp___closed__1();
 lean_mark_persistent(l_Lean_Meta_dsimp___closed__1);
-l_Lean_Meta_dsimp___closed__2 = _init_l_Lean_Meta_dsimp___closed__2();
-lean_mark_persistent(l_Lean_Meta_dsimp___closed__2);
-l_Lean_Meta_dsimp___closed__3 = _init_l_Lean_Meta_dsimp___closed__3();
-lean_mark_persistent(l_Lean_Meta_dsimp___closed__3);
 l_Lean_Meta_simpTargetCore___closed__1 = _init_l_Lean_Meta_simpTargetCore___closed__1();
 lean_mark_persistent(l_Lean_Meta_simpTargetCore___closed__1);
 l_Lean_Meta_simpTargetCore___closed__2 = _init_l_Lean_Meta_simpTargetCore___closed__2();

@@ -8,7 +8,7 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.6.0 (development in progress)
+v4.6.0
 ---------
 
 * Add custom simplification procedures (aka `simproc`s) to `simp`. Simprocs can be triggered by the simplifier on a specified term-pattern. Here is an small example:

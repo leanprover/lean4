@@ -112,6 +112,20 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
     selectIdx "arg" mvarIds i
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.Conv.«fun»] def evalFun : Tactic := fun _ => do
+  let mvarId ← getMainGoal
+  mvarId.withContext do
+    let (lhs, rhs) ← getLhsRhsCore mvarId
+    let lhs := (← instantiateMVars lhs).cleanupAnnotations
+    let .app f a := lhs
+      | throwError "invalid 'fun' conv tactic, application expected{indentExpr lhs}"
+    let (g, mvarNew) ← mkConvGoalFor f
+    mvarId.assign (← Meta.mkCongrFun mvarNew a)
+    let rhs' := .app g a
+    unless ← isDefEqGuarded rhs rhs' do
+      throwError "invalid 'fun' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    replaceMainGoal [mvarNew.mvarId!]
+
 def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
   match lhs with
   | .letE n t v b _ =>

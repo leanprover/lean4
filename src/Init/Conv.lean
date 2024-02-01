@@ -54,6 +54,10 @@ syntax (name := lhs) "lhs" : conv
 (In general, for an `n`-ary operator, it traverses into the last argument.) -/
 syntax (name := rhs) "rhs" : conv
 
+/-- Traverses into the function of a (unary) function application.
+For example, `| f a b` turns into `| f a`.  -/
+syntax (name := «fun») "fun" : conv
+
 /-- Reduces the target to Weak Head Normal Form. This reduces definitions
 in "head position" until a constructor is exposed. For example, `List.map f [a, b, c]`
 weak head normalizes to `f a :: List.map f [b, c]`. -/

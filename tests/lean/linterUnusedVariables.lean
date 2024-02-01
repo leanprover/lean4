@@ -23,10 +23,10 @@ def usedAndUnusedVariables : Nat :=
     3
   x
 
-def unusedWhereVariable : Nat :=
+def whereVariable : Nat :=
   3
 where
-  x := 5
+  x := 5 -- x is globally available via `whereVariable.x`
 
 def unusedWhereArgument : Nat :=
   f 2
@@ -210,8 +210,14 @@ opaque externConst (x : Nat) : Nat :=
 macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
 useArg usedMacroVariable a
 
-macro "doNotUseArg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
+macro (name := doNotUse) "doNotUseArg " name:declId arg:ident : command =>
+  `(def $name ($arg : α) : Nat := 3)
 doNotUseArg unusedMacroVariable b
+
+@[unused_variables_ignore_fn]
+def ignoreDoNotUse : Lean.Linter.IgnoreFunction := fun _ stack _ => stack.matches [``doNotUse]
+
+doNotUseArg unusedMacroVariable2 b
 
 macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
 ignoreArg ignoredMacroVariable (x : UInt32) : UInt32

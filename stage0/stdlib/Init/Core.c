@@ -98,7 +98,7 @@ LEAN_EXPORT lean_object* l_term___u2248__;
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term_u2205__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_map___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedTrue;
-lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*);
+lean_object* lean_task_bind(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__2;
 LEAN_EXPORT lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x21_x3d_____closed__4;
@@ -159,7 +159,7 @@ LEAN_EXPORT lean_object* l_flip___rarg(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l_Eq_mpr___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2248____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__3;
-LEAN_EXPORT lean_object* l_Task_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Task_bind___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__1;
 static lean_object* l___aux__Init__Core______macroRules__term___u2248____1___closed__1;
 LEAN_EXPORT lean_object* l_strictOr___boxed(lean_object*, lean_object*);
@@ -181,7 +181,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1(le
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__Ne__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__1;
 LEAN_EXPORT lean_object* l_term___x3c_x2d_x3e__;
-LEAN_EXPORT lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Task_map___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2194_____closed__6;
 LEAN_EXPORT lean_object* l_Quot_liftOn___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_bne___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -297,7 +297,7 @@ LEAN_EXPORT lean_object* l_noConfusionEnum___rarg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x21_x3d____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2260_____closed__3;
 LEAN_EXPORT lean_object* l_instDecidableIff___rarg___boxed(lean_object*, lean_object*);
-lean_object* lean_task_map(lean_object*, lean_object*, lean_object*);
+lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Quotient_lift(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295____1___closed__5;
@@ -3141,20 +3141,24 @@ x_4 = lean_task_spawn(x_2, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Task_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Task_map___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_task_map(x_3, x_4, x_5);
-return x_6;
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_6);
+lean_dec(x_6);
+x_8 = lean_task_map(x_3, x_4, x_5, x_7);
+return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Task_bind___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Task_bind___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_6; 
-x_6 = lean_task_bind(x_3, x_4, x_5);
-return x_6;
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_6);
+lean_dec(x_6);
+x_8 = lean_task_bind(x_3, x_4, x_5, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_strictOr___boxed(lean_object* x_1, lean_object* x_2) {

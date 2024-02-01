@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l_IO_Channel_recvAllCurrent___rarg___lambda__1(lean_obj
 LEAN_EXPORT lean_object* l_IO_instForInSync(lean_object*, lean_object*);
 static lean_object* l_IO_Channel_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_close___spec__1___rarg(lean_object*, lean_object*);
-lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_IO_Channel_close___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_recvAllCurrent(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_new___rarg(lean_object*);
@@ -2028,7 +2028,7 @@ lean_inc(x_2);
 x_5 = l_IO_Channel_recv_x3f___rarg(x_2, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
@@ -2039,32 +2039,33 @@ x_8 = lean_alloc_closure((void*)(l_IO_Channel_forAsync___rarg___lambda__1), 5, 3
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_2);
 lean_closure_set(x_8, 2, x_3);
-x_9 = lean_io_bind_task(x_6, x_8, x_3, x_7);
-return x_9;
+x_9 = 0;
+x_10 = lean_io_bind_task(x_6, x_8, x_3, x_9, x_7);
+return x_10;
 }
 else
 {
-uint8_t x_10; 
+uint8_t x_11; 
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = !lean_is_exclusive(x_5);
-if (x_10 == 0)
+x_11 = !lean_is_exclusive(x_5);
+if (x_11 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_5, 0);
-x_12 = lean_ctor_get(x_5, 1);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_12 = lean_ctor_get(x_5, 0);
+x_13 = lean_ctor_get(x_5, 1);
+lean_inc(x_13);
 lean_inc(x_12);
-lean_inc(x_11);
 lean_dec(x_5);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
 }
 }
 }

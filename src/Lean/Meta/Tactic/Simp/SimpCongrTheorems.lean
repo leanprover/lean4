@@ -117,7 +117,7 @@ builtin_initialize
       discard <| addSimpCongrTheorem declName attrKind prio |>.run {} {}
   }
 
-def getSimpCongrTheorems : MetaM SimpCongrTheorems :=
+def getSimpCongrTheorems : CoreM SimpCongrTheorems :=
   return congrExtension.getState (← getEnv)
 
 end Lean.Meta

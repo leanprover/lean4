@@ -96,7 +96,8 @@ jobs:
         with:
           fail: true
           # gmplib.org consistently times out from GH actions
-          args: --base './dist' --no-progress --exclude 'gmplib.org' './dist/**/*.html'
+          # the GitHub token is to avoid rate limiting
+          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Push to Cachix
         run: |
           [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
@@ -104,13 +105,6 @@ jobs:
         run: |
           rm -rf nix-store-cache || true
           nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
-      - name: Publish manual to GH Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./result
-          destination_dir: ./doc
-        if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - id: deploy-info
         name: Compute Deployment Metadata
         run: |

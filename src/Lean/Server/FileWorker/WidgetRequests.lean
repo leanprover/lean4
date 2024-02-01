@@ -53,11 +53,12 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
         | none => pure none
       let exprExplicit? ← match i.info with
         | Elab.Info.ofTermInfo ti =>
-          let ti ← ppExprTagged ti.expr (explicit := true)
-          -- remove top-level expression highlight
-          pure <| some <| match ti with
-            | .tag _ tt => tt
-            | tt => tt
+          pure <| some <| ← ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
+        | Elab.Info.ofOmissionInfo { toTermInfo := ti } =>
+          -- Omitted terms are simply to be expanded, not printed explicitly.
+          -- Keep the top-level tag so that users can also see the explicit version
+          -- of the omitted term.
+          pure <| some <| ← ppExprTagged ti.expr (explicit := false)
         | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
         | _ => pure none
       return {
@@ -65,6 +66,12 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
         exprExplicit := exprExplicit?
         doc := ← i.info.docString? : InfoPopup
       }
+where
+  ppExprTaggedWithoutTopLevelHighlight (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
+    let pp ← ppExprTagged e (explicit := explicit)
+    return match pp with
+      | .tag _ tt => tt
+      | tt => tt
 
 builtin_initialize
   registerBuiltinRpcProcedure

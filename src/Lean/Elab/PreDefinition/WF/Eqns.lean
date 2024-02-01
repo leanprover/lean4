@@ -44,19 +44,17 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
   mvarId.withContext do
     let target ← instantiateMVars (← mvarId.getType)
-    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre })
+    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
     let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
     if mvarId != mvarIdNew then return some mvarIdNew else return none
 where
   pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
+    let some app ← matchMatcherApp? e
+      | return Simp.Step.continue
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    =>
-      match (← Simp.simpMatchCore? app.matcherName e SplitIf.discharge?) with
-      | some r => return r
-      | none => return Simp.Step.visit { expr := e }
+    | none    => Simp.simpMatchCore app.matcherName e
 
 /--
   Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`

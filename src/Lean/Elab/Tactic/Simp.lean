@@ -130,21 +130,28 @@ private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (p
 
 structure ElabSimpArgsResult where
   ctx      : Simp.Context
-  simprocs : Simprocs
+  simprocs : Simp.SimprocsArray
   starArg  : Bool := false
 
 inductive ResolveSimpIdResult where
   | none
   | expr (e : Expr)
   | simproc (declName : Name)
-  | ext  (ext : SimpExtension)
+  /--
+  Recall that when we declare a `simp` attribute using `register_simp_attr`, we automatically
+  create a `simproc` attribute. However, if the user creates `simp` and `simproc` attributes
+  programmatically, then one of them may be missing. Moreover, when we write `simp [seval]`,
+  we want to retrieve both the simp and simproc sets. We want to hide from users that
+  `simp` and `simproc` sets are stored in different data-structures.
+  -/
+  | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
 
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
   this option only makes sense for `simp_all` or `*` is used.
 -/
-def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simprocs) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
+def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
     return { ctx, simprocs }
   else
@@ -188,8 +195,13 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simprocs) (eras
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
           | .simproc declName =>
             simprocs ← simprocs.add declName post
-          | .ext ext =>
-            thmsArray := thmsArray.push (← ext.getTheorems)
+          | .ext (some ext₁) (some ext₂) _ =>
+            thmsArray := thmsArray.push (← ext₁.getTheorems)
+            simprocs  := simprocs.push (← ext₂.getSimprocs)
+          | .ext (some ext₁) none _ =>
+            thmsArray := thmsArray.push (← ext₁.getTheorems)
+          | .ext none (some ext₂) _ =>
+            simprocs  := simprocs.push (← ext₂.getSimprocs)
           | .none    =>
             let name ← mkFreshId
             thms ← addSimpTheorem thms (.stx name arg) term post inv
@@ -206,8 +218,10 @@ where
 
   resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
     let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
-      if let some ext ← getSimpExtension? n then
-        return .ext ext
+      let ext₁? ← getSimpExtension? n
+      let ext₂? ← Simp.getSimprocExtension? n
+      if h : ext₁?.isSome || ext₂?.isSome then
+        return .ext ext₁? ext₂? h
       else
         return .none
     match simpArgTerm with
@@ -236,7 +250,7 @@ where
 
 structure MkSimpContextResult where
   ctx              : Simp.Context
-  simprocs         : Simprocs
+  simprocs         : Simp.SimprocsArray
   dischargeWrapper : Simp.DischargeWrapper
 
 /--
@@ -259,7 +273,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     getSimpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := simprocs) {
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) {
     config      := (← elabSimpConfig stx[1] (kind := kind))
     simpTheorems := #[simpTheorems], congrTheorems
   }
@@ -361,7 +375,7 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM UsedSimps := do
+def simpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM UsedSimps := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do

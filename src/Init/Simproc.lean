@@ -29,7 +29,7 @@ simproc ↓ reduce_add (_ + _) := fun e => ...
 ```
 Simplification procedures can be also scoped or local.
 -/
-syntax (docComment)? attrKind "simproc " (Tactic.simpPre <|> Tactic.simpPost)? ident " (" term ")" " := " term : command
+syntax (docComment)? attrKind "simproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
 
 /--
 A user-defined simplification procedure declaration. To activate this procedure in `simp` tactic,
@@ -40,7 +40,7 @@ syntax (docComment)? "simproc_decl " ident " (" term ")" " := " term : command
 /--
 A builtin simplification procedure.
 -/
-syntax (docComment)? attrKind "builtin_simproc " (Tactic.simpPre <|> Tactic.simpPost)? ident " (" term ")" " := " term : command
+syntax (docComment)? attrKind "builtin_simproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
 
 /--
 A builtin simplification procedure declaration.
@@ -64,9 +64,20 @@ Auxiliary attribute for simplification procedures.
 syntax (name := simprocAttr) "simproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
 
 /--
+Auxiliary attribute for symbolic evaluation procedures.
+-/
+syntax (name := sevalprocAttr) "sevalproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+
+/--
 Auxiliary attribute for builtin simplification procedures.
 -/
 syntax (name := simprocBuiltinAttr) "builtin_simproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+
+/--
+Auxiliary attribute for builtin symbolic evaluation procedures.
+-/
+syntax (name := sevalprocBuiltinAttr) "builtin_sevalproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+
 end Attr
 
 macro_rules
@@ -82,13 +93,37 @@ macro_rules
       builtin_simproc_pattern% $pattern => $n)
 
 macro_rules
-  | `($[$doc?:docComment]? $kind:attrKind simproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
-    `(simproc_decl $n ($pattern) := $body
-      attribute [$kind simproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind simproc $[$pre?]? $[ [ $ids?:ident,* ] ]? $n:ident ($pattern:term) := $body) => do
+     let mut cmds := #[(← `(simproc_decl $n ($pattern) := $body))]
+     let pushDefault (cmds : Array (TSyntax `command)) : MacroM (Array (TSyntax `command)) := do
+       return cmds.push (← `(attribute [$kind simproc $[$pre?]?] $n))
+     if let some ids := ids? then
+       for id in ids.getElems do
+         let idName := id.getId
+         let (attrName, attrKey) :=
+           if idName == `simp then
+             (`simprocAttr, "simproc")
+           else if idName == `seval then
+             (`sevalprocAttr, "sevalproc")
+           else
+             let idName := idName.appendAfter "_proc"
+             (`Parser.Attr ++ idName, idName.toString)
+         let attrStx : TSyntax `attr := ⟨mkNode attrName #[mkAtom attrKey, mkOptionalNode pre?]⟩
+         cmds := cmds.push (← `(attribute [$kind $attrStx] $n))
+     else
+       cmds ← pushDefault cmds
+     return mkNullNode cmds
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
     `(builtin_simproc_decl $n ($pattern) := $body
       attribute [$kind builtin_simproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [seval] $n:ident ($pattern:term) := $body) => do
+    `(builtin_simproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [simp, seval] $n:ident ($pattern:term) := $body) => do
+    `(builtin_simproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_simproc $[$pre?]?] $n
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
 
 end Lean.Parser

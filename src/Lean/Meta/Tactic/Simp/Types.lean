@@ -17,7 +17,20 @@ structure Result where
   proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
   /-- Save the field `dischargeDepth` at `Simp.Context` because it impacts the simplifier result. -/
   dischargeDepth : UInt32 := 0
+  /-- If `cache := true` the result is cached. -/
+  cache          : Bool := true
   deriving Inhabited
+
+def mkEqTransOptProofResult (h? : Option Expr) (cache : Bool) (r : Result) : MetaM Result :=
+  match h?, cache with
+  | none, true  => return r
+  | none, false => return { r with cache := false }
+  | some p₁, cache => match r.proof? with
+    | none    => return { r with proof? := some p₁, cache := cache && r.cache }
+    | some p₂ => return { r with proof? := (← Meta.mkEqTrans p₁ p₂), cache := cache && r.cache }
+
+def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
+  mkEqTransOptProofResult r₁.proof? r₁.cache r₂
 
 abbrev Cache := ExprMap Result
 
@@ -25,21 +38,41 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
   config           : Config := {}
-  /--
-  We initialize this field using `config.ground`.
-  Here is how we use this flag.
-  - When `unfoldGround := false` for a term `t`, it will remain false for every `t`-subterm.
-  - When term is a proof, this flag has no effect since `simp` does not try to simplify proofs.
-  - When `unfoldGround := true` and visited term is type but not a proposition, we set `unfoldGround := false`.
-  - When `unfoldGround := true` and term is not ground, we set `unfoldGround := false` when visiting instance implicit
-    arguments. Reason: We don't want to unfold instance implicit arguments of non-ground applications.
-  - When `unfoldGround := true` and term is ground, we try to unfold it during post-visit.
-  -/
-  unfoldGround      : Bool := config.ground
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
   congrTheorems     : SimpCongrTheorems := {}
+  /--
+  Stores the "parent" term for the term being simplified.
+  If a simplification procedure result depends on this value,
+  then it is its reponsability to set `Result.cache := false`.
+
+  Motivation for this field:
+  Suppose we have a simplication procedure for normalizing arithmetic terms.
+  Then, given a term such as `t_1 + ... + t_n`, we don't want to apply the procedure
+  to every subterm `t_1 + ... + t_i` for `i < n` for performance issues. The procedure
+  can accomplish this by checking whether the parent term is also an arithmetical expression
+  and do nothing if it is. However, it should set `Result.cache := false` to ensure
+  we don't miss simplification opportunities. For example, consider the following:
+  ```
+  example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
+    simp_arith only
+    ...
+  ```
+  If we don't set `Result.cache := false` for the first `x + x`, then we get
+  the resulting state:
+  ```
+  ... |- id (2*x + y) = id (x + x)
+  ```
+  instead of
+  ```
+  ... |- id (2*x + y) = id (2*x)
+  ```
+  as expected.
+
+  Remark: given an application `f a b c` the "parent" term for `f`, `a`, `b`, and `c`
+  is `f a b c`.
+  -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
   deriving Inhabited
@@ -54,8 +87,6 @@ abbrev UsedSimps := HashMap Origin Nat
 
 structure State where
   cache        : Cache := {}
-  /-- Cache for `unfoldGround := true` -/
-  cacheGround  : Cache := {}
   congrCache   : CongrCache := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
@@ -74,24 +105,62 @@ opaque simp (e : Expr) : SimpM Result
 @[extern "lean_dsimp"]
 opaque dsimp (e : Expr) : SimpM Expr
 
-@[always_inline]
-def withoutUnfoldGround (x : SimpM α) : SimpM α :=
-  withTheReader Context (fun ctx => { ctx with unfoldGround := false }) x
-
+/--
+Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
+-/
 inductive Step where
-  | visit : Result → Step
-  | done  : Result → Step
+  /--
+  For `pre` procedures, it returns the result without visiting any subexpressions.
+
+  For `post` procedures, it returns the result.
+  -/
+  | done (r : Result)
+  /--
+  For `pre` procedures, the resulting expression is passed to `pre` again.
+
+  For `post` procedures, the resulting expression is passed to `pre` again IF
+  `Simp.Config.singlePass := false` and resulting expression is not equal to initial expression.
+  -/
+  | visit (e : Result)
+  /--
+  For `pre` procedures, continue transformation by visiting subexpressions, and then
+  executing `post` procedures.
+
+  For `post` procedures, this is equivalent to returning `visit`.
+  -/
+  | continue (e? : Option Result := none)
   deriving Inhabited
 
-def Step.result : Step → Result
-  | Step.visit r => r
-  | Step.done r => r
+/--
+A simplification procedure. Recall that we have `pre` and `post` procedures.
+See `Step`.
+-/
+abbrev Simproc := Expr → SimpM Step
 
-def Step.updateResult : Step → Result → Step
-  | Step.visit _, r => Step.visit r
-  | Step.done _, r  => Step.done r
+def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
+  match s with
+  | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r.cache r')
+  | .visit r'           => return .visit (← mkEqTransOptProofResult r.proof? r.cache r')
+  | .continue none      => return .continue r
+  | .continue (some r') => return .continue (some (← mkEqTransOptProofResult r.proof? r.cache r'))
 
-abbrev Simproc := Expr → SimpM (Option Step)
+/--
+"Compose" the two given simplification procedures. We use the following semantics.
+- If `f` produces `done` or `visit`, then return `f`'s result.
+- If `f` produces `continue`, then apply `g` to new expression returned by `f`.
+
+See `Simp.Step` type.
+-/
+@[always_inline]
+def andThen (f g : Simproc) : Simproc := fun e => do
+  match (← f e) with
+  | .done r            => return .done r
+  | .continue none     => g e
+  | .continue (some r) => mkEqTransResultStep r (← g r.expr)
+  | .visit r           => return .visit r
+
+instance : AndThen Simproc where
+  andThen s₁ s₂ := andThen s₁ (s₂ ())
 
 /--
 `Simproc` .olean entry.
@@ -123,10 +192,9 @@ structure Simprocs where
   deriving Inhabited
 
 structure Methods where
-  pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
-  post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
+  pre        : Simproc                    := fun _ => return .continue
+  post       : Simproc                    := fun e => return .done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
-  simprocs   : Simprocs                   := {}
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -168,13 +236,16 @@ def getSimpTheorems : SimpM SimpTheoremsArray :=
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
-@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
+@[inline] def savingCache (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
-  try
-    withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
-  finally
-    modify fun s => { s with cache := cacheSaved }
+  try x finally modify fun s => { s with cache := cacheSaved }
+
+@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
+  savingCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
+
+@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
+  savingCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
   modify fun s => if s.usedTheorems.contains thmId then s else
@@ -246,33 +317,32 @@ where
 /--
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.
 The resulting proof is built using `congr` and `congrFun` theorems.
-
-Recall that, if the term is not ground and `Context.unfoldGround := true`, then we set `Context.unfoldGround := false`
-for instance implicit arguments.
 -/
 def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
     return r
   else
-    let ctx ← getContext
+    let cfg ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
     let mut r := r
     let mut i := 0
     for arg in args do
-      trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i]!.hasFwdDeps}"
       if h : i < infos.size then
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
-        let go : SimpM Result := do
-          if !info.hasFwdDeps then
-            mkCongr r (← simp arg)
-          else if (← whnfD (← inferType r.expr)).isArrow then
-            mkCongr r (← simp arg)
-          else
-            mkCongrFun r (← dsimp arg)
-        if ctx.unfoldGround && info.isInstImplicit then
-          r ← withoutUnfoldGround go
+        if cfg.ground && info.isInstImplicit then
+          -- We don't visit instance implicit arguments when we are reducing ground terms.
+          -- Motivation: many instance implicit arguments are ground, and it does not make sense
+          -- to reduce them if the parent term is not ground.
+          -- TODO: consider using it as the default behavior.
+          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+          r ← mkCongrFun r arg
+        else if !info.hasFwdDeps then
+          r ← mkCongr r (← simp arg)
+        else if (← whnfD (← inferType r.expr)).isArrow then
+          r ← mkCongr r (← simp arg)
         else
-          r ← go
+          r ← mkCongrFun r (← dsimp arg)
       else if (← whnfD (← inferType r.expr)).isArrow then
         r ← mkCongr r (← simp arg)
       else
@@ -303,17 +373,6 @@ def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
     return thm?
 
 /--
-Set `unfoldGround := false` when executing `x` IF `infos[i].isInstImplicit`.
--/
-@[always_inline]
-def withoutUnfoldGroundIfInstImplicit (infos : Array ParamInfo) (i : Nat) (x : SimpM α) : SimpM α := do
-  if (← getContext).unfoldGround then
-    if h : i < infos.size then
-      if infos[i].isInstImplicit then
-        return (← withoutUnfoldGround x)
-  x
-
-/--
 Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 -/
 def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
@@ -323,6 +382,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
   let args := e.getAppArgs
   let infos := (← getFunInfoNArgs f args.size).paramInfo
+  let config ← getConfig
   let mut simplified := false
   let mut hasProof   := false
   let mut hasCast    := false
@@ -330,12 +390,19 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let mut argResults := #[]
   let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
+    if h : config.ground ∧ i < infos.size then
+      if (infos[i]'h.2).isInstImplicit then
+        -- Do not visit instance implict arguments when `ground := true`
+        -- See comment at `congrArgs`
+        argsNew := argsNew.push arg
+        i := i + 1
+        continue
     match kind with
-    | CongrArgKind.fixed => argsNew := argsNew.push (← withoutUnfoldGroundIfInstImplicit infos i (dsimp arg))
+    | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
     | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
     | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
     | CongrArgKind.eq =>
-      let argResult ← withoutUnfoldGroundIfInstImplicit infos i (simp arg)
+      let argResult ← simp arg
       argResults := argResults.push argResult
       argsNew    := argsNew.push argResult.expr
       if argResult.proof?.isSome then hasProof := true
@@ -433,6 +500,8 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
   match s with
   | .visit r => return .visit (← r.addExtraArgs extraArgs)
   | .done r => return .done (← r.addExtraArgs extraArgs)
+  | .continue none => return .continue none
+  | .continue (some r) => return .continue (← r.addExtraArgs extraArgs)
 
 end Simp
 

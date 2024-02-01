@@ -131,6 +131,8 @@ is `ConstructorVal` for `Nat.succ`, and the array `#[1]`. The parameter `useRaw`
 numeral is represented. If `useRaw := false`, then `mkNatLit` is used, otherwise `mkRawNatLit`.
 Recall that `mkNatLit` uses the `OfNat.ofNat` application which is the canonical way of representing numerals
 in the elaborator and tactic framework. We `useRaw := false` in the compiler (aka code generator).
+
+Remark: This function does not treat `(ofNat 0 : Nat)` applications as constructors.
 -/
 def constructorApp? (env : Environment) (e : Expr) (useRaw := false) : Option (ConstructorVal × Array Expr) := do
   match e with

@@ -39,8 +39,75 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-`intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
-hypotheses until goal is not of a function type.
+Introduces zero or more hypotheses, optionally naming them.
+
+- `intros` is equivalent to repeatedly applying `intro`
+  until the goal is not an obvious candidate for `intro`, which is to say
+  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
+  the `intros` tactic will introduce an anonymous hypothesis.
+  This tactic does not unfold definitions.
+
+- `intros x y ...` is equivalent to `intro x y ...`,
+  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
+  Each argument can be either an identifier or a `_`.
+  An identifier indicates a name to use for the corresponding introduced hypothesis,
+  and a `_` indicates that the hypotheses should be introduced anonymously.
+
+## Examples
+
+Basic properties:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+-- Introduces the two obvious hypotheses automatically
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
+
+-- Introduces exactly two hypotheses, naming only the first
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros g _
+  /- Tactic state
+     g : Nat → Nat
+     a✝ : AllEven g
+     ⊢ AllEven fun k => g (k + 1) -/
+  sorry
+
+-- Introduces exactly three hypotheses, which requires unfolding `AllEven`
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros f h n
+  /- Tactic state
+     f : Nat → Nat
+     h : AllEven f
+     n : Nat
+     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
+  apply h
+```
+
+Implications:
+```lean
+example (p q : Prop) : p → q → p := by
+  intros
+  /- Tactic state
+     a✝¹ : p
+     a✝ : q
+     ⊢ p      -/
+  assumption
+```
+
+Let bindings:
+```lean
+example : let n := 1; let k := 2; n + k = 3 := by
+  intros
+  /- n✝ : Nat := 1
+     k✝ : Nat := 2
+     ⊢ n✝ + k✝ = 3 -/
+  rfl
+```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
 
@@ -559,7 +626,7 @@ You can use `with` to provide the variables names for each constructor.
 - `induction e`, where `e` is an expression instead of a variable,
   generalizes `e` in the goal, and then performs induction on the resulting variable.
 - `induction e using r` allows the user to specify the principle of induction that should be used.
-  Here `r` should be a theorem whose result type must be of the form `C t`,
+  Here `r` should be a term whose result type must be of the form `C t`,
   where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables
 - `induction e generalizing z₁ ... zₙ`, where `z₁ ... zₙ` are variables in the local context,
   generalizes over `z₁ ... zₙ` before applying the induction but then introduces them in each goal.
@@ -567,7 +634,7 @@ You can use `with` to provide the variables names for each constructor.
 - Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂`
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
-syntax (name := induction) "induction " term,+ (" using " ident)?
+syntax (name := induction) "induction " term,+ (" using " term)?
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
@@ -610,7 +677,7 @@ You can use `with` to provide the variables names for each constructor.
   performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
   where `...` is the constructor instance for that particular case.
 -/
-syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
+syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic

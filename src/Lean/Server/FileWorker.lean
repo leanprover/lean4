@@ -76,7 +76,7 @@ section Elab
   private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
       (snaps : Array Snapshot) : IO Unit := do
     let trees := snaps.map fun snap => snap.infoTree
-    let references := findModuleRefs m.text trees (localVars := true)
+    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
     let param := { version := m.version, references : LeanIleanInfoParams }
     hOut.writeLspNotification { method, param }
 

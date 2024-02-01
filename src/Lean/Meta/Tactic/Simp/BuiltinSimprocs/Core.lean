@@ -7,8 +7,8 @@ import Lean.Meta.Tactic.Simp.Simproc
 
 open Lean Meta Simp
 
-builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity ``ite 5)
+builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
+  unless e.isAppOfArity ``ite 5 do return .continue
   let c := e.getArg! 1
   let r ← simp c
   if r.expr.isConstOf ``True then
@@ -19,10 +19,10 @@ builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => OptionT.run do
     let eNew  := e.getArg! 4
     let pr    := mkApp (mkAppN (mkConst ``ite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) (← r.getProof)
     return .visit { expr := eNew, proof? := pr }
-  failure
+  return .continue
 
-builtin_simproc ↓ reduceDite (dite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity ``dite 5)
+builtin_simproc ↓ [simp, seval] reduceDite (dite _ _ _) := fun e => do
+  unless e.isAppOfArity ``dite 5 do return .continue
   let c := e.getArg! 1
   let r ← simp c
   if r.expr.isConstOf ``True then
@@ -37,4 +37,4 @@ builtin_simproc ↓ reduceDite (dite _ _ _) := fun e => OptionT.run do
     let eNew  := mkApp (e.getArg! 4) h |>.headBeta
     let prNew := mkApp (mkAppN (mkConst ``dite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) pr
     return .visit { expr := eNew, proof? := prNew }
-  failure
+  return .continue

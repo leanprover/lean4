@@ -22,20 +22,25 @@ def foo (x : Nat) : Nat :=
 The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
 -/
 simproc reduceFoo (foo _) :=
-  /- A term of type `Expr → SimpM (Option Step) -/
-  fun e => OptionT.run do
-    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
-    guard (e.isAppOfArity ``foo 1)
-    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
-    let n ← Nat.fromExpr? e.appArg!
+  /- A term of type `Expr → SimpM Step -/
+  fun e => do
     /-
-    The `Step` type has two constructors: `.done` and `.visit`.
+    The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
     * The constructor `.done` instructs `simp` that the result does
       not need to be simplied further.
     * The constructor `.visit` instructs `simp` to visit the resulting expression.
+    * The constructor `.continue` instructs `simp` to try other simplification procedures.
 
-    If the result holds definitionally as in this example, the field `proof?` can be omitted.
+    All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+    `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
+     If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
     -/
+    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+    unless e.isAppOfArity ``foo 1 do
+      return .continue
+    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+    let some n ← Nat.fromExpr? e.appArg!
+      | return .continue
     return .done { expr := Lean.mkNatLit (n+10) }
 ```
 We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
@@ -63,6 +68,10 @@ example : x + foo 2 = 12 + x := by
   /- We can use `-` to disable `simproc`s. -/
   fail_if_success simp [-reduceFoo]
   simp_arith
+```
+The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
+```lean
+simproc [my_simp] reduceFoo (foo _) := ...
 ```
 
 * The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
@@ -192,8 +201,25 @@ example : x + foo 2 = 12 + x := by
   ought to be applied to multiple functions, the `decreasing_by` clause has to
   be repeated at each of these functions.
 
-* Modify `InfoTree.context` to facilitate augmenting it with partial contexts while elaborating a command. This breaks backwards compatibility with all downstream projects that traverse the `InfoTree` manually instead of going through the functions in `InfoUtils.lean`, as well as those manually creating and saving `InfoTree`s. See https://github.com/leanprover/lean4/pull/3159 for how to migrate your code.
+* Modify `InfoTree.context` to facilitate augmenting it with partial contexts while elaborating a command. This breaks backwards compatibility with all downstream projects that traverse the `InfoTree` manually instead of going through the functions in `InfoUtils.lean`, as well as those manually creating and saving `InfoTree`s. See [PR #3159](https://github.com/leanprover/lean4/pull/3159) for how to migrate your code.
 
+* Add language server support for [call hierarchy requests](https://www.youtube.com/watch?v=r5LA7ivUb2c) ([PR #3082](https://github.com/leanprover/lean4/pull/3082)). The change to the .ilean format in this PR means that projects must be fully rebuilt once in order to generate .ilean files with the new format before features like "find references" work correctly again.
+
+* Structure instances with multiple sources (for example `{a, b, c with x := 0}`) now have their fields filled from these sources
+  in strict left-to-right order. Furthermore, the structure instance elaborator now aggressively use sources to fill in subobject
+  fields, which prevents unnecessary eta expansion of the sources,
+  and hence greatly reduces the reliance on costly structure eta reduction. This has a large impact on mathlib,
+  reducing total CPU instructions by 3% and enabling impactful refactors like leanprover-community/mathlib4#8386
+  which reduces the build time by almost 20%.
+  See PR [#2478](https://github.com/leanprover/lean4/pull/2478) and RFC [#2451](https://github.com/leanprover/lean4/issues/2451).
+
+* Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
+
+* Add pretty printer options `pp.numeralTypes` and `pp.natLit`.
+  When `pp.numeralTypes` is true, then natural number literals, integer literals, and rational number literals
+  are pretty printed with type ascriptions, such as `(2 : Rat)`, `(-2 : Rat)`, and `(-2 / 3 : Rat)`.
+  When `pp.natLit` is true, then raw natural number literals are pretty printed as `nat_lit 2`.
+  [PR #2933](https://github.com/leanprover/lean4/pull/2933) and [RFC #3021](https://github.com/leanprover/lean4/issues/3021).
 
 v4.5.0
 ---------

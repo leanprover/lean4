@@ -94,7 +94,7 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v1.9.0
         with:
-          fail: true
+          fail: false  # report errors but do not block CI on temporary failures
           # gmplib.org consistently times out from GH actions
           # the GitHub token is to avoid rate limiting
           args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'

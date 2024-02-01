@@ -141,6 +141,35 @@ end FileWorker
 
 section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
+  abbrev ImportMap := RBMap DocumentUri (RBTree DocumentUri compare) compare
+
+  structure ImportData where
+    imports    : ImportMap
+    importedBy : ImportMap
+
+  def ImportData.update (d : ImportData) (uri : DocumentUri) (imports : RBTree DocumentUri compare)
+      : ImportData := Id.run do
+    let oldImports     := d.imports.findD uri ∅
+    let removedImports := oldImports.diff imports
+    let addedImports   := imports.diff oldImports
+    let imports        := d.imports.insert uri imports
+    let mut importedBy := d.importedBy
+
+    for removedImport in removedImports do
+      let importedByRemovedImport' := importedBy.find! removedImport |>.erase uri
+      if importedByRemovedImport'.isEmpty then
+        importedBy := importedBy.erase removedImport
+      else
+        importedBy := importedBy.insert removedImport importedByRemovedImport'
+
+    for addedImport in addedImports do
+      importedBy :=
+        importedBy.findD addedImport ∅
+          |>.insert uri
+          |> importedBy.insert addedImport
+
+    return { imports, importedBy }
+
 
   structure RequestIDTranslation where
     sourceUri : DocumentUri
@@ -173,18 +202,19 @@ section ServerM
     (translation?, data)
 
   structure ServerContext where
-    hIn               : FS.Stream
-    hOut              : FS.Stream
-    hLog              : FS.Stream
+    hIn                 : FS.Stream
+    hOut                : FS.Stream
+    hLog                : FS.Stream
     /-- Command line arguments. -/
-    args              : List String
-    fileWorkersRef    : IO.Ref FileWorkerMap
+    args                : List String
+    fileWorkersRef      : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
-    initParams        : InitializeParams
-    workerPath        : System.FilePath
-    srcSearchPath     : System.SearchPath
-    references        : IO.Ref References
-    serverRequestData : IO.Ref ServerRequestData
+    initParams          : InitializeParams
+    workerPath          : System.FilePath
+    srcSearchPath       : System.SearchPath
+    references          : IO.Ref References
+    serverRequestData   : IO.Ref ServerRequestData
+    importData          : IO.Ref ImportData
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -225,6 +255,11 @@ section ServerM
     s.references.modify fun refs =>
       refs.finalizeWorkerRefs module params.version params.references
 
+  def handleImportClosure (fw : FileWorker) (params : LeanImportClosureParams) : ServerM Unit := do
+    let s ← read
+    s.importData.modify fun importData =>
+      importData.update fw.doc.uri (.ofList params.importClosure.toList)
+
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
@@ -253,6 +288,10 @@ section ServerM
             if let some params := params then
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
                 handleIleanInfoFinal fw params
+          | Message.notification "$/lean/importClosure" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleImportClosure fw params
           | _ => o.writeLspMessage msg
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
@@ -679,6 +718,21 @@ section NotificationHandling
     let notification := Notification.mk "textDocument/didChange" p
     tryWriteMessage doc.uri notification (restartCrashedWorker := true)
 
+  def handleDidSave (p : DidSaveTextDocumentParams) : ServerM Unit := do
+    let s ← read
+    let fileWorkers ← s.fileWorkersRef.get
+    let importData  ← s.importData.get
+    let importedBy := importData.importedBy.findD p.textDocument.uri ∅
+
+    for ⟨uri, _⟩ in fileWorkers do
+      if ! importedBy.contains uri then
+        continue
+      let notification := Notification.mk "$/lean/staleDependency" {
+        staleDependency := p.textDocument.uri
+        : LeanStaleDependencyParams
+      }
+      tryWriteMessage uri notification (queueFailedMessage := false)
+
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
 
@@ -805,6 +859,8 @@ section MessageHandling
       handle DidChangeTextDocumentParams handleDidChange
     | "textDocument/didClose" =>
       handle DidCloseTextDocumentParams handleDidClose
+    | "textDocument/didSave" =>
+      handle DidSaveTextDocumentParams handleDidSave
     | "workspace/didChangeWatchedFiles" =>
       handle DidChangeWatchedFilesParams handleDidChangeWatchedFiles
     | "$/cancelRequest" =>
@@ -910,7 +966,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     change            := TextDocumentSyncKind.incremental
     willSave          := false
     willSaveWaitUntil := false
-    save?             := none
+    save?             := some { includeText := true }
   }
   -- refine
   completionProvider? := some {
@@ -1001,6 +1057,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     pendingServerRequests := RBMap.empty
     freshServerRequestID  := 0
   }
+  let importData ← IO.mkRef ⟨RBMap.empty, RBMap.empty⟩
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
   let e ← maybeTee "wdErr.txt" true e
@@ -1030,16 +1087,17 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     : RegistrationParams }
   }
   ReaderT.run initAndRunWatchdogAux {
-    hIn            := i
-    hOut           := o
-    hLog           := e
-    args           := args
-    fileWorkersRef := fileWorkersRef
-    initParams     := initRequest.param
+    hIn              := i
+    hOut             := o
+    hLog             := e
+    args             := args
+    fileWorkersRef   := fileWorkersRef
+    initParams       := initRequest.param
     workerPath
     srcSearchPath
     references
     serverRequestData
+    importData
     : ServerContext
   }
 

@@ -470,4 +470,10 @@ where goCmd snap :=
   else
     snap.data.sigSnap.get.finishedSnap.get.cmdState.env
 
+private def getImportClosure? (snap : InitialSnapshot) : Option (Array Name) := do
+  let snap ← snap.success?
+  let snap ← snap.processed.get.success?
+  let importClosure := snap.cmdState.env.allImportedModuleNames
+  return importClosure
+
 end Lean

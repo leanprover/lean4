@@ -17,13 +17,20 @@ inductive GoToKind
   | declaration | definition | type
   deriving BEq, ToJson, FromJson
 
-def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name) : IO (Option DocumentUri) := do
+def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name)
+    : IO (Option DocumentUri) := do
   let some modFname ← srcSearchPath.findModuleWithExt "lean" modName
     | pure none
   -- resolve symlinks (such as `src` in the build dir) so that files are opened
   -- in the right folder
   let modFname ← IO.FS.realPath modFname
   return some <| System.Uri.pathToUri modFname
+
+def moduleFromDocumentUri (srcSearchPath : SearchPath) (uri : DocumentUri)
+    : IO (Option Name) := do
+  let some modFname := System.Uri.fileUriToPath? uri
+    | return none
+  searchModuleNameOfFileName modFname srcSearchPath
 
 open Elab in
 def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : Name)

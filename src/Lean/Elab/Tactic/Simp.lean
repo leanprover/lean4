@@ -137,7 +137,14 @@ inductive ResolveSimpIdResult where
   | none
   | expr (e : Expr)
   | simproc (declName : Name)
-  | ext  (ext₁ : SimpExtension) (ext₂ : Simp.SimprocExtension)
+  /--
+  Recall that when we declare a `simp` attribute using `register_simp_attr`, we automatically
+  create a `simproc` attribute. However, if the user creates `simp` and `simproc` attributes
+  programmatically, then one of them may be missing. Moreover, when we write `simp [seval]`,
+  we want to retrieve both the simp and simproc sets. We want to hide from users that
+  `simp` and `simproc` sets are stored in different data-structures.
+  -/
+  | ext  (ext₁? : Option SimpExtension) (ext₂? : Option Simp.SimprocExtension) (h : ext₁?.isSome || ext₂?.isSome)
 
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
@@ -188,8 +195,12 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
           | .simproc declName =>
             simprocs ← simprocs.add declName post
-          | .ext ext₁ ext₂ =>
+          | .ext (some ext₁) (some ext₂) _ =>
             thmsArray := thmsArray.push (← ext₁.getTheorems)
+            simprocs  := simprocs.push (← ext₂.getSimprocs)
+          | .ext (some ext₁) none _ =>
+            thmsArray := thmsArray.push (← ext₁.getTheorems)
+          | .ext none (some ext₂) _ =>
             simprocs  := simprocs.push (← ext₂.getSimprocs)
           | .none    =>
             let name ← mkFreshId
@@ -207,9 +218,10 @@ where
 
   resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
     let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
-      if let some ext₁ ← getSimpExtension? n then
-        let some ext₂ ← Simp.getSimprocExtension? n | throwError "simproc set associated with simp set '{n}' was not found"
-        return .ext ext₁ ext₂
+      let ext₁? ← getSimpExtension? n
+      let ext₂? ← Simp.getSimprocExtension? n
+      if h : ext₁?.isSome || ext₂?.isSome then
+        return .ext ext₁? ext₂? h
       else
         return .none
     match simpArgTerm with

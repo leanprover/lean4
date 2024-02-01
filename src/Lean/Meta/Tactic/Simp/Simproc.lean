@@ -353,8 +353,17 @@ def simpAttrNameToSimprocAttrName (attrName : Name) : Name :=
   else if attrName == `seval then `sevalprocAttr
   else attrName.appendAfter "_proc"
 
-def getSimprocExtension? (simpAttrName : Name) : IO (Option SimprocExtension) :=
-  getSimprocExtensionCore? (simpAttrNameToSimprocAttrName simpAttrName)
+/--
+Try to retrieve the simproc set using the `simp` or `simproc` attribute names.
+Recall that when we declare a `simp` set using `register_simp_attr`, an associated
+`simproc` set is automatically created. We use the function `simpAttrNameToSimprocAttrName` to
+find the `simproc` associated with the `simp` attribute.
+-/
+def getSimprocExtension? (simprocAttrNameOrsimpAttrName : Name)
+    : IO (Option SimprocExtension) := do
+  let some ext ← getSimprocExtensionCore? simprocAttrNameOrsimpAttrName
+    | getSimprocExtensionCore? (simpAttrNameToSimprocAttrName simprocAttrNameOrsimpAttrName)
+  return some ext
 
 def SimprocExtension.getSimprocs (ext : SimprocExtension) : CoreM Simprocs :=
   return ext.getState (← getEnv)

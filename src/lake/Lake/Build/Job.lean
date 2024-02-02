@@ -21,6 +21,9 @@ abbrev ResultM := OptionIO
 
 namespace Job
 
+@[inline] def try? (self : Job α) : Job (Option α) := do
+  some <$> self.run
+
 @[inline] def nil : Job Unit :=
  pure ()
 
@@ -61,6 +64,11 @@ namespace BuildJob
   mk <| pure (a, nilTrace)
 
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
+
+@[inline] def try? (self : BuildJob α) : BuildJob (Option α) :=
+  mk <| self.toJob.map fun
+    | none => some (none, nilTrace)
+    | some (a, t) => some (some a, t)
 
 @[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => (f a,t)) <$> self.toJob

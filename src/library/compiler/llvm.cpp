@@ -1442,3 +1442,57 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_verify_module(size_t ctx, size_t m
     }
 #endif  // LEAN_LLVM
 }
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_count_basic_blocks(size_t ctx, size_t fn_val,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef fn_ref = lean_to_Value(fn_val);
+    return lean_io_result_mk_ok(lean_box_uint64((uint64_t)LLVMCountBasicBlocks(fn_ref)));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_entry_basic_block(size_t ctx, size_t fn_val,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef fn_ref = lean_to_Value(fn_val);
+    LLVMBasicBlockRef bb_ref = LLVMGetEntryBasicBlock(fn_ref);
+    return lean_io_result_mk_ok(lean_box_usize(BasicBlock_to_lean(bb_ref)));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_instruction(size_t ctx, size_t bb,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMBasicBlockRef bb_ref = lean_to_BasicBlock(bb);
+    LLVMValueRef instr_ref = LLVMGetFirstInstruction(bb_ref);
+    if (instr_ref == NULL) {
+       return lean_io_result_mk_ok(lean::mk_option_none());
+    } else {
+       return lean_io_result_mk_ok(lean::mk_option_some(lean_box_usize(Value_to_lean(instr_ref))));
+    }
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_position_builder_before(
+    size_t ctx, size_t builder, size_t instr, lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMPositionBuilderBefore(lean_to_Builder(builder), lean_to_Value(instr));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}

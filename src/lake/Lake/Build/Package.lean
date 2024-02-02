@@ -35,7 +35,7 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
     job ← job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job ← job.mix <| ← self.release.fetch
+    job ← job.add <| ← self.release.fetch
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job ← job.mix <| ← self.fetchTargetJob target

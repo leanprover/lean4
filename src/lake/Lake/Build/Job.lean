@@ -88,6 +88,9 @@ instance : Await BuildJob ResultM := ⟨BuildJob.await⟩
 @[inline] def materialize (self : BuildJob α) : ResultM Unit :=
   discard <| await self.toJob
 
+def add (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob α) :=
+  mk <$> seqLeftAsync t1.toJob t2.toJob
+
 def mix (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob Unit) :=
   mk <$> seqWithAsync (fun (_,t) (_,t') => ((), mixTrace t t')) t1.toJob t2.toJob
 

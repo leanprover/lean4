@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Offset
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
 
 namespace Nat
 open Lean Meta Simp
@@ -28,11 +29,7 @@ def fromExpr? (e : Expr) : SimpM (Option Nat) := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
-  let d ← mkDecide e
-  if op n m then
-    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
-  else
-    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+  evalPropStep e (op n m)
 
 builtin_simproc [simp, seval] reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
 

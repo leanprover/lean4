@@ -47,11 +47,7 @@ def toExpr (v : Int) : Expr :=
   unless e.isAppOfArity declName arity do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
   let some v₂ ← fromExpr? e.appArg! | return .continue
-  let d ← mkDecide e
-  if op v₁ v₂ then
-    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
-  else
-    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+  evalPropStep e (op v₁ v₂)
 
 /-
 The following code assumes users did not override the `Int` instances for the arithmetic operators.

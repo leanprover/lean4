@@ -61,7 +61,7 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
     Bla.
       --^ textDocument/completion
     ```
-    In this example, the test driver [`test_single.sh`](/tests/lean/interactive/test_single.sh) will simulate an
+    In this example, the test driver [`test_single.sh`](https://github.com/leanprover/lean4/tree/master/tests/lean/interactive/test_single.sh) will simulate an
     auto-completion request at `Bla.`. The expected output is stored in
     a .lean.expected.out in the json format that is part of the
     [Language Server

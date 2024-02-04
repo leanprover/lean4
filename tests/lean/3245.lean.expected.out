@@ -1,0 +1,4 @@
+case inr
+b1 b2 : Bool
+h✝ : ¬b1 = true
+⊢ (if b2 = true then 0 else if b2 = true then 42 else 0) = 0

@@ -121,4 +121,4 @@ Thus to e.g. run `#eval` on such a declaration, you need to
 Note that it is not sufficient to load the foreign library containing the external symbol because the interpreter depends on code that is emitted for each `@[extern]` declaration.
 Thus it is not possible to interpret an `@[extern]` declaration in the same file.
 
-See `tests/compiler/foreign` for an example.
+See [`tests/compiler/foreign`](https://github.com/leanprover/lean4/tree/master/tests/compiler/foreign/) for an example.

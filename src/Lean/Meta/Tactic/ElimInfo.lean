@@ -11,8 +11,15 @@ namespace Lean.Meta
 
 structure ElimAltInfo where
   name      : Name
+  /-- A declaration corresponding to the inductive constructor.
+  (For custom recursors, the alternatives correspond to parameter names in the
+  recursor, so we may not have a declaration to point to.)
+  This is used for go-to-definition on the alternative name. -/
   declName? : Option Name
   numFields : Nat
+  /-- If `provesMotive := true`, then this alternative has `motive` as its conclusion.
+  Only for those alternatives the `induction` tactic should introduce reverted hypotheses.  -/
+  provesMotive : Bool
   deriving Repr, Inhabited
 
 /--
@@ -56,13 +63,14 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
-          let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
+          let (numFields, provesMotive) ← forallTelescopeReducing xDecl.type fun args concl =>
+            pure (args.size, concl.getAppFn == motive)
           let name := xDecl.userName
           let declName? := do
             let base ← baseDeclName?
             let altDeclName := base ++ name
             if env.contains altDeclName then some altDeclName else none
-          altsInfo := altsInfo.push { name, declName?, numFields }
+          altsInfo := altsInfo.push { name, declName?, numFields, provesMotive }
     pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
 
 def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do

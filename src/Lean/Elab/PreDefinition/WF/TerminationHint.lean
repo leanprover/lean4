@@ -96,8 +96,8 @@ def TerminationBy.checkVars (funName : Name) (extraParams : Nat) (tb : Terminati
         m!"{funName} only binds {parameters extraParams}."
       if let `($ident:ident) := tb.vars[0]! then
         if ident.getId.isSuffixOf funName then
-            msg := msg ++ m!"\nNB: Since Lean v4.6, the `termination_by` clause no longer " ++
-              "expects the function name here."
+            msg := msg ++ m!" (Since Lean v4.6.0, the `termination_by` clause no longer " ++
+              "expects the function name here.)"
       throwErrorAt tb.ref msg
   where
     parameters : Nat → MessageData

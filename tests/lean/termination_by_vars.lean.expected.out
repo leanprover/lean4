@@ -6,5 +6,4 @@ termination_by_vars.lean:58:2-58:21: error: no extra parameters bounds, please o
 termination_by_vars.lean:83:4-83:25: error: one parameter bound in `termination_by`, but the body of InLetRec.foo1.tooManyVars only binds 0 parameters.
 termination_by_vars.lean:95:4-95:23: error: no extra parameters bounds, please omit the `=>`
 termination_by_vars.lean:124:2-124:27: error: 3 parameters bound in `termination_by`, but the body of ManyTooMany.tooManyVars only binds 0 parameters.
-termination_by_vars.lean:132:2-132:27: error: 2 parameters bound in `termination_by`, but the body of WithHelpfulComment.foo only binds 0 parameters.
-NB: Since Lean v4.6, the `termination_by` clause no longer expects the function name here.
+termination_by_vars.lean:132:2-132:27: error: 2 parameters bound in `termination_by`, but the body of WithHelpfulComment.foo only binds 0 parameters. (Since Lean v4.6.0, the `termination_by` clause no longer expects the function name here.)

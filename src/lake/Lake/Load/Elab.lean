@@ -176,10 +176,20 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
   let configHash ← computeTextFileHash configFile
   let configLock : ConfigLock ← id do
     let validateTrace h : IO ConfigLock := id do
+      let acquireTrace h : IO IO.FS.Handle := id do
+        -- Upgrade to an exclusive lock
+        let lockFile := lakeDir / configName.withExtension "olean.lock"
+        let hLock ← IO.FS.Handle.mk lockFile .write
+        hLock.lock
+        h.unlock
+        let h ← IO.FS.Handle.mk traceFile .readWrite
+        h.lock
+        hLock.unlock
+        return h
       if reconfigure then
-        h.lock; return .lean h lakeOpts
+        return .lean (← acquireTrace h) lakeOpts
       h.lock (exclusive := false)
-      let contents ← h.readToEnd; h.rewind
+      let contents ← h.readToEnd
       let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
         | error "compiled configuration is invalid; run with `-R` to reconfigure"
       let upToDate :=
@@ -188,20 +198,16 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
       if upToDate then
         return .olean h
       else
-        -- Upgrade to an exclusive lock
-        let lockFile := lakeDir / configName.withExtension "olean.lock"
-        let hLock ← IO.FS.Handle.mk lockFile .write
-        hLock.lock; h.unlock; h.lock; hLock.unlock
-        return .lean h trace.options
+        return .lean (← acquireTrace h) trace.options
     if (← traceFile.pathExists) then
-      validateTrace <| ← IO.FS.Handle.mk traceFile .readWrite
+      validateTrace <| ← IO.FS.Handle.mk traceFile .read
     else
       IO.FS.createDirAll lakeDir
       match (← IO.FS.Handle.mk traceFile .writeNew |>.toBaseIO) with
       | .ok h =>
         h.lock; return .lean h lakeOpts
       | .error (.alreadyExists ..) =>
-        validateTrace <| ← IO.FS.Handle.mk traceFile .readWrite
+        validateTrace <| ← IO.FS.Handle.mk traceFile .read
       | .error e => error e.toString
   match configLock with
   | .olean h =>

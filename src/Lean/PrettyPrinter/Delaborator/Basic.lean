@@ -250,10 +250,9 @@ def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
 /--
 Returns true if `e` is a "shallow" expression.
 Local variables, constants, and other atomic expressions are always shallow.
-The `threshold` variable adjusts what else is considered to be shallow,
-and it's compared against the depth of the expression.
+In general, an expression is considered to be shallow if its depth is at most `threshold`.
 
-The `threshold` is clamped to `[0, 254]`.
+Since the implementation uses `Lean.Expr.approxDepth`, the `threshold` is clamped to `[0, 254]`.
 -/
 def isShallowExpression (threshold : Nat) (e : Expr) : Bool :=
   -- Approximate depth is saturated at 255 for very deep expressions.
@@ -286,9 +285,12 @@ def shouldOmitExpr (e : Expr) : DelabM Bool := do
   return depthExcess > 0 && !isShallowExpression threshold e
 
 /--
-Returns `true` if the given expression is a proof and it should be omitted.
+Returns `true` if the given expression is a proof and should be omitted.
 This function only returns `true` if `pp.proofs` is set to `false`.
-It uses `pp.proofs.threshold` to determine what is a "shallow" proof -- shallow proofs are not omitted.
+
+"Shallow" proofs are not omitted.
+The `pp.proofs.threshold` option controls the depth threshold for what constitutes a shallow proof.
+See `Lean.PrettyPrinter.Delaborator.isShallowExpression`.
 -/
 def shouldOmitProof (e : Expr) : DelabM Bool := do
   -- Atomic expressions never get omitted, so we can do an early return here.

@@ -51,15 +51,13 @@ structure TerminationHints where
   ref : Syntax
   termination_by? : Option TerminationBy
   decreasing_by?  : Option DecreasingBy
-  /-- Here we record the number of parameters past the `:`. This is used in two places:
+  /-- Here we record the number of parameters past the `:`. It is set by
+  `TerminationHints.rememberExtraParams` and used as folows:
 
   * When we guess the termination argument in `GuessLex` and want to print it in surface-syntax
     compatible form.
   * If there are fewer variables in the `termination_by` annotation than there are extra
-    parameters, we know which parameters they should apply to.
-
-  It it set in `TerminationHints.checkVars`, which is also the place where we check that the user
-  does not bind more extra parameters than present in the predefinition.
+    parameters, we know which parameters they should apply to (`TerminationBy.checkVars`).
   -/
   extraParams : Nat
   deriving Inhabited

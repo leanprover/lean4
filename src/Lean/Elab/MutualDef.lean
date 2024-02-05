@@ -642,7 +642,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
     let termination ← declValToTerminationHint header.valueStx
-    let termination ← termination.checkVars header.numParams mainVals[i]!
+    let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
     return preDefs.push {

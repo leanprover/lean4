@@ -50,4 +50,11 @@ example (n m : Nat) (h : m * m < 100) (h2 : n ≤ m) : n * n < 100 := by
     have IH := IH hlt
     sorry
 
+-- Unfortunately, this doesn’t work either:
+--  example (n m : Nat) (h : m * m < 100) (h2 : n ≤ m) : n * n < 100 := by
+--    induction n using down_induction (le_u := h2)
+-- because after this, the target `n` is no longer a universally qualified variable
+--
+-- This probably could be made to work with a bit more refactoring.
+
 end DownInduction

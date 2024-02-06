@@ -44,7 +44,8 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
   mvarId.withContext do
     let target ← instantiateMVars (← mvarId.getType)
-    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
+    let discharge? ← mvarId.withContext do SplitIf.mkDischarge?
+    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? })
     let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
     if mvarId != mvarIdNew then return some mvarIdNew else return none
 where

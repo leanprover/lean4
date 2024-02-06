@@ -97,7 +97,7 @@ This is like `InfoTree.foldInfo`, but it also passes the whole node to `f` inste
 partial def InfoTree.foldInfoTree (init : α) (f : ContextInfo → InfoTree → α → α) : InfoTree → α :=
   go none init
 where
-  /-- `foldInfoTree.go` is like `foldInfo'` but with an additional outer context parameter `ctx?`. -/
+  /-- `foldInfoTree.go` is like `foldInfoTree` but with an additional outer context parameter `ctx?`. -/
   go ctx? a
   | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
   | t@(node i ts) =>

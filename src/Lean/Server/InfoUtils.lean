@@ -86,7 +86,14 @@ where go ctx? a
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | _ => a
 
-/-- Like `InfoTree.foldInfo`, but also passes the whole node to `f` instead of just the head. -/
+/--
+Fold an info tree as follows, while ensuring that the correct `ContextInfo` is supplied at each stage:
+
+ * Nodes are combined with the initial value `init` using `f`, and the result is then combined with the children using a left fold
+ * Everything else returns the initial value
+
+This is like `InfoTree.foldInfo`, but it also passes the whole node to `f` instead of just the head.
+-/
 partial def InfoTree.foldInfoTree (init : α) (f : ContextInfo → InfoTree → α → α) : InfoTree → α :=
   go none init
 where

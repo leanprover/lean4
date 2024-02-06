@@ -29,7 +29,7 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=../stdlib/
 endif
 
-.PHONY: Init Lean leanshared Lake lean
+.PHONY: Init Lean Base leanshared Lake lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
@@ -39,10 +39,13 @@ Init:
 Lean: Init
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
 
+Base: Init
+	+"${LEAN_BIN}/leanmake" lib PKG=Base $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
+
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
 # we specify the precise file names here to avoid rebuilds
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libLean.a ${LIB}/lean/libBase.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@

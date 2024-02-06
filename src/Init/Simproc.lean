@@ -94,7 +94,7 @@ macro_rules
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind simproc $[$pre?]? $[ [ $ids?:ident,* ] ]? $n:ident ($pattern:term) := $body) => do
-     let mut cmds := #[(← `(simproc_decl $n ($pattern) := $body))]
+     let mut cmds := #[(← `($[$doc?:docComment]? simproc_decl $n ($pattern) := $body))]
      let pushDefault (cmds : Array (TSyntax `command)) : MacroM (Array (TSyntax `command)) := do
        return cmds.push (← `(attribute [$kind simproc $[$pre?]?] $n))
      if let some ids := ids? then
@@ -116,13 +116,13 @@ macro_rules
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
-    `(builtin_simproc_decl $n ($pattern) := $body
+    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
       attribute [$kind builtin_simproc $[$pre?]?] $n)
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [seval] $n:ident ($pattern:term) := $body) => do
-    `(builtin_simproc_decl $n ($pattern) := $body
+    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
       attribute [$kind builtin_sevalproc $[$pre?]?] $n)
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [simp, seval] $n:ident ($pattern:term) := $body) => do
-    `(builtin_simproc_decl $n ($pattern) := $body
+    `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
       attribute [$kind builtin_simproc $[$pre?]?] $n
       attribute [$kind builtin_sevalproc $[$pre?]?] $n)
 

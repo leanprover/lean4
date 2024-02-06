@@ -306,7 +306,7 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   | _,          _         => none
 
 /-- Returns a synthetic Syntax which has the specified `String.Range`. -/
-def Lean.Syntax.ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
+def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
   .atom (.synthetic range.start range.stop canonical) ""
 
 /--

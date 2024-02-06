@@ -530,4 +530,27 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
     |>.all id)
 
 end Syntax
+
+namespace TSyntax
+
+/--
+Applies the given function to every subsyntax.
+
+Like `Syntax.replaceM` but for typed syntax.
+(Note there are no guarantees of type correctness here.)
+-/
+def replaceM [Monad M] (f : Syntax → M (Option Syntax)) (stx : TSyntax k) : M (TSyntax k) :=
+  .mk <$> stx.1.replaceM f
+
+end TSyntax
+
+/--
+Constructs a typed separated array from elements.
+The given array does not include the separators.
+
+Like `Syntax.SepArray.ofElems` but for typed syntax.
+-/
+def Syntax.TSepArray.ofElems {sep} (elems : Array (TSyntax k)) : TSepArray k sep :=
+  .mk (SepArray.ofElems (sep := sep) elems).1
+
 end Lean

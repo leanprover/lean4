@@ -33,6 +33,12 @@ structure Import where
   runtimeOnly : Bool := false
   deriving Repr, Inhabited
 
+/-- Array of imports to be executed (in this order) when `prelude` is missing. -/
+def Import.prelude : Array Import := #[
+  { module := `Init : Import },
+  { module := `Base : Import }
+]
+
 instance : Coe Name Import := ⟨({module := ·})⟩
 
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩

@@ -184,7 +184,7 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
 @[inline] partial def preludeOpt (k : String) : Parser :=
-  keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
+  keywordCore k (fun _ s => { s with imports := s.imports ++ Import.prelude }) (fun _ s => s)
 
 def main : Parser :=
   preludeOpt "prelude" >>

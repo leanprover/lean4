@@ -300,11 +300,16 @@ instance : MonadPrettyFormat (StateM State) where
   startTag _         := return ()
   endTags _          := return ()
 
-/-- Pretty-print a `Format` object as a string with expected width `w`. -/
+/--
+Renders a `Format` to a string.
+* `w`: the total width
+* `indent`: the initial indentation
+* `column`: the initial column for the first line
+-/
 @[export lean_format_pretty]
-def pretty (f : Format) (w : Nat := defWidth) : String :=
-  let act: StateM State Unit := prettyM f w
-  act {} |>.snd.out
+def pretty (f : Format) (w : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
+  let act : StateM State Unit := prettyM f w indent
+  State.out <| act (State.mk "" column) |>.snd
 
 end Format
 

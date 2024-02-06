@@ -28,6 +28,9 @@ nativeLibDir = "lib/lean"
 name = "Init"
 
 [[lean_lib]]
+name = "Std"
+
+[[lean_lib]]
 name = "Lean"
 globs = [
   # Library root

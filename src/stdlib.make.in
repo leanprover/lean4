@@ -29,7 +29,7 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=${LEAN_SOURCE_DIR}/../stdlib/
 endif
 
-.PHONY: Init Lean leanshared Lake lean
+.PHONY: Init Std Lean leanshared Lake lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
@@ -37,9 +37,12 @@ Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build `.olean/.o`s of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \
-	  EXTRA_SRC_ROOTS="Lean Lean.lean"
+	  EXTRA_SRC_ROOTS="Std Std.lean Lean Lean.lean"
 
-Lean: Init
+Std: Init
+	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Std $(LEANMAKE_OPTS)
+
+Lean: Std
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
 
 ${LIB}/temp/empty.c:
@@ -61,7 +64,7 @@ endif
 
 Init_shared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/lean/libleancpp.a
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libStd.a.export ${LIB}/temp/libLean.a.export ${LIB}/lean/libleancpp.a
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@

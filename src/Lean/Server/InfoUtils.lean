@@ -86,6 +86,20 @@ where go ctx? a
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | _ => a
 
+/-- Like `InfoTree.foldInfo`, but also passes the whole node to `f` instead of just the head. -/
+partial def InfoTree.foldInfoTree (init : α) (f : ContextInfo → InfoTree → α → α) : InfoTree → α :=
+  go none init
+where
+  /-- `foldInfoTree.go` is like `foldInfo'` but with an additional outer context parameter `ctx?`. -/
+  go ctx? a
+  | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
+  | t@(node i ts) =>
+    let a := match ctx? with
+      | none => a
+      | some ctx => f ctx t a
+    ts.foldl (init := a) (go <| i.updateContext? ctx?)
+  | _ => a
+
 def Info.isTerm : Info → Bool
   | ofTermInfo _ => true
   | _ => false

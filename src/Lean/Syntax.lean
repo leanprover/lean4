@@ -305,6 +305,10 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   | some start, some stop => some { start, stop }
   | _,          _         => none
 
+/-- Returns a synthetic Syntax which has the specified `String.Range`. -/
+def Lean.Syntax.ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
+  .atom (.synthetic range.start range.stop canonical) ""
+
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.

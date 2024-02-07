@@ -222,6 +222,7 @@ structure WorkerState where
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
   rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
+  freshRequestID     : Nat
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -315,6 +316,7 @@ section Initialization
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
+      freshRequestID     := 0
     })
   where
     /-- Creates an LSP message output channel along with a reader that sends out read messages on
@@ -538,11 +540,15 @@ section MessageHandling
           | Except.error e =>
             ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
+
+  def handleResponse (_ : RequestID) (result : Json) : WorkerM Unit :=
+    throwServerError s!"Unknown response kind: {result}"
+
 end MessageHandling
 
 section MainLoop
   variable (hIn : FS.Stream) in
-  partial def mainLoop : WorkerM Unit := do
+  partial def mainLoop : WorkerM UInt32 := do
     let mut st ← get
     let msg ← hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
@@ -569,9 +575,16 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      return ()
+      return 0
     | Message.notification method (some params) =>
       handleNotification method (toJson params)
+      mainLoop
+    | Message.response id result =>
+      handleResponse id result
+      mainLoop
+    | Message.responseError .. =>
+      -- Ignore all errors as we currently only handle a single request with an optional response
+      -- where failure is not an issue.
       mainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop

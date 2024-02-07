@@ -429,11 +429,13 @@ section NotificationHandling
       let some staleDependencyName ← moduleFromDocumentUri srcSearchPath p.staleDependency
         | return
       let diagnostic := {
-        range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+        range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
         severity? := DiagnosticSeverity.warning
-        message := .text s!"Import '{staleDependencyName}' is out of date and should be rebuilt; \
-              use the \"Restart File\" command in your editor."
-      }
+        code?     := some <| .string "LanguageServer_ImportOutOfDate"
+        message   := .text s!"Import '{staleDependencyName}' is out of date; \
+          use the \"Restart File\" command in your editor."
+        data?     := some staleDependencyName.toString
+    }
       ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.push diagnostic
       publishDiagnostics ctx s.doc.toEditableDocumentCore
 

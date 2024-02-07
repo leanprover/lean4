@@ -556,11 +556,12 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
     modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
   return r
 
-partial def simpLoop (e : Expr) : SimpM Result := do
+partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
   let cfg ← getConfig
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
   else
+    checkSystem "simp"
     modify fun s => { s with numSteps := s.numSteps + 1 }
     match (← pre e) with
     | .done r  => cacheResult e cfg r

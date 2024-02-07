@@ -95,7 +95,10 @@ def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
       text.positions.back
   String.Iterator.nextn ⟨text.source, colPos⟩ pos.column |>.pos
 
-/-- Returns the position of the start of (1-based) line `line`. -/
+/--
+Returns the position of the start of (1-based) line `line`.
+This gives the stame result as `map.ofPosition ⟨line, 0⟩`, but is more efficient.
+-/
 def lineStart (map : FileMap) (line : Nat) : String.Pos :=
   if h : line - 1 < map.positions.size then
     map.positions.get ⟨line - 1, h⟩

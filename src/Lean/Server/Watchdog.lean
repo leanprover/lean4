@@ -16,6 +16,7 @@ import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
+import Lean.Language.Lean  -- TEMP
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -234,7 +235,7 @@ section ServerM
             ++ " or the server is shutting down.")
           -- one last message to clear the diagnostics for this file so that stale errors
           -- do not remain in the editor forever.
-          publishDiagnostics fw.doc #[] o
+          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
           return WorkerEvent.terminated
         | 2 =>
           return .importsChanged
@@ -247,7 +248,7 @@ section ServerM
               (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
           fw.errorPendingRequests o errorCode
             s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
+          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -256,7 +257,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishProgressAtPos m 0 (← read).hOut
+    (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
     let st ← read
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
@@ -646,7 +647,11 @@ section MessageHandling
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps
-      else match (← routeLspRequest method params) with
+      else if method == "textDocument/waitForDiagnostics" then
+        let ps ← parseParams Lsp.WaitForDiagnosticsParams params
+        pure <| fileSource ps
+      -- TODO: should not depend on Lean #lang
+      else match (← routeLspRequest Language.Lean.leanLspRequestHandlers method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
         return

@@ -183,10 +183,14 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
+@[inline] partial def hashLangOpt : Parser :=
+  keywordCore "#lang" (fun _ s => s) (moduleIdent false)
+
 @[inline] partial def preludeOpt (k : String) : Parser :=
   keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
 
 def main : Parser :=
+  hashLangOpt >>
   preludeOpt "prelude" >>
   many (keyword "import" >> keywordCore "runtime" (moduleIdent false) (moduleIdent true))
 

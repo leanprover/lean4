@@ -5,14 +5,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Extra
-import Lean.Server.Requests
+import Lean.Server.FileWorker.RequestHandling
 
 import Lean.Server.Rpc.Basic
 
 namespace Lean.Server
 
+-- TODO: RPC for other #langs?
 private structure RpcProcedure where
-  wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
+  wrapper : (sessionId : UInt64) → Json → LeanRequestM (RequestTask Json)
   deriving Inhabited
 
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
@@ -31,21 +32,24 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
 opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 
+def runRpcProcedure (p : RpcProcedure) :
+    (sessionId : UInt64) → Json → LeanRequestM (RequestTask Json) :=
+  p.wrapper
+
 open RequestM in
-def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
+def handleRpcCall (p : Lsp.RpcCallParams) : LeanRequestM (RequestTask Json) := do
   -- The imports are finished at this point, because the handleRequest function
   -- waits for the header.  (Therefore the built-in RPC procedures won't change
   -- if we wait for further snapshots.)
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
     proc.wrapper p.sessionId p.params
   else
-    let doc ← readDoc
-    let text := doc.meta.text
+    let text := (← read).doc.text
     let callPos := text.lspPosToUtf8Pos p.position
     let throwNotFound := throwThe RequestError
       { code := .methodNotFound
         message := s!"No RPC method '{p.method}' found"}
-    bindWaitFindSnap doc (notFoundX := throwNotFound)
+    bindWaitFindSnap (notFoundX := throwNotFound)
       (fun s => s.endPos >= callPos ||
         (userRpcProcedures.find? s.env p.method).isSome)
       fun snap => do
@@ -60,11 +64,11 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
           throwNotFound
 
 builtin_initialize
-  registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
+  registerLspRequestHandler Language.Lean.leanLspRequestHandlers "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
 
 def wrapRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
-    (handler : paramType → RequestM (RequestTask respType)) : RpcProcedure :=
+    (handler : paramType → LeanRequestM (RequestTask respType)) : RpcProcedure :=
   ⟨fun seshId j => do
     let rc ← read
 
@@ -91,7 +95,7 @@ def wrapRpcProcedure (method : Name) paramType respType
 
 def registerBuiltinRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
-    (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
+    (handler : paramType → LeanRequestM (RequestTask respType)) : IO Unit := do
   let errMsg := s!"Failed to register builtin RPC call handler for '{method}'"
   unless (← initializing) do
     throw <| IO.userError s!"{errMsg}: only possible during initialization"
@@ -129,7 +133,7 @@ builtin_initialize registerBuiltinAttribute {
   name := `server_rpc_method
   descr := "Marks a function as a Lean server RPC method.
     Shorthand for `registerRpcProcedure`.
-    The function must have type `α → RequestM (RequestTask β)` with
+    The function must have type `α → LeanRequestM (RequestTask β)` with
     `[RpcEncodable α]` and `[RpcEncodable β]`."
   applicationTime := AttributeApplicationTime.afterCompilation
   add := fun decl _ _ =>

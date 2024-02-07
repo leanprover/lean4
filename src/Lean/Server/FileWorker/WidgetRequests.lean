@@ -45,7 +45,7 @@ structure InfoPopup where
 The intended usage of this is for the infoview to pass the `InfoWithCtx` which
 was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
  -/
-def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
+def makePopup : WithRpcRef InfoWithCtx → LeanRequestM (RequestTask InfoPopup)
   | ⟨i⟩ => RequestM.asTask do
     i.ctx.runMetaM i.info.lctx do
       let type? ← match (← i.info.type?) with
@@ -100,28 +100,6 @@ structure GetInteractiveDiagnosticsParams where
   lineRange? : Option Lsp.LineRange
   deriving Inhabited, FromJson, ToJson
 
-open RequestM in
-def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
-  let doc ← readDoc
-  let rangeEnd := params.lineRange?.map fun range =>
-    doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
-  let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
-  pure <| t.map fun (snaps, _) =>
-    let diags? := snaps.getLast?.map fun snap =>
-      snap.interactiveDiags.toArray.filter fun diag =>
-        params.lineRange?.all fun ⟨s, e⟩ =>
-          -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
-          s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
-          diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
-    pure <| diags?.getD #[]
-
-builtin_initialize
-  registerBuiltinRpcProcedure
-    `Lean.Widget.getInteractiveDiagnostics
-    GetInteractiveDiagnosticsParams
-    (Array InteractiveDiagnostic)
-    getInteractiveDiagnostics
-
 structure GetGoToLocationParams where
   kind : GoToKind
   info : WithRpcRef InfoWithCtx
@@ -141,10 +119,10 @@ builtin_initialize
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
       i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+        locationLinksFromDecl rc.srcSearchPath rc.doc.uri nm none
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
-    RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=
+    LeanRequestM (RequestTask (Array (TaggedText MsgEmbed))) :=
   RequestM.asTask do
     let ⟨indent, children⟩ := children
     children.mapM fun ⟨child⟩ =>

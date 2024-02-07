@@ -443,9 +443,6 @@ def mkInputContext (input : String) (fileName : String) : InputContext := {
   fileMap  := input.toFileMap
 }
 
-def mkParserState (input : String) : ParserState :=
-  { cache := initCacheForInput input }
-
 /-- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
   let p := andthenFn whitespace (categoryParserFnImpl catName)

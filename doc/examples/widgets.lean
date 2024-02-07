@@ -110,7 +110,7 @@ more information for us, in the form of a `snap : Snapshot`. With this in hand, 
 
 open Server RequestM in
 @[server_rpc_method]
-def getType (params : GetTypeParams) : RequestM (RequestTask CodeWithInfos) :=
+def getType (params : GetTypeParams) : LeanRequestM (RequestTask CodeWithInfos) :=
   withWaitFindSnapAtPos params.pos fun snap => do
     runTermElabM snap do
       let name ← resolveGlobalConstNoOverloadCore params.name

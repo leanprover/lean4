@@ -698,22 +698,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             return 0;
         }
 
-        // Quick and dirty `#lang` support
-        // TODO: make it extensible, and add `lean4md`
-        if (contents.compare(0, 5, "#lang") == 0) {
-            auto end_line_pos = contents.find("\n");
-            // TODO: trim
-            auto lang_id      = contents.substr(6, end_line_pos - 6);
-            if (lang_id == "lean4") {
-                // do nothing for now
-            } else {
-                std::cerr << "unknown language '" << lang_id << "'\n";
-                return 1;
-            }
-            // Remove up to `\n`
-            contents.erase(0, end_line_pos);
-        }
-
         if (!main_module_name)
             main_module_name = name("_stdin");
         pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn);

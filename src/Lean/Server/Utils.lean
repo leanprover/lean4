@@ -71,6 +71,11 @@ structure DocumentMeta where
   dependencyBuildMode : Lsp.DependencyBuildMode
   deriving Inhabited
 
+/-- Converts document into an LSP identifier usable in responses. -/
+def DocumentMeta.versionedIdentifier (doc : DocumentMeta) : Lsp.VersionedTextDocumentIdentifier where
+  uri := doc.uri
+  version? := some doc.version
+
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
   fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
@@ -112,36 +117,41 @@ def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentC
 def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
   changes.foldl applyDocumentChange oldText
 
-def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspNotification {
-    method := "textDocument/publishDiagnostics"
-    param  := {
-      uri         := m.uri
-      version?    := m.version
-      diagnostics := diagnostics
-      : PublishDiagnosticsParams
-    }
+def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) :
+    JsonRpc.Notification Lsp.PublishDiagnosticsParams where
+  method := "textDocument/publishDiagnostics"
+  param  := {
+    uri         := m.uri
+    version?    := m.version
+    diagnostics := diagnostics
   }
 
-def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspNotification {
-    method := "$/lean/fileProgress"
-    param := {
-      textDocument := { uri := m.uri, version? := m.version }
-      processing
-      : LeanFileProgressParams
-    }
+def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) :
+    JsonRpc.Notification Lsp.LeanFileProgressParams where
+  method := "$/lean/fileProgress"
+  param := {
+    textDocument := { uri := m.uri, version? := m.version }
+    processing
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }] hOut
+def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos)
+  (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
+    JsonRpc.Notification Lsp.LeanFileProgressParams :=
+  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
 
-def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
-  publishProgress m #[] hOut
+def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
+  mkFileProgressNotification m #[]
 
 -- TODO: should return a request ID (or task?) when we add response handling
-def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspRequest ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
+def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
+    JsonRpc.Request ApplyWorkspaceEditParams :=
+  ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
+
+
+def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
+  match fromJson? params with
+  | Except.ok parsed => pure parsed
+  | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
 end Lean.Server
 

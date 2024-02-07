@@ -100,11 +100,11 @@ structure WidgetSource where
 
 open Server RequestM in
 @[server_rpc_method]
-def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
+def getWidgetSource (args : GetWidgetSourceParams) : LeanRequestM (RequestTask WidgetSource) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos args.pos
+  let pos := doc.text.lspPosToUtf8Pos args.pos
   let notFound := throwThe RequestError ⟨.invalidParams, s!"No widget module with hash {args.hash} registered"⟩
-  withWaitFindSnap doc (notFoundX := notFound)
+  withWaitFindSnap (notFoundX := notFound)
     (fun s => s.endPos >= pos || (moduleRegistry.getState s.env).contains args.hash)
     fun snap => do
       if let some (_, e) := moduleRegistry.getState snap.env |>.find? args.hash then
@@ -368,14 +368,14 @@ structure GetWidgetsResponse where
   widgets : Array PanelWidgetInstance
   deriving Server.RpcEncodable
 
-open Lean Server RequestM in
+open Lean Server RequestM FileWorker in
 /-- Get the panel widgets present around a particular position. -/
 @[server_rpc_method]
-def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (pos : Lean.Lsp.Position) : LeanRequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
-  let filemap := doc.meta.text
+  let filemap := doc.text
   let nextLine := { line := pos.line + 1, character := 0 }
-  let t := doc.cmdSnaps.waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
+  let t := (← mkCmdSnaps).waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
   mapTask t fun (snaps, _) => do
     let some snap := snaps.getLast?
       | return ⟨∅⟩

@@ -65,7 +65,8 @@ When implementing your own `CodeActionProvider`, we assume that no long-running 
 If you need to create a code-action with a long-running computation, you can use the `lazy?` field on `LazyCodeAction`
 to perform the computation after the user has clicked on the code action in their editor.
 -/
-def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
+-- TODO: code actions in other #langs?
+def CodeActionProvider := CodeActionParams → Snapshot → LeanRequestM (Array LazyCodeAction)
 deriving instance Inhabited for CodeActionProvider
 
 builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name NameSet ← registerSimplePersistentEnvExtension {
@@ -93,13 +94,13 @@ private opaque evalCodeActionProvider [MonadEnv M] [MonadOptions M] [MonadError 
 This is implemented by calling all of the registered `CodeActionProvider` functions.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeAction). -/
-def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array CodeAction)) := do
+def handleCodeAction (params : CodeActionParams) : LeanRequestM (RequestTask (Array CodeAction)) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos params.range.end
-  withWaitFindSnap doc (fun s => s.endPos ≥ pos)
+  let pos := doc.text.lspPosToUtf8Pos params.range.end
+  withWaitFindSnap (fun s => s.endPos ≥ pos)
     (notFoundX := return #[])
     fun snap => do
-      let caps ← RequestM.runCoreM snap do
+      let caps ← runCoreM snap do
         let env ← getEnv
         let names := codeActionProviderExt.getState env |>.toArray
         let caps ← names.mapM evalCodeActionProvider
@@ -116,22 +117,22 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
           return ca
 
 builtin_initialize
-  registerLspRequestHandler "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction
+  registerLspRequestHandler Language.Lean.leanLspRequestHandlers "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction
 
 /-- Handler for `"codeAction/resolve"`.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeAction_resolve)
 -/
-def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAction) := do
+def handleCodeActionResolve (param : CodeAction) : LeanRequestM (RequestTask CodeAction) := do
   let doc ← readDoc
   let some data := param.data?
     | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
   let data : CodeActionResolveData ← liftExcept <| Except.mapError RequestError.invalidParams <| fromJson? data
-  let pos := doc.meta.text.lspPosToUtf8Pos data.params.range.end
-  withWaitFindSnap doc (fun s => s.endPos ≥ pos)
+  let pos := doc.text.lspPosToUtf8Pos data.params.range.end
+  withWaitFindSnap (fun s => s.endPos ≥ pos)
     (notFoundX := throw <| RequestError.internalError "snapshot not found")
     fun snap => do
-      let cap ← RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
+      let cap ← runCoreM snap <| evalCodeActionProvider data.providerName
       let cas ← cap data.params snap
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
@@ -141,6 +142,6 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
       return r
 
 builtin_initialize
-  registerLspRequestHandler "codeAction/resolve" CodeAction CodeAction handleCodeActionResolve
+  registerLspRequestHandler Language.Lean.leanLspRequestHandlers "codeAction/resolve" CodeAction CodeAction handleCodeActionResolve
 
 end Lean.Server

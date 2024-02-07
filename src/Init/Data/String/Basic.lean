@@ -521,15 +521,6 @@ def findLineStart (s : String) (pos : String.Pos) : String.Pos :=
   | none => 0
   | some n => ⟨n.byteIdx + 1⟩
 
-/--
-Return the indentation (number of leading spaces) of the line containing `pos`,
-and whether `pos` is the first non-whitespace character in the line.
--/
-def findIndentAndIsStart (s : String) (pos : String.Pos) : Nat × Bool :=
-  let start := findLineStart s pos
-  let body := s.findAux (· ≠ ' ') pos start
-  ((body - start).1, body == pos)
-
 end String
 
 namespace Substring

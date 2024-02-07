@@ -302,15 +302,15 @@ instance : MonadPrettyFormat (StateM State) where
 
 /--
 Renders a `Format` to a string.
-* `w`: the total width
+* `width`: the total width
 * `indent`: the initial indentation to use for wrapped lines
   (subsequent wrapping may increase the indentation)
 * `column`: begin the first line wrap `column` characters earlier than usual
   (this is useful when the output String will be printed starting at `column`)
 -/
 @[export lean_format_pretty]
-def pretty (f : Format) (w : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
-  let act : StateM State Unit := prettyM f w indent
+def pretty (f : Format) (width : Nat := defWidth) (indent : Nat := 0) (column := 0) : String :=
+  let act : StateM State Unit := prettyM f width indent
   State.out <| act (State.mk "" column) |>.snd
 
 end Format

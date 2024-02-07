@@ -530,4 +530,5 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
     |>.all id)
 
 end Syntax
+
 end Lean

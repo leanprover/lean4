@@ -563,8 +563,17 @@ def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax)
 instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
 
+/--
+Constructs a typed separated array from elements.
+The given array does not include the separators.
+
+Like `Syntax.SepArray.ofElems` but for typed syntax.
+-/
+def TSepArray.ofElems {sep} (elems : Array (TSyntax k)) : TSepArray k sep :=
+  .mk (SepArray.ofElems (sep := sep) (TSyntaxArray.raw elems)).1
+
 instance : Coe (TSyntaxArray k) (TSepArray k sep) where
-  coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
+  coe := TSepArray.ofElems
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term

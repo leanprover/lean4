@@ -1238,17 +1238,28 @@ builtin_initialize
 
 -- leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 @[builtin_term_elab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
-  let args := (stx.getArg 1).getSepArgs
-  let discrExpr : Term := ⟨args[0]!⟩ --
---  match stx with
---  | `(nomatch $discrExpr) =>
-    if (← isAtomicDiscr discrExpr) then
+  match stx with
+  | `(nomatch $discrs,*) =>
+    let discrs := discrs.getElems
+    if (← discrs.allM fun discr => isAtomicDiscr discr.raw) then
       let expectedType ← waitExpectedType expectedType?
-      let discr := mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
-      elabMatchAux none #[discr] #[] mkNullNode expectedType
+      let discrs := discrs.map fun discr => mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discr.raw]
+      elabMatchAux none discrs #[] mkNullNode expectedType
     else
-      let stxNew ← `(let_mvar% ?x := $discrExpr:term; nomatch ?x)
+      let rec loop (discrs : List Term) (discrsNew : Array Syntax) : TermElabM Term := do
+        match discrs with
+        | [] =>
+          return ⟨stx.setArg 1 (Syntax.mkSep discrsNew (mkAtomFrom stx ", "))⟩
+        | discr :: discrs =>
+          if (← isAtomicDiscr discr) then
+            loop discrs (discrsNew.push discr)
+          else
+            withFreshMacroScope do
+              let discrNew ← `(?x)
+              let r ← loop discrs (discrsNew.push discrNew)
+              `(let_mvar% ?x := $discr; $r)
+      let stxNew ← loop discrs.toList #[]
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
---  | _ => throwUnsupportedSyntax
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

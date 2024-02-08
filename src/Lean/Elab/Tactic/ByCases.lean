@@ -13,11 +13,6 @@ It allows writing `if h : t then tac1 else tac2` for case analysis on `h : t`,
 -/
 open Lean Parser.Tactic
 
-macro_rules | `(tactic| by_cases $e) => `(tactic| by_cases h : $e)
-macro_rules
-  | `(tactic| by_cases $h : $e) =>
-    `(tactic| open Classical in refine if $h:ident : $e then ?pos else ?neg)
-
 private def expandIfThenElse
     (ifTk thenTk elseTk pos neg : Syntax)
     (mkIf : Term → Term → MacroM Term) : MacroM (TSyntax `tactic) := do

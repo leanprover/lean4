@@ -432,7 +432,7 @@ Empty match/ex falso. `nomatch e` is of arbitrary type `α : Sort u` if
 Lean can show that an empty set of patterns is exhaustive given `e`'s type,
 e.g. because it has no constructors.
 -/
-@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser
+@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder

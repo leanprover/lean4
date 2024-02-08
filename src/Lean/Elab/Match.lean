@@ -1236,17 +1236,19 @@ where
 builtin_initialize
   registerTraceClass `Elab.match
 
--- leading_parser:leadPrec "nomatch " >> termParser
+-- leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 @[builtin_term_elab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(nomatch $discrExpr) =>
+  let args := (stx.getArg 1).getSepArgs
+  let discrExpr : Term := ⟨args[0]!⟩ --
+--  match stx with
+--  | `(nomatch $discrExpr) =>
     if (← isAtomicDiscr discrExpr) then
       let expectedType ← waitExpectedType expectedType?
       let discr := mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux none #[discr] #[] mkNullNode expectedType
     else
-      let stxNew ← `(let_mvar% ?x := $discrExpr; nomatch ?x)
+      let stxNew ← `(let_mvar% ?x := $discrExpr:term; nomatch ?x)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  | _ => throwUnsupportedSyntax
+--  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

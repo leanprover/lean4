@@ -1314,6 +1314,11 @@ class Mod (α : Type u) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`. See `HMod`. -/
   mod : α → α → α
 
+/-- Notation typeclass for the `∣` operation (typed as `\|`), which represents divisibility. -/
+class Dvd (α : Type _) where
+  /-- Divisibility. `a ∣ b` (typed as `\|`) means that there is some `c` such that `b = a * c`. -/
+  dvd : α → α → Prop
+
 /--
 The homogeneous version of `HPow`: `a ^ b : α` where `a : α`, `b : β`.
 (The right argument is not the same as the left since we often want this even

@@ -1249,4 +1249,26 @@ builtin_initialize
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
+/--
+The syntax `match x with.` is a variant of `nomatch x` which supports pattern matching on multiple
+discriminants, like regular `match`, and simply has no alternatives in the match.
+-/
+syntax:lead (name := noMatch) "match " matchDiscr,* " with" "." : term
+
+/-- Elaborator for `match x with.` -/
+@[term_elab noMatch] def elabNoMatch' : TermElab
+| `(match $discrs,* with.), expectedType? => do
+  let discrs := discrs.getElems
+  for h : i in [0:discrs.size] do
+    have h : i < discrs.size := h.2
+    let `(matchDiscr| $[$n :]? $discr:term) := discrs[i] | throwUnsupportedSyntax
+    if ← isAtomicDiscr discr then
+      tryPostponeIfMVar (← Meta.inferType (← elabTerm discr none))
+    else
+      let discrs := discrs.set ⟨i, h⟩ (← `(matchDiscr| $[$n :]? ?x))
+      return ← elabTerm (← `(let_mvar% ?x := $discr; match $discrs,* with.)) expectedType?
+  let expectedType ← waitExpectedType expectedType?
+  elabMatchAux none discrs #[] mkNullNode expectedType
+| _, _ => throwUnsupportedSyntax
+
 end Lean.Elab.Term

@@ -10,6 +10,7 @@ import Lean.Elab.Tactic.Induction
 import Lean.Elab.Tactic.Generalize
 import Lean.Elab.Tactic.Injection
 import Lean.Elab.Tactic.Match
+import Lean.Elab.Tactic.NoMatch
 import Lean.Elab.Tactic.Rewrite
 import Lean.Elab.Tactic.Location
 import Lean.Elab.Tactic.Simp

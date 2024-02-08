@@ -7,6 +7,7 @@ prelude
 import Init.Prelude
 import Init.Notation
 import Init.Tactics
+import Init.TacticsExtra
 import Init.Core
 import Init.Control
 import Init.Data.Basic

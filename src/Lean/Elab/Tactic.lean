@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Elab.Term
 import Lean.Elab.Tactic.Basic
-import Lean.Elab.Tactic.ByCases
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Induction
 import Lean.Elab.Tactic.Generalize

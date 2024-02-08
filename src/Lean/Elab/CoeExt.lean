@@ -23,7 +23,7 @@ This file also provides `⇑f` and `↥t` notation, which are syntax for `Lean.M
 and `Lean.Meta.coerceToSort?` respectively.
 -/
 
-namespace Std.Tactic.Coe
+namespace Lean.Elab.Coe
 
 /-- `⇑ t` coerces `t` to a function. -/
 -- the precendence matches that of `coeNotation`

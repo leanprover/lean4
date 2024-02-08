@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec___rarg(lean_object*);
@@ -1463,7 +1463,7 @@ x_11 = l_Nat_repr(x_10);
 x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Std_Format_defWidth;
-x_14 = lean_format_pretty(x_12, x_13);
+x_14 = lean_format_pretty(x_12, x_13, x_3, x_3);
 x_15 = l_Lean_Parsec_run___rarg___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);

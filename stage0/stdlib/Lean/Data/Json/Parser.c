@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num___lambda__5___closed__2___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_natCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_objectCore(lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_num___lambda__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__2;
@@ -4155,7 +4155,7 @@ x_10 = l_Nat_repr(x_9);
 x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_2, x_2);
 x_14 = l_Lean_Json_parse___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);

@@ -74,7 +74,6 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
-
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then

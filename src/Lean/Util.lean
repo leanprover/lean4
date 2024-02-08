@@ -23,6 +23,7 @@ import Lean.Util.ForEachExprWhere
 import Lean.Util.ReplaceLevel
 import Lean.Util.FoldConsts
 import Lean.Util.SCC
+import Lean.Util.TermUnsafe
 import Lean.Util.TestExtern
 import Lean.Util.OccursCheck
 import Lean.Util.HasConstCache

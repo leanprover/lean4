@@ -152,7 +152,6 @@ section ServerM
     let oldImports     := d.imports.findD uri ∅
     let removedImports := oldImports.diff imports
     let addedImports   := imports.diff oldImports
-    let imports        := d.imports.insert uri imports
     let mut importedBy := d.importedBy
 
     for removedImport in removedImports do
@@ -168,8 +167,16 @@ section ServerM
           |>.insert uri
           |> importedBy.insert addedImport
 
+    let imports :=
+      if imports.isEmpty then
+        d.imports.erase uri
+      else
+        d.imports.insert uri imports
+
     return { imports, importedBy }
 
+  def ImportData.eraseImportsOf (d : ImportData) (uri : DocumentUri) : ImportData :=
+    d.update uri ∅
 
   structure RequestIDTranslation where
     sourceUri : DocumentUri
@@ -231,6 +238,7 @@ section ServerM
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
+    s.importData.modify (·.eraseImportsOf uri)
     s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
     let some module ← s.srcSearchPath.searchModuleNameOfUri uri
       | return
@@ -440,6 +448,14 @@ section ServerM
         fw.stdin.writeLspMessage msg
       catch _ =>
         handleCrash uri initialQueuedMsgs
+
+  def notifyAboutStaleDependency (uri : DocumentUri) (staleDependency : DocumentUri)
+      : ServerM Unit :=
+    let notification := Notification.mk "$/lean/staleDependency" {
+      staleDependency := staleDependency
+      : LeanStaleDependencyParams
+    }
+    tryWriteMessage uri notification (queueFailedMessage := false)
 end ServerM
 
 section RequestHandling
@@ -722,39 +738,44 @@ section NotificationHandling
     let s ← read
     let fileWorkers ← s.fileWorkersRef.get
     let importData  ← s.importData.get
-    let importedBy := importData.importedBy.findD p.textDocument.uri ∅
+    let dependents := importData.importedBy.findD p.textDocument.uri ∅
 
     for ⟨uri, _⟩ in fileWorkers do
-      if ! importedBy.contains uri then
+      if ! dependents.contains uri then
         continue
-      let notification := Notification.mk "$/lean/staleDependency" {
-        staleDependency := p.textDocument.uri
-        : LeanStaleDependencyParams
-      }
-      tryWriteMessage uri notification (queueFailedMessage := false)
+      notifyAboutStaleDependency uri p.textDocument.uri
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
+    let importData ← (← read).importData.get
     let references := (← read).references
     let oleanSearchPath ← Lean.searchPathRef.get
     let ileans ← oleanSearchPath.findAllWithExt "ilean"
     for change in p.changes do
-      if let some path := fileUriToPath? change.uri then
-      if let FileChangeType.Deleted := change.type then
-        references.modify (fun r => r.removeIlean path)
-      else if ileans.contains path then
-        try
-          let ilean ← Ilean.load path
-          if let FileChangeType.Changed := change.type then
-            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-          else
-            references.modify (fun r => r.addIlean path ilean)
-        catch
-          -- ilean vanished, ignore error
-          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
-          | e => throw e
+      let some path := fileUriToPath? change.uri
+        | continue
+      match path.extension with
+      | "lean" =>
+        let dependents := importData.importedBy.findD change.uri ∅
+        for dependent in dependents do
+          notifyAboutStaleDependency dependent change.uri
+      | "ilean" =>
+        if let FileChangeType.Deleted := change.type then
+          references.modify (fun r => r.removeIlean path)
+        else if ileans.contains path then
+          try
+            let ilean ← Ilean.load path
+            if let FileChangeType.Changed := change.type then
+              references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+            else
+              references.modify (fun r => r.addIlean path ilean)
+          catch
+            -- ilean vanished, ignore error
+            | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+            | e => throw e
+      | _ => continue
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
@@ -1074,14 +1095,14 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     }
   }
   o.writeLspRequest {
-    id := RequestID.str "register_ilean_watcher"
+    id := RequestID.str "register_lean_watcher"
     method := "client/registerCapability"
     param := some {
       registrations := #[ {
-        id := "ilean_watcher"
+        id := "lean_watcher"
         method := "workspace/didChangeWatchedFiles"
         registerOptions := some <| toJson {
-          watchers := #[ { globPattern := "**/*.ilean" } ]
+          watchers := #[ { globPattern := "**/*.lean" }, { globPattern := "**/*.ilean" } ]
         : DidChangeWatchedFilesRegistrationOptions }
       } ]
     : RegistrationParams }

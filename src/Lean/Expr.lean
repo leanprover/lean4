@@ -408,7 +408,7 @@ inductive Expr where
 
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
-  to `(fun x : t => e) v`. Here is an example of a dependent let-expression
+  to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 

@@ -575,7 +575,7 @@ def buildTermWF (originalVarNamess : Array (Array Name)) (varNamess : Array (Arr
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
     let body ← mkTupleSyntax measureStxs
-    return { ref := .missing, vars := idents, body }
+    return { ref := .missing, vars := idents, body, synthetic := true }
 
 /--
 The TerminationWF produced by GuessLex may mention more variables than allowed in the surface
@@ -585,8 +585,9 @@ The latter works fine in many cases, and is still useful to the user in the tric
 we do that.
 -/
 def trimTermWF (extraParams : Array Nat) (elems : TerminationWF) : TerminationWF :=
-  elems.mapIdx fun funIdx elem =>
-    { elem with vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size] }
+  elems.mapIdx fun funIdx elem => { elem with
+    vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size]
+    synthetic := false }
 
 /--
 Given a matrix (row-major) of strings, arranges them in tabular form.

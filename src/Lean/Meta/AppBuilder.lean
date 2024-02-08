@@ -333,7 +333,7 @@ private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
   Remark:
   ``mkAppM `arbitrary #[α]`` returns `@arbitrary.{u} α` without synthesizing
   the implicit argument occurring after `α`.
-  Given a `x : (([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`
+  Given a `x : ([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`.
 -/
 def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
   withAppBuilderTrace constName xs do withNewMCtxDepth do

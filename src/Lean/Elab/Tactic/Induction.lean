@@ -79,11 +79,7 @@ namespace ElimApp
 structure Alt where
   /-- The short name of the alternative, used in `| foo =>` cases -/
   name      : Name
-  /-- A declaration corresponding to the inductive constructor.
-  (For custom recursors, the alternatives correspond to parameter names in the
-  recursor, so we may not have a declaration to point to.)
-  This is used for go-to-definition on the alternative name. -/
-  declName? : Option Name
+  info      : ElimAltInfo
   /-- The subgoal metavariable for the alternative. -/
   mvarId    : MVarId
   deriving Inhabited
@@ -163,8 +159,8 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
           let arg ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
           let x   ← getBindingName
           modify fun s =>
-            let declName? := elimInfo.altsInfo[s.alts.size]!.declName?
-            { s with alts := s.alts.push ⟨x, declName?, arg.mvarId!⟩ }
+            let info := elimInfo.altsInfo[s.alts.size]!
+            { s with alts := s.alts.push ⟨x, info, arg.mvarId!⟩ }
           addNewArg arg
       loop
     | _ =>
@@ -286,7 +282,7 @@ where
     let mut usedWildcard := false
     let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
     let mut altsSyntax := altsSyntax
-    for { name := altName, declName?, mvarId := altMVarId } in alts do
+    for { name := altName, info, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
       let mut isWildcard := false
       let altStx? ←
@@ -307,7 +303,11 @@ where
         match (← Cases.unifyEqs? numEqs altMVarId {}) with
         | none   => pure () -- alternative is not reachable
         | some (altMVarId', subst) =>
-          (_, altMVarId) ← altMVarId'.introNP numGeneralized
+          altMVarId ← if info.provesMotive then
+            (_, altMVarId) ← altMVarId'.introNP numGeneralized
+            pure altMVarId
+          else
+            pure altMVarId'
           for fvarId in toClear do
             altMVarId ← altMVarId.tryClear fvarId
           altMVarId.withContext do
@@ -333,7 +333,7 @@ where
           -- inside tacticInfo for the current alternative (in `evalAlt`)
           let addInfo : TermElabM Unit := do
             if (← getInfoState).enabled then
-              if let some declName := declName? then
+              if let some declName := info.declName? then
                 addConstInfo (getAltNameStx altStx) declName
               saveAltVarsInfo altMVarId altStx fvarIds
           let unusedAlt := do
@@ -345,7 +345,11 @@ where
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', subst) =>
-            (_, altMVarId) ← altMVarId'.introNP numGeneralized
+            altMVarId ← if info.provesMotive then
+              (_, altMVarId) ← altMVarId'.introNP numGeneralized
+              pure altMVarId
+            else
+              pure altMVarId'
             for fvarId in toClear do
               altMVarId ← altMVarId.tryClear fvarId
             altMVarId.withContext do

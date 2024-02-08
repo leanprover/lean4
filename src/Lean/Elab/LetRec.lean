@@ -97,7 +97,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
-    let termination ← view.termination.checkVars view.binderIds.size value
+    let termination := view.termination.rememberExtraParams view.binderIds.size value
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!

@@ -19,7 +19,8 @@ def getSimpMatchContext : MetaM Simp.Context :=
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
+  let discharge? ← SplitIf.mkDischarge?
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     unless (← isMatcherApp e) do
@@ -36,7 +37,8 @@ def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   applySimpResultToTarget mvarId target r
 
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
+  let discharge? ← SplitIf.mkDischarge?
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     if e.isAppOf matchDeclName then

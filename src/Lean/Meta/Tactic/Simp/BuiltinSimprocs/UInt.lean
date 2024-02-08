@@ -41,11 +41,7 @@ def $toExpr (v : Value) : Expr :=
   unless e.isAppOfArity declName arity do return .continue
   let some n ← ($fromExpr e.appFn!.appArg!) | return .continue
   let some m ← ($fromExpr e.appArg!) | return .continue
-  let d ← mkDecide e
-  if op n.value m.value then
-    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
-  else
-    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
+  evalPropStep e (op n.value m.value)
 
 builtin_simproc [simp, seval] $(mkIdent `reduceAdd):ident ((_ + _ : $typeName)) := reduceBin ``HAdd.hAdd 6 (· + ·)
 builtin_simproc [simp, seval] $(mkIdent `reduceMul):ident ((_ * _ : $typeName)) := reduceBin ``HMul.hMul 6 (· * ·)

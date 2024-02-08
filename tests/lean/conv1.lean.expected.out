@@ -182,3 +182,9 @@ h2 : Q 1 2 3
 | P
 conv1.lean:268:10-268:13: error: invalid 'fun' conv tactic, application expected
   p
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2 3
+conv1.lean:279:10-279:15: error: invalid 'arg 0' conv tactic, application expected
+  p

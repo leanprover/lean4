@@ -55,7 +55,7 @@ syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 
 /-- Traverses into the function of a (unary) function application.
-For example, `| f a b` turns into `| f a`.  -/
+For example, `| f a b` turns into `| f a`. (Use `arg 0` to traverse into `f`.)  -/
 syntax (name := «fun») "fun" : conv
 
 /-- Reduces the target to Weak Head Normal Form. This reduces definitions
@@ -78,7 +78,8 @@ syntax (name := congr) "congr" : conv
 * `arg i` traverses into the `i`'th argument of the target. For example if the
   target is `f a b c d` then `arg 1` traverses to `a` and `arg 3` traverses to `c`.
 * `arg @i` is the same as `arg i` but it counts all arguments instead of just the
-  explicit arguments. -/
+  explicit arguments.
+* `arg 0` traverses into the function. If the target is `f a b c d`, `arg 0` traverses into `f`. -/
 syntax (name := arg) "arg " "@"? num : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)

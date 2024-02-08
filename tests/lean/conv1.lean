@@ -266,3 +266,15 @@ example (P Q : Nat → Nat → Nat → Prop) (h : P = Q) (h2 : Q 1 2 3) : P 1 2 
 
 example (p : Prop) : p := by
   conv => fun -- error
+
+-- Testing conv => arg 0
+example (P Q : Nat → Nat → Nat → Prop) (h : P = Q) (h2 : Q 1 2 3) : P 1 2 3 := by
+  conv =>
+    trace_state
+    arg 0
+    trace_state
+    rw [h]
+  exact h2
+
+example (p : Prop) : p := by
+  conv => arg 0 -- error

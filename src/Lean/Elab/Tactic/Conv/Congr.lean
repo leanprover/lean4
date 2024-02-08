@@ -74,6 +74,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
+
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then
@@ -101,15 +102,30 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
   selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
+/-- Implementation of `arg 0` -/
+def congrFunN (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  let lhs := (← instantiateMVars lhs).cleanupAnnotations
+  unless lhs.isApp do
+    throwError "invalid 'arg 0' conv tactic, application expected{indentExpr lhs}"
+  lhs.withApp fun f xs => do
+    let (g, mvarNew) ← mkConvGoalFor f
+    mvarId.assign (← xs.foldlM (fun mvar a => Meta.mkCongrFun mvar a) mvarNew)
+    let rhs' := mkAppN g xs
+    unless ← isDefEqGuarded rhs rhs' do
+      throwError "invalid 'arg 0' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    return mvarNew.mvarId!
+
 @[builtin_tactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
   match stx with
   | `(conv| arg $[@%$tk?]? $i:num) =>
     let i := i.getNat
     if i == 0 then
-      throwError "invalid 'arg' conv tactic, index must be greater than 0"
-    let i := i - 1
-    let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
-    selectIdx "arg" mvarIds i
+      replaceMainGoal [← congrFunN (← getMainGoal)]
+    else
+      let i := i - 1
+      let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
+      selectIdx "arg" mvarIds i
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.«fun»] def evalFun : Tactic := fun _ => do

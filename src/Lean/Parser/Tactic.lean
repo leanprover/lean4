@@ -92,6 +92,9 @@ example : (List.range 1000).length = 1000 := by native_decide
 @[builtin_tactic_parser] def nativeDecide := leading_parser
   nonReservedSymbol "native_decide"
 
+builtin_initialize
+  register_parser_alias "matchRhsTacticSeq" matchRhs
+
 end Tactic
 end Parser
 end Lean

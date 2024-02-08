@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_IO_FS_Handle_readToEnd___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_IO_println___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_eprintln___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_instInhabitedStream___closed__1;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_termPrintln_x21_______closed__9;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2780____closed__2;
@@ -9380,13 +9380,14 @@ return x_6;
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_instEval__1___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint32_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = l_Std_Format_defWidth;
-x_4 = lean_format_pretty(x_1, x_3);
-x_5 = 10;
-x_6 = lean_string_push(x_4, x_5);
-x_7 = l_IO_print___at_IO_println___spec__1(x_6, x_2);
-return x_7;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_format_pretty(x_1, x_3, x_4, x_4);
+x_6 = 10;
+x_7 = lean_string_push(x_5, x_6);
+x_8 = l_IO_print___at_IO_println___spec__1(x_7, x_2);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instEval__1___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {

@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_expandDeclIdCore___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Modifiers_isPrivate___boxed(lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_applyVisibility___rarg___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_applyVisibility___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3___closed__1;
@@ -1462,7 +1462,7 @@ x_14 = 0;
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Lean_Syntax_formatStxAux(x_13, x_14, x_15, x_12);
 x_17 = l_Std_Format_defWidth;
-x_18 = lean_format_pretty(x_16, x_17);
+x_18 = lean_format_pretty(x_16, x_17, x_15, x_15);
 x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 switch (x_7) {
@@ -1998,10 +1998,11 @@ return x_42;
 LEAN_EXPORT lean_object* l_Lean_Elab_instToStringModifiers___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Format_defWidth;
-x_3 = lean_format_pretty(x_1, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_instToStringModifiers___lambda__2(lean_object* x_1) {

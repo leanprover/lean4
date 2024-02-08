@@ -16,7 +16,7 @@ extern "C" {
 static lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__2;
 lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_toAttributeKind(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_toAttributeKind___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_elabAttr___spec__1___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Elab_mkAttrKindGlobal___closed__6;
@@ -332,7 +332,7 @@ x_9 = 0;
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_7);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_10, x_10);
 x_14 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 switch (x_2) {

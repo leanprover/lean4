@@ -499,8 +499,8 @@ def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
 Add a delayed assignment for the given metavariable. You must make sure that
 the metavariable is not already assigned or delayed-assigned.
 -/
-def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (ass : DelayedMetavarAssignment) : m Unit :=
-  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId ass }
+def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (mvarIdPending : MVarId) : m Unit :=
+  modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending } }
 
 /-!
 ## Notes on artificial eta-expanded terms due to metavariables.
@@ -1195,7 +1195,7 @@ mutual
         let (mvarIdPending, nestedFVars) ← match (← getDelayedMVarAssignment? mvarId) with
           | none => pure (mvarId, #[])
           | some { fvars, mvarIdPending } => pure (mvarIdPending, fvars)
-        assignDelayedMVar newMVarId ⟨(toRevert ++ nestedFVars), mvarIdPending⟩
+        assignDelayedMVar newMVarId (toRevert ++ nestedFVars) mvarIdPending
       return (mkAppN result args, toRevert)
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do

@@ -335,6 +335,15 @@ def evalTacticAt (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
   finally
     setGoals gs
 
+/--
+Like `evalTacticAt`, but without restoring the goal list or pruning solved goals.
+Useful when these tasks are already being done in an outer loop.
+-/
+def evalTacticAtRaw (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
+  setGoals [mvarId]
+  evalTactic tac
+  getGoals
+
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let e ← instantiateMVars e
   let pendingMVars ← getMVars e

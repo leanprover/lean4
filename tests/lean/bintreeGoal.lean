@@ -63,5 +63,5 @@ theorem BinTree.find_insert (b : BinTree β) (k : Nat) (v : β)
   induction t with simp
   | node left key value right ihl ihr =>
     by_cases k < key <;> simp [*]
-    . cases h; apply ihl; done
+    · cases h; apply ihl; assumption
     . sorry

@@ -851,6 +851,12 @@ syntax (name := tacIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
     ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
+/--
+The tactic `nofun` is shorthand for `exact nofun`: it introduces the assumptions, then performs an
+empty pattern match, closing the goal if the introduced pattern is impossible.
+-/
+macro "nofun" : tactic => `(tactic| exact nofun)
+
 end Tactic
 
 namespace Attr

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Match.Match
@@ -1260,6 +1260,16 @@ builtin_initialize
               `(let_mvar% ?x := $discr; $r)
       let stxNew ← loop discrs.toList #[]
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab «nofun»] def elabNoFun : TermElab := fun stx expectedType? => do
+  match stx with
+  | `($tk:nofun) =>
+    let expectedType ← waitExpectedType expectedType?
+    let binders ← forallTelescopeReducing expectedType fun args _ =>
+      args.mapM fun _ => withFreshMacroScope do `(a)
+    let stxNew ← `(fun%$tk $binders* => nomatch%$tk $binders,*)
+    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

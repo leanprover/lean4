@@ -7,6 +7,8 @@ import Lean.Elab.ElabRules
 import Lean.Meta.Closure
 import Lean.Compiler.ImplementedByAttr
 
+#exit
+
 /-!
 Defines term syntax to call unsafe functions.
 

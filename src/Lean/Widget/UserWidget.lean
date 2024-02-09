@@ -56,6 +56,11 @@ class ToModule (α : Type u) where
 
 instance : ToModule Module := ⟨id⟩
 
+private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 Module compare) ← IO.mkRef ∅
+
+def addBuiltinModule (m : Module) : IO Unit :=
+  builtinModulesRef.modify (·.insert m.javascriptHash m)
+
 /-- Every constant `c : α` marked with `@[widget_module]` is registered here.
 The registry maps `hash (toModule c).javascript` to ``(`c, `(@toModule α inst c))``
 where `inst : ToModule α` is synthesized during registration time
@@ -71,19 +76,38 @@ builtin_initialize moduleRegistry : ModuleRegistry ←
     toArrayFn     := fun es => es.toArray
   }
 
-private def widgetModuleAttrImpl : AttributeImpl where
-  name := `widget_module
-  descr := "Registers a widget module. Its type must implement Lean.Widget.ToModule."
-  applicationTime := AttributeApplicationTime.afterCompilation
-  add decl _stx _kind := Prod.fst <$> MetaM.run do
-    let e ← mkAppM ``ToModule.toModule #[.const decl []]
-    let mod ← evalModule e
-    let env ← getEnv
-    if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
-      logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
-    setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
-
-builtin_initialize registerBuiltinAttribute widgetModuleAttrImpl
+/--
+Registers `[builtin_widget_module]` and `[widget_module]` and binds the latter's implementation
+(used for creating the obsolete `[widget]` alias below).
+ -/
+builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
+  let mkAttr (builtin : Bool) (name : Name) := do
+    let impl := {
+      name
+      descr           := (if builtin then "(builtin) " else "") ++
+        "Registers a widget module. Its type must implement Lean.Widget.ToModule."
+      applicationTime := .afterCompilation
+      add             := fun decl stx kind => Prod.fst <$> MetaM.run do
+        Attribute.Builtin.ensureNoArgs stx
+        unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+        let e ← mkAppM ``ToModule.toModule #[.const decl []]
+        let mod ← evalModule e
+        let env ← getEnv
+        if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
+          logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
+        if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
+          logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
+        let env ← getEnv
+        if builtin then
+          let h := mkConst decl
+          declareBuiltin decl <| mkApp (mkConst ``addBuiltinModule) h
+        else
+          setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
+    }
+    registerBuiltinAttribute impl
+    return impl
+  let _ ← mkAttr true `builtin_widget_module
+  mkAttr false `widget_module
 
 /-! ## Retrieval of widget modules -/
 
@@ -101,6 +125,9 @@ structure WidgetSource where
 open Server RequestM in
 @[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
+  if let some m := (← builtinModulesRef.get).find? args.hash then
+    return .pure { sourcetext := m.javascript }
+
   let doc ← readDoc
   let pos := doc.meta.text.lspPosToUtf8Pos args.pos
   let notFound := throwThe RequestError ⟨.invalidParams, s!"No widget module with hash {args.hash} registered"⟩

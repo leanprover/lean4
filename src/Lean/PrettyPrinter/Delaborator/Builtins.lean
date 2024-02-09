@@ -341,27 +341,6 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   else
     delabAppCore (n - arity) x
 
-/--
-This delaborator tries to elide functions which are known coercions.
-For example, `Int.ofNat` is a coercion, so instead of printing `ofNat n` we just print `↑n`,
-and when re-parsing this we can (usually) recover the specific coercion being used.
--/
-@[builtin_delab app]
-def coeDelaborator : Delab := whenPPOption getPPCoercions do
-  let e ← getExpr
-  let .const declName _ := e.getAppFn | failure
-  let some info ← Meta.getCoeFnInfo? declName | failure
-  let n := e.getAppNumArgs
-  withOverApp info.numArgs do
-    match info.type with
-    | .coe => `(↑$(← withNaryArg info.coercee delab))
-    | .coeFun =>
-      if n = info.numArgs then
-        `(⇑$(← withNaryArg info.coercee delab))
-      else
-        withNaryArg info.coercee delab
-    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
-
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
   info        : MatcherInfo
@@ -831,6 +810,28 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   withOverApp (info.numParams + 1) do
     let appStx ← withAppArg delab
     `($(appStx).$(mkIdent f):ident)
+
+/--
+This delaborator tries to elide functions which are known coercions.
+For example, `Int.ofNat` is a coercion, so instead of printing `ofNat n` we just print `↑n`,
+and when re-parsing this we can (usually) recover the specific coercion being used.
+-/
+-- NOTE: should take precedence over, i.e. be declared below, `delabProjectionApp`
+@[builtin_delab app]
+def coeDelaborator : Delab := whenPPOption getPPCoercions do
+  let e ← getExpr
+  let .const declName _ := e.getAppFn | failure
+  let some info ← Meta.getCoeFnInfo? declName | failure
+  let n := e.getAppNumArgs
+  withOverApp info.numArgs do
+    match info.type with
+    | .coe => `(↑$(← withNaryArg info.coercee delab))
+    | .coeFun =>
+      if n = info.numArgs then
+        `(⇑$(← withNaryArg info.coercee delab))
+      else
+        withNaryArg info.coercee delab
+    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
 def delabDIte : Delab := whenPPOption getPPNotation <| withOverApp 5 do

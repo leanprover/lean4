@@ -1,12 +1,14 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Gabriel Ebner
 -/
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
+import Lean.Meta.Closure
 import Lean.Meta.MatchUtil
 import Lean.Elab.SyntheticMVars
+import Lean.Compiler.ImplementedByAttr
 
 namespace Lean.Elab.Term
 open Meta
@@ -424,5 +426,34 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
 @[builtin_term_elab noindex] def elabNoindex : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[1] expectedType?
   return DiscrTree.mkNoindexAnnotation e
+
+-- TODO: investigate whether we need this function
+private def mkAuxNameForElabUnsafe (hint : Name) : TermElabM Name :=
+  withFreshMacroScope do
+    let name := (← getDeclName?).getD Name.anonymous ++ hint
+    return addMacroScope (← getMainModule) name (← getCurrMacroScope)
+
+@[builtin_term_elab «unsafe»]
+def elabUnsafe : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(unsafe $t) => do
+    let t ← elabTermAndSynthesize t expectedType?
+    if (← logUnassignedUsingErrorInfos (← getMVars t)) then
+      throwAbortTerm
+    let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
+    let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
+    let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
+    let implName ← mkAuxNameForElabUnsafe `impl
+    addDecl <| Declaration.defnDecl {
+      name        := implName
+      type        := unsafeDefn.type
+      levelParams := unsafeDefn.levelParams
+      value       := (← mkOfNonempty unsafeDefn.type)
+      hints       := .opaque
+      safety      := .safe
+    }
+    setImplementedBy implName unsafeFn
+    return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

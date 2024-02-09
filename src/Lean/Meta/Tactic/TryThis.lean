@@ -7,11 +7,7 @@ prelude
 import Lean.Server.CodeActions
 import Lean.Widget.UserWidget
 import Lean.Data.Json.Elab
-
-/-- Gets the LSP range from a `String.Range`. -/
-def Lean.FileMap.utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
-  { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
-
+import Lean.Data.Lsp.Utf16
 
 /-!
 # "Try this" support

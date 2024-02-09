@@ -86,6 +86,10 @@ def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)
 
+/-- Gets the LSP range from a `String.Range`. -/
+def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
+  { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
+
 end FileMap
 end Lean
 

@@ -84,6 +84,26 @@ partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
       -- Can also happen with EOF errors, which are not strictly inside the file.
       ⟨lines.back, (pos - ps.back).byteIdx⟩
 
+/-- Convert a `Lean.Position` to a `String.Pos`. -/
+def ofPosition (text : FileMap) (pos : Position) : String.Pos :=
+  let colPos :=
+    if h : pos.line - 1 < text.positions.size then
+      text.positions.get ⟨pos.line - 1, h⟩
+    else if text.positions.isEmpty then
+      0
+    else
+      text.positions.back
+  String.Iterator.nextn ⟨text.source, colPos⟩ pos.column |>.pos
+
+/--
+Returns the position of the start of (1-based) line `line`.
+This gives the stame result as `map.ofPosition ⟨line, 0⟩`, but is more efficient.
+-/
+def lineStart (map : FileMap) (line : Nat) : String.Pos :=
+  if h : line - 1 < map.positions.size then
+    map.positions.get ⟨line - 1, h⟩
+  else map.positions.back?.getD 0
+
 end FileMap
 end Lean
 

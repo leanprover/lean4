@@ -1,0 +1,12 @@
+
+
+↑n : Nat
+↑n : Nat
+⇑f : Nat → Nat
+⇑f : Nat → Nat
+f 1 : Nat
+⇑(g 1) : Nat → Nat
+(g 1) 2 : Nat
+⇑h : Nat → WrappedFun Nat
+↥t : Type
+↥t : Type

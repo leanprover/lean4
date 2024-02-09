@@ -857,6 +857,12 @@ empty pattern match, closing the goal if the introduced pattern is impossible.
 -/
 macro "nofun" : tactic => `(tactic| exact nofun)
 
+/--
+The tactic `nomatch h` is shorthand for `exact nomatch h`.
+-/
+macro "nomatch " es:term,+ : tactic =>
+  `(tactic| exact nomatch $es:term,*)
+
 end Tactic
 
 namespace Attr

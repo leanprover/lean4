@@ -1,13 +1,13 @@
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich
+Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
-
+import Lean.Parser
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-import Lean.Parser
+import Lean.Meta.CoeAttr
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
@@ -315,7 +315,8 @@ Default delaborator for applications.
 -/
 @[builtin_delab app]
 def delabApp : Delab := do
-  delabAppCore (← getExpr).getAppNumArgs delabAppFn
+  let e ← getExpr
+  delabAppCore e.getAppNumArgs delabAppFn
 
 /--
 The `withOverApp` combinator allows delaborators to handle "over-application" by using the core
@@ -339,6 +340,27 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
     x
   else
     delabAppCore (n - arity) x
+
+/--
+This delaborator tries to elide functions which are known coercions.
+For example, `Int.ofNat` is a coercion, so instead of printing `ofNat n` we just print `↑n`,
+and when re-parsing this we can (usually) recover the specific coercion being used.
+-/
+@[builtin_delab app]
+def coeDelaborator : Delab := whenPPOption getPPCoercions do
+  let e ← getExpr
+  let .const declName _ := e.getAppFn | failure
+  let some info ← Meta.getCoeFnInfo? declName | failure
+  let n := e.getAppNumArgs
+  withOverApp info.numArgs do
+    match info.type with
+    | .coe => `(↑$(← withNaryArg info.coercee delab))
+    | .coeFun =>
+      if n = info.numArgs then
+        `(⇑$(← withNaryArg info.coercee delab))
+      else
+        withNaryArg info.coercee delab
+    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

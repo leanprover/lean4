@@ -43,3 +43,4 @@ import Lean.Meta.CasesOn
 import Lean.Meta.ExprLens
 import Lean.Meta.ExprTraverse
 import Lean.Meta.Eval
+import Lean.Meta.CoeAttr

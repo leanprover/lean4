@@ -20,6 +20,7 @@ open Meta
   ensureHasType expectedType? e
 
 @[builtin_term_elab coeFunNotation] def elabCoeFunNotation : TermElab := fun stx _ => do
+  let stx := stx[1]
   let x ← elabTerm stx none
   if let some ty ← coerceToFunction? x then
     return ty
@@ -27,6 +28,7 @@ open Meta
     throwError "cannot coerce to function{indentExpr x}"
 
 @[builtin_term_elab coeSortNotation] def elabCoeSortNotation : TermElab := fun stx _ => do
+  let stx := stx[1]
   let x ← elabTerm stx none
   if let some ty ← coerceToSort? x then
     return ty

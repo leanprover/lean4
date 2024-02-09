@@ -485,6 +485,13 @@ existing code. It may be removed in a future version of the library.
 syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
 
 /--
+The `@[coe]` attribute on a function (which should also appear in a
+`instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
+applications of this function as `↑` when printing expressions.
+-/
+syntax (name := Attr.coe) "coe" : attr
+
+/--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
 a string literal with the contents of the file at `"parent_dir" / "path" / "to" / "file"`. If this
 file cannot be read, elaboration fails.

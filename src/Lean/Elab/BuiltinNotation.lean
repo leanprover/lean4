@@ -19,6 +19,20 @@ open Meta
     throwError "invalid coercion notation, expected type is not known"
   ensureHasType expectedType? e
 
+@[builtin_term_elab coeFunNotation] def elabCoeFunNotation : TermElab := fun stx _ => do
+  let x ← elabTerm stx none
+  if let some ty ← coerceToFunction? x then
+    return ty
+  else
+    throwError "cannot coerce to function{indentExpr x}"
+
+@[builtin_term_elab coeSortNotation] def elabCoeSortNotation : TermElab := fun stx _ => do
+  let x ← elabTerm stx none
+  if let some ty ← coerceToSort? x then
+    return ty
+  else
+    throwError "cannot coerce to sort{indentExpr x}"
+
 @[builtin_term_elab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
   | `(⟨$args,*⟩) => do

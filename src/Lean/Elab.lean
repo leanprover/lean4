@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Import
 import Lean.Elab.Exception
-import Lean.Elab.CoeExt
 import Lean.Elab.Config
 import Lean.Elab.Command
 import Lean.Elab.Term

@@ -23,12 +23,15 @@ namespace Lean.TermUnsafe
 open Lean Meta Elab Term
 
 /-- Construct an auxiliary name based on the current declaration name and the given `hint` base. -/
-def mkAuxName (hint : Name) : TermElabM Name :=
+-- Note we already have `Lean.Elab.Term.mkAuxName` and `Lean.mkAuxName`.
+-- This is slightly different again (doesn't fail it `getDeclName?` is empty,
+-- and incorporates the macro scope into the generated name).
+private def mkAuxName (hint : Name) : TermElabM Name :=
   withFreshMacroScope do
     let name := (← getDeclName?).getD Name.anonymous ++ hint
     pure $ addMacroScope (← getMainModule) name (← getCurrMacroScope)
 
-@[builtin_term_elab «unsafe», inherit_doc Lean.Parser.Term.unsafe]
+@[builtin_term_elab «unsafe»]
 def elabUnsafe : TermElab := fun stx expectedType? =>
   match stx with
   | `(unsafe $t) => do

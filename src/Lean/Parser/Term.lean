@@ -434,6 +434,8 @@ e.g. because it has no constructors.
 -/
 @[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 
+@[builtin_term_parser] def «nofun» := leading_parser:leadPrec "nofun"
+
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
 def funStrictImplicitBinder :=

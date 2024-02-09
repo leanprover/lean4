@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_String_foldl(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_remainingBytes___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_remainingToString(lean_object*);
 LEAN_EXPORT uint8_t l_Substring_atEnd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_findLineStart___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_revFind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_posOf___boxed(lean_object*, lean_object*);
 static lean_object* l_Substring_extract___closed__1;
@@ -98,6 +99,7 @@ LEAN_EXPORT lean_object* l_String_dropRightWhile___boxed(lean_object*, lean_obje
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_pushn(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_String_substrEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_String_findLineStart___closed__1;
 LEAN_EXPORT lean_object* l_String_utf8GetAux___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf8GetAux_x3f___boxed(lean_object*, lean_object*, lean_object*);
@@ -120,6 +122,7 @@ lean_object* lean_string_data(lean_object*);
 lean_object* l_Char_toLower(uint32_t);
 uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_String_get_x3f___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_findLineStart(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Substring_all(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhileAux___at_String_nextUntil___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -167,6 +170,7 @@ LEAN_EXPORT lean_object* l_String_foldr___rarg___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_String_startsWith___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_foldr(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_String_join___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_findLineStart___lambda__1(uint32_t);
 LEAN_EXPORT lean_object* l_String_find___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8GetAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropWhile(lean_object*, lean_object*);
@@ -303,6 +307,7 @@ LEAN_EXPORT lean_object* l_String_splitOn___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_toIterator___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_nextWhile___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_findLineStart___lambda__1___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_setCurr(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Substring_toString(lean_object*);
@@ -3212,6 +3217,68 @@ lean_dec(x_1);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l_String_findLineStart___lambda__1(uint32_t x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; 
+x_2 = 10;
+x_3 = lean_uint32_dec_eq(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_String_findLineStart___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_String_findLineStart___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_String_findLineStart(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_String_findLineStart___closed__1;
+x_4 = l_String_revFindAux(x_1, x_3, x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+x_5 = lean_unsigned_to_nat(0u);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_add(x_6, x_7);
+lean_dec(x_6);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_String_findLineStart___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_String_findLineStart___lambda__1(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_String_findLineStart___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_String_findLineStart(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Substring_isEmpty(lean_object* x_1) {
 _start:
 {
@@ -5935,6 +6002,8 @@ l_String_instAppendString___closed__1 = _init_l_String_instAppendString___closed
 lean_mark_persistent(l_String_instAppendString___closed__1);
 l_String_instAppendString = _init_l_String_instAppendString();
 lean_mark_persistent(l_String_instAppendString);
+l_String_findLineStart___closed__1 = _init_l_String_findLineStart___closed__1();
+lean_mark_persistent(l_String_findLineStart___closed__1);
 l_Substring_extract___closed__1 = _init_l_Substring_extract___closed__1();
 lean_mark_persistent(l_Substring_extract___closed__1);
 l_Substring_splitOn_loop___closed__1 = _init_l_Substring_splitOn_loop___closed__1();

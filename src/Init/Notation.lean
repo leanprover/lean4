@@ -462,19 +462,6 @@ expected type is known. So, `without_expected_type` is not effective in this cas
 -/
 macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 
-/--
-`unsafe t : α` is an expression constructor which allows using unsafe declarations inside the
-body of `t : α`, by creating an auxiliary definition containing `t` and using `implementedBy` to
-wrap it in a safe interface. It is required that `α` is nonempty for this to be sound,
-but even beyond that, an `unsafe` block should be carefully inspected for memory safety because
-the compiler is unable to guarantee the safety of the operation.
-
-For example, the `evalExpr` function is unsafe, because the compiler cannot guarantee that when
-you call ```evalExpr Foo ``Foo e``` that the type `Foo` corresponds to the name `Foo`, but in a
-particular use case, we can ensure this, so `unsafe (evalExpr Foo ``Foo e)` is a correct usage.
--/
-syntax (name := Lean.Parser.Term.unsafe) "unsafe " term : term
-
 namespace Lean
 
 /--

@@ -72,6 +72,7 @@ def Simp.DischargeWrapper.with (w : Simp.DischargeWrapper) (x : Option Simp.Disc
     finally
       set (← ref.get)
 
+/-- Construct a `Simp.DischargeWrapper` from the `Syntax` for a `simp` discharger. -/
 private def mkDischargeWrapper (optDischargeSyntax : Syntax) : TacticM Simp.DischargeWrapper := do
   if optDischargeSyntax.isNone then
     return Simp.DischargeWrapper.default
@@ -258,8 +259,15 @@ structure MkSimpContextResult where
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
 
    TODO: generate error message if non `rfl` theorems are provided as arguments to `dsimp`.
+
+   The argument `simpTheorems` defaults to `getSimpTheorems`,
+   but allows overriding with an arbitrary mechanism to choose
+   the simp theorems besides those specified in the syntax.
+   Note that if the syntax includes `simp only`, the `simpTheorems` argument is ignored.
 -/
-def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
+def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
+    (ignoreStarArg : Bool := false) (simpTheorems : CoreM SimpTheorems := getSimpTheorems) :
+    TacticM MkSimpContextResult := do
   if !stx[2].isNone then
     if kind == SimpKind.simpAll then
       throwError "'simp_all' tactic does not support 'discharger' option"
@@ -270,7 +278,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
   let simpTheorems ← if simpOnly then
     simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
-    getSimpTheorems
+    simpTheorems
   let simprocs ← if simpOnly then pure {} else Simp.getSimprocs
   let congrTheorems ← getSimpCongrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) (simprocs := #[simprocs]) {

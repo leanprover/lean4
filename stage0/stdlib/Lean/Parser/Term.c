@@ -28902,7 +28902,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Term_nofun___closed__2;
-x_2 = l_Lean_Parser_leadPrec;
+x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_nofun___closed__4;
 x_4 = l_Lean_Parser_leadingNode(x_1, x_2, x_3);
 return x_4;
@@ -28966,7 +28966,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(437u);
-x_2 = lean_unsigned_to_nat(69u);
+x_2 = lean_unsigned_to_nat(60u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -28980,7 +28980,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___regBuiltin_Lean_Parser_Term_nofun_declRange___closed__1;
 x_2 = lean_unsigned_to_nat(23u);
 x_3 = l___regBuiltin_Lean_Parser_Term_nofun_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(69u);
+x_4 = lean_unsigned_to_nat(60u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -29084,7 +29084,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Term_nofun___closed__2;
-x_2 = l_Lean_Parser_leadPrec;
+x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_nofun_formatter___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_leadingNode_formatter___boxed), 8, 3);
 lean_closure_set(x_4, 0, x_1);
@@ -29169,7 +29169,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Term_nofun___closed__2;
-x_2 = l_Lean_Parser_leadPrec;
+x_2 = lean_unsigned_to_nat(1024u);
 x_3 = l_Lean_Parser_Term_nofun_parenthesizer___closed__2;
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_leadingNode_parenthesizer), 8, 3);
 lean_closure_set(x_4, 0, x_1);

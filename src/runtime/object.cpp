@@ -1033,6 +1033,8 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
 
+// Internally, a `Promise` is just a `Task` that is in the "Promised" or "Finished" state
+
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     lean_always_assert(g_task_manager);
     bool keep_alive = false;
@@ -1048,6 +1050,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
     g_task_manager->resolve(lean_to_task(promise), value);
     return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise) {
+    // the task is the promise itself
+    return promise;
 }
 
 // =======================================

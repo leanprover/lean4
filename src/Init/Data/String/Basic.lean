@@ -331,13 +331,13 @@ def remainingBytes : Iterator → Nat
 def pos : Iterator → Pos
   | ⟨_, i⟩ => i
 
-/-- Character corresponding to the current position.
+/-- The character at the current position.
 
 On an illegal position, returns `(default : Char)`. -/
 def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
-/-- Increases the iterator's position by one unconditionally. -/
+/-- Increases the iterator's position by one, unconditionally. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
@@ -355,15 +355,6 @@ def atEnd : Iterator → Bool
 def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
--- #TODO: (re)move before PR
-section todo
-  theorem atEnd_iff_not_hasNext : ∀ {i : Iterator}, i.atEnd ↔ ¬ i.hasNext := by
-    simp [atEnd, hasNext, Nat.not_lt_eq]
-
-  theorem hasNext_iff_not_atEnd : ∀ {i : Iterator}, i.hasNext ↔ ¬ i.atEnd := by
-    simp [atEnd_iff_not_hasNext]
-end todo
-
 /-- True if the position is not zero. -/
 def hasPrev : Iterator → Bool
   | ⟨_, i⟩ => i.byteIdx > 0
@@ -380,14 +371,6 @@ Note that `i.toEnd.atEnd` is always true. -/
 def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
--- #TODO: (re)move before PR
-section todo
-
-theorem atEnd_toEnd : ∀ {i : Iterator}, i.toEnd.atEnd := by
-  simp [toEnd, atEnd]
-
-end todo
-
 /-- Extracts the substring between the positions of two iterators.
 
 Returns the empty string if the iterators are for different strings, or if the position of the first
@@ -402,7 +385,7 @@ def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n
 
-/-- The remaining characters in an iterator as a string. -/
+/-- The remaining characters in an iterator, as a string. -/
 def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.endPos
 
@@ -410,11 +393,6 @@ def remainingToString : Iterator → String
 def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
-
--- -- #TODO remove before PR
--- -- how about this?
--- @[inherit_doc forward]
--- abbrev nextn := forward
 
 /-- Moves the iterator's position several characters back. -/
 def prevn : Iterator → Nat → Iterator

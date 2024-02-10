@@ -290,17 +290,28 @@ where go (acc : String) (s : String) : List String → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
 
-/-- Iterator for `String`. That is, a `String` and a position in that string. -/
+/-- Iterator over the characters (`Char`) of a `String`.
+
+Usually created by `s.iter` with `s` a `String`. -/
 structure Iterator where
+  /-- The string the iterator is for. -/
   s : String
+  /-- The current position.
+
+  This position is not necessarily legal for the string, for instance if one keeps calling
+  `Iterator.next` when `Iterator.atEnd` is true. If the position is not a legal one, then the
+  current character is `(default : Char)`, similar to `String.get` on an illegal position. -/
   i : Pos
   deriving DecidableEq
 
+/-- The iterator positioned at the first character of a string (if any). -/
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
+@[inherit_doc mkIterator]
 abbrev iter := mkIterator
 
+/-- The notion of size for a string iterator is the number of bytes remaining. -/
 instance : SizeOf String.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
@@ -308,55 +319,95 @@ theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize -
   rfl
 
 namespace Iterator
+/-- The *full* string the iterator is for. -/
 def toString : Iterator → String
   | ⟨s, _⟩ => s
 
+/-- Number of bytes remaining in the iterator. -/
 def remainingBytes : Iterator → Nat
   | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
+/-- Current character position. -/
 def pos : Iterator → Pos
   | ⟨_, i⟩ => i
 
+/-- Character corresponding to the current position.
+
+On an illegal position, returns `(default : Char)`. -/
 def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
+/-- Increases the iterator's position by one unconditionally. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
+/-- Decreases the iterator's position.
+
+If the position is zero, this function is the identity. -/
 def prev : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.prev i⟩
 
+/-- True if the iterator is past the string's last character. -/
 def atEnd : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx ≥ s.endPos.byteIdx
 
+/-- True if the iterator is **not** past the string's last character. -/
 def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
+theorem atEnd_iff_not_hasNext : ∀ {i : Iterator}, i.atEnd ↔ ¬ i.hasNext := by
+  simp [atEnd, hasNext, Nat.not_lt_eq]
+
+theorem hasNext_iff_not_atEnd : ∀ {i : Iterator}, i.hasNext ↔ ¬ i.atEnd := by
+  simp [atEnd_iff_not_hasNext]
+
+/-- True if the position is not zero. -/
 def hasPrev : Iterator → Bool
   | ⟨_, i⟩ => i.byteIdx > 0
 
+/-- Replaces the current character in the string.
+
+Does nothing if the position is not legal for the string. -/
 def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 
+/-- Moves the iterator's position to the end of the string.
+
+Note that `i.toEnd.atEnd` is always true. -/
 def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
+theorem atEnd_toEnd : ∀ {i : Iterator}, i.toEnd.atEnd := by
+  simp [toEnd, atEnd]
+
+/-- Extracts the substring between the positions of two iterators.
+
+Returns the empty string if the iterators are for different strings, or if the position of the first
+iterator is past the position of the second iterator. -/
 def extract : Iterator → Iterator → String
   | ⟨s₁, b⟩, ⟨s₂, e⟩ =>
     if s₁ ≠ s₂ || b > e then ""
     else s₁.extract b e
 
+/-- Moves the iterator's position several characters forward. -/
 def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n
 
+/-- The remaining characters in an iterator as a string. -/
 def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.endPos
 
+@[inherit_doc forward]
 def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
 
+-- -- how about this?
+-- @[inherit_doc forward]
+-- abbrev nextn := forward
+
+/-- Moves the iterator's position several characters back. -/
 def prevn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => prevn it.prev i

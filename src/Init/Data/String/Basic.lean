@@ -351,7 +351,9 @@ On an invalid position, returns `(default : Char)`. -/
 def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
-/-- Moves the iterator's position forward by one character, unconditionally. -/
+/-- Moves the iterator's position forward by one character, unconditionally.
+
+It is only valid to call this function if the iterator is not a the end of the string, *i.e.* `Iterator.atEnd` is false; otherwise, the resulting iterator will be invalid. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
@@ -394,7 +396,10 @@ def extract : Iterator → Iterator → String
     if s₁ ≠ s₂ || b > e then ""
     else s₁.extract b e
 
-/-- Moves the iterator's position several characters forward. -/
+/-- Moves the iterator's position several characters forward.
+
+Calling this function is only legal if the number of character to skip is less than or equal to the
+number of characters left in the iterator. -/
 def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n

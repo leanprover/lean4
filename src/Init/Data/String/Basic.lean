@@ -292,7 +292,7 @@ where go (acc : String) (s : String) : List String → String
 
 /-- Iterator over the characters (`Char`) of a `String`.
 
-Usually created by `s.iter` with `s` a `String`. -/
+Typically created by `s.iter`, where `s` is a `String`. -/
 structure Iterator where
   /-- The string the iterator is for. -/
   s : String

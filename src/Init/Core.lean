@@ -666,6 +666,8 @@ theorem Iff.refl (a : Prop) : a ↔ a :=
 protected theorem Iff.rfl {a : Prop} : a ↔ a :=
   Iff.refl a
 
+macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
+
 theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
   Iff.intro
     (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))

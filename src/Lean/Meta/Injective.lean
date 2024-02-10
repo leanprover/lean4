@@ -82,7 +82,7 @@ private def throwInjectiveTheoremFailure {α} (ctorName : Name) (mvarId : MVarId
   throwError "{injTheoremFailureHeader ctorName}{indentD <| MessageData.ofGoal mvarId}"
 
 private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : MetaM Unit := do
-  match (← injection mvarId h) with
+  match (withReducible <| ← injection mvarId h) with
   | InjectionResult.solved => unreachable!
   | InjectionResult.subgoal mvarId .. =>
     (←  mvarId.splitAnd).forM fun mvarId =>

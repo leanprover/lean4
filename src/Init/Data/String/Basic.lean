@@ -351,15 +351,18 @@ def prev : Iterator → Iterator
 def atEnd : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx ≥ s.endPos.byteIdx
 
-/-- True if the iterator is **not** past the string's last character. -/
+/-- True if the iterator is not past the string's last character. -/
 def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
-theorem atEnd_iff_not_hasNext : ∀ {i : Iterator}, i.atEnd ↔ ¬ i.hasNext := by
-  simp [atEnd, hasNext, Nat.not_lt_eq]
+-- #TODO: (re)move before PR
+section todo
+  theorem atEnd_iff_not_hasNext : ∀ {i : Iterator}, i.atEnd ↔ ¬ i.hasNext := by
+    simp [atEnd, hasNext, Nat.not_lt_eq]
 
-theorem hasNext_iff_not_atEnd : ∀ {i : Iterator}, i.hasNext ↔ ¬ i.atEnd := by
-  simp [atEnd_iff_not_hasNext]
+  theorem hasNext_iff_not_atEnd : ∀ {i : Iterator}, i.hasNext ↔ ¬ i.atEnd := by
+    simp [atEnd_iff_not_hasNext]
+end todo
 
 /-- True if the position is not zero. -/
 def hasPrev : Iterator → Bool
@@ -377,8 +380,13 @@ Note that `i.toEnd.atEnd` is always true. -/
 def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
+-- #TODO: (re)move before PR
+section todo
+
 theorem atEnd_toEnd : ∀ {i : Iterator}, i.toEnd.atEnd := by
   simp [toEnd, atEnd]
+
+end todo
 
 /-- Extracts the substring between the positions of two iterators.
 
@@ -403,6 +411,7 @@ def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
 
+-- -- #TODO remove before PR
 -- -- how about this?
 -- @[inherit_doc forward]
 -- abbrev nextn := forward

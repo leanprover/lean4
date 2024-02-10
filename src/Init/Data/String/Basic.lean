@@ -304,14 +304,14 @@ structure Iterator where
   i : Pos
   deriving DecidableEq
 
-/-- The iterator positioned at the first character of a string (if any). -/
+/-- Creates an iterator that points to the first character of a string (if any). -/
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
 @[inherit_doc mkIterator]
 abbrev iter := mkIterator
 
-/-- The notion of size for a string iterator is the number of bytes remaining. -/
+/-- The size of a string iterator is the number of bytes remaining. -/
 instance : SizeOf String.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
@@ -319,25 +319,23 @@ theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize -
   rfl
 
 namespace Iterator
-/-- The *full* string the iterator is for. -/
-def toString : Iterator → String
-  | ⟨s, _⟩ => s
+@[inherit_doc Iterator.s]
+def toString := Iterator.s
 
 /-- Number of bytes remaining in the iterator. -/
 def remainingBytes : Iterator → Nat
   | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
-/-- Current character position. -/
-def pos : Iterator → Pos
-  | ⟨_, i⟩ => i
+@[inherit_doc Iterator.i]
+def pos := Iterator.i
 
 /-- The character at the current position.
 
-On an illegal position, returns `(default : Char)`. -/
+On an invalid position, returns `(default : Char)`. -/
 def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
 
-/-- Increases the iterator's position by one, unconditionally. -/
+/-- Moves the iterator's position forward by one character, unconditionally. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
@@ -361,7 +359,7 @@ def hasPrev : Iterator → Bool
 
 /-- Replaces the current character in the string.
 
-Does nothing if the position is not legal for the string. -/
+Does nothing if the iterator is at the end of the string. -/
 def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 
@@ -394,7 +392,9 @@ def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
 
-/-- Moves the iterator's position several characters back. -/
+/-- Moves the iterator's position several characters back.
+
+If asked to go back more characters than available, stops at the beginning of the string. -/
 def prevn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => prevn it.prev i

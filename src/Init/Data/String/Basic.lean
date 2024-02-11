@@ -377,7 +377,9 @@ def hasPrev : Iterator → Bool
 
 /-- Replaces the current character in the string.
 
-Does nothing if the iterator is at the end of the string. -/
+Does nothing if the iterator is at the end of the string. If the iterator contains the only
+reference to its string, this function will mutate the string in-place instead of allocating a new
+one. -/
 def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 

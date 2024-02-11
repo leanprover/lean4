@@ -353,7 +353,8 @@ def curr : Iterator → Char
 
 /-- Moves the iterator's position forward by one character, unconditionally.
 
-It is only valid to call this function if the iterator is not a the end of the string, *i.e.* `Iterator.atEnd` is false; otherwise, the resulting iterator will be invalid. -/
+It is only valid to call this function if the iterator is not a the end of the string, *i.e.*
+`Iterator.atEnd` is false; otherwise, the resulting iterator will be invalid. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 

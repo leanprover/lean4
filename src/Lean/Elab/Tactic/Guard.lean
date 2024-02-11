@@ -69,7 +69,7 @@ def elabAndEvalMatchKind (mk : MatchKind) (a b : Term) : TermElabM Bool :=
     Term.synthesizeSyntheticMVarsNoPostponing
     mk.isEq (← instantiateMVars a) (← instantiateMVars b)
 
-@[inherit_doc guardExpr, builtin_tactic guardExpr]
+@[builtin_tactic guardExpr]
 def evalGuardExpr : Tactic := fun
   | `(tactic| guard_expr $r $eq:equal $p)
   | `(conv| guard_expr $r $eq:equal $p) => withMainContext do
@@ -80,10 +80,10 @@ def evalGuardExpr : Tactic := fun
   | _ => throwUnsupportedSyntax
 
 -- TODO: This is workaround. We currently allow two occurrences of `builtin_tactic`.
-@[inherit_doc guardExpr, builtin_tactic guardExprConv]
+@[builtin_tactic guardExprConv]
 def evalGuardExprConv : Tactic := evalGuardExpr
 
-@[inherit_doc guardTarget, builtin_tactic guardTarget]
+@[builtin_tactic guardTarget]
 def evalGuardTarget : Tactic :=
   let go eq r getTgt := withMainContext do
     let t ← getTgt >>= instantiateMVars
@@ -97,10 +97,10 @@ def evalGuardTarget : Tactic :=
   | _ => throwUnsupportedSyntax
 
 -- See comment above
-@[inherit_doc guardTarget, builtin_tactic guardTargetConv]
+@[builtin_tactic guardTargetConv]
 def evalGuardTargetConv : Tactic := evalGuardTarget
 
-@[inherit_doc guardHyp, builtin_tactic guardHyp]
+@[builtin_tactic guardHyp]
 def evalGuardHyp : Tactic := fun
   | `(tactic| guard_hyp $h $[$c $ty]? $[$eq $val]?)
   | `(conv| guard_hyp $h $[$c $ty]? $[$eq $val]?) => withMainContext do
@@ -127,10 +127,10 @@ def evalGuardHyp : Tactic := fun
     | none, none          => pure ()
   | _ => throwUnsupportedSyntax
 
-@[inherit_doc guardHyp, builtin_tactic guardHypConv]
+@[builtin_tactic guardHypConv]
 def evalGuardHypConv : Tactic := evalGuardHyp
 
-@[inherit_doc guardExprCmd, builtin_command_elab guardExprCmd]
+@[builtin_command_elab guardExprCmd]
 def evalGuardExprCmd : Lean.Elab.Command.CommandElab
   | `(command| #guard_expr $r $eq:equal $p) =>
     Lean.Elab.Command.runTermElabM fun _ => do
@@ -140,7 +140,7 @@ def evalGuardExprCmd : Lean.Elab.Command.CommandElab
       unless res do throwError "failed: {r}{eq} {p} is not true"
   | _ => throwUnsupportedSyntax
 
-@[inherit_doc guardCmd, builtin_command_elab guardCmd]
+@[builtin_command_elab guardCmd]
 def evalGuardCmd : Lean.Elab.Command.CommandElab
   | `(command| #guard $e:term) => Lean.Elab.Command.liftTermElabM do
     let e ← Term.elabTermEnsuringType e (mkConst ``Bool)

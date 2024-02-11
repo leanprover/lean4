@@ -320,7 +320,7 @@ structure Iterator where
   i : Pos
   deriving DecidableEq
 
-/-- Creates an iterator that points to the first character of a string (if any). -/
+/-- Creates an iterator at the beginning of a string. -/
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 

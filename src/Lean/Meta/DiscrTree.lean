@@ -32,8 +32,8 @@ namespace Lean.Meta.DiscrTree
   and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
   respectively
   ```
-  ⟨Add.add, 4⟩, *, *, *, *
-  ⟨Add.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
+  ⟨Add.add, 4⟩, α, *, *, *
+  ⟨Add.add, 4⟩, Nat, *, ⟨a,0⟩, ⟨b,0⟩
   ```
 
   That is, we don't reduce `Add.add Nat inst a b` into `Nat.add a b`.

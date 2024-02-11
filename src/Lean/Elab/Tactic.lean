@@ -23,4 +23,5 @@ import Lean.Elab.Tactic.Unfold
 import Lean.Elab.Tactic.Cache
 import Lean.Elab.Tactic.Calc
 import Lean.Elab.Tactic.Congr
+import Lean.Elab.Tactic.Guard
 import Lean.Elab.Tactic.RCases

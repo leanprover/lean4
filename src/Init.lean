@@ -25,5 +25,6 @@ import Init.NotationExtra
 import Init.SimpLemmas
 import Init.Hints
 import Init.Conv
+import Init.Guard
 import Init.Simproc
 import Init.SizeOfLemmas

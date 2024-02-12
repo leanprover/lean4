@@ -249,6 +249,6 @@ def _root_.Lean.MVarId.nthConstructor
         if h : idx < ival.ctors.length then
           goal.apply <| mkConst ival.ctors[idx] us
         else
-          throwError m!"nthConstructor: idx {idx} out of bounds, only {ival.ctors.length} constructors"
+          throwTacticEx name goal s!"index {idx} out of bounds, only {ival.ctors.length} constructors"
 
 end Lean.Meta

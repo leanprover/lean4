@@ -40,7 +40,7 @@ def matchEqHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
     return none
 
 def matchFalse (e : Expr) : MetaM Bool := do
-  testHelper e fun e => return e.isConstOf ``False
+  testHelper e fun e => return e.isFalse
 
 def matchNot? (e : Expr) : MetaM (Option Expr) :=
   matchHelper? e fun e => do

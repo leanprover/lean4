@@ -1559,6 +1559,12 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
 
+def isFalse (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``False
+
+def isTrue (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``True
+
 /-- Return true iff `e` contains a free variable which satisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else

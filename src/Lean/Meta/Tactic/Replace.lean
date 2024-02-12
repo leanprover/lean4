@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.ForEachExpr
+import Lean.Elab.InfoTree.Main
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Util
@@ -139,29 +140,64 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
   mvarId.change targetNew checkDefEq
 
+/-- Function to help do the revert/intro pattern, running some code inside a context
+where certain variables have been reverted before re-introing them.
+It will push `FVarId` alias information into info trees for you according to a simple protocol.
+
+- `fvarIds` is an array of `fvarIds` to revert. These are passed to
+  `Lean.MVarId.revert` with `preserveOrder := true`, hence the function
+  raises an error if they cannot be reverted in the provided order.
+- `k` is given the goal with all the variables reverted and
+  the array of reverted `FVarId`s, with the requested `FVarId`s at the beginning.
+  It must return a tuple of a value, an array describing which `FVarIds` to link,
+  and a mutated `MVarId`.
+
+The `a : Array (Option FVarId)` array returned by `k` is interpreted in the following way.
+The function will intro `a.size` variables, and then for each non-`none` entry we
+create an FVar alias between it and the corresponding `intro`ed variable.
+For example, having `k` return `fvars.map .some` causes all reverted variables to be
+`intro`ed and linked.
+
+Returns the value returned by `k` along with the resulting goal.
+ -/
+def _root_.Lean.MVarId.withReverted (mvarId : MVarId) (fvarIds : Array FVarId)
+    (k : MVarId → Array FVarId → MetaM (α × Array (Option FVarId) × MVarId))
+    (clearAuxDeclsInsteadOfRevert := false) : MetaM (α × MVarId) := do
+  let (xs, mvarId) ← mvarId.revert fvarIds true clearAuxDeclsInsteadOfRevert
+  let (r, xs', mvarId) ← k mvarId xs
+  let (ys, mvarId) ← mvarId.introNP xs'.size
+  mvarId.withContext do
+    for x? in xs', y in ys do
+      if let some x := x? then
+        Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+  return (r, mvarId)
+
 /--
 Replace the type of the free variable `fvarId` with `typeNew`.
-If `checkDefEq = false`, this method assumes that `typeNew` is definitionally equal to `fvarId` type.
-If `checkDefEq = true`, throw an error if `typeNew` is not definitionally equal to `fvarId` type.
+
+If `checkDefEq = true` then throws an error if `typeNew` is not definitionally
+equal to the type of `fvarId`. Otherwise this function assumes `typeNew` and the type
+of `fvarId` are definitionally equal.
+
+This function is the same as `Lean.MVarId.changeLocalDecl` but makes sure to push substitution
+information into the infotree.
 -/
-def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
+def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
+    (checkDefEq := true) : MetaM MVarId := do
   mvarId.checkNotAssigned `changeLocalDecl
-  let (xs, mvarId) ← mvarId.revert #[fvarId] true
-  mvarId.withContext do
-    let numReverted := xs.size
-    let target ← mvarId.getType
+  let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId fvars => mvarId.withContext do
     let check (typeOld : Expr) : MetaM Unit := do
       if checkDefEq then
-        unless (← isDefEq typeNew typeOld) do
-          throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
-    let finalize (targetNew : Expr) : MetaM MVarId := do
-      let mvarId ← mvarId.replaceTargetDefEq targetNew
-      let (_, mvarId) ← mvarId.introNP numReverted
-      pure mvarId
-    match target with
-    | .forallE n d b c => do check d; finalize (mkForall n c typeNew b)
-    | .letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
-    | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
+        unless ← isDefEq typeNew typeOld do
+          throwTacticEx `changeLocalDecl mvarId
+            m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
+    let finalize (targetNew : Expr) := do
+      return ((), fvars.map .some, ← mvarId.replaceTargetDefEq targetNew)
+    match ← mvarId.getType with
+    | .forallE n d b bi => do check d; finalize (.forallE n typeNew b bi)
+    | .letE n t v b ndep => do check t; finalize (.letE n typeNew v b ndep)
+    | _ => throwTacticEx `changeLocalDecl mvarId "unexpected auxiliary target"
+  return mvarId
 
 @[deprecated MVarId.changeLocalDecl]
 def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do

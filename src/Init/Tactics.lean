@@ -872,6 +872,22 @@ The tactic `nomatch h` is shorthand for `exact nomatch h`.
 macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
 
+/--
+`repeat' tac` runs `tac` on all of the goals to produce a new list of goals,
+then runs `tac` again on all of those goals, and repeats until `tac` fails on all remaining goals.
+-/
+syntax (name := repeat') "repeat' " tacticSeq : tactic
+
+/--
+`repeat1' tac` applies `tac` to main goal at least once. If the application succeeds,
+the tactic is applied recursively to the generated subgoals until it eventually fails.
+-/
+syntax (name := repeat1') "repeat1' " tacticSeq : tactic
+
+/-- `split_ands` applies `And.intro` until it does not make progress. -/
+syntax "split_ands" : tactic
+macro_rules | `(tactic| split_ands) => `(tactic| repeat' refine And.intro ?_ ?_)
+
 end Tactic
 
 namespace Attr

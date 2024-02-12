@@ -323,6 +323,9 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
+/-- `subst_eqs` applies `subst` to all equalities in the context as long as it makes progress. -/
+elab "subst_eqs" : tactic => Elab.Tactic.liftMetaTactic1 (·.substEqs)
+
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.

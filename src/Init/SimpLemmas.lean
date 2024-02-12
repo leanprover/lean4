@@ -31,6 +31,9 @@ theorem eq_false_of_decide {p : Prop} {_ : Decidable p} (h : decide p = false) :
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   h₁ ▸ h₂ ▸ rfl
 
+theorem iff_congr {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ ↔ p₂) (h₂ : q₁ ↔ q₂) : (p₁ ↔ q₁) ↔ (p₂ ↔ q₂) :=
+  Iff.of_eq (propext h₁ ▸ propext h₂ ▸ rfl)
+
 theorem implies_dep_congr_ctx {p₁ p₂ q₁ : Prop} (h₁ : p₁ = p₂) {q₂ : p₂ → Prop} (h₂ : (h : p₂) → q₁ = q₂ h) : (p₁ → q₁) = ((h : p₂) → q₂ h) :=
   propext ⟨
     fun hl hp₂ => (h₂ hp₂).mp (hl (h₁.mpr hp₂)),
@@ -113,6 +116,10 @@ end SimprocHelperLemmas
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
 @[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide
+
+-- From Std.
+@[simp] theorem not_iff_self : ¬(¬a ↔ a) | H => iff_not_self H.symm
+
 
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl

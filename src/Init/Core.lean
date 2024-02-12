@@ -698,6 +698,10 @@ theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
     (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))
     (fun hc => Iff.mpr h₁ (Iff.mpr h₂ hc))
 
+-- This is needed for `calc` to work with `iff`.
+instance : Trans Iff Iff Iff where
+  trans := Iff.trans
+
 theorem Iff.symm (h : a ↔ b) : b ↔ a :=
   Iff.intro (Iff.mpr h) (Iff.mp h)
 
@@ -1205,29 +1209,116 @@ gen_injective_theorems% Lean.Syntax
 /-! # Prop lemmas -/
 -- These may depend on propext
 
-/-! ## Not -/
-
-theorem Not.intro {a : Prop} (h : a → False) : ¬a := h
-
-theorem Not.imp {a b : Prop} (H2 : ¬b) (H1 : a → b) : ¬a := mt H1 H2
+theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
+theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
 /-- Ex falso for negation. From `¬a` and `a` anything follows. This is the same as `absurd` with
 the arguments flipped, but it is in the `not` namespace so that projection notation can be used. -/
 def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
 
+/-- Non-dependent eliminator for `Iff`. -/
+def Iff.elim (f : (a → b) → (b → a) → α) (h : a ↔ b) : α := f h.1 h.2
+
+/-- Iff can now be used to do substitutions in a calculation -/
+theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
+  Eq.subst (propext h₁) h₂
+
+theorem Not.intro {a : Prop} (h : a → False) : ¬a := h
+
+theorem Not.imp {a b : Prop} (H2 : ¬b) (H1 : a → b) : ¬a := mt H1 H2
+
 theorem not_congr (h : a ↔ b) : ¬a ↔ ¬b := ⟨mt h.2, mt h.1⟩
 
 theorem not_not_not : ¬¬¬a ↔ ¬a := ⟨mt not_not_intro, not_not_intro⟩
+
+
+theorem iff_of_true (ha : a) (hb : b) : a ↔ b := Iff.intro (fun _ => hb) (fun _ => ha)
+theorem iff_of_false (ha : ¬a) (hb : ¬b) : a ↔ b := Iff.intro ha.elim hb.elim
+
+theorem of_iff_true    (h : a ↔ True) : a := h.mpr True.intro
+theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h True.intro
+
+theorem iff_true_left  (ha : a) : (a ↔ b) ↔ b := Iff.intro (·.mp ha) (iff_of_true ha)
+theorem iff_true_right (ha : a) : (b ↔ a) ↔ b := Iff.comm.trans (iff_true_left ha)
+
+theorem iff_false_left  (ha : ¬a) : (a ↔ b) ↔ ¬b := Iff.intro (mt ·.mpr ha) (iff_of_false ha)
+theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_false_left ha)
+
+theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
+theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
+
+theorem not_iff_false_intro (h : a) : ¬a ↔ False := iff_false_intro (not_not_intro h)
+theorem not_true : (¬True) ↔ False := iff_false_intro (not_not_intro True.intro)
+
+theorem not_false_iff : (¬False) ↔ True := iff_true_intro not_false
+
+theorem Eq.to_iff : a = b → (a ↔ b) := Iff.of_eq
+theorem iff_of_eq : a = b → (a ↔ b) := Iff.of_eq
+
+theorem iff_iff_eq : (a ↔ b) ↔ a = b := Iff.intro propext Iff.of_eq
+theorem eq_iff_iff : (a = b) ↔ (a ↔ b) := iff_iff_eq.symm
+-- Jhx note. `eq_iff_iff` is labeled @[simp] in Std/Mathlib, but that current breaks Lean core eproofs.
+
+theorem neq_of_not_iff : ¬(a ↔ b) → a ≠ b := mt Eq.to_iff
+
+theorem eq_self_iff_true (a : α)  : a = a ↔ True  := iff_true_intro rfl
+theorem ne_self_iff_false (a : α) : a ≠ a ↔ False := not_iff_false_intro rfl
+
+theorem false_of_true_iff_false (h : True ↔ False) : False := h.mp True.intro
+theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_false (Iff.of_eq h)
+
+theorem true_eq_false_of_false : False → (True = False) := False.elim
+
+theorem iff_def : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
+theorem iff_def' : (a ↔ b) ↔ (b → a) ∧ (a → b) := Iff.trans iff_def And.comm
+
+theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  True.intro)
+theorem false_iff_true : (False ↔ True) ↔ False := iff_false_intro (·.mpr True.intro)
+
+theorem iff_not_self : ¬(a ↔ ¬a) | H => let f h := H.1 h h; f (H.2 f)
+theorem heq_self_iff_true (a : α) : HEq a a ↔ True := iff_true_intro HEq.rfl
+
+/-! ## implies -/
 
 theorem not_not_of_not_imp : ¬(a → b) → ¬¬a := mt Not.elim
 
 theorem not_of_not_imp {a : Prop} : ¬(a → b) → ¬b := mt fun h _ => h
 
-@[simp] theorem imp_not_self : (a → ¬a) ↔ ¬a := ⟨fun h ha => h ha ha, fun h _ => h⟩
+@[simp] theorem imp_not_self : (a → ¬a) ↔ ¬a := Iff.intro (fun h ha => h ha ha) (fun h _ => h)
 
-/-- Iff can now be used to do substitutions in a calculation -/
-theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
-  Eq.subst (propext h₁) h₂
+
+theorem imp_intro {α β : Prop} (h : α) : β → α := fun _ => h
+
+theorem imp_imp_imp {a b c d : Prop} (h₀ : c → a) (h₁ : b → d) : (a → b) → (c → d) := (h₁ ∘ · ∘ h₀)
+
+theorem imp_iff_right {a : Prop} (ha : a) : (a → b) ↔ b := Iff.intro (· ha) (fun a _ => a)
+
+-- This is not marked `@[simp]` because we have `implies_true : (α → True) = True` in core.
+theorem imp_true_iff (α : Sort u) : (α → True) ↔ True := iff_true_intro (fun _ => trivial)
+
+theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro False.elim
+
+theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
+
+@[simp] theorem imp_self : (a → a) ↔ True := iff_true_intro id
+
+theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
+
+theorem imp.swap : (a → b → c) ↔ (b → a → c) := Iff.intro flip flip
+
+theorem imp_not_comm : (a → ¬b) ↔ (b → ¬a) := imp.swap
+
+theorem imp_congr_left (h : a ↔ b) : (a → c) ↔ (b → c) := Iff.intro (· ∘ h.mpr) (· ∘ h.mp)
+
+theorem imp_congr_right (h : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
+  Iff.intro (fun hab ha => (h ha).mp (hab ha)) (fun hcd ha => (h ha).mpr (hcd ha))
+
+theorem imp_congr_ctx (h₁ : a ↔ c) (h₂ : c → (b ↔ d)) : (a → b) ↔ (c → d) :=
+  Iff.trans (imp_congr_left h₁) (imp_congr_right h₂)
+
+theorem imp_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) := imp_congr_ctx h₁ fun _ => h₂
+
+theorem imp_iff_not (hb : ¬b) : a → b ↔ ¬a := imp_congr_right fun _ => iff_false_intro hb
 
 /-! # Quotients -/
 

@@ -246,6 +246,9 @@ def _root_.Lean.MVarId.nthConstructor
         if let some e := expected? then unless ival.ctors.length == e do
           throwTacticEx name goal
             s!"{name} tactic works for inductive types with exactly {e} constructors"
-        goal.apply <| mkConst ival.ctors[idx]! us
+        if h: idx < ival.ctors.length
+          goal.apply <| mkConst ival.ctors[idx] us
+        else
+          throwError m!"nthConstructor: idx {idx} out of bounds, only {ival.ctors.length} constructors"        
 
 end Lean.Meta

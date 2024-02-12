@@ -469,10 +469,10 @@ where
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32
 
-@[builtin_tactic left] def evalLeft : Tactic := fun stx => do
+@[builtin_tactic left] def evalLeft : Tactic := fun _stx => do
   liftMetaTactic (fun g => g.nthConstructor `left 0 (some 2))
 
-@[builtin_tactic right] def evalRight : Tactic := fun stx => do
+@[builtin_tactic right] def evalRight : Tactic := fun _stx => do
   liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
 
 end Lean.Elab.Tactic

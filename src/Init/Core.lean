@@ -17,7 +17,7 @@ universe u v w
 at the application site itself (by comparison to the `@[inline]` attribute,
 which applies to all applications of the function).
 -/
-def inline {α : Sort u} (a : α) : α := a
+@[simp] def inline {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,

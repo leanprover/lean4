@@ -19,6 +19,8 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
+theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
 since it can sometimes be used to avoid introducing variables.
@@ -96,6 +98,13 @@ instance thunkCoe : CoeTail α (Thunk α) where
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
+
+/-! # definitions  -/
+
+@[inherit_doc True.intro] def trivial : True := ⟨⟩
+
+-- proof irrelevance is built in
+theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 /--
 If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
@@ -537,8 +546,6 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
-
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
 
@@ -546,11 +553,6 @@ theorem not_false : ¬False := id
 
 theorem not_not_intro {p : Prop} (h : p) : ¬ ¬ p :=
   fun hn : ¬ p => hn h
-
--- proof irrelevance is built in
-theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
-
-theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 
 /--
 If `h : α = β` is a proof of type equality, then `h.mp : α → β` is the induced
@@ -1200,11 +1202,34 @@ gen_injective_theorems% Lean.Syntax
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
-/-! # Quotients -/
+/-! # Prop lemmas -/
+-- These may depend on propext
+
+/-! ## Not -/
+
+theorem Not.intro {a : Prop} (h : a → False) : ¬a := h
+
+theorem Not.imp {a b : Prop} (H2 : ¬b) (H1 : a → b) : ¬a := mt H1 H2
+
+/-- Ex falso for negation. From `¬a` and `a` anything follows. This is the same as `absurd` with
+the arguments flipped, but it is in the `not` namespace so that projection notation can be used. -/
+def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
+
+theorem not_congr (h : a ↔ b) : ¬a ↔ ¬b := ⟨mt h.2, mt h.1⟩
+
+theorem not_not_not : ¬¬¬a ↔ ¬a := ⟨mt not_not_intro, not_not_intro⟩
+
+theorem not_not_of_not_imp : ¬(a → b) → ¬¬a := mt Not.elim
+
+theorem not_of_not_imp {a : Prop} : ¬(a → b) → ¬b := mt fun h _ => h
+
+@[simp] theorem imp_not_self : (a → ¬a) ↔ ¬a := ⟨fun h ha => h ha ha, fun h _ => h⟩
 
 /-- Iff can now be used to do substitutions in a calculation -/
 theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
   Eq.subst (propext h₁) h₂
+
+/-! # Quotients -/
 
 namespace Quot
 /--

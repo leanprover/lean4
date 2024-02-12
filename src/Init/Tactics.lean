@@ -208,7 +208,7 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
-Apply the first constructor,
+Applies the first constructor,
 in the case that the goal is an inductive type with exactly two constructors.
 ```
 example : True ∨ False := by
@@ -219,7 +219,7 @@ example : True ∨ False := by
 syntax (name := left) "left" : tactic
 
 /--
-Apply the second constructor,
+Applies the second constructor,
 in the case that the goal is an inductive type with exactly two constructors.
 ```
 example {p q : Prop} (h : q) : p ∨ q := by

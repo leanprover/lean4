@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Siddhartha Gadgil
 -/
 import Lean.Util.FindMVar
 import Lean.Meta.SynthInstance
@@ -229,5 +229,23 @@ def _root_.Lean.MVarId.exfalso (mvarId : MVarId) : MetaM MVarId :=
     let mvarIdNew ← mkFreshExprSyntheticOpaqueMVar (mkConst ``False) (tag := (← mvarId.getTag))
     mvarId.assign (mkApp2 (mkConst ``False.elim [u]) target mvarIdNew)
     return mvarIdNew.mvarId!
+
+/--
+Apply the `n`-th constructor of the target type,
+checking that it is an inductive type,
+and that there are the expected number of constructors.
+-/
+def _root_.Lean.MVarId.nthConstructor
+    (name : Name) (idx : Nat) (expected? : Option Nat := none) (goal : MVarId) :
+    MetaM (List MVarId) := do
+  goal.withContext do
+    goal.checkNotAssigned name
+    matchConstInduct (← goal.getType').getAppFn
+      (fun _ => throwTacticEx name goal "target is not an inductive datatype")
+      fun ival us => do
+        if let some e := expected? then unless ival.ctors.length == e do
+          throwTacticEx name goal
+            s!"{name} tactic works for inductive types with exactly {e} constructors"
+        goal.apply <| mkConst ival.ctors[idx]! us
 
 end Lean.Meta

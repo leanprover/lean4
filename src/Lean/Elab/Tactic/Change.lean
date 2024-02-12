@@ -12,22 +12,24 @@ import Lean.Elab.Tactic.Location
 
 open Lean Elab Tactic Meta
 
-/-- `change` can be used to replace the main goal or its local
-variables with definitionally equal ones.
+/-- `change` can be used to replace the main goal or its hypotheses with
+different, yet definitionally equal, goal or hypotheses.
 
 For example, if `n : Nat` and the current goal is `⊢ n + 2 = 2`, then
 ```lean
 change _ + 1 = _
 ```
-changes the goal to `⊢ n + 1 + 1 = 2`. The tactic also applies to the local context.
-If `h : n + 2 = 2` and `h' : n + 3 = 4` are in the local context, then
+changes the goal to `⊢ n + 1 + 1 = 2`.
+
+The tactic also applies to hypotheses. If `h : n + 2 = 2` and `h' : n + 3 = 4`
+are hypotheses, then
 ```lean
 change _ + 1 = _ at h h'
 ```
 changes their types to be `h : n + 1 + 1 = 2` and `h' : n + 2 + 1 = 4`.
 
 Change is like `refine` in that every placeholder needs to be solved for by unification,
-but you can use named placeholders and `?_` where you want `change` to create new goals.
+but using named placeholders or `?_` results in `change` to creating new goals.
 
 The tactic `show e` is interchangeable with `change e`, where the pattern `e` is applied to
 the main goal. -/

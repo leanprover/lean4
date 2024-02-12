@@ -140,23 +140,13 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
   mvarId.change targetNew checkDefEq
 
-/-- Function to help do the revert/intro pattern, running some code inside a context
-where certain variables have been reverted before re-introing them.
-It will push `FVarId` alias information into info trees for you according to a simple protocol.
+/-- Runs the continuation `k` after temporarily reverting some variables from the local context of a metavariable (identified by `mvarId`), then reintroduces local variables as specified by `k`.
 
-- `fvarIds` is an array of `fvarIds` to revert. These are passed to
-  `Lean.MVarId.revert` with `preserveOrder := true`, hence the function
-  raises an error if they cannot be reverted in the provided order.
-- `k` is given the goal with all the variables reverted and
-  the array of reverted `FVarId`s, with the requested `FVarId`s at the beginning.
-  It must return a tuple of a value, an array describing which `FVarIds` to link,
-  and a mutated `MVarId`.
+The argument `fvarIds` is an array of `fvarIds` to revert in the order specified. An error is thrown if they cannot be reverted in order.
 
-The `a : Array (Option FVarId)` array returned by `k` is interpreted in the following way.
-The function will intro `a.size` variables, and then for each non-`none` entry we
-create an FVar alias between it and the corresponding `intro`ed variable.
-For example, having `k` return `fvars.map .some` causes all reverted variables to be
-`intro`ed and linked.
+Once the local variables have been reverted, `k` is passed `mvarId` along with an array of local variables that were reverted. This array always has `fvarIds` as a prefix, but it may contain additional variables that were reverted due to dependencies. `k` returns a value, a goal, an array of _link variables_.
+
+Once `k` has completed, one variable is introduced for each link variable returned by `k`. If the returned variable is `none`, the variable is just introduced. If it is `some fv`, the variable is introduced and then linked as an alias of `fv` in the info tree. For example, having `k` return `fvars.map .some` as the link variables causes all reverted variables to be introduced and linked.
 
 Returns the value returned by `k` along with the resulting goal.
  -/
@@ -173,14 +163,14 @@ def _root_.Lean.MVarId.withReverted (mvarId : MVarId) (fvarIds : Array FVarId)
   return (r, mvarId)
 
 /--
-Replace the type of the free variable `fvarId` with `typeNew`.
+Replaces the type of the free variable `fvarId` with `typeNew`.
 
-If `checkDefEq = true` then throws an error if `typeNew` is not definitionally
+If `checkDefEq` is `true` then an error is thrown if `typeNew` is not definitionally
 equal to the type of `fvarId`. Otherwise this function assumes `typeNew` and the type
 of `fvarId` are definitionally equal.
 
 This function is the same as `Lean.MVarId.changeLocalDecl` but makes sure to push substitution
-information into the infotree.
+information into the info tree.
 -/
 def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
     (checkDefEq := true) : MetaM MVarId := do

@@ -35,6 +35,25 @@ and `flip (·<·)` is the greater-than relation.
 attribute [simp] namedPattern
 
 /--
+`Empty.elim : Empty → C` says that a value of any type can be constructed from
+`Empty`.
+
+This is a non-dependent variant of `Empty.rec`.
+-/
+@[macro_inline] def Empty.elim {C : Sort u} : Empty → C := Empty.rec
+
+/-- Decidable equality for Empty -/
+instance : DecidableEq Empty := fun a => a.rec
+
+/--
+`PEmpty.elim : Empty → C` says that a value of any type can be constructed from
+`PEmpty`.
+
+This is a non-dependent variant of `PEmpty.rec`.
+-/
+@[macro_inline] def PEmpty.elim {C : Sort _} : PEmpty → C := fun a => nomatch a
+
+/--
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/
 -- NOTE: the runtime has special support for the `Thunk` type to implement this behavior
@@ -125,6 +144,10 @@ inductive PSum (α : Sort u) (β : Sort v) where
   | inr (val : β) : PSum α β
 
 @[inherit_doc] infixr:30 " ⊕' " => PSum
+
+instance {α β} [Inhabited α] : Inhabited (PSum α β) := ⟨PSum.inl default⟩
+
+instance {α β} [Inhabited β] : Inhabited (PSum α β) := ⟨PSum.inr default⟩
 
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
@@ -885,6 +908,9 @@ protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (
 
 instance (p : Prop) : Subsingleton p :=
   ⟨fun a b => proofIrrel a b⟩
+
+instance : Subsingleton Empty  := ⟨fun a => a.elim⟩
+instance : Subsingleton PEmpty := ⟨fun a => a.elim⟩
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun

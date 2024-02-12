@@ -524,14 +524,14 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
     defValue := true,
     group    := "bootstrap",
-    descr    := "by default the `inductive/structure commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator"
+    descr    := "by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator"
 }
 
 def checkResultingUniverse (u : Level) : TermElabM Unit := do
   if bootstrap.inductiveCheckResultingUniverse.get (← getOptions) then
     let u ← instantiateLevelMVars u
     if !u.isZero && !u.isNeverZero then
-      throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
+      throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'){indentD u}"
 
 private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
   let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize

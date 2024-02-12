@@ -6,11 +6,11 @@ Authors: Kyle Miller
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Location
 
+namespace Lean.Elab.Tactic
+open Meta
 /-!
 # Implementation of the `change` tactic
 -/
-
-open Lean Elab Tactic Meta
 
 /-- `change` can be used to replace the main goal or its hypotheses with
 different, yet definitionally equal, goal or hypotheses.
@@ -47,3 +47,5 @@ the main goal. -/
           return (← mvarId.changeLocalDecl h (← inferType mvar)) :: mvars)
       (atTarget := evalTactic <| ← `(tactic| refine_lift show $newType from ?_))
       (failed := fun _ => throwError "change tactic failed")
+
+end Lean.Elab.Tactic

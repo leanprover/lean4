@@ -398,7 +398,7 @@ syntax locationWildcard := " *"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (ppSpace colGt term:max)+ ppSpace patternIgnore( atomic("|" noWs "-") <|> "⊢")?
+syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
 
 /--
 Location specifications are used by many tactics that can operate on either the

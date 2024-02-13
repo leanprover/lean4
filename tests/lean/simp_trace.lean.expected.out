@@ -65,7 +65,7 @@ Try this: simp only [bla, h] at *
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-Try this: simp only [bla, h] at h' 
+Try this: simp only [bla, h] at h'
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0

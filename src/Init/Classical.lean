@@ -162,14 +162,3 @@ end Classical
 
 /-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
 theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P
-
-/--
-`by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
--/
-syntax "by_cases " (atomic(ident " : "))? term : tactic
-
-macro_rules
-  | `(tactic| by_cases $e) => `(tactic| by_cases h : $e)
-macro_rules
-  | `(tactic| by_cases $h : $e) =>
-    `(tactic| open Classical in refine if $h:ident : $e then ?pos else ?neg)

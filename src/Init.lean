@@ -8,6 +8,7 @@ import Init.Prelude
 import Init.Notation
 import Init.Tactics
 import Init.TacticsExtra
+import Init.ByCases
 import Init.RCases
 import Init.Core
 import Init.Control

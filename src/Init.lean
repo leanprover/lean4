@@ -28,3 +28,4 @@ import Init.Conv
 import Init.Guard
 import Init.Simproc
 import Init.SizeOfLemmas
+import Init.BinderPredicates

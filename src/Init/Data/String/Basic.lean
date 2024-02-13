@@ -295,19 +295,15 @@ where go (acc : String) (s : String) : List String → String
 Typically created by `s.iter`, where `s` is a `String`.
 
 An iterator is *valid* if the position `i` is *valid* for the string `s`, meaning `0 ≤ i ≤ s.endPos`
-and `i` lies on a UTF8 byte boundary consistently with [std's `String.Pos.Valid`][valid]. If `i =
-s.endPos`, the iterator is *at the end (of `s`)*.
+and `i` lies on a UTF8 byte boundary. If `i = s.endPos`, the iterator is at the end of the string.
 
 Most operations on iterators return arbitrary values if the iterator is not valid. The functions in
-the `String.Iterator` API should prevent you from dealing with invalid iterators, with two
-exceptions:
+the `String.Iterator` API should rule out the creation of invalid iterators, with two exceptions:
 
 - `Iterator.next iter` is invalid if `iter` is already at the end of the string (`iter.atEnd` is
-  true), and
+  `true`), and
 - `Iterator.forward iter n`/`Iterator.nextn iter n` is invalid if `n` is strictly greater than the
   number of remaining characters.
-
-[valid]: https://leanprover-community.github.io/mathlib4_docs/Std/Data/String/Lemmas.html#String.Pos.Valid
 -/
 structure Iterator where
   /-- The string the iterator is for. -/

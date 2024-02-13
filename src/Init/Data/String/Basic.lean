@@ -350,7 +350,7 @@ def curr : Iterator → Char
 /-- Moves the iterator's position forward by one character, unconditionally.
 
 It is only valid to call this function if the iterator is not at the end of the string, *i.e.*
-`Iterator.atEnd` is false; otherwise, the resulting iterator will be invalid. -/
+`Iterator.atEnd` is `false`; otherwise, the resulting iterator will be invalid. -/
 def next : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.next i⟩
 
@@ -382,7 +382,7 @@ def setCurr : Iterator → Char → Iterator
 
 /-- Moves the iterator's position to the end of the string.
 
-Note that `i.toEnd.atEnd` is always true. -/
+Note that `i.toEnd.atEnd` is always `true`. -/
 def toEnd : Iterator → Iterator
   | ⟨s, _⟩ => ⟨s, s.endPos⟩
 

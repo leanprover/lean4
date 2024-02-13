@@ -199,7 +199,7 @@ def pretty : SuggestionText → CoreM Format
   | .string text => return text
 
 /- Note that this is essentially `return (← s.pretty).prettyExtra w indent column`, but we
-special-case strings to avoid converting them to `Format`s and back. -/
+special-case strings to avoid converting them to `Format`s and back, which adds indentation after each newline. -/
 /-- Pretty-prints a `SuggestionText` as a `String` and wraps with respect to the pane width,
 indentation, and column, via `Format.prettyExtra`. If `w := none`, then
 `w := getInputWidth (← getOptions)` is used. Raw `String`s are returned as-is. -/

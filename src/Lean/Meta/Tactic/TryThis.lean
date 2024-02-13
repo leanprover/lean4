@@ -149,13 +149,13 @@ partial def replaceMVarsByUnderscores [Monad m] [MonadQuotation m]
 def delabToRefinableSyntax (e : Expr) : MetaM Term :=
   return ⟨← replaceMVarsByUnderscores (← delab e)⟩
 
-/-- The default maximum width of an ideal line in source code, 100 is the current convention. -/
-def inputWidth : Nat := 100
-
-/-- An option allowing the user to customize the ideal input width, this controls output format when
+/--
+An option allowing the user to customize the ideal input width. Defaults to 100.
+This option controls output format when
 the output is intended to be copied back into a lean file -/
 register_option format.inputWidth : Nat := {
-  defValue := inputWidth
+  /- The default maximum width of an ideal line in source code. -/
+  defValue := 100
   descr := "ideal input width"
 }
 

@@ -6,6 +6,7 @@ Authors: Gabriel Ebner
 import Lean.Elab.MacroArgUtil
 import Lean.Linter.MissingDocs
 
+#exit
 /-!
 Defines an extended binder syntax supporting `∀ ε > 0, ...` etc.
 -/

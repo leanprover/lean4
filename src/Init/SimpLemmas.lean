@@ -117,13 +117,9 @@ end SimprocHelperLemmas
 @[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide
 
--- From Std.
 @[simp] theorem not_iff_self : ¬(¬a ↔ a) | H => iff_not_self H.symm
 
 /-! ## and -/
-
-/-- Non-dependent eliminator for `And`. -/
-abbrev And.elim (f : a → b → α) (h : a ∧ b) : α := f h.left h.right
 
 -- TODO: rename and_self to and_self_eq
 theorem and_self_iff : a ∧ a ↔ a := Iff.of_eq (and_self a)

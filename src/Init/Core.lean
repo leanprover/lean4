@@ -104,7 +104,7 @@ abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b 
 @[inherit_doc True.intro] def trivial : True := ⟨⟩
 
 -- proof irrelevance is built in
-theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
+theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 /--
 If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
@@ -914,8 +914,7 @@ protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (
   apply heq_of_eq
   apply Subsingleton.elim
 
-instance (p : Prop) : Subsingleton p :=
-  ⟨fun a b => proofIrrel a b⟩
+instance (p : Prop) : Subsingleton p := ⟨fun a b => proof_irrel a b⟩
 
 instance : Subsingleton Empty  := ⟨fun a => a.elim⟩
 instance : Subsingleton PEmpty := ⟨fun a => a.elim⟩
@@ -1218,8 +1217,11 @@ theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 the arguments flipped, but it is in the `Not` namespace so that projection notation can be used. -/
 def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
 
+/-- Non-dependent eliminator for `And`. -/
+abbrev And.elim (f : a → b → α) (h : a ∧ b) : α := f h.left h.right
+
 /-- Non-dependent eliminator for `Iff`. -/
-def Iff.elim (f : (a → b) → (b → a) → α) (h : a ↔ b) : α := f h.1 h.2
+def Iff.elim (f : (a → b) → (b → a) → α) (h : a ↔ b) : α := f h.mp h.mpr
 
 /-- Iff can now be used to do substitutions in a calculation -/
 theorem Iff.subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a) : p b :=
@@ -1235,8 +1237,6 @@ theorem not_not_not : ¬¬¬a ↔ ¬a := ⟨mt not_not_intro, not_not_intro⟩
 
 theorem iff_of_true (ha : a) (hb : b) : a ↔ b := Iff.intro (fun _ => hb) (fun _ => ha)
 theorem iff_of_false (ha : ¬a) (hb : ¬b) : a ↔ b := Iff.intro ha.elim hb.elim
-
-
 
 theorem iff_true_left  (ha : a) : (a ↔ b) ↔ b := Iff.intro (·.mp ha) (iff_of_true ha)
 theorem iff_true_right (ha : a) : (b ↔ a) ↔ b := Iff.comm.trans (iff_true_left ha)

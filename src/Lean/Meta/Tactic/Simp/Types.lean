@@ -37,6 +37,13 @@ def mkEqTransOptProofResult (h? : Option Expr) (cache : Bool) (r : Result) : Met
 def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
   mkEqTransOptProofResult r₁.proof? r₁.cache r₂
 
+/-- Flip the proof in a `Simp.Result`. -/
+def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
+  ({ expr := e, proof? := · }) <$>
+  match r.proof? with
+  | none => pure none
+  | some p => some <$> Meta.mkEqSymm p
+
 abbrev Cache := ExprMap Result
 
 abbrev CongrCache := ExprMap (Option CongrTheorem)
@@ -276,6 +283,10 @@ def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
       /- `source` and `r.expr` must be definitionally equal, but
          are not definitionally equal at `TransparencyMode.reducible` -/
       mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
+
+/-- Construct the `Expr` `cast h e`, from a `Simp.Result` with proof `h`. -/
+def Result.mkCast (r : Simp.Result) (e : Expr) : MetaM Expr := do
+  mkAppM ``cast #[← r.getProof, e]
 
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with

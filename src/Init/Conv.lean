@@ -308,4 +308,7 @@ Basic forms:
 -- refer to the syntax category instead of this syntax
 syntax (name := conv) "conv" (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
 
+/-- `norm_cast` tactic in `conv` mode. -/
+syntax (name := normCast) "norm_cast" : conv
+
 end Lean.Parser.Tactic.Conv

@@ -63,4 +63,24 @@ macro_rules
     | 0 => `(tactic| skip)
     | n+1 => `(tactic| ($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
+/--
+Rewrite with the given rules and normalize casts between steps.
+-/
+syntax "rw_mod_cast" (config)? rwRuleSeq (location)? : tactic
+macro_rules
+  | `(tactic| rw_mod_cast $[$config]? [$rules,*] $[$loc]?) => do
+    let tacs ← rules.getElems.mapM fun rule =>
+      `(tactic| (norm_cast at *; rw $[$config]? [$rule] $[$loc]?))
+    `(tactic| ($[$tacs]*))
+
+/--
+Normalize the goal and the given expression, then close the goal with exact.
+-/
+macro "exact_mod_cast " e:term : tactic => `(tactic| exact mod_cast ($e : _))
+
+/--
+Normalize the goal and the given expression, then apply the expression to the goal.
+-/
+macro "apply_mod_cast " e:term : tactic => `(tactic| apply mod_cast ($e : _))
+
 end Lean.Parser.Tactic

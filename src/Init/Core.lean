@@ -38,7 +38,7 @@ attribute [simp] namedPattern
 
 /--
 `Empty.elim : Empty → C` says that a value of any type can be constructed from
-`Empty`.
+`Empty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
 
 This is a non-dependent variant of `Empty.rec`.
 -/
@@ -49,7 +49,7 @@ instance : DecidableEq Empty := fun a => a.rec
 
 /--
 `PEmpty.elim : Empty → C` says that a value of any type can be constructed from
-`PEmpty`.
+`PEmpty`. This can be thought of as a compiler-checked assertion that a code path is unreachable.
 
 This is a non-dependent variant of `PEmpty.rec`.
 -/
@@ -1214,8 +1214,8 @@ gen_injective_theorems% Lean.Syntax
 theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
 theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
 
-/-- Ex falso for negation. From `¬a` and `a` anything follows. This is the same as `absurd` with
-the arguments flipped, but it is in the `not` namespace so that projection notation can be used. -/
+/-- *Ex falso* for negation: from `¬a` and `a` anything follows. This is the same as `absurd` with
+the arguments flipped, but it is in the `Not` namespace so that projection notation can be used. -/
 def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
 
 /-- Non-dependent eliminator for `Iff`. -/
@@ -1293,7 +1293,7 @@ theorem imp_imp_imp {a b c d : Prop} (h₀ : c → a) (h₁ : b → d) : (a → 
 
 theorem imp_iff_right {a : Prop} (ha : a) : (a → b) ↔ b := Iff.intro (· ha) (fun a _ => a)
 
--- This is not marked `@[simp]` because we have `implies_true : (α → True) = True` in core.
+-- This is not marked `@[simp]` because we have `implies_true : (α → True) = True`
 theorem imp_true_iff (α : Sort u) : (α → True) ↔ True := iff_true_intro (fun _ => trivial)
 
 theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro False.elim

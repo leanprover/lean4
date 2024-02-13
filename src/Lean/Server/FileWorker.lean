@@ -107,10 +107,21 @@ section Elab
       document edit in order to reduce flickering"
   }
 
+  /--
+  Type of cache stored in `Snapshot.Diagnostics.cacheRef?`.
+
+  See also section "Communication" in Lean/Server/README.md.
+  -/
+  structure CachedInteractiveDiagnostics where
+    diags : Array Widget.InteractiveDiagnostic
+  deriving TypeName
+
   open Language in
   /--
     Reports status of a snapshot tree incrementally to the user: progress,
     diagnostics, .ilean reference information.
+
+    See also section "Communication" in Lean/Server/README.md.
 
     Debouncing: we only report information
     * after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
@@ -119,8 +130,8 @@ section Elab
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
-  private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
-      (prevDiagnosticsCache : DiagnosticsCache) : BaseIO (Task Unit) := do
+  private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore) :
+      BaseIO (Task Unit) := do
     let t ← BaseIO.asTask do
       IO.sleep (server.reportDelayMs.get ctx.opts).toUInt32
     BaseIO.bindTask t fun _ =>
@@ -147,16 +158,17 @@ section Elab
         return .pure ()
 
       if !node.element.diagnostics.msgLog.isEmpty then
-        let idiags ←
-          if let some cached := node.element.diagnostics.id?.bind prevDiagnosticsCache.find? then
-            pure cached
+        let diags ←
+          if let some cached ← node.element.diagnostics.cacheRef?.bindM fun cacheRef => do
+              return (← cacheRef.get).bind (·.get? CachedInteractiveDiagnostics) then
+            pure cached.diags
           else
-            let idiags ← node.element.diagnostics.msgLog.toList.toArray.mapM
+            let diags ← node.element.diagnostics.msgLog.toList.toArray.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
-            if let some id := node.element.diagnostics.id? then
-              doc.diagnosticsCacheRef.modify (·.insert id idiags)
-            pure idiags
-        doc.diagnosticsRef.modify (· ++ idiags)
+            if let some cacheRef := node.element.diagnostics.cacheRef? then
+              cacheRef.set <| some <| .mk { diags : CachedInteractiveDiagnostics }
+            pure diags
+        doc.diagnosticsRef.modify (· ++ diags)
         if st.hasBlocked then
           publishDiagnostics
 
@@ -212,10 +224,9 @@ section Initialization
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
-    let nextDiagsIdRef ← IO.mkRef 0
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let processor ← Language.Lean.mkIncrementalProcessor {
-      opts, mainModuleName, nextDiagsIdRef
+      opts, mainModuleName
       fileSetupHandler? := some fun imports => do
         let result ← setupFile meta imports fun stderrLine => do
           let progressDiagnostic := {
@@ -243,9 +254,8 @@ section Initialization
     let doc : EditableDocumentCore := {
       meta, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
-      diagnosticsCacheRef := (← IO.mkRef ∅)
     }
-    let reporter ← reportSnapshots ctx doc ∅
+    let reporter ← reportSnapshots ctx doc
     return (ctx, {
       doc := { doc with reporter }
       pendingRequests    := RBMap.empty
@@ -283,15 +293,14 @@ section Updates
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document, updates editable doc state. -/
-  def updateDocument (oldDoc : EditableDocument) (meta : DocumentMeta) : WorkerM Unit := do
+  def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
     let initSnap ← ctx.processor meta.mkInputContext
     let doc : EditableDocumentCore := {
       meta, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
-      diagnosticsCacheRef := (← IO.mkRef ∅)
     }
-    let reporter ← reportSnapshots ctx doc (← oldDoc.diagnosticsCacheRef.get)
+    let reporter ← reportSnapshots ctx doc
     modify fun st => { st with doc := { doc with reporter } }
     -- we assume version updates are monotonous and that we are on the main thread
     ctx.maxDocVersionRef.set meta.version
@@ -307,7 +316,7 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument oldDoc ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)

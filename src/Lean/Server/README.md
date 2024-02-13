@@ -76,7 +76,8 @@ Request responses are sent to this channel as well.
 
 A further complication in communication is interactive diagnostics, which unlike most Lean objects have relevant *identity* as the client can hold references to them, and replacing an interactive diagnostic with an equal but not identical diagnostic can lead to the client reloading the view and losing local state such as the unfolding of a trace tree.
 Thus we have to make sure that when we reuse snapshots, we reuse interactive diagnostic objects as is.
-On the other hand, we do not want language processors to think about interactive diagnostics for simplicity and module dependency reasons, so we transform diagnostics into interactive ones in the reporting task in the worker and have language processors merely store a unique ID in `Snapshot.Diagnostics` that the reporting task uses to detect such snapshot reuse and not recreate interactive diagnostic objects in this case.
+On the other hand, we do not want language processors to think about interactive diagnostics for simplicity and module dependency reasons, so we transform diagnostics into interactive ones in the reporting task in the worker and have language processors merely store a dynamic `IO.Ref` in `Snapshot.Diagnostics` that the reporting task then uses to store and reuse interactive diagnostics.
+We initially stored unique IDs in `Snapshot.Diagnostics` for this that would be associated with the cached value in a map in the worker but there was no practical upside to this additional bookkeeping overhead.
 
 ## Code style
 

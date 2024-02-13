@@ -140,7 +140,6 @@ def runFrontend
   let ctx := { inputCtx with
     mainModuleName, opts, trustLevel
     fileSetupHandler? := none
-    nextDiagsIdRef := (← IO.mkRef 0)
   }
   let snap ← lang.process none ctx
   let snaps := Language.toSnapshotTree snap

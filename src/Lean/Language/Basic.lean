@@ -46,17 +46,20 @@ structure Snapshot.Diagnostics where
   /-- Non-interactive message log. -/
   msgLog : MessageLog
   /--
-  Unique ID used by the file worker for caching diagnostics per message log. If `none`, no caching
-  is done, which should only be used for messages not containing any interactive elements.
+  Dynamic mutable slot usable by the language server for caching interactive diagnostics.  If
+  `none`, no caching is done, which should only be used for messages not containing any interactive
+  elements.
+
+  See also section "Communication" in Lean/Server/README.md.
   -/
-  id? : Option Nat
+  cacheRef? : Option (IO.Ref (Option Dynamic))
 deriving Inhabited
 
 /-- The empty set of diagnostics. -/
 def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   msgLog := .empty
   -- nothing to cache
-  id? := none
+  cacheRef? := none
 
 /--
   The base class of all snapshots: all the generic information the language server needs about a
@@ -192,8 +195,6 @@ structure ModuleProcessingContext where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
-  /-- Next ID to be used for `Snapshot.Diagnostics.id?`. -/
-  nextDiagsIdRef : IO.Ref Nat
   /--
     Callback available in server mode for building imports and retrieving per-library options using
     `lake setup-file`. -/
@@ -211,8 +212,7 @@ diagnostics.
 -/
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
     ProcessingM Snapshot.Diagnostics := do
-  let id ← (← read).nextDiagsIdRef.modifyGet fun id => (id, id + 1)
-  return { msgLog, id? := some id }
+  return { msgLog, cacheRef? := some (← IO.mkRef none) }
 
 end Language
 open Language

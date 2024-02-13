@@ -84,11 +84,6 @@ structure EditableDocumentCore where
   `handleGetInteractiveDiagnosticsRequest`.
   -/
   diagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
-  /--
-  Cache of interactive diagnostics reported so far, for reuse in future document versions. May be
-  a subset of `diagnosticsRef` if there any `Snapshot.Diagnostics.id?` are empty.
-  -/
-  diagnosticsCacheRef : IO.Ref DiagnosticsCache
 
 /-- `EditableDocumentCore` with reporter task. -/
 structure EditableDocument extends EditableDocumentCore where

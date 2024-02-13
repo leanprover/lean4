@@ -208,6 +208,28 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example : True ∨ False := by
+  left
+  trivial
+```
+-/
+syntax (name := left) "left" : tactic
+
+/--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example {p q : Prop} (h : q) : p ∨ q := by
+  right
+  exact h
+```
+-/
+syntax (name := right) "right" : tactic
+
+/--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
   or else fails.
 * `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses
@@ -323,8 +345,13 @@ syntax (name := eqRefl) "eq_refl" : tactic
 `rfl` tries to close the current goal using reflexivity.
 This is supposed to be an extensible tactic and users can add their own support
 for new reflexive relations.
+
+Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
+reflexivity theorems (e.g., `Iff.rfl`).
 -/
 macro "rfl" : tactic => `(tactic| eq_refl)
+
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
@@ -432,12 +459,16 @@ syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
+
+/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
+  `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data
@@ -856,6 +887,12 @@ The tactic `nofun` is shorthand for `exact nofun`: it introduces the assumptions
 empty pattern match, closing the goal if the introduced pattern is impossible.
 -/
 macro "nofun" : tactic => `(tactic| exact nofun)
+
+/--
+The tactic `nomatch h` is shorthand for `exact nomatch h`.
+-/
+macro "nomatch " es:term,+ : tactic =>
+  `(tactic| exact nomatch $es:term,*)
 
 end Tactic
 

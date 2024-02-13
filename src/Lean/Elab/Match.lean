@@ -1243,6 +1243,12 @@ builtin_initialize
     let discrs := discrs.getElems
     if (← discrs.allM fun discr => isAtomicDiscr discr.raw) then
       let expectedType ← waitExpectedType expectedType?
+      /- Wait for discriminant types. -/
+      for discr in discrs do
+        let d ← elabTerm discr none
+        let dType ← inferType d
+        trace[Elab.match] "discr {d} : {← instantiateMVars dType}"
+        tryPostponeIfMVar dType
       let discrs := discrs.map fun discr => mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discr.raw]
       elabMatchAux none discrs #[] mkNullNode expectedType
     else

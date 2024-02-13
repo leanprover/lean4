@@ -8,6 +8,7 @@ import Init.Prelude
 import Init.Notation
 import Init.Tactics
 import Init.TacticsExtra
+import Init.RCases
 import Init.Core
 import Init.Control
 import Init.Data.Basic
@@ -24,5 +25,6 @@ import Init.NotationExtra
 import Init.SimpLemmas
 import Init.Hints
 import Init.Conv
+import Init.Guard
 import Init.Simproc
 import Init.SizeOfLemmas

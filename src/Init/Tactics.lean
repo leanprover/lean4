@@ -884,9 +884,9 @@ the tactic is applied recursively to the generated subgoals until it eventually 
 -/
 syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 
-/-- `split_ands` applies `And.intro` until it does not make progress. -/
-syntax "split_ands" : tactic
-macro_rules | `(tactic| split_ands) => `(tactic| repeat' refine And.intro ?_ ?_)
+/-- `and_intros` applies `And.intro` until it does not make progress. -/
+syntax "and_intros" : tactic
+macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
 
 end Tactic
 

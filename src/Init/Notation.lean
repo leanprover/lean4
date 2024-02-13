@@ -465,6 +465,14 @@ macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 namespace Lean
 
 /--
+* The `by_elab doSeq` expression runs the `doSeq` as a `TermElabM Expr` to
+  synthesize the expression.
+* `by_elab fun expectedType? => do doSeq` receives the expected type (an `Option Expr`)
+  as well.
+-/
+syntax (name := byElab) "by_elab " doSeq : term
+
+/--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
 The only accepted parser for this category is an antiquotation.
 -/
@@ -498,3 +506,27 @@ a string literal with the contents of the file at `"parent_dir" / "path" / "to" 
 file cannot be read, elaboration fails.
 -/
 syntax (name := includeStr) "include_str " term : term
+
+/--
+The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
+This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+-/
+syntax (name := runCmd) "run_cmd " doSeq : command
+
+/--
+The `run_elab doSeq` command executes code in `TermElabM Unit`.
+This is almost the same as `#eval show TermElabM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+-/
+syntax (name := runElab) "run_elab " doSeq : command
+
+/--
+The `run_meta doSeq` command executes code in `MetaM Unit`.
+This is almost the same as `#eval show MetaM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+
+(This is effectively a synonym for `run_elab`.)
+-/
+macro (name := runMeta) "run_meta " elems:doSeq : command =>
+  `(command| run_elab (show MetaM Unit from do $elems))

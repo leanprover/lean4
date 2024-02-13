@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Refl
 import Lean.Elab.Binders
 import Lean.Elab.Open
+import Lean.Elab.Eval
 import Lean.Elab.SetOption
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
@@ -480,5 +481,12 @@ where
 
 @[builtin_tactic right] def evalRight : Tactic := fun _stx => do
   liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
+
+@[builtin_tactic runTac] def evalRunTac : Tactic := fun stx => do
+  match stx with
+  | `(tactic| run_tac $e:doSeq) =>
+    ← unsafe Term.evalTerm (TacticM Unit) (mkApp (Lean.mkConst ``TacticM) (Lean.mkConst ``Unit))
+      (← `(discard do $e))
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

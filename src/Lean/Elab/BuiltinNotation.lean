@@ -7,8 +7,9 @@ import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
 import Lean.Meta.Closure
 import Lean.Meta.MatchUtil
-import Lean.Elab.SyntheticMVars
 import Lean.Compiler.ImplementedByAttr
+import Lean.Elab.SyntheticMVars
+import Lean.Elab.Eval
 
 namespace Lean.Elab.Term
 open Meta
@@ -454,6 +455,22 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     }
     setImplementedBy implName unsafeFn
     return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs
+  | _ => throwUnsupportedSyntax
+
+/-- Elaborator for `by_elab`. -/
+@[builtin_term_elab byElab] def elabRunElab : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(by_elab $cmds:doSeq) => do
+    if let `(Lean.Parser.Term.doSeq| $e:term) := cmds then
+      if e matches `(Lean.Parser.Term.doSeq| fun $[$_args]* => $_) then
+        let tac ← unsafe evalTerm
+          (Option Expr → TermElabM Expr)
+          (Lean.mkForall `x .default
+            (mkApp (Lean.mkConst ``Option) (Lean.mkConst ``Expr))
+            (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))) e
+        return ← tac expectedType?
+    (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
+      (← `(do $cmds)))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

@@ -1054,15 +1054,21 @@ syntax (name := omega) "omega" (config)? : tactic
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 
-/-- `assumption_mod_cast` runs `norm_cast` on the goal. For each local hypothesis `h`, it also
-normalizes `h` and tries to use that to close the goal. -/
+/-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
+using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
+each hypothesis to move casts as far outwards as possible, so it can be used
+in more situations.
+
+Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
+normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
 macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
 
 /--
 The `norm_cast` family of tactics is used to normalize casts inside expressions.
-It is basically a simp tactic with a specific set of lemmas to move casts
+It is basically a `simp` tactic with a specific set of lemmas to move casts
 upwards in the expression.
-Therefore it can be used more safely as a non-terminating tactic.
+Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
+`norm_cast` is considered safe.
 It also has special handling of numerals.
 
 For instance, given an assumption
@@ -1076,25 +1082,24 @@ writing `norm_cast at h` will turn `h` into
 h : a + b < 10
 ```
 
-You can also use `exact_mod_cast`, `apply_mod_cast`, `rw_mod_cast`
-or `assumption_mod_cast`.
-Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize the goal and
-`h` before using `exact h` or `apply h`.
-Writing `assumption_mod_cast` will normalize the goal and for every
-expression `h` in the context it will try to normalize `h` and use
+There are also variants of `exact`, `apply`, `rw`, and `assumption` that
+work modulo `norm_cast` - in other words, they apply `norm_cast` to make
+them more flexible. They are called `exact_mod_cast`, `apply_mod_cast`,
+`rw_mod_cast`, and `assumption_mod_cast`, respectively.
+Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize casts
+in the goal and `h` before using `exact h` or `apply h`.
+Writing `assumption_mod_cast` will normalize casts in the goal and, for
+every hypothesis `h` in the context, it will try to normalize casts in `h` and use
 `exact h`.
 `rw_mod_cast` acts like the `rw` tactic but it applies `norm_cast` between steps.
 
-See also `push_cast`, for move casts inwards.
-
-The implementation and behavior of the `norm_cast` family is described in detail at
-<https://lean-forward.github.io/norm_cast/norm_cast.pdf>.
+See also `push_cast`, which moves casts inwards rather than lifting them outwards.
 -/
 macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
 
 /--
-`push_cast` rewrites the expression to move casts toward the leaf nodes.
+`push_cast` rewrites the goal to move casts inward, toward the leaf nodes.
 This uses `norm_cast` lemmas in the forward direction.
 For example, `↑(a + b)` will be written to `↑a + ↑b`.
 It is equivalent to `simp only with push_cast`.
@@ -1110,9 +1115,6 @@ begin
   push_cast [int.add_zero] at h2,
 end
 ```
-
-The implementation and behavior of the `norm_cast` family is described in detail at
-<https://lean-forward.github.io/norm_cast/norm_cast.pdf>.
 -/
 syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
@@ -1171,7 +1173,7 @@ syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"
 
 /--
 The `norm_cast` attribute should be given to lemmas that describe the
-behaviour of a coercion in regard to an operator, a relation, or a particular
+behaviour of a coercion with respect to an operator, a relation, or a particular
 function.
 
 It only concerns equality or iff lemmas involving `↑`, `⇑` and `↥`, describing the behavior of
@@ -1204,8 +1206,9 @@ Lemmas tagged with `@[norm_cast]` are classified into three categories: `move`, 
 and to cancel them from both sides of an equation or relation. It uses `squash` lemmas to clean
 up the result.
 
-Occasionally you may want to override the automatic classification.
-You can do this by giving an optional `elim`, `move`, or `squash` parameter to the attribute.
+It is typically not necessary to specify these categories, as `norm_cast` lemmas are
+automatically classified by default. The automatic classification can be overridden by
+giving an optional `elim`, `move`, or `squash` parameter to the attribute.
 
 ```lean
 @[simp, norm_cast elim] lemma nat_cast_re (n : ℕ) : (n : ℂ).re = n := by
@@ -1213,9 +1216,6 @@ You can do this by giving an optional `elim`, `move`, or `squash` parameter to t
 ```
 
 Don't do this unless you understand what you are doing.
-
-A full description of the tactic, and the use of each lemma category, can be found at
-<https://lean-forward.github.io/norm_cast/norm_cast.pdf>.
 -/
 syntax (name := norm_cast) "norm_cast" (ppSpace normCastLabel)? (ppSpace num)? : attr
 

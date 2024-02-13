@@ -484,7 +484,7 @@ instance : Coe Syntax (TSyntax `rawStx) where
 /-- `with_annotate_term stx e` annotates the lexical range of `stx : Syntax` with term info for `e`. -/
 scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace term : term
 
-/-- Term elaborator which uses the expected type to insert coercions. -/
+/-- Normalize casts in an expression using the same method as the `norm_cast` tactic. -/
 syntax (name := modCast) "mod_cast " term : term
 
 /--

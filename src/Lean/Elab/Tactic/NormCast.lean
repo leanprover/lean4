@@ -9,6 +9,9 @@ import Lean.Elab.ElabRules
 
 /-!
 # The `norm_cast` family of tactics.
+
+A full description of the tactic, and the use of each theorem category, can be found at
+<https://arxiv.org/abs/2001.10594>.
 -/
 namespace Lean.Elab.Tactic.NormCast
 open Lean Meta Simp NormCast
@@ -16,7 +19,7 @@ open Lean Meta Simp NormCast
 -- TODO: trace name consistency
 builtin_initialize registerTraceClass `Tactic.norm_cast
 
-/-- Prove `a = b` using the given simp set. -/
+/-- Proves `a = b` using the given simp set. -/
 def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) := do
   let go : SimpM (Option Simp.Result) := do
     let a' ← Simp.simp a
@@ -27,19 +30,19 @@ def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) :=
     (go (← Simp.mkDefaultMethods).toMethodsRef
       { simpTheorems := #[s], congrTheorems := ← Meta.getSimpCongrTheorems }).run' {}
 
-/-- Prove `a = b` by simplifying using move and squash lemmas. -/
+/-- Proves `a = b` by simplifying using move and squash lemmas. -/
 def proveEqUsingDown (a b : Expr) : MetaM (Option Simp.Result) := do
   withTraceNode `Tactic.norm_cast (return m!"{exceptOptionEmoji ·} proving: {← mkEq a b}") do
   proveEqUsing (← normCastExt.down.getTheorems) a b
 
-/-- Construct the expression `(e : ty)`. -/
+/-- Constructs the expression `(e : ty)`. -/
 def mkCoe (e : Expr) (ty : Expr) : MetaM Expr := do
   let .some e' ← coerce? e ty | failure
   return e'
 
 /--
-Check if an expression is the coercion of some other expression,
-and if so return that expression.
+Checks whether an expression is the coercion of some other expression,
+and if so returns that expression.
 -/
 def isCoeOf? (e : Expr) : MetaM (Option Expr) := do
   if let Expr.const fn .. := e.getAppFn then
@@ -49,8 +52,8 @@ def isCoeOf? (e : Expr) : MetaM (Option Expr) := do
   return none
 
 /--
-Check if an expression is a numeral in some type,
-and if so return that type and the natural number.
+Checks whether an expression is a numeral in some type,
+and if so returns that type and the natural number.
 -/
 def isNumeral? (e : Expr) : Option (Expr × Nat) :=
   -- TODO: cleanup, and possibly remove duplicate
@@ -65,9 +68,19 @@ def isNumeral? (e : Expr) : Option (Expr × Nat) :=
 /--
 This is the main heuristic used alongside the elim and move lemmas.
 The goal is to help casts move past operators by adding intermediate casts.
-An expression of the shape: op (↑(x : α) : γ) (↑(y : β) : γ)
-is rewritten to:            op (↑(↑(x : α) : β) : γ) (↑(y : β) : γ)
-when (↑(↑(x : α) : β) : γ) = (↑(x : α) : γ) can be proven with a squash lemma
+An expression of the shape:
+```
+op (↑(x : α) : γ) (↑(y : β) : γ)
+```
+is rewritten to:
+```
+op (↑(↑(x : α) : β) : γ) (↑(y : β) : γ)
+```
+when
+```
+(↑(↑(x : α) : β) : γ) = (↑(x : α) : γ)
+```
+can be proven with a squash lemma
 -/
 def splittingProcedure (expr : Expr) : MetaM Simp.Result := do
   let Expr.app (Expr.app op x ..) y .. := expr | return {expr}
@@ -140,7 +153,7 @@ partial def upwardAndElim (up : SimpTheorems) (e : Expr) : SimpM Simp.Step := do
   return Simp.Step.visit r
 
 /--
-If possible, rewrite `(n : α)` to `(Nat.cast n : α)` where `n` is a numeral and `α ≠ ℕ`.
+If possible, rewrites `(n : α)` to `(Nat.cast n : α)` where `n` is a numeral and `α ≠ ℕ`.
 Returns a pair of the new expression and proof that they are equal.
 -/
 def numeralToCoe (e : Expr) : MetaM Simp.Result := do
@@ -236,14 +249,12 @@ def evalNormCast0 : Tactic := fun stx => do
         (← (← getMainGoal).getNondepPropHyps).forM normCastHyp
   | _ => throwUnsupportedSyntax
 
-@[inherit_doc Lean.Parser.Tactic.Conv.normCast,
-  builtin_tactic Lean.Parser.Tactic.Conv.normCast]
+@[builtin_tactic Lean.Parser.Tactic.Conv.normCast]
 def evalConvNormCast : Tactic :=
   open Elab.Tactic.Conv in fun _ => withMainContext do
     applySimpResult (← derive (← getLhs))
 
-@[inherit_doc Lean.Parser.Tactic.pushCast,
-  builtin_tactic pushCast]
+@[builtin_tactic pushCast]
 def evalPushCast : Tactic := fun stx => do
   let { ctx, simprocs, dischargeWrapper } ← withMainContext do
     mkSimpContext (simpTheorems := pushCastExt.getTheorems) stx (eraseLocal := false)

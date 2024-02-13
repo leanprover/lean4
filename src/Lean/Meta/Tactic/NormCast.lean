@@ -35,7 +35,7 @@ def getSimpArgs (e : Expr) : MetaM (Array Expr) := do
         args := args.push a
     return args
 
-/-- Count how many coercions are at the top of the expression. -/
+/-- Counts how many coercions are at the head of the expression. -/
 partial def countHeadCoes (e : Expr) : MetaM Nat := do
   if let Expr.const fn .. := e.getAppFn then
     if let some info ← getCoeFnInfo? fn then
@@ -43,7 +43,7 @@ partial def countHeadCoes (e : Expr) : MetaM Nat := do
         return (← countHeadCoes (e.getArg! info.coercee)) + 1
   return 0
 
-/-- Count how many coercions are inside the expression, including the top ones. -/
+/-- Counts how many coercions are inside the expression, including the head ones. -/
 partial def countCoes (e : Expr) : MetaM Nat :=
   lambdaTelescope e fun _ e => do
     if let Expr.const fn .. := e.getAppFn then
@@ -55,7 +55,7 @@ partial def countCoes (e : Expr) : MetaM Nat :=
           return coes
     return (← (← getSimpArgs e).mapM countCoes).foldl (·+·) 0
 
-/-- Count how many coercions are inside the expression, excluding the top ones. -/
+/-- Counts how many coercions are inside the expression, excluding the head ones. -/
 def countInternalCoes (e : Expr) : MetaM Nat :=
   return (← countCoes e) - (← countHeadCoes e)
 
@@ -95,15 +95,15 @@ initialize pushCastExt : SimpExtension ←
     The `push_cast` simp attribute uses `norm_cast` lemmas \
     to move casts toward the leaf nodes of the expression."
 
-/--  The `norm_cast` attribute stores three simp sets. -/
+/--  The `norm_cast` attribute stores a simp set for each of the three types of `norm_cast` lemma. -/
 structure NormCastExtension where
-  /-- A simp set which lifts coercion arrows to the top level. -/
+  /-- A simp set which lifts coercions to the top level. -/
   up : SimpExtension
-  /-- A simp set which pushes coercion arrows to the leaves. -/
+  /-- A simp set which pushes coercions to the leaves. -/
   down : SimpExtension
   /-- A simp set which simplifies transitive coercions. -/
   squash : SimpExtension
-  deriving Inhabited
+deriving Inhabited
 
 /-- The `norm_cast` extension data. -/
 builtin_initialize normCastExt : NormCastExtension ← pure {
@@ -112,26 +112,27 @@ builtin_initialize normCastExt : NormCastExtension ← pure {
   squash := ← mkSimpExt (decl_name% ++ `squash)
 }
 
-/-- `addElim decl` adds `decl` as an `elim` lemma to the cache. -/
+/-- `addElim decl` adds `decl` as an `elim` lemma to be used by `norm_cast`. -/
 def addElim (decl : Name)
     (kind := AttributeKind.global) (prio := eval_prio default) : MetaM Unit :=
   addSimpTheorem normCastExt.up decl (post := true) (inv := false) kind prio
 
-/-- `addMove decl` adds `decl` as a `move` lemma to the cache. -/
+/-- `addMove decl` adds `decl` as a `move` lemma to be used by `norm_cast`. -/
 def addMove (decl : Name)
     (kind := AttributeKind.global) (prio := eval_prio default) : MetaM Unit := do
   addSimpTheorem pushCastExt decl (post := true) (inv := false) kind prio
   addSimpTheorem normCastExt.up decl (post := true) (inv := true) kind prio
   addSimpTheorem normCastExt.down decl (post := true) (inv := false) kind prio
 
-/-- `addSquash decl` adds `decl` as a `squash` lemma to the cache. -/
+/-- `addSquash decl` adds `decl` as a `squash` lemma to be used by `norm_cast`. -/
 def addSquash (decl : Name)
     (kind := AttributeKind.global) (prio := eval_prio default) : MetaM Unit := do
   addSimpTheorem pushCastExt decl (post := true) (inv := false) kind prio
   addSimpTheorem normCastExt.squash decl (post := true) (inv := false) kind prio
   addSimpTheorem normCastExt.down decl (post := true) (inv := false) kind prio
 
-/-- `addInfer decl` infers the label of `decl` and adds it to the cache.
+/-- `addInfer decl` infers the label of `decl` (`elim`, `move`, or `squash`) and arranges for it to
+be used by `norm_cast`.
 
 * elim lemma:   LHS has 0 head coes and ≥ 1 internal coe
 * move lemma:   LHS has 1 head coe and 0 internal coes,    RHS has 0 head coes and ≥ 1 internal coes

@@ -64,7 +64,7 @@ macro_rules
     | n+1 => `(tactic| ($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
 
 /--
-Rewrite with the given rules and normalize casts between steps.
+Rewrites with the given rules, normalizing casts prior to each step.
 -/
 syntax "rw_mod_cast" (config)? rwRuleSeq (location)? : tactic
 macro_rules
@@ -74,12 +74,12 @@ macro_rules
     `(tactic| ($[$tacs]*))
 
 /--
-Normalize the goal and the given expression, then close the goal with exact.
+Normalize casts in the goal and the given expression, then close the goal with `exact`.
 -/
 macro "exact_mod_cast " e:term : tactic => `(tactic| exact mod_cast ($e : _))
 
 /--
-Normalize the goal and the given expression, then apply the expression to the goal.
+Normalize casts in the goal and the given expression, then `apply` the expression to the goal.
 -/
 macro "apply_mod_cast " e:term : tactic => `(tactic| apply mod_cast ($e : _))
 

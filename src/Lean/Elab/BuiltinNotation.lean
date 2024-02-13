@@ -428,12 +428,6 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   let e ← elabTerm stx[1] expectedType?
   return DiscrTree.mkNoindexAnnotation e
 
--- TODO: investigate whether we need this function
-private def mkAuxNameForElabUnsafe (hint : Name) : TermElabM Name :=
-  withFreshMacroScope do
-    let name := (← getDeclName?).getD Name.anonymous ++ hint
-    return addMacroScope (← getMainModule) name (← getCurrMacroScope)
-
 @[builtin_term_elab «unsafe»]
 def elabUnsafe : TermElab := fun stx expectedType? =>
   match stx with
@@ -444,7 +438,7 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
-    let implName ← mkAuxNameForElabUnsafe `impl
+    let implName ← mkAuxName `unsafe_impl
     addDecl <| Declaration.defnDecl {
       name        := implName
       type        := unsafeDefn.type

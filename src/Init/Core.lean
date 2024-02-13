@@ -1254,12 +1254,10 @@ theorem not_false_iff : (¬False) ↔ True := iff_true_intro not_false
 
 theorem Eq.to_iff : a = b → (a ↔ b) := Iff.of_eq
 theorem iff_of_eq : a = b → (a ↔ b) := Iff.of_eq
+theorem neq_of_not_iff : ¬(a ↔ b) → a ≠ b := mt Iff.of_eq
 
 theorem iff_iff_eq : (a ↔ b) ↔ a = b := Iff.intro propext Iff.of_eq
-theorem eq_iff_iff : (a = b) ↔ (a ↔ b) := iff_iff_eq.symm
--- Jhx note. `eq_iff_iff` is labeled @[simp] in Std/Mathlib, but that current breaks Lean core eproofs.
-
-theorem neq_of_not_iff : ¬(a ↔ b) → a ≠ b := mt Eq.to_iff
+@[simp] theorem eq_iff_iff : (a = b) ↔ (a ↔ b) := iff_iff_eq.symm
 
 theorem eq_self_iff_true (a : α)  : a = a ↔ True  := iff_true_intro rfl
 theorem ne_self_iff_false (a : α) : a ≠ a ↔ False := not_iff_false_intro rfl

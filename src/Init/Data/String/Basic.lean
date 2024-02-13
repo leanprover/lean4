@@ -397,8 +397,8 @@ def extract : Iterator → Iterator → String
 
 /-- Moves the iterator's position several characters forward.
 
-Calling this function is only legal if the number of character to skip is less than or equal to the
-number of characters left in the iterator. -/
+The resulting iterator is only valid if the number of characters to skip is less than or equal to
+the number of characters left in the iterator. -/
 def forward : Iterator → Nat → Iterator
   | it, 0   => it
   | it, n+1 => forward it.next n

@@ -23,7 +23,7 @@ import Init.MetaTypes
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas
-import Init.Prop
+import Init.PropLemmas
 import Init.Hints
 import Init.Conv
 import Init.Guard

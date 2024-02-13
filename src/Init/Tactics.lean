@@ -208,6 +208,28 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example : True ∨ False := by
+  left
+  trivial
+```
+-/
+syntax (name := left) "left" : tactic
+
+/--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example {p q : Prop} (h : q) : p ∨ q := by
+  right
+  exact h
+```
+-/
+syntax (name := right) "right" : tactic
+
+/--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
   or else fails.
 * `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses

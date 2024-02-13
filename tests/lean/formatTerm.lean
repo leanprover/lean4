@@ -63,3 +63,5 @@ def foo : a b c d e f g a b c d e f g h where
 #eval fmt `(calc
   1 = 1 := rfl
   1 = 1 := rfl)
+
+#eval fmt `(by rw [] at h)

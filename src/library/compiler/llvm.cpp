@@ -18,6 +18,7 @@ Lean's IR.
 #include "runtime/string_ref.h"
 
 #ifdef LEAN_LLVM
+#include "llvm-c/Analysis.h"
 #include "llvm-c/BitReader.h"
 #include "llvm-c/BitWriter.h"
 #include "llvm-c/Core.h"
@@ -1422,5 +1423,22 @@ extern "C" LEAN_EXPORT lean_object *llvm_is_declaration(size_t ctx, size_t globa
 #else
 	uint8_t is_bool = LLVMIsDeclaration(lean_to_Value(global));
 	return lean_io_result_mk_ok(lean_box(is_bool));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_verify_module(size_t ctx, size_t mod,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    char* msg = NULL;
+    LLVMBool broken = LLVMVerifyModule(lean_to_Module(mod), LLVMReturnStatusAction, &msg);
+    if (broken) {
+      return lean_io_result_mk_ok(lean::mk_option_some(lean_mk_string(msg)));
+    } else {
+      return lean_io_result_mk_ok(lean::mk_option_none());
+    }
 #endif  // LEAN_LLVM
 }

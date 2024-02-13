@@ -326,6 +326,9 @@ opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
 @[extern "lean_llvm_dispose_module"]
 opaque disposeModule (m : Module ctx) : BaseIO Unit
 
+@[extern "lean_llvm_verify_module"]
+opaque verifyModule (m : Module ctx) : BaseIO (Option String)
+
 @[extern "lean_llvm_create_string_attribute"]
 opaque createStringAttribute (key : String) (value : String) : BaseIO (Attribute ctx)
 
@@ -439,6 +442,11 @@ def constInt32 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
 
-def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+def constIntSizeT (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual size_t of the target machine
   constInt' ctx 64 value signExtend
+
+def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual unsigned of the target machine
+  constInt' ctx 32 value signExtend
 end LLVM

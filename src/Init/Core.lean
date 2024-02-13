@@ -693,6 +693,8 @@ protected theorem Iff.rfl {a : Prop} : a ↔ a :=
 
 macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
+theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.refl _
+
 theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
   Iff.intro
     (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))
@@ -702,19 +704,16 @@ theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
 instance : Trans Iff Iff Iff where
   trans := Iff.trans
 
-theorem Iff.symm (h : a ↔ b) : b ↔ a :=
-  Iff.intro (Iff.mpr h) (Iff.mp h)
-
-theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
-  Iff.intro Iff.symm Iff.symm
-
-theorem Iff.of_eq (h : a = b) : a ↔ b :=
-  h ▸ Iff.refl _
+theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro (Iff.mpr h) (Iff.mp h)
+theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
 
 theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
-
 theorem and_comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
 theorem And.comm : a ∧ b ↔ b ∧ a := and_comm
+
+theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
+theorem or_comm : a ∨ b ↔ b ∨ a := Iff.intro Or.symm Or.symm
+theorem Or.comm : a ∨ b ↔ b ∨ a := or_comm
 
 /-! # Exists -/
 

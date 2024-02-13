@@ -96,16 +96,22 @@ theorem dite_cond_eq_true {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → 
 theorem dite_cond_eq_false {α : Sort u} {c : Prop} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c = False) : (dite c t e) = e (of_eq_false h) := by simp [h]
 end SimprocHelperLemmas
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
-@[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.1), fun h => ⟨h, h⟩⟩
+
 @[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
 @[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
 @[simp] theorem and_false (p : Prop) : (p ∧ False) = False := eq_false (·.2)
 @[simp] theorem false_and (p : Prop) : (False ∧ p) = False := eq_false (·.1)
+@[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.left), fun h => ⟨h, h⟩⟩
+@[simp] theorem and_not_self : ¬(a ∧ ¬a) | ⟨ha, hn⟩ => absurd ha hn
+@[simp] theorem not_and_self : ¬(¬a ∧ a) := and_not_self ∘ And.symm
+@[simp] theorem and_imp : (a ∧ b → c) ↔ (a → b → c) := ⟨fun h ha hb => h ⟨ha, hb⟩, fun h ⟨ha, hb⟩ => h ha hb⟩
+@[simp] theorem not_and : ¬(a ∧ b) ↔ (a → ¬b) := and_imp
 @[simp] theorem or_self (p : Prop) : (p ∨ p) = p := propext ⟨fun | .inl h | .inr h => h, .inl⟩
 @[simp] theorem or_true (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
 @[simp] theorem true_or (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
 @[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
 @[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
+
 @[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := eq_true .rfl
 @[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
 @[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
@@ -119,20 +125,8 @@ end SimprocHelperLemmas
 
 @[simp] theorem not_iff_self : ¬(¬a ↔ a) | H => iff_not_self H.symm
 
+
 /-! ## and -/
-
--- TODO: rename and_self to and_self_eq
-theorem and_self_iff : a ∧ a ↔ a := Iff.of_eq (and_self a)
-
-theorem And.imp (f : a → c) (g : b → d) (h : a ∧ b) : c ∧ d :=  And.intro (f h.left) (g h.right)
-theorem And.imp_left (h : a → b) : a ∧ c → b ∧ c := .imp h id
-theorem And.imp_right (h : a → b) : c ∧ a → c ∧ b := .imp id h
-
-theorem and_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : a ∧ b ↔ c ∧ d :=
-  Iff.intro (And.imp h₁.mp h₂.mp) (And.imp h₁.mpr h₂.mpr)
-
-theorem and_congr_left' (h : a ↔ b) : a ∧ c ↔ b ∧ c := and_congr h .rfl
-theorem and_congr_right' (h : b ↔ c) : a ∧ b ↔ a ∧ c := and_congr .rfl h
 
 theorem and_congr_right (h : a → (b ↔ c)) : a ∧ b ↔ a ∧ c :=
   Iff.intro (fun ⟨ha, hb⟩ => And.intro ha ((h ha).mp hb))
@@ -140,66 +134,45 @@ theorem and_congr_right (h : a → (b ↔ c)) : a ∧ b ↔ a ∧ c :=
 theorem and_congr_left (h : c → (a ↔ b)) : a ∧ c ↔ b ∧ c :=
   Iff.trans and_comm (Iff.trans (and_congr_right h) and_comm)
 
-theorem and_congr_right_eq (h : a → b = c) : (a ∧ b) = (a ∧ c) :=
-  propext (and_congr_right (Iff.of_eq ∘ h))
-theorem and_congr_left_eq (h : c → a = b) : (a ∧ c) = (b ∧ c) :=
-  propext (and_congr_left  (Iff.of_eq ∘ h))
-
-@[simp] theorem and_congr_right_iff : (a ∧ b ↔ a ∧ c) ↔ (a → (b ↔ c)) :=
-  Iff.intro (fun h ha => by simp [ha] at h; exact h) and_congr_right
-@[simp] theorem and_congr_left_iff : (a ∧ c ↔ b ∧ c) ↔ c → (a ↔ b) := by
-  simp only [and_comm, ← and_congr_right_iff]
-
 theorem and_assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
   Iff.intro (fun ⟨⟨ha, hb⟩, hc⟩ => ⟨ha, hb, hc⟩)
             (fun ⟨ha, hb, hc⟩ => ⟨⟨ha, hb⟩, hc⟩)
 
-theorem and_left_comm : a ∧ b ∧ c ↔ b ∧ a ∧ c :=
-  Iff.intro (fun ⟨ha, hb, hc⟩ => ⟨hb, ha, hc⟩)
-            (fun ⟨hb, ha, hc⟩ => ⟨ha, hb, hc⟩)
+@[simp] theorem and_self_left  : a ∧ (a ∧ b) ↔ a ∧ b := by rw [←propext and_assoc, and_self]
+@[simp] theorem and_self_right : (a ∧ b) ∧ b ↔ a ∧ b := by rw [ propext and_assoc, and_self]
 
-theorem and_right_comm : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
-  Iff.intro (fun ⟨⟨ha, hb⟩, hc⟩ => ⟨⟨ha, hc⟩, hb⟩)
-            (fun ⟨⟨ha, hc⟩, hb⟩ => ⟨⟨ha, hb⟩, hc⟩)
+@[simp] theorem and_congr_right_iff : (a ∧ b ↔ a ∧ c) ↔ (a → (b ↔ c)) :=
+  Iff.intro (fun h ha => by simp [ha] at h; exact h) and_congr_right
+@[simp] theorem and_congr_left_iff : (a ∧ c ↔ b ∧ c) ↔ c → (a ↔ b) := by
+  rw [@and_comm _ c, @and_comm _ c, ← and_congr_right_iff]
 
-theorem and_rotate : a ∧ b ∧ c ↔ b ∧ c ∧ a := by
-  simp only [and_left_comm, and_comm]
+theorem and_iff_left_of_imp  (h : a → b) : (a ∧ b) ↔ a := Iff.intro And.left (fun ha => And.intro ha (h ha))
+theorem and_iff_right_of_imp (h : b → a) : (a ∧ b) ↔ b := Iff.trans And.comm (and_iff_left_of_imp h)
 
-theorem and_and_and_comm : (a ∧ b) ∧ c ∧ d ↔ (a ∧ c) ∧ b ∧ d := by
-  rw [← and_assoc, @and_right_comm a, and_assoc]
-
-theorem and_and_left  : a ∧ (b ∧ c) ↔ (a ∧ b) ∧ a ∧ c := by rw [and_and_and_comm, and_self]
-theorem and_and_right : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b ∧ c := by rw [and_and_and_comm, and_self]
-
-theorem and_iff_left_of_imp (h : a → b) : (a ∧ b) ↔ a :=
-  Iff.intro (And.left) (fun ha => And.intro ha (h ha))
-theorem and_iff_right_of_imp (h : b → a) : (a ∧ b) ↔ b :=
-  Iff.trans And.comm (and_iff_left_of_imp h)
-
-theorem and_iff_left  (hb : b) : a ∧ b ↔ a := Iff.intro And.left  (And.intro · hb)
-theorem and_iff_right (ha : a) : a ∧ b ↔ b := Iff.intro And.right (And.intro ha ·)
-
-@[simp] theorem and_iff_left_iff_imp  : ((a ∧ b) ↔ a) ↔ (a → b) :=
-  Iff.intro (And.right ∘ ·.mpr) and_iff_left_of_imp
-@[simp] theorem and_iff_right_iff_imp : ((a ∧ b) ↔ b) ↔ (b → a) :=
-  Iff.intro (And.left ∘ ·.mpr) and_iff_right_of_imp
+@[simp] theorem and_iff_left_iff_imp  : ((a ∧ b) ↔ a) ↔ (a → b) := Iff.intro (And.right ∘ ·.mpr) and_iff_left_of_imp
+@[simp] theorem and_iff_right_iff_imp : ((a ∧ b) ↔ b) ↔ (b → a) := Iff.intro (And.left ∘ ·.mpr) and_iff_right_of_imp
 
 @[simp] theorem iff_self_and : (p ↔ p ∧ q) ↔ (p → q) := by rw [@Iff.comm p, and_iff_left_iff_imp]
 @[simp] theorem iff_and_self : (p ↔ q ∧ p) ↔ (p → q) := by rw [and_comm, iff_self_and]
 
-@[simp] theorem and_self_left : a ∧ a ∧ b ↔ a ∧ b := by
-  rw [←propext and_assoc, and_self]
-@[simp] theorem and_self_right : (a ∧ b) ∧ b ↔ a ∧ b := by
-  rw [propext and_assoc, and_self]
+/-! ## or -/
 
-theorem not_and_of_not_left (b : Prop) : ¬a → ¬(a ∧ b) := mt And.left
-theorem not_and_of_not_right (a : Prop) {b : Prop} : ¬b → ¬(a ∧ b) := mt And.right
+theorem Or.imp (f : a → c) (g : b → d) (h : a ∨ b) : c ∨ d := h.elim (inl ∘ f) (inr ∘ g)
+theorem Or.imp_left (f : a → b) : a ∨ c → b ∨ c := .imp f id
+theorem Or.imp_right (f : b → c) : a ∨ b → a ∨ c := .imp id f
 
-@[simp] theorem and_not_self : ¬(a ∧ ¬a) | ⟨ha, hn⟩ => absurd ha hn
-@[simp] theorem not_and_self : ¬(¬a ∧ a) := and_not_self ∘ And.symm
+theorem or_assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
+  Iff.intro (.rec (.imp_right .inl) (.inr ∘ .inr))
+            (.rec (.inl ∘ .inl) (.imp_left .inr))
 
-theorem and_not_self_iff (a : Prop) : a ∧ ¬a ↔ False := iff_false_intro and_not_self
-theorem not_and_self_iff (a : Prop) : ¬a ∧ a ↔ False := iff_false_intro not_and_self
+@[simp] theorem or_self_left  : a ∨ (a ∨ b) ↔ a ∨ b := by rw [←propext or_assoc, or_self]
+@[simp] theorem or_self_right : (a ∨ b) ∨ b ↔ a ∨ b := by rw [ propext or_assoc, or_self]
+
+theorem or_iff_right_of_imp (ha : a → b) : (a ∨ b) ↔ b := Iff.intro (Or.rec ha id) .inr
+theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.rec id hb) .inl
+
+@[simp] theorem or_iff_left_iff_imp  : (a ∨ b ↔ a) ↔ (b → a) := Iff.intro (·.mp ∘ Or.inr) or_iff_left_of_imp
+@[simp] theorem or_iff_right_iff_imp : (a ∨ b ↔ b) ↔ (a → b) := by rw [or_comm, or_iff_left_iff_imp]
 
 /-# Bool -/
 

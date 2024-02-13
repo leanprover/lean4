@@ -34,6 +34,8 @@ and `flip (·<·)` is the greater-than relation.
 
 @[simp] theorem Function.comp_apply {f : β → δ} {g : α → β} {x : α} : comp f g x = f (g x) := rfl
 
+theorem Function.comp_def {α β δ} (f : β → δ) (g : α → β) : f ∘ g = fun x => f (g x) := rfl
+
 attribute [simp] namedPattern
 
 /--

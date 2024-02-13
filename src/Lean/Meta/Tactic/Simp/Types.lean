@@ -12,9 +12,13 @@ import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 namespace Lean.Meta
 namespace Simp
 
+/-- The result of simplifying some expression `e`. -/
 structure Result where
+  /-- The simplified version of `e` -/ 
   expr           : Expr
-  proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
+  /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
+  If `none`, the proof is assumed to be `refl`. -/
+  proof?         : Option Expr := none
   /-- Save the field `dischargeDepth` at `Simp.Context` because it impacts the simplifier result. -/
   dischargeDepth : UInt32 := 0
   /-- If `cache := true` the result is cached. -/

@@ -277,3 +277,167 @@ theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : 
   iff_true_intro fun h => hn.elim h
 
 end quantifiers
+
+/-! ## decidable -/
+
+theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
+
+theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
+
+/-- Construct a non-Prop by cases on an `Or`, when the left conjunct is decidable. -/
+protected def Or.by_cases [Decidable p] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+  if hp : p then h₁ hp else h₂ (h.resolve_left hp)
+
+/-- Construct a non-Prop by cases on an `Or`, when the right conjunct is decidable. -/
+protected def Or.by_cases' [Decidable q] {α : Sort u} (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+  if hq : q then h₂ hq else h₁ (h.resolve_right hq)
+
+instance exists_prop_decidable {p} (P : p → Prop)
+  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
+if h : p then
+  decidable_of_decidable_of_iff ⟨fun h2 => ⟨h, h2⟩, fun ⟨_, h2⟩ => h2⟩
+else isFalse fun ⟨h', _⟩ => h h'
+
+instance forall_prop_decidable {p} (P : p → Prop)
+  [Decidable p] [∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
+if h : p then
+  decidable_of_decidable_of_iff ⟨fun h2 _ => h2, fun al => al h⟩
+else isTrue fun h2 => absurd h2 h
+
+theorem decide_eq_true_iff (p : Prop) [Decidable p] : (decide p = true) ↔ p := by simp
+
+@[simp] theorem decide_eq_false_iff_not (p : Prop) {_ : Decidable p} : (decide p = false) ↔ ¬p :=
+  ⟨of_decide_eq_false, decide_eq_false⟩
+
+@[simp] theorem decide_eq_decide {p q : Prop} {_ : Decidable p} {_ : Decidable q} :
+    decide p = decide q ↔ (p ↔ q) :=
+  ⟨fun h => by rw [← decide_eq_true_iff p, h, decide_eq_true_iff], fun h => by simp [h]⟩
+
+theorem Decidable.of_not_imp [Decidable a] (h : ¬(a → b)) : a :=
+  byContradiction (not_not_of_not_imp h)
+
+theorem Decidable.not_imp_symm [Decidable a] (h : ¬a → b) (hb : ¬b) : a :=
+  byContradiction <| hb ∘ h
+
+theorem Decidable.not_imp_comm [Decidable a] [Decidable b] : (¬a → b) ↔ (¬b → a) :=
+  ⟨not_imp_symm, not_imp_symm⟩
+
+theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
+  have := @imp_not_self (¬a); rwa [not_not] at this
+
+theorem Decidable.or_iff_not_imp_left [Decidable a] : a ∨ b ↔ (¬a → b) :=
+  ⟨Or.resolve_left, fun h => dite _ .inl (.inr ∘ h)⟩
+
+theorem Decidable.or_iff_not_imp_right [Decidable b] : a ∨ b ↔ (¬b → a) :=
+or_comm.trans or_iff_not_imp_left
+
+theorem Decidable.not_imp_not [Decidable a] : (¬a → ¬b) ↔ (b → a) :=
+⟨fun h hb => byContradiction (h · hb), mt⟩
+
+theorem Decidable.not_or_of_imp [Decidable a] (h : a → b) : ¬a ∨ b :=
+  if ha : a then .inr (h ha) else .inl ha
+
+theorem Decidable.imp_iff_not_or [Decidable a] : (a → b) ↔ (¬a ∨ b) :=
+  ⟨not_or_of_imp, Or.neg_resolve_left⟩
+
+theorem Decidable.imp_iff_or_not [Decidable b] : b → a ↔ a ∨ ¬b :=
+  Decidable.imp_iff_not_or.trans or_comm
+
+theorem Decidable.imp_or [Decidable a] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) := by
+  by_cases a <;> simp_all
+
+theorem Decidable.imp_or' [Decidable b] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) :=
+  if h : b then by simp [h] else by
+    rw [eq_false h, false_or]; exact (or_iff_right_of_imp fun hx x => (hx x).elim).symm
+
+theorem Decidable.not_imp_iff_and_not [Decidable a] : ¬(a → b) ↔ a ∧ ¬b :=
+  ⟨fun h => ⟨of_not_imp h, not_of_not_imp h⟩, not_imp_of_and_not⟩
+
+theorem Decidable.peirce (a b : Prop) [Decidable a] : ((a → b) → a) → a :=
+  if ha : a then fun _ => ha else fun h => h ha.elim
+
+theorem peirce' {a : Prop} (H : ∀ b : Prop, (a → b) → a) : a := H _ id
+
+theorem Decidable.not_iff_not [Decidable a] [Decidable b] : (¬a ↔ ¬b) ↔ (a ↔ b) := by
+  rw [@iff_def (¬a), @iff_def' a]; exact and_congr not_imp_not not_imp_not
+
+theorem Decidable.not_iff_comm [Decidable a] [Decidable b] : (¬a ↔ b) ↔ (¬b ↔ a) := by
+  rw [@iff_def (¬a), @iff_def (¬b)]; exact and_congr not_imp_comm imp_not_comm
+
+theorem Decidable.not_iff [Decidable b] : ¬(a ↔ b) ↔ (¬a ↔ b) := by
+  by_cases h : b <;> simp [h, iff_true, iff_false]
+
+theorem Decidable.iff_not_comm [Decidable a] [Decidable b] : (a ↔ ¬b) ↔ (b ↔ ¬a) := by
+  rw [@iff_def a, @iff_def b]; exact and_congr imp_not_comm not_imp_comm
+
+theorem Decidable.iff_iff_and_or_not_and_not {a b : Prop} [Decidable b] :
+    (a ↔ b) ↔ (a ∧ b) ∨ (¬a ∧ ¬b) :=
+  ⟨fun e => if h : b then .inl ⟨e.2 h, h⟩ else .inr ⟨mt e.1 h, h⟩,
+   Or.rec (And.rec iff_of_true) (And.rec iff_of_false)⟩
+
+theorem Decidable.iff_iff_not_or_and_or_not [Decidable a] [Decidable b] :
+    (a ↔ b) ↔ (¬a ∨ b) ∧ (a ∨ ¬b) := by
+  rw [iff_iff_implies_and_implies a b]; simp only [imp_iff_not_or, Or.comm]
+
+theorem Decidable.not_and_not_right [Decidable b] : ¬(a ∧ ¬b) ↔ (a → b) :=
+  ⟨fun h ha => not_imp_symm (And.intro ha) h, fun h ⟨ha, hb⟩ => hb <| h ha⟩
+
+theorem Decidable.not_and_iff_or_not_not [Decidable a] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
+  ⟨fun h => if ha : a then .inr (h ⟨ha, ·⟩) else .inl ha, not_and_of_not_or_not⟩
+
+theorem Decidable.not_and_iff_or_not_not' [Decidable b] : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
+  ⟨fun h => if hb : b then .inl (h ⟨·, hb⟩) else .inr hb, not_and_of_not_or_not⟩
+
+theorem Decidable.or_iff_not_and_not [Decidable a] [Decidable b] : a ∨ b ↔ ¬(¬a ∧ ¬b) := by
+  rw [← not_or, not_not]
+
+theorem Decidable.and_iff_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ ¬(¬a ∨ ¬b) := by
+  rw [← not_and_iff_or_not_not, not_not]
+
+theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
+  ⟨fun H => (Decidable.em a).imp_right fun ha' => H.1 fun ha => (ha' ha).elim,
+   fun H => H.elim imp_iff_right fun hb => iff_of_true (fun _ => hb) hb⟩
+
+theorem Decidable.and_or_imp [Decidable a] : a ∧ b ∨ (a → c) ↔ a → b ∨ c :=
+  if ha : a then by simp only [ha, true_and, true_imp_iff]
+  else by simp only [ha, false_or, false_and, false_imp_iff]
+
+theorem Decidable.or_congr_left' [Decidable c] (h : ¬c → (a ↔ b)) : a ∨ c ↔ b ∨ c := by
+  rw [or_iff_not_imp_right, or_iff_not_imp_right]; exact imp_congr_right h
+
+theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ b ↔ a ∨ c := by
+  rw [or_iff_not_imp_left, or_iff_not_imp_left]; exact imp_congr_right h
+
+/-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
+**Important**: this function should be used instead of `rw` on `decidable b`, because the
+kernel will get stuck reducing the usage of `propext` otherwise,
+and `dec_trivial` will not work. -/
+@[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+  decidable_of_decidable_of_iff h
+
+/-- Transfer decidability of `b` to decidability of `a`, if the propositions are equivalent.
+This is the same as `decidable_of_iff` but the iff is flipped. -/
+@[inline] def decidable_of_iff' (b : Prop) (h : a ↔ b) [Decidable b] : Decidable a :=
+  decidable_of_decidable_of_iff h.symm
+
+instance Decidable.predToBool (p : α → Prop) [DecidablePred p] :
+    CoeDep (α → Prop) p (α → Bool) := ⟨fun b => decide <| p b⟩
+
+/-- Prove that `a` is decidable by constructing a boolean `b` and a proof that `b ↔ a`.
+(This is sometimes taken as an alternate definition of decidability.) -/
+def decidable_of_bool : ∀ (b : Bool), (b ↔ a) → Decidable a
+  | true, h => isTrue (h.1 rfl)
+  | false, h => isFalse (mt h.2 Bool.noConfusion)
+
+protected theorem Decidable.not_forall {p : α → Prop} [Decidable (∃ x, ¬p x)]
+    [∀ x, Decidable (p x)] : (¬∀ x, p x) ↔ ∃ x, ¬p x :=
+  ⟨Decidable.not_imp_symm fun nx x => Decidable.not_imp_symm (fun h => ⟨x, h⟩) nx,
+   not_forall_of_exists_not⟩
+
+protected theorem Decidable.not_forall_not {p : α → Prop} [Decidable (∃ x, p x)] :
+    (¬∀ x, ¬p x) ↔ ∃ x, p x :=
+  (@Decidable.not_iff_comm _ _ _ (decidable_of_iff (¬∃ x, p x) not_exists)).1 not_exists
+
+protected theorem Decidable.not_exists_not {p : α → Prop} [∀ x, Decidable (p x)] :
+    (¬∃ x, ¬p x) ↔ ∀ x, p x := by
+  simp only [not_exists, Decidable.not_not]

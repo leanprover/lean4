@@ -128,9 +128,6 @@ abbrev And.elim (f : a → b → α) (h : a ∧ b) : α := f h.left h.right
 -- TODO: rename and_self to and_self_eq
 theorem and_self_iff : a ∧ a ↔ a := Iff.of_eq (and_self a)
 
-theorem And.symm : a ∧ b → b ∧ a | ⟨ha, hb⟩ => And.intro hb ha
-theorem and_comm : a ∧ b ↔ b ∧ a := And.comm
-
 theorem And.imp (f : a → c) (g : b → d) (h : a ∧ b) : c ∧ d :=  And.intro (f h.left) (g h.right)
 theorem And.imp_left (h : a → b) : a ∧ c → b ∧ c := .imp h id
 theorem And.imp_right (h : a → b) : c ∧ a → c ∧ b := .imp id h
@@ -161,10 +158,13 @@ theorem and_assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
   Iff.intro (fun ⟨⟨ha, hb⟩, hc⟩ => ⟨ha, hb, hc⟩)
             (fun ⟨ha, hb, hc⟩ => ⟨⟨ha, hb⟩, hc⟩)
 
-theorem and_left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) := by
-  rw [← and_assoc, ← and_assoc, @and_comm a b]
-theorem and_right_comm : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b := by
-  simp only [and_left_comm, and_comm]
+theorem and_left_comm : a ∧ b ∧ c ↔ b ∧ a ∧ c :=
+  Iff.intro (fun ⟨ha, hb, hc⟩ => ⟨hb, ha, hc⟩)
+            (fun ⟨hb, ha, hc⟩ => ⟨ha, hb, hc⟩)
+
+theorem and_right_comm : (a ∧ b) ∧ c ↔ (a ∧ c) ∧ b :=
+  Iff.intro (fun ⟨⟨ha, hb⟩, hc⟩ => ⟨⟨ha, hc⟩, hb⟩)
+            (fun ⟨⟨ha, hc⟩, hb⟩ => ⟨⟨ha, hb⟩, hc⟩)
 
 theorem and_rotate : a ∧ b ∧ c ↔ b ∧ c ∧ a := by
   simp only [and_left_comm, and_comm]
@@ -204,6 +204,8 @@ theorem not_and_of_not_right (a : Prop) {b : Prop} : ¬b → ¬(a ∧ b) := mt A
 
 theorem and_not_self_iff (a : Prop) : a ∧ ¬a ↔ False := iff_false_intro and_not_self
 theorem not_and_self_iff (a : Prop) : ¬a ∧ a ↔ False := iff_false_intro not_and_self
+
+/-# Bool -/
 
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl
@@ -257,11 +259,13 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
 @[simp] theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp [bne]
 
-@[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
-  propext ⟨fun h => Nat.le_antisymm h (Nat.zero_le ..), fun h => by rw [h]; decide⟩
-
 @[simp] theorem decide_False : decide False = false := rfl
 @[simp] theorem decide_True : decide True = true := rfl
 
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] (a b : α) : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq a b]; simp [-beq_iff_eq]
+
+/-# Nat -/
+
+@[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
+  propext ⟨fun h => Nat.le_antisymm h (Nat.zero_le ..), fun h => by rw [h]; decide⟩

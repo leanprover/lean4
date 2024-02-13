@@ -711,8 +711,10 @@ theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
 theorem Iff.of_eq (h : a = b) : a ↔ b :=
   h ▸ Iff.refl _
 
-theorem And.comm : a ∧ b ↔ b ∧ a := by
-  constructor <;> intro ⟨h₁, h₂⟩ <;> exact ⟨h₂, h₁⟩
+theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
+
+theorem and_comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
+theorem And.comm : a ∧ b ↔ b ∧ a := and_comm
 
 /-! # Exists -/
 
@@ -1231,18 +1233,19 @@ theorem not_congr (h : a ↔ b) : ¬a ↔ ¬b := ⟨mt h.2, mt h.1⟩
 
 theorem not_not_not : ¬¬¬a ↔ ¬a := ⟨mt not_not_intro, not_not_intro⟩
 
-
 theorem iff_of_true (ha : a) (hb : b) : a ↔ b := Iff.intro (fun _ => hb) (fun _ => ha)
 theorem iff_of_false (ha : ¬a) (hb : ¬b) : a ↔ b := Iff.intro ha.elim hb.elim
 
-theorem of_iff_true    (h : a ↔ True) : a := h.mpr True.intro
-theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h True.intro
+
 
 theorem iff_true_left  (ha : a) : (a ↔ b) ↔ b := Iff.intro (·.mp ha) (iff_of_true ha)
 theorem iff_true_right (ha : a) : (b ↔ a) ↔ b := Iff.comm.trans (iff_true_left ha)
 
 theorem iff_false_left  (ha : ¬a) : (a ↔ b) ↔ ¬b := Iff.intro (mt ·.mpr ha) (iff_of_false ha)
 theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_false_left ha)
+
+theorem of_iff_true    (h : a ↔ True) : a := h.mpr True.intro
+theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h True.intro
 
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
@@ -1267,7 +1270,7 @@ theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_
 
 theorem true_eq_false_of_false : False → (True = False) := False.elim
 
-theorem iff_def : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
+theorem iff_def  : (a ↔ b) ↔ (a → b) ∧ (b → a) := iff_iff_implies_and_implies a b
 theorem iff_def' : (a ↔ b) ↔ (b → a) ∧ (a → b) := Iff.trans iff_def And.comm
 
 theorem true_iff_false : (True ↔ False) ↔ False := iff_false_intro (·.mp  True.intro)
@@ -1283,7 +1286,6 @@ theorem not_not_of_not_imp : ¬(a → b) → ¬¬a := mt Not.elim
 theorem not_of_not_imp {a : Prop} : ¬(a → b) → ¬b := mt fun h _ => h
 
 @[simp] theorem imp_not_self : (a → ¬a) ↔ ¬a := Iff.intro (fun h ha => h ha ha) (fun h _ => h)
-
 
 theorem imp_intro {α β : Prop} (h : α) : β → α := fun _ => h
 

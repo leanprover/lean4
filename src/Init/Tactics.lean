@@ -894,6 +894,37 @@ The tactic `nomatch h` is shorthand for `exact nomatch h`.
 macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
 
+/--
+Acts like `have`, but removes a hypothesis with the same name as
+this one if possible. For example, if the state is:
+
+```lean
+f : α → β
+h : α
+⊢ goal
+```
+
+Then after `replace h := f h` the state will be:
+
+```lean
+f : α → β
+h : β
+⊢ goal
+```
+
+whereas `have h := f h` would result in:
+
+```lean
+f : α → β
+h† : α
+h : β
+⊢ goal
+```
+
+This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+-/
+syntax (name := replace) "replace" haveDecl : tactic
+
 end Tactic
 
 namespace Attr

@@ -476,38 +476,8 @@ where
 @[builtin_tactic right] def evalRight : Tactic := fun _stx => do
   liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
 
-/--
-Acts like `have`, but removes a hypothesis with the same name as
-this one if possible. For example, if the state is:
-
-```lean
-f : α → β
-h : α
-⊢ goal
-```
-
-Then after `replace h := f h` the state will be:
-
-```lean
-f : α → β
-h : β
-⊢ goal
-```
-
-whereas `have h := f h` would result in:
-
-```lean
-f : α → β
-h† : α
-h : β
-⊢ goal
-```
-
-This can be used to simulate the `specialize` and `apply at` tactics of Coq.
--/
-syntax "replace" haveDecl : tactic
-
-elab_rules : tactic
+@[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
+  match stx with
   | `(tactic| replace $decl:haveDecl) =>
     withMainContext do
       let vars ← Elab.Term.Do.getDoHaveVars <| mkNullNode #[.missing, decl]
@@ -518,6 +488,6 @@ elab_rules : tactic
         if let some ldecl := origLCtx.findFromUserName? fv.getId then
           toClear := toClear.push ldecl.fvarId
       liftMetaTactic1 (·.tryClearMany toClear)
-
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

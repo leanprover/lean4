@@ -57,6 +57,9 @@ This is a non-dependent variant of `PEmpty.rec`.
 -/
 @[macro_inline] def PEmpty.elim {C : Sort _} : PEmpty → C := fun a => nomatch a
 
+/-- Decidable equality for PEmpty -/
+instance : DecidableEq PEmpty := fun a => a.elim
+
 /--
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/
@@ -602,8 +605,9 @@ theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
 theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
-theorem Ne.symm (h : a ≠ b) : b ≠ a :=
-  fun h₁ => h (h₁.symm)
+theorem Ne.symm (h : a ≠ b) : b ≠ a := fun h₁ => h (h₁.symm)
+
+theorem ne_comm {α} {a b : α} : a ≠ b ↔ b ≠ a := ⟨Ne.symm, Ne.symm⟩
 
 theorem false_of_ne : a ≠ a → False := Ne.irrefl
 
@@ -615,8 +619,8 @@ theorem ne_true_of_not : ¬p → p ≠ True :=
     have : ¬True := h ▸ hnp
     this trivial
 
-theorem true_ne_false : ¬True = False :=
-  ne_false_of_self trivial
+theorem true_ne_false : ¬True = False := ne_false_of_self trivial
+theorem false_ne_true : False ≠ True := fun h => h.symm ▸ trivial
 
 end Ne
 
@@ -920,6 +924,9 @@ instance (p : Prop) : Subsingleton p := ⟨fun a b => proof_irrel a b⟩
 instance : Subsingleton Empty  := ⟨fun a => a.elim⟩
 instance : Subsingleton PEmpty := ⟨fun a => a.elim⟩
 
+instance [Subsingleton α] [Subsingleton β] : Subsingleton (α × β) :=
+  ⟨fun {..} {..} => by congr <;> apply Subsingleton.elim⟩
+
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun
     | isTrue t₁ => fun
@@ -928,6 +935,9 @@ instance (p : Prop) : Subsingleton (Decidable p) :=
     | isFalse f₁ => fun
       | isTrue t₂  => absurd t₂ f₁
       | isFalse _  => rfl
+
+example [Subsingleton α] (p : α → Prop) : Subsingleton (Subtype p) :=
+  ⟨fun ⟨x, _⟩ ⟨y, _⟩ => by congr; exact Subsingleton.elim x y⟩
 
 theorem recSubsingleton
      {p : Prop} [h : Decidable p]

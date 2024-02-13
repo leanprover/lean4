@@ -507,12 +507,16 @@ end Elab.Command
 open Elab Command MonadRecDepth
 
 /--
-Lift an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
-This does not preserve things like `open` and `namespace` declarations.
+Lifts an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
+
+Commands that modify the processing of subsequent commands,
+such as `open` and `namespace` commands,
+only have an effect for the remainder of the `CommandElabM` computation passed here,
+and do not affect subsequent commands.
 -/
-def liftCommandElabM (k : CommandElabM α) : CoreM α := do
+def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
   let (a, commandState) ←
-    k.run {
+    cmd.run {
       fileName := ← getFileName
       fileMap := ← getFileMap
       ref := ← getRef
@@ -531,17 +535,17 @@ def liftCommandElabM (k : CommandElabM α) : CoreM α := do
   pure a
 
 /--
-Evaluate any `set_option in` commands before the given `stx`, and pass the inner `stx` with the
-updated environment to the continuation `k`.
+Given a command elaborator `cmd`, returns a new command elaborator that
+first evaluates any local `set_option ... in ...` clauses and then invokes `cmd` on what remains.
 -/
-partial def withSetOptionIn (k : CommandElab) : CommandElab := fun stx => do
+partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&
      stx[0].getKind == ``Lean.Parser.Command.set_option then
       let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
       Command.withScope (fun scope => { scope with opts }) do
-        withSetOptionIn k stx[1]
+        withSetOptionIn cmd stx[1]
   else
-    k stx
+    cmd stx
 
 export Elab.Command (Linter addLinter)
 

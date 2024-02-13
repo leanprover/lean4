@@ -7,8 +7,8 @@ This provides additional lemmas about propositional types beyond what is
 needed for Core and SimpLemmas.
 -/
 prelude
+import Init.Core
 import Init.NotationExtra
-import Init.Classical
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## not -/
@@ -17,7 +17,6 @@ theorem not_not_em (a : Prop) : ¬¬(a ∨ ¬a) := fun h => h (.inr (h ∘ .inl)
 
 /-! ## and -/
 
--- TODO: rename and_self to and_self_eq
 theorem and_self_iff : a ∧ a ↔ a := Iff.of_eq (and_self a)
 theorem and_not_self_iff (a : Prop) : a ∧ ¬a ↔ False := iff_false_intro and_not_self
 theorem not_and_self_iff (a : Prop) : ¬a ∧ a ↔ False := iff_false_intro not_and_self
@@ -204,13 +203,6 @@ theorem exists_or : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ ∃ x, q x :=
 
 theorem Exists.nonempty : (∃ x, p x) → Nonempty α | ⟨x, _⟩ => ⟨x⟩
 
-/-- Extract an element from a existential statement, using `Classical.choose`. -/
--- This enables projection notation.
-@[reducible] noncomputable def Exists.choose (P : ∃ a, p a) : α := Classical.choose P
-
-/-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
-theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P
-
 theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x, p x
   | ⟨x, hn⟩, h => hn (h x)
 
@@ -343,8 +335,11 @@ theorem Decidable.imp_iff_not_or [Decidable a] : (a → b) ↔ (¬a ∨ b) :=
 theorem Decidable.imp_iff_or_not [Decidable b] : b → a ↔ a ∨ ¬b :=
   Decidable.imp_iff_not_or.trans or_comm
 
-theorem Decidable.imp_or [Decidable a] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) := by
-  by_cases a <;> simp_all
+theorem Decidable.imp_or [h : Decidable a] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) :=
+  if h : a then by
+    rw [imp_iff_right h, imp_iff_right h, imp_iff_right h]
+  else by
+    rw [iff_false_intro h, false_imp_iff, false_imp_iff, true_or]
 
 theorem Decidable.imp_or' [Decidable b] : (a → b ∨ c) ↔ (a → b) ∨ (a → c) :=
   if h : b then by simp [h] else by
@@ -364,8 +359,11 @@ theorem Decidable.not_iff_not [Decidable a] [Decidable b] : (¬a ↔ ¬b) ↔ (a
 theorem Decidable.not_iff_comm [Decidable a] [Decidable b] : (¬a ↔ b) ↔ (¬b ↔ a) := by
   rw [@iff_def (¬a), @iff_def (¬b)]; exact and_congr not_imp_comm imp_not_comm
 
-theorem Decidable.not_iff [Decidable b] : ¬(a ↔ b) ↔ (¬a ↔ b) := by
-  by_cases h : b <;> simp [h, iff_true, iff_false]
+theorem Decidable.not_iff [Decidable b] : ¬(a ↔ b) ↔ (¬a ↔ b) :=
+  if h : b then by
+    rw [iff_true_right h, iff_true_right h]
+  else by
+    rw [iff_false_right h, iff_false_right h]
 
 theorem Decidable.iff_not_comm [Decidable a] [Decidable b] : (a ↔ ¬b) ↔ (b ↔ ¬a) := by
   rw [@iff_def a, @iff_def b]; exact and_congr imp_not_comm not_imp_comm

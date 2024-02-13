@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import Init.Core
-import Init.NotationExtra
+import Init.PropLemmas
 
 universe u v
 
@@ -123,7 +122,46 @@ theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
+/-- The Double Negation Theorem: `¬¬P` is equivalent to `P`.
+The left-to-right direction, double negation elimination (DNE),
+is classically true but not constructively. -/
+@[scoped simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
+
+@[simp] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x :=
+  Decidable.not_forall
+
+theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not
+
+theorem not_exists_not {p : α → Prop} : (¬∃ x, ¬p x) ↔ ∀ x, p x := Decidable.not_exists_not
+
+theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a := by
+  rw [← not_forall]; exact em _
+
+theorem exists_or_forall_not (P : α → Prop) : (∃ a, P a) ∨ ∀ a, ¬ P a := by
+  rw [← not_exists]; exact em _
+
+theorem or_iff_not_imp_left : a ∨ b ↔ (¬a → b) :=
+  Decidable.or_iff_not_imp_left
+
+theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) :=
+  Decidable.or_iff_not_imp_right
+
+theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b :=
+  Decidable.not_imp_iff_and_not
+
+theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
+  Decidable.not_and_iff_or_not_not
+
+theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
+
 end Classical
+
+/-- Extract an element from a existential statement, using `Classical.choose`. -/
+-- This enables projection notation.
+@[reducible] noncomputable def Exists.choose {p : α → Prop} (P : ∃ a, p a) : α := Classical.choose P
+
+/-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
+theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P
 
 /--
 `by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.

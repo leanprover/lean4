@@ -360,6 +360,31 @@ def builderAppendBasicBlock (builder : LLVM.Builder llvmctx) (name : String) : M
   let fn ← builderGetInsertionFn builder
   LLVM.appendBasicBlockInContext llvmctx fn name
 
+/--
+Add an alloca to the first BB of the current function. The builders final position
+will be the end of the BB that we came from.
+
+If it is possible to put an alloca in the first BB this approach is to be preferred
+over putting it in other BBs. This is because mem2reg only inspects allocas in the first BB,
+leading to missed optimizations for allocas in other BBs.
+-/
+def buildPrologueAlloca (builder : LLVM.Builder llvmctx) (ty : LLVM.LLVMType llvmctx) (name : @&String := "") : M llvmctx (LLVM.Value llvmctx) := do
+  let origBB ← LLVM.getInsertBlock builder
+
+  let fn ← builderGetInsertionFn builder
+  if (← LLVM.countBasicBlocks fn) == 0 then
+    throw "Attempt to obtain first BB of function without BBs"
+
+  let entryBB ← LLVM.getEntryBasicBlock fn
+  match ← LLVM.getFirstInstruction entryBB with
+  | some instr => LLVM.positionBuilderBefore builder instr
+  | none => LLVM.positionBuilderAtEnd builder entryBB
+
+  let alloca ← LLVM.buildAlloca builder ty name
+  LLVM.positionBuilderAtEnd builder origBB
+  return alloca
+
+
 def buildWhile_ (builder : LLVM.Builder llvmctx) (name : String)
     (condcodegen : LLVM.Builder llvmctx → M llvmctx (LLVM.Value llvmctx))
     (bodycodegen : LLVM.Builder llvmctx → M llvmctx Unit) : M llvmctx Unit := do
@@ -526,7 +551,7 @@ def emitArgSlot_ (builder : LLVM.Builder llvmctx)
   | Arg.var x => emitLhsSlot_ x
   | _ => do
     let slotty ← LLVM.voidPtrType llvmctx
-    let slot ← LLVM.buildAlloca builder slotty "irrelevant_slot"
+    let slot ← buildPrologueAlloca builder slotty "irrelevant_slot"
     let v ← callLeanBox builder (← constIntSizeT 0) "irrelevant_val"
     let _ ← LLVM.buildStore builder v slot
     return (slotty, slot)
@@ -684,7 +709,7 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
 
 def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array Arg) : M llvmctx Unit := do
   if ys.size > closureMaxArgs then do
-    let aargs ← LLVM.buildAlloca builder (← LLVM.arrayType (← LLVM.voidPtrType llvmctx) (UInt64.ofNat ys.size)) "aargs"
+    let aargs ← buildPrologueAlloca builder (← LLVM.arrayType (← LLVM.voidPtrType llvmctx) (UInt64.ofNat ys.size)) "aargs"
     for i in List.range ys.size do
       let (yty, yv) ← emitArgVal builder ys[i]!
       let aslot ← LLVM.buildInBoundsGEP2 builder yty aargs #[← constIntUnsigned 0, ← constIntUnsigned i] s!"param_{i}_slot"
@@ -735,7 +760,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
 def emitLit (builder : LLVM.Builder llvmctx)
     (z : VarId) (t : IRType) (v : LitVal) : M llvmctx (LLVM.Value llvmctx) := do
   let llvmty ← toLLVMType t
-  let zslot ← LLVM.buildAlloca builder llvmty
+  let zslot ← buildPrologueAlloca builder llvmty
   addVartoState z zslot llvmty
   let zv ← match v with
             | LitVal.num v => emitNumLit builder t v
@@ -948,7 +973,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
 
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
   let llvmty ← toLLVMType t
-  let alloca ← LLVM.buildAlloca builder llvmty "varx"
+  let alloca ← buildPrologueAlloca builder llvmty "varx"
   addVartoState x alloca llvmty
 
 partial def declareVars (builder : LLVM.Builder llvmctx) (f : FnBody) : M llvmctx Unit := do
@@ -1154,14 +1179,14 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           -- pv := *(argsi) = *(args + i)
           let pv ← LLVM.buildLoad2 builder llvmty argsi
           -- slot for arg[i] which is always void* ?
-          let alloca ← LLVM.buildAlloca builder llvmty s!"arg_{i}"
+          let alloca ← buildPrologueAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
           addVartoState params[i]!.x alloca llvmty
   else
       let n ← LLVM.countParams llvmfn
       for i in (List.range n.toNat) do
         let llvmty ← toLLVMType params[i]!.ty
-        let alloca ← LLVM.buildAlloca builder  llvmty s!"arg_{i}"
+        let alloca ← buildPrologueAlloca builder  llvmty s!"arg_{i}"
         let arg ← LLVM.getParam llvmfn (UInt64.ofNat i)
         let _ ← LLVM.buildStore builder arg alloca
         addVartoState params[i]!.x alloca llvmty
@@ -1445,9 +1470,9 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   #endif
   -/
   let inty ← LLVM.voidPtrType llvmctx
-  let inslot ← LLVM.buildAlloca builder (← LLVM.pointerType inty) "in"
+  let inslot ← buildPrologueAlloca builder (← LLVM.pointerType inty) "in"
   let resty ← LLVM.voidPtrType llvmctx
-  let res ← LLVM.buildAlloca builder (← LLVM.pointerType resty) "res"
+  let res ← buildPrologueAlloca builder (← LLVM.pointerType resty) "res"
   if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
@@ -1469,7 +1494,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let inv ← callLeanBox builder (← constIntSizeT 0) "inv"
         let _ ← LLVM.buildStore builder inv inslot
         let ity ← LLVM.size_tType llvmctx
-        let islot ← LLVM.buildAlloca builder ity "islot"
+        let islot ← buildPrologueAlloca builder ity "islot"
         let argcval ← LLVM.getParam main 0
         let argvval ← LLVM.getParam main 1
         LLVM.buildStore builder argcval islot

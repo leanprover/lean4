@@ -4,7 +4,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Toml.Grammar
+import Lake.Toml.Elab
 import Lean.Elab.ElabRules
 
 /-!
@@ -31,24 +31,56 @@ def runParserFn (p : ParserFn) (input : String) (fileName := "<string>") : IO Sy
   else
     throw <| .userError <| (s.mkError "end of input").toErrorMsg ictx
 
-def runParser (p : Parser) (input : String) (fileName := "<string>") : IO Syntax := do
-  let env ← mkEmptyEnvironment
+def runParserIn (env : Environment) (p : Parser) (input : String) (fileName := "<string>") : Except String Syntax := do
   let ictx := mkInputContext input fileName
   let s := p.fn.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if s.hasError then
-    throw <| .userError <| s.toErrorMsg ictx
+    throw <| s.toErrorMsg ictx
   else if input.atEnd s.pos then
     return s.stxStack.back
   else
-    throw <| .userError <| (s.mkError "end of input").toErrorMsg ictx
+    throw <| (s.mkError "end of input").toErrorMsg ictx
+
+def runParser (p : Parser) (input : String) (fileName := "<string>") : IO Syntax := do
+  let env ← mkEmptyEnvironment
+  IO.ofExcept <| runParserIn env p input fileName
 
 @[scoped command_parser] def hashParse : Parser := leading_parser
-  "#parse" >> ident >>
-  strAtom "```" (trailingFn := newlineFn) >> checkLinebreakBefore >>
-  parserOfStack 1 >> checkLinebreakBefore >> strAtom "```" (trailingFn := whitespace)
+  "#parse" >> ident >> strAtom "```" (trailingFn := optFn newlineFn) >>
+  skipInsideQuot checkLinebreakBefore >> parserOfStack 1 >>
+  trailing (optFn newlineFn) >> skipInsideQuot checkLinebreakBefore >>
+  strAtom "```" (trailingFn := whitespace)
 
 @[command_elab hashParse] def noElab : CommandElab :=
   fun _ _ => pure ()
+
+@[scoped command_parser] def hashCheckToml : Parser := leading_parser
+  "#check_toml" >> strAtom "```" (trailingFn := optFn newlineFn) >>
+  skipInsideQuot checkLinebreakBefore >> toml >> skipInsideQuot checkLinebreakBefore >>
+  strAtom "```" (trailingFn := whitespace)
+
+@[command_elab hashCheckToml] def elabHashCheckToml : CommandElab := fun stx => do
+  let `(#check_toml%$kw ```$tomlStx```) := stx
+    | throwErrorAt stx "ill-formed '#check_toml' syntax"
+  withRef kw do
+  let expT ← liftCoreM <| elabToml tomlStx
+  let str := ppTable expT
+  logInfo str
+  match runParserIn (← getEnv) toml str with
+  | .ok newStx =>
+    let actT ← liftCoreM <| elabToml ⟨newStx⟩
+    if h_size : expT.items.size = actT.items.size then
+      for h : i in [0:expT.size] do
+        let (expK, expV) := expT.items[i]'(h.upper)
+        let (actK, actV) := actT.items[i]'(h_size ▸ h.upper)
+        unless expK = actK do
+          throwError "roundtrip key mismatch: expected '{ppKey expK}', got '{ppKey actK}'"
+        unless expV == actV do
+          throwError "roundtrip value mismatch, expected:\n{indentD <| toString expV}\ngot:\n{indentD <| toString actV}"
+    else
+      throwError "table sizes did not match: expected {expT.size}, got {actT.size}"
+  | .error e =>
+    throwError s!"syntax did not roundtrip: {e}"
 
 end
 
@@ -60,7 +92,7 @@ TOML syntax example from the [README][1].
 [1]: https://github.com/toml-lang/toml/blob/1.0.0/README.md#example
 -/
 
-#parse toml ```
+#check_toml ```
 # This is a TOML document.
 
 title = "TOML Example"

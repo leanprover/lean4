@@ -161,8 +161,6 @@ theorem eq_zero_of_add_eq_zero : ∀ {n m}, n + m = 0 → n = 0 ∧ m = 0
 protected theorem eq_zero_of_add_eq_zero_left (h : n + m = 0) : m = 0 :=
   (Nat.eq_zero_of_add_eq_zero h).2
 
-/-! # sub theorems -/
-
 /-! # Nat.mul theorems -/
 
 @[simp] protected theorem mul_zero (n : Nat) : n * 0 = 0 :=

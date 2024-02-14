@@ -1,6 +1,3 @@
-@[simp]
-theorem exists_prop {p q : Prop} : (∃ h : p, q) ↔ p ∧ q :=
-Iff.intro (fun ⟨hp, hq⟩ => And.intro hp hq) (fun ⟨hp, hq⟩ => Exists.intro hp hq)
 
 namespace Option
 
@@ -13,5 +10,5 @@ def get {α : Type u} : ∀ {o : Option α}, isSome o → α
 
 theorem eq_some_iff_get_eq {o : Option α} {a : α} :
   o = some a ↔ ∃ h : o.isSome, Option.get h = a := by
-  cases o; simp; intro h; cases h; contradiction
+  cases o; simp only [isSome_none, false_iff]; intro h; cases h; contradiction
   simp [exists_prop]

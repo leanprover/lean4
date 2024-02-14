@@ -56,8 +56,6 @@ theorem ex9 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by
 
 theorem ex10 (y x : Nat) : y = 0 → x + 0 = 0 → x = 0 := by
   simp
-  intro h₁ h₂
-  simp [h₂]
 
 theorem ex11 : ∀ x : Nat, 0 + x + 0 = x := by
   simp

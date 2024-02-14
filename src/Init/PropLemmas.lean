@@ -121,6 +121,10 @@ variable {p q : α → Prop} {b : Prop}
 
 theorem forall_imp (h : ∀ a, p a → q a) : (∀ a, p a) → ∀ a, q a := fun h' a => h a (h' a)
 
+/--
+As `simp` does not index foralls, this `@[simp]` lemma is tried on every `forall` expression.
+This is not ideal, and likely a performance issue, but it is difficult to remove this attribute at this time.
+-/
 @[simp] theorem forall_exists_index {q : (∃ x, p x) → Prop} :
     (∀ h, q h) ↔ ∀ x (h : p x), q ⟨x, h⟩ :=
   ⟨fun h x hpx => h ⟨x, hpx⟩, fun h ⟨x, hpx⟩ => h x hpx⟩

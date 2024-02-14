@@ -502,5 +502,6 @@ where
   | `(tactic| run_tac $e:doSeq) =>
     ← unsafe Term.evalTerm (TacticM Unit) (mkApp (Lean.mkConst ``TacticM) (Lean.mkConst ``Unit))
       (← `(discard do $e))
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

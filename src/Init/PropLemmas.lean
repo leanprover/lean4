@@ -143,8 +143,6 @@ theorem exists_imp : ((∃ x, p x) → b) ↔ ∀ x, p x → b := forall_exists_
 
 section forall_congr
 
--- Port note: this is `forall_congr` from Lean 3. In Lean 4, there is already something
--- with that name and a slightly different type.
 theorem forall_congr' (h : ∀ a, p a ↔ q a) : (∀ a, p a) ↔ ∀ a, q a :=
   ⟨fun H a => (h a).1 (H a), fun H a => (h a).2 (H a)⟩
 

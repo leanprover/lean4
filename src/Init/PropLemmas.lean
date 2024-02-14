@@ -231,7 +231,6 @@ theorem not_forall_of_exists_not {p : α → Prop} : (∃ x, ¬p x) → ¬∀ x,
 
 @[simp] theorem exists_eq_left' : (∃ a, a' = a ∧ p a) ↔ p a' := by simp [@eq_comm _ a']
 
--- this theorem is needed to simplify the output of `List.mem_cons_iff`
 @[simp] theorem forall_eq_or_imp : (∀ a, a = a' ∨ q a → p a) ↔ p a' ∧ ∀ a, q a → p a := by
   simp only [or_imp, forall_and, forall_eq]
 
@@ -324,10 +323,10 @@ theorem Decidable.or_iff_not_imp_left [Decidable a] : a ∨ b ↔ (¬a → b) :=
   ⟨Or.resolve_left, fun h => dite _ .inl (.inr ∘ h)⟩
 
 theorem Decidable.or_iff_not_imp_right [Decidable b] : a ∨ b ↔ (¬b → a) :=
-or_comm.trans or_iff_not_imp_left
+  or_comm.trans or_iff_not_imp_left
 
 theorem Decidable.not_imp_not [Decidable a] : (¬a → ¬b) ↔ (b → a) :=
-⟨fun h hb => byContradiction (h · hb), mt⟩
+  ⟨fun h hb => byContradiction (h · hb), mt⟩
 
 theorem Decidable.not_or_of_imp [Decidable a] (h : a → b) : ¬a ∨ b :=
   if ha : a then .inr (h ha) else .inl ha
@@ -410,9 +409,9 @@ theorem Decidable.or_congr_right' [Decidable a] (h : ¬a → (b ↔ c)) : a ∨ 
   rw [or_iff_not_imp_left, or_iff_not_imp_left]; exact imp_congr_right h
 
 /-- Transfer decidability of `a` to decidability of `b`, if the propositions are equivalent.
-**Important**: this function should be used instead of `rw` on `decidable b`, because the
+**Important**: this function should be used instead of `rw` on `Decidable b`, because the
 kernel will get stuck reducing the usage of `propext` otherwise,
-and `dec_trivial` will not work. -/
+and `decide` will not work. -/
 @[inline] def decidable_of_iff (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 

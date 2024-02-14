@@ -1221,7 +1221,6 @@ gen_injective_theorems% Lean.Syntax
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
 /-! # Prop lemmas -/
--- These may depend on propext
 
 /-- *Ex falso* for negation: from `¬a` and `a` anything follows. This is the same as `absurd` with
 the arguments flipped, but it is in the `Not` namespace so that projection notation can be used. -/

@@ -111,7 +111,6 @@ end SimprocHelperLemmas
 @[simp] theorem true_or (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
 @[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
 @[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
-
 @[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := eq_true .rfl
 @[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
 @[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
@@ -124,7 +123,6 @@ end SimprocHelperLemmas
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide
 
 @[simp] theorem not_iff_self : ¬(¬a ↔ a) | H => iff_not_self H.symm
-
 
 /-! ## and -/
 

@@ -147,7 +147,7 @@ protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
 
 protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
   induction n with
-  | zero => simp; intros; assumption
+  | zero => simp
   | succ n ih => simp [succ_add]; intro h; apply ih h
 
 protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := by

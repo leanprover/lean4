@@ -5,4 +5,32 @@
       ?a = ?a
     with
       Ordering.eq = Ordering.lt
-[Meta.Tactic.simp.rewrite] false_implies:1000, False → False ==> True
+[Meta.Tactic.simp.unify] @forall_exists_index:1000, failed to unify
+      ∀ (h : ∃ x, ?p x), ?q h
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_eq:1000, failed to unify
+      ∀ (a : ?α), a = ?a' → ?p a
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_eq':1000, failed to unify
+      ∀ (a : ?α), ?a' = a → ?p a
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_eq_or_imp:1000, failed to unify
+      ∀ (a : ?α), a = ?a' ∨ ?q a → ?p a
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_apply_eq_imp_iff:1000, failed to unify
+      ∀ (b : ?β) (a : ?α), ?f a = b → ?p b
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_eq_apply_imp_iff:1000, failed to unify
+      ∀ (b : ?β) (a : ?α), b = ?f a → ?p b
+    with
+      False → False
+[Meta.Tactic.simp.unify] @forall_apply_eq_imp_iff₂:1000, failed to unify
+      ∀ (b : ?β) (a : ?α), ?p a → ?f a = b → ?q b
+    with
+      False → False
+[Meta.Tactic.simp.rewrite] @imp_self:1000, False → False ==> True

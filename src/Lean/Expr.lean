@@ -1916,7 +1916,14 @@ def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
 def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q
 /-- Return `p ∧ q` -/
 def mkAnd (p q : Expr) : Expr := mkApp2 (mkConst ``And) p q
+/-- Make an n-ary `And` application. `mkAndN []` returns `True`. -/
+def mkAndN : List Expr → Expr
+  | [] => mkConst ``True
+  | [p] => p
+  | p :: ps => mkAnd p (mkAndN ps)
 /-- Return `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
+/-- Return `p ↔ q` -/
+def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 end Lean

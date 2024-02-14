@@ -47,7 +47,7 @@ This is a non-dependent variant of `Empty.rec`.
 @[macro_inline] def Empty.elim {C : Sort u} : Empty → C := Empty.rec
 
 /-- Decidable equality for Empty -/
-instance : DecidableEq Empty := fun a => a.rec
+instance : DecidableEq Empty := fun a => a.elim
 
 /--
 `PEmpty.elim : Empty → C` says that a value of any type can be constructed from
@@ -105,11 +105,6 @@ abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b 
   Eq.ndrec m h
 
 /-! # definitions  -/
-
-@[inherit_doc True.intro] def trivial : True := ⟨⟩
-
--- proof irrelevance is built in
-theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 /--
 If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
@@ -551,6 +546,8 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
+@[inherit_doc True.intro] def trivial : True := ⟨⟩
+
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
 
@@ -558,6 +555,9 @@ theorem not_false : ¬False := id
 
 theorem not_not_intro {p : Prop} (h : p) : ¬ ¬ p :=
   fun hn : ¬ p => hn h
+
+-- proof irrelevance is built in
+theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 /--
 If `h : α = β` is a proof of type equality, then `h.mp : α → β` is the induced
@@ -699,27 +699,29 @@ protected theorem Iff.rfl {a : Prop} : a ↔ a :=
 
 macro_rules | `(tactic| rfl) => `(tactic| exact Iff.rfl)
 
-theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.refl _
+theorem Iff.of_eq (h : a = b) : a ↔ b := h ▸ Iff.rfl
 
 theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
-  Iff.intro
-    (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))
-    (fun hc => Iff.mpr h₁ (Iff.mpr h₂ hc))
+  Iff.intro (h₂.mp ∘ h₁.mp) (h₁.mpr ∘ h₂.mpr)
 
 -- This is needed for `calc` to work with `iff`.
 instance : Trans Iff Iff Iff where
   trans := Iff.trans
 
-theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro (Iff.mpr h) (Iff.mp h)
-theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
+theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
+theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
+
+theorem Iff.symm (h : a ↔ b) : b ↔ a := Iff.intro h.mpr h.mp
+theorem Iff.comm: (a ↔ b) ↔ (b ↔ a) := Iff.intro Iff.symm Iff.symm
+theorem iff_comm : (a ↔ b) ↔ (b ↔ a) := Iff.comm
 
 theorem And.symm : a ∧ b → b ∧ a := fun ⟨ha, hb⟩ => ⟨hb, ha⟩
-theorem and_comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
-theorem And.comm : a ∧ b ↔ b ∧ a := and_comm
+theorem And.comm : a ∧ b ↔ b ∧ a := Iff.intro And.symm And.symm
+theorem and_comm : a ∧ b ↔ b ∧ a := And.comm
 
 theorem Or.symm : a ∨ b → b ∨ a := .rec .inr .inl
-theorem or_comm : a ∨ b ↔ b ∨ a := Iff.intro Or.symm Or.symm
-theorem Or.comm : a ∨ b ↔ b ∨ a := or_comm
+theorem Or.comm : a ∨ b ↔ b ∨ a := Iff.intro Or.symm Or.symm
+theorem or_comm : a ∨ b ↔ b ∨ a := Or.comm
 
 /-! # Exists -/
 
@@ -921,8 +923,8 @@ protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (
 
 instance (p : Prop) : Subsingleton p := ⟨fun a b => proof_irrel a b⟩
 
-instance : Subsingleton Empty  := ⟨fun a => a.elim⟩
-instance : Subsingleton PEmpty := ⟨fun a => a.elim⟩
+instance : Subsingleton Empty  := ⟨(·.elim)⟩
+instance : Subsingleton PEmpty := ⟨(·.elim)⟩
 
 instance [Subsingleton α] [Subsingleton β] : Subsingleton (α × β) :=
   ⟨fun {..} {..} => by congr <;> apply Subsingleton.elim⟩
@@ -1221,9 +1223,6 @@ gen_injective_theorems% Lean.Syntax
 /-! # Prop lemmas -/
 -- These may depend on propext
 
-theorem Eq.comm {a b : α} : a = b ↔ b = a := Iff.intro Eq.symm Eq.symm
-theorem eq_comm {a b : α} : a = b ↔ b = a := Eq.comm
-
 /-- *Ex falso* for negation: from `¬a` and `a` anything follows. This is the same as `absurd` with
 the arguments flipped, but it is in the `Not` namespace so that projection notation can be used. -/
 def Not.elim {α : Sort _} (H1 : ¬a) (H2 : a) : α := absurd H2 H1
@@ -1255,14 +1254,14 @@ theorem iff_true_right (ha : a) : (b ↔ a) ↔ b := Iff.comm.trans (iff_true_le
 theorem iff_false_left  (ha : ¬a) : (a ↔ b) ↔ ¬b := Iff.intro (mt ·.mpr ha) (iff_of_false ha)
 theorem iff_false_right (ha : ¬a) : (b ↔ a) ↔ ¬b := Iff.comm.trans (iff_false_left ha)
 
-theorem of_iff_true    (h : a ↔ True) : a := h.mpr True.intro
-theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h True.intro
+theorem of_iff_true    (h : a ↔ True) : a := h.mpr trivial
+theorem iff_true_intro (h : a) : a ↔ True := iff_of_true h trivial
 
 theorem not_of_iff_false : (p ↔ False) → ¬p := Iff.mp
 theorem iff_false_intro (h : ¬a) : a ↔ False := iff_of_false h id
 
 theorem not_iff_false_intro (h : a) : ¬a ↔ False := iff_false_intro (not_not_intro h)
-theorem not_true : (¬True) ↔ False := iff_false_intro (not_not_intro True.intro)
+theorem not_true : (¬True) ↔ False := iff_false_intro (not_not_intro trivial)
 
 theorem not_false_iff : (¬False) ↔ True := iff_true_intro not_false
 
@@ -1276,7 +1275,7 @@ theorem iff_iff_eq : (a ↔ b) ↔ a = b := Iff.intro propext Iff.of_eq
 theorem eq_self_iff_true (a : α)  : a = a ↔ True  := iff_true_intro rfl
 theorem ne_self_iff_false (a : α) : a ≠ a ↔ False := not_iff_false_intro rfl
 
-theorem false_of_true_iff_false (h : True ↔ False) : False := h.mp True.intro
+theorem false_of_true_iff_false (h : True ↔ False) : False := h.mp trivial
 theorem false_of_true_eq_false  (h : True = False) : False := false_of_true_iff_false (Iff.of_eq h)
 
 theorem true_eq_false_of_false : False → (True = False) := False.elim

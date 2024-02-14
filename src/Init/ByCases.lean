@@ -1,5 +1,12 @@
+/-
+Copyright (c) 2024 Lean FRO. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura, Mario Carneiro
+-/
 prelude
 import Init.Classical
+
+/-! # by_cases tactic and if-then-else support -/
 
 /--
 `by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.

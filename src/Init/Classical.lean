@@ -111,8 +111,8 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (�
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
   match em a with
-  | Or.inl ha => Or.inl (propext (Iff.intro (fun _ => ⟨⟩) (fun _ => ha)))
-  | Or.inr hn => Or.inr (propext (Iff.intro (fun h => hn h) (fun h => False.elim h)))
+  | Or.inl ha => Or.inl (eq_true ha)
+  | Or.inr hn => Or.inr (eq_false hn)
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
@@ -127,11 +127,9 @@ The left-to-right direction, double negation elimination (DNE),
 is classically true but not constructively. -/
 @[scoped simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
 
-@[simp] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x :=
-  Decidable.not_forall
+@[simp] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
 
 theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not
-
 theorem not_exists_not {p : α → Prop} : (¬∃ x, ¬p x) ↔ ∀ x, p x := Decidable.not_exists_not
 
 theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a := by
@@ -140,17 +138,12 @@ theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a 
 theorem exists_or_forall_not (P : α → Prop) : (∃ a, P a) ∨ ∀ a, ¬ P a := by
   rw [← not_exists]; exact em _
 
-theorem or_iff_not_imp_left : a ∨ b ↔ (¬a → b) :=
-  Decidable.or_iff_not_imp_left
+theorem or_iff_not_imp_left  : a ∨ b ↔ (¬a → b) := Decidable.or_iff_not_imp_left
+theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_imp_right
 
-theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) :=
-  Decidable.or_iff_not_imp_right
+theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b :=
-  Decidable.not_imp_iff_and_not
-
-theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b :=
-  Decidable.not_and_iff_or_not_not
+theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_or_not_not
 
 theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 

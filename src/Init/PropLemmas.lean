@@ -33,8 +33,10 @@ theorem and_congr_right' (h : b ↔ c) : a ∧ b ↔ a ∧ c := and_congr .rfl h
 theorem not_and_of_not_left (b : Prop) : ¬a → ¬(a ∧ b) := mt And.left
 theorem not_and_of_not_right (a : Prop) {b : Prop} : ¬b → ¬(a ∧ b) := mt And.right
 
-theorem and_congr_right_eq (h : a → b = c) : (a ∧ b) = (a ∧ c) := propext (and_congr_right (Iff.of_eq ∘ h))
-theorem and_congr_left_eq  (h : c → a = b) : (a ∧ c) = (b ∧ c) := propext (and_congr_left  (Iff.of_eq ∘ h))
+theorem and_congr_right_eq (h : a → b = c) : (a ∧ b) = (a ∧ c) :=
+  propext (and_congr_right (Iff.of_eq ∘ h))
+theorem and_congr_left_eq  (h : c → a = b) : (a ∧ c) = (b ∧ c) :=
+  propext (and_congr_left  (Iff.of_eq ∘ h))
 
 theorem and_left_comm : a ∧ b ∧ c ↔ b ∧ a ∧ c :=
   Iff.intro (fun ⟨ha, hb, hc⟩ => ⟨hb, ha, hc⟩)
@@ -63,7 +65,7 @@ theorem Or.resolve_right (h: a ∨ b) (nb : ¬b) : a := h.elim id (absurd · nb)
 theorem Or.neg_resolve_left  (h : ¬a ∨ b) (ha : a) : b := h.elim (absurd ha) id
 theorem Or.neg_resolve_right (h : a ∨ ¬b) (nb : b) : a := h.elim id (absurd nb)
 
-theorem or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) := ⟨.imp h₁.1 h₂.1, .imp h₁.2 h₂.2⟩
+theorem or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) := ⟨.imp h₁.mp h₂.mp, .imp h₁.mpr h₂.mpr⟩
 theorem or_congr_left (h : a ↔ b) : a ∨ c ↔ b ∨ c := or_congr h .rfl
 theorem or_congr_right (h : b ↔ c) : a ∨ b ↔ a ∨ c := or_congr .rfl h
 
@@ -77,8 +79,8 @@ theorem or_or_distrib_right : (a ∨ b) ∨ c ↔ (a ∨ c) ∨ b ∨ c := by rw
 
 theorem or_rotate : a ∨ b ∨ c ↔ b ∨ c ∨ a := by simp only [or_left_comm, Or.comm]
 
-theorem or_iff_left (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.2 hb.elim
-theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.2 ha.elim
+theorem or_iff_left  (hb : ¬b) : a ∨ b ↔ a := or_iff_left_iff_imp.mpr  hb.elim
+theorem or_iff_right (ha : ¬a) : a ∨ b ↔ b := or_iff_right_iff_imp.mpr ha.elim
 
 /-! ## distributivity -/
 
@@ -107,8 +109,7 @@ theorem or_and_left : a ∨ (b ∧ c) ↔ (a ∨ b) ∧ (a ∨ c) :=
 theorem and_or_right : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) := by rw [@or_comm (a ∧ b), or_and_left, @or_comm c, @or_comm c]
 
 theorem or_imp : (a ∨ b → c) ↔ (a → c) ∧ (b → c) :=
-  Iff.intro (fun h => ⟨h ∘ .inl, h ∘ .inr⟩)
-            (fun ⟨ha, hb⟩ => Or.rec ha hb)
+  Iff.intro (fun h => ⟨h ∘ .inl, h ∘ .inr⟩) (fun ⟨ha, hb⟩ => Or.rec ha hb)
 theorem not_or : ¬(p ∨ q) ↔ ¬p ∧ ¬q := or_imp
 
 theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.1)) (mt (·.2))
@@ -118,8 +119,7 @@ theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.
 section quantifiers
 variable {p q : α → Prop} {b : Prop}
 
-theorem forall_imp (h : ∀ a, p a → q a) : (∀ a, p a) → ∀ a, q a :=
-fun h' a => h a (h' a)
+theorem forall_imp (h : ∀ a, p a → q a) : (∀ a, p a) → ∀ a, q a := fun h' a => h a (h' a)
 
 @[simp] theorem forall_exists_index {q : (∃ x, p x) → Prop} :
     (∀ h, q h) ↔ ∀ x (h : p x), q ⟨x, h⟩ :=
@@ -148,6 +148,7 @@ theorem exists_congr (h : ∀ a, p a ↔ q a) : (∃ a, p a) ↔ ∃ a, q a :=
   ⟨Exists.imp fun x => (h x).1, Exists.imp fun x => (h x).2⟩
 
 variable {β : α → Sort _}
+
 theorem forall₂_congr {p q : ∀ a, β a → Prop} (h : ∀ a b, p a b ↔ q a b) :
     (∀ a b, p a b) ↔ ∀ a b, q a b :=
   forall_congr' fun a => forall_congr' <| h a

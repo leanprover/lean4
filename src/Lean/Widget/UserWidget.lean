@@ -56,10 +56,11 @@ class ToModule (α : Type u) where
 
 instance : ToModule Module := ⟨id⟩
 
-private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 Module compare) ← IO.mkRef ∅
+private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 (Name × Module) compare) ←
+  IO.mkRef ∅
 
-def addBuiltinModule (m : Module) : IO Unit :=
-  builtinModulesRef.modify (·.insert m.javascriptHash m)
+def addBuiltinModule (id : Name) (m : Module) : IO Unit :=
+  builtinModulesRef.modify (·.insert m.javascriptHash (id, m))
 
 /-- Every constant `c : α` marked with `@[widget_module]` is registered here.
 The registry maps `hash (toModule c).javascript` to ``(`c, `(@toModule α inst c))``
@@ -125,7 +126,7 @@ structure WidgetSource where
 open Server RequestM in
 @[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
-  if let some m := (← builtinModulesRef.get).find? args.hash then
+  if let some (_, m) := (← builtinModulesRef.get).find? args.hash then
     return .pure { sourcetext := m.javascript }
 
   let doc ← readDoc
@@ -212,10 +213,12 @@ def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 `hash` must be `hash (toModule c).javascript`
 where `c` is some global constant annotated with `@[widget_module]`. -/
-def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
-    (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) : m Unit := do
+def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
+    CoreM Unit := do
   let env ← getEnv
-  let some (id, _) := moduleRegistry.getState env |>.find? hash
+  let builtins ← builtinModulesRef.get
+  let some id :=
+    (builtins.find? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.find? hash |>.map (·.1))
     | throwError s!"No widget module with hash {hash} registered"
   pushInfoLeaf <| .ofUserWidgetInfo { id, javascriptHash := hash, props, stx }
 
@@ -357,9 +360,8 @@ opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadEr
 
 /-- Save a user-widget instance to the infotree.
     The given `widgetId` should be the declaration name of the widget definition. -/
-@[deprecated savePanelWidgetInfo] def saveWidgetInfo
-    [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadInfoTree m]
-    (widgetId : Name) (props : Json) (stx : Syntax) : m Unit := do
+@[deprecated savePanelWidgetInfo] def saveWidgetInfo (widgetId : Name) (props : Json)
+    (stx : Syntax) : CoreM Unit := do
   let uwd ← evalUserWidgetDefinition widgetId
   savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
 

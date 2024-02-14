@@ -41,4 +41,26 @@ macro_rules
   | `(tactic| if%$tk $c then%$ttk $pos else%$etk $neg) =>
     expandIfThenElse tk ttk etk pos neg fun pos neg => `(if h : $c then $pos else $neg)
 
+/--
+`iterate n tac` runs `tac` exactly `n` times.
+`iterate tac` runs `tac` repeatedly until failure.
+
+`iterate`'s argument is a tactic sequence,
+so multiple tactics can be run using `iterate n (tac₁; tac₂; ⋯)` or
+```lean
+iterate n
+  tac₁
+  tac₂
+  ⋯
+```
+-/
+syntax "iterate" (ppSpace num)? ppSpace tacticSeq : tactic
+macro_rules
+  | `(tactic| iterate $seq:tacticSeq) =>
+    `(tactic| try ($seq:tacticSeq); iterate $seq:tacticSeq)
+  | `(tactic| iterate $n $seq:tacticSeq) =>
+    match n.1.toNat with
+    | 0 => `(tactic| skip)
+    | n+1 => `(tactic| ($seq:tacticSeq); iterate $(quote n) $seq:tacticSeq)
+
 end Lean.Parser.Tactic

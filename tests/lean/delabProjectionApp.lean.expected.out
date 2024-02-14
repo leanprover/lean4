@@ -1,0 +1,12 @@
+a.x : Nat
+b.x : Nat
+c.x : Nat
+b.y : Nat
+c.y : Nat
+c.z : Nat
+A.x a : Nat
+A.x (B.toA b) : Nat
+A.x (B.toA (C.toB c)) : Nat
+B.y b : Nat
+B.y (C.toB c) : Nat
+C.z c : Nat

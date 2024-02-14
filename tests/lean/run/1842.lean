@@ -4,10 +4,10 @@ inductive List.Pairwise : List α → Prop
   | nil : Pairwise []
   | cons : ∀ {a : α} {l : List α}, (∀ {a} (_ : a' ∈ l), R a a') → Pairwise l → Pairwise (a :: l)
 
-theorem and_assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
+theorem and_assoc' : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
   ⟨fun ⟨⟨ha, hb⟩, hc⟩ => ⟨ha, hb, hc⟩, fun ⟨ha, hb, hc⟩ => ⟨⟨ha, hb⟩, hc⟩⟩
 
-theorem and_left_comm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) := by
+theorem and_left_comm' : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) := by
   rw [← and_assoc, ← and_assoc, @And.comm a b]
 
 theorem pairwise_append {l₁ l₂ : List α} :

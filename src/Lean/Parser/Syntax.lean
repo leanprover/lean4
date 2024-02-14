@@ -104,6 +104,16 @@ def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ide
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> elabArg) >> elabTail
 
+/--
+Declares a binder predicate.  For example:
+```
+binder_predicate x " > " y:term => `($x > $y)
+```
+-/
+@[builtin_command_parser] def binderPredicate := leading_parser
+   optional docComment >>  optional Term.attributes >> optional Term.attrKind >>
+   "binder_predicate" >> optNamedName >> optNamedPrio >> ppSpace >> ident >> many (ppSpace >> macroArg) >> " => " >> termParser
+
 end Command
 
 end Parser

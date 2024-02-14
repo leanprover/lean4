@@ -2,6 +2,7 @@
  "position": {"line": 4, "character": 10}}
 {"items":
  [{"label": "bin", "kind": 21, "detail": "Type 1"},
+  {"label": "binder_predicate", "kind": 14, "detail": "keyword"},
   {"label": "binop%", "kind": 14, "detail": "keyword"},
   {"label": "binop_lazy%", "kind": 14, "detail": "keyword"},
   {"label": "binrel%", "kind": 14, "detail": "keyword"},

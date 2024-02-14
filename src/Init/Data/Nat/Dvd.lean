@@ -1,5 +1,5 @@
 prelude
-import Init.NotationExtra
+import Init.Data.Nat.Div
 
 namespace Nat
 
@@ -7,7 +7,8 @@ namespace Nat
 Divisibility of natural numbers. `a ∣ b` (typed as `\|`) says that
 there is some `c` such that `b = a * c`.
 -/
-instance : Dvd Nat := ⟨fun a b => ∃ c, b = a * c⟩
+instance : Dvd Nat where
+  dvd a b := Exists (fun c => b = a * c)
 
 protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 

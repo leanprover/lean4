@@ -12,6 +12,7 @@ import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.Do
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -480,5 +481,19 @@ where
 
 @[builtin_tactic right] def evalRight : Tactic := fun _stx => do
   liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
+
+@[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
+  match stx with
+  | `(tactic| replace $decl:haveDecl) =>
+    withMainContext do
+      let vars ← Elab.Term.Do.getDoHaveVars <| mkNullNode #[.missing, decl]
+      let origLCtx ← getLCtx
+      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      let mut toClear := #[]
+      for fv in vars do
+        if let some ldecl := origLCtx.findFromUserName? fv.getId then
+          toClear := toClear.push ldecl.fvarId
+      liftMetaTactic1 (·.tryClearMany toClear)
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

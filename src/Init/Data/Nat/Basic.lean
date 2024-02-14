@@ -282,13 +282,16 @@ instance : Trans (. ≤ . : Nat → Nat → Prop) (. < . : Nat → Nat → Prop)
 protected theorem le_of_eq {n m : Nat} (p : n = m) : n ≤ m :=
   p ▸ Nat.le_refl n
 
-theorem le_of_succ_le {n m : Nat} (h : succ n ≤ m) : n ≤ m :=
-  Nat.le_trans (le_succ n) h
-
-protected theorem le_of_lt {n m : Nat} (h : n < m) : n ≤ m :=
-  le_of_succ_le h
-
 theorem lt.step {n m : Nat} : n < m → n < succ m := le_step
+
+theorem le_of_succ_le {n m : Nat} (h : succ n ≤ m) : n ≤ m := Nat.le_trans (le_succ n) h
+theorem lt_of_succ_lt      {n m : Nat} : succ n < m → n < m := le_of_succ_le
+protected theorem le_of_lt {n m : Nat} : n < m → n ≤ m := le_of_succ_le
+
+theorem lt_of_succ_lt_succ {n m : Nat} : succ n < succ m → n < m := le_of_succ_le_succ
+
+theorem lt_of_succ_le {n m : Nat} (h : succ n ≤ m) : n < m := h
+theorem succ_le_of_lt {n m : Nat} (h : n < m) : succ n ≤ m := h
 
 theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
@@ -305,12 +308,6 @@ protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   | Or.inr h => Or.inr h
 
 theorem eq_zero_of_le_zero {n : Nat} (h : n ≤ 0) : n = 0 := Nat.le_antisymm h (zero_le _)
-
-theorem lt_of_succ_lt      {n m : Nat} : succ n < m → n < m := le_of_succ_le
-theorem lt_of_succ_lt_succ {n m : Nat} : succ n < succ m → n < m := le_of_succ_le_succ
-
-theorem lt_of_succ_le {n m : Nat} (h : succ n ≤ m) : n < m := h
-theorem succ_le_of_lt {n m : Nat} (h : n < m) : succ n ≤ m := h
 
 theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
   | 0,   _, h => h
@@ -361,37 +358,27 @@ protected theorem not_le_of_gt {n m : Nat} (h : n > m) : ¬ n ≤ m := fun h₁ 
   | Or.inr h₂ =>
     have Heq : n = m := Nat.le_antisymm h₁ h₂
     absurd (@Eq.subst _ _ _ _ Heq h) (Nat.lt_irrefl m)
+protected theorem not_le_of_lt : ∀{a b : Nat}, a < b → ¬(b ≤ a) := Nat.not_le_of_gt
+protected theorem not_lt_of_ge : ∀{a b : Nat}, b ≥ a → ¬(b < a) := flip Nat.not_le_of_gt
+protected theorem not_lt_of_le : ∀{a b : Nat}, a ≤ b → ¬(b < a) := flip Nat.not_le_of_gt
+protected theorem lt_le_asymm : ∀{a b : Nat}, a < b → ¬(b ≤ a) := Nat.not_le_of_gt
+protected theorem le_lt_asymm : ∀{a b : Nat}, a ≤ b → ¬(b < a) := flip Nat.not_le_of_gt
 
-theorem gt_of_not_le {n m : Nat} (h : ¬ n ≤ m) : n > m :=
-  match Nat.lt_or_ge m n with
-  | Or.inl h₁ => h₁
-  | Or.inr h₁ => absurd h₁ h
+theorem gt_of_not_le {n m : Nat} (h : ¬ n ≤ m) : n > m := (Nat.lt_or_ge m n).resolve_right h
+protected theorem lt_of_not_ge : ∀{a b : Nat}, ¬(b ≥ a) → b < a := Nat.gt_of_not_le
+protected theorem lt_of_not_le : ∀{a b : Nat}, ¬(a ≤ b) → b < a := Nat.gt_of_not_le
 
-theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m :=
-  match Nat.lt_or_ge n m with
-  | Or.inl h₁ => absurd h₁ h
-  | Or.inr h₁ => h₁
+theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m := (Nat.lt_or_ge n m).resolve_left h
+protected theorem le_of_not_gt : ∀{a b : Nat}, ¬(b > a) → b ≤ a := Nat.ge_of_not_lt
+protected theorem le_of_not_lt : ∀{a b : Nat}, ¬(a < b) → b ≤ a := Nat.ge_of_not_lt
 
 theorem ne_of_gt {a b : Nat} (h : b < a) : a ≠ b := (ne_of_lt h).symm
+protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := ne_of_gt
 
 @[simp] protected theorem not_le {a b : Nat} : ¬ a ≤ b ↔ b < a :=
   Iff.intro Nat.gt_of_not_le Nat.not_le_of_gt
 @[simp] protected theorem not_lt {a b : Nat} : ¬ a < b ↔ b ≤ a :=
   Iff.intro Nat.ge_of_not_lt (flip Nat.not_le_of_gt)
-
-protected theorem lt_of_not_ge : ∀{a b : Nat}, ¬(b ≥ a) → b < a := Nat.gt_of_not_le
-protected theorem lt_of_not_le : ∀{a b : Nat}, ¬(a ≤ b) → b < a := Nat.gt_of_not_le
-protected theorem le_of_not_gt : ∀{a b : Nat}, ¬(b > a) → b ≤ a := Nat.ge_of_not_lt
-protected theorem le_of_not_lt : ∀{a b : Nat}, ¬(a < b) → b ≤ a := Nat.ge_of_not_lt
-
-protected theorem not_le_of_lt : ∀{a b : Nat}, a < b → ¬(b ≤ a) := Nat.not_le_of_gt
-protected theorem not_lt_of_ge : ∀{a b : Nat}, b ≥ a → ¬(b < a) := flip Nat.not_le_of_gt
-protected theorem not_lt_of_le : ∀{a b : Nat}, a ≤ b → ¬(b < a) := flip Nat.not_le_of_gt
-
-protected theorem lt_le_asymm : ∀{a b : Nat}, a < b → ¬(b ≤ a) := Nat.not_le_of_gt
-protected theorem le_lt_asymm : ∀{a b : Nat}, a ≤ b → ¬(b < a) := flip Nat.not_le_of_gt
-
-protected theorem ne_of_lt' : ∀{a b : Nat}, a < b → b ≠ a := ne_of_gt
 
 protected theorem le_of_not_le {a b : Nat} (h : ¬ b ≤ a) : a ≤ b := Nat.le_of_lt (Nat.not_le.1 h)
 protected theorem le_of_not_ge : ∀{a b : Nat}, ¬(a ≥ b) → a ≤ b:= @Nat.le_of_not_le
@@ -465,8 +452,6 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
 
 protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
-
-
 
 /-! # Basic theorems for comparing numerals -/
 
@@ -828,14 +813,12 @@ protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n *
 /-! # Helper normalization theorems -/
 
 theorem not_le_eq (a b : Nat) : (¬ (a ≤ b)) = (b + 1 ≤ a) :=
-  propext <| Iff.intro (fun h => Nat.gt_of_not_le h) (fun h => Nat.not_le_of_gt h)
-
+  Eq.propIntro Nat.gt_of_not_le Nat.not_le_of_gt
 theorem not_ge_eq (a b : Nat) : (¬ (a ≥ b)) = (a + 1 ≤ b) :=
   not_le_eq b a
 
 theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
-  propext <| Iff.intro (fun h => have h := Nat.succ_le_of_lt (Nat.gt_of_not_le h); Nat.le_of_succ_le_succ h) (fun h => Nat.not_le_of_gt (Nat.succ_le_succ h))
-
+  Eq.propIntro Nat.le_of_not_lt Nat.not_lt_of_le
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 

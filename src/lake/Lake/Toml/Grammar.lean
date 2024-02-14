@@ -427,7 +427,7 @@ def decNumeralAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     else
       decNumberSepFn startPos curr nextPos c s
 
-def numeralFn : ParserFn := fun c s =>
+def numeralFn : ParserFn := atomicFn fun c s =>
   let input := c.input
   let startPos := s.pos
   let expected := ["integer", "float", "date-time"]
@@ -445,17 +445,17 @@ def numeralFn : ParserFn := fun c s =>
           let s := s.next' input s.pos h
           let s := sepByChar1Fn isBinDigit '_' ["binary integer"] c s
           if s.hasError then s else
-          pushLit `Lake.Toml.binInt startPos skipFn c s
+          pushLit `Lake.Toml.binNum startPos skipFn c s
         else if curr == 'o' then
           let s := s.next' input s.pos h
           let s := sepByChar1Fn isOctDigit '_' ["octal integer"] c s
           if s.hasError then s else
-          pushLit `Lake.Toml.octInt startPos skipFn c s
+          pushLit `Lake.Toml.octNum startPos skipFn c s
         else if curr == 'x' then
           let s := s.next' input s.pos h
           let s := sepByChar1Fn isHexDigit '_' ["hexadecimal integer"] c s
           if s.hasError then s else
-          pushLit `Lake.Toml.hexInt startPos skipFn c s
+          pushLit `Lake.Toml.hexNum startPos skipFn c s
         else if curr.isDigit then
           let s := s.next' input s.pos h
           let s := (chFn ':' >> timeAuxFn false) c s
@@ -508,35 +508,33 @@ def quotedKey : Parser :=
 def simpleKey : Parser := nodeWithAntiquot "simpleKey" `Lake.Toml.simpleKey $
   unquotedKey <|> quotedKey
 
-def key : Parser := nodeWithAntiquot "key" `Lake.Toml.key $ setExpected ["key"] $
+def key : Parser := nodeWithAntiquot "key" `Lake.Toml.key (anonymous := true)  $ setExpected ["key"]  $
   sepBy1 simpleKey "." (trailingWs >> chAtom '.' >> trailingWs)
 
-def stdTable : Parser :=
+def stdTable : Parser := nodeWithAntiquot "stdTable" `Lake.Toml.stdTable $
   atomic (chAtom '[' ["table"] >> notFollowedBy (chAtom '[') "'['") >>
   trailingWs >> key >> trailingWs >> chAtom ']'
 
-def arrayTable : Parser :=
+def arrayTable : Parser := nodeWithAntiquot "arrayTable" `Lake.Toml.arrayTable $
   atomic (chAtom '[' ["table"] >> chAtom '[' ) >>
   trailingWs >> key >> trailingWs >> chAtom ']' >> chAtom ']'
 
 def table :=
   stdTable <|> arrayTable
 
-def keyvalCore (val : Parser) : Parser :=
-  node `Lake.Toml.keyval $
+def keyvalCore (val : Parser) : Parser := nodeWithAntiquot "keyval" `Lake.Toml.keyval (anonymous := true) $
   key >> trailingWs >> chAtom '=' >> trailingWs >> val
 
 def expressionCore (val : Parser) : Parser :=
-  nodeWithAntiquot "expression" `Lake.Toml.expression $
-  (keyvalCore val <|> table) >> trailingSep
+  withAntiquot (mkAntiquot "expression" `Lake.Toml.expression (isPseudoKind := true)) $
+  keyvalCore val <|> table
 
 def header : Parser :=
   litWithAntiquot "header" `Lake.Toml.header skipFn trailingFn
 
 def tomlCore (val : Parser) : Parser :=
-  withCache `Lake.Toml.toml $
-  nodeWithAntiquot "toml" `Lake.Toml.toml $
-  header >> sepBy1Linebreak (expressionCore val)
+  nodeWithAntiquot "toml" `Lake.Toml.toml (anonymous := true) $
+  header >> sepBy1Linebreak (expressionCore val >> trailingSep)
 
 def inlineTableCore (val : Parser) : Parser := nodeWithAntiquot "inlineTable" `Lake.Toml.inlineTable $
   chAtom '{' ["inline-table"] (trailingFn := trailingFn) >>
@@ -565,9 +563,9 @@ def boolean : Parser :=
 def numeralAntiquot :=
   mkAntiquot "float" `Lake.Toml.float (anonymous := false) <|>
   mkAntiquot "decInt" `Lake.Toml.decInt (anonymous := false) <|>
-  mkAntiquot "binInt" `Lake.Toml.binInt (anonymous := false) <|>
-  mkAntiquot "octInt" `Lake.Toml.octInt (anonymous := false) <|>
-  mkAntiquot "hexInt" `Lake.Toml.hexInt (anonymous := false) <|>
+  mkAntiquot "binNum" `Lake.Toml.binNum (anonymous := false) <|>
+  mkAntiquot "octNum" `Lake.Toml.octNum (anonymous := false) <|>
+  mkAntiquot "hexNum" `Lake.Toml.hexNum (anonymous := false) <|>
   mkAntiquot "dateTime" `Lake.Toml.dateTime (anonymous := false) <|>
   mkAntiquot "numeral" `Lake.Toml.numeral (isPseudoKind := true)
 
@@ -575,12 +573,33 @@ def numeralAntiquot :=
 def numeral : Parser :=
   withAntiquot numeralAntiquot $ dynamicNode numeralFn
 
+def numeralOfKind (name : String) (kind : SyntaxNodeKind) : Parser :=
+  numeral >> setExpected [name] (checkStackTop (·.isOfKind kind) "illegal numeral kind")
+
+def float : Parser :=
+  numeralOfKind "float" `Lake.Toml.float
+
+def decInt : Parser :=
+  numeralOfKind "decimal integer" `Lake.Toml.decInt
+
+def binNum : Parser :=
+  numeralOfKind "binary number" `Lake.Toml.binNum
+
+def octNum : Parser :=
+  numeralOfKind "octal number" `Lake.Toml.octNum
+
+def hexNum : Parser :=
+  numeralOfKind "hexadecimal number" `Lake.Toml.hexNum
+
+def dateTime : Parser :=
+  numeralOfKind "date-time" `Lake.Toml.dateTime
+
 def valCore (val : Parser) : Parser :=
   string <|> boolean <|> numeral <|>
   arrayCore val <|> inlineTableCore val
 
 def val : Parser :=
-  recNodeWithAntiquot "val" `Lake.Toml.val valCore
+  recNodeWithAntiquot "val" `Lake.Toml.val valCore (anonymous := true)
 
 def array : Parser :=
   arrayCore val
@@ -594,5 +613,5 @@ def keyval : Parser :=
 def expression : Parser :=
   expressionCore val
 
-def toml : Parser :=
-  tomlCore val
+@[run_parser_attribute_hooks] def toml : Parser :=
+  withCache `Lake.Toml.toml $ tomlCore val

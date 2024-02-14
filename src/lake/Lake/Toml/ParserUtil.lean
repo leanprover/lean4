@@ -281,7 +281,7 @@ abbrev ParserMapFn := Parser → Parser
 def recNode (f : ParserMapFn) : Parser :=
   dynamicNode (recNodeFn f)
 
-def recNodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (f : ParserMapFn) (anonymous := true) : Parser :=
+def recNodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (f : ParserMapFn) (anonymous := false) : Parser :=
   withCache name $ withAntiquot (mkAntiquot name kind anonymous true) $ recNode go
 where
   go p := withCache name $ withAntiquot (mkAntiquot name kind anonymous true) $ f p
@@ -289,3 +289,9 @@ where
 @[inline] def sepBy1Linebreak (p : Parser) (allowTrailingLinebreak := true) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   sepBy1NoAntiquot p (checkLinebreakBefore >> pushNone) allowTrailingLinebreak
+
+def skipInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
+  if c.quotDepth > 0 then s else p c s
+
+@[run_parser_attribute_hooks] def skipInsideQuot (p : Parser) : Parser :=
+  withFn skipInsideQuotFn p

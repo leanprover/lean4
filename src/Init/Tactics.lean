@@ -398,7 +398,7 @@ syntax locationWildcard := " *"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (ppSpace colGt term:max)+ ppSpace patternIgnore( atomic("|" noWs "-") <|> "⊢")?
+syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -893,6 +893,37 @@ The tactic `nomatch h` is shorthand for `exact nomatch h`.
 -/
 macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
+
+/--
+Acts like `have`, but removes a hypothesis with the same name as
+this one if possible. For example, if the state is:
+
+```lean
+f : α → β
+h : α
+⊢ goal
+```
+
+Then after `replace h := f h` the state will be:
+
+```lean
+f : α → β
+h : β
+⊢ goal
+```
+
+whereas `have h := f h` would result in:
+
+```lean
+f : α → β
+h† : α
+h : β
+⊢ goal
+```
+
+This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+-/
+syntax (name := replace) "replace" haveDecl : tactic
 
 /--
 `repeat' tac` runs `tac` on all of the goals to produce a new list of goals,

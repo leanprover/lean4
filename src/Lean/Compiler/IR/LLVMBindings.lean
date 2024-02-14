@@ -182,6 +182,18 @@ opaque createBuilderInContext (ctx : Context) : BaseIO (Builder ctx)
 @[extern "lean_llvm_append_basic_block_in_context"]
 opaque appendBasicBlockInContext (ctx : Context) (fn :  Value ctx) (name :  @&String) : BaseIO (BasicBlock ctx)
 
+@[extern "lean_llvm_count_basic_blocks"]
+opaque countBasicBlocks (fn : Value ctx) : BaseIO UInt64
+
+@[extern "lean_llvm_get_entry_basic_block"]
+opaque getEntryBasicBlock (fn : Value ctx) : BaseIO (BasicBlock ctx)
+
+@[extern "lean_llvm_get_first_instruction"]
+opaque getFirstInstruction (bb : BasicBlock ctx) : BaseIO (Option (Value ctx))
+
+@[extern "lean_llvm_position_builder_before"]
+opaque positionBuilderBefore (builder : Builder ctx) (instr : Value ctx) : BaseIO Unit
+
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder : Builder ctx) (bb :  BasicBlock ctx) : BaseIO Unit
 

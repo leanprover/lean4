@@ -9,7 +9,7 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
-unsafe def evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α := do
+unsafe def evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α := withoutModifyingEnv do
   let v ← elabTermEnsuringType value type
   synthesizeSyntheticMVarsNoPostponing
   let v ← instantiateMVars v

@@ -704,6 +704,24 @@ unsafe def elabEvalUnsafe : CommandElab
 @[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
 opaque elabEval : CommandElab
 
+@[builtin_command_elab runCmd]
+def elabRunCmd : CommandElab
+  | `(run_cmd $elems:doSeq) => do
+    ← liftTermElabM <| Term.withDeclName `_run_cmd <|
+      unsafe Term.evalTerm (CommandElabM Unit)
+        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+        (← `(discard do $elems))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runElab]
+def elabRunElab : CommandElab
+  | `(run_elab $elems:doSeq) => do
+    ← liftTermElabM <| Term.withDeclName `_run_elab <|
+      unsafe Term.evalTerm (CommandElabM Unit)
+        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+        (← `(Command.liftTermElabM <| discard do $elems))
+  | _ => throwUnsupportedSyntax
+
 @[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
   withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_synth_cmd do

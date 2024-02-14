@@ -941,6 +941,9 @@ syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 syntax "and_intros" : tactic
 macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
 
+/-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
+syntax (name := runTac) "run_tac " doSeq : tactic
+
 end Tactic
 
 namespace Attr

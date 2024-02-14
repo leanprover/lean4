@@ -7,8 +7,9 @@ import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
 import Lean.Meta.Closure
 import Lean.Meta.MatchUtil
-import Lean.Elab.SyntheticMVars
 import Lean.Compiler.ImplementedByAttr
+import Lean.Elab.SyntheticMVars
+import Lean.Elab.Eval
 
 namespace Lean.Elab.Term
 open Meta
@@ -427,12 +428,6 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
   let e ← elabTerm stx[1] expectedType?
   return DiscrTree.mkNoindexAnnotation e
 
--- TODO: investigate whether we need this function
-private def mkAuxNameForElabUnsafe (hint : Name) : TermElabM Name :=
-  withFreshMacroScope do
-    let name := (← getDeclName?).getD Name.anonymous ++ hint
-    return addMacroScope (← getMainModule) name (← getCurrMacroScope)
-
 @[builtin_term_elab «unsafe»]
 def elabUnsafe : TermElab := fun stx expectedType? =>
   match stx with
@@ -443,7 +438,7 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
-    let implName ← mkAuxNameForElabUnsafe `impl
+    let implName ← mkAuxName `unsafe_impl
     addDecl <| Declaration.defnDecl {
       name        := implName
       type        := unsafeDefn.type
@@ -454,6 +449,22 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     }
     setImplementedBy implName unsafeFn
     return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs
+  | _ => throwUnsupportedSyntax
+
+/-- Elaborator for `by_elab`. -/
+@[builtin_term_elab byElab] def elabRunElab : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(by_elab $cmds:doSeq) => do
+    if let `(Lean.Parser.Term.doSeq| $e:term) := cmds then
+      if e matches `(Lean.Parser.Term.doSeq| fun $[$_args]* => $_) then
+        let tac ← unsafe evalTerm
+          (Option Expr → TermElabM Expr)
+          (Lean.mkForall `x .default
+            (mkApp (Lean.mkConst ``Option) (Lean.mkConst ``Expr))
+            (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))) e
+        return ← tac expectedType?
+    (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
+      (← `(do $cmds)))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

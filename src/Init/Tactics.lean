@@ -941,6 +941,12 @@ syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 syntax "and_intros" : tactic
 macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
 
+/--
+`subst_eq` repeatedly substitutes according to the equality proof hypotheses in the context,
+replacing the left side of the equality with the right, until no more progress can be made.
+-/
+syntax (name := substEqs) "subst_eqs" : tactic
+
 /-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
 syntax (name := runTac) "run_tac " doSeq : tactic
 

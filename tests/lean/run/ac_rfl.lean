@@ -34,12 +34,6 @@ theorem le_of_not_le {a b : Nat} (h : ¬ a ≤ b) : b ≤ a :=
   · exact Iff.intro .inr fun | .inl xy => Nat.le_trans ‹_› ‹_› | .inr xz => ‹_›
   · exact Iff.intro .inl fun | .inl xy => ‹_› | .inr xz => Nat.le_trans ‹_› (le_of_not_le ‹_›)
 
-theorem or_assoc : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := by
-  by_cases p <;> by_cases q <;> by_cases r <;> simp_all
-
-theorem or_comm : p ∨ q ↔ q ∨ p := by
-  by_cases p <;> by_cases q <;> simp_all
-
 theorem max_assoc (n m k : Nat) : max (max n m) k = max n (max m k) :=
   le_ext (by simp [or_assoc])
 

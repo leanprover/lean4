@@ -798,7 +798,7 @@ Delaborates an application of a projection function, for example `Prod.fst p` as
 Collapses intermediate parent projections, so for example rather than `o.toB.toA.x` it produces `o.x`.
 
 Does not delaborate projection functions from classes, since the instance parameter is implicit;
-we would rather see `default` rather than `instInhabitedNat.default`.
+we would rather see `default` than `instInhabitedNat.default`.
 -/
 @[builtin_delab app]
 partial def delabProjectionApp : Delab := whenPPOption getPPStructureProjections do
@@ -810,13 +810,13 @@ where
   /--
   If this is a projection that could delaborate using dot notation,
   returns the field name, the arity of the projector, and whether this is a parent projection.
-  If it is not, then it fails.
+  Otherwise it fails.
   -/
   projInfo : DelabM (Name × Nat × Bool) := do
     let .app fn _ ← getExpr | failure
     let .const c@(.str _ field) _ := fn.getAppFn | failure
     let env ← getEnv
-    let some info ← pure $ env.getProjectionFnInfo? c | failure
+    let some info := env.getProjectionFnInfo? c | failure
     -- Don't delaborate for classes since the instance parameter is implicit.
     guard <| !info.fromClass
     -- If pp.explicit is true, and the structure has parameters, we should not

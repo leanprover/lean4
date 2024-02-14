@@ -46,3 +46,48 @@ set_option pp.structureProjections false
 #check c.z
 
 end
+
+structure Fin' extends Fin 5
+
+structure Fin'' (n : Nat) extends Fin n
+
+structure D (n : Nat) extends A
+
+variable (x : Fin 5) (y : Fin') (z : Fin'' 5) (d : D 5)
+
+section
+/-!
+Checking handling of parameters.
+-/
+
+#check x.val
+#check y.val
+#check z.val
+#check d.x
+
+end
+
+section
+/-!
+Check handling of parameters when `pp.explicit` is true.
+-/
+set_option pp.explicit true
+
+#check c.x
+#check x.val
+#check y.val
+#check z.val
+#check d.x
+
+end
+
+structure Fn (α β : Type) where
+  toFun : α → β
+
+variable (f : Fn Nat Int)
+
+/-!
+Check overapplication.
+-/
+
+#check f.toFun 0

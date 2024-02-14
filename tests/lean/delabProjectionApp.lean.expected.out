@@ -10,3 +10,13 @@ A.x (B.toA (C.toB c)) : Nat
 B.y b : Nat
 B.y (C.toB c) : Nat
 C.z c : Nat
+x.val : Nat
+y.val : Nat
+z.val : Nat
+d.x : Nat
+c.x : Nat
+@Fin.val 5 x : Nat
+@Fin.val 5 y.toFin : Nat
+@Fin.val 5 (@Fin''.toFin 5 z) : Nat
+(@D.toA 5 d).x : Nat
+f.toFun 0 : Int

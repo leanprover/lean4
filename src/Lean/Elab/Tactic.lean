@@ -27,3 +27,4 @@ import Lean.Elab.Tactic.Guard
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.Change
+import Lean.Elab.Tactic.HaveI

@@ -11,3 +11,4 @@ import Init.Data.Array.InsertionSort
 import Init.Data.Array.DecidableEq
 import Init.Data.Array.Mem
 import Init.Data.Array.BasicAux
+import Init.Data.Array.Lemmas

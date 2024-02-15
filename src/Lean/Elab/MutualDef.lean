@@ -214,7 +214,7 @@ private def expandWhereStructInst : Macro
         `(structInstField|$id:ident := $val)
       | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
       | _ => Macro.throwUnsupported
-    let body ← `({ $structInstFields,* })
+    let body ← `(structInst| { $structInstFields,* })
     match whereDecls? with
     | some whereDecls => expandWhereDecls whereDecls body
     | none => return body

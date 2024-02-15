@@ -460,3 +460,9 @@ macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))
 
 end Lean
+
+syntax "{" term,+ "}" : term
+
+macro_rules
+  | `({$x:term}) => `(singleton $x)
+  | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})

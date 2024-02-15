@@ -59,12 +59,6 @@ theorem and_iff_right (ha : a) : a ∧ b ↔ b := Iff.intro And.right (And.intro
 theorem or_self_iff : a ∨ a ↔ a := or_self _ ▸ .rfl
 theorem not_or_intro {a b : Prop} (ha : ¬a) (hb : ¬b) : ¬(a ∨ b) := (·.elim ha hb)
 
-theorem Or.resolve_left  (h: a ∨ b) (na : ¬a) : b := h.elim (absurd · na) id
-theorem Or.resolve_right (h: a ∨ b) (nb : ¬b) : a := h.elim id (absurd · nb)
-
-theorem Or.neg_resolve_left  (h : ¬a ∨ b) (ha : a) : b := h.elim (absurd ha) id
-theorem Or.neg_resolve_right (h : a ∨ ¬b) (nb : b) : a := h.elim id (absurd nb)
-
 theorem or_congr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) := ⟨.imp h₁.mp h₂.mp, .imp h₁.mpr h₂.mpr⟩
 theorem or_congr_left (h : a ↔ b) : a ∨ c ↔ b ∨ c := or_congr h .rfl
 theorem or_congr_right (h : b ↔ c) : a ∨ b ↔ a ∨ c := or_congr .rfl h

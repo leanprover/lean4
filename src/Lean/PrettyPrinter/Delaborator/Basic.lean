@@ -269,11 +269,22 @@ def shouldOmitExpr (e : Expr) : DelabM Bool := do
 
   return depthExcess > 0 && !isShallowExpression
 
+/--
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression.
+-/
 def annotateTermInfo (stx : Term) : Delab := do
   let stx ← annotateCurPos stx
   addTermInfo (← getPos) stx (← getExpr)
   pure stx
 
+/--
+Modifies the delaborator so that it annotates the resulting term with the current expression
+position and registers `TermInfo` to associate the term to the current expression.
+-/
+def withAnnotateTermInfo (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfo stx
 
 /--
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Linear
-// Imports: Init.Coe Init.Classical Init.SimpLemmas Init.Data.Nat.Basic Init.Data.List.Basic Init.Data.Prod
+// Imports: Init.Coe Init.ByCases Init.Data.Nat.Basic Init.Data.List.Basic Init.Data.Prod
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4016,8 +4016,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Coe(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_ByCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Prod(uint8_t builtin, lean_object*);
@@ -4029,10 +4028,7 @@ _G_initialized = true;
 res = initialize_Init_Coe(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Classical(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
+res = initialize_Init_ByCases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());

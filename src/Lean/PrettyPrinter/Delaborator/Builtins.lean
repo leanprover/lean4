@@ -793,23 +793,50 @@ def delabProj : Delab := do
   let idx := Syntax.mkLit fieldIdxKind (toString (idx + 1));
   `($(e).$idx:fieldIdx)
 
-/-- Delaborate a call to a projection function such as `Prod.fst`. -/
+/--
+Delaborates an application of a projection function, for example `Prod.fst p` as `p.fst`.
+Collapses intermediate parent projections, so for example rather than `o.toB.toA.x` it produces `o.x`.
+
+Does not delaborate projection functions from classes, since the instance parameter is implicit;
+we would rather see `default` than `instInhabitedNat.default`.
+-/
 @[builtin_delab app]
-def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
-  let Expr.app fn _ ← getExpr | failure
-  let .const c@(.str _ f) _ ← pure fn.getAppFn | failure
-  let env ← getEnv
-  let some info ← pure $ env.getProjectionFnInfo? c | failure
-  -- can't use with classes since the instance parameter is implicit
-  guard $ !info.fromClass
-  -- If pp.explicit is true, and the structure has parameters, we should not
-  -- use field notation because we will not be able to see the parameters.
-  let expl ← getPPOption getPPExplicit
-  guard $ !expl || info.numParams == 0
-  -- projection function should be fully applied (#struct params + 1 instance parameter)
-  withOverApp (info.numParams + 1) do
-    let appStx ← withAppArg delab
-    `($(appStx).$(mkIdent f):ident)
+partial def delabProjectionApp : Delab := whenPPOption getPPStructureProjections do
+  let (field, arity, _) ← projInfo
+  withOverApp arity do
+    let stx ← withAppArg <| withoutParentProjections delab
+    `($(stx).$(mkIdent field):ident)
+where
+  /--
+  If this is a projection that could delaborate using dot notation,
+  returns the field name, the arity of the projector, and whether this is a parent projection.
+  Otherwise it fails.
+  -/
+  projInfo : DelabM (Name × Nat × Bool) := do
+    let .app fn _ ← getExpr | failure
+    let .const c@(.str _ field) _ := fn.getAppFn | failure
+    let env ← getEnv
+    let some info := env.getProjectionFnInfo? c | failure
+    -- Don't delaborate for classes since the instance parameter is implicit.
+    guard <| !info.fromClass
+    -- If pp.explicit is true, and the structure has parameters, we should not
+    -- use field notation because we will not be able to see the parameters.
+    guard <| !(← getPPOption getPPExplicit) || info.numParams == 0
+    let arity := info.numParams + 1
+    let some (.ctorInfo cVal) := env.find? info.ctorName | failure
+    let isParentProj := (isSubobjectField? env cVal.induct field).isSome
+    return (field, arity, isParentProj)
+  /--
+  Consumes projections to parent structures.
+  For example, if the current expression is `o.toB.toA`, runs `d` with `o` as the current expression.
+  -/
+  withoutParentProjections {α} (d : DelabM α) : DelabM α :=
+    (do
+      let (_, arity, isParentProj) ← projInfo
+      guard isParentProj
+      guard <| (← getExpr).getAppNumArgs == arity
+      withAppArg <| withoutParentProjections d)
+    <|> d
 
 /--
 This delaborator tries to elide functions which are known coercions.

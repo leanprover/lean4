@@ -528,5 +528,4 @@ except that it doesn't print an empty diagnostic.
 
 (This is effectively a synonym for `run_elab`.)
 -/
-macro (name := runMeta) "run_meta " elems:doSeq : command =>
-  `(command| run_elab (show MetaM Unit from do $elems))
+syntax (name := runMeta) "run_meta " doSeq : command

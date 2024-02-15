@@ -8,6 +8,7 @@ import Init.Data.List.BasicAux
 import Init.Data.List.Control
 import Init.PropLemmas
 import Init.Control.Lawful
+import Init.Hints
 
 namespace List
 
@@ -67,11 +68,7 @@ theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
-  cases l
-  · simp only [List.not_mem_nil, not_false_eq_true, implies_true]
-  · simp only [List.mem_cons]
-    change False ↔ ∀ a : α, _ → False -- forall_eq_or_imp is not firing unless we unfold the not
-    simp only [forall_eq_or_imp, false_and]
+  cases l <;> simp
 
 /-! ### append -/
 

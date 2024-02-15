@@ -55,4 +55,28 @@ binder_predicate x " ≤ " y:term => `($x ≤ $y)
 /-- Declare `∃ x ≠ y, ...` as syntax for `∃ x, x ≠ y ∧ ...` -/
 binder_predicate x " ≠ " y:term => `($x ≠ $y)
 
+/-- Declare `∀ x ∈ y, ...` as syntax for `∀ x, x ∈ y → ...` and `∃ x ∈ y, ...` as syntax for
+`∃ x, x ∈ y ∧ ...` -/
+binder_predicate x " ∈ " y:term => `($x ∈ $y)
+
+/-- Declare `∀ x ∉ y, ...` as syntax for `∀ x, x ∉ y → ...` and `∃ x ∉ y, ...` as syntax for
+`∃ x, x ∉ y ∧ ...` -/
+binder_predicate x " ∉ " y:term => `($x ∉ $y)
+
+/-- Declare `∀ x ⊆ y, ...` as syntax for `∀ x, x ⊆ y → ...` and `∃ x ⊆ y, ...` as syntax for
+`∃ x, x ⊆ y ∧ ...` -/
+binder_predicate x " ⊆ " y:term => `($x ⊆ $y)
+
+/-- Declare `∀ x ⊂ y, ...` as syntax for `∀ x, x ⊂ y → ...` and `∃ x ⊂ y, ...` as syntax for
+`∃ x, x ⊂ y ∧ ...` -/
+binder_predicate x " ⊂ " y:term => `($x ⊂ $y)
+
+/-- Declare `∀ x ⊇ y, ...` as syntax for `∀ x, x ⊇ y → ...` and `∃ x ⊇ y, ...` as syntax for
+`∃ x, x ⊇ y ∧ ...` -/
+binder_predicate x " ⊇ " y:term => `($x ⊇ $y)
+
+/-- Declare `∀ x ⊃ y, ...` as syntax for `∀ x, x ⊃ y → ...` and `∃ x ⊃ y, ...` as syntax for
+`∃ x, x ⊃ y ∧ ...` -/
+binder_predicate x " ⊃ " y:term => `($x ⊃ $y)
+
 end Lean

@@ -10,6 +10,7 @@ import Lean.Meta.MatchUtil
 import Lean.Compiler.ImplementedByAttr
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Eval
+import Lean.Elab.Binders
 
 namespace Lean.Elab.Term
 open Meta
@@ -465,6 +466,30 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
         return ← tac expectedType?
     (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
       (← `(do $cmds)))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.haveI] def elabHaveI : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(haveI $x:ident $bs* : $ty := $val; $body) =>
+    withExpectedType expectedType? fun expectedType => do
+      let (ty, val) ← elabBinders bs fun bs => do
+        let ty ← elabType ty
+        let val ← elabTermEnsuringType val ty
+        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
+      withLocalDeclD x.getId ty fun x => do
+        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(letI $x:ident $bs* : $ty := $val; $body) =>
+    withExpectedType expectedType? fun expectedType => do
+      let (ty, val) ← elabBinders bs fun bs => do
+        let ty ← elabType ty
+        let val ← elabTermEnsuringType val ty
+        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
+      withLetDecl x.getId ty val fun x => do
+        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

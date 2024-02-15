@@ -944,6 +944,12 @@ macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
 /-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
 syntax (name := runTac) "run_tac " doSeq : tactic
 
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+
 end Tactic
 
 namespace Attr

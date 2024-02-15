@@ -418,8 +418,8 @@ theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
     · exact or_congr_left (and_iff_left_of_imp fun | rfl => h).symm
     · exact (or_iff_right fun ⟨rfl, h'⟩ => h h').symm
 
--- theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
---   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
+theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
+  simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
 
 /-! ### findSome? -/
 

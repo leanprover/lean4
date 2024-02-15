@@ -331,7 +331,11 @@ With this combinator one can use an arity-2 delaborator to pretty print this as 
   The combinator will fail if fewer than this number of arguments are passed,
   and if more than this number of arguments are passed the arguments are handled using
   the standard application delaborator.
-* `x`: constructs data corresponding to the main application (`f x` in the example)
+* `x`: constructs data corresponding to the main application (`f x` in the example).
+
+In the event of overapplication, the delaborator `x` is wrapped in
+`Lean.PrettyPrinter.Delaborator.withAnnotateTermInfo` to register `TermInfo` for the resulting term.
+The effect of this is that the term is hoverable in the Infoview.
 -/
 def withOverApp (arity : Nat) (x : Delab) : Delab := do
   let n := (← getExpr).getAppNumArgs
@@ -339,7 +343,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   if n == arity then
     x
   else
-    delabAppCore (n - arity) x
+    delabAppCore (n - arity) (withAnnotateTermInfo x)
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

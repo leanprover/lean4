@@ -70,8 +70,57 @@ theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := b
   cases l
   · simp only [List.not_mem_nil, not_false_eq_true, implies_true]
   · simp only [List.mem_cons]
+
+    -- set_option trace.Meta.Tactic.simp true in simp only [forall_eq_or_imp]
+    -- Fails with
+    -- ```
+    -- [Meta.Tactic.simp.unify] @eq_self:1000, failed to unify
+    --   ?a = ?a
+    -- with
+    --   a = head✝
+
+    -- [Meta.Tactic.simp.unify] @forall_eq_or_imp:1000, failed to unify
+    --   ∀ (a : ?α), a = ?a' ∨ ?q a → ?p a
+    -- with
+    --   ∀ (a : α), ¬(a = head✝ ∨ a ∈ tail✝)
+
+    -- [Meta.Tactic.simp.unify] iff_self:1000, failed to unify
+    --   ?p ↔ ?p
+    -- with
+    --   False ↔ ∀ (a : α), ¬(a = head✝ ∨ a ∈ tail✝)
+    -- ```
+    -- whereas back in Std this was succeeding with:
+    -- ```
+    -- [Meta.Tactic.simp.unify] @eq_self:1000, failed to unify
+    --   ?a = ?a
+    -- with
+    --   a = head✝
+
+    -- [Meta.Tactic.simp.rewrite] @forall_eq_or_imp:1000, ∀ (a : α), ¬(a = head✝ ∨ a ∈ tail✝) ==> False ∧ ∀ (a : α), a ∈ tail✝ → False
+
+    -- [Meta.Tactic.simp.unify] @forall_eq_or_imp:1000, failed to unify
+    --   ∀ (a : ?α), a = ?a' ∨ ?q a → ?p a
+    -- with
+    --   a ∈ tail✝ → False
+
+    -- [Meta.Tactic.simp.unify] @forall_eq_or_imp:1000, failed to unify
+    --   ∀ (a : ?α), a = ?a' ∨ ?q a → ?p a
+    -- with
+    --   ∀ (a : α), a ∈ tail✝ → False
+
+    -- [Meta.Tactic.simp.unify] iff_self:1000, failed to unify
+    --   ?p ↔ ?p
+    -- with
+    --   False ↔ False ∧ ∀ (a : α), a ∈ tail✝ → False
+
+    -- [Meta.Tactic.simp.unify] iff_self:1000, failed to unify
+    --   ?p ↔ ?p
+    -- with
+    --   False ↔ False ∧ ∀ (a : α), a ∈ tail✝ → False
+    -- ```
     change False ↔ ∀ a : α, _ → False -- forall_eq_or_imp is not firing unless we unfold the not
-    simp only [forall_eq_or_imp, false_and]
+    simp only [forall_eq_or_imp]
+    simp only [false_and]
 
 /-! ### append -/
 

@@ -4,29 +4,30 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Gabriel Ebner
 -/
 prelude
-import Init.Data.Int.Basic
+import Init.Coe
 
 /-!
-# `NatCast` and `IntCast`
+# `NatCast`
 
-We introduce the typeclass `NatCast R` for a type `R` with a "canonical homomorphism" `Nat → R`.
-The typeclass carries the data of the function, but no required axioms.
+We introduce the typeclass `NatCast R` for a type `R` with a "canonical
+homomorphism" `Nat → R`. The typeclass carries the data of the function,
+but no required axioms.
 
-This typeclass was introduced to support a uniform `simp` normal form for such morphisms.
+This typeclass was introduced to support a uniform `simp` normal form
+for such morphisms.
 
-Without such a typeclass, we would have coercions such as `Int.ofNat`,
-but also later in Mathlib the generic coercion from `Nat` into any semiring (including `Int`),
-and we would need to use `simp` to move between them.
-However `simp` lemmas expressed using a non-normal form on the LHS would then not fire.
+Without such a typeclass, we would have specific coercions such as
+`Int.ofNat`, but also later the generic coercion from `Nat` into any
+Mathlib semiring (including `Int`), and we would need to use `simp` to
+move between them. However `simp` lemmas expressed using a non-normal
+form on the LHS would then not fire.
 
-In order to avoid this, we introduce this typeclass as early as possible,
-ensure it is a higher priority coercion that built-in coercions such as `Int.ofNat`,
-and write all of our simp lemmas in terms of it.
+Typically different instances of this class for the same target type `R`
+are definitionally equal, and so differences in the instance do not
+block `simp` or `rw`.
 
-Typically different instances of this class for the same target type `R` are definitionally equal,
-and so differences in the instance do not block `simp` or `rw`.
-
-The same discussion applied to `Int`, so we also introduce `IntCast`.
+This logic also applies to `Int` and so we also introduce `IntCast` alongside
+`Int.
 
 ## Note about coercions into arbitrary types:
 
@@ -38,11 +39,9 @@ instance : CoeHTCT Nat R where coe := ...
 ```
 
 It needs to be `CoeTail` instead of `Coe` because otherwise type-class
-inference would loop when constructing the transitive coercion `Nat → Nat → Nat → ...`.
-Sometimes we also need to declare the `CoeHTCT` instance
-if we need to shadow another coercion
-(e.g. `Nat.cast` should be used over `Int.ofNat`).
-
+inference would loop when constructing the transitive coercion `Nat →
+Nat → Nat → ...`. Sometimes we also need to declare the `CoeHTCT`
+instance if we need to shadow another coercion.
 -/
 
 /-- Type class for the canonical homomorphism `Nat → R`. -/
@@ -51,7 +50,6 @@ class NatCast (R : Type u) where
   protected natCast : Nat → R
 
 instance : NatCast Nat where natCast n := n
-instance : NatCast Int where natCast n := Int.ofNat n
 
 /--
 Canonical homomorphism from `Nat` to a type `R`.
@@ -72,30 +70,3 @@ instance [NatCast R] : CoeTail Nat R where coe := Nat.cast
 
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [NatCast R] : CoeHTCT Nat R where coe := Nat.cast
-
-/-- This instance is needed to ensure that `instCoeNatInt` is not used. -/
-instance : Coe Nat Int where coe := Nat.cast
-
-/--
-The canonical homomorphism `Int → R`.
-In most use cases `R` will have a ring structure and this will be a ring homomorphism.
--/
-class IntCast (R : Type u) where
-  /-- The canonical map `Int → R`. -/
-  protected intCast : Int → R
-
-instance : IntCast Int where intCast n := n
-
-/--
-Apply the canonical homomorphism from `Int` to a type `R` from an `IntCast R` instance.
-
-In Mathlib there will be such a homomorphism whenever `R` is an additive group with a `1`.
--/
-@[coe, reducible, match_pattern] protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
-  IntCast.intCast
-
--- see the notes about coercions into arbitrary types in the module doc-string
-instance [IntCast R] : CoeTail Int R where coe := Int.cast
-
--- see the notes about coercions into arbitrary types in the module doc-string
-instance [IntCast R] : CoeHTCT Int R where coe := Int.cast

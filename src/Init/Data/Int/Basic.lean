@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import Init.Coe
+import Init.Data.Cast
 import Init.Data.Nat.Div
 import Init.Data.List.Basic
 set_option linter.missingDocs true -- keep it documented
@@ -47,7 +47,7 @@ inductive Int : Type where
 attribute [extern "lean_nat_to_int"] Int.ofNat
 attribute [extern "lean_int_neg_succ_of_nat"] Int.negSucc
 
-instance : Coe Nat Int := ⟨Int.ofNat⟩
+instance : NatCast Int where natCast n := Int.ofNat n
 
 instance instOfNat : OfNat Int n where
   ofNat := Int.ofNat n
@@ -359,3 +359,27 @@ instance : Min Int := minOfLe
 instance : Max Int := maxOfLe
 
 end Int
+
+/--
+The canonical homomorphism `Int → R`.
+In most use cases `R` will have a ring structure and this will be a ring homomorphism.
+-/
+class IntCast (R : Type u) where
+  /-- The canonical map `Int → R`. -/
+  protected intCast : Int → R
+
+instance : IntCast Int where intCast n := n
+
+/--
+Apply the canonical homomorphism from `Int` to a type `R` from an `IntCast R` instance.
+
+In Mathlib there will be such a homomorphism whenever `R` is an additive group with a `1`.
+-/
+@[coe, reducible, match_pattern] protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
+  IntCast.intCast
+
+-- see the notes about coercions into arbitrary types in the module doc-string
+instance [IntCast R] : CoeTail Int R where coe := Int.cast
+
+-- see the notes about coercions into arbitrary types in the module doc-string
+instance [IntCast R] : CoeHTCT Int R where coe := Int.cast

@@ -89,8 +89,6 @@ instance : IntCast Int where intCast n := n
 /--
 Apply the canonical homomorphism from `Int` to a type `R` from an `IntCast R` instance.
 
-The prototypical example is `Int.ofNat`.
-
 In Mathlib there will be such a homomorphism whenever `R` is an additive group with a `1`.
 -/
 @[coe, reducible, match_pattern] protected def Int.cast {R : Type u} [IntCast R] : Int → R :=

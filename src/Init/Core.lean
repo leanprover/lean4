@@ -374,6 +374,70 @@ class HasEquiv (α : Sort u) where
 
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
+/-! # set notation  -/
+
+/-- Notation type class for the subset relation `⊆`. -/
+class HasSubset (α : Type u) where
+  /-- Subset relation: `a ⊆ b`  -/
+  Subset : α → α → Prop
+export HasSubset (Subset)
+
+/-- Notation type class for the strict subset relation `⊂`. -/
+class HasSSubset (α : Type u) where
+  /-- Strict subset relation: `a ⊂ b`  -/
+  SSubset : α → α → Prop
+export HasSSubset (SSubset)
+
+/-- Superset relation: `a ⊇ b`  -/
+abbrev Superset [HasSubset α] (a b : α) := Subset b a
+
+/-- Strict superset relation: `a ⊃ b`  -/
+abbrev SSuperset [HasSSubset α] (a b : α) := SSubset b a
+
+/-- Notation type class for the union operation `∪`. -/
+class Union (α : Type u) where
+  /-- `a ∪ b` is the union of`a` and `b`. -/
+  union : α → α → α
+
+/-- Notation type class for the intersection operation `∩`. -/
+class Inter (α : Type u) where
+  /-- `a ∩ b` is the intersection of`a` and `b`. -/
+  inter : α → α → α
+
+/-- Notation type class for the set difference `\`. -/
+class SDiff (α : Type u) where
+  /--
+  `a \ b` is the set difference of `a` and `b`,
+  consisting of all elements in `a` that are not in `b`.
+  -/
+  sdiff : α → α → α
+
+/-- Subset relation: `a ⊆ b`  -/
+infix:50 " ⊆ " => Subset
+
+/-- Strict subset relation: `a ⊂ b`  -/
+infix:50 " ⊂ " => SSubset
+
+/-- Superset relation: `a ⊇ b`  -/
+infix:50 " ⊇ " => Superset
+
+/-- Strict superset relation: `a ⊃ b`  -/
+infix:50 " ⊃ " => SSuperset
+
+/-- `a ∪ b` is the union of`a` and `b`. -/
+infixl:65 " ∪ " => Union.union
+
+/-- `a ∩ b` is the intersection of`a` and `b`. -/
+infixl:70 " ∩ " => Inter.inter
+
+/--
+`a \ b` is the set difference of `a` and `b`,
+consisting of all elements in `a` that are not in `b`.
+-/
+infix:70 " \\ " => SDiff.sdiff
+
+/-! # collections  -/
+
 /-- `EmptyCollection α` is the typeclass which supports the notation `∅`, also written as `{}`. -/
 class EmptyCollection (α : Type u) where
   /-- `∅` or `{}` is the empty set or empty collection.
@@ -382,6 +446,36 @@ class EmptyCollection (α : Type u) where
 
 @[inherit_doc] notation "{" "}" => EmptyCollection.emptyCollection
 @[inherit_doc] notation "∅"     => EmptyCollection.emptyCollection
+
+/--
+Type class for the `insert` operation.
+Used to implement the `{ a, b, c }` syntax.
+-/
+class Insert (α : outParam <| Type u) (γ : Type v) where
+  /-- `insert x xs` inserts the element `x` into the collection `xs`. -/
+  insert : α → γ → γ
+export Insert (insert)
+
+/--
+Type class for the `singleton` operation.
+Used to implement the `{ a, b, c }` syntax.
+-/
+class Singleton (α : outParam <| Type u) (β : Type v) where
+  /-- `singleton x` is a collection with the single element `x` (notation: `{x}`). -/
+  singleton : α → β
+export Singleton (singleton)
+
+/-- `insert x ∅ = {x}` -/
+class IsLawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
+    Prop where
+  /-- `insert x ∅ = {x}` -/
+  insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
+export IsLawfulSingleton (insert_emptyc_eq)
+
+/-- Type class used to implement the notation `{ a ∈ c | p a }` -/
+class Sep (α : outParam <| Type u) (γ : Type v) where
+  /-- Computes `{ a ∈ c | p a }`. -/
+  sep : (α → Prop) → γ → γ
 
 /--
 `Task α` is a primitive for asynchronous computation.

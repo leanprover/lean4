@@ -17,8 +17,15 @@ instance : Add Rat where
     pos := sorry
   }
 
-instance : Coe Int Rat where
-  coe n := {
+instance : NatCast Rat where
+  natCast n := {
+    num := n
+    den := 1
+    pos := by decide
+  }
+
+instance : IntCast Rat where
+  intCast n := {
     num := n
     den := 1
     pos := by decide

@@ -8,8 +8,11 @@ inductive Val where
 instance : Coe Bool Val where
   coe b := .bool b
 
-instance : Coe Int Val where
-  coe i := .int i
+instance : NatCast Val where
+  natCast i := .int i
+
+instance : IntCast Val where
+  intCast i := .int i
 
 instance : OfNat Val n where
   ofNat := .int n

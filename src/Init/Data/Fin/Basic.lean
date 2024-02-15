@@ -106,6 +106,8 @@ instance instOfNat : OfNat (Fin (no_index (n+1))) i where
 instance : Inhabited (Fin (no_index (n+1))) where
   default := 0
 
+@[simp] theorem zero_eta : (⟨0, Nat.zero_lt_succ _⟩ : Fin (n + 1)) = 0 := rfl
+
 theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 

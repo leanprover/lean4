@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic
-// Imports: Init Lean.Elab.Term Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Induction Lean.Elab.Tactic.Generalize Lean.Elab.Tactic.Injection Lean.Elab.Tactic.Match Lean.Elab.Tactic.Rewrite Lean.Elab.Tactic.Location Lean.Elab.Tactic.Simp Lean.Elab.Tactic.Simproc Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Tactic.Split Lean.Elab.Tactic.Conv Lean.Elab.Tactic.Delta Lean.Elab.Tactic.Meta Lean.Elab.Tactic.Unfold Lean.Elab.Tactic.Cache Lean.Elab.Tactic.Calc Lean.Elab.Tactic.Congr Lean.Elab.Tactic.Guard Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.Change Lean.Elab.Tactic.HaveI
+// Imports: Init Lean.Elab.Term Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Induction Lean.Elab.Tactic.Generalize Lean.Elab.Tactic.Injection Lean.Elab.Tactic.Match Lean.Elab.Tactic.Rewrite Lean.Elab.Tactic.Location Lean.Elab.Tactic.Simp Lean.Elab.Tactic.Simproc Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Tactic.Split Lean.Elab.Tactic.Conv Lean.Elab.Tactic.Delta Lean.Elab.Tactic.Meta Lean.Elab.Tactic.Unfold Lean.Elab.Tactic.Cache Lean.Elab.Tactic.Calc Lean.Elab.Tactic.Congr Lean.Elab.Tactic.Guard Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.Ext Lean.Elab.Tactic.Change
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,8 +37,8 @@ lean_object* initialize_Lean_Elab_Tactic_Congr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Guard(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_RCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Repeat(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_Ext(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Change(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Tactic_HaveI(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -116,10 +116,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Repeat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Change(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_HaveI(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_Tactic_Change(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

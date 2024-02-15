@@ -865,6 +865,12 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
     throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
 
+def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType?
+    | throwError "expected type must be known"
+  x expectedType
+
 /--
   Save relevant context for term elaboration postponement.
 -/

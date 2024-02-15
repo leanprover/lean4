@@ -1,3 +1,5 @@
+namespace Test
+
 abbrev Set (α : Type) := α → Prop
 axiom setOf {α : Type} : (α → Prop) → Set α
 axiom mem {α : Type} : α → Set α → Prop
@@ -43,3 +45,5 @@ macro_rules
 | `(#check2 $e) => `(#check $e #check $e)
 
 #check2 1
+
+end Test

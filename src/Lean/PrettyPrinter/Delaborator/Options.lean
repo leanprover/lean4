@@ -118,12 +118,17 @@ register_builtin_option pp.tagAppFns : Bool := {
 register_builtin_option pp.proofs : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "(pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder"
+  descr    := "(pretty printer) display proofs when true, and replace proofs appearing within expressions by `⋯` when false"
 }
 register_builtin_option pp.proofs.withType : Bool := {
   defValue := true
   group    := "pp"
-  descr    := "(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"
+  descr    := "(pretty printer) when `pp.proofs` is false, adds a type ascription to the omitted proof"
+}
+register_builtin_option pp.proofs.threshold : Nat := {
+  defValue := 0
+  group    := "pp"
+  descr    := "(pretty printer) when `pp.proofs` is false, controls the complexity of proofs at which they begin being replaced with `⋯`"
 }
 register_builtin_option pp.instances : Bool := {
   defValue := true
@@ -220,14 +225,15 @@ def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPA
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
-def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
+def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp.proofs.withType.defValue
+def getPPProofsThreshold (o : Options) : Nat := o.get pp.proofs.threshold.name pp.proofs.threshold.defValue
 def getPPMotivesPi (o : Options) : Bool := o.get pp.motives.pi.name pp.motives.pi.defValue
 def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name pp.motives.nonConst.defValue
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
 def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
-def getPPDeepTerms (o : Options) : Bool := o.get pp.deepTerms.name pp.deepTerms.defValue
+def getPPDeepTerms (o : Options) : Bool := o.get pp.deepTerms.name (pp.deepTerms.defValue || getPPAll o)
 def getPPDeepTermsThreshold (o : Options) : Nat := o.get pp.deepTerms.threshold.name pp.deepTerms.threshold.defValue
 
 end Lean

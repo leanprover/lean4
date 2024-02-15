@@ -642,9 +642,7 @@ theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsa
       | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
   · intro ⟨h₁, h₂⟩
     simp [Poly.of_isZero, h₂]
-    have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁)
-    simp [this]
-    done
+    exact Poly.of_isNonZero ctx h₁
 
 theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
   cases c; rename_i eq lhs rhs

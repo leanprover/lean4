@@ -14,7 +14,7 @@ This is useful to declare local instances and proofs in theorem statements
 and subgoals, where the extra binding is inconvenient.
 -/
 
-namespace Std.Tactic
+namespace Lean.Elab.Tactic
 
 /-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
 @[term_parser] def «haveI» := leading_parser
@@ -61,3 +61,5 @@ elab_rules <= expectedType
 macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+
+end Lean.Elab.Tactic

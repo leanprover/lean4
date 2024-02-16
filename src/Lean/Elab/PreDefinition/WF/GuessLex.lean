@@ -175,7 +175,7 @@ where
     | Expr.proj _n _i e => loop param e
     | Expr.const .. => if e.isConstOf recFnName then processRec param e
     | Expr.app .. =>
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some altParams ← matcherApp.refineThrough? param then
           matcherApp.discrs.forM (loop param)

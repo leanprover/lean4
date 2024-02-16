@@ -142,9 +142,11 @@ structure MatcherApp where
 /--
 Recognizes if `e` is a matcher application, and destructs it into the `MatcherApp` data structure.
 
-This also treats `casesOn` recursor applications as a special case of matcher applications.
+This can optionally also treat `casesOn` recursor applications as a special case
+of matcher applications.
 -/
-def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) : m (Option MatcherApp) := do
+def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (alsoCasesOn := false) :
+    m (Option MatcherApp) := do
   if let .const declName declLevels := e.getAppFn then
     if let some info ← getMatcherInfo? declName then
       let args := e.getAppArgs
@@ -163,7 +165,7 @@ def matchMatcherApp? [Monad m] [MonadEnv m] [MonadError m] (e : Expr) : m (Optio
         remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
       }
 
-    if isCasesOnRecursor (← getEnv) declName then
+    if alsoCasesOn && isCasesOnRecursor (← getEnv) declName then
       let indName := declName.getPrefix
       let .inductInfo info ← getConstInfo indName | return none
       let args := e.getAppArgs

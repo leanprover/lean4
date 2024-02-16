@@ -76,7 +76,7 @@ where
     | Expr.proj n i e => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>

@@ -11,10 +11,16 @@ open Lean
 namespace Int
 
   def roundedDiv (a b : Int) : Int := Id.run <| do
+    if b = 0 then
+      return 0
     let mut div := a / b
-    let rest := a % b
-    if 2*rest.natAbs ≥ b.natAbs then
-      div := div + 1
+    let rest := a / b
+    if a ≥ 0 then
+      if 2*rest.natAbs ≥ b.natAbs then
+        div := div + (if b ≥ 0 then 1 else -1)
+    else
+      if 2*rest.natAbs ≥ b.natAbs + 1 then
+        div := div - (if b < 0 then 1 else -1)
     return div
 
   def mod' (a b : Int) : Int :=

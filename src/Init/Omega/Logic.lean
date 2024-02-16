@@ -14,7 +14,7 @@ so are hidden in the `Std.Tactic.Omega` namespace.
 If you find yourself needing them elsewhere, please move them first to another file.
 -/
 
-namespace Lean.Elab.Tactic.Omega
+namespace Lean.Omega
 
 theorem and_not_not_of_not_or (h : ¬ (p ∨ q)) : ¬ p ∧ ¬ q := not_or.mp h
 
@@ -47,4 +47,4 @@ theorem ite_disjunction {α : Type u} {P : Prop} [Decidable P] {a b : α} :
   else
     .inr ⟨h, if_neg h⟩
 
-end Lean.Elab.Tactic.Omega
+end Lean.Omega

@@ -13,7 +13,7 @@ namespace Lean.Elab.Tactic.Omega
 initialize Lean.registerTraceClass `omega
 
 open Lean (Expr)
-open Lean.Meta
+open Lean Meta Omega
 
 open Lean in
 instance : ToExpr LinearCombo where

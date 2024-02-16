@@ -26,7 +26,7 @@ For small problems, the sparse representation is actually slightly slower,
 so it is not urgent to make this replacement.
 -/
 
-namespace Lean.Elab.Tactic.Omega
+namespace Lean.Omega
 
 /-- Type synonym for `IntList := List Int`. -/
 abbrev Coeffs := IntList
@@ -109,4 +109,4 @@ theorem dot_neg_left (xs ys : IntList) : dot (-xs) ys = -dot xs ys :=
 
 end Coeffs
 
-end Lean.Elab.Tactic.Omega
+end Lean.Omega

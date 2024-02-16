@@ -6,6 +6,8 @@ Authors: Scott Morrison
 prelude
 import Init.Data.List.Lemmas
 
+namespace Lean.Omega
+
 /--
 A type synonym for `List Int`, used by `omega` for dense representation of coefficients.
 
@@ -404,3 +406,7 @@ theorem dvd_bmod_dot_sub_dot_bmod (m : Nat) (xs ys : IntList) :
         Int.add_assoc, ← Int.sub_eq_add_neg, ← Int.sub_eq_add_neg, Int.add_emod, ih, Int.add_zero,
         Int.emod_emod, Int.mul_emod, Int.mul_emod (Int.bmod x m), Int.bmod_emod, Int.sub_self,
         Int.zero_emod]
+
+end IntList
+
+end Lean.Omega

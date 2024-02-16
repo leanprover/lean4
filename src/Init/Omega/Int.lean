@@ -15,7 +15,9 @@ but unlikely to be widely useful, so are inside the `Std.Tactic.Omega` namespace
 If you do find a use for them, please move them into the appropriate file and namespace!
 -/
 
-namespace Lean.Elab.Tactic.Omega.Int
+namespace Lean.Omega
+
+namespace Int
 
 theorem ofNat_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
   induction b with
@@ -169,4 +171,4 @@ theorem snd_mk : (Prod.mk x y).snd = y := rfl
 
 end Prod
 
-end Lean.Elab.Tactic.Omega
+end Lean.Omega

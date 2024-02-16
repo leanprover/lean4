@@ -5,7 +5,6 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.Omega.Coeffs
--- import Lean.Util.Trace
 
 /-!
 # Linear combinations
@@ -14,7 +13,7 @@ We use this data structure while processing hypotheses.
 
 -/
 
-namespace Lean.Elab.Tactic.Omega
+namespace Lean.Omega
 
 /-- Internal representation of a linear combination of atoms, and a constant term. -/
 structure LinearCombo where
@@ -173,3 +172,7 @@ theorem mul_eval (l₁ l₂ : LinearCombo) (v : Coeffs) (w : l₁.coeffs.isZero 
   rcases w with w | w
   · rw [mul_eval_of_const_left _ _ _ w]
   · rw [mul_eval_of_const_right _ _ _ w]
+
+end LinearCombo
+
+end Lean.Omega

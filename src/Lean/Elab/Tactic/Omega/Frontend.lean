@@ -6,6 +6,7 @@ Authors: Scott Morrison
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Cases
+import Lean.Elab.Tactic.Config
 
 /-!
 # Frontend to the `omega` tactic.
@@ -16,6 +17,12 @@ See `Lean.Elab.Tactic.Omega` for an overview of the tactic.
 open Lean Meta Omega
 
 namespace Lean.Elab.Tactic.Omega
+
+/--
+Allow elaboration of `OmegaConfig` arguments to tactics.
+-/
+declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
+
 
 /--
 A partially processed `omega` context.

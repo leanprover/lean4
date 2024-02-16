@@ -12,7 +12,7 @@ A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
 
-namespace Lean.Elab.Tactic.Omega
+namespace Lean.Omega
 
 /-- An optional lower bound on a integer. -/
 abbrev LowerBound : Type := Option Int
@@ -392,4 +392,4 @@ theorem bmod_sat (m : Nat) (r : Int) (i : Nat) (x v : Coeffs)
     Int.mul_ediv_cancel' (Coeffs.dvd_bmod_dot_sub_dot_bmod _ _ _), w,
     ← Int.add_sub_assoc, Int.add_comm, Int.add_sub_assoc, Int.sub_self, Int.add_zero]
 
-end Lean.Elab.Tactic.Omega
+end Lean.Omega

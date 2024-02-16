@@ -2,9 +2,6 @@ inductive P : Option Nat → Prop
   | none : P .none
   | somePos : x > 0 → P (some x)
 
-def Option.get : (a : Option α) → a.isSome → α
-  | some a, _ => a
-
 theorem aux (x? : Option Nat) (h₁ : P x?) (h₂ : x?.isSome) : x?.get h₂ > 0 := by
   cases h₁ with
   | none => contradiction

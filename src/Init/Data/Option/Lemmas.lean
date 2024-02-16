@@ -233,6 +233,6 @@ theorem choice_isSome_iff_nonempty {α : Type _} : (choice α).isSome ↔ Nonemp
 
 end
 
-@[simp] theorem to_list_some (a : α) : (a : Option α).toList = [a] := rfl
+@[simp] theorem toList_some (a : α) : (a : Option α).toList = [a] := rfl
 
-@[simp] theorem to_list_none (α : Type _) : (none : Option α).toList = [] := rfl
+@[simp] theorem toList_none (α : Type _) : (none : Option α).toList = [] := rfl

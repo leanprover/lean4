@@ -40,12 +40,31 @@ structure Date where
 
 namespace Date
 
+abbrev IsLeapYear (y : Nat) : Prop :=
+  y % 4 = 0 ∧ (y % 100 ≠ 0 ∨ y % 400 = 0)
+
+abbrev IsValidMonth (m : Nat) : Prop :=
+  m ≥ 1 ∧ m ≤ 12
+
+def maxDay (y m : Nat) :  Nat :=
+  if m = 2 then
+    if IsLeapYear y then 29 else 28
+  else if m ≤ 7 then
+    30 + (m % 2)
+  else
+    31 - (m % 2)
+
+abbrev IsValidDay (y m d : Nat) : Prop :=
+  d ≥ 1 ∧ d ≤ maxDay y m
+
+def ofValid? (year month day : Nat) : Option Date := do
+  guard (IsValidMonth month ∧ IsValidDay year month day)
+  return {year, month, day}
+
 def ofString? (t : String) : Option Date := do
   match t.split (· == '-') with
   | [y,m,d] =>
-    return {year := ← y.toNat?, month := ← m.toNat?, day := ← d.toNat?}
-  | [y,m] =>
-    return {year := ← y.toNat?, month := ← m.toNat?, day := 0}
+    ofValid? (← y.toNat?) (← m.toNat?) (← d.toNat?)
   | _ => none
 
 protected def toString (d : Date) : String :=
@@ -71,25 +90,36 @@ structure Time where
 
 namespace Time
 
+abbrev IsValidHour (h : Nat) : Prop :=
+  h ≤ 23
+
+abbrev IsValidMinute (m : Nat) : Prop :=
+  m ≤ 59
+
+abbrev IsValidSecond (s : Nat) : Prop :=
+  s ≤ 60
+
 def zero : Time :=
   {hour := 0, minute := 0, second := 0}
 
 instance : OfNat Time (nat_lit 0) := ⟨Time.zero⟩
+
+def ofValid? (hour minute second : Nat) : Option Time := do
+  guard (IsValidHour hour ∧ IsValidMinute minute ∧ IsValidSecond second)
+  return {hour, minute, second}
 
 def ofString? (t : String) : Option Time := do
   match t.split (· == ':') with
   | [h,m,s] =>
     match s.split (· == '.') with
     | [s,f] =>
-      return {
-        hour := ← h.toNat?, minute := ← m.toNat?, second := ← s.toNat?
-        fracExponent := f.length-1, fracMantissa := ← f.toNat?
-      }
+      let time ← ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
+      return {time with fracExponent := f.length-1, fracMantissa := ← f.toNat?}
     | [s] =>
-      return {hour := ← h.toNat?, minute := ← m.toNat?, second := ← s.toNat?}
+      ofValid? (← h.toNat?) (← m.toNat?) (← s.toNat?)
     | _ => none
   | [h,m] =>
-    return {hour := ← h.toNat?, minute := ← m.toNat?, second := 0}
+    ofValid? (← h.toNat?) (← m.toNat?) 0
   | _ => none
 
 protected def toString (t : Time) : String :=
@@ -110,6 +140,9 @@ inductive DateTime
 | localDate (date : Date)
 | localTime (time : Time)
 deriving Inhabited, DecidableEq
+
+instance : Coe Date DateTime := ⟨DateTime.localDate⟩
+instance : Coe Time DateTime := ⟨DateTime.localTime⟩
 
 namespace DateTime
 

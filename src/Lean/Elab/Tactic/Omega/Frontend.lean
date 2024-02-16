@@ -4,21 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 import Lean.Elab.Tactic.Omega.Core
-import Lean.Elab.Tactic.Omega.LinearCombo
 import Lean.Elab.Tactic.Omega.Logic
-import Lean.Elab.Tactic.Omega.Int
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Cases
 
 /-!
 # Frontend to the `omega` tactic.
 
-See `Std.Tactic.Omega` for an overview of the tactic.
+See `Lean.Elab.Tactic.Omega` for an overview of the tactic.
 -/
 
 open Lean Meta
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /--
 A partially processed `omega` context.
@@ -518,7 +516,7 @@ open Lean Elab Tactic Parser.Tactic
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. -/
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
   liftMetaFinishingTactic fun g => do
-    let g ← falseOrByContra g
+    let g ← g.falseOrByContra
       (useClassical := false) -- because all the hypotheses we can make use of are decidable
     g.withContext do
       let hyps := (← getLocalHyps).toList
@@ -530,40 +528,9 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
 the tactic call `aesop (add 50% tactic Std.Tactic.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
-/--
-The `omega` tactic, for resolving integer and natural linear arithmetic problems.
-
-It is not yet a full decision procedure (no "dark" or "grey" shadows),
-but should be effective on many problems.
-
-We handle hypotheses of the form `x = y`, `x < y`, `x ≤ y`, and `k ∣ x` for `x y` in `Nat` or `Int`
-(and `k` a literal), along with negations of these statements.
-
-We decompose the sides of the inequalities as linear combinations of atoms.
-
-If we encounter `x / k` or `x % k` for literal integers `k` we introduce new auxiliary variables
-and the relevant inequalities.
-
-On the first pass, we do not perform case splits on natural subtraction.
-If `omega` fails, we recursively perform a case split on
-a natural subtraction appearing in a hypothesis, and try again.
-
-The options
-```
-omega (config :=
-  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
-```
-can be used to:
-* `splitDisjunctions`: split any disjunctions found in the context,
-  if the problem is not otherwise solvable.
-* `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
-* `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
-* `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
-Currently, all of these are on by default.
--/
-syntax (name := omegaSyntax) "omega" (config)? : tactic
-
-elab_rules : tactic |
-    `(tactic| omega $[$cfg]?) => do
-  let cfg ← elabOmegaConfig (mkOptionalNode cfg)
-  omegaTactic cfg
+@[builtin_tactic Lean.Parser.Tactic.omega]
+def evalOmega : Tactic := fun
+  | `(tactic| omega $[$cfg]?) => do
+    let cfg ← elabOmegaConfig (mkOptionalNode cfg)
+    omegaTactic cfg
+  | _ => throwUnsupportedSyntax

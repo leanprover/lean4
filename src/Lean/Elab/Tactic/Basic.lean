@@ -381,6 +381,10 @@ then set the new goals to be the resulting goal list.-/
     else
       replaceMainGoal []
 
+/-- Analogue of `liftMetaTactic` for tactics that do not return any goals. -/
+@[inline] def liftMetaFinishingTactic (tac : MVarId → MetaM Unit) : TacticM Unit :=
+  liftMetaTactic fun g => do tac g; pure []
+
 def tryTactic? (tactic : TacticM α) : TacticM (Option α) := do
   try
     pure (some (← tactic))

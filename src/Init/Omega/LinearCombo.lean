@@ -3,9 +3,9 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-
--- replace `IntList` with `IntDict` here to use sparse representations
-import Lean.Elab.Tactic.Omega.Coeffs.IntList
+prelude
+import Init.Omega.Coeffs
+-- import Lean.Util.Trace
 
 /-!
 # Linear combinations
@@ -14,9 +14,7 @@ We use this data structure while processing hypotheses.
 
 -/
 
-initialize Lean.registerTraceClass `omega
-
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /-- Internal representation of a linear combination of atoms, and a constant term. -/
 structure LinearCombo where
@@ -31,12 +29,6 @@ namespace LinearCombo
 instance : ToString LinearCombo where
   toString lc :=
     s!"{lc.const}{String.join <| lc.coeffs.toList.enum.map fun ⟨i, c⟩ => s!" + {c} * x{i+1}"}"
-
-open Lean in
-instance : ToExpr LinearCombo where
-  toExpr lc :=
-    (Expr.const ``LinearCombo.mk []).app (toExpr lc.const) |>.app (toExpr lc.coeffs)
-  toTypeExpr := .const ``LinearCombo []
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

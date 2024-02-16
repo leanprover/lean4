@@ -3,10 +3,7 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-import Std.Tactic.Omega.Int
-import Std.Tactic.Omega.LinearCombo
-import Std.Tactic.Omega.Config
-import Std.Lean.Expr
+import Lean.Elab.Tactic.Omega.Config
 
 /-!
 # The `OmegaM` state monad.
@@ -39,7 +36,7 @@ and proof that the expression is equal to the evaluation of the `LinearCombo` at
 
 open Lean Meta
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /-- Context for the `OmegaM` monad, containing the user configurable options. -/
 structure Context where

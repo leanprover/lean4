@@ -889,6 +889,33 @@ def minimum? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
+/-- Inserts an element into a list without duplication. -/
+@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
+  if l.elem a then l else a :: l
+
+instance decidableBEx (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x)
+  | [] => isFalse nofun
+  | x :: xs =>
+    if h₁ : p x then isTrue ⟨x, .head .., h₁⟩ else
+      match decidableBEx p xs with
+      | isTrue h₂ => isTrue <| let ⟨y, hm, hp⟩ := h₂; ⟨y, .tail _ hm, hp⟩
+      | isFalse h₂ => isFalse fun
+        | ⟨y, .tail _ h, hp⟩ => h₂ ⟨y, h, hp⟩
+        | ⟨_, .head .., hp⟩ => h₁ hp
+
+instance decidableBAll (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (∀ x, x ∈ l → p x)
+  | [] => isTrue nofun
+  | x :: xs =>
+    if h₁ : p x then
+      match decidableBAll p xs with
+      | isTrue h₂ => isTrue fun
+        | y, .tail _ h => h₂ y h
+        | _, .head .. => h₁
+      | isFalse h₂ => isFalse fun H => h₂ fun y hm => H y (.tail _ hm)
+    else isFalse fun H => h₁ <| H x (.head ..)
+
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
   eq_of_beq {as bs} := by
     induction as generalizing bs with

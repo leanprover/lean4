@@ -972,6 +972,40 @@ macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
 
+
+/--
+The `omega` tactic, for resolving integer and natural linear arithmetic problems.
+
+It is not yet a full decision procedure (no "dark" or "grey" shadows),
+but should be effective on many problems.
+
+We handle hypotheses of the form `x = y`, `x < y`, `x ≤ y`, and `k ∣ x` for `x y` in `Nat` or `Int`
+(and `k` a literal), along with negations of these statements.
+
+We decompose the sides of the inequalities as linear combinations of atoms.
+
+If we encounter `x / k` or `x % k` for literal integers `k` we introduce new auxiliary variables
+and the relevant inequalities.
+
+On the first pass, we do not perform case splits on natural subtraction.
+If `omega` fails, we recursively perform a case split on
+a natural subtraction appearing in a hypothesis, and try again.
+
+The options
+```
+omega (config :=
+  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
+```
+can be used to:
+* `splitDisjunctions`: split any disjunctions found in the context,
+  if the problem is not otherwise solvable.
+* `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
+* `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
+* `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+Currently, all of these are on by default.
+-/
+syntax (name := omega) "omega" (config)? : tactic
+
 end Tactic
 
 namespace Attr

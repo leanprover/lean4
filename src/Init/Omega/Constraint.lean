@@ -3,14 +3,16 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-import Lean.Elab.Tactic.Omega.Coeffs.IntList
+prelude
+import Init.Omega.LinearCombo
+import Init.Omega.Int
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),
 constraining a value to a set of the form `∅`, `{x}`, `[x, y]`, `[x, ∞)`, `(-∞, y]`, or `(-∞, ∞)`.
 -/
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /-- An optional lower bound on a integer. -/
 abbrev LowerBound : Type := Option Int
@@ -34,12 +36,6 @@ structure Constraint where
 deriving BEq, DecidableEq, Repr
 
 namespace Constraint
-
-open Lean in
-instance : ToExpr Constraint where
-  toExpr s :=
-    (Expr.const ``Constraint.mk []).app (toExpr s.lowerBound) |>.app (toExpr s.upperBound)
-  toTypeExpr := .const ``Constraint []
 
 instance : ToString Constraint where
   toString := fun
@@ -249,4 +245,151 @@ theorem div_sat' {c : Constraint} {x y} (h : Coeffs.gcd x ≠ 0) (w : c.sat (Coe
 theorem not_sat'_of_isImpossible (h : isImpossible c) {x y} : ¬ c.sat' x y :=
   not_sat_of_isImpossible h
 
+theorem addInequality_sat (w : c + Coeffs.dot x y ≥ 0) :
+    Constraint.sat' { lowerBound := some (-c), upperBound := none } x y := by
+  simp [Constraint.sat', Constraint.sat]
+  rw [← Int.zero_sub c]
+  exact Int.sub_left_le_of_le_add w
+
+theorem addEquality_sat (w : c + Coeffs.dot x y = 0) :
+    Constraint.sat' { lowerBound := some (-c), upperBound := some (-c) } x y := by
+  simp [Constraint.sat', Constraint.sat]
+  rw [Int.eq_iff_le_and_ge] at w
+  rwa [Int.add_le_zero_iff_le_neg', Int.add_nonnneg_iff_neg_le', and_comm] at w
+
 end Constraint
+
+/--
+Normalize a constraint, by dividing through by the GCD.
+
+Return `none` if there is nothing to do, to avoid adding unnecessary steps to the proof term.
+-/
+def normalize? : Constraint × Coeffs → Option (Constraint × Coeffs)
+  | ⟨s, x⟩ =>
+    let gcd := Coeffs.gcd x -- TODO should we be caching this?
+    if gcd = 0 then
+      if s.sat 0 then
+        some (.trivial, x)
+      else
+        some (.impossible, x)
+    else if gcd = 1 then
+      none
+    else
+      some (s.div gcd, Coeffs.sdiv x gcd)
+
+/-- Normalize a constraint, by dividing through by the GCD. -/
+def normalize (p : Constraint × Coeffs) : Constraint × Coeffs :=
+  normalize? p |>.getD p
+
+/-- Shorthand for the first component of `normalize`. -/
+-- This `noncomputable` (and others below) is a safeguard that we only use this in proofs.
+noncomputable abbrev normalizeConstraint (s : Constraint) (x : Coeffs) : Constraint :=
+  (normalize (s, x)).1
+/-- Shorthand for the second component of `normalize`. -/
+noncomputable abbrev normalizeCoeffs (s : Constraint) (x : Coeffs) : Coeffs :=
+  (normalize (s, x)).2
+
+theorem normalize?_eq_some (w : normalize? (s, x) = some (s', x')) :
+    normalizeConstraint s x = s' ∧ normalizeCoeffs s x = x' := by
+  simp_all [normalizeConstraint, normalizeCoeffs, normalize]
+
+theorem normalize_sat {s x v} (w : s.sat' x v) :
+    (normalizeConstraint s x).sat' (normalizeCoeffs s x) v := by
+  dsimp [normalizeConstraint, normalizeCoeffs, normalize, normalize?]
+  split <;> rename_i h
+  · split
+    · simp
+    · dsimp [Constraint.sat'] at w
+      simp_all
+  · split
+    · exact w
+    · exact Constraint.div_sat' h w
+
+/-- Multiply by `-1` if the leading coefficient is negative, otherwise return `none`. -/
+def positivize? : Constraint × Coeffs → Option (Constraint × Coeffs)
+  | ⟨s, x⟩ =>
+    if 0 ≤ x.leading then
+      none
+    else
+      (s.neg, Coeffs.smul x (-1))
+
+/-- Multiply by `-1` if the leading coefficient is negative, otherwise do nothing. -/
+noncomputable def positivize (p : Constraint × Coeffs) : Constraint × Coeffs :=
+  positivize? p |>.getD p
+
+/-- Shorthand for the first component of `positivize`. -/
+noncomputable abbrev positivizeConstraint (s : Constraint) (x : Coeffs) : Constraint :=
+  (positivize (s, x)).1
+/-- Shorthand for the second component of `positivize`. -/
+noncomputable abbrev positivizeCoeffs (s : Constraint) (x : Coeffs) : Coeffs :=
+  (positivize (s, x)).2
+
+theorem positivize?_eq_some (w : positivize? (s, x) = some (s', x')) :
+    positivizeConstraint s x = s' ∧ positivizeCoeffs s x = x' := by
+  simp_all [positivizeConstraint, positivizeCoeffs, positivize]
+
+theorem positivize_sat {s x v} (w : s.sat' x v) :
+    (positivizeConstraint s x).sat' (positivizeCoeffs s x) v := by
+  dsimp [positivizeConstraint, positivizeCoeffs, positivize, positivize?]
+  split
+  · exact w
+  · simp [Constraint.sat']
+    erw [Coeffs.dot_smul_left, ← Int.neg_eq_neg_one_mul]
+    exact Constraint.neg_sat w
+
+/-- `positivize` and `normalize`, returning `none` if neither does anything. -/
+def tidy? : Constraint × Coeffs → Option (Constraint × Coeffs)
+  | ⟨s, x⟩ =>
+    match positivize? (s, x) with
+    | none => match normalize? (s, x) with
+      | none => none
+      | some (s', x') => some (s', x')
+    | some (s', x') => normalize (s', x')
+
+/-- `positivize` and `normalize` -/
+def tidy (p : Constraint × Coeffs) : Constraint × Coeffs :=
+  tidy? p |>.getD p
+
+/-- Shorthand for the first component of `tidy`. -/
+abbrev tidyConstraint (s : Constraint) (x : Coeffs) : Constraint := (tidy (s, x)).1
+/-- Shorthand for the second component of `tidy`. -/
+abbrev tidyCoeffs (s : Constraint) (x : Coeffs) : Coeffs := (tidy (s, x)).2
+
+theorem tidy_sat {s x v} (w : s.sat' x v) : (tidyConstraint s x).sat' (tidyCoeffs s x) v := by
+  dsimp [tidyConstraint, tidyCoeffs, tidy, tidy?]
+  split <;> rename_i hp
+  · split <;> rename_i hn
+    · simp_all
+    · rcases normalize?_eq_some hn with ⟨rfl, rfl⟩
+      exact normalize_sat w
+  · rcases positivize?_eq_some hp with ⟨rfl, rfl⟩
+    exact normalize_sat (positivize_sat w)
+
+theorem combo_sat' (s t : Constraint)
+    (a : Int) (x : Coeffs) (b : Int) (y : Coeffs) (v : Coeffs)
+    (wx : s.sat' x v) (wy : t.sat' y v) :
+    (Constraint.combo a s b t).sat' (Coeffs.combo a x b y) v := by
+  rw [Constraint.sat', Coeffs.combo_eq_smul_add_smul, Coeffs.dot_distrib_left,
+    Coeffs.dot_smul_left, Coeffs.dot_smul_left]
+  exact Constraint.combo_sat a wx b wy
+
+/-- The value of the new variable introduced when solving a hard equality. -/
+abbrev bmod_div_term (m : Nat) (a b : Coeffs) : Int := Coeffs.bmod_dot_sub_dot_bmod m a b / m
+
+/-- The coefficients of the new equation generated when solving a hard equality. -/
+def bmod_coeffs (m : Nat) (i : Nat) (x : Coeffs) : Coeffs :=
+  Coeffs.set (Coeffs.bmod x m) i m
+
+theorem bmod_sat (m : Nat) (r : Int) (i : Nat) (x v : Coeffs)
+    (h : x.length ≤ i)  -- during proof reconstruction this will be by `decide`
+    (p : Coeffs.get v i = bmod_div_term m x v) -- and this will be by `rfl`
+    (w : (Constraint.exact r).sat' x v) :
+    (Constraint.exact (Int.bmod r m)).sat' (bmod_coeffs m i x) v := by
+  simp at w
+  simp only [p, bmod_coeffs, Constraint.exact_sat, Coeffs.dot_set_left, decide_eq_true_eq]
+  replace h := Nat.le_trans (Coeffs.bmod_length x m) h
+  rw [Coeffs.get_of_length_le h, Int.sub_zero,
+    Int.mul_ediv_cancel' (Coeffs.dvd_bmod_dot_sub_dot_bmod _ _ _), w,
+    ← Int.add_sub_assoc, Int.add_comm, Int.add_sub_assoc, Int.sub_self, Int.add_zero]
+
+end Lean.Elab.Tactic.Omega

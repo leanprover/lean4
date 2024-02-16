@@ -3,7 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-import Lean.Elab.Tactic.Omega.IntList
+prelude
+import Init.Omega.IntList
 
 /-!
 # `Coeffs` as a wrapper for `IntList`
@@ -25,7 +26,7 @@ For small problems, the sparse representation is actually slightly slower,
 so it is not urgent to make this replacement.
 -/
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /-- Type synonym for `IntList := List Int`. -/
 abbrev Coeffs := IntList
@@ -66,9 +67,9 @@ abbrev leading (xs : Coeffs) : Int := IntList.leading xs
 abbrev map (f : Int → Int) (xs : Coeffs) : Coeffs := List.map f xs
 /-- Shim for `.enum.find?`. -/
 abbrev findIdx? (f : Int → Bool) (xs : Coeffs) : Option Nat :=
-  List.findIdx? f xs
+  -- List.findIdx? f xs
   -- We could avoid `Std.Data.List.Basic` by using the less efficient:
-  -- xs.enum.find? (f ·.2) |>.map (·.1)
+  xs.enum.find? (f ·.2) |>.map (·.1)
 /-- Shim for `IntList.bmod`. -/
 abbrev bmod (x : Coeffs) (m : Nat) : Coeffs := IntList.bmod x m
 /-- Shim for `IntList.bmod_dot_sub_dot_bmod`. -/
@@ -105,3 +106,7 @@ theorem dot_nil_right {xs : Coeffs} : dot xs .nil = 0 := IntList.dot_nil_right
 theorem get_nil : get .nil i = 0 := IntList.get_nil
 theorem dot_neg_left (xs ys : IntList) : dot (-xs) ys = -dot xs ys :=
   IntList.dot_neg_left xs ys
+
+end Coeffs
+
+end Lean.Elab.Tactic.Omega

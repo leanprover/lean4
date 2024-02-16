@@ -5,7 +5,7 @@ Authors: Scott Morrison
 -/
 import Lean.Elab.Tactic.Config
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 /-- Configures the behaviour of the `omega` tactic. -/
 structure OmegaConfig where
@@ -42,3 +42,5 @@ structure OmegaConfig where
 Allow elaboration of `OmegaConfig` arguments to tactics.
 -/
 declare_config_elab elabOmegaConfig OmegaConfig
+
+end Lean.Elab.Tactic.Omega

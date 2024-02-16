@@ -13,7 +13,7 @@ so are hidden in the `Std.Tactic.Omega` namespace.
 If you find yourself needing them elsewhere, please move them first to another file.
 -/
 
-namespace Std.Tactic.Omega
+namespace Lean.Elab.Tactic.Omega
 
 theorem and_not_not_of_not_or (h : ¬ (p ∨ q)) : ¬ p ∧ ¬ q := not_or.mp h
 
@@ -34,3 +34,5 @@ theorem Decidable.and_not_or_not_and_of_not_iff [Decidable a] [Decidable b]
 
 theorem Decidable.and_not_of_not_imp [Decidable a] (h : ¬(a → b)) : a ∧ ¬b :=
   Decidable.not_imp_iff_and_not.mp h
+
+end Lean.Elab.Tactic.Omega

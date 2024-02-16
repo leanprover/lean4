@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
+import Init.Data.List.Lemmas
 
 /--
 A type synonym for `List Int`, used by `omega` for dense representation of coefficients.
@@ -328,7 +330,7 @@ theorem gcd_eq_iff (xs : IntList) (g : Nat) :
 
 attribute [simp] Int.zero_dvd
 
-@[simp] theorem gcd_eq_zero (xs : IntList) : xs.gcd = 0 ↔ ∀ x ∈ xs, x = 0 := by
+@[simp] theorem gcd_eq_zero (xs : IntList) : xs.gcd = 0 ↔ ∀ x, x ∈ xs → x = 0 := by
   simp [gcd_eq_iff, Nat.dvd_zero]
 
 @[simp] theorem dot_mod_gcd_left (xs ys : IntList) : dot xs ys % xs.gcd = 0 := by
@@ -347,7 +349,7 @@ theorem gcd_dvd_dot_left (xs ys : IntList) : (xs.gcd : Int) ∣ dot xs ys :=
   Int.dvd_of_emod_eq_zero (dot_mod_gcd_left xs ys)
 
 @[simp]
-theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x ∈ xs, x = 0) : dot xs ys = 0 := by
+theorem dot_eq_zero_of_left_eq_zero {xs ys : IntList} (h : ∀ x, x ∈ xs → x = 0) : dot xs ys = 0 := by
   induction xs generalizing ys with
   | nil => rfl
   | cons x xs ih =>

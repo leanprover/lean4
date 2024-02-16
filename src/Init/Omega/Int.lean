@@ -3,8 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-import Std.Classes.Order
-import Std.Data.Int.Init.Order
+prelude
+import Init.Data.Int.Order
 
 /-!
 # Lemmas about `Nat` and `Int` needed internally by `omega`.
@@ -15,7 +15,7 @@ but unlikely to be widely useful, so are inside the `Std.Tactic.Omega` namespace
 If you do find a use for them, please move them into the appropriate file and namespace!
 -/
 
-namespace Std.Tactic.Omega.Int
+namespace Lean.Elab.Tactic.Omega.Int
 
 theorem ofNat_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
   induction b with
@@ -29,20 +29,28 @@ theorem pos_pow_of_pos (a : Int) (b : Nat) (h : 0 < a) : 0 < a ^ b := by
 theorem ofNat_pos {a : Nat} : 0 < (a : Int) ↔ 0 < a := by
   rw [← Int.ofNat_zero, Int.ofNat_lt]
 
-alias ⟨_, ofNat_pos_of_pos⟩ := Int.ofNat_pos
+theorem ofNat_pos_of_pos {a : Nat} (h : 0 < a) : 0 < (a : Int) :=
+  ofNat_pos.mpr h
 
 theorem natCast_ofNat {x : Nat} :
     @Nat.cast Int instNatCastInt (no_index (OfNat.ofNat x)) = OfNat.ofNat x := rfl
 
-alias ⟨_, ofNat_lt_of_lt⟩ := Int.ofNat_lt
-alias ⟨_, ofNat_le_of_le⟩ := Int.ofNat_le
-protected alias ⟨lt_of_not_ge, _⟩ := Int.not_le
-protected alias ⟨lt_of_not_le, not_le_of_lt⟩ := Int.not_le
-protected alias ⟨_, lt_le_asymm⟩ := Int.not_le
+theorem ofNat_lt_of_lt {x y : Nat} (h : x < y) : (x : Int) < (y : Int) :=
+  Int.ofNat_lt.mpr h
 
-protected alias ⟨le_of_not_gt, not_lt_of_ge⟩ := Int.not_lt
-protected alias ⟨le_of_not_lt, not_lt_of_le⟩ := Int.not_lt
-protected alias ⟨_, le_lt_asymm⟩ := Int.not_lt
+theorem ofNat_le_of_le {x y : Nat} (h : x ≤ y) : (x : Int) ≤ (y : Int) :=
+  Int.ofNat_le.mpr h
+
+theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≥ y)) : x < y := Int.not_le.mp h
+theorem lt_of_not_le {x y : Int} (h : ¬ (y ≤ x)) : x < y := Int.not_le.mp h
+theorem not_le_of_lt {x y : Int} (h : x < y) : ¬ (y ≤ x) := Int.not_le.mpr h
+theorem lt_le_asymm {x y : Int} (h₁ : x < y) (h₂ : y ≤ x) : False := Int.not_le.mpr h₁ h₂
+theorem le_lt_asymm {x y : Int} (h₁ : x ≤ y) (h₂ : y < x) : False := Int.not_lt.mpr h₁ h₂
+
+theorem le_of_not_gt {x y : Int} (h : ¬ (x > y)) : x ≤ y := Int.not_lt.mp h
+theorem not_lt_of_ge {x y : Int} (h : x ≥ y) : ¬ (x < y) := Int.not_lt.mpr h
+theorem le_of_not_lt {x y : Int} (h : ¬ (y < x)) : x ≤ y := Int.not_lt.mp h
+theorem not_lt_of_le {x y : Int} (h : y ≤ x) : ¬ (x < y) := Int.not_lt.mpr h
 
 theorem add_congr {a b c d : Int} (h₁ : a = b) (h₂ : c = d) : a + c = b + d := by
   subst h₁; subst h₂; rfl
@@ -69,9 +77,13 @@ theorem ofNat_sub_dichotomy {a b : Nat} :
     b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0 := by
   by_cases h : b ≤ a
   · left
-    simpa [Int.ofNat_sub h]
+    have t := Int.ofNat_sub h
+    simp at t
+    exact ⟨h, t⟩
   · right
-    simpa [Int.ofNat_sub_eq_zero h] using (Nat.not_le.mp h)
+    have t := Nat.not_le.mp h
+    simp [Int.ofNat_sub_eq_zero h]
+    exact t
 
 theorem ofNat_congr {a b : Nat} (h : a = b) : (a : Int) = (b : Int) := congrArg _ h
 
@@ -155,3 +167,5 @@ theorem fst_mk : (Prod.mk x y).fst = x := rfl
 theorem snd_mk : (Prod.mk x y).snd = y := rfl
 
 end Prod
+
+end Lean.Elab.Tactic.Omega

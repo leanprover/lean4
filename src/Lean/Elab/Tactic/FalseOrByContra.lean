@@ -56,7 +56,7 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
       pure g
 
 @[builtin_tactic falseOrByContra]
-def elabFalseOrByContra := fun
+def elabFalseOrByContra : Tactic
    | `(tactic| false_or_by_contra) => do liftMetaTactic1 (falseOrByContra ·)
    | _ => no_error_if_unused% throwUnsupportedSyntax
 

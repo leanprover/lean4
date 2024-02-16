@@ -63,7 +63,7 @@ def CasesOnApp.toExpr (c : CasesOnApp) : Expr :=
   the argument provided by `fix` to refine the termination argument, which may mention `major`.
   See there for how to use this function.
 -/
-def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM CasesOnApp := do
+def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) : MetaM CasesOnApp := do
   lambdaTelescope c.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == c.indices.size + 1 do
       throwError "failed to add argument to `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
@@ -98,12 +98,11 @@ where
           forallBoundedTelescope d (some 1) fun x _ => do
             let alt := alt.beta xs
             let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
-            if checkIfRefined then
-              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0]!)))
-            else
+            if refined then
               return (← mkLambdaFVars xs alt, true)
-        if refinedAt then
-          refined := true
+            else
+              return (← mkLambdaFVars xs alt, !(← isDefEq argType (← inferType x[0]!)))
+        refined := refinedAt
         auxType := b.instantiate1 altNew
         altsNew := altsNew.push altNew
       | _ => throwError "unexpected type at `casesOnAddArg`"
@@ -112,9 +111,9 @@ where
     return altsNew
 
 /-- Similar to `CasesOnApp.addArg`, but returns `none` on failure. -/
-def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM (Option CasesOnApp) :=
+def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) : MetaM (Option CasesOnApp) :=
   try
-    return some (← c.addArg arg checkIfRefined)
+    return some (← c.addArg arg)
   catch _ =>
     return none
 
@@ -128,6 +127,8 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
 
   This is similar to `CasesOnApp.addArg` when you only have an expression to
   refined, and not a type with a value.
+
+  Unlike `addArg`, it does not bother recognizing if the type was actually refined in any branch.
 
   This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
   calls to refine the functions' paramter, which may mention `major`.

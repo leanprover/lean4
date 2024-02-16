@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Basic
 import Init.Data.Nat
+import Init.Data.Cast
 import Init.Data.Char
 import Init.Data.String
 import Init.Data.List

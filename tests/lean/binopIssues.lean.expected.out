@@ -1,4 +1,4 @@
 def f1 : Int → Nat → Nat → Int :=
-fun a b c => a + (Int.ofNat b - Int.ofNat c)
+fun a b c => a + (↑b - ↑c)
 def f2 : Int → Nat → Nat → Int :=
-fun a b c => Int.ofNat b - Int.ofNat c + a
+fun a b c => ↑b - ↑c + a

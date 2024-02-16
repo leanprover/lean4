@@ -8,7 +8,9 @@ paths containing package roots: an import `A.B.C` resolves to
 `path/A/B/C.olean` for the first entry `path` in `LEAN_PATH`
 with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
-import Lean.Data.Name
+prelude
+import Init.System.IO
+import Init.Data.List.Control
 
 namespace Lean
 open System

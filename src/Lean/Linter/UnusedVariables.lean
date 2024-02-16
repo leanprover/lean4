@@ -1,3 +1,4 @@
+prelude
 import Lean.Elab.Command
 import Lean.Util.ForEachExpr
 import Lean.Linter.Util

@@ -5,6 +5,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+prelude
 import Lean.Data.Position
 import Lean.Data.OpenDecl
 import Lean.MetavarContext

@@ -4,7 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-import Lean.Data.RBTree
+prelude
+import Init.Data.List.Control
+import Init.Data.Range
+import Init.Data.OfScientific
+import Lean.Data.RBMap
 namespace Lean
 
 -- mantissa * 10^-exponent

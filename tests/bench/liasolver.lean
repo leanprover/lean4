@@ -11,11 +11,19 @@ open Lean
 namespace Int
 
   def roundedDiv (a b : Int) : Int := Id.run <| do
+    if b = 0 then
+      return 0
     let mut div := a / b
-    let sgn := if a ≥ 0 ∧ b ≥ 0 ∨ a < 0 ∧ b < 0 then 1 else -1
-    let rest := (a % b).natAbs
-    if 2*rest ≥ b.natAbs then
-      div := div + sgn
+    let rest := a % b
+    -- This determines how we should adjust the divisor.
+    -- The extra logic is to preserve tie-breaking behavior from
+    -- a time when div used T-rounding
+    if a ≥ 0 then
+      if 2*rest ≥ b.natAbs then
+        div := div + (if b ≥ 0 then 1 else -1)
+    else
+      if 2*rest > b.natAbs then
+        div := div + (if b >= 0 then 1 else -1)
     return div
 
   def mod' (a b : Int) : Int :=
@@ -162,7 +170,7 @@ namespace Equation
     let (i, c) := e.coeffs.getAny?.get!
     return { e with
       coeffs := e.coeffs.insert i 1
-      const := e.const / c }
+      const := Int.div e.const c }
 
   def invert (e : Equation) : Equation :=
     { e with

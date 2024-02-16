@@ -189,7 +189,7 @@ def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List M
   mvarId.apply e cfg
 
 /-- Short-hand for applying a constant to the goal. -/
-def applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
+def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   mvar.apply (← mkConstWithFreshMVarLevels c) cfg
 
 partial def splitAndCore (mvarId : MVarId) : MetaM (List MVarId) :=

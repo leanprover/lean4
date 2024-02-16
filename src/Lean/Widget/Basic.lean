@@ -1,3 +1,4 @@
+prelude
 import Lean.Elab.InfoTree
 import Lean.Message
 import Lean.Server.Rpc.Basic

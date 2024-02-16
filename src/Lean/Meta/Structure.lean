@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 
 Additional helper methods that require `MetaM` infrastructure.
 -/
+prelude
 import Lean.Structure
 import Lean.Meta.AppBuilder
 

@@ -27,11 +27,6 @@ Section titles correspond to the files the material came from the mathlib4/std4.
 
 section Std.Data.Int.Lemmas
 
-namespace Int
-theorem add_zero : ∀ a : Int, a + 0 = a := sorry
-theorem mul_one (a : Int) : a * 1 = a := sorry
-end Int
-
 end Std.Data.Int.Lemmas
 
 section Std.Classes.RatCast

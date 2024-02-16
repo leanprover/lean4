@@ -10,6 +10,7 @@ import Lean.Data.FuzzyMatching
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.Capabilities
 import Lean.Data.Lsp.Utf16
+import Lean.Meta.CompletionName
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
 import Lean.Server.InfoUtils
@@ -20,21 +21,6 @@ open Lsp
 open Elab
 open Meta
 open FuzzyMatching
-
-builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDeclarationExtension
-
-@[export lean_completion_add_to_black_list]
-def addToBlackList (env : Environment) (declName : Name) : Environment :=
-  completionBlackListExt.tag env declName
-
-private def isBlackListed (declName : Name) : MetaM Bool := do
-  let env ← getEnv
-  (pure (declName.isInternal && !isPrivateName declName))
-  <||> (pure <| isAuxRecursor env declName)
-  <||> (pure <| isNoConfusion env declName)
-  <||> isRec declName
-  <||> (pure <| completionBlackListExt.isTagged env declName)
-  <||> isMatcher declName
 
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
@@ -246,7 +232,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
   -- search for matches in the environment
   let env ← getEnv
   env.constants.forM fun declName c => do
-    unless (← isBlackListed declName) do
+    if allowCompletion env declName then
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some (label, score) ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
@@ -280,13 +266,13 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
   -- Auxiliary function for `alias`
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
-      unless (← isBlackListed declName) do
+      if allowCompletion env declName then
         addCompletionItemForDecl alias.getString! declName expectedType? score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
-      unless (← isBlackListed resolvedId) do
+      if allowCompletion env resolvedId then
         if let some score := matchAtomic id openedId then
           addCompletionItemForDecl openedId.getString! resolvedId expectedType? score
     | OpenDecl.simple ns _      =>
@@ -371,9 +357,8 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
           | return
         let typeName := declName.getPrefix
         if nameSet.contains typeName then
-          unless (← isBlackListed c.name) do
-            if (← isDotCompletionMethod typeName c) then
-              addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
+          if allowCompletion (←getEnv) c.name && (← isDotCompletionMethod typeName c) then
+            addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
 
 private def dotIdCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx lctx do

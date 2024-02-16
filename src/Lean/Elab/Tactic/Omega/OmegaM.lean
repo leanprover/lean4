@@ -108,10 +108,6 @@ def intCast? (n : Expr) : Option Int :=
   | (``Nat.cast, #[_, _, n]) => n.nat?
   | _ => n.int?
 
-theorem ite_disjunction {α : Type u} {P : Prop} [Decidable P] {a b : α} :
-    (P ∧ (if P then a else b) = a) ∨ (¬ P ∧ (if P then a else b) = b) := by
-  by_cases P <;> simp_all
-
 /-- Construct the term with type hint `(Eq.refl a : a = b)`-/
 def mkEqReflWithExpectedType (a b : Expr) : MetaM Expr := do
   mkExpectedTypeHint (← mkEqRefl a) (← mkEq a b)

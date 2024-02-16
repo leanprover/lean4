@@ -34,7 +34,7 @@ The cache maps `Expr`s to pairs consisting of a `LinearCombo`,
 and proof that the expression is equal to the evaluation of the `LinearCombo` at the atoms.
 -/
 
-open Lean Meta
+open Lean Meta Omega
 
 namespace Lean.Elab.Tactic.Omega
 

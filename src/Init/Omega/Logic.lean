@@ -22,7 +22,7 @@ theorem Decidable.or_not_not_of_not_and [Decidable p] [Decidable q]
     (h : ¬ (p ∧ q)) : ¬ p ∨ ¬ q :=
   (Decidable.not_and_iff_or_not _ _).mp h
 
-theorem Decidable.and_or_not_and_not_of_iff [Decidable q] (h : p ↔ q) :
+theorem Decidable.and_or_not_and_not_of_iff {p q : Prop} [Decidable q] (h : p ↔ q) :
     (p ∧ q) ∨ (¬p ∧ ¬q) := Decidable.iff_iff_and_or_not_and_not.mp h
 
 theorem Decidable.not_iff_iff_and_not_or_not_and [Decidable a] [Decidable b] :

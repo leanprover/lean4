@@ -41,15 +41,16 @@ theorem ofNat_lt_of_lt {x y : Nat} (h : x < y) : (x : Int) < (y : Int) :=
 theorem ofNat_le_of_le {x y : Nat} (h : x ≤ y) : (x : Int) ≤ (y : Int) :=
   Int.ofNat_le.mpr h
 
-theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≥ y)) : x < y := Int.not_le.mp h
-theorem lt_of_not_le {x y : Int} (h : ¬ (y ≤ x)) : x < y := Int.not_le.mp h
-theorem not_le_of_lt {x y : Int} (h : x < y) : ¬ (y ≤ x) := Int.not_le.mpr h
-theorem lt_le_asymm {x y : Int} (h₁ : x < y) (h₂ : y ≤ x) : False := Int.not_le.mpr h₁ h₂
-theorem le_lt_asymm {x y : Int} (h₁ : x ≤ y) (h₂ : y < x) : False := Int.not_lt.mpr h₁ h₂
+-- FIXME these are insane:
+theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h
+theorem lt_of_not_le {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h
+theorem not_le_of_lt {x y : Int} (h : y < x) : ¬ (x ≤ y) := Int.not_le.mpr h
+theorem lt_le_asymm {x y : Int} (h₁ : y < x) (h₂ : x ≤ y) : False := Int.not_le.mpr h₁ h₂
+theorem le_lt_asymm {x y : Int} (h₁ : y ≤ x) (h₂ : x < y) : False := Int.not_lt.mpr h₁ h₂
 
-theorem le_of_not_gt {x y : Int} (h : ¬ (x > y)) : x ≤ y := Int.not_lt.mp h
-theorem not_lt_of_ge {x y : Int} (h : x ≥ y) : ¬ (x < y) := Int.not_lt.mpr h
-theorem le_of_not_lt {x y : Int} (h : ¬ (y < x)) : x ≤ y := Int.not_lt.mp h
+theorem le_of_not_gt {x y : Int} (h : ¬ (y > x)) : y ≤ x := Int.not_lt.mp h
+theorem not_lt_of_ge {x y : Int} (h : y ≥ x) : ¬ (y < x) := Int.not_lt.mpr h
+theorem le_of_not_lt {x y : Int} (h : ¬ (x < y)) : y ≤ x := Int.not_lt.mp h
 theorem not_lt_of_le {x y : Int} (h : y ≤ x) : ¬ (x < y) := Int.not_lt.mpr h
 
 theorem add_congr {a b c d : Int} (h₁ : a = b) (h₂ : c = d) : a + c = b + d := by

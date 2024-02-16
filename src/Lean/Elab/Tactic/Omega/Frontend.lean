@@ -13,7 +13,7 @@ import Lean.Meta.Tactic.Cases
 See `Lean.Elab.Tactic.Omega` for an overview of the tactic.
 -/
 
-open Lean Meta
+open Lean Meta Omega
 
 namespace Lean.Elab.Tactic.Omega
 

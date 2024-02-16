@@ -5,7 +5,6 @@ Authors: Joachim Breitner
 -/
 
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
@@ -176,7 +175,7 @@ where
     | Expr.proj _n _i e => loop param e
     | Expr.const .. => if e.isConstOf recFnName then processRec param e
     | Expr.app .. =>
-      match (← matchMatcherOrCasesOnApp? e) with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if let some altParams ← matcherApp.refineThrough? param then
           matcherApp.discrs.forM (loop param)

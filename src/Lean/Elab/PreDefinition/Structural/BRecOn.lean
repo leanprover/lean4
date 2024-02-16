@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -129,7 +128,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
-      match (← matchMatcherOrCasesOnApp? e) with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e

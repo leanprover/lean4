@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
@@ -77,7 +76,7 @@ where
     | Expr.proj n i e => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
-      match (← matchMatcherOrCasesOnApp? e) with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>

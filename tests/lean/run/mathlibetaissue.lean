@@ -25,19 +25,7 @@ This file is minimised in the sense that:
 Section titles correspond to the files the material came from the mathlib4/std4.
 -/
 
-section Std.Classes.Cast
-
-class NatCast (R : Type u) where
-class IntCast (R : Type u) where
-
-end Std.Classes.Cast
-
 section Std.Data.Int.Lemmas
-
-namespace Int
-theorem add_zero : ∀ a : Int, a + 0 = a := sorry
-theorem mul_one (a : Int) : a * 1 = a := sorry
-end Int
 
 end Std.Data.Int.Lemmas
 

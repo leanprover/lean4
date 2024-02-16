@@ -28,6 +28,12 @@ instance : ToExpr Nat where
   toExpr     := mkNatLit
   toTypeExpr := mkConst ``Nat
 
+instance : ToExpr Int where
+  toTypeExpr := .const ``Int []
+  toExpr i := match i with
+    | .ofNat n => mkApp (.const ``Int.ofNat []) (toExpr n)
+    | .negSucc n => mkApp (.const ``Int.negSucc []) (toExpr n)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool

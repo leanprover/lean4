@@ -10,6 +10,7 @@ import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.Elab.BinderPredicates
 import Lean.Elab.LetRec
 import Lean.Elab.Frontend
 import Lean.Elab.BuiltinNotation

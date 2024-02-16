@@ -604,6 +604,27 @@ def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
 
 /--
+`O(max |xs| |ys|)`.
+Version of `List.zipWith` that continues to the end of both lists,
+passing `none` to one argument once the shorter list has run out.
+-/
+def zipWithAll (f : Option α → Option β → γ) : List α → List β → List γ
+  | [], bs => bs.map fun b => f none (some b)
+  | a :: as, [] => (a :: as).map fun a => f (some a) none
+  | a :: as, b :: bs => f a b :: zipWithAll f as bs
+
+@[simp] theorem zipWithAll_nil_right :
+    zipWithAll f as [] = as.map fun a => f (some a) none := by
+  cases as <;> rfl
+
+@[simp] theorem zipWithAll_nil_left :
+    zipWithAll f [] bs = bs.map fun b => f none (some b) := by
+  rfl
+
+@[simp] theorem zipWithAll_cons_cons :
+    zipWithAll f (a :: as) (b :: bs) = f (some a) (some b) :: zipWithAll f as bs := rfl
+
+/--
 `O(|l|)`. Separates a list of pairs into two lists containing the first components and second components.
 * `unzip [(x₁, y₁), (x₂, y₂), (x₃, y₃)] = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
 -/
@@ -876,7 +897,7 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
       cases bs with
       | nil => intro h; contradiction
       | cons b bs =>
-        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl]
+        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl, -and_imp]
         intro ⟨h₁, h₂⟩
         exact ⟨h₁, ih h₂⟩
   rfl {as} := by

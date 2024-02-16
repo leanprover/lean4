@@ -15,10 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Prod_rprod___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelationPSigma___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelProdLex(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelationProd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_invImage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelProdLex___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_lt__wfRel;
 LEAN_EXPORT lean_object* l_measure(lean_object*, lean_object*);
@@ -117,6 +119,71 @@ _start:
 lean_object* x_3; 
 x_3 = l_instWellFoundedRelation(x_1, x_2);
 lean_dec(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelProdLex___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_6, 1);
+lean_inc(x_9);
+lean_dec(x_6);
+x_10 = lean_ctor_get(x_7, 0);
+lean_inc(x_10);
+x_11 = lean_ctor_get(x_7, 1);
+lean_inc(x_11);
+lean_dec(x_7);
+lean_inc(x_10);
+lean_inc(x_8);
+x_12 = lean_apply_2(x_3, x_8, x_10);
+x_13 = lean_unbox(x_12);
+lean_dec(x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_apply_2(x_1, x_8, x_10);
+x_15 = lean_unbox(x_14);
+lean_dec(x_14);
+if (x_15 == 0)
+{
+uint8_t x_16; lean_object* x_17; 
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_5);
+x_16 = 0;
+x_17 = lean_box(x_16);
+return x_17;
+}
+else
+{
+lean_object* x_18; 
+x_18 = lean_apply_2(x_5, x_9, x_11);
+return x_18;
+}
+}
+else
+{
+uint8_t x_19; lean_object* x_20; 
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_5);
+lean_dec(x_1);
+x_19 = 1;
+x_20 = lean_box(x_19);
+return x_20;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Prod_Lex_instDecidableRelProdLex(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Prod_Lex_instDecidableRelProdLex___rarg), 7, 0);
 return x_3;
 }
 }

@@ -117,7 +117,7 @@ def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (
     method := "textDocument/publishDiagnostics"
     param  := {
       uri         := m.uri
-      version?    := m.version
+      version?    := some m.version
       diagnostics := diagnostics
       : PublishDiagnosticsParams
     }

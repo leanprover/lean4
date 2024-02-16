@@ -201,6 +201,9 @@ and implicit parameters are also converted into new goals.
 -/
 syntax (name := refine') "refine' " term : tactic
 
+/-- `exfalso` converts a goal `⊢ tgt` into `⊢ False` by applying `False.elim`. -/
+macro "exfalso" : tactic => `(tactic| refine False.elim ?_)
+
 /--
 If the main goal's target type is an inductive type, `constructor` solves it with
 the first matching constructor, or else fails.

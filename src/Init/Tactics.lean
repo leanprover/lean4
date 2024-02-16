@@ -173,6 +173,19 @@ example (x : Nat) (h : x ≠ x) : p := by contradiction
 syntax (name := contradiction) "contradiction" : tactic
 
 /--
+Changes the goal to `False`, retaining as much information as possible:
+
+* If the goal is `False`, do nothing.
+* If the goal is an implication or a function type, introduce the argument and restart.
+  (In particular, if the goal is `x ≠ y`, introduce `x = y`.)
+* Otherwise, for a propositional goal `P`, replace it with `¬ ¬ P`
+  (attempting to find a `Decidable` instance, but otherwise falling back to working classically)
+  and introduce `¬ P`.
+* For a non-propositional goal use `False.elim`.
+-/
+syntax (name := falseOrByContra) "false_or_by_contra" : tactic
+
+/--
 `apply e` tries to match the current goal against the conclusion of `e`'s type.
 If it succeeds, then the tactic returns as many subgoals as the number of premises that
 have not been fixed by type inference or type class resolution.

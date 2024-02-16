@@ -47,7 +47,7 @@ def isPrivateNameExport (n : Name) : Bool :=
 Return `true` if `n` is of the form `_private.<module_name>.0`
 See comment above.
 -/
-private def isPrivatePrefix (n : Name) : Bool :=
+def isPrivatePrefix (n : Name) : Bool :=
   match n with
   | .num p 0 => go p
   | _ => false

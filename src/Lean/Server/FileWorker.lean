@@ -231,6 +231,8 @@ section Initialization
         publishDiagnostics m #[progressDiagnostic] hOut
       let fileSetupResult := fileSetupResult.addGlobalOptions globalOptions
       let (headerEnv, envMsgLog) ← buildHeaderEnv m headerStx fileSetupResult
+      -- Prepare header-based caches that requests may use
+      runHeaderCachingHandlers headerEnv
       let headerMsgLog := parseMsgLog.append envMsgLog
       let cmdState := buildCommandState m headerStx headerEnv headerMsgLog fileSetupResult.fileOptions
       let headerSnap := {

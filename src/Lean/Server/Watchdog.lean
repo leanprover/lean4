@@ -817,6 +817,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   -- refine
   completionProvider? := some {
     triggerCharacters? := some #["."]
+    resolveProvider := true
   }
   hoverProvider := true
   declarationProvider := true

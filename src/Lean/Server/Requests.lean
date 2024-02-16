@@ -182,8 +182,9 @@ section HandlerTable
 open Lsp
 
 structure RequestHandler where
-  fileSource : Json → Except RequestError Lsp.DocumentUri
-  handle : Json → RequestM (RequestTask Json)
+  fileSource          : Json → Except RequestError Lsp.DocumentUri
+  handle              : Json → RequestM (RequestTask Json)
+  handleHeaderCaching : Environment → IO Unit
 
 builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
   IO.mkRef {}
@@ -203,7 +204,9 @@ as LSP error responses. -/
 def registerLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
-    (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
+    (handler : paramType → RequestM (RequestTask respType))
+    (headerCachingHandler : Environment → IO Unit := fun _ => pure ())
+    : IO Unit := do
   if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
   if (← requestHandlers.get).contains method then
@@ -214,8 +217,8 @@ def registerLspRequestHandler (method : String)
     let params ← liftExcept <| parseRequestParams paramType j
     let t ← handler params
     pure <| t.map <| Except.map ToJson.toJson
-
-  requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
+  let handleHeaderCaching := headerCachingHandler
+  requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle, handleHeaderCaching }
 
 def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) :=
   return (← requestHandlers.get).find? method
@@ -245,6 +248,10 @@ def chainLspRequestHandler (method : String)
     requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
   else
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
+
+def runHeaderCachingHandlers (headerEnv : Environment) : IO Unit := do
+  (← requestHandlers.get).forM fun _ handler =>
+    handler.handleHeaderCaching headerEnv
 
 def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
   match (← lookupLspRequestHandler method) with

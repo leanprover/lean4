@@ -56,7 +56,8 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
       pure g
 
 @[builtin_tactic falseOrByContra]
-elab_rules : tactic
-  | `(tactic| false_or_by_contra) => do liftMetaTactic1 (falseOrByContra ·)
+def elabFalseOrByContra := fun
+   | `(tactic| false_or_by_contra) => do liftMetaTactic1 (falseOrByContra ·)
+   | _ => no_error_if_unused% throwUnsupportedSyntax
 
 end Lean.MVarId

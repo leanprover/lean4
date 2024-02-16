@@ -80,22 +80,19 @@ where
       match (← matchMatcherApp? e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          if !(← Structural.refinedArgType matcherApp F) then
-            processApp F e
-          else
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaTelescope alt fun xs altBody => do
-                unless xs.size >= numParams do
-                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let FAlt := xs[numParams - 1]!
-                mkLambdaFVars xs (← loop FAlt altBody)
-            return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+            lambdaTelescope alt fun xs altBody => do
+              unless xs.size >= numParams do
+                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let FAlt := xs[numParams - 1]!
+              mkLambdaFVars xs (← loop FAlt altBody)
+          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
         else
           processApp F e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
-        if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
+        if let some casesOnApp ← casesOnApp.addArg? F then
           let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               unless xs.size >= numParams do

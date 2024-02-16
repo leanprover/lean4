@@ -889,22 +889,27 @@ def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : 
 end Match
 
 /-- Auxiliary function for MatcherApp.addArg -/
-private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (i : Nat) : MetaM (Array Nat × Array Expr) := do
+private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (refined : Bool) (i : Nat) : MetaM (Array Nat × Array Expr) := do
   if h : i < alts.size then
     let alt       := alts.get ⟨i, h⟩
     let numParams := altNumParams[i]!
     let typeNew ← whnfD typeNew
     match typeNew with
     | Expr.forallE _ d b _ =>
-      let alt ← forallBoundedTelescope d (some numParams) fun xs d => do
+      let (alt, refined) ← forallBoundedTelescope d (some numParams) fun xs d => do
         let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
         forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
-          mkLambdaFVars xs alt
-      updateAlts (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) (i+1)
+          let refined := if refined then refined else
+            !(← isDefEq unrefinedArgType (← inferType x[0]!))
+          return (← mkLambdaFVars xs alt, refined)
+      updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"
   else
-    return (altNumParams, alts)
+    if refined then
+      return (altNumParams, alts)
+    else
+      throwError "failed to add argument to matcher application, argument type was not refined by `casesOn`"
 
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
@@ -948,7 +953,7 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0
+    let (altNumParams, alts) ← updateAlts eType auxType matcherApp.altNumParams matcherApp.alts false 0
     return { matcherApp with
       matcherLevels := matcherLevels,
       motive        := motive,

@@ -99,7 +99,7 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
 partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
   if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
 
-def delabAppFn : Delab := do
+def delabAppFn (tagAppFn : Bool) : Delab := withOptionAtCurrPos `pp.tagAppFns tagAppFn do
   if (← getExpr).consumeMData.isConst then
     withMDatasOptions delabConst
   else
@@ -141,25 +141,26 @@ argument when its arguments are specialized to function types, like in `id id 2`
 -/
 def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
   try
-    withTransparency TransparencyMode.all do
-      let mut result : Array ParamKind := Array.mkEmpty args.size
-      let mut fnType ← inferType f
-      let mut j := 0
-      for i in [0:args.size] do
-        unless fnType.isForall do
-          fnType ← whnf (fnType.instantiateRevRange j i args)
-          j := i
-        let .forallE n t b bi := fnType | failure
-        let defVal := t.getOptParamDefault? |>.map (·.instantiateRevRange j i args)
-        result := result.push { name := n, bInfo := bi, defVal, isAutoParam := t.isAutoParam }
-        fnType := b
-      fnType := fnType.instantiateRevRange j args.size args
-      -- We still want to consider parameters past the ones for the supplied arguments.
-      forallTelescopeReducing fnType fun xs _ => do
-        xs.foldlM (init := result) fun result x => do
-          let l ← x.fvarId!.getDecl
-          -- Warning: the defVal might refer to fvars that are only valid in this context
-          pure <| result.push { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
+    let mut result : Array ParamKind := Array.mkEmpty args.size
+    let mut fnType ← inferType f
+    let mut j := 0
+    for i in [0:args.size] do
+      unless fnType.isForall do
+        fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
+        j := i
+      let .forallE n t b bi := fnType | failure
+      let defVal := t.getOptParamDefault? |>.map (·.instantiateRevRange j i args)
+      result := result.push { name := n, bInfo := bi, defVal, isAutoParam := t.isAutoParam }
+      fnType := b
+    fnType := fnType.instantiateRevRange j args.size args
+    -- We still want to consider parameters past the ones for the supplied arguments.
+    -- We don't want to reduce too much here, since for example it might be a `Set`-valued function.
+    -- Knowing whether there are more expected arguments may require reducing instances too.
+    withTransparency .instances <| forallTelescopeReducing fnType fun xs _ => do
+      xs.foldlM (init := result) fun result x => do
+        let l ← x.fvarId!.getDecl
+        -- Warning: the defVal might refer to fvars that are only valid in this context
+        pure <| result.push { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
   catch _ => pure #[] -- recall that expr may be nonsensical
 
 def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
@@ -194,6 +195,10 @@ def isRegularApp (maxArgs : Nat) : DelabM Bool := do
     (not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit))
     (fun b => pure b <&&> not <$> getPPOption getPPAnalysisNamedArg)
 
+/--
+If `stx` is a regular application, apply a relevant unexpander or fail.
+Invariant: the current expression satisfies `isRegularApp`.
+-/
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. := (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs := appUnexpanderAttribute.getValues (← getEnv) c
@@ -231,10 +236,10 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
 Delaborates a function application in explicit mode, and ensures the resulting
 head syntax is wrapped with `@`.
 -/
-def delabAppExplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
+def delabAppExplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
     (do
-      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
+      let stx ← delabHead
       let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
@@ -255,43 +260,83 @@ def delabAppExplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array
 
 /--
 Delaborates a function application in the standard mode, where implicit arguments are generally not
-included.
+included, unless `pp.analysis.namedArg` is set at that argument.
+
+This delaborator is where `app_unexpander`s and structure instance unexpanders are applied.
 -/
-def delabAppImplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
-  -- TODO: always call the unexpanders, make them guard on the right # args?
-  let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
+def delabAppImplicitCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
+  -- We consider using unexpanders if (1) `unexpand` is true, (2) the head is a constant,
+  -- and (3) the number of arguments is at most `maxArgs`.
+  -- In that case, we want to know the arity of the head so we know how much it is overapplied,
+  -- so that we can try applying an unexpander without these arguments.
+  -- If all this succeeds, `headArity?` is the minimum of this arity and `maxArgs`.
+  let numArgs := (← getExpr).getAppNumArgs
+  let headArity? : Option Nat ←
     (do
-      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
-      return (stx, paramKinds.toList, #[]))
-    (fun (fnStx, paramKinds, argStxs) => do
-      let arg ← getExpr
-      let opts ← getOptions
-      let mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax := do
-        `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx))
-      let argStx? : Option Syntax ←
-        if ← getPPOption getPPAnalysisSkip then pure none
-        else if ← getPPOption getPPAnalysisHole then `(_)
-        else
-          match paramKinds with
-          | [] => delab
-          | param :: rest =>
-            if param.defVal.isSome && rest.isEmpty then
-              let v := param.defVal.get!
-              if !v.hasLooseBVars && v == arg then pure none else delab
-            else if !param.isRegularExplicit && param.defVal.isNone then
-              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then some <$> mkNamedArg param.name (← delab) else pure none
-            else delab
+      guard <| unexpand && numArgs ≤ maxArgs
+      let head := unfoldMDatas (← getExpr).getAppFn
+      guard head.isConst
+      try withTransparency .reducible do forallBoundedTelescope (← inferType head) maxArgs fun xs _ => pure <| some xs.size
+      catch _ => pure none)
+    <|> pure none
+  let (unexpanded, fnStx, _, argStxs) ←
+    if let some headArity := headArity? then
+      withBoundedAppFnArgs (numArgs - headArity)
+        (do
+          -- Now we are looking at a non-over-applied application.
+          let (_, fnStx, paramKinds, argStxs) ← withAppFnArgs
+            (do return (false, ← delabHead, paramKinds.toList, #[]))
+            processArg
+          if ← isRegularApp headArity then
+            let stx := Syntax.mkApp fnStx argStxs
+            let stx? ←
+              (guard (← getPPOption getPPNotation) *> some <$> unexpandRegularApp stx)
+              <|> (guard (← getPPOption getPPStructureInstances) *> some <$> unexpandStructureInstance stx)
+              <|> pure none
+            if let some stx := stx? then
+              let stx ← annotateTermInfo stx
+              return (true, stx, paramKinds, #[])
+          -- If the number of arguments is the arity, then we can avoid attempting to run the unexpanders again.
+          let unexpanded := numArgs == headArity
+          return (unexpanded, fnStx, paramKinds, argStxs))
+        processArg
+    else
+      withBoundedAppFnArgs maxArgs
+        (do return (false, ← delabHead, paramKinds.toList, #[]))
+        processArg
+  let stx := Syntax.mkApp fnStx argStxs
+  if ← pure !unexpanded <&&> isRegularApp maxArgs then
+    -- Fallback to old unexpander behavior
+    (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
+    <|> pure stx
+  else
+    return stx
+where
+  mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax :=
+    `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx))
+  mkArgStx? (paramKinds : List ParamKind) : DelabM (Option Syntax) := do
+    let arg ← getExpr
+    let opts ← getOptions
+    if ← getPPOption getPPAnalysisSkip then pure none
+    else if ← getPPOption getPPAnalysisHole then `(_)
+    else
+      match paramKinds with
+      | [] => delab
+      | param :: rest =>
+        if param.defVal.isSome && rest.isEmpty then
+          if param.defVal.get! == arg then pure none else delab
+        else if !param.isRegularExplicit && param.defVal.isNone then
+          if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then
+            some <$> mkNamedArg param.name (← delab)
+          else pure none
+        else delab
+  processArg : Bool × Term × List ParamKind × Array Syntax → DelabM (Bool × Term × List ParamKind × Array Syntax) :=
+    fun (unexpanded, fnStx, paramKinds, argStxs) => do
+      let argStx? ← mkArgStx? paramKinds
       let argStxs := match argStx? with
         | none => argStxs
         | some stx => argStxs.push stx
-      pure (fnStx, paramKinds.tailD [], argStxs))
-  let stx := Syntax.mkApp fnStx argStxs
-
-  if ← isRegularApp maxArgs then
-    (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
-    <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
-    <|> pure stx
-  else pure stx
+      return (unexpanded, fnStx, paramKinds.tailD [], argStxs)
 
 /--
 Delaborates applications. Removes up to `maxArgs` arguments to form
@@ -299,25 +344,25 @@ the "head" of the application and delaborates the head using `delabHead`.
 The remaining arguments are processed depending on whether heuristics indicate that the application
 should be delaborated using `@`.
 -/
-def delabAppCore (maxArgs : Nat) (delabHead : Delab) : Delab := do
-  let tagAppFn ← getPPOption getPPTagAppFns
+def delabAppCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) : Delab := do
   let e ← getExpr
   let paramKinds ← getParamKinds (e.getBoundedAppFn maxArgs) (e.getBoundedAppArgs maxArgs)
 
   let useExplicit ← useAppExplicit paramKinds
 
   if useExplicit then
-    delabAppExplicitCore maxArgs delabHead paramKinds tagAppFn
+    delabAppExplicitCore maxArgs delabHead paramKinds
   else
-    delabAppImplicitCore maxArgs delabHead paramKinds tagAppFn
+    delabAppImplicitCore unexpand maxArgs delabHead paramKinds
 
 /--
 Default delaborator for applications.
 -/
 @[builtin_delab app]
 def delabApp : Delab := do
+  let tagAppFn ← getPPOption getPPTagAppFns
   let e ← getExpr
-  delabAppCore e.getAppNumArgs delabAppFn
+  delabAppCore true e.getAppNumArgs (delabAppFn tagAppFn)
 
 /--
 The `withOverApp` combinator allows delaborators to handle "over-application" by using the core
@@ -344,7 +389,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   if n == arity then
     x
   else
-    delabAppCore (n - arity) (withAnnotateTermInfo x)
+    delabAppCore false (n - arity) (withAnnotateTermInfo x)
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

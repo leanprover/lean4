@@ -131,6 +131,7 @@ Integer division. This version of `Int.div` uses the E-rounding convention
 (euclidean division), in which `Int.emod x y` satisfies `0 ≤ mod x y < natAbs y` for `y ≠ 0`
 and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x`.
 -/
+@[extern "lean_int_ediv"]
 def ediv : Int → Int → Int
   | ofNat m, ofNat n => ofNat (m / n)
   | ofNat m, -[n+1]  => -ofNat (m / succ n)
@@ -143,6 +144,7 @@ Integer modulus. This version of `Int.mod` uses the E-rounding convention
 (euclidean division), in which `Int.emod x y` satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
 and `Int.ediv` is the unique function satisfying `emod x y + (ediv x y) * y = x`.
 -/
+@[extern "lean_int_emod"]
 def emod : Int → Int → Int
   | ofNat m, n => ofNat (m % natAbs n)
   | -[m+1],  n => subNatNat (natAbs n) (succ (m % natAbs n))

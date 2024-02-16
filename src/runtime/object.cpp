@@ -1432,6 +1432,36 @@ extern "C" LEAN_EXPORT object * lean_int_big_mod(object * a1, object * a2) {
     }
 }
 
+extern "C" LEAN_EXPORT object * lean_int_big_ediv(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        return mpz_to_int(mpz::ediv(lean_scalar_to_int(a1), mpz_value(a2)));
+    } else if (lean_is_scalar(a2)) {
+        int d = lean_scalar_to_int(a2);
+        if (d == 0)
+            return a2;
+        else
+            return mpz_to_int(mpz::ediv(mpz_value(a1), d));
+    } else {
+        return mpz_to_int(mpz::ediv(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_int_big_emod(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        return mpz_to_int(mpz::emod(lean_scalar_to_int(a1), mpz_value(a2)));
+    } else if (lean_is_scalar(a2)) {
+        int i2 = lean_scalar_to_int(a2);
+        if (i2 == 0) {
+            lean_inc(a1);
+            return a1;
+        } else {
+            return mpz_to_int(mpz::emod(mpz_value(a1), i2));
+        }
+    } else {
+        return mpz_to_int(mpz::emod(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
 extern "C" LEAN_EXPORT bool lean_int_big_eq(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
         lean_assert(lean_scalar_to_int(a1) != mpz_value(a2))

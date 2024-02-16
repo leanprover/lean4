@@ -20,6 +20,10 @@ namespace Lake.Toml
 
 open Lean Parser
 
+/-- Is it a TOML control character? (excludes tabs and spaces) -/
+def isControlChar (c : Char) :=
+  c = '\x7F' || (c < '\x20' && c != '\t')
+
 --------------------------------------------------------------------------------
 /-! ## Trailing Functions -/
 --------------------------------------------------------------------------------
@@ -57,7 +61,9 @@ def newlineFn : ParserFn := fun c s =>
 
 /-- Consumes the body of a comment. -/
 def commentBodyFn : ParserFn :=
-  takeWhileFn fun c => c.val ≥ 0x20 || c == '\t'
+  -- While the v1.0.0 TOML ABNF grammar permits a `DEL`, the test suite does not.
+  -- We forbid it because it the omission seems likely to be an error
+  takeUntilFn isControlChar
 
 /-- Consumes a line comment. -/
 def commentFn : ParserFn :=
@@ -109,24 +115,23 @@ def escapeSeqFn (stringGap : Bool) : ParserFn := fun c s =>
     s.mkEOIError expected
   else
     let curr := input.get' s.pos h
+    let ifStringGap (p : ParserFn) :=
+      if stringGap then
+        p c (s.next' input s.pos h)
+      else
+        s.mkUnexpectedError "string gap is forbidden here" expected
     if isEscapeChar curr then
       s.next' input s.pos h
     else if curr == 'u' then
       repeatFn 4 hexDigitFn c (s.next' input s.pos h)
     else if curr == 'U' then
       repeatFn 8 hexDigitFn c (s.next' input s.pos h)
-    else if curr == ' ' || curr == '\t' || curr == '\n' then
-      let s := s.next' input s.pos h
-      if stringGap then
-        wsNewlineFn c s
-      else
-        s.mkUnexpectedError "string gap is forbidden here" expected
+    else if curr == ' ' || curr == '\t' then
+      ifStringGap (wsFn >> newlineFn >> wsNewlineFn)
+    else if curr == '\n' then
+      ifStringGap wsNewlineFn
     else if curr == '\r' then
-      let s := s.next' input s.pos h
-      if stringGap then
-        (crlfAuxFn >> wsNewlineFn) c s
-      else
-        s.mkUnexpectedError "string gap is forbidden here" expected
+      ifStringGap (crlfAuxFn >> wsNewlineFn)
     else
       s.mkUnexpectedError "invalid escape sequence"
 
@@ -136,13 +141,14 @@ partial def basicStringAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     s.mkUnexpectedErrorAt "unterminated basic string" startPos
   else
     let curr := input.get' s.pos h
-    let s := s.next' input s.pos h
     if curr == '\"' then
-      s
+      s.next' input s.pos h
     else if curr == '\\' then
-      (escapeSeqFn false >> basicStringAuxFn startPos) c s
+      (escapeSeqFn false >> basicStringAuxFn startPos) c (s.next' input s.pos h)
+    else if isControlChar curr then
+      mkUnexpectedCharError s curr
     else
-      basicStringAuxFn startPos c s
+      basicStringAuxFn startPos c (s.next' input s.pos h)
 
 def basicStringFn : ParserFn := usePosFn fun startPos =>
   chFn '\"' ["basic string"] >> basicStringAuxFn startPos
@@ -153,11 +159,12 @@ partial def literalStringAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
     s.mkUnexpectedErrorAt "unterminated literal string" startPos
   else
     let curr := input.get' s.pos h
-    let s := s.next' input s.pos h
     if curr == '\'' then
-      s
+      s.next' input s.pos h
+    else if isControlChar curr then
+      mkUnexpectedCharError s curr
     else
-      literalStringAuxFn startPos c s
+      literalStringAuxFn startPos c (s.next' input s.pos h)
 
 def literalStringFn : ParserFn := usePosFn fun startPos =>
   chFn '\'' ["literal string"] >> literalStringAuxFn startPos
@@ -179,9 +186,14 @@ partial def mlLiteralStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : P
         mlLiteralStringAuxFn startPos (quoteDepth+1) c s
     else if quoteDepth ≥ 3 then
       s
+    else if curr == '\n' then
+      mlLiteralStringAuxFn startPos 0 c (s.next' input s.pos h)
+    else if curr == '\r' then
+      (crlfAuxFn >> mlLiteralStringAuxFn startPos 0) c (s.next' input s.pos h)
+    else if isControlChar curr && (curr != '\r') then
+      mkUnexpectedCharError s curr
     else
-      let s := s.next' input s.pos h
-      mlLiteralStringAuxFn startPos 0 c s
+      mlLiteralStringAuxFn startPos 0 c (s.next' input s.pos h)
 
 def mlLiteralStringFn : ParserFn := usePosFn fun startPos =>
   atomicFn (repeatFn 3 (chFn '\'' ["multi-line literal string"])) >>
@@ -204,12 +216,16 @@ partial def mlBasicStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : Par
         mlBasicStringAuxFn startPos (quoteDepth+1) c s
     else if quoteDepth ≥ 3 then
       s
+    else if curr == '\n' then
+      mlBasicStringAuxFn startPos 0 c (s.next' input s.pos h)
+    else if curr == '\r' then
+      (crlfAuxFn >> mlBasicStringAuxFn startPos 0) c (s.next' input s.pos h)
     else if curr == '\\' then
-      let s := s.next' input s.pos h
-      (escapeSeqFn true >> mlBasicStringAuxFn startPos 0) c s
+      (escapeSeqFn true >> mlBasicStringAuxFn startPos 0) c (s.next' input s.pos h)
+    else if isControlChar curr then
+      mkUnexpectedCharError s curr
     else
-      let s := s.next' input s.pos h
-      mlBasicStringAuxFn startPos 0 c s
+      mlBasicStringAuxFn startPos 0 c (s.next' input s.pos h)
 
 def mlBasicStringFn : ParserFn := usePosFn fun startPos =>
   atomicFn (repeatFn 3 (chFn '\"' ["multi-line basic string"])) >>
@@ -254,9 +270,6 @@ def timeAuxFn (allowOffset : Bool) : ParserFn :=
 def timeFn (allowOffset := false) : ParserFn :=
   digitPairFn ["hour"] >> chFn ':' >> timeAuxFn allowOffset
 
-def timeLitFn : ParserFn :=
-  litFn `Lake.Toml.time timeFn
-
 def optTimeFn : ParserFn := fun c s =>
   let i := s.pos
   let input := c.input
@@ -264,8 +277,12 @@ def optTimeFn : ParserFn := fun c s =>
     s
   else
     let curr := input.get' i h
-    if curr = 'T' || curr = 't' || curr = ' ' then
+    if curr = 'T' || curr = 't' then
       timeFn true c (s.next' input i h)
+    else if curr = ' ' then
+      let tPos := input.next' i h
+      let s := timeFn true c (s.setPos tPos)
+      if s.hasError && s.pos == tPos then s.restore (s.stackSize-1) i else s
     else
       s
 
@@ -306,13 +323,8 @@ def optDecExpFn : ParserFn :=  fun c s =>
     else
       s
 
-mutual
-
-partial def decNumberSepFn (startPos : String.Pos) (curr : Char) (nextPos : String.Pos) : ParserFn := fun c s =>
-  if curr == '_' then
-    let s := s.setPos nextPos
-    decNumberFn startPos c s
-  else if curr == '.' then
+def decNumberTailAuxFn (startPos : String.Pos) (curr : Char) (nextPos : String.Pos) : ParserFn := fun c s =>
+  if curr == '.' then
     let s := s.setPos nextPos
     let s := sepByChar1Fn (·.isDigit) '_' ["decimal fraction"] c s
     if s.hasError then s else
@@ -326,6 +338,22 @@ partial def decNumberSepFn (startPos : String.Pos) (curr : Char) (nextPos : Stri
     pushLit `Lake.Toml.float startPos skipFn c s
   else
     pushLit `Lake.Toml.decInt startPos skipFn c s
+
+def decNumberTailFn (startPos : String.Pos)  : ParserFn := fun c s =>
+  let input := c.input
+  if h : input.atEnd s.pos then
+    pushLit `Lake.Toml.decInt startPos skipFn c s
+  else
+    decNumberTailAuxFn startPos (input.get' s.pos h) (input.next' s.pos h) c s
+
+mutual
+
+partial def decNumberSepFn (startPos : String.Pos) (curr : Char) (nextPos : String.Pos) : ParserFn := fun c s =>
+  if curr == '_' then
+    let s := s.setPos nextPos
+    decNumberFn startPos c s
+  else
+    decNumberTailAuxFn startPos curr nextPos c s
 
 partial def decNumberAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
   let input := c.input
@@ -368,7 +396,9 @@ def decimalFn (startPos : String.Pos) : ParserFn := fun c s =>
     s.mkEOIError expected
   else
     let curr := input.get' s.pos h
-    if curr.isDigit then
+    if curr == '0' then
+      decNumberTailFn startPos c (s.next' input s.pos h)
+    else if curr.isDigit then
       decNumberAuxFn startPos c (s.next' input s.pos h)
     else if curr == 'i' then
       infAuxFn startPos c (s.next' input s.pos h)
@@ -395,7 +425,7 @@ def decNumeralAuxFn (startPos : String.Pos) : ParserFn := fun c s =>
           let s := s.setPos nextPos
           let s := timeAuxFn false c s
           if s.hasError then s else
-          pushLit `Lake.Toml.time startPos skipFn c s
+          pushLit `Lake.Toml.dateTime startPos skipFn c s
         else if curr.isDigit then -- `NNN`
           let s := s.setPos nextPos
           if h : input.atEnd s.pos then
@@ -460,9 +490,9 @@ def numeralFn : ParserFn := atomicFn fun c s =>
           let s := s.next' input s.pos h
           let s := (chFn ':' >> timeAuxFn false) c s
           if s.hasError then s else
-          pushLit `Lake.Toml.time startPos skipFn c s
+          pushLit `Lake.Toml.dateTime startPos skipFn c s
         else
-          decNumberSepFn startPos curr (input.next' s.pos h) c s
+          decNumberTailAuxFn startPos curr (input.next' s.pos h) c s
     else if curr.isDigit then
       decNumeralAuxFn startPos c (s.next' input s.pos h)
     else if curr == '+' || curr == '-' then
@@ -505,7 +535,7 @@ def mlLiteralString : Parser :=
 def quotedKey : Parser :=
   basicString <|> literalString
 
-def simpleKey : Parser := nodeWithAntiquot "simpleKey" `Lake.Toml.simpleKey $
+def simpleKey : Parser := nodeWithAntiquot "simpleKey" `Lake.Toml.simpleKey (anonymous := true) $
   unquotedKey <|> quotedKey
 
 def key : Parser := nodeWithAntiquot "key" `Lake.Toml.key (anonymous := true)  $ setExpected ["key"]  $
@@ -534,16 +564,16 @@ def header : Parser :=
 
 def tomlCore (val : Parser) : Parser :=
   nodeWithAntiquot "toml" `Lake.Toml.toml (anonymous := true) $
-  header >> sepBy1Linebreak (expressionCore val >> trailingSep)
+  header >> sepByLinebreak (expressionCore val >> trailingSep)
 
 def inlineTableCore (val : Parser) : Parser := nodeWithAntiquot "inlineTable" `Lake.Toml.inlineTable $
   chAtom '{' ["inline-table"] (trailingFn := trailingFn) >>
-  sepBy1 (keyvalCore val >> trailingWs) "," (chAtom ',' (trailingFn := trailingFn)) false >>
+  sepBy (keyvalCore val >> trailingWs) "," (chAtom ',' (trailingFn := wsFn)) false >>
   chAtom '}'
 
 def arrayCore (val : Parser) : Parser := nodeWithAntiquot "array" `Lake.Toml.array $
   chAtom '[' ["array"] (trailingFn := trailingFn) >>
-  sepBy1 (val >> trailingSep) "," (chAtom ',' (trailingFn := trailingFn)) true >>
+  sepBy (val >> trailingSep) "," (chAtom ',' (trailingFn := trailingFn)) true >>
   chAtom ']'
 
 def string : Parser :=

@@ -29,3 +29,4 @@ import Lean.Elab.Tactic.Repeat
 import Lean.Elab.Tactic.Ext
 import Lean.Elab.Tactic.Change
 import Lean.Elab.Tactic.FalseOrByContra
+import Lean.Elab.Tactic.Omega

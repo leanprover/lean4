@@ -33,30 +33,45 @@ def mkEmpty (capacity : Nat) : NameDict α :=
 abbrev size (t : NameDict α) : Nat :=
   t.items.size
 
+abbrev isEmpty (t : NameDict α) : Bool :=
+  t.items.isEmpty
+
 def ofArray (items : Array (Name × α)) : NameDict α := Id.run do
   let mut indices := mkNameMap Nat
   for h : i in [0:items.size] do
     indices := indices.insert (items[i]'h.upper).1 i
   return {items, indices}
 
+def keys (t : NameDict α) : Array Name :=
+  t.items.map (·.1)
+
+def values (t : NameDict α) : Array α :=
+  t.items.map (·.2)
+
+def contains (k : Name) (t : NameDict α) : Bool :=
+  t.indices.contains k
+
 def findIdx? (k : Name) (t : NameDict α) : Option (Fin t.size) := do
   let i ← t.indices.find? k
   if h : i < t.items.size then some ⟨i, h⟩ else none
 
 def find? (k : Name) (t : NameDict α) : Option α := do
-  t.items[← t.findIdx? k]?.map (·.2)
-
-def contains (k : Name) (t : NameDict α) : Bool :=
-  t.indices.contains k
+  t.items[← t.findIdx? k].2
 
 def push (k : Name) (v : α) (t : NameDict α) : NameDict α :=
   {items := t.items.push ⟨k,v⟩, indices := t.indices.insert k t.items.size}
 
-def insert (k : Name) (v : α) (t : NameDict α) : NameDict α :=
+@[specialize] def insertMapM [Monad m] (k : Name) (f : Option α → m α) (t : NameDict α) : m (NameDict α) := do
   if let some i := t.findIdx? k then
-    {items := t.items.set i (k, v), indices := t.indices.insert k i}
+    return {t with items := ← t.items.modifyM i fun (k, v) => return (k, ← f (some v))}
   else
-    t.push k v
+    return t.push k (← f none)
+
+@[inline] def insertMap (k : Name) (f : Option α → α) (t : NameDict α) : NameDict α :=
+  Id.run <| t.insertMapM k fun v? => pure <| f v?
+
+def insert (k : Name) (v : α) (t : NameDict α) : NameDict α :=
+  t.insertMap k fun _ => v
 
 def append (self other : NameDict α) : NameDict α :=
   other.items.foldl (fun t (k,v) => t.insert k v) self
@@ -74,6 +89,17 @@ protected def toJson [ToJson α] (t : NameDict α) : Json :=
 
 instance [ToJson α] : ToJson (NameDict α) := ⟨NameDict.toJson⟩
 
+def map (f : α → β) (t : NameDict α) : NameDict β :=
+  {t with items := t.items.map fun (k, v) => (k, f v)}
+
+def filter (p : α → Bool) (t : NameDict α) : NameDict α :=
+  t.items.foldl (init := {}) fun t (k, v) =>
+    if p v then t.push k v else t
+
+def filterMap (f : α → Option β) (t : NameDict α) : NameDict β :=
+  t.items.foldl (init := {}) fun t (k, v) =>
+    if let some v := f v then t.push k v else t
+
 end NameDict
 
 /-- A TOML value. -/
@@ -89,6 +115,7 @@ deriving Inhabited, BEq
 
 abbrev Table := NameDict Value
 
+instance : OfNat Value n := ⟨.integer n⟩
 instance : Coe String Value := ⟨Value.string⟩
 instance : Coe Int Value := ⟨Value.integer⟩
 instance : Coe Float Value := ⟨Value.float⟩
@@ -114,20 +141,6 @@ protected partial def Value.toJson (v : Value) : Json :=
 
 instance : ToJson Value := ⟨Value.toJson⟩
 
-partial def hexEncodeAux (n : Nat) (s : String) : String :=
-  let r := n / 16
-  if r = 0 then
-    s
-  else
-    let d := n % 16
-    if d ≤ 9 then
-      hexEncodeAux r (s.push <| Char.ofNat <| '0'.val.toNat + d)
-    else
-      hexEncodeAux r (s.push <| Char.ofNat <| 'A'.val.toNat + (d - 10))
-
-@[inline] def hexEncode (n : Nat) : String :=
-  hexEncodeAux n ""
-
 def ppString (s : String) : String :=
   let s := s.foldl (init := "\"") fun s c =>
     match c with
@@ -140,7 +153,7 @@ def ppString (s : String) : String :=
     | '\\' => s ++ "\\\\"
     | _ =>
       if c.val < 0x20 || c.val == 0x7F then
-        s ++ "\\U" ++ lpad (hexEncode c.val.toNat) '0' 8
+        s ++ "\\u" ++ lpad (String.mk <| Nat.toDigits 16 c.val.toNat) '0' 4
       else
         s.push c
   s.push '\"'
@@ -158,12 +171,11 @@ partial def ppKey (k : Name) : String :=
       ppSimpleKey s
     else
       s!"{ppKey p}.{ppSimpleKey s}"
-  | _ => panic! "invalid TOML key"
-
+  | _ => ""
 
 mutual
 
-partial def Table.toString (t : Table) : String :=
+partial def ppInlineTable (t : Table) : String :=
   have : ToString Value := ⟨Value.toString⟩
   let xs := t.items.map fun (k,v) => s!"{ppKey k} = {v}"
   "{" ++ ", ".intercalate xs.toList ++ "}"
@@ -177,18 +189,20 @@ partial def Value.toString (v : Value) : String :=
   | .boolean b => toString b
   | .dateTime dt => toString dt
   | .array xs => toString xs.toList
-  | .table t => Table.toString t
+  | .table t => ppInlineTable t
 
 end
 
 instance : ToString Value := ⟨Value.toString⟩
 
-partial def ppTable (t : Table) : String :=
-  t.items.foldl (init := "") fun s (k,v) =>
+def ppTable (t : Table) : String :=
+  String.trimLeft <| t.items.foldl (init := "") fun s (k,v) =>
     match v with
     | .array xs => xs.foldl (init := s) fun s v =>
       match v with
-      | .table t => s ++ s!"\n[[{ppKey k}]]\n" ++ Table.toString t
+      | .table t =>
+        let s := s ++ s!"\n[[{ppKey k}]]\n"
+        t.items.foldl (fun s (k,v) => appendKeyval s k v) s
       | _ => appendKeyval s k v
     | .table t =>
       let s := s ++ s!"\n[{ppKey k}]\n"

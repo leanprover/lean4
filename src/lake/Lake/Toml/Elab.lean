@@ -18,19 +18,12 @@ open Lean
 
 namespace Lake.Toml
 
-structure ElabState where
-  rootTable : Table := {}
-  currTable : Table := {}
-  currKey : Name := .anonymous
-
-abbrev TomlElabM := StateT ElabState CoreM
-
-@[inline] def elabLit {k : SyntaxNodeKind} (x : TSyntax k) (name : String) : TomlElabM String := do
+@[inline] def elabLit {k : SyntaxNodeKind} (x : TSyntax k) (name : String) : CoreM String := do
   let some spelling := x.raw.isLit? k
     | throwErrorAt x s!"ill-formed {name} syntax"
   return spelling
 
-def elabBoolean (x : TSyntax ``boolean) : TomlElabM Bool := do
+def elabBoolean (x : TSyntax ``boolean) : CoreM Bool := do
   match x with
   | `(boolean|true)=> return true
   | `(boolean|false) => return false
@@ -52,7 +45,7 @@ def decodeSign (s : String) : Bool × String :=
   else
     (false, s)
 
-def elabDecInt (x : TSyntax ``decInt) : TomlElabM Int := do
+def elabDecInt (x : TSyntax ``decInt) : CoreM Int := do
   let spelling ← elabLit x "decimal integer"
   let (sign, spelling) := decodeSign spelling
   if sign then
@@ -60,7 +53,7 @@ def elabDecInt (x : TSyntax ``decInt) : TomlElabM Int := do
   else
     return .ofNat <| decodeDecNum <| spelling
 
-def elabFloat (x : TSyntax ``float) : TomlElabM Float := do
+def elabFloat (x : TSyntax ``float) : CoreM Float := do
   let spelling ← elabLit x "float"
   let (sign, spelling) := decodeSign spelling
   if spelling == "inf" then
@@ -95,12 +88,12 @@ where
     | [s] => return (decodeDecNum s, 0)
     | _ => throwErrorAt x "invalid float"
 
-def elabBinNum (x : TSyntax ``binNum) : TomlElabM Nat := do
+def elabBinNum (x : TSyntax ``binNum) : CoreM Nat := do
   let spelling ← elabLit x "binary number"
   return spelling.drop 2 |>.foldl (init := 0) fun n c =>
     if c == '_' then n else n*2 + (c.val - '0'.val).toNat
 
-def elabOctNum (x : TSyntax ``octNum) : TomlElabM Nat := do
+def elabOctNum (x : TSyntax ``octNum) : CoreM Nat := do
   let spelling ← elabLit x "octal number"
   return spelling.drop 2 |>.foldl (init := 0) fun n c =>
     if c == '_' then n else n*8 + (c.val - '0'.val).toNat
@@ -110,12 +103,12 @@ def decodeHexDigit (c : Char) : Nat :=
   else if c  ≤ 'F' then 10 + (c.val - 'A'.val).toNat
   else 10 + (c.val - 'a'.val).toNat
 
-def elabHexNum (x : TSyntax ``hexNum) : TomlElabM Nat := do
+def elabHexNum (x : TSyntax ``hexNum) : CoreM Nat := do
   let spelling ← elabLit x "hexadecimal number"
   return spelling.drop 2 |>.foldl (init := 0) fun n c =>
     if c == '_' then n else n*16 + decodeHexDigit c
 
-def elabDateTime (x : TSyntax ``dateTime) : TomlElabM DateTime := do
+def elabDateTime (x : TSyntax ``dateTime) : CoreM DateTime := do
   let spelling ← elabLit x "date-time"
   let some dt := DateTime.ofString? spelling
     | throwErrorAt x "invalid date-time"
@@ -125,13 +118,13 @@ def elabDateTime (x : TSyntax ``dateTime) : TomlElabM DateTime := do
 /-! ## Strings & Simple Keys -/
 --------------------------------------------------------------------------------
 
-def elabLiteralString (x : TSyntax ``literalString) : TomlElabM String := do
+def elabLiteralString (x : TSyntax ``literalString) : CoreM String := do
   return (← elabLit x "literalString").drop 1 |>.dropRight 1
 
 def decodeHexDigits (s : Substring) : Nat :=
-  s.foldl (init := 0) fun n c => if c == '_' then n else n*16 + decodeHexDigit c
+  s.foldl (init := 0) fun n c => n*16 + decodeHexDigit c
 
-partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "") : TomlElabM String := do
+partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "") : CoreM String := do
   if h : lit.atEnd i then
     return out
   else
@@ -142,29 +135,32 @@ partial def elabBasicStringCore (lit : String) (i : String.Pos := 0) (out := "")
         return out
       else
         let curr := lit.get' i h
+        let elabUnicodeEscape escape :=
+          let val := decodeHexDigits escape
+          if h : val.isValidChar then
+            let ch := Char.ofNatAux val h
+            elabBasicStringCore lit escape.stopPos (out.push ch)
+          else
+            throwError "invalid unicode escape '{escape}'"
         match curr with
-        | 'b'  => elabBasicStringCore lit i (out.push '\x08')
-        | 't'  => elabBasicStringCore lit i (out.push '\t')
-        | 'n'  => elabBasicStringCore lit i (out.push '\n')
-        | 'f'  => elabBasicStringCore lit i (out.push '\x0C')
-        | 'r'  => elabBasicStringCore lit i (out.push '\r')
-        | '\"' => elabBasicStringCore lit i (out.push '"')
-        | '\\' => elabBasicStringCore lit i (out.push '\\')
-        | 'u' =>
-          let hex := Substring.mk lit i lit.endPos |>.take 4
-          elabBasicStringCore lit i (out.push <| .ofNat <| decodeHexDigits hex)
-        | 'U' =>
-          let hex := Substring.mk lit i lit.endPos |>.take 8
-          elabBasicStringCore lit i (out.push <| .ofNat <| decodeHexDigits hex)
+        | 'b'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x08')
+        | 't'  => elabBasicStringCore lit (lit.next' i h) (out.push '\t')
+        | 'n'  => elabBasicStringCore lit (lit.next' i h) (out.push '\n')
+        | 'f'  => elabBasicStringCore lit (lit.next' i h) (out.push '\x0C')
+        | 'r'  => elabBasicStringCore lit (lit.next' i h) (out.push '\r')
+        | '\"' => elabBasicStringCore lit (lit.next' i h) (out.push '"')
+        | '\\' => elabBasicStringCore lit (lit.next' i h) (out.push '\\')
+        | 'u'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 4)
+        | 'U'  => elabUnicodeEscape (Substring.mk lit (lit.next' i h) lit.endPos |>.take 8)
         | _ =>
           let i := Substring.mk lit i lit.endPos |>.trimLeft |>.startPos
           elabBasicStringCore lit i out
     else
       elabBasicStringCore lit i (out.push curr)
 
-def elabBasicString (x : TSyntax ``basicString) : TomlElabM String := do
+def elabBasicString (x : TSyntax ``basicString) : CoreM String := do
   let spelling ← elabLit x "basic string"
-  elabBasicStringCore (spelling.drop 1 |>.dropRight 1)
+  withRef x <| elabBasicStringCore (spelling.drop 1 |>.dropRight 1)
 
 def dropInitialNewline (s : String) : String :=
   if s.front == '\r' then
@@ -174,15 +170,15 @@ def dropInitialNewline (s : String) : String :=
   else
     s
 
-def elabMlLiteralString (x : TSyntax ``mlLiteralString) : TomlElabM String := do
+def elabMlLiteralString (x : TSyntax ``mlLiteralString) : CoreM String := do
   let spelling ← elabLit x "multi-line literal string"
   return dropInitialNewline (spelling.drop 3 |>.dropRight 3)
 
-def elabMlBasicString (x : TSyntax ``mlBasicString) : TomlElabM String := do
+def elabMlBasicString (x : TSyntax ``mlBasicString) : CoreM String := do
   let spelling ← elabLit x "multi-line basic string"
-  elabBasicStringCore (dropInitialNewline (spelling.drop 3 |>.dropRight 3))
+  withRef x <| elabBasicStringCore (dropInitialNewline (spelling.drop 3 |>.dropRight 3))
 
-def elabString (x : TSyntax ``string) : TomlElabM String := do
+def elabString (x : TSyntax ``string) : CoreM String := do
   match x with
   | `(val|$x:literalString) => elabLiteralString x
   | `(val|$x:basicString) => elabBasicString x
@@ -190,10 +186,10 @@ def elabString (x : TSyntax ``string) : TomlElabM String := do
   | `(val|$x:mlBasicString) => elabMlBasicString x
   | _ => throwErrorAt x "ill-formed string syntax"
 
-@[inline] def elabUnquotedKey (x : TSyntax ``unquotedKey) : TomlElabM String := do
+@[inline] def elabUnquotedKey (x : TSyntax ``unquotedKey) : CoreM String := do
   elabLit x "unquoted key"
 
-def elabSimpleKey (x : TSyntax ``simpleKey) : TomlElabM String := do
+def elabSimpleKey (x : TSyntax ``simpleKey) : CoreM String := do
   match x with
   | `(simpleKey|$x:unquotedKey) => elabUnquotedKey x
   | `(simpleKey|$x:literalString) => elabLiteralString x
@@ -204,32 +200,36 @@ def elabSimpleKey (x : TSyntax ``simpleKey) : TomlElabM String := do
 /-! ## Complex Values -/
 --------------------------------------------------------------------------------
 
-def elabArray (x : TSyntax ``array) (elabVal : TSyntax ``val → TomlElabM α) : TomlElabM (Array α) := do
+def elabArray (x : TSyntax ``array) (elabVal : TSyntax ``val → CoreM α) : CoreM (Array α) := do
   let `(val|[$xs,*]) := x
     | throwErrorAt x "ill-formed array syntax"
   xs.getElems.mapM elabVal
 
-def elabKey (x : TSyntax ``key) : TomlElabM Name := do
-  match x with
-  | `(key|$[$ks:simpleKey].*) => ks.foldlM (init := Name.anonymous) fun k kStx => do
-    k.str <$> elabSimpleKey kStx
-  | _ => throwErrorAt x "ill-formed key syntax"
-
-def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → TomlElabM Value) : TomlElabM Table := do
+def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → CoreM Value) : CoreM Table := do
   let `(val|{$kvs,*}) := x
     | throwErrorAt x "ill-formed inline table syntax"
-  kvs.getElems.foldlM (init := {}) fun t kv => do
-    let `(keyval|$kStx = $v) := kv
-      | logErrorAt x "ill-formed key-value pair syntax"
-        return t
-    let k ← elabKey kStx
+  let t : NameDict (Option Value) := {}  -- some: value value, none: partial table
+  let t ← kvs.getElems.foldlM (init := t) fun t kv => do
+    let `(keyval|$k = $v) := kv
+      | throwErrorAt kv "ill-formed key-value pair syntax"
+    let `(key|$[$ks].*) := k
+      | throwErrorAt k "ill-formed key syntax"
+    let tailKey := ks.back
+    let (k, t) ← StateT.run (s := t) <| ks.pop.foldlM (init := Name.anonymous) fun k p => do
+      let k ← k.str <$> elabSimpleKey p
+      if let some v := t.find? k then
+        unless v.isNone do throwErrorAt p m!"cannot redefine key '{k}'"
+      else
+        modify fun t => t.push k none
+      return k
+    let k ← k.str <$> elabSimpleKey tailKey
     if t.contains k then
-      logErrorAt kStx s!"cannot redefine key '{k}'"
-      return t
+      throwErrorAt tailKey m!"cannot redefine key '{k}'"
     else
       return t.push k (← elabVal v)
+  return t.filterMap id
 
-partial def elabVal (x : TSyntax ``val) : TomlElabM Value := do
+partial def elabVal (x : TSyntax ``val) : CoreM Value := do
   match x with
   | `(val|$x:float) => .float <$> elabFloat x
   | `(val|$x:decInt) => .integer <$> elabDecInt x
@@ -247,61 +247,150 @@ partial def elabVal (x : TSyntax ``val) : TomlElabM Value := do
 /-! ## Expressions -/
 --------------------------------------------------------------------------------
 
-def elabNewKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
-  ks.foldlM (init := Name.anonymous) fun k kStx => do
-    let k ← k.str <$> elabSimpleKey kStx
-    if (← get).currTable.contains k then
-      throwErrorAt kStx m!"cannot redefine key '{k}'"
-    return k
+/-- The manner in which a TOML key was declared. -/
+inductive KeyTy
+/-- A key declared via `key = v`. -/
+| value
+/-- A key declared via `[key]`. -/
+| stdTable
+/-- A key declared via `[[key]]`. -/
+| array
+/-- A key declared via `key.foo`. -/
+| dottedPrefix
+/-- A key declared via `[key.foo]` or `[[key.foo]]`. -/
+| headerPrefix
+deriving Inhabited
 
-def elabNewKey (x : TSyntax ``key) : TomlElabM Name := do
-  match x with
-  | `(key|$[$ks:simpleKey].*) => elabNewKeys ks
-  | _ => throwErrorAt x "ill-formed key syntax"
+protected def KeyTy.toString (ty : KeyTy) :=
+  match ty with
+  | .value => "value"
+  | .stdTable => "table"
+  | .array => "array"
+  | .dottedPrefix => "dotted"
+  | .headerPrefix => "dotted"
 
-def elabKeyval (x : TSyntax ``keyval) : TomlElabM Unit := do
-  let `(keyval|$k = $v) := x
-    | throwErrorAt x "ill-formed key-value pair syntax"
-  let k ← elabNewKey k; let v ← elabVal v
-  modify fun s => {s with currTable := s.currTable.insert k v}
+instance : ToString KeyTy := ⟨KeyTy.toString⟩
+
+def KeyTy.isValidPrefix (ty : KeyTy) :=
+  match ty with
+  | .stdTable | .headerPrefix | .dottedPrefix  => true
+  | _ => false
+
+structure ElabState where
+  keyTys : NameMap KeyTy := {}
+  rootTable : Table := {}
+  currTable : Table := {}
+  currKey : Name := .anonymous
+  deriving Inhabited
+
+abbrev TomlElabM := StateT ElabState CoreM
+
+def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM (Name × Name) := do
+  let iniCurrKey := (← get).currKey
+  try
+    let subKey ← ks.foldlM (init := Name.anonymous) fun subKey kStx => do
+      let kPart ← elabSimpleKey kStx
+      let subKey := subKey.str kPart
+      let currKey := (← get).currKey.str kPart
+      if let some v := (← get).keyTys.find? currKey then
+        unless v matches .dottedPrefix do
+          throwErrorAt kStx "cannot redefine key '{currKey}'"
+        modify fun s => {s with currKey}
+      else
+        modify fun s => {s with currKey, keyTys := s.keyTys.insert currKey .dottedPrefix}
+      return subKey
+    return ((← get).currKey, subKey)
+  finally
+    modify fun s => {s with currKey := iniCurrKey}
+
+def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
+  let `(keyval|$k = $v) := kv
+    | throwErrorAt kv "ill-formed key-value pair syntax"
+  let `(key|$[$ks:simpleKey].*) := k
+    | throwErrorAt k "ill-formed key syntax"
+  let tailKeyStx := ks.back
+  let (rootKey, subKey) ← elabSubKeys ks.pop
+  let tailKey ← elabSimpleKey tailKeyStx
+  let subKey := subKey.str tailKey
+  let rootKey := rootKey.str tailKey
+  if (← get).keyTys.contains rootKey then
+    throwErrorAt tailKeyStx "cannot redefine key '{rootKey}'"
+  else
+    let v ← elabVal v
+    modify fun s => {
+      s with
+      currTable := s.currTable.push subKey v
+      keyTys := s.keyTys.insert rootKey .value
+  }
 
 def saveCurrTable : TomlElabM Unit := do
-  modify fun s =>
-    if s.currKey.isAnonymous then {
-      rootTable := s.rootTable.append s.currTable
-      currTable := {}, currKey := .anonymous
-    } else {
-      rootTable := s.rootTable.push s.currKey s.currTable
-      currTable := {}, currKey := .anonymous
-    }
-
-def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := do
-  let `(stdTable|[$k]) := x
-    | throwErrorAt x "ill-formed table syntax"
-  saveCurrTable
-  let k ← elabNewKey k
-  modify fun s => {s with currKey := k}
-
-def elabNewArrayKey (x : TSyntax ``key) : TomlElabM Name := do
-  let `(key|$[$ks:simpleKey].*) := x
-    | throwErrorAt x "ill-formed key syntax"
-  let lastKey := ks.back
-  let k ← elabNewKeys ks.pop
-  let k := k.str (← elabSimpleKey lastKey)
-  if let some v := (← get).rootTable.find? k then
-    if let .array _ := v then
-      return k
-    else
-      throwErrorAt lastKey s!"cannot redefine key '{k}'"
+  let currKey ← modifyGet fun s => (s.currKey, {s with currKey := .anonymous})
+  let currTable ← modifyGet fun s => (s.currTable, {s with currTable := {}})
+  if currKey.isAnonymous then
+    modify fun s => {s with rootTable := s.rootTable.append currTable}
   else
-    modify fun s => {s with rootTable := s.rootTable.push k (.array #[])}
+    let rootTable ← modifyGet fun s => (s.rootTable, {s with rootTable := {}})
+    try
+      let rootTable ← rootTable.insertMapM currKey fun (v? : Option Value) => do
+        if let some v := v? then
+          if let .array ts := v then
+            return .array (ts.push currTable)
+          else
+            let ty := toString <$> (← get).keyTys.find? currKey |>.getD "unknown"
+            throwError "attempted to overwrite {ty} key '{currKey}'"
+        else
+          return .table currTable
+      modify fun s => {s with rootTable}
+    catch e =>
+      modify fun s => {s with rootTable}
+      throw e
+
+def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
+  ks.foldlM (init := Name.anonymous) fun k kStx => do
+    let k ← k.str <$> elabSimpleKey kStx
+    if let some v := (← get).keyTys.find? k then
+      unless v.isValidPrefix do
+        throwErrorAt kStx m!"cannot redefine key '{k}'"
+    else
+      modify fun s => {s with keyTys := s.keyTys.insert k .headerPrefix}
     return k
 
-def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := do
+def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
   let `(stdTable|[$k]) := x
+    | throwErrorAt x "ill-formed table syntax"
+  let `(key|$[$ks:simpleKey].*) := k
+    | throwErrorAt k "ill-formed key syntax"
+  saveCurrTable
+  let tailKey := ks.back
+  let k ← elabHeaderKeys ks.pop
+  let k ← k.str <$> elabSimpleKey tailKey
+  if let some v := (← get).keyTys.find? k then
+    unless v matches .headerPrefix do
+      throwErrorAt tailKey m!"cannot redefine key '{k}'"
+  modify fun s => {s with  currKey := k, keyTys := s.keyTys.insert k .stdTable}
+
+def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
+  let `(key|$[$ks:simpleKey].*) := x
+    | throwErrorAt x "ill-formed key syntax"
+  let tailKey := ks.back
+  let k ← elabHeaderKeys ks.pop
+  let k := k.str (← elabSimpleKey tailKey)
+  if let some v := (← get).keyTys.find? k then
+    unless v matches .array do
+      throwErrorAt tailKey s!"cannot redefine key '{k}'"
+  else
+    modify fun s => {
+      s with
+      keyTys := s.keyTys.insert k .array
+      rootTable := s.rootTable.insert k (.array #[])
+    }
+  return k
+
+def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
+  let `(arrayTable|[[$k]]) := x
     | throwErrorAt x "ill-formed array table syntax"
   saveCurrTable
-  let k ← elabNewArrayKey k
+  let k ← elabArrayTableKey k
   modify fun s => {s with currKey := k}
 
 def elabExpression (x : TSyntax ``expression) : TomlElabM Unit := do

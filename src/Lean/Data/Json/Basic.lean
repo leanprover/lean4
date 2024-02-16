@@ -98,7 +98,7 @@ protected def toString : JsonNumber → String
     -- grow exponentially in the value of exponent.
     let exp : Int := 9 + countDigits m - (e : Int)
     let exp := if exp < 0 then exp else 0
-    let e' := (10 : Int) ^ (e - exp.natAbs)
+    let e' := 10 ^ (e - exp.natAbs)
     let left := (m / e').repr
     if m % e' = 0 && exp = 0 then
       s!"{sign}{left}"

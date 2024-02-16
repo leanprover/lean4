@@ -1057,6 +1057,33 @@ def isAppOfArity' : Expr → Name → Nat → Bool
   | app f _,    n, a+1 => isAppOfArity' f n a
   | _,          _,  _   => false
 
+/--
+Checks if an expression is a "natural number numeral in normal form",
+i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
+where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
+and if so returns `n`.
+-/
+-- Note that `Expr.lit (.natVal n)` is not considered in normal form!
+def nat? (e : Expr) : Option Nat := do
+  guard <| e.isAppOfArity ``OfNat.ofNat 3
+  let lit (.natVal n) := e.appFn!.appArg! | none
+  n
+
+/--
+Checks if an expression is an "integer numeral in normal form",
+i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
+or the negation of a positive natural number numberal in normal form,
+and if so returns the integer.
+-/
+def int? (e : Expr) : Option Int :=
+  if e.isAppOfArity ``Neg.neg 3 then
+    match e.appArg!.nat? with
+    | none => none
+    | some 0 => none
+    | some n => some (-n)
+  else
+    e.nat?
+
 private def getAppNumArgsAux : Expr → Nat → Nat
   | app f _, n => getAppNumArgsAux f (n+1)
   | _,       n => n

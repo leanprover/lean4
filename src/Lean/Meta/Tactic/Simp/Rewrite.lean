@@ -387,9 +387,10 @@ def simpGround : Simproc := fun e => do
   if ctx.simpTheorems.isErased (.decl declName) then return .continue
   -- Matcher applications should have been reduced before we get here.
   if (← isMatcher declName) then return .continue
-  trace[Meta.Tactic.simp.ground] "seval: {e}"
-  let r ← seval e
-  trace[Meta.Tactic.simp.ground] "seval result: {e} => {r.expr}"
+  let r ← withTraceNode `Meta.Tactic.simp.ground (fun
+      | .ok r => return m!"seval: {e} => {r.expr}"
+      | .error err => return m!"seval: {e} => {err.toMessageData}") do
+    seval e
   return .done r
 
 def preDefault (s : SimprocsArray) : Simproc :=

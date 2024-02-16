@@ -7,3 +7,4 @@ prelude
 import Init.Data.Option.Basic
 import Init.Data.Option.BasicAux
 import Init.Data.Option.Instances
+import Init.Data.Option.Lemmas

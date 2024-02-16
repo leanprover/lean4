@@ -11,6 +11,11 @@ of each version.
 v4.7.0 (development in progress)
 ---------
 
+* When the `pp.proofs` is false, now omitted proofs use `⋯` rather than `_`,
+  which gives a more helpful error message when copied from the Infoview.
+  The `pp.proofs.threshold` option lets small proofs always be pretty printed.
+  [#3241](https://github.com/leanprover/lean4/pull/3241).
+
 v4.6.0
 ---------
 

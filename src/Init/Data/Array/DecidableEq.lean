@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
-import Init.Classical
+import Init.ByCases
 
 namespace Array
 

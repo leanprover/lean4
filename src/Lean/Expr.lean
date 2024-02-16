@@ -1177,6 +1177,31 @@ def projIdx! : Expr → Nat
   | proj _ i _ => i
   | _          => panic! "proj expression expected"
 
+/--
+Checks if an expression is a "natural number in normal form",
+i.e. of the form `OfNat n`, where `n` matches `.lit (.natVal n)` for some `n`.
+and if so returns `n`.
+-/
+-- Note that `Expr.lit (.natVal n)` is not considered in normal form!
+def nat? (e : Expr) : Option Nat := do
+  guard <| e.isAppOfArity ``OfNat.ofNat 3
+  let lit (.natVal n) := e.appFn!.appArg! | none
+  n
+
+/--
+Checks if an expression is an "integer in normal form",
+i.e. either a natural number in normal form, or the negation of a positive natural number in normal form,
+and if so returns the integer.
+-/
+def int? (e : Expr) : Option Int :=
+  if e.isAppOfArity ``Neg.neg 3 then
+    match e.appArg!.nat? with
+    | none => none
+    | some 0 => none
+    | some n => some (-n)
+  else
+    e.nat?
+
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 

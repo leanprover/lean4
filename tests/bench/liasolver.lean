@@ -12,10 +12,9 @@ namespace Int
 
   def roundedDiv (a b : Int) : Int := Id.run <| do
     let mut div := a / b
-    let sgn := if a ≥ 0 ∧ b ≥ 0 ∨ a < 0 ∧ b < 0 then 1 else -1
-    let rest := (a % b).natAbs
-    if 2*rest ≥ b.natAbs then
-      div := div + sgn
+    let rest := a % b
+    if 2*rest.natAbs ≥ b.natAbs then
+      div := div + 1
     return div
 
   def mod' (a b : Int) : Int :=
@@ -162,7 +161,7 @@ namespace Equation
     let (i, c) := e.coeffs.getAny?.get!
     return { e with
       coeffs := e.coeffs.insert i 1
-      const := e.const / c }
+      const := Int.div e.const c }
 
   def invert (e : Equation) : Equation :=
     { e with

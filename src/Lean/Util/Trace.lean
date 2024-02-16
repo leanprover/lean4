@@ -181,8 +181,31 @@ def shouldProfile : m Bool := do
 def shouldEnableNestedTrace (cls : Name) (secs : Float) : m Bool := do
   return (← isTracingEnabledFor cls) || secs < trace.profiler.threshold.getSecs (← getOptions)
 
-def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
-    (collapsed := true) : m α := do
+/--
+`MonadExcept` variant that is expected to catch all exceptions of the given type in case the
+standard instance doesn't.
+
+In most circumstances, we want to let runtime exceptions during term elaboration bubble up to the
+command elaborator (see `Core.tryCatch`). However, in a few cases like building the trace tree, we
+really need to handle (and then re-throw) every exception lest we end up with a broken tree.
+-/
+class MonadAlwaysExcept (ε : outParam (Type u)) (m : Type u → Type v) where
+  except : MonadExceptOf ε m
+
+-- instance sufficient for inferring `MonadAlwaysExcept` for the elaboration monads
+
+instance (ε) : MonadAlwaysExcept ε (EIO ε) where
+  except := inferInstance
+
+instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
+  except := let _ := always.except; inferInstance
+
+instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (ReaderT ρ m) where
+  except := let _ := always.except; inferInstance
+
+def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
+    (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) : m α := do
+  let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do
@@ -200,7 +223,8 @@ def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : E
   addTraceNode oldTraces cls ref m collapsed
   MonadExcept.ofExcept res
 
-def withTraceNode' [MonadExcept Exception m] [MonadLiftT BaseIO m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
+def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
+    (k : m (α × MessageData)) (collapsed := true) : m α :=
   let msg := fun
     | .ok (_, msg) => return msg
     | .error err => return err.toMessageData

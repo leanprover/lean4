@@ -264,6 +264,7 @@ The `#testDelab` expects it can elaborate the expression, so here is a macro rul
 local macro_rules | `(⋯) => `(_)
 
 set_option pp.proofs false in
+set_option pp.proofs.withType true in
 #testDelab @NeedsAnalysis.mk Unit
   expecting (⋯ : NeedsAnalysis (α := Unit))
 

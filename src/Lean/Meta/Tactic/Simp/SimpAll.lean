@@ -130,7 +130,7 @@ def main : M (Option MVarId) := do
     let mut toClear := #[]
     let mut modified := false
     for e in (← get).entries do
-      if e.type.consumeMData.isConstOf ``True then
+      if e.type.isTrue then
         -- Do not assert `True` hypotheses
         toClear := toClear.push e.fvarId
       else if modified || e.type != e.origType then

@@ -471,6 +471,7 @@ where
       return some mvarId
 
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then
       return some r

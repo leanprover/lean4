@@ -182,7 +182,7 @@ def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
 @[inline] def simpUsingDecide : Simproc := fun e => do
   unless (← getConfig).decide do
     return .continue
-  if e.hasFVar || e.hasMVar || e.consumeMData.isConstOf ``True || e.consumeMData.isConstOf ``False then
+  if e.hasFVar || e.hasMVar || e.isTrue || e.isFalse then
     return .continue
   try
     let d ← mkDecide e
@@ -288,7 +288,7 @@ Discharge procedure for the ground/symbolic evaluator.
 def dischargeGround (e : Expr) : SimpM (Option Expr) := do
   trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
   let r ← simp e
-  if r.expr.consumeMData.isConstOf ``True then
+  if r.expr.isTrue then
     try
       return some (← mkOfEqTrue (← r.getProof))
     catch _ =>
@@ -431,7 +431,7 @@ where
   go (e : Expr) : Bool :=
     match e with
     | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
-    | _ => e.consumeMData.isConstOf ``False
+    | _ => e.isFalse
 
 def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   (← getLCtx).findDeclRevM? fun localDecl => do
@@ -485,7 +485,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   else
     withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
       let r ← simp e
-      if r.expr.consumeMData.isConstOf ``True then
+      if r.expr.isTrue then
         try
           return some (← mkOfEqTrue (← r.getProof))
         catch _ =>

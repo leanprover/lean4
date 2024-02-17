@@ -9,7 +9,10 @@ open Lean Meta Simp
 
 macro "declare_uint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
+let ofNatCore := mkIdent (typeName.getId ++ `ofNatCore)
+let toNat := mkIdent (typeName.getId ++ `toNat)
 let fromExpr := mkIdent `fromExpr
+let toExprCore := mkIdent `toExprCore
 let toExpr := mkIdent `toExpr
 `(
 namespace $typeName
@@ -25,6 +28,10 @@ def $fromExpr (e : Expr) : OptionT SimpM Value := do
   let value ← Nat.fromExpr? e.appFn!.appArg!
   let value := $(mkIdent ofNat) value
   return { value, ofNatFn := e.appFn!.appFn! }
+
+def $toExprCore (v : $typeName) : Expr :=
+  let vExpr := mkRawNatLit v.val
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst $(quote typeName.getId)) vExpr (mkApp (mkConst $(quote (typeName.getId ++ `instOfNat))) vExpr)
 
 def $toExpr (v : Value) : Expr :=
   let vExpr := mkRawNatLit v.value.val
@@ -53,6 +60,19 @@ builtin_simproc [simp, seval] $(mkIdent `reduceLT):ident  (( _ : $typeName) < _)
 builtin_simproc [simp, seval] $(mkIdent `reduceLE):ident  (( _ : $typeName) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] $(mkIdent `reduceGT):ident  (( _ : $typeName) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc [simp, seval] $(mkIdent `reduceGE):ident  (( _ : $typeName) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+
+builtin_simproc [simp, seval] $(mkIdent `reduceOfNatCore):ident ($ofNatCore _ _) := fun e => do
+  unless e.isAppOfArity $(quote ofNatCore.getId) 2 do return .continue
+  let some value ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let value := $(mkIdent ofNat) value
+  let eNew := $toExprCore value
+  return .done { expr := eNew }
+
+builtin_simproc [simp, seval] $(mkIdent `reduceToNat):ident ($toNat _) := fun e => do
+  unless e.isAppOfArity $(quote toNat.getId) 1 do return .continue
+  let some v ← ($fromExpr e.appArg!) | return .continue
+  let n := $toNat v.value
+  return .done { expr := mkNatLit n }
 
 /-- Return `.done` for UInt values. We don't want to unfold in the symbolic evaluator. -/
 builtin_simproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do

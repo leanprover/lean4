@@ -681,6 +681,13 @@ def delabLetE : Delab := do
     `(let $(mkIdent n) : $stxT := $stxV; $stxB)
   else `(let $(mkIdent n) := $stxV; $stxB)
 
+@[builtin_delab app.Char.ofNat]
+def delabChar : Delab := do
+  let e ← getExpr
+  guard <| e.getAppNumArgs == 1
+  let .lit (.natVal n) := e.appArg! | failure
+  return quote (Char.ofNat n)
+
 @[builtin_delab lit]
 def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!

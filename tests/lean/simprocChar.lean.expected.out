@@ -1,0 +1,33 @@
+x : Char
+h : x = 'a'
+⊢ x = 'a'
+x : Char
+h : x = 'A'
+⊢ x = 'A'
+x : Char
+h : x = 'A'
+⊢ x = 'A'
+x : String
+h : x = "a"
+⊢ x = "a"
+x : Nat
+h : x = 65
+⊢ x = 65
+x : Bool
+h : x = true
+⊢ x = true
+x : Bool
+h : x = true
+⊢ x = true
+x : Bool
+h : x = true
+⊢ x = true
+x : Bool
+h : x = true
+⊢ x = true
+x : Bool
+h : x = true
+⊢ x = true
+x : Bool
+h : x = true
+⊢ x = true

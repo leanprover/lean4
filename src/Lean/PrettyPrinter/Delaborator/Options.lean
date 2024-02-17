@@ -121,7 +121,7 @@ register_builtin_option pp.proofs : Bool := {
   descr    := "(pretty printer) display proofs when true, and replace proofs appearing within expressions by `⋯` when false"
 }
 register_builtin_option pp.proofs.withType : Bool := {
-  defValue := true
+  defValue := false
   group    := "pp"
   descr    := "(pretty printer) when `pp.proofs` is false, adds a type ascription to the omitted proof"
 }

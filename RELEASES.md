@@ -16,6 +16,8 @@ v4.7.0 (development in progress)
   The `pp.proofs.threshold` option lets small proofs always be pretty printed.
   [#3241](https://github.com/leanprover/lean4/pull/3241).
 
+* `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
+
 v4.6.0
 ---------
 

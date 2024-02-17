@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -129,7 +128,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
@@ -162,21 +161,6 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             pure { matcherApp with alts := altsNew }.toExpr
           else
             processApp e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
-          processApp e
-        else if let some casesOnApp ← casesOnApp.addArg? below then
-          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let belowForAlt := xs[numParams]!
-              mkLambdaFVars xs (← loop belowForAlt altBody)
-          return { casesOnApp with alts := altsNew }.toExpr
-        else
-          processApp e
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop below e |>.run' {}

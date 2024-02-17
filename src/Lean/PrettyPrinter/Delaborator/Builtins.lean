@@ -24,13 +24,13 @@ def unfoldMDatas : Expr → Expr
 
 @[builtin_delab fvar]
 def delabFVar : Delab := do
-let Expr.fvar fvarId ← getExpr | unreachable!
-try
-  let l ← fvarId.getDecl
-  maybeAddBlockImplicit (mkIdent l.userName)
-catch _ =>
-  -- loose free variable, use internal name
-  maybeAddBlockImplicit <| mkIdent fvarId.name
+  let Expr.fvar fvarId ← getExpr | unreachable!
+  try
+    let l ← fvarId.getDecl
+    maybeAddBlockImplicit (mkIdent l.userName)
+  catch _ =>
+    -- loose free variable, use internal name
+    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]

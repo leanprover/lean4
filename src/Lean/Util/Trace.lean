@@ -128,7 +128,7 @@ def addRawTrace (msg : MessageData) : m Unit := do
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
-  modifyTraces (·.push { ref, msg := .trace cls msg #[] })
+  modifyTraces (·.push { ref, msg := .trace (collapsed := false) cls msg #[] })
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then

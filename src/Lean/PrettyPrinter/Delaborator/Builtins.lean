@@ -19,10 +19,6 @@ open TSyntax.Compat
 def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
   if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else pure ident
 
-def unfoldMDatas : Expr → Expr
-  | Expr.mdata _ e => unfoldMDatas e
-  | e              => e
-
 @[builtin_delab fvar]
 def delabFVar : Delab := do
   let Expr.fvar fvarId ← getExpr | unreachable!
@@ -241,7 +237,7 @@ def delabAppImplicitCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) (
     withBoundedAppFnArgs maxArgs
       (do
         let shouldUnexpand ← pure unexpand
-          <&&> (do return (unfoldMDatas (← getExpr)).isConst)
+          <&&> (do return (← getExpr).consumeMData.isConst)
           <&&> not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)
         return (shouldUnexpand, ← delabHead, paramKinds.toList, #[]))
       (fun (shouldUnexpand, fnStx, paramKinds, argData) => do
@@ -300,7 +296,7 @@ where
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
   -/
   tryAppUnexpanders (fnStx : Term) (argData : Array (Bool × Option Syntax)) : Delab := do
-    let c := (unfoldMDatas (← getExpr).getAppFn).constName!
+    let c := (← getExpr).consumeMData.getAppFn.constName!
     let fs := appUnexpanderAttribute.getValues (← getEnv) c
     if fs.isEmpty then failure
     let rec go (prefixArgs : Nat) (unexpandOk : Bool) : DelabM Term := do

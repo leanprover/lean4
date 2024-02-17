@@ -580,7 +580,7 @@ theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
     have : a ≤ b := Nat.le_of_succ_le h
     rw [sub_succ, Nat.succ_add, ← Nat.add_succ, Nat.succ_pred hne, ih this]
 
-protected theorem sub_add_cancel {n m : Nat} (h : m ≤ n) : n - m + m = n := by
+@[simp] protected theorem sub_add_cancel {n m : Nat} (h : m ≤ n) : n - m + m = n := by
   rw [Nat.add_comm, Nat.add_sub_of_le h]
 
 protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by

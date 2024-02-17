@@ -187,7 +187,7 @@ mpz mpz::emod(mpz const & n, mpz const & d) {
     /* if (r < 0) */
     if (mpz_sgn(r.m_val) < 0) {
         if (mpz_sgn(d.m_val) > 0) {
-            /* r = r - d. */
+            /* r = r + d. */
             mpz_add(r.m_val, r.m_val, d.m_val);
         } else {
             /* r = r - d. */
@@ -734,30 +734,6 @@ mpz & mpz::operator/=(unsigned u) {
 
 mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
-}
-
-mpz & mpz::div(bool sign, size_t sz, mpn_digit const * digits) {
-    /*
-      +26 / +7 = +3, remainder is +5
-      -26 / +7 = -3, remainder is -5
-      +26 / -7 = -3, remainder is +5
-      -26 / -7 = +3, remainder is -5
-    */
-    digit_buffer q1, r1;
-    if (sz > m_size) {
-        operator=(0);
-        return *this;
-    }
-    size_t q_sz = m_size - sz + 1;
-    size_t r_sz = sz;
-    q1.ensure_capacity(q_sz);
-    r1.ensure_capacity(r_sz);
-    mpn_div(m_digits, m_size,
-            digits, sz,
-            q1.begin(), r1.begin());
-    set(q_sz, q1.begin());
-    m_sign = !is_zero() && m_sign != sign;
-    return *this;
 }
 
 mpz mpz::ediv(mpz const & n, mpz const & d) {

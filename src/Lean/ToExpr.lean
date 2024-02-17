@@ -39,7 +39,7 @@ instance : ToExpr Bool where
   toTypeExpr := mkConst ``Bool
 
 instance : ToExpr Char where
-  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (toExpr c.toNat)
+  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (mkRawNatLit c.toNat)
   toTypeExpr := mkConst ``Char
 
 instance : ToExpr String where

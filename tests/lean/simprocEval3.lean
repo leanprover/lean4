@@ -1,5 +1,15 @@
 def foo (_ : Nat) := (10 : UInt32)
 
+example (h : x = 8) : x = (8 : UInt32).toNat := by
+  simp
+  trace_state
+  assumption
+
+example (h : x = 8) : x = UInt32.ofNatCore 8 (by decide) := by
+  simp
+  trace_state
+  assumption
+
 example : foo x = 8 + 2 := by
   simp
   trace_state

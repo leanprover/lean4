@@ -18,6 +18,54 @@ v4.7.0 (development in progress)
 
 * `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
 
+* New `simp` (and `dsimp`) configuration option: `zetaDelta`. It is `false` by default.
+  The `zeta` option is still `true` by default, but their meaning has changed.
+  - When `zeta := true`, `simp` and `dsimp` reduce terms of the form
+    `let x := val; e[x]` into `e[val]`.
+  - When `zetaDelta := true`, `simp` and `dsimp` will expand let-variables in
+    the context. For example, suppose the context contains `x := val`. Then,
+    any occurrence of `x` is replaced with `val`.
+
+  See issue [#2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
+  ```
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp
+    /-
+    New goal:
+    h : z = 9; x := 5 |- x + 4 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    -- Using both `zeta` and `zetaDelta`.
+    simp (config := { zetaDelta := true })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp [x] -- asks `simp` to unfold `x`
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp (config := { zetaDelta := true, zeta := false })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- let y := 4; 5 + y = z
+    -/
+    rw [h]
+  ```
+
 v4.6.0
 ---------
 

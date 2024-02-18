@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
@@ -165,7 +166,7 @@ structure SimpTheorems where
   lemmaNames   : PHashSet Origin := {}
   /--
   Constants (and let-declaration `FVarId`) to unfold.
-  When `zeta := false`, the simplifier will expand a let-declaration if it is in this set.
+  When `zetaDelta := false`, the simplifier will expand a let-declaration if it is in this set.
   -/
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}
@@ -173,7 +174,7 @@ structure SimpTheorems where
   deriving Inhabited
 
 /-- Configuration for the discrimination tree. -/
-def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
+def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no, zetaDelta := false }
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then

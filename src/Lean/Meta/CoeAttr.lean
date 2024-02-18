@@ -3,6 +3,7 @@ Copyright (c) 2022 Gabriel Ebner. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro, Leonardo de Moura
 -/
+prelude
 import Lean.Attributes
 import Lean.ScopedEnvExtension
 import Lean.Meta.FunInfo

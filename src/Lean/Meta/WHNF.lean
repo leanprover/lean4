@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
@@ -335,11 +336,7 @@ structure WhnfCoreConfig where
   /-- Control projection reduction at `whnfCore`. -/
   proj : ProjReductionKind := .yesWithDelta
   /--
-  Zeta reduction.
-  It includes two kinds of reduction:
-  - `let x := v; e[x]` reduces to `e[v]`.
-  - Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
-
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
   We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
   Recall that
   ```
@@ -352,6 +349,10 @@ structure WhnfCoreConfig where
   is not.
   -/
   zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
@@ -371,9 +372,9 @@ structure WhnfCoreConfig where
     match decl with
     | .cdecl .. => return e
     | .ldecl (value := v) .. =>
-      unless config.zeta do return e
-      if (← getConfig).trackZeta then
-        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
+      unless config.zetaDelta do return e
+      if (← getConfig).trackZetaDelta then
+        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k config
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with

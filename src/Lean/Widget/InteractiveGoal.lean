@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+prelude
 import Lean.Meta.PPGoal
 import Lean.Widget.InteractiveCode
 import Lean.Data.Lsp.Extra

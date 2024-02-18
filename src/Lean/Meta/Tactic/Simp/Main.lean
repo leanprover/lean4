@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.UnifyEq
@@ -76,7 +77,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         reduceProjCont? (← unfoldDefinition? e)
 
 private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : MetaM Expr := do
-  if cfg.zeta || thms.isLetDeclToUnfold e.fvarId! then
+  if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! then
     match (← getFVarLocalDecl e).value? with
     | some v => return v
     | none   => return e
@@ -166,6 +167,8 @@ private def reduceStep (e : Expr) : SimpM Expr := do
   if cfg.zeta then
     if let some (args, _, _, v, b) := e.letFunAppArgs? then
       return mkAppN (b.instantiate1 v) args
+    if e.isLet then
+      return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"

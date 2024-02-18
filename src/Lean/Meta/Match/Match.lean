@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
@@ -682,7 +683,7 @@ builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← 
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
-  let result ← Closure.mkValueTypeClosure type value (zeta := false)
+  let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs

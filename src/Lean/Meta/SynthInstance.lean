@@ -5,6 +5,8 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
+prelude
+import Init.Data.Array.InsertionSort
 import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars

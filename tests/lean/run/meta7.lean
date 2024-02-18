@@ -28,9 +28,9 @@ def tst1 : MetaM Unit := do
 print "----- tst1 -----";
 let c ← getConstInfo `ex;
 lambdaTelescope c.value?.get! fun xs body =>
-  withTrackingZeta do
+  withTrackingZetaDelta do
     check body;
-    let ys ← getZetaFVarIds;
+    let ys ← getZetaDeltaFVarIds;
     let ys := ys.toList.map mkFVar;
     print ys;
     checkM $ pure $ ys.length == 2;

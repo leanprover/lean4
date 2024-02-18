@@ -1,3 +1,4 @@
+prelude
 import Lean.Data.Options
 import Lean.Server.InfoUtils
 import Lean.Linter.Basic

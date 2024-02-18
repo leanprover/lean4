@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Replace
@@ -14,7 +15,7 @@ namespace Simp
 
 /-- The result of simplifying some expression `e`. -/
 structure Result where
-  /-- The simplified version of `e` -/ 
+  /-- The simplified version of `e` -/
   expr           : Expr
   /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
   If `none`, the proof is assumed to be `refl`. -/
@@ -481,15 +482,13 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
 
 /--
 Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
-If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
-disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
+If user has disabled `zeta` and/or `beta` reduction in the simplifier, or enabled `zetaDelta`,
+we must also disable/enable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
 -/
 def getDtConfig (cfg : Config) : WhnfCoreConfig :=
-  match cfg.beta, cfg.zeta with
-  | true, true => simpDtConfig
-  | true, false => { simpDtConfig with zeta := false }
-  | false, true => { simpDtConfig with beta := false }
-  | false, false => { simpDtConfig with beta := false, zeta := false }
+  match cfg.beta, cfg.zeta, cfg.zetaDelta with
+  | true, true, false => simpDtConfig
+  | _,    _,    _     => { simpDtConfig with zeta := cfg.zeta, beta := cfg.beta, zetaDelta := cfg.zetaDelta }
 
 def Result.addExtraArgs (r : Result) (extraArgs : Array Expr) : MetaM Result := do
   match r.proof? with

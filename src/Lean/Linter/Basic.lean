@@ -1,3 +1,4 @@
+prelude
 import Lean.Data.Options
 
 namespace Lean.Linter

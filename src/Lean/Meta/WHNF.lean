@@ -371,9 +371,9 @@ structure WhnfCoreConfig where
     match decl with
     | .cdecl .. => return e
     | .ldecl (value := v) .. =>
-      unless config.zeta do return e
-      if (← getConfig).trackZeta then
-        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
+      unless config.zetaDelta do return e
+      if (← getConfig).trackZetaDelta then
+        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k config
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with

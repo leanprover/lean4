@@ -356,7 +356,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
 
 /--
    Make sure `expectedType` does not contain free and metavariables.
-   It applies zeta-reduction to eliminate let-free-vars.
+   It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
 -/
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType

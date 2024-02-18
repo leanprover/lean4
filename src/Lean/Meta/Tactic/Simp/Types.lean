@@ -14,7 +14,7 @@ namespace Simp
 
 /-- The result of simplifying some expression `e`. -/
 structure Result where
-  /-- The simplified version of `e` -/ 
+  /-- The simplified version of `e` -/
   expr           : Expr
   /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
   If `none`, the proof is assumed to be `refl`. -/
@@ -483,6 +483,8 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
 Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
 If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
 disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
+
+-- TODO: zetaDelta
 -/
 def getDtConfig (cfg : Config) : WhnfCoreConfig :=
   match cfg.beta, cfg.zeta with

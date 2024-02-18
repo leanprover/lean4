@@ -76,7 +76,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         reduceProjCont? (← unfoldDefinition? e)
 
 private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : MetaM Expr := do
-  if cfg.zeta || thms.isLetDeclToUnfold e.fvarId! then
+  if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! then
     match (← getFVarLocalDecl e).value? with
     | some v => return v
     | none   => return e

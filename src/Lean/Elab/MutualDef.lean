@@ -531,8 +531,8 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
       let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
     | .ldecl _ _ userName type val _ k =>
-      let zetaFVarIds ← getZetaFVarIds
-      if !zetaFVarIds.contains fvarId then
+      let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      if !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
         let toProcess ← pushLocalDecl toProcess fvarId userName type .default k
         mkClosureForAux toProcess
@@ -696,8 +696,8 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  resetZetaFVarIds
-  withTrackingZeta do
+  resetZetaDeltaFVarIds
+  withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type

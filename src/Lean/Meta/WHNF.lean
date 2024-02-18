@@ -335,11 +335,7 @@ structure WhnfCoreConfig where
   /-- Control projection reduction at `whnfCore`. -/
   proj : ProjReductionKind := .yesWithDelta
   /--
-  Zeta reduction.
-  It includes two kinds of reduction:
-  - `let x := v; e[x]` reduces to `e[v]`.
-  - Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
-
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
   We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
   Recall that
   ```
@@ -352,6 +348,10 @@ structure WhnfCoreConfig where
   is not.
   -/
   zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do

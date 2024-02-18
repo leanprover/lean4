@@ -43,6 +43,7 @@ inductive EtaStructMode where
 namespace DSimp
 
 structure Config where
+  /-- `let x := v; e[x]` reduces to `e[v]`. -/
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
@@ -57,7 +58,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
-  zetaDelta         : Bool := true
+  /-- Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`. -/
+  zetaDelta         : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
@@ -72,6 +74,7 @@ structure Config where
   contextual        : Bool := false
   memoize           : Bool := true
   singlePass        : Bool := false
+  /-- `let x := v; e[x]` reduces to `e[v]`. -/
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
@@ -96,7 +99,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
-  zetaDelta         : Bool := true
+  /-- Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`. -/
+  zetaDelta         : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

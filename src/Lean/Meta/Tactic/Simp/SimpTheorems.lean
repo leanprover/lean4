@@ -173,7 +173,7 @@ structure SimpTheorems where
   deriving Inhabited
 
 /-- Configuration for the discrimination tree. -/
-def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
+def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no, zetaDelta := false }
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then

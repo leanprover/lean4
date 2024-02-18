@@ -6227,7 +6227,9 @@ return x_39;
 else
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; 
+lean_inc(x_30);
 x_40 = l_Lean_Expr_appFn_x21(x_30);
+lean_inc(x_40);
 x_41 = l_Lean_Expr_appFn_x21(x_40);
 x_42 = l_Lean_Expr_appArg_x21(x_41);
 lean_dec(x_41);
@@ -6428,7 +6430,9 @@ return x_92;
 else
 {
 lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
+lean_inc(x_83);
 x_93 = l_Lean_Expr_appFn_x21(x_83);
+lean_inc(x_93);
 x_94 = l_Lean_Expr_appFn_x21(x_93);
 x_95 = l_Lean_Expr_appArg_x21(x_94);
 lean_dec(x_94);
@@ -11992,7 +11996,6 @@ lean_dec(x_11);
 x_13 = lean_unsigned_to_nat(1u);
 x_14 = lean_nat_sub(x_12, x_13);
 lean_dec(x_12);
-lean_inc(x_1);
 x_15 = l_Lean_Expr_getRevArg_x21(x_1, x_14);
 x_16 = l_Lean_Meta_saveState___rarg(x_6, x_7, x_8, x_9);
 x_17 = lean_ctor_get(x_16, 0);

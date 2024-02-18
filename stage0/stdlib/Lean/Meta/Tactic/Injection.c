@@ -683,6 +683,7 @@ return x_26;
 else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_inc(x_16);
 x_27 = l_Lean_Expr_appFn_x21(x_16);
 x_28 = l_Lean_Expr_appArg_x21(x_27);
 lean_dec(x_27);
@@ -1260,8 +1261,11 @@ return x_137;
 else
 {
 lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; 
+lean_inc(x_16);
 x_138 = l_Lean_Expr_appFn_x21(x_16);
+lean_inc(x_138);
 x_139 = l_Lean_Expr_appFn_x21(x_138);
+lean_inc(x_139);
 x_140 = l_Lean_Expr_appFn_x21(x_139);
 x_141 = l_Lean_Expr_appArg_x21(x_140);
 lean_dec(x_140);
@@ -1931,6 +1935,7 @@ return x_273;
 else
 {
 lean_object* x_274; lean_object* x_275; lean_object* x_276; lean_object* x_277; 
+lean_inc(x_264);
 x_274 = l_Lean_Expr_appFn_x21(x_264);
 x_275 = l_Lean_Expr_appArg_x21(x_274);
 lean_dec(x_274);

@@ -4780,6 +4780,7 @@ return x_106;
 else
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
+lean_inc(x_29);
 x_107 = l_Lean_Expr_appFn_x21(x_29);
 x_108 = l_Lean_Expr_appArg_x21(x_107);
 lean_dec(x_107);

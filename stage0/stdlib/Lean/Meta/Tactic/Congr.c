@@ -1531,7 +1531,6 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_18 = l_Lean_Expr_appFn_x21(x_12);
-lean_dec(x_12);
 x_19 = l_Lean_Expr_appArg_x21(x_18);
 lean_dec(x_18);
 x_20 = l_Lean_Expr_cleanupAnnotations(x_19);
@@ -1590,7 +1589,6 @@ else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 x_32 = l_Lean_Expr_appFn_x21(x_25);
-lean_dec(x_25);
 x_33 = l_Lean_Expr_appArg_x21(x_32);
 lean_dec(x_32);
 x_34 = l_Lean_Expr_cleanupAnnotations(x_33);
@@ -1878,9 +1876,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
 x_15 = l_Lean_Expr_appFn_x21(x_9);
-lean_dec(x_9);
 x_16 = l_Lean_Expr_appFn_x21(x_15);
-lean_dec(x_15);
 x_17 = l_Lean_Expr_appArg_x21(x_16);
 lean_dec(x_16);
 x_18 = l_Lean_Expr_cleanupAnnotations(x_17);
@@ -1939,9 +1935,7 @@ else
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
 x_30 = l_Lean_Expr_appFn_x21(x_23);
-lean_dec(x_23);
 x_31 = l_Lean_Expr_appFn_x21(x_30);
-lean_dec(x_30);
 x_32 = l_Lean_Expr_appArg_x21(x_31);
 lean_dec(x_31);
 x_33 = l_Lean_Expr_cleanupAnnotations(x_32);

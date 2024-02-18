@@ -3408,7 +3408,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_isGenDiseq(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -5399,6 +5398,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_LocalDecl_type(x_2);
+lean_inc(x_8);
 x_9 = l_Lean_Meta_Simp_isEqnThmHypothesis(x_8);
 if (x_9 == 0)
 {
@@ -6001,7 +6001,6 @@ else
 {
 uint8_t x_17; 
 x_17 = l_Lean_Meta_Simp_isEqnThmHypothesis(x_7);
-lean_dec(x_7);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 

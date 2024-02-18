@@ -3521,7 +3521,6 @@ x_3 = l_Lean_Expr_isDIte(x_1);
 if (x_3 == 0)
 {
 uint8_t x_4; 
-lean_dec(x_1);
 x_4 = 0;
 return x_4;
 }
@@ -3598,6 +3597,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = l_Lean_Meta_SplitIf_findIfToSplit_x3f___lambda__1___closed__2;
 x_8 = l_Lean_Expr_getRevArg_x21(x_6, x_7);
+lean_dec(x_6);
 lean_inc(x_8);
 x_9 = l_Lean_Meta_SplitIf_findIfToSplit_x3f(x_8);
 if (lean_obj_tag(x_9) == 0)
@@ -3635,6 +3635,7 @@ lean_inc(x_13);
 lean_dec(x_3);
 x_14 = l_Lean_Meta_SplitIf_findIfToSplit_x3f___lambda__1___closed__2;
 x_15 = l_Lean_Expr_getRevArg_x21(x_13, x_14);
+lean_dec(x_13);
 lean_inc(x_15);
 x_16 = l_Lean_Meta_SplitIf_findIfToSplit_x3f(x_15);
 if (lean_obj_tag(x_16) == 0)
@@ -3674,6 +3675,7 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_SplitIf_findIfToSplit_x3f___lambda__1(x_1);
+lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }

@@ -321,6 +321,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_LocalContext_foldr_
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_LocalContext_foldr___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_setKind(lean_object*, uint8_t);
+lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_foldr___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findFromUserName_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -537,7 +538,6 @@ LEAN_EXPORT lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2___rarg(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_findDecl_x3f___spec__6___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_LocalContext_foldr___spec__5(lean_object*);
@@ -1683,7 +1683,7 @@ if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_LocalDecl_value___closed__4;
-x_3 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_2);
+x_3 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_2);
 return x_3;
 }
 else
@@ -11107,7 +11107,7 @@ if (lean_obj_tag(x_14) == 0)
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_5);
 x_15 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_16 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_15);
+x_16 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_15);
 x_4 = x_9;
 x_5 = x_16;
 goto _start;
@@ -11196,7 +11196,7 @@ if (lean_obj_tag(x_39) == 0)
 lean_object* x_40; lean_object* x_41; 
 lean_dec(x_5);
 x_40 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_41 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_40);
+x_41 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_40);
 x_4 = x_9;
 x_5 = x_41;
 goto _start;
@@ -11343,7 +11343,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 lean_dec(x_4);
 x_14 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_15 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_14);
+x_15 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_14);
 x_3 = x_8;
 x_4 = x_15;
 goto _start;
@@ -11420,7 +11420,7 @@ if (lean_obj_tag(x_36) == 0)
 lean_object* x_37; lean_object* x_38; 
 lean_dec(x_4);
 x_37 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_38 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_37);
+x_38 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_37);
 x_3 = x_8;
 x_4 = x_38;
 goto _start;
@@ -11551,7 +11551,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 lean_dec(x_4);
 x_14 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_15 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_14);
+x_15 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_14);
 x_3 = x_8;
 x_4 = x_15;
 goto _start;
@@ -11628,7 +11628,7 @@ if (lean_obj_tag(x_36) == 0)
 lean_object* x_37; lean_object* x_38; 
 lean_dec(x_4);
 x_37 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__2;
-x_38 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_37);
+x_38 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_37);
 x_3 = x_8;
 x_4 = x_38;
 goto _start;

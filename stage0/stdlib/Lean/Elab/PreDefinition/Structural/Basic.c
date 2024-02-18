@@ -258,7 +258,6 @@ x_4 = l_Lean_Expr_isAppOf(x_3, x_1);
 if (x_4 == 0)
 {
 uint8_t x_5; 
-lean_dec(x_3);
 x_5 = 0;
 return x_5;
 }
@@ -272,7 +271,6 @@ if (x_8 == 0)
 {
 uint8_t x_9; 
 lean_dec(x_7);
-lean_dec(x_3);
 x_9 = 0;
 return x_9;
 }
@@ -320,6 +318,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Elab_Structural_recArgHasLooseBVarsAt___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);

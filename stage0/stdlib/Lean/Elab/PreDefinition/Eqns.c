@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_E
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__31___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpEqnType_collect___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_shouldUseSimpMatch___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_checked___at_Lean_Elab_Eqns_simpEqnType_collect___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 static lean_object* l_Lean_Elab_Eqns_instInhabitedEqnInfoCore___closed__2;
@@ -769,6 +769,7 @@ return x_7;
 else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+lean_inc(x_9);
 x_15 = l_Lean_Expr_appFn_x21(x_9);
 x_16 = l_Lean_Expr_appArg_x21(x_15);
 lean_dec(x_15);
@@ -926,6 +927,7 @@ return x_49;
 else
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
+lean_inc(x_43);
 x_50 = l_Lean_Expr_appFn_x21(x_43);
 x_51 = l_Lean_Expr_appArg_x21(x_50);
 lean_dec(x_50);
@@ -6905,6 +6907,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_36; 
+lean_inc(x_2);
 x_19 = l_Lean_Expr_appFn_x21(x_2);
 x_20 = l_Lean_Expr_appArg_x21(x_19);
 lean_dec(x_19);
@@ -19746,6 +19749,7 @@ return x_15;
 else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_inc(x_8);
 x_16 = l_Lean_Expr_appFn_x21(x_8);
 x_17 = l_Lean_Expr_appArg_x21(x_16);
 lean_dec(x_16);
@@ -19956,6 +19960,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_free_object(x_8);
+lean_inc(x_10);
 x_16 = l_Lean_Expr_appFn_x21(x_10);
 x_17 = l_Lean_Expr_appArg_x21(x_16);
 lean_dec(x_16);
@@ -20273,6 +20278,7 @@ return x_77;
 else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
+lean_inc(x_71);
 x_78 = l_Lean_Expr_appFn_x21(x_71);
 x_79 = l_Lean_Expr_appArg_x21(x_78);
 lean_dec(x_78);
@@ -20870,6 +20876,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_free_object(x_7);
+lean_inc(x_9);
 x_15 = l_Lean_Expr_appFn_x21(x_9);
 x_16 = l_Lean_Expr_appArg_x21(x_15);
 lean_dec(x_15);
@@ -21191,6 +21198,7 @@ return x_75;
 else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
+lean_inc(x_69);
 x_76 = l_Lean_Expr_appFn_x21(x_69);
 x_77 = l_Lean_Expr_appArg_x21(x_76);
 lean_dec(x_76);
@@ -23002,7 +23010,7 @@ x_17 = l_Lean_Elab_Eqns_mkUnfoldEq___lambda__2___closed__1;
 x_18 = 0;
 x_19 = l_Lean_Option_set___at_Lean_Elab_Eqns_tryURefl___spec__1(x_16, x_17, x_18);
 lean_ctor_set(x_5, 2, x_19);
-x_20 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_13, x_14, x_3, x_4, x_5, x_6, x_10);
+x_20 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_13, x_14, x_18, x_3, x_4, x_5, x_6, x_10);
 return x_20;
 }
 else
@@ -23048,7 +23056,7 @@ lean_ctor_set(x_36, 8, x_29);
 lean_ctor_set(x_36, 9, x_30);
 lean_ctor_set(x_36, 10, x_31);
 lean_ctor_set_uint8(x_36, sizeof(void*)*11, x_32);
-x_37 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_13, x_14, x_3, x_4, x_36, x_6, x_10);
+x_37 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_13, x_14, x_34, x_3, x_4, x_36, x_6, x_10);
 return x_37;
 }
 }

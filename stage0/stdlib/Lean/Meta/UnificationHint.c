@@ -2671,6 +2671,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_inc(x_1);
 x_11 = l_Lean_Expr_appFn_x21(x_1);
 x_12 = l_Lean_Expr_appArg_x21(x_11);
 lean_dec(x_11);

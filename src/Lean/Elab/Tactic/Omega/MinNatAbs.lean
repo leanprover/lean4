@@ -9,7 +9,7 @@ Authors: Scott Morrison
 
 `List.minNatAbs` computes the minimum non-zero absolute value of a `List Int`.
 This is not generally useful outside of the implementation of the `omega` tactic,
-so we keep it in the `Std/Tactic/Omega` directory
+so we keep it in the `Lean/Elab/Tactic/Omega` directory
 (although the definitions are in the `List` namespace).
 
 -/

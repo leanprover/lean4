@@ -57,6 +57,7 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  zetaDelta         : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -95,6 +96,7 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  zetaDelta         : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -111,6 +113,7 @@ def neutralConfig : Simp.Config := {
   arith             := false
   autoUnfold        := false
   ground            := false
+  zetaDelta         := false
 }
 
 end Simp

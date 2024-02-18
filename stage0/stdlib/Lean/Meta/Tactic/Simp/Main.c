@@ -2841,7 +2841,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Sim
 _start:
 {
 uint8_t x_9; 
-x_9 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 3);
+x_9 = lean_ctor_get_uint8(x_1, sizeof(void*)*2 + 16);
 if (x_9 == 0)
 {
 lean_object* x_10; uint8_t x_11; 

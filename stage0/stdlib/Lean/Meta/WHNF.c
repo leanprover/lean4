@@ -14379,7 +14379,7 @@ return x_19;
 else
 {
 uint8_t x_20; 
-x_20 = lean_ctor_get_uint8(x_3, 3);
+x_20 = lean_ctor_get_uint8(x_3, 4);
 if (x_20 == 0)
 {
 uint8_t x_21; 
@@ -19547,7 +19547,7 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = lean_ctor_get_uint8(x_3, 3);
+x_18 = lean_ctor_get_uint8(x_3, 4);
 if (x_18 == 0)
 {
 uint8_t x_19; 
@@ -24780,7 +24780,7 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = lean_ctor_get_uint8(x_3, 3);
+x_18 = lean_ctor_get_uint8(x_3, 4);
 if (x_18 == 0)
 {
 uint8_t x_19; 
@@ -33898,7 +33898,7 @@ return x_16;
 else
 {
 uint8_t x_17; 
-x_17 = lean_ctor_get_uint8(x_2, 3);
+x_17 = lean_ctor_get_uint8(x_2, 4);
 if (x_17 == 0)
 {
 uint8_t x_18; 

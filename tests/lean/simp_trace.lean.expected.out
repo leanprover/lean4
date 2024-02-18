@@ -16,11 +16,10 @@ Try this: simp only [head]
 Try this: simp only [foo]
 [Meta.Tactic.simp.rewrite] unfold foo, foo ==> 10
 [Meta.Tactic.simp.rewrite] @eq_self:1000, 10 + x = 10 + x ==> True
-Try this: simp only [g, Id.pure_eq]
+Try this: simp only [g, pure]
 [Meta.Tactic.simp.rewrite] unfold g, g x ==> Id.run
       (let x := x;
       pure x)
-[Meta.Tactic.simp.rewrite] @Id.pure_eq:1000, pure x ==> x
 Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modifyGet, MonadStateOf.modifyGet,
   StateT.modifyGet, pure, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, set, StateT.set]
 [Meta.Tactic.simp.rewrite] unfold f1, f1 ==> modify fun x => g x

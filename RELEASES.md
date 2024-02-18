@@ -26,7 +26,7 @@ v4.7.0 (development in progress)
     the context. For example, suppose the context contains `x := val`. Then,
     any occurrence of `x` is replaced with `val`.
 
-  See issue #2682 for additional details. Here are some examples:
+  See issue [#2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
   ```
   example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
     intro x

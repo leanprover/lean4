@@ -165,7 +165,7 @@ structure SimpTheorems where
   lemmaNames   : PHashSet Origin := {}
   /--
   Constants (and let-declaration `FVarId`) to unfold.
-  When `zeta := false`, the simplifier will expand a let-declaration if it is in this set.
+  When `zetaDelta := false`, the simplifier will expand a let-declaration if it is in this set.
   -/
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}

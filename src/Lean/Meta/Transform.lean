@@ -134,6 +134,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | _                  => visitPost e
   visit input |>.run
 
+-- TODO: add options to distinguish zeta and zetaDelta reduction
 def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do
     match e with

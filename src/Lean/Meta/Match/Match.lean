@@ -682,7 +682,7 @@ builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← 
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
-  let result ← Closure.mkValueTypeClosure type value (zeta := false)
+  let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs

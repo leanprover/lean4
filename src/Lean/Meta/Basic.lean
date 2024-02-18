@@ -1551,7 +1551,8 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 
 /-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
 private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
-  e.replace fun
+  e.replace fun e =>
+    match e with
     | .const _ us => if us.any p then some (e.setPPUniverses true) else none
     | .sort u     => if p u then some (e.setPPUniverses true) else none
     | _           => none

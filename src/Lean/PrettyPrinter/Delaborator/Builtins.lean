@@ -318,7 +318,7 @@ where
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
   -/
   tryAppUnexpanders (fnStx : Term) (argStxs : Array Syntax) (argData : Array (Bool × Nat)) : Delab := do
-    let c := (← getExpr).consumeMData.getAppFn.constName!
+    let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
     let fs := appUnexpanderAttribute.getValues (← getEnv) c
     if fs.isEmpty then failure
     let rec go (prefixArgs : Nat) : DelabM Term := do

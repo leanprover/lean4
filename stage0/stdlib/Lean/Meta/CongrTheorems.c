@@ -2032,9 +2032,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = l_Lean_Expr_appFn_x21(x_1);
-lean_dec(x_1);
 x_17 = l_Lean_Expr_appFn_x21(x_16);
-lean_dec(x_16);
 x_18 = l_Lean_Expr_appArg_x21(x_17);
 lean_dec(x_17);
 x_19 = l_Lean_Meta_mkHEqRefl(x_18, x_2, x_3, x_4, x_5, x_6);
@@ -2045,7 +2043,6 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l_Lean_Expr_appFn_x21(x_1);
-lean_dec(x_1);
 x_21 = l_Lean_Expr_appArg_x21(x_20);
 lean_dec(x_20);
 x_22 = l_Lean_Meta_mkEqRefl(x_21, x_2, x_3, x_4, x_5, x_6);
@@ -5143,6 +5140,7 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+lean_inc(x_13);
 x_20 = l_Lean_Expr_appFn_x21(x_13);
 x_21 = l_Lean_Expr_appArg_x21(x_20);
 lean_dec(x_20);
@@ -7764,7 +7762,6 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = l_Lean_Expr_appFn_x21(x_3);
-lean_dec(x_3);
 x_19 = l_Lean_Expr_appArg_x21(x_18);
 lean_dec(x_18);
 x_20 = l_Lean_Meta_mkEqRefl(x_19, x_4, x_5, x_6, x_7, x_8);

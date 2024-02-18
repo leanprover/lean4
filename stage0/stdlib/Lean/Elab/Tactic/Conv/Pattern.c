@@ -356,6 +356,7 @@ else
 {
 lean_object* x_21; lean_object* x_22; 
 lean_free_object(x_13);
+lean_inc(x_2);
 x_21 = l_Lean_Expr_appFn_x21(x_2);
 x_22 = l_Lean_Elab_Tactic_Conv_matchPattern_x3f_go_x3f(x_1, x_21, x_3, x_4, x_5, x_6, x_17);
 if (lean_obj_tag(x_22) == 0)
@@ -570,6 +571,7 @@ return x_70;
 else
 {
 lean_object* x_71; lean_object* x_72; 
+lean_inc(x_2);
 x_71 = l_Lean_Expr_appFn_x21(x_2);
 x_72 = l_Lean_Elab_Tactic_Conv_matchPattern_x3f_go_x3f(x_1, x_71, x_3, x_4, x_5, x_6, x_67);
 if (lean_obj_tag(x_72) == 0)

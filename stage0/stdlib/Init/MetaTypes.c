@@ -490,7 +490,7 @@ static uint8_t _init_l_Lean_Meta_DSimp_Config_zetaDelta___default() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 1;
+x_1 = 0;
 return x_1;
 }
 }
@@ -1098,7 +1098,7 @@ static uint8_t _init_l_Lean_Meta_Simp_Config_zetaDelta___default() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 1;
+x_1 = 0;
 return x_1;
 }
 }

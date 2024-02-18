@@ -3149,7 +3149,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 14, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 15, x_3);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_3);
 return x_6;
 }
 }
@@ -3446,7 +3446,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 14, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 15, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_4);
 return x_6;
 }
 }
@@ -3638,7 +3638,7 @@ lean_ctor_set_uint8(x_4, 6, x_3);
 lean_ctor_set_uint8(x_4, 7, x_3);
 lean_ctor_set_uint8(x_4, 8, x_1);
 lean_ctor_set_uint8(x_4, 9, x_3);
-lean_ctor_set_uint8(x_4, 10, x_1);
+lean_ctor_set_uint8(x_4, 10, x_3);
 return x_4;
 }
 }

@@ -3515,7 +3515,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 14, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 15, x_3);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 16, x_3);
 return x_6;
 }
 }

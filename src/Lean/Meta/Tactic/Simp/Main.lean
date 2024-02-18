@@ -166,6 +166,8 @@ private def reduceStep (e : Expr) : SimpM Expr := do
   if cfg.zeta then
     if let some (args, _, _, v, b) := e.letFunAppArgs? then
       return mkAppN (b.instantiate1 v) args
+    if e.isLet then
+      return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"

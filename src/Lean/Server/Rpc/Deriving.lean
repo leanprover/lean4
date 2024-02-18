@@ -57,7 +57,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       enc a := return toJson { $[$encInits],* : RpcEncodablePacket }
       dec j := do
         let a : RpcEncodablePacket ← fromJson? j
-        return $(⟨structInst.raw⟩)
+        return { $decInits:structInstField,* }
     end $indName
   )
 

@@ -343,5 +343,5 @@ def bmod (x : Int) (m : Nat) : Int :=
     r - m
 
 @[simp] theorem bmod_emod : bmod x m % m = x % m := by
-  dsimp [bmod]
+  simp [bmod] -- TODO (zeta): It was `dsimp`
   split <;> simp [Int.sub_emod]

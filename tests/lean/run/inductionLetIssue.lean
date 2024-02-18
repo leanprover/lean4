@@ -12,7 +12,7 @@ def f (x? : Option Nat) (hp : P x?) : { r? : Option Nat // P r? } :=
     let x := x?.get h₁
     have : x > 0 := by
       cases h₂ : x with
-      | zero => have := aux x? hp h₁; simp at h₂; simp [h₂] at this
+      | zero => have := aux x? hp h₁; simp [x] at h₂; simp [h₂] at this; done
       | succ x' => simp_arith
     ⟨some x, .somePos this⟩
   else

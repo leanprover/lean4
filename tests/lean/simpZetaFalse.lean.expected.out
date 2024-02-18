@@ -15,7 +15,7 @@ fun x h =>
         (let_congr (Eq.refl (x * x)) fun y =>
           ite_congr (Eq.trans (congrArg (fun x_1 => x_1 = x) h) (eq_self x)) (fun a => Eq.refl 1) fun a =>
             Eq.refl (y + 1))))
-    (of_eq_true (eq_self 1))
+    (of_eq_true (Eq.trans (congrArg (fun x => x = 1) (ite_cond_eq_true 1 (x * x + 1) (Eq.refl True))) (eq_self 1)))
 x z : Nat
 h : f (f x) = x
 h' : z = x

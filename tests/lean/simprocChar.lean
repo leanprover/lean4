@@ -54,3 +54,13 @@ example (h : x = true) : x = 'A'.isUpper := by
   simp
   trace_state
   assumption
+
+example (h : x = 65) : x = 'A'.val := by
+  simp
+  trace_state
+  assumption
+
+example (h : x = 'A') : x = Char.ofNatAux 65 (by decide) := by
+  simp
+  trace_state
+  assumption

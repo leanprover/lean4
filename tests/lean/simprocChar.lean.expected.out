@@ -31,3 +31,9 @@ h : x = true
 x : Bool
 h : x = true
 ⊢ x = true
+x : UInt32
+h : x = 65
+⊢ x = 65
+x : Char
+h : x = 'A'
+⊢ x = 'A'

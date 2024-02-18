@@ -55,6 +55,18 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
 def occurs (e : Expr) (t : Expr) : Bool :=
   (t.find? fun s => s == e).isSome
 
+def findM? [Monad m] (p : Expr → m Bool) (e : Expr) : m (Option Expr) := do
+  if ← p e then
+    return some e
+  else match e with
+    | .forallE _ d b _ => findM? p d <||> findM? p b
+    | .lam _ d b _     => findM? p d <||> findM? p b
+    | .mdata _ b       => findM? p b
+    | .letE _ t v b _  => findM? p t <||> findM? p v <||> findM? p b
+    | .app f a         => findM? p f <||> findM? p a
+    | .proj _ _ b      => findM? p b
+    | _                => pure none
+
 /--
   Return type for `findExt?` function argument.
 -/

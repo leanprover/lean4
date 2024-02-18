@@ -30,6 +30,14 @@ def elimOptParam (type : Expr) : CoreM Expr := do
     else
       return .continue
 
+def occursOrInType (e : Expr) (t : Expr) : MetaM Bool := do
+  let_fun f (s : Expr) := do
+    if !s.isFVar then
+      return s == e
+    let ty ← inferType s
+    return s == e || e.occurs ty
+  return (← t.findM? f).isSome
+
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
   let type ← elimOptParam ctorVal.type
@@ -57,7 +65,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         match (← whnf type) with
         | Expr.forallE n d b _ =>
           let arg1 := args1.get ⟨i, h⟩
-          if arg1.occurs resultType then
+          if ← occursOrInType arg1 resultType then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>
@@ -103,6 +111,7 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
   let name := mkInjectiveTheoremNameFor ctorVal.name
+  trace[Meta.injective] "theorem {name} : {type} := {value}"
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
@@ -134,6 +143,7 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
+  trace[Meta.injective] "theorem {name} : {type} := {value}"
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams

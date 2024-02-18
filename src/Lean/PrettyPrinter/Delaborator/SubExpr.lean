@@ -65,6 +65,16 @@ def withBoundedAppFnArgs (maxArgs : Nat) (xf : m α) (xa : α → m α) : m α :
     withAppArg (xa acc)
   | _, _ => xf
 
+/--
+Runs `xf` in the context of `Lean.Expr.getBoundedAppFn maxArgs`.
+This is equivalent to `withBoundedAppFnArgs maxArgs xf pure`.
+-/
+def withBoundedAppFn (maxArgs : Nat) (xf : m α) : m α := do
+  let e ← getExpr
+  let numArgs := min maxArgs e.getAppNumArgs
+  let newPos := (← getPos).pushNaryFn numArgs
+  withTheReader SubExpr (fun cfg => { cfg with expr := e.getBoundedAppFn numArgs, pos := newPos }) xf
+
 def withBindingDomain (x : m α) : m α := do descend (← getExpr).bindingDomain! 0 x
 
 def withBindingBody (n : Name) (x : m α) : m α := do

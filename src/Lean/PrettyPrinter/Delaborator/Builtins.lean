@@ -17,9 +17,9 @@ open SubExpr
 open TSyntax.Compat
 
 /--
-If `cond` is true, wraps the syntax resulting from `d` in a type ascription.
+If `cond` is true, wraps the syntax produced by `d` in a type ascription.
 -/
-partial def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
+def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
   let stx ← d
   if cond then
     let typeStx ← withType delab
@@ -304,7 +304,7 @@ where
       else
         return (true, none)
   /--
-  Runs the given unexpanders, returning the resulting syntax if any are applicable.
+  Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
   tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
     let ref ← getRef
@@ -332,10 +332,7 @@ where
         (do guard unexpand
             let stx ← tryUnexpand fs <| Syntax.mkApp fnStx (argStxs.extract 0 prefixArgs)
             return Syntax.mkApp (← annotateTermInfo stx) (argStxs.extract prefixArgs argStxs.size))
-        <|>
-        (do let e ← getExpr
-            let newPos := (← getPos).pushNaryFn argCount
-            withTheReader SubExpr (fun cfg => { cfg with expr := e.getBoundedAppFn argCount, pos := newPos }) do go prefixArgs')
+        <|> withBoundedAppFn argCount (go prefixArgs')
     go argStxs.size
 
 /--

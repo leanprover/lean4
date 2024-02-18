@@ -242,11 +242,14 @@ lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc(x_1);
 x_11 = l_Lean_Expr_appFn_x21(x_1);
+lean_inc(x_11);
 x_12 = l_Lean_Expr_appFn_x21(x_11);
 x_13 = l_Lean_Expr_appArg_x21(x_11);
 lean_dec(x_11);
 x_14 = l_Lean_Expr_appArg_x21(x_1);
+lean_dec(x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
@@ -263,6 +266,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
+lean_dec(x_1);
 x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -280,7 +284,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -693,7 +696,6 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Elab_Term_getCalcRelation_x3f(x_2, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_2);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
@@ -735,7 +737,6 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_Elab_Term_getCalcRelation_x3f(x_22, x_5, x_6, x_7, x_8, x_23);
-lean_dec(x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 if (lean_obj_tag(x_25) == 0)
@@ -1011,6 +1012,7 @@ x_117 = lean_ctor_get(x_115, 1);
 lean_inc(x_117);
 lean_dec(x_115);
 x_118 = l_Lean_Expr_headBeta(x_116);
+lean_inc(x_118);
 x_119 = l_Lean_Elab_Term_getCalcRelation_x3f(x_118, x_5, x_6, x_7, x_8, x_117);
 x_120 = lean_ctor_get(x_119, 0);
 lean_inc(x_120);
@@ -1739,6 +1741,7 @@ x_270 = lean_ctor_get(x_268, 1);
 lean_inc(x_270);
 lean_dec(x_268);
 x_271 = l_Lean_Expr_headBeta(x_269);
+lean_inc(x_271);
 x_272 = l_Lean_Elab_Term_getCalcRelation_x3f(x_271, x_5, x_6, x_7, x_8, x_270);
 x_273 = lean_ctor_get(x_272, 0);
 lean_inc(x_273);
@@ -8454,6 +8457,7 @@ lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
+lean_inc(x_44);
 x_46 = l_Lean_Elab_Term_getCalcRelation_x3f(x_44, x_7, x_8, x_9, x_10, x_45);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
@@ -9116,6 +9120,7 @@ lean_inc(x_173);
 x_174 = lean_ctor_get(x_172, 1);
 lean_inc(x_174);
 lean_dec(x_172);
+lean_inc(x_173);
 x_175 = l_Lean_Elab_Term_getCalcRelation_x3f(x_173, x_7, x_8, x_9, x_10, x_174);
 x_176 = lean_ctor_get(x_175, 0);
 lean_inc(x_176);

@@ -64,6 +64,7 @@ uint32_t l_String_Iterator_curr(lean_object*);
 LEAN_EXPORT lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_getExternConstArityExport___closed__2;
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_341____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__30;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_670_(lean_object*);
@@ -90,7 +91,6 @@ static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternA
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_341____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instHashableExpr;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24;
@@ -737,7 +737,7 @@ else
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_box(0);
-x_18 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_341____spec__1(x_14, x_17);
+x_18 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_341____spec__1(x_14, x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 

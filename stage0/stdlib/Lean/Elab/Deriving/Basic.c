@@ -1457,7 +1457,6 @@ lean_dec(x_32);
 x_43 = lean_ctor_get(x_42, 1);
 lean_inc(x_43);
 x_44 = l_Lean_Expr_appFn_x21(x_43);
-lean_dec(x_43);
 x_45 = !lean_is_exclusive(x_27);
 if (x_45 == 0)
 {
@@ -1941,7 +1940,6 @@ lean_dec(x_143);
 x_151 = lean_ctor_get(x_150, 1);
 lean_inc(x_151);
 x_152 = l_Lean_Expr_appFn_x21(x_151);
-lean_dec(x_151);
 x_153 = lean_ctor_get(x_138, 1);
 lean_inc(x_153);
 if (lean_is_exclusive(x_138)) {

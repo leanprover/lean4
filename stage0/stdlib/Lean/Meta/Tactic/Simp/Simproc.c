@@ -7493,7 +7493,6 @@ lean_dec(x_5);
 x_21 = l_Lean_Expr_appArg_x21(x_19);
 x_22 = lean_array_push(x_20, x_21);
 x_23 = l_Lean_Expr_appFn_x21(x_19);
-lean_dec(x_19);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_22);

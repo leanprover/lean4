@@ -267,7 +267,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
           -- A non-pretty-printed argument is accounted for by the previous pretty printed one.
           | none, (_, argCount) => (argStxs, argData.pop.push (shouldUnexpand, argCount + 1))
         return (shouldUnexpand, fnStx, paramKinds.tailD [], argStxs, argData))
-  if ← pure (shouldUnexpand || argData.any Prod.fst) <&&> getPPOption getPPNotation then
+  if ← pure (argData.any Prod.fst) <&&> getPPOption getPPNotation then
     -- Try using an app unexpander for a prefix of the arguments.
     if let some stx ← (some <$> tryAppUnexpanders fnStx argStxs argData) <|> pure none then
       return stx
@@ -362,7 +362,7 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
 /--
 Delaborates applications. Removes up to `maxArgs` arguments to form
 the "head" of the application and delaborates the head using `delabHead`.
-The remaining arguments are processed depending on whether the application should delaborate in explicit mode.
+These arguments are then processed in a way depending on whether the application should delaborate in explicit mode.
 -/
 def delabAppCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) : Delab := do
   let e ← getExpr

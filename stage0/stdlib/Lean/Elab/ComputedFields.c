@@ -999,7 +999,7 @@ return x_17;
 else
 {
 uint8_t x_18; 
-x_18 = lean_ctor_get_uint8(x_3, 3);
+x_18 = lean_ctor_get_uint8(x_3, 4);
 if (x_18 == 0)
 {
 uint8_t x_19; 

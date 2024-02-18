@@ -64,3 +64,24 @@ example (h : x = 'A') : x = Char.ofNatAux 65 (by decide) := by
   simp
   trace_state
   assumption
+
+
+example (h : x = false) : x = ('a' == 'b') := by
+  simp
+  trace_state
+  assumption
+
+example (h : x = true) : x = ('a' != 'b') := by
+  simp
+  trace_state
+  assumption
+
+example (h : ¬x) : x = ('a' = 'b') := by
+  simp
+  trace_state
+  assumption
+
+example (h : x) : x = ('a' ≠ 'b') := by
+  simp
+  trace_state
+  assumption

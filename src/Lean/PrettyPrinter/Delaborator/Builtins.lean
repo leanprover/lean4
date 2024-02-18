@@ -295,8 +295,6 @@ where
         mkNamedArg param.name (← delab)
       else if param.defVal.isSome && rest.isEmpty && param.defVal.get! == arg then
         return (true, none)
-      else if param.isAutoParam && rest.isEmpty then
-        return (true, none)
       else if param.bInfo.isExplicit then
         return (true, ← delab)
       else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then

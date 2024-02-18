@@ -19,6 +19,18 @@ def fromExpr? (e : Expr) : SimpM (Option Char) := OptionT.run do
   let some c ← fromExpr? e.appArg! | return .continue
   return .done { expr := toExpr (op c) }
 
+@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  evalPropStep e (op n m)
+
+@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : Char → Char → Bool) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  return .done { expr := toExpr (op n m) }
+
 builtin_simproc [simp, seval] reduceToLower (Char.toLower _) := reduceUnary ``Char.toLower Char.toLower
 builtin_simproc [simp, seval] reduceToUpper (Char.toUpper _) := reduceUnary ``Char.toUpper Char.toUpper
 builtin_simproc [simp, seval] reduceToNat (Char.toNat _) := reduceUnary ``Char.toNat Char.toNat
@@ -33,6 +45,10 @@ builtin_simproc [simp, seval] reduceVal (Char.val _) := fun e => do
   unless e.isAppOfArity ``Char.val 1 do return .continue
   let some c ← fromExpr? e.appArg! | return .continue
   return .done { expr := UInt32.toExprCore c.val }
+builtin_simproc [simp, seval] reduceEq  (( _ : Char) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : Char) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+builtin_simproc [simp, seval] reduceBEq  (( _ : Char) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
+builtin_simproc [simp, seval] reduceBNe  (( _ : Char) != _)  := reduceBoolPred ``bne 4 (. != .)
 
 /--
 Return `.done` for Char values. We don't want to unfold in the symbolic evaluator.

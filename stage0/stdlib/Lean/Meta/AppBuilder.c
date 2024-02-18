@@ -2467,7 +2467,9 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_inc(x_10);
 x_20 = l_Lean_Expr_appFn_x21(x_10);
+lean_inc(x_20);
 x_21 = l_Lean_Expr_appFn_x21(x_20);
 x_22 = l_Lean_Expr_appArg_x21(x_21);
 lean_dec(x_21);
@@ -2683,7 +2685,9 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+lean_inc(x_12);
 x_31 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_31);
 x_32 = l_Lean_Expr_appFn_x21(x_31);
 x_33 = l_Lean_Expr_appArg_x21(x_32);
 lean_dec(x_32);
@@ -3134,8 +3138,11 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_inc(x_10);
 x_20 = l_Lean_Expr_appFn_x21(x_10);
+lean_inc(x_20);
 x_21 = l_Lean_Expr_appFn_x21(x_20);
+lean_inc(x_21);
 x_22 = l_Lean_Expr_appFn_x21(x_21);
 x_23 = l_Lean_Expr_appArg_x21(x_22);
 lean_dec(x_22);
@@ -3329,8 +3336,11 @@ else
 {
 uint8_t x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
 x_64 = l_Lean_Expr_isAppOfArity(x_15, x_56, x_57);
+lean_inc(x_12);
 x_65 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_65);
 x_66 = l_Lean_Expr_appFn_x21(x_65);
+lean_inc(x_66);
 x_67 = l_Lean_Expr_appFn_x21(x_66);
 x_68 = l_Lean_Expr_appArg_x21(x_67);
 lean_dec(x_67);
@@ -3360,8 +3370,11 @@ goto block_55;
 else
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; 
+lean_inc(x_15);
 x_76 = l_Lean_Expr_appFn_x21(x_15);
+lean_inc(x_76);
 x_77 = l_Lean_Expr_appFn_x21(x_76);
+lean_inc(x_77);
 x_78 = l_Lean_Expr_appFn_x21(x_77);
 x_79 = l_Lean_Expr_appArg_x21(x_78);
 lean_dec(x_78);
@@ -3775,8 +3788,11 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_inc(x_8);
 x_20 = l_Lean_Expr_appFn_x21(x_8);
+lean_inc(x_20);
 x_21 = l_Lean_Expr_appFn_x21(x_20);
+lean_inc(x_21);
 x_22 = l_Lean_Expr_appFn_x21(x_21);
 x_23 = l_Lean_Expr_appArg_x21(x_22);
 lean_dec(x_22);
@@ -4865,7 +4881,9 @@ if (x_76 == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 x_77 = lean_ctor_get(x_70, 0);
+lean_inc(x_13);
 x_78 = l_Lean_Expr_appFn_x21(x_13);
+lean_inc(x_78);
 x_79 = l_Lean_Expr_appFn_x21(x_78);
 x_80 = l_Lean_Expr_appArg_x21(x_79);
 lean_dec(x_79);
@@ -4889,7 +4907,9 @@ lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean
 x_85 = lean_ctor_get(x_70, 0);
 lean_inc(x_85);
 lean_dec(x_70);
+lean_inc(x_13);
 x_86 = l_Lean_Expr_appFn_x21(x_13);
+lean_inc(x_86);
 x_87 = l_Lean_Expr_appFn_x21(x_86);
 x_88 = l_Lean_Expr_appArg_x21(x_87);
 lean_dec(x_87);
@@ -5210,7 +5230,9 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+lean_inc(x_13);
 x_23 = l_Lean_Expr_appFn_x21(x_13);
+lean_inc(x_23);
 x_24 = l_Lean_Expr_appFn_x21(x_23);
 x_25 = l_Lean_Expr_appArg_x21(x_24);
 lean_dec(x_24);
@@ -5657,7 +5679,9 @@ else
 {
 uint8_t x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
 x_89 = l_Lean_Expr_isAppOfArity(x_15, x_81, x_82);
+lean_inc(x_12);
 x_90 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_90);
 x_91 = l_Lean_Expr_appFn_x21(x_90);
 x_92 = l_Lean_Expr_appArg_x21(x_91);
 lean_dec(x_91);
@@ -5681,7 +5705,9 @@ goto block_80;
 else
 {
 lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
+lean_inc(x_15);
 x_98 = l_Lean_Expr_appFn_x21(x_15);
+lean_inc(x_98);
 x_99 = l_Lean_Expr_appFn_x21(x_98);
 x_100 = l_Lean_Expr_appArg_x21(x_99);
 lean_dec(x_99);
@@ -11994,7 +12020,9 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_inc(x_12);
 x_22 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_22);
 x_23 = l_Lean_Expr_appFn_x21(x_22);
 x_24 = l_Lean_Expr_appArg_x21(x_23);
 lean_dec(x_23);
@@ -12323,7 +12351,9 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_inc(x_12);
 x_22 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_22);
 x_23 = l_Lean_Expr_appFn_x21(x_22);
 x_24 = l_Lean_Expr_appArg_x21(x_23);
 lean_dec(x_23);
@@ -12803,7 +12833,9 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_inc(x_12);
 x_22 = l_Lean_Expr_appFn_x21(x_12);
+lean_inc(x_22);
 x_23 = l_Lean_Expr_appFn_x21(x_22);
 x_24 = l_Lean_Expr_appArg_x21(x_23);
 lean_dec(x_23);

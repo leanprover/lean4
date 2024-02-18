@@ -6940,7 +6940,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_u22
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Error: The '⋯' token is used by the pretty printer to indicate omitted terms, and it cannot be elaborated. Its presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.deepTerms.threshold` options.", 221);
+x_1 = lean_mk_string_from_bytes("Error: The '⋯' token is used by the pretty printer to indicate omitted terms, and it cannot be elaborated.\n\nIts presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.", 305);
 return x_1;
 }
 }

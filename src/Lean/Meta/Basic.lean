@@ -1084,19 +1084,21 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
   process consumeLet (← getLCtx) #[] 0 e
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
     match consumeLet, e with
     | _, .lam n d b bi =>
       let d := d.instantiateRevRange j fvars.size fvars
+      let d := if cleanupAnnotations then d.cleanupAnnotations else d
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
     | true, .letE n t v b _ => do
       let t := t.instantiateRevRange j fvars.size fvars
+      let t := if cleanupAnnotations then t.cleanupAnnotations else t
       let v := v.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
@@ -1108,16 +1110,23 @@ where
         withNewLocalInstancesImp fvars j do
           k fvars e
 
-/-- Similar to `lambdaTelescope` but for lambda and let expressions. -/
-def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true k) k
+/--
+Similar to `lambdaTelescope` but for lambda and let expressions.
+
+If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e true k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
-  execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false k) k
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`.
+
+  If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -1542,7 +1551,8 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 
 /-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
 private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
-  e.replace fun
+  e.replace fun e =>
+    match e with
     | .const _ us => if us.any p then some (e.setPPUniverses true) else none
     | .sort u     => if p u then some (e.setPPUniverses true) else none
     | _           => none

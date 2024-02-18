@@ -24,13 +24,13 @@ def unfoldMDatas : Expr → Expr
 
 @[builtin_delab fvar]
 def delabFVar : Delab := do
-let Expr.fvar fvarId ← getExpr | unreachable!
-try
-  let l ← fvarId.getDecl
-  maybeAddBlockImplicit (mkIdent l.userName)
-catch _ =>
-  -- loose free variable, use internal name
-  maybeAddBlockImplicit <| mkIdent fvarId.name
+  let Expr.fvar fvarId ← getExpr | unreachable!
+  try
+    let l ← fvarId.getDecl
+    maybeAddBlockImplicit (mkIdent l.userName)
+  catch _ =>
+    -- loose free variable, use internal name
+    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]
@@ -680,6 +680,13 @@ def delabLetE : Delab := do
     let stxT ← descend t 0 delab
     `(let $(mkIdent n) : $stxT := $stxV; $stxB)
   else `(let $(mkIdent n) := $stxV; $stxB)
+
+@[builtin_delab app.Char.ofNat]
+def delabChar : Delab := do
+  let e ← getExpr
+  guard <| e.getAppNumArgs == 1
+  let .lit (.natVal n) := e.appArg! | failure
+  return quote (Char.ofNat n)
 
 @[builtin_delab lit]
 def delabLit : Delab := do

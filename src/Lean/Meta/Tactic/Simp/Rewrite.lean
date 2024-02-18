@@ -182,7 +182,7 @@ def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
 @[inline] def simpUsingDecide : Simproc := fun e => do
   unless (← getConfig).decide do
     return .continue
-  if e.hasFVar || e.hasMVar || e.consumeMData.isConstOf ``True || e.consumeMData.isConstOf ``False then
+  if e.hasFVar || e.hasMVar || e.isTrue || e.isFalse then
     return .continue
   try
     let d ← mkDecide e
@@ -288,7 +288,7 @@ Discharge procedure for the ground/symbolic evaluator.
 def dischargeGround (e : Expr) : SimpM (Option Expr) := do
   trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
   let r ← simp e
-  if r.expr.consumeMData.isConstOf ``True then
+  if r.expr.isTrue then
     try
       return some (← mkOfEqTrue (← r.getProof))
     catch _ =>
@@ -387,9 +387,10 @@ def simpGround : Simproc := fun e => do
   if ctx.simpTheorems.isErased (.decl declName) then return .continue
   -- Matcher applications should have been reduced before we get here.
   if (← isMatcher declName) then return .continue
-  trace[Meta.Tactic.Simp.ground] "seval: {e}"
-  let r ← seval e
-  trace[Meta.Tactic.Simp.ground] "seval result: {e} => {r.expr}"
+  let r ← withTraceNode `Meta.Tactic.simp.ground (fun
+      | .ok r => return m!"seval: {e} => {r.expr}"
+      | .error err => return m!"seval: {e} => {err.toMessageData}") do
+    seval e
   return .done r
 
 def preDefault (s : SimprocsArray) : Simproc :=
@@ -431,7 +432,7 @@ where
   go (e : Expr) : Bool :=
     match e with
     | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
-    | _ => e.consumeMData.isConstOf ``False
+    | _ => e.isFalse
 
 def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   (← getLCtx).findDeclRevM? fun localDecl => do
@@ -471,6 +472,7 @@ where
       return some mvarId
 
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then
       return some r
@@ -484,7 +486,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   else
     withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
       let r ← simp e
-      if r.expr.consumeMData.isConstOf ``True then
+      if r.expr.isTrue then
         try
           return some (← mkOfEqTrue (← r.getProof))
         catch _ =>

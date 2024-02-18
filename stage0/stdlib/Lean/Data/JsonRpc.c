@@ -120,7 +120,7 @@ static lean_object* l_Lean_JsonRpc_instToJsonErrorCode___closed__31;
 static lean_object* l_Lean_JsonRpc_instFromJsonErrorCode___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Json_Basic_0__Lean_decEqJsonNumber____x40_Lean_Data_Json_Basic___hyg_22_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_RequestID_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_beqRequest____x40_Lean_Data_JsonRpc___hyg_975_(lean_object*);
@@ -2313,7 +2313,7 @@ return x_20;
 else
 {
 lean_object* x_21; 
-x_21 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____rarg(x_1, x_7, x_11);
+x_21 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____rarg(x_1, x_7, x_11);
 return x_21;
 }
 }

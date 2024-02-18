@@ -11,13 +11,13 @@ context:
 b : β
 a : α
 h : α = β
-⊢ (⋯ : α = β) ▸ a = b
+⊢ ⋯ ▸ a = b
 ppProofs.lean:10:50-10:98: error: unsolved goals
 α β : Sort ?u
 b : β
 a : α
 h : α = β
-⊢ (⋯ : α = β) ▸ a = b
+⊢ ⋯ ▸ a = b
 ppProofs.lean:12:50-12:51: error: don't know how to synthesize placeholder
 context:
 α β : Sort u_1
@@ -32,7 +32,7 @@ b : β
 a : α
 h : α = β
 ⊢ id h ▸ a = b
-let x := (⋯ : 1 ≤ Nat.succ 1);
+let x := ⋯;
 0 : Nat
 let x := Nat.le_succ 1;
 0 : Nat

@@ -1721,6 +1721,7 @@ return x_5;
 else
 {
 lean_object* x_13; lean_object* x_14; 
+lean_inc(x_8);
 x_13 = l_Lean_Expr_appFn_x21(x_8);
 x_14 = l_Lean_Expr_appArg_x21(x_13);
 lean_dec(x_13);
@@ -1819,6 +1820,7 @@ return x_33;
 else
 {
 lean_object* x_34; lean_object* x_35; 
+lean_inc(x_28);
 x_34 = l_Lean_Expr_appFn_x21(x_28);
 x_35 = l_Lean_Expr_appArg_x21(x_34);
 lean_dec(x_34);

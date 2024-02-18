@@ -67,3 +67,23 @@ example : foo x = 8 + 2 := by
   simp only [seval]
   trace_state
   rw [foo]
+
+example (h : x = false) : x = (3 == 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : x = true) : x = (3 != 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : ¬x) : x = (3 = 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : x) : x = (3 ≠ 4) := by
+  simp
+  trace_state
+  assumption

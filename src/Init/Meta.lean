@@ -587,6 +587,9 @@ def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSy
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
+def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
+  mkLit charLitKind (Char.quote val) info
+
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
@@ -1004,6 +1007,7 @@ instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨f
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
+instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩

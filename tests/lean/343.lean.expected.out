@@ -2,9 +2,13 @@
 343.lean:30:0-30:54: error: stuck at solving universe constraint
   max (?u+1) (?u+1) =?= max (?u+1) (?u+1)
 while trying to unify
-  Catish.Obj Catish.Obj
+  CatIsh.Obj.{max (max (?u + 1) (?u + 1)) ?u ?u,
+      max ((max (?u + 1) (?u + 1)) + 1) ((max ?u ?u) + 1)}
+    Catish.{max (?u + 1) (?u + 1),
+      max ?u ?u} : Type (max ((max (?u + 1) (?u + 1)) + 1) ((max ?u ?u) + 1))
 with
-  CatIsh.{max ?u ?u, max (?u + 1) (?u + 1)}
+  CatIsh.{max ?u ?u,
+    max (?u + 1) (?u + 1)} : Type (max ((max ?u ?u) + 1) ((max (?u + 1) (?u + 1)) + 1))
 343.lean:30:0-30:54: error: failed to solve universe constraint
   max (?u+1) (?u+1) =?= max (?u+1) (?u+1)
 while trying to unify

@@ -111,13 +111,6 @@ def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Mac
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs)             => withRef f `($pat)
       | _                   => throw ())
-where
-  -- NOTE: we consider only one nesting level here
-  flattenApp : Term → Term
-    | stx@`($f $xs*) => match f with
-      | `($f' $xs'*) => Syntax.mkApp f' (xs' ++ xs)
-      | _            => stx
-    | stx            => stx
 
 private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     (doc? : Option (TSyntax ``docComment))

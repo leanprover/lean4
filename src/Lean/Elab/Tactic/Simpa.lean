@@ -7,8 +7,6 @@ import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Simp
 import Lean.Linter.Util
--- import Std.Lean.Parser
--- import Std.Tactic.OpenPrivate
 
 /--
 Enables the 'unnecessary `simpa`' linter. This will report if a use of

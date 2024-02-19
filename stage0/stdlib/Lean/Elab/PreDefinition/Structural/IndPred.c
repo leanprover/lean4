@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.IndPred
-// Imports: Init Lean.Meta.IndPredBelow Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural.Basic
+// Imports: Lean.Meta.IndPredBelow Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -473,7 +473,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__6___closed__1;
 x_2 = l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__6___closed__2;
-x_3 = lean_unsigned_to_nat(182u);
+x_3 = lean_unsigned_to_nat(183u);
 x_4 = lean_unsigned_to_nat(53u);
 x_5 = l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__6___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6007,7 +6007,6 @@ x_18 = l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__5(x_1, x_2, x_3, x_4, x_
 return x_18;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_IndPredBelow(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin, lean_object*);
@@ -6016,9 +6015,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Structural_IndPred(u
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_IndPredBelow(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.SizeOf
-// Imports: Init Lean.Meta.AppBuilder Lean.Meta.Instances
+// Imports: Init.Data.List.BasicAux Lean.Meta.AppBuilder Lean.Meta.Instances
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4840,7 +4840,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__4;
 x_2 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__5;
-x_3 = lean_unsigned_to_nat(99u);
+x_3 = lean_unsigned_to_nat(101u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16784,7 +16784,7 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Instances(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -16792,7 +16792,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_SizeOf(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());

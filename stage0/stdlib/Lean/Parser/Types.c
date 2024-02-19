@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Types
-// Imports: Init Lean.Data.Trie Lean.Syntax Lean.Message
+// Imports: Lean.Data.Trie Lean.Syntax Lean.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2275,7 +2275,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Parser_SyntaxStack_back___closed__1;
 x_2 = l_Lean_Parser_SyntaxStack_back___closed__2;
-x_3 = lean_unsigned_to_nat(174u);
+x_3 = lean_unsigned_to_nat(175u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Parser_SyntaxStack_back___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2333,7 +2333,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Parser_SyntaxStack_back___closed__1;
 x_2 = l_Lean_Parser_SyntaxStack_get_x21___closed__1;
-x_3 = lean_unsigned_to_nat(180u);
+x_3 = lean_unsigned_to_nat(181u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Parser_SyntaxStack_get_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5929,7 +5929,7 @@ x_27 = l_Lean_Parser_instInhabitedInputContext___closed__2;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = l_Lean_Parser_SyntaxStack_back___closed__1;
 x_30 = l_Lean_Parser_withCacheFn___lambda__2___closed__3;
-x_31 = lean_unsigned_to_nat(422u);
+x_31 = lean_unsigned_to_nat(423u);
 x_32 = lean_unsigned_to_nat(4u);
 x_33 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_29, x_30, x_31, x_32, x_28);
 lean_dec(x_28);
@@ -6156,7 +6156,6 @@ x_8 = lean_apply_2(x_1, x_7, x_5);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Trie(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
@@ -6165,9 +6164,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Parser_Types(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Trie(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

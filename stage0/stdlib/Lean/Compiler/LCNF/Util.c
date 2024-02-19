@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.Util
-// Imports: Init Lean.CoreM Lean.MonadEnv Lean.Util.Recognizers
+// Imports: Init.Data.FloatArray.Basic Lean.CoreM Lean.MonadEnv Lean.Util.Recognizers
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -627,7 +627,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
 x_2 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2;
-x_3 = lean_unsigned_to_nat(59u);
+x_3 = lean_unsigned_to_nat(61u);
 x_4 = lean_unsigned_to_nat(48u);
 x_5 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1134,7 +1134,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__1;
 x_2 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4;
-x_3 = lean_unsigned_to_nat(66u);
+x_3 = lean_unsigned_to_nat(68u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1925,7 +1925,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_FloatArray_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
@@ -1934,7 +1934,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_Util(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_FloatArray_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_CoreM(builtin, lean_io_mk_world());

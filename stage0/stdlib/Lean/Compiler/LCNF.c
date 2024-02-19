@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF
-// Imports: Init Lean.Compiler.LCNF.AlphaEqv Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.FixedParams Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Level Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.Passes Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PhaseExt Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.Specialize Lean.Compiler.LCNF.SpecInfo Lean.Compiler.LCNF.Testing Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.ConfigOptions Lean.Compiler.LCNF.ForEachExpr Lean.Compiler.LCNF.MonoTypes Lean.Compiler.LCNF.ToMono Lean.Compiler.LCNF.MonadScope Lean.Compiler.LCNF.Closure Lean.Compiler.LCNF.LambdaLifting Lean.Compiler.LCNF.ReduceArity
+// Imports: Lean.Compiler.LCNF.AlphaEqv Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.FixedParams Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Level Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.Passes Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PhaseExt Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.Specialize Lean.Compiler.LCNF.SpecInfo Lean.Compiler.LCNF.Testing Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.ConfigOptions Lean.Compiler.LCNF.ForEachExpr Lean.Compiler.LCNF.MonoTypes Lean.Compiler.LCNF.ToMono Lean.Compiler.LCNF.MonadScope Lean.Compiler.LCNF.Closure Lean.Compiler.LCNF.LambdaLifting Lean.Compiler.LCNF.ReduceArity
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_AlphaEqv(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Bind(uint8_t builtin, lean_object*);
@@ -57,9 +56,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_AlphaEqv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

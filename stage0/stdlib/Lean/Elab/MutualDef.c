@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.MutualDef
-// Imports: Init Lean.Parser.Term Lean.Meta.Closure Lean.Meta.Check Lean.Meta.Transform Lean.PrettyPrinter.Delaborator.Options Lean.Elab.Command Lean.Elab.Match Lean.Elab.DefView Lean.Elab.Deriving.Basic Lean.Elab.PreDefinition.Main Lean.Elab.PreDefinition.WF.TerminationHint Lean.Elab.DeclarationRange
+// Imports: Lean.Parser.Term Lean.Meta.Closure Lean.Meta.Check Lean.Meta.Transform Lean.PrettyPrinter.Delaborator.Options Lean.Elab.Command Lean.Elab.Match Lean.Elab.DefView Lean.Elab.Deriving.Basic Lean.Elab.PreDefinition.Main Lean.Elab.PreDefinition.WF.TerminationHint Lean.Elab.DeclarationRange
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34782,7 +34782,6 @@ lean_dec(x_1);
 return x_10;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Closure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
@@ -34800,9 +34799,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_MutualDef(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.Basic
-// Imports: Init Lean.Meta.Basic Lean.Meta.ForEachExpr
+// Imports: Lean.Meta.Basic Lean.Meta.ForEachExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -334,7 +334,6 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -342,9 +341,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

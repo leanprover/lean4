@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Watchdog
-// Imports: Init Init.System.IO Init.Data.ByteArray Lean.Data.RBMap Lean.Util.Paths Lean.Data.FuzzyMatching Lean.Data.Json Lean.Data.Lsp Lean.Server.Utils Lean.Server.Requests Lean.Server.References
+// Imports: Init.System.IO Init.Data.ByteArray Lean.Data.RBMap Lean.Util.Paths Lean.Data.FuzzyMatching Lean.Data.Json Lean.Data.Lsp Lean.Server.Utils Lean.Server.Requests Lean.Server.References
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31750,7 +31750,6 @@ return x_36;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
@@ -31766,9 +31765,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_Watchdog(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.DeclarationRange
-// Imports: Init Lean.MonadEnv Lean.AuxRecursor Lean.ToExpr
+// Imports: Lean.MonadEnv Lean.AuxRecursor Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1623,7 +1623,6 @@ x_9 = l_Lean_findDeclarationRanges_x3f___rarg___lambda__4(x_1, x_2, x_3, x_4, x_
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_AuxRecursor(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
@@ -1632,9 +1631,6 @@ LEAN_EXPORT lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_MonadEnv(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

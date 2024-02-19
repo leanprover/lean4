@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.SubExpr
-// Imports: Init Lean.Meta.Basic Lean.Data.Json Lean.Data.RBMap
+// Imports: Lean.Meta.Basic Lean.Data.Json Lean.Data.RBMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -368,7 +368,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_Pos_head___closed__2;
-x_3 = lean_unsigned_to_nat(42u);
+x_3 = lean_unsigned_to_nat(43u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_SubExpr_Pos_head___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -428,7 +428,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_Pos_tail___closed__1;
-x_3 = lean_unsigned_to_nat(46u);
+x_3 = lean_unsigned_to_nat(47u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_SubExpr_Pos_head___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -512,7 +512,7 @@ x_10 = l_Lean_SubExpr_Pos_push___closed__2;
 x_11 = lean_string_append(x_9, x_10);
 x_12 = l_Lean_SubExpr_Pos_head___closed__1;
 x_13 = l_Lean_SubExpr_Pos_push___closed__3;
-x_14 = lean_unsigned_to_nat(50u);
+x_14 = lean_unsigned_to_nat(51u);
 x_15 = lean_unsigned_to_nat(27u);
 x_16 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_12, x_13, x_14, x_15, x_11);
 lean_dec(x_11);
@@ -1689,7 +1689,7 @@ lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l_Lean_SubExpr_Pos_head___closed__1;
 x_5 = l_Lean_SubExpr_Pos_fromString_x21___closed__1;
-x_6 = lean_unsigned_to_nat(137u);
+x_6 = lean_unsigned_to_nat(138u);
 x_7 = lean_unsigned_to_nat(22u);
 x_8 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_4, x_5, x_6, x_7, x_3);
 lean_dec(x_3);
@@ -1994,7 +1994,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_bindingBody_x21___closed__1;
-x_3 = lean_unsigned_to_nat(176u);
+x_3 = lean_unsigned_to_nat(177u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2110,7 +2110,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_SubExpr_Pos_head___closed__1;
 x_2 = l_Lean_SubExpr_bindingDomain_x21___closed__1;
-x_3 = lean_unsigned_to_nat(181u);
+x_3 = lean_unsigned_to_nat(182u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_SubExpr_bindingBody_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4572,7 +4572,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
@@ -4581,9 +4580,6 @@ LEAN_EXPORT lean_object* initialize_Lean_SubExpr(uint8_t builtin, lean_object* w
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.ImportCompletion
-// Imports: Init Lean.Data.Name Lean.Data.NameTrie Lean.Data.Lsp.Utf16 Lean.Data.Lsp.LanguageFeatures Lean.Util.Paths Lean.Util.LakePath
+// Imports: Lean.Data.Name Lean.Data.NameTrie Lean.Data.Lsp.Utf16 Lean.Data.Lsp.LanguageFeatures Lean.Util.Paths Lean.Util.LakePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3317,7 +3317,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_NameTrie(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object*);
@@ -3329,9 +3328,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_ImportCompletion(uint8_t builtin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

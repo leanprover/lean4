@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.KeyedDeclsAttribute
-// Imports: Init Lean.Compiler.InitAttr Lean.ScopedEnvExtension Lean.Compiler.IR.CompilerM
+// Imports: Lean.Compiler.InitAttr Lean.ScopedEnvExtension Lean.Compiler.IR.CompilerM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7758,7 +7758,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_KeyedDeclsAttribute_getValues___rarg), 3
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_InitAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
@@ -7767,9 +7766,6 @@ LEAN_EXPORT lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_InitAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

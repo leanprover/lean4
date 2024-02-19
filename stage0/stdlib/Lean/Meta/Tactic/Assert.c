@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Assert
-// Imports: Init Lean.Meta.Tactic.FVarSubst Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Revert
+// Imports: Init.Data.List.BasicAux Lean.Meta.Tactic.FVarSubst Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Revert
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1687,7 +1687,7 @@ x_8 = l_Lean_MVarId_assertHypotheses(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_FVarSubst(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Intro(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Revert(uint8_t builtin, lean_object*);
@@ -1696,7 +1696,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_FVarSubst(builtin, lean_io_mk_world());

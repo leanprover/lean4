@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ImplementedByAttr
-// Imports: Init Lean.Attributes Lean.Declaration Lean.MonadEnv Lean.Elab.InfoTree
+// Imports: Lean.Attributes Lean.Declaration Lean.MonadEnv Lean.Elab.InfoTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2421,7 +2421,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_setImplementedBy___rarg), 5, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Declaration(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MonadEnv(uint8_t builtin, lean_object*);
@@ -2431,9 +2430,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_ImplementedByAttr(uint8_t buil
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

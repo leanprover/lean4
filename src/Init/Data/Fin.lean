@@ -7,3 +7,4 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.Fin.Log2
 import Init.Data.Fin.Iterate
+import Init.Data.Fin.Fold

@@ -13,5 +13,5 @@ Array.heapSort.loop._eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : B
     match e : BinaryHeap.max a with
     | none => out
     | some x =>
-      let_fun this := (_ : BinaryHeap.size (BinaryHeap.popMax a) < BinaryHeap.size a);
+      let_fun this := ⋯;
       Array.heapSort.loop lt (BinaryHeap.popMax a) (Array.push out x)

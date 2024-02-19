@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
-
+prelude
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.InfoUtils
 
@@ -68,18 +68,38 @@ to perform the computation after the user has clicked on the code action in thei
 def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array LazyCodeAction)
 deriving instance Inhabited for CodeActionProvider
 
+private builtin_initialize builtinCodeActionProviders : IO.Ref (NameMap CodeActionProvider) ←
+  IO.mkRef ∅
+
+def addBuiltinCodeActionProvider (decl : Name) (provider : CodeActionProvider) : IO Unit :=
+  builtinCodeActionProviders.modify (·.insert decl provider)
+
 builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name NameSet ← registerSimplePersistentEnvExtension {
   addImportedFn := fun nss => nss.foldl (fun acc ns => ns.foldl NameSet.insert acc) ∅
   addEntryFn := fun s n => s.insert n
   toArrayFn  := fun es => es.toArray.qsort Name.quickLt
 }
 
-builtin_initialize registerBuiltinAttribute {
-  name := `code_action_provider
-  descr := "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
-  add := fun src _stx _kind => do
-    modifyEnv (codeActionProviderExt.addEntry · src)
-}
+builtin_initialize
+  let mkAttr (builtin : Bool) (name : Name) := registerBuiltinAttribute {
+    name
+    descr           := (if builtin then "(builtin) " else "") ++
+      "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
+    applicationTime := .afterCompilation
+    add             := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless (← getConstInfo decl).type.isConstOf ``CodeActionProvider do
+        throwError "invalid attribute '{name}', must be of type `Lean.Server.CodeActionProvider`"
+      let env ← getEnv
+      if builtin then
+        let h := mkConst decl
+        declareBuiltin decl <| mkApp (mkConst ``addBuiltinCodeActionProvider) h
+      else
+        setEnv <| codeActionProviderExt.addEntry env decl
+  }
+  mkAttr true `builtin_code_action_provider
+  mkAttr false `code_action_provider
 
 private unsafe def evalCodeActionProviderUnsafe [MonadEnv M] [MonadOptions M] [MonadError M] [Monad M] (declName : Name) : M CodeActionProvider := do
   evalConstCheck CodeActionProvider ``CodeActionProvider declName
@@ -103,7 +123,7 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         let env ← getEnv
         let names := codeActionProviderExt.getState env |>.toArray
         let caps ← names.mapM evalCodeActionProvider
-        return Array.zip names caps
+        return (← builtinCodeActionProviders.get).toList.toArray ++ Array.zip names caps
       caps.concatMapM fun (providerName, cap) => do
         let cas ← cap params snap
         cas.mapIdxM fun i lca => do
@@ -131,7 +151,9 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
   withWaitFindSnap doc (fun s => s.endPos ≥ pos)
     (notFoundX := throw <| RequestError.internalError "snapshot not found")
     fun snap => do
-      let cap ← RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
+      let cap ← match (← builtinCodeActionProviders.get).find? data.providerName with
+        | some cap => pure cap
+        | none     => RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
       let cas ← cap data.params snap
       let some ca := cas[data.providerResultIndex]?
         | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."

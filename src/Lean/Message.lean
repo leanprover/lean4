@@ -5,6 +5,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+prelude
 import Lean.Data.Position
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
@@ -64,8 +65,7 @@ inductive MessageData where
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | trace (cls : Name) (msg : MessageData) (children : Array MessageData)
-    (collapsed : Bool := false)
+  | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
   deriving Inhabited
 
 namespace MessageData

@@ -1125,11 +1125,12 @@ uint8_t x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4;
 x_1 = 0;
 x_2 = 1;
 x_3 = 0;
-x_4 = lean_alloc_ctor(0, 0, 4);
+x_4 = lean_alloc_ctor(0, 0, 5);
 lean_ctor_set_uint8(x_4, 0, x_1);
 lean_ctor_set_uint8(x_4, 1, x_2);
 lean_ctor_set_uint8(x_4, 2, x_3);
 lean_ctor_set_uint8(x_4, 3, x_2);
+lean_ctor_set_uint8(x_4, 4, x_2);
 return x_4;
 }
 }
@@ -2671,6 +2672,7 @@ return x_10;
 else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_inc(x_1);
 x_11 = l_Lean_Expr_appFn_x21(x_1);
 x_12 = l_Lean_Expr_appArg_x21(x_11);
 lean_dec(x_11);

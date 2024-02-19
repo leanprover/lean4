@@ -3,6 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 -/
+prelude
+import Init.Data.Range 
+import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format
 
@@ -305,6 +308,10 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   | some start, some stop => some { start, stop }
   | _,          _         => none
 
+/-- Returns a synthetic Syntax which has the specified `String.Range`. -/
+def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=
+  .atom (.synthetic range.start range.stop canonical) ""
+
 /--
 Represents a cursor into a syntax tree that can be read, written, and advanced down/up/left/right.
 Indices are allowed to be out-of-bound, in which case `cur` is `Syntax.missing`.
@@ -530,4 +537,5 @@ def Stack.matches (stack : Syntax.Stack) (pattern : List $ Option SyntaxNodeKind
     |>.all id)
 
 end Syntax
+
 end Lean

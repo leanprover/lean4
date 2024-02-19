@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Rename
@@ -24,16 +25,15 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
   go 0 mvarId fvarId #[]
 
 private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId)
-    (fvarId : FVarId) (extraParams : Nat) (element : TerminationBy) : TermElabM MVarId := do
-  -- If elements.vars is ≤ extraParams, this is user-provided, and should be interpreted
+    (fvarId : FVarId) (element : TerminationBy) : TermElabM MVarId := do
+  element.checkVars preDef.declName preDef.termination.extraParams
+  -- If `synthetic := false`, then this is user-provided, and should be interpreted
   -- as left to right. Else it is provided by GuessLex, and may rename non-extra paramters as well.
   -- (Not pretty, but it works for now)
   let implicit_underscores :=
-    if element.vars.size < extraParams then extraParams - element.vars.size else 0
+    if element.synthetic then 0 else preDef.termination.extraParams - element.vars.size
   let varNames ← lambdaTelescope preDef.value fun xs _ => do
     let mut varNames ← xs.mapM fun x => x.fvarId!.getUserName
-    if element.vars.size > varNames.size then
-      throwErrorAt element.vars[varNames.size]! "too many variable names"
     for h : i in [:element.vars.size] do
       let varStx := element.vars[i]
       if let `($ident:ident) := varStx then
@@ -55,8 +55,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
   go 0 mvarId fvarId
 
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat)
-    (argType : Expr) (extraParamss : Array Nat) (wf : TerminationWF) (k : Expr → TermElabM α) :
-    TermElabM α := do
+    (argType : Expr) (wf : TerminationWF) (k : Expr → TermElabM α) : TermElabM α := do
   let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
@@ -66,8 +65,8 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
     let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← fMVarId.intro1
     let subgoals ← unpackMutual preDefs fMVarId d
-    for (d, mvarId) in subgoals, extraParams in extraParamss, element in wf, preDef in preDefs do
-      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d extraParams element
+    for (d, mvarId) in subgoals, element in wf, preDef in preDefs do
+      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
       mvarId.withContext do
         let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
         mvarId.assign value

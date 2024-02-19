@@ -39,8 +39,75 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-`intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
-hypotheses until goal is not of a function type.
+Introduces zero or more hypotheses, optionally naming them.
+
+- `intros` is equivalent to repeatedly applying `intro`
+  until the goal is not an obvious candidate for `intro`, which is to say
+  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
+  the `intros` tactic will introduce an anonymous hypothesis.
+  This tactic does not unfold definitions.
+
+- `intros x y ...` is equivalent to `intro x y ...`,
+  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
+  Each argument can be either an identifier or a `_`.
+  An identifier indicates a name to use for the corresponding introduced hypothesis,
+  and a `_` indicates that the hypotheses should be introduced anonymously.
+
+## Examples
+
+Basic properties:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+-- Introduces the two obvious hypotheses automatically
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
+
+-- Introduces exactly two hypotheses, naming only the first
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros g _
+  /- Tactic state
+     g : Nat → Nat
+     a✝ : AllEven g
+     ⊢ AllEven fun k => g (k + 1) -/
+  sorry
+
+-- Introduces exactly three hypotheses, which requires unfolding `AllEven`
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros f h n
+  /- Tactic state
+     f : Nat → Nat
+     h : AllEven f
+     n : Nat
+     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
+  apply h
+```
+
+Implications:
+```lean
+example (p q : Prop) : p → q → p := by
+  intros
+  /- Tactic state
+     a✝¹ : p
+     a✝ : q
+     ⊢ p      -/
+  assumption
+```
+
+Let bindings:
+```lean
+example : let n := 1; let k := 2; n + k = 3 := by
+  intros
+  /- n✝ : Nat := 1
+     k✝ : Nat := 2
+     ⊢ n✝ + k✝ = 3 -/
+  rfl
+```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
 
@@ -106,6 +173,19 @@ example (x : Nat) (h : x ≠ x) : p := by contradiction
 syntax (name := contradiction) "contradiction" : tactic
 
 /--
+Changes the goal to `False`, retaining as much information as possible:
+
+* If the goal is `False`, do nothing.
+* If the goal is an implication or a function type, introduce the argument and restart.
+  (In particular, if the goal is `x ≠ y`, introduce `x = y`.)
+* Otherwise, for a propositional goal `P`, replace it with `¬ ¬ P`
+  (attempting to find a `Decidable` instance, but otherwise falling back to working classically)
+  and introduce `¬ P`.
+* For a non-propositional goal use `False.elim`.
+-/
+syntax (name := falseOrByContra) "false_or_by_contra" : tactic
+
+/--
 `apply e` tries to match the current goal against the conclusion of `e`'s type.
 If it succeeds, then the tactic returns as many subgoals as the number of premises that
 have not been fixed by type inference or type class resolution.
@@ -134,11 +214,36 @@ and implicit parameters are also converted into new goals.
 -/
 syntax (name := refine') "refine' " term : tactic
 
+/-- `exfalso` converts a goal `⊢ tgt` into `⊢ False` by applying `False.elim`. -/
+macro "exfalso" : tactic => `(tactic| refine False.elim ?_)
+
 /--
 If the main goal's target type is an inductive type, `constructor` solves it with
 the first matching constructor, or else fails.
 -/
 syntax (name := constructor) "constructor" : tactic
+
+/--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example : True ∨ False := by
+  left
+  trivial
+```
+-/
+syntax (name := left) "left" : tactic
+
+/--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example {p q : Prop} (h : q) : p ∨ q := by
+  right
+  exact h
+```
+-/
+syntax (name := right) "right" : tactic
 
 /--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
@@ -256,8 +361,13 @@ syntax (name := eqRefl) "eq_refl" : tactic
 `rfl` tries to close the current goal using reflexivity.
 This is supposed to be an extensible tactic and users can add their own support
 for new reflexive relations.
+
+Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
+reflexivity theorems (e.g., `Iff.rfl`).
 -/
 macro "rfl" : tactic => `(tactic| eq_refl)
+
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
@@ -268,8 +378,8 @@ macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfol
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
 ```
-instance : IsAssociative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : IsCommutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 ```
@@ -304,7 +414,7 @@ syntax locationWildcard := " *"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (ppSpace colGt term:max)+ ppSpace patternIgnore( atomic("|" noWs "-") <|> "⊢")?
+syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -365,12 +475,16 @@ syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
+
+/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
+  `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data
@@ -559,7 +673,7 @@ You can use `with` to provide the variables names for each constructor.
 - `induction e`, where `e` is an expression instead of a variable,
   generalizes `e` in the goal, and then performs induction on the resulting variable.
 - `induction e using r` allows the user to specify the principle of induction that should be used.
-  Here `r` should be a theorem whose result type must be of the form `C t`,
+  Here `r` should be a term whose result type must be of the form `C t`,
   where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables
 - `induction e generalizing z₁ ... zₙ`, where `z₁ ... zₙ` are variables in the local context,
   generalizes over `z₁ ... zₙ` before applying the induction but then introduces them in each goal.
@@ -567,7 +681,7 @@ You can use `with` to provide the variables names for each constructor.
 - Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂`
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
-syntax (name := induction) "induction " term,+ (" using " ident)?
+syntax (name := induction) "induction " term,+ (" using " term)?
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
@@ -610,7 +724,7 @@ You can use `with` to provide the variables names for each constructor.
   performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
   where `...` is the constructor instance for that particular case.
 -/
-syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
+syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
@@ -748,6 +862,149 @@ For example, given `⊢ f (g (x + y)) = f (g (y + x))`,
 while `congr 2` produces the intended `⊢ x + y = y + x`.
 -/
 syntax (name := congr) "congr" (ppSpace num)? : tactic
+
+
+/--
+In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
+```
+by_cases h : t
+· tac1
+· tac2
+```
+It performs case distinction on `h : t` or `h : ¬t` and `tac1` and `tac2` are the subproofs.
+
+You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
+if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
+by the end of the block.
+-/
+syntax (name := tacDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+/--
+In tactic mode, `if t then tac1 else tac2` is alternative syntax for:
+```
+by_cases t
+· tac1
+· tac2
+```
+It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous
+hypothesis, and `tac1` and `tac2` are the subproofs. (It doesn't actually use
+nondependent `if`, since this wouldn't add anything to the context and hence would be
+useless for proving theorems. To actually insert an `ite` application use
+`refine if t then ?_ else ?_`.)
+-/
+syntax (name := tacIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+/--
+The tactic `nofun` is shorthand for `exact nofun`: it introduces the assumptions, then performs an
+empty pattern match, closing the goal if the introduced pattern is impossible.
+-/
+macro "nofun" : tactic => `(tactic| exact nofun)
+
+/--
+The tactic `nomatch h` is shorthand for `exact nomatch h`.
+-/
+macro "nomatch " es:term,+ : tactic =>
+  `(tactic| exact nomatch $es:term,*)
+
+/--
+Acts like `have`, but removes a hypothesis with the same name as
+this one if possible. For example, if the state is:
+
+```lean
+f : α → β
+h : α
+⊢ goal
+```
+
+Then after `replace h := f h` the state will be:
+
+```lean
+f : α → β
+h : β
+⊢ goal
+```
+
+whereas `have h := f h` would result in:
+
+```lean
+f : α → β
+h† : α
+h : β
+⊢ goal
+```
+
+This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+-/
+syntax (name := replace) "replace" haveDecl : tactic
+
+/--
+`repeat' tac` runs `tac` on all of the goals to produce a new list of goals,
+then runs `tac` again on all of those goals, and repeats until `tac` fails on all remaining goals.
+-/
+syntax (name := repeat') "repeat' " tacticSeq : tactic
+
+/--
+`repeat1' tac` applies `tac` to main goal at least once. If the application succeeds,
+the tactic is applied recursively to the generated subgoals until it eventually fails.
+-/
+syntax (name := repeat1') "repeat1' " tacticSeq : tactic
+
+/-- `and_intros` applies `And.intro` until it does not make progress. -/
+syntax "and_intros" : tactic
+macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
+
+/--
+`subst_eq` repeatedly substitutes according to the equality proof hypotheses in the context,
+replacing the left side of the equality with the right, until no more progress can be made.
+-/
+syntax (name := substEqs) "subst_eqs" : tactic
+
+/-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
+syntax (name := runTac) "run_tac " doSeq : tactic
+
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+
+
+/--
+The `omega` tactic, for resolving integer and natural linear arithmetic problems.
+
+It is not yet a full decision procedure (no "dark" or "grey" shadows),
+but should be effective on many problems.
+
+We handle hypotheses of the form `x = y`, `x < y`, `x ≤ y`, and `k ∣ x` for `x y` in `Nat` or `Int`
+(and `k` a literal), along with negations of these statements.
+
+We decompose the sides of the inequalities as linear combinations of atoms.
+
+If we encounter `x / k` or `x % k` for literal integers `k` we introduce new auxiliary variables
+and the relevant inequalities.
+
+On the first pass, we do not perform case splits on natural subtraction.
+If `omega` fails, we recursively perform a case split on
+a natural subtraction appearing in a hypothesis, and try again.
+
+The options
+```
+omega (config :=
+  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
+```
+can be used to:
+* `splitDisjunctions`: split any disjunctions found in the context,
+  if the problem is not otherwise solvable.
+* `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
+* `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
+* `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+Currently, all of these are on by default.
+-/
+syntax (name := omega) "omega" (config)? : tactic
 
 end Tactic
 

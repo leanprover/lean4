@@ -1092,12 +1092,12 @@ LEAN_SHARED lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, boo
 static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_unbox(prio), false); }
 /* Convert a value `a : A` into `Task A` */
 LEAN_SHARED lean_obj_res lean_task_pure(lean_obj_arg a);
-LEAN_SHARED lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool keep_alive);
-/* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) : Task B */
-static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio) { return lean_task_bind_core(x, f, lean_unbox(prio), false); }
-LEAN_SHARED lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool keep_alive);
-/* Task.map (f : A -> B) (t : Task A) (prio : Nat) : Task B */
-static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio) { return lean_task_map_core(f, t, lean_unbox(prio), false); }
+LEAN_SHARED lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool sync, bool keep_alive);
+/* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) (sync : Bool) : Task B */
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_unbox(prio), sync, false); }
+LEAN_SHARED lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool sync, bool keep_alive);
+/* Task.map (f : A -> B) (t : Task A) (prio : Nat) (sync : Bool) : Task B */
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_unbox(prio), sync, false); }
 LEAN_SHARED b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
 static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
@@ -1989,6 +1989,10 @@ static inline uint8_t lean_version_get_is_release(lean_obj_arg _unit) {
 
 static inline lean_obj_res lean_version_get_special_desc(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_SPECIAL_VERSION_DESC);
+}
+
+static inline lean_obj_res lean_system_platform_target(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_PLATFORM_TARGET);
 }
 
 static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {

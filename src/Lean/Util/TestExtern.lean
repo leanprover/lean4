@@ -1,3 +1,4 @@
+prelude
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Command
 import Lean.Meta.Tactic.Unfold

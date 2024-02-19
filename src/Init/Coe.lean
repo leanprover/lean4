@@ -290,6 +290,12 @@ between e.g. `↑x + ↑y` and `↑(x + y)`.
 -/
 syntax:1024 (name := coeNotation) "↑" term:1024 : term
 
+/-- `⇑ t` coerces `t` to a function. -/
+syntax:1024 (name := coeFunNotation) "⇑" term:1024 : term
+
+/-- `↥ t` coerces `t` to a type. -/
+syntax:1024 (name := coeSortNotation) "↥" term:1024 : term
+
 /-! # Basic instances -/
 
 instance boolToProp : Coe Bool Prop where

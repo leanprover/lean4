@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Elab.Import
 import Lean.Elab.Command
 import Lean.Util.Profile
@@ -118,7 +119,7 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := s.commandState.infoState.trees.toArray
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
+    let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   pure (s.commandState.env, !s.commandState.messages.hasErrors)

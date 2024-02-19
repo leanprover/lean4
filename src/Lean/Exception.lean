@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
@@ -16,7 +17,7 @@ inductive Exception where
   | error (ref : Syntax) (msg : MessageData)
   /--
   Internal exceptions that are not meant to be seen by users.
-  Examples: "pospone elaboration", "stuck at universe constraint", etc
+  Examples: "postpone elaboration", "stuck at universe constraint", etc.
   -/
   | internal (id : InternalExceptionId) (extra : KVMap := {})
 

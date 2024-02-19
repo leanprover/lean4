@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.PatternVar
@@ -1368,7 +1369,7 @@ mutual
     else
       pure doElems.toArray
     let contSeq := mkDoSeq contSeq
-    let auxDo ← `(do let __discr := $val; match __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+    let auxDo ← `(do match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
     doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 
   /-- Generate `CodeBlock` for `doReassignArrow; doElems`

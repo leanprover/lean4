@@ -1,8 +1,9 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, Sebastian Ullrich
+Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
+prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
 
@@ -432,7 +433,9 @@ Empty match/ex falso. `nomatch e` is of arbitrary type `α : Sort u` if
 Lean can show that an empty set of patterns is exhaustive given `e`'s type,
 e.g. because it has no constructors.
 -/
-@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser
+@[builtin_term_parser] def «nomatch» := leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
+
+@[builtin_term_parser] def «nofun» := leading_parser "nofun"
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -567,6 +570,12 @@ def haveDecl     := leading_parser (withAnonymousAntiquot := false)
   haveIdDecl <|> (ppSpace >> letPatDecl) <|> haveEqnsDecl
 @[builtin_term_parser] def «have» := leading_parser:leadPrec
   withPosition ("have" >> haveDecl) >> optSemicolon termParser
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+@[builtin_term_parser] def «haveI» := leading_parser
+  withPosition ("haveI " >> haveDecl) >> optSemicolon termParser
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+@[builtin_term_parser] def «letI» := leading_parser
+  withPosition ("letI " >> haveDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
@@ -598,6 +607,19 @@ def matchAltsWhereDecls := leading_parser
 
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec
+
+/--
+`unsafe t : α` is an expression constructor which allows using unsafe declarations inside the
+body of `t : α`, by creating an auxiliary definition containing `t` and using `implementedBy` to
+wrap it in a safe interface. It is required that `α` is nonempty for this to be sound,
+but even beyond that, an `unsafe` block should be carefully inspected for memory safety because
+the compiler is unable to guarantee the safety of the operation.
+
+For example, the `evalExpr` function is unsafe, because the compiler cannot guarantee that when
+you call ```evalExpr Foo ``Foo e``` that the type `Foo` corresponds to the name `Foo`, but in a
+particular use case, we can ensure this, so `unsafe (evalExpr Foo ``Foo e)` is a correct usage.
+-/
+@[builtin_term_parser] def «unsafe» := leading_parser:leadPrec "unsafe " >> termParser
 
 /-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propogation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binrel := leading_parser

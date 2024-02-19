@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
@@ -67,11 +68,12 @@ where
                 let b := mkIdent (← mkFreshUserName `b)
                 ctorArgs1 := ctorArgs1.push a
                 ctorArgs2 := ctorArgs2.push b
+                let xType ← inferType x
                 let indValNum :=
                   ctx.typeInfos.findIdx?
-                  ((← inferType x).isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
+                  (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
                 let recField  := indValNum.map (ctx.auxFunNames[·]!)
-                let isProof   := (← inferType (← inferType x)).isProp
+                let isProof ← isProp xType
                 todo := todo.push (a, b, recField, isProof)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))

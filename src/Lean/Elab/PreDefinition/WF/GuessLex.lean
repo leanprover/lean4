@@ -3,9 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
+prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
@@ -129,7 +128,7 @@ or `casesOn` application.
 -/
 partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (param : Expr) (e : Expr)
     (k : Expr → Array Expr → MetaM α) : MetaM (Array α) := do
-  trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
+  trace[Elab.definition.wf] "withRecApps (param {param}): {indentExpr e}"
   let (_, as) ← loop param e |>.run #[] |>.run' {}
   return as
 where
@@ -176,30 +175,11 @@ where
     | Expr.proj _n _i e => loop param e
     | Expr.const .. => if e.isConstOf recFnName then processRec param e
     | Expr.app .. =>
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp param e
-        else
-          if let some altParams ← matcherApp.refineThrough? param then
-            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
-              fun (alt, altNumParam, altParam) =>
-                lambdaTelescope altParam fun xs altParam => do
-                  -- TODO: Use boundedLambdaTelescope
-                  unless altNumParam = xs.size do
-                    throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-                  let altBody := alt.beta xs
-                  loop altParam altBody
-          else
-            processApp param e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp param e
-        else
-          if let some altParams ← casesOnApp.refineThrough? param then
-          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altParams)).forM
+        if let some altParams ← matcherApp.refineThrough? param then
+          matcherApp.discrs.forM (loop param)
+          (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
               lambdaTelescope altParam fun xs altParam => do
                 -- TODO: Use boundedLambdaTelescope
@@ -207,8 +187,9 @@ where
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altBody := alt.beta xs
                 loop altParam altBody
-          else
-            processApp param e
+          matcherApp.remaining.forM (loop param)
+        else
+          processApp param e
       | none => processApp param e
     | e => do
       let _ ← ensureNoRecFn recFnName e
@@ -294,6 +275,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
       unless args.size ≥ fixedPrefixSize + 1 do
         throwError "Insufficient arguments in recursive call"
       let arg := args[fixedPrefixSize]!
+      trace[Elab.definition.wf] "collectRecCalls: {unaryPreDef.declName} ({param}) → {unaryPreDef.declName} ({arg})"
       let (caller, params) ← unpackArg arities param
       let (callee, args) ← unpackArg arities arg
       RecCallWithContext.create (← getRef) caller params callee args
@@ -575,7 +557,7 @@ def buildTermWF (originalVarNamess : Array (Array Name)) (varNamess : Array (Arr
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
     let body ← mkTupleSyntax measureStxs
-    return { ref := .missing, vars := idents, body }
+    return { ref := .missing, vars := idents, body, synthetic := true }
 
 /--
 The TerminationWF produced by GuessLex may mention more variables than allowed in the surface
@@ -585,8 +567,9 @@ The latter works fine in many cases, and is still useful to the user in the tric
 we do that.
 -/
 def trimTermWF (extraParams : Array Nat) (elems : TerminationWF) : TerminationWF :=
-  elems.mapIdx fun funIdx elem =>
-    { elem with vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size] }
+  elems.mapIdx fun funIdx elem => { elem with
+    vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size]
+    synthetic := false }
 
 /--
 Given a matrix (row-major) of strings, arranges them in tabular form.

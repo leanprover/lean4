@@ -1,5 +1,3 @@
-axiom Int.add_comm (i j : Int) : i + j = j + i
-
 example (n : Nat) (i : Int) : n + i = i + n := by
   rw [Int.add_comm]
 

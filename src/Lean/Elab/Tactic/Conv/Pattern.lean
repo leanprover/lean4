@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Conv.Basic
 import Lean.HeadIndex
@@ -82,7 +83,7 @@ end PatternMatchState
 
 private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchState) (e : Expr) : SimpM Simp.Step := do
   if (← state.get).isDone then
-    return Simp.Step.visit { expr := e }
+    return Simp.Step.done { expr := e }
   else if let some (e, extraArgs) ← matchPattern? pattern e then
     if (← state.get).isReady then
       let (rhs, newGoal) ← mkConvGoalFor e
@@ -97,9 +98,9 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
       -- it is possible for skipping an earlier match to affect what later matches
       -- refer to. For example, matching `f _` in `f (f a) = f b` with occs `[1, 2]`
       -- yields `[f (f a), f b]`, but `[2, 3]` yields `[f a, f b]`, and `[1, 3]` is an error.
-      return Simp.Step.visit { expr := e }
+      return Simp.Step.continue
   else
-    return Simp.Step.visit { expr := e }
+    return Simp.Step.continue
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.pattern] def evalPattern : Tactic := fun stx => withMainContext do
   match stx with

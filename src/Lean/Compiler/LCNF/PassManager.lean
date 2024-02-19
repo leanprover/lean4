@@ -3,6 +3,7 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Lean.Attributes
 import Lean.Environment
 import Lean.Meta.Basic

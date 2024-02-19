@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_elabDeriving___
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_elabDeriving___spec__1(lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__9___closed__1;
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_elabDeriving___spec__14___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_processDefDeriving(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1457,7 +1457,6 @@ lean_dec(x_32);
 x_43 = lean_ctor_get(x_42, 1);
 lean_inc(x_43);
 x_44 = l_Lean_Expr_appFn_x21(x_43);
-lean_dec(x_43);
 x_45 = !lean_is_exclusive(x_27);
 if (x_45 == 0)
 {
@@ -1941,7 +1940,6 @@ lean_dec(x_143);
 x_151 = lean_ctor_get(x_150, 1);
 lean_inc(x_151);
 x_152 = l_Lean_Expr_appFn_x21(x_151);
-lean_dec(x_151);
 x_153 = lean_ctor_get(x_138, 1);
 lean_inc(x_153);
 if (lean_is_exclusive(x_138)) {
@@ -3775,7 +3773,7 @@ x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_1);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_10, x_10);
 x_14 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__9___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
@@ -3847,7 +3845,7 @@ x_37 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_38 = l_Lean_Syntax_formatStxAux(x_35, x_36, x_37, x_1);
 x_39 = l_Std_Format_defWidth;
-x_40 = lean_format_pretty(x_38, x_39);
+x_40 = lean_format_pretty(x_38, x_39, x_37, x_37);
 x_41 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_elabDeriving___spec__9___closed__1;
 x_42 = lean_string_append(x_41, x_40);
 lean_dec(x_40);

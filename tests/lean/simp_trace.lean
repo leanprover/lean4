@@ -24,8 +24,6 @@ theorem ex3 : fact x > 0 := by
   | zero => decide
   | succ x ih =>
     simp [fact]
-    apply Nat.mul_pos
-    apply Nat.zero_lt_succ
     apply ih
 
 def head [Inhabited α] : List α → α

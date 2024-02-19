@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
 import Lean.Meta.WHNF
@@ -39,7 +40,7 @@ import Lean.Meta.Structure
 import Lean.Meta.Constructions
 import Lean.Meta.CongrTheorems
 import Lean.Meta.Eqns
-import Lean.Meta.CasesOn
 import Lean.Meta.ExprLens
 import Lean.Meta.ExprTraverse
 import Lean.Meta.Eval
+import Lean.Meta.CoeAttr

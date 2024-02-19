@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Init.System.IO
+
 import Lean.Data.RBMap
 import Lean.Environment
 
@@ -76,7 +78,7 @@ section Elab
   private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
       (snaps : Array Snapshot) : IO Unit := do
     let trees := snaps.map fun snap => snap.infoTree
-    let references := findModuleRefs m.text trees (localVars := true)
+    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
     let param := { version := m.version, references : LeanIleanInfoParams }
     hOut.writeLspNotification { method, param }
 
@@ -196,7 +198,7 @@ section Initialization
       (headerMsgLog : MessageLog)
       (opts : Options)
       : Elab.Command.State :=
-    let headerContextInfo : Elab.ContextInfo := {
+    let headerContextInfo : Elab.CommandContextInfo := {
       env     := headerEnv
       fileMap := m.text
       ngen    := { namePrefix := `_worker }
@@ -210,7 +212,7 @@ section Initialization
     let headerInfoTree := Elab.InfoTree.node headerInfo headerInfoNodes.toPArray'
     let headerInfoState := {
       enabled := true
-      trees := #[Elab.InfoTree.context headerContextInfo headerInfoTree].toPArray'
+      trees := #[Elab.InfoTree.context (.commandCtx headerContextInfo) headerInfoTree].toPArray'
     }
     { Elab.Command.mkState headerEnv headerMsgLog opts with infoState := headerInfoState }
 

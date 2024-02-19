@@ -1,13 +1,14 @@
 /-
 Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich
+Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
-
+prelude
+import Lean.Parser
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
-import Lean.Parser
+import Lean.Meta.CoeAttr
 
 namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
@@ -24,13 +25,13 @@ def unfoldMDatas : Expr → Expr
 
 @[builtin_delab fvar]
 def delabFVar : Delab := do
-let Expr.fvar fvarId ← getExpr | unreachable!
-try
-  let l ← fvarId.getDecl
-  maybeAddBlockImplicit (mkIdent l.userName)
-catch _ =>
-  -- loose free variable, use internal name
-  maybeAddBlockImplicit <| mkIdent fvarId.name
+  let Expr.fvar fvarId ← getExpr | unreachable!
+  try
+    let l ← fvarId.getDecl
+    maybeAddBlockImplicit (mkIdent l.userName)
+  catch _ =>
+    -- loose free variable, use internal name
+    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]
@@ -315,7 +316,8 @@ Default delaborator for applications.
 -/
 @[builtin_delab app]
 def delabApp : Delab := do
-  delabAppCore (← getExpr).getAppNumArgs delabAppFn
+  let e ← getExpr
+  delabAppCore e.getAppNumArgs delabAppFn
 
 /--
 The `withOverApp` combinator allows delaborators to handle "over-application" by using the core
@@ -330,7 +332,11 @@ With this combinator one can use an arity-2 delaborator to pretty print this as 
   The combinator will fail if fewer than this number of arguments are passed,
   and if more than this number of arguments are passed the arguments are handled using
   the standard application delaborator.
-* `x`: constructs data corresponding to the main application (`f x` in the example)
+* `x`: constructs data corresponding to the main application (`f x` in the example).
+
+In the event of overapplication, the delaborator `x` is wrapped in
+`Lean.PrettyPrinter.Delaborator.withAnnotateTermInfo` to register `TermInfo` for the resulting term.
+The effect of this is that the term is hoverable in the Infoview.
 -/
 def withOverApp (arity : Nat) (x : Delab) : Delab := do
   let n := (← getExpr).getAppNumArgs
@@ -338,7 +344,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   if n == arity then
     x
   else
-    delabAppCore (n - arity) x
+    delabAppCore (n - arity) (withAnnotateTermInfo x)
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
@@ -676,18 +682,92 @@ def delabLetE : Delab := do
     `(let $(mkIdent n) : $stxT := $stxV; $stxB)
   else `(let $(mkIdent n) := $stxV; $stxB)
 
+@[builtin_delab app.Char.ofNat]
+def delabChar : Delab := do
+  let e ← getExpr
+  guard <| e.getAppNumArgs == 1
+  let .lit (.natVal n) := e.appArg! | failure
+  return quote (Char.ofNat n)
+
 @[builtin_delab lit]
 def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
-  | Literal.natVal n => pure $ quote n
-  | Literal.strVal s => pure $ quote s
+  | Literal.natVal n =>
+    if ← getPPOption getPPNatLit then
+      `(nat_lit $(quote n))
+    else
+      return quote n
+  | Literal.strVal s => return quote s
 
--- `@OfNat.ofNat _ n _` ~> `n`
+/--
+Core function that delaborates a natural number (an `OfNat.ofNat` literal).
+-/
+def delabOfNatCore (showType : Bool := false) : Delab := do
+  let .app (.app (.app (.const ``OfNat.ofNat ..) _) (.lit (.natVal n))) _ ← getExpr | failure
+  let stx ← annotateTermInfo <| quote n
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Core function that delaborates a negative integer literal (a `Neg.neg` applied to `OfNat.ofNat`).
+-/
+def delabNegIntCore (showType : Bool := false) : Delab := do
+  guard <| (← getExpr).isAppOfArity ``Neg.neg 3
+  let n ← withAppArg delabOfNatCore
+  let stx ← annotateTermInfo (← `(- $n))
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Core function that delaborates a rational literal that is the division of an integer literal
+by a natural number literal.
+The division must be homogeneous for it to count as a rational literal.
+-/
+def delabDivRatCore (showType : Bool := false) : Delab := do
+  let e ← getExpr
+  guard <| e.isAppOfArity ``HDiv.hDiv 6
+  guard <| e.getArg! 0 == e.getArg! 1
+  guard <| e.getArg! 0 == e.getArg! 2
+  let p ← withAppFn <| withAppArg <| (delabOfNatCore <|> delabNegIntCore)
+  let q ← withAppArg <| delabOfNatCore
+  let stx ← annotateTermInfo (← `($p / $q))
+  if showType then
+    let ty ← withNaryArg 0 delab
+    `(($stx : $ty))
+  else
+    return stx
+
+/--
+Delaborates an `OfNat.ofNat` literal.
+`@OfNat.ofNat _ n _` ~> `n`.
+-/
 @[builtin_delab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions <| withOverApp 3 do
-  let .app (.app _ (.lit (.natVal n))) _ ← getExpr | failure
-  return quote n
+  delabOfNatCore (showType := (← getPPOption getPPNumericTypes))
+
+/--
+Delaborates the negative of an `OfNat.ofNat` literal.
+`-@OfNat.ofNat _ n _` ~> `-n`
+-/
+@[builtin_delab app.Neg.neg]
+def delabNeg : Delab := whenPPOption getPPCoercions do
+  delabNegIntCore (showType := (← getPPOption getPPNumericTypes))
+
+/--
+Delaborates a rational number literal.
+`@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `n / m`
+and `-@OfNat.ofNat _ n _ / @OfNat.ofNat _ m` ~> `-n / m`
+-/
+@[builtin_delab app.HDiv.hDiv]
+def delabHDiv : Delab := whenPPOption getPPCoercions do
+  delabDivRatCore (showType := (← getPPOption getPPNumericTypes))
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
 @[builtin_delab app.OfScientific.ofScientific]
@@ -725,23 +805,71 @@ def delabProj : Delab := do
   let idx := Syntax.mkLit fieldIdxKind (toString (idx + 1));
   `($(e).$idx:fieldIdx)
 
-/-- Delaborate a call to a projection function such as `Prod.fst`. -/
+/--
+Delaborates an application of a projection function, for example `Prod.fst p` as `p.fst`.
+Collapses intermediate parent projections, so for example rather than `o.toB.toA.x` it produces `o.x`.
+
+Does not delaborate projection functions from classes, since the instance parameter is implicit;
+we would rather see `default` than `instInhabitedNat.default`.
+-/
 @[builtin_delab app]
-def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
-  let Expr.app fn _ ← getExpr | failure
-  let .const c@(.str _ f) _ ← pure fn.getAppFn | failure
-  let env ← getEnv
-  let some info ← pure $ env.getProjectionFnInfo? c | failure
-  -- can't use with classes since the instance parameter is implicit
-  guard $ !info.fromClass
-  -- If pp.explicit is true, and the structure has parameters, we should not
-  -- use field notation because we will not be able to see the parameters.
-  let expl ← getPPOption getPPExplicit
-  guard $ !expl || info.numParams == 0
-  -- projection function should be fully applied (#struct params + 1 instance parameter)
-  withOverApp (info.numParams + 1) do
-    let appStx ← withAppArg delab
-    `($(appStx).$(mkIdent f):ident)
+partial def delabProjectionApp : Delab := whenPPOption getPPStructureProjections do
+  let (field, arity, _) ← projInfo
+  withOverApp arity do
+    let stx ← withAppArg <| withoutParentProjections delab
+    `($(stx).$(mkIdent field):ident)
+where
+  /--
+  If this is a projection that could delaborate using dot notation,
+  returns the field name, the arity of the projector, and whether this is a parent projection.
+  Otherwise it fails.
+  -/
+  projInfo : DelabM (Name × Nat × Bool) := do
+    let .app fn _ ← getExpr | failure
+    let .const c@(.str _ field) _ := fn.getAppFn | failure
+    let env ← getEnv
+    let some info := env.getProjectionFnInfo? c | failure
+    -- Don't delaborate for classes since the instance parameter is implicit.
+    guard <| !info.fromClass
+    -- If pp.explicit is true, and the structure has parameters, we should not
+    -- use field notation because we will not be able to see the parameters.
+    guard <| !(← getPPOption getPPExplicit) || info.numParams == 0
+    let arity := info.numParams + 1
+    let some (.ctorInfo cVal) := env.find? info.ctorName | failure
+    let isParentProj := (isSubobjectField? env cVal.induct field).isSome
+    return (field, arity, isParentProj)
+  /--
+  Consumes projections to parent structures.
+  For example, if the current expression is `o.toB.toA`, runs `d` with `o` as the current expression.
+  -/
+  withoutParentProjections {α} (d : DelabM α) : DelabM α :=
+    (do
+      let (_, arity, isParentProj) ← projInfo
+      guard isParentProj
+      guard <| (← getExpr).getAppNumArgs == arity
+      withAppArg <| withoutParentProjections d)
+    <|> d
+
+/--
+This delaborator tries to elide functions which are known coercions.
+For example, `Int.ofNat` is a coercion, so instead of printing `ofNat n` we just print `↑n`,
+and when re-parsing this we can (usually) recover the specific coercion being used.
+-/
+@[builtin_delab app]
+def coeDelaborator : Delab := whenPPOption getPPCoercions do
+  let e ← getExpr
+  let .const declName _ := e.getAppFn | failure
+  let some info ← Meta.getCoeFnInfo? declName | failure
+  let n := e.getAppNumArgs
+  withOverApp info.numArgs do
+    match info.type with
+    | .coe => `(↑$(← withNaryArg info.coercee delab))
+    | .coeFun =>
+      if n = info.numArgs then
+        `(⇑$(← withNaryArg info.coercee delab))
+      else
+        withNaryArg info.coercee delab
+    | .coeSort => `(↥$(← withNaryArg info.coercee delab))
 
 @[builtin_delab app.dite]
 def delabDIte : Delab := whenPPOption getPPNotation <| withOverApp 5 do

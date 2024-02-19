@@ -41,3 +41,5 @@ a_ih✝ : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval
 b : Expr ExprType.nat
 h : Expr.add a✝¹ a✝ = b
 ⊢ eval (constProp (Expr.add a✝¹ a✝)) = eval b
+inductionGen.lean:78:2-78:27: error: target (or one of its indices) occurs more than once
+  n

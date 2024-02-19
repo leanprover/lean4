@@ -1,8 +1,9 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
@@ -1236,17 +1237,46 @@ where
 builtin_initialize
   registerTraceClass `Elab.match
 
--- leading_parser:leadPrec "nomatch " >> termParser
+-- leading_parser:leadPrec "nomatch " >> sepBy1 termParser ", "
 @[builtin_term_elab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
-  | `(nomatch $discrExpr) =>
-    if (← isAtomicDiscr discrExpr) then
+  | `(nomatch $discrs,*) =>
+    let discrs := discrs.getElems
+    if (← discrs.allM fun discr => isAtomicDiscr discr.raw) then
       let expectedType ← waitExpectedType expectedType?
-      let discr := mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
-      elabMatchAux none #[discr] #[] mkNullNode expectedType
+      /- Wait for discriminant types. -/
+      for discr in discrs do
+        let d ← elabTerm discr none
+        let dType ← inferType d
+        trace[Elab.match] "discr {d} : {← instantiateMVars dType}"
+        tryPostponeIfMVar dType
+      let discrs := discrs.map fun discr => mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discr.raw]
+      elabMatchAux none discrs #[] mkNullNode expectedType
     else
-      let stxNew ← `(let_mvar% ?x := $discrExpr; nomatch ?x)
+      let rec loop (discrs : List Term) (discrsNew : Array Syntax) : TermElabM Term := do
+        match discrs with
+        | [] =>
+          return ⟨stx.setArg 1 (Syntax.mkSep discrsNew (mkAtomFrom stx ", "))⟩
+        | discr :: discrs =>
+          if (← isAtomicDiscr discr) then
+            loop discrs (discrsNew.push discr)
+          else
+            withFreshMacroScope do
+              let discrNew ← `(?x)
+              let r ← loop discrs (discrsNew.push discrNew)
+              `(let_mvar% ?x := $discr; $r)
+      let stxNew ← loop discrs.toList #[]
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab «nofun»] def elabNoFun : TermElab := fun stx expectedType? => do
+  match stx with
+  | `($tk:nofun) =>
+    let expectedType ← waitExpectedType expectedType?
+    let binders ← forallTelescopeReducing expectedType fun args _ =>
+      args.mapM fun _ => withFreshMacroScope do `(a)
+    let stxNew ← `(fun%$tk $binders* => nomatch%$tk $binders,*)
+    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

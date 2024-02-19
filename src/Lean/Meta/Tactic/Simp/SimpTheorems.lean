@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
@@ -165,7 +166,7 @@ structure SimpTheorems where
   lemmaNames   : PHashSet Origin := {}
   /--
   Constants (and let-declaration `FVarId`) to unfold.
-  When `zeta := false`, the simplifier will expand a let-declaration if it is in this set.
+  When `zetaDelta := false`, the simplifier will expand a let-declaration if it is in this set.
   -/
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}
@@ -173,7 +174,7 @@ structure SimpTheorems where
   deriving Inhabited
 
 /-- Configuration for the discrimination tree. -/
-def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
+def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no, zetaDelta := false }
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then
@@ -417,11 +418,16 @@ def registerSimpAttr (attrName : Name) (attrDescr : String)
 
 builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
 
+builtin_initialize sevalSimpExtension : SimpExtension ← registerSimpAttr `seval "symbolic evaluator theorem"
+
 def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
   return (← simpExtensionMapRef.get).find? attrName
 
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
+
+def getSEvalTheorems : CoreM SimpTheorems :=
+  sevalSimpExtension.getTheorems
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
@@ -491,14 +497,4 @@ def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName :
 def SimpTheoremsArray.isLetDeclToUnfold (thmsArray : SimpTheoremsArray) (fvarId : FVarId) : Bool :=
 thmsArray.any fun thms => thms.isLetDeclToUnfold fvarId
 
-macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
-  "register_simp_attr" id:ident : command => do
-  let str := id.getId.toString
-  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  let descr := quote (removeLeadingSpaces (doc.map (·.getDocString) |>.getD s!"simp set for {id.getId.toString}"))
-  `($[$doc:docComment]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
-    $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
-
-end Meta
-
-end Lean
+end Lean.Meta

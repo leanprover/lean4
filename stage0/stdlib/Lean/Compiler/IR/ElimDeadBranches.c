@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_IR_Unreachab
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue;
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_IR_UnreachableBranches_Value_merge___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_inferStep___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_interpFnBody___closed__2;
@@ -1479,11 +1479,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_instToStringValue(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_IR_UnreachableBranches_Value_toFormat(x_1);
 x_3 = l_Std_Format_defWidth;
-x_4 = lean_format_pretty(x_2, x_3);
-return x_4;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_IR_UnreachableBranches_Value_beq___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2640,10 +2641,11 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Format_defWidth;
-x_3 = lean_format_pretty(x_1, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1() {

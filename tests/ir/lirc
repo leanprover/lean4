@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 unamestr=`uname`
-if [[ "$unamestr" == 'Darwin' ]]; then
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
     # OSX
     if command -v greadlink >/dev/null 2>&1; then
         # macOS readlink doesn't support -f option

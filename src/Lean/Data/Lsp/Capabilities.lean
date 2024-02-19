@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.LanguageFeatures
@@ -74,6 +75,7 @@ structure ServerCapabilities where
   declarationProvider       : Bool                           := false
   typeDefinitionProvider    : Bool                           := false
   referencesProvider        : Bool                           := false
+  callHierarchyProvider     : Bool                           := false
   renameProvider?           : Option RenameOptions           := none
   workspaceSymbolProvider   : Bool                           := false
   foldingRangeProvider      : Bool                           := false

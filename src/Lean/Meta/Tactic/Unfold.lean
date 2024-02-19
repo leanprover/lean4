@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Simp.Main
@@ -22,12 +23,12 @@ def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
     return { expr  := (← deltaExpand e (· == declName)) }
 where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) } (fun _ => return none)) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) }) with
     | none   => pure ()
     | some r => match (← reduceMatcher? r.expr) with
-      | .reduced e' => return Simp.Step.done { r with expr := e' }
-      | _ => return Simp.Step.done r
-    return Simp.Step.visit { expr := e }
+      | .reduced e' => return .done { r with expr := e' }
+      | _ => return .done r
+    return .continue
 
 def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)

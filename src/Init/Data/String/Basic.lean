@@ -515,6 +515,12 @@ def replace (s pattern replacement : String) : String :=
       termination_by s.endPos.1 - pos.1
     loop "" 0 0
 
+/-- Return the beginning of the line that contains character `pos`. -/
+def findLineStart (s : String) (pos : String.Pos) : String.Pos :=
+  match s.revFindAux (· = '\n') pos with
+  | none => 0
+  | some n => ⟨n.byteIdx + 1⟩
+
 end String
 
 namespace Substring

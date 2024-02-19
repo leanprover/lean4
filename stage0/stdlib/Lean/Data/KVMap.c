@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_getSyntax(lean_object*, lean_object*, lean
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_921____closed__8;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_updateNat(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_921____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_data_value_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueName___closed__3;
@@ -1422,7 +1422,7 @@ x_25 = 0;
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = l_Lean_Syntax_formatStxAux(x_24, x_25, x_26, x_23);
 x_28 = l_Std_Format_defWidth;
-x_29 = lean_format_pretty(x_27, x_28);
+x_29 = lean_format_pretty(x_27, x_28, x_26, x_26);
 return x_29;
 }
 }

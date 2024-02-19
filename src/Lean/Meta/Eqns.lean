@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 
@@ -62,7 +63,7 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 -/
 private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
-    lambdaTelescope info.value fun xs body => do
+    lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
       let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
@@ -77,7 +78,7 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
 
 /--
   Return equation theorems for the given declaration.
-  By default, we not create equation theorems for nonrecursive definitions.
+  By default, we do not create equation theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
 -/
 def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do

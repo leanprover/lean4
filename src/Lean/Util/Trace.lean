@@ -3,6 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+prelude
 import Lean.Exception
 
 /-!
@@ -128,7 +129,7 @@ def addRawTrace (msg : MessageData) : m Unit := do
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
-  modifyTraces (·.push { ref, msg := .trace cls msg #[] })
+  modifyTraces (·.push { ref, msg := .trace (collapsed := false) cls msg #[] })
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then

@@ -157,10 +157,31 @@ structure LeanConfig where
   They come *before* `moreLinkArgs`.
   -/
   weakLinkArgs : Array String := #[]
-
   /--
-    Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
-    Defaults to `C`.
+  Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
+  Defaults to `C`.
   -/
   backend : Backend := .default
+  /--
+  Asserts whether Lake should assume Lean modules are platform-independent.
+
+  * If `false`, Lake will add `System.Platform.target` to the module traces
+  within the code unit (e.g., package or library). This will force Lean code
+  to be re-elaborated on different platforms.
+
+  * If `true`, Lake will exclude platform-dependent elements
+  (e.g., precompiled modules, external libraries) from a module's trace,
+  preventing re-elaboration on different platforms. Note that this will not
+  effect  modules outside the code unit in question. For example, a
+  platform-independent package which depends on a platform-dependent library
+  will still be platform-dependent.
+
+  * If `none`, Lake will construct traces as natural. That is, it will include
+  platform-dependent artifacts in the trace if they module depends on them,
+  but otherwise not force modules to be platform-dependent.
+
+  There is no check  for correctness here, so a configuration can lie
+  and Lake will not catch it. Defaults to `none`.
+  -/
+  platformIndependent : Option Bool := none
 deriving Inhabited, Repr

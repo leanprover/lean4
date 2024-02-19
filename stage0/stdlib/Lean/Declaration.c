@@ -141,6 +141,7 @@ LEAN_EXPORT uint8_t lean_axiom_val_is_unsafe(lean_object*);
 LEAN_EXPORT uint32_t lean_reducibility_hints_get_height(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstructor;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_numLevelParams___boxed(lean_object*);
+lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_485____closed__17;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -229,7 +230,6 @@ static lean_object* l_Lean_instBEqOpaqueVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDefinitionVal;
 LEAN_EXPORT lean_object* l_Lean_mkOpaqueValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_485____closed__19;
-lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ReducibilityHints_lt(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_485____closed__6;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedInductiveVal;
@@ -3525,7 +3525,7 @@ default:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Lean_ConstantInfo_value_x21___closed__4;
-x_7 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_6);
+x_7 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_6);
 return x_7;
 }
 }

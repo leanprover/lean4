@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.MonadCache
 import Lean.LocalContext
 
@@ -393,6 +394,18 @@ def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarI
 def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   mvarId.isDelayedAssigned
 
+/--
+Check whether a metavariable is assigned or delayed-assigned. A
+delayed-assigned metavariable is already 'solved' but the solution cannot be
+substituted yet because we have to wait for some other metavariables to be
+assigned first. So in many situations you want to treat a delayed-assigned
+metavariable as assigned.
+-/
+def _root_.Lean.MVarId.isAssignedOrDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) :
+    m Bool := do
+  let mctx ← getMCtx
+  return mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
+
 def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
@@ -483,6 +496,10 @@ def _root_.Lean.MVarId.assign [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m U
 def assignExprMVar [MonadMCtx m] (mvarId : MVarId) (val : Expr) : m Unit :=
   mvarId.assign val
 
+/--
+Add a delayed assignment for the given metavariable. You must make sure that
+the metavariable is not already assigned or delayed-assigned.
+-/
 def assignDelayedMVar [MonadMCtx m] (mvarId : MVarId) (fvars : Array Expr) (mvarIdPending : MVarId) : m Unit :=
   modifyMCtx fun m => { m with dAssignment := m.dAssignment.insert mvarId { fvars, mvarIdPending } }
 
@@ -809,6 +826,20 @@ def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
   mctx.userNames.find? userName
 
+/--
+Modify the declaration of a metavariable. If the metavariable is not declared,
+the `MetavarContext` is returned unchanged.
+
+You must ensure that the modification is legal. In particular, expressions may
+only be replaced with defeq expressions.
+-/
+def modifyExprMVarDecl (mctx : MetavarContext) (mvarId : MVarId)
+    (f : MetavarDecl → MetavarDecl) : MetavarContext :=
+  if let some mdecl := mctx.decls.find? mvarId then
+    { mctx with decls := mctx.decls.insert mvarId (f mdecl) }
+  else
+    mctx
+
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
@@ -839,6 +870,35 @@ def setMVarUserNameTemporarily (mctx : MetavarContext) (mvarId : MVarId) (userNa
 def setMVarType (mctx : MetavarContext) (mvarId : MVarId) (type : Expr) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with type := type } }
+
+/--
+Modify the local context of a metavariable. If the metavariable is not declared,
+the `MetavarContext` is returned unchanged.
+
+You must ensure that the modification is legal. In particular, expressions may
+only be replaced with defeq expressions.
+-/
+def modifyExprMVarLCtx (mctx : MetavarContext) (mvarId : MVarId)
+    (f : LocalContext → LocalContext) : MetavarContext :=
+  mctx.modifyExprMVarDecl mvarId fun mdecl => { mdecl with lctx := f mdecl.lctx }
+
+/--
+Set the kind of an fvar. If the given metavariable is not declared or the
+given fvar doesn't exist in its context, the `MetavarContext` is returned
+unchanged.
+-/
+def setFVarKind (mctx : MetavarContext) (mvarId : MVarId) (fvarId : FVarId)
+    (kind : LocalDeclKind) : MetavarContext :=
+  mctx.modifyExprMVarLCtx mvarId (·.setKind fvarId kind)
+
+/--
+Set the `BinderInfo` of an fvar. If the given metavariable is not declared or
+the given fvar doesn't exist in its context, the `MetavarContext` is returned
+unchanged.
+-/
+def setFVarBinderInfo (mctx : MetavarContext) (mvarId : MVarId)
+    (fvarId : FVarId) (bi : BinderInfo) : MetavarContext :=
+  mctx.modifyExprMVarLCtx mvarId (·.setBinderInfo fvarId bi)
 
 def findLevelDepth? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
   mctx.lDepth.find? mvarId
@@ -1376,5 +1436,47 @@ def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=
   mctx.eAssignment.foldl (init := #[]) fun a mvarId _ => Array.push a mvarId
 
 end MetavarContext
+
+namespace MVarId
+
+/--
+Modify the declaration of a metavariable. If the metavariable is not declared,
+nothing happens.
+
+You must ensure that the modification is legal. In particular, expressions may
+only be replaced with defeq expressions.
+-/
+def modifyDecl [MonadMCtx m] (mvarId : MVarId)
+    (f : MetavarDecl → MetavarDecl) : m Unit :=
+  modifyMCtx (·.modifyExprMVarDecl mvarId f)
+
+/--
+Modify the local context of a metavariable. If the metavariable is not declared,
+nothing happens.
+
+You must ensure that the modification is legal. In particular, expressions may
+only be replaced with defeq expressions.
+-/
+def modifyLCtx [MonadMCtx m] (mvarId : MVarId)
+    (f : LocalContext → LocalContext) : m Unit :=
+  modifyMCtx (·.modifyExprMVarLCtx mvarId f)
+
+/--
+Set the kind of an fvar. If the given metavariable is not declared or the
+given fvar doesn't exist in its context, nothing happens.
+-/
+def setFVarKind [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
+    (kind : LocalDeclKind) : m Unit :=
+  modifyMCtx (·.setFVarKind mvarId fvarId kind)
+
+/--
+Set the `BinderInfo` of an fvar. If the given metavariable is not declared or
+the given fvar doesn't exist in its context, nothing happens.
+-/
+def setFVarBinderInfo [MonadMCtx m] (mvarId : MVarId) (fvarId : FVarId)
+    (bi : BinderInfo) : m Unit :=
+  modifyMCtx (·.setFVarBinderInfo mvarId fvarId bi)
+
+end MVarId
 
 end Lean

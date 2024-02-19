@@ -102,7 +102,7 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
         let env ← getEnv
         if builtin then
           let h := mkConst decl
-          declareBuiltin decl <| mkApp (mkConst ``addBuiltinModule) h
+          declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinModule) (toExpr decl) h
         else
           setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
     }

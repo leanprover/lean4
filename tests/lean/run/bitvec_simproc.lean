@@ -109,3 +109,7 @@ example (h : x = (9: Std.BitVec 6)) : x = (1#3).replicate 2 := by
   simp; guard_target =ₛ x = 9#6; assumption
 example (h : x = (5 : Std.BitVec 7)) : x = (5#3).zeroExtend 7 := by
   simp; guard_target =ₛ x = 5#7; assumption
+example (h : -5#10 = x) : signExtend 10 (-5#8) = x := by
+  simp; guard_target =ₛ1019#10 = x; assumption
+example (h : 5#10 = x) : -signExtend 10 (-5#8) = x := by
+  simp; guard_target =ₛ5#10 = x; assumption

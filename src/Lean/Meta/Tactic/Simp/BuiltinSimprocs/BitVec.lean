@@ -77,6 +77,15 @@ Helper function for reducing homogenous binary bitvector operators.
   else
     return .continue
 
+/-- Simplification procedure for `zeroExtend` and `signExtend` on `BitVec`s. -/
+@[inline] def reduceExtend (declName : Name)
+    (op : {n : Nat} → (m : Nat) → BitVec n → BitVec m) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName 3 do return .continue
+  let some v ← fromExpr? e.appArg! | return .continue
+  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let lit : Literal := { n, value := op n v.value }
+  return .done { expr := lit.toExpr }
+
 /--
 Helper function for reducing bitvector functions such as `getLsb` and `getMsb`.
 -/
@@ -275,12 +284,10 @@ builtin_simproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   return .done { expr := lit.toExpr }
 
 /-- Simplification procedure for `zeroExtend` on `BitVec`s. -/
-builtin_simproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := fun e => do
-  unless e.isAppOfArity ``zeroExtend 3 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let lit : Literal := { n, value := v.value.zeroExtend n }
-  return .done { expr := lit.toExpr }
+builtin_simproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := reduceExtend ``zeroExtend zeroExtend
+
+/-- Simplification procedure for `signExtend` on `BitVec`s. -/
+builtin_simproc [simp, seval] reduceSignExtend (signExtend _ _) := reduceExtend ``signExtend signExtend
 
 /-- Simplification procedure for `allOnes` -/
 builtin_simproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do

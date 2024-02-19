@@ -363,7 +363,7 @@ def Exception.isRuntime (ex : Exception) : Bool :=
 
 /--
 Custom `try-catch` for all monads based on `CoreM`. We don't want to catch "runtime exceptions"
-in these monads, but on `CommandElabM`. See issues #2775 and #2744
+in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `MonadAlwayExcept`.
 -/
 @[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try

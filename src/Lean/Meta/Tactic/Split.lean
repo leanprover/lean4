@@ -119,7 +119,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
       let foundRef ← IO.mkRef false
       let rec mkNewTarget (e : Expr) : MetaM Expr := do
         let pre (e : Expr) : MetaM TransformStep := do
-          if !e.isAppOf matcherDeclName || e.getAppNumArgs != matcherInfo.arity then
+          if !e.isAppOfArity matcherDeclName matcherInfo.arity then
             return .continue
           let some matcherApp ← matchMatcherApp? e | return .continue
           for matcherDiscr in matcherApp.discrs, discr in discrs do

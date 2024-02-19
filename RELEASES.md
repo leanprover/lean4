@@ -66,6 +66,11 @@ v4.7.0 (development in progress)
     rw [h]
   ```
 
+Breaking changes:
+* `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
+  fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration
+  monads built on `EIO Exception` should be synthesized automatically.
+
 v4.6.0
 ---------
 

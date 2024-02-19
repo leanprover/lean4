@@ -5,7 +5,7 @@ Authors: Mario Carneiro
 -/
 prelude
 import Init.Data.Int.Basic
-import Init.Data.Nat.Bitwise
+import Init.Data.Nat.Bitwise.Basic
 
 namespace Int
 

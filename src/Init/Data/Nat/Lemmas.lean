@@ -4,13 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
-import Init.Data.Nat
+import Init.Data.Nat.Dvd
+import Init.Data.Nat.MinMax
+import Init.Data.Nat.Log2
+import Init.Data.Nat.Power2
 
 /-! # Basic lemmas about natural numbers
 
 The primary purpose of the lemmas in this file is to assist with reasoning
-about sizes of objects, array indices and such. For a more thorough development
-of the theory of natural numbers, we recommend using Mathlib.
+about sizes of objects, array indices and such.
+
+This file was upstreamed from Std,
+and later these lemmas should be organised into other files more systematically.
 -/
 
 namespace Nat

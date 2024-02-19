@@ -15,3 +15,4 @@ import Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
 import Init.Data.Nat.Linear
 import Init.Data.Nat.SOM
+import Init.Data.Nat.Lemmas

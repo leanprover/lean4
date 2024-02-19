@@ -43,7 +43,7 @@ Try these:
 
 where `<replacement*>` is a link which will perform the replacement.
 -/
-@[widget_module] def tryThisWidget : Widget.Module where
+@[builtin_widget_module] def tryThisWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext } from '@leanprover/infoview';

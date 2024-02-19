@@ -448,3 +448,22 @@ where
   dsimpLocation ctx (expandOptLocation stx[5])
 
 end Lean.Elab.Tactic
+
+/-!
+The following parsers for `simp` arguments are not actually used at present in the
+implementation of `simp` above, but are useful for further tactics which need
+to parse `simp` arguments.
+-/
+namespace Lean.Parser.Tactic
+
+/-- Extract the arguments from a `simpArgs` syntax as an array of syntaxes -/
+def getSimpArgs? : Syntax → Option (Array Syntax)
+  | `(simpArgs| [$args,*]) => pure args.getElems
+  | _ => none
+
+/-- Extract the arguments from a `dsimpArgs` syntax as an array of syntaxes -/
+def getDSimpArgs? : Syntax → Option (Array Syntax)
+  | `(dsimpArgs| [$args,*]) => pure args.getElems
+  | _                       => none
+
+end Lean.Parser.Tactic

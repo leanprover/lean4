@@ -13,6 +13,7 @@ import Lean.Elab.Tactic.Injection
 import Lean.Elab.Tactic.Match
 import Lean.Elab.Tactic.Rewrite
 import Lean.Elab.Tactic.Location
+import Lean.Elab.Tactic.SimpTrace
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Simproc
 import Lean.Elab.Tactic.BuiltinTactic

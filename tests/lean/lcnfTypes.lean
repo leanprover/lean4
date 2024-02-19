@@ -119,8 +119,6 @@ def testMono (declName : Name) : MetaM Unit := do
   let mono ← LCNF.toMonoType base
   IO.println s!"{declName} : {← ppExpr mono}"
 
--- Universe levels are erased, and when the delaborator sees type incorrect applications it always inserts a `@`.
--- This is why one sees `@List Ty` rather than `List Ty` in the following tests.
 set_option pp.explicit true
 #eval testMono ``Term.constFold
 #eval testMono ``Term.denote

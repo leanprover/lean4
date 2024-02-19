@@ -205,15 +205,21 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
 Given an application of `numArgs` arguments with the calculated `ParamKind`s,
 returns `true` if we should wrap the applied function with `@` when we are in explicit mode.
 -/
-def needsExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : Bool :=
-  -- Error calculating ParamKinds, so return `true` to be safe
-  paramKinds.size < numArgs
-  -- One of the supplied parameter isn't explicit
-  || paramKinds[:numArgs].any (fun param => !param.bInfo.isExplicit)
-  -- The next parameter is implicit or inst implicit
-  || (numArgs < paramKinds.size && paramKinds[numArgs]!.bInfo matches .implicit | .instImplicit)
-  -- One of the parameters after the supplied parameters is explicit but not regular explicit.
-  || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
+def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bool :=
+  if paramKinds.size == 0 && 0 < numArgs && f matches .const _ [] then
+    -- Error calculating ParamKinds,
+    -- but we presume that the universe list has been intentionally erased, for example by LCNF.
+    -- The arguments in this case are *only* the explicit arguments, so we don't want to prefix with `@`.
+    false
+  else
+    -- Error calculating ParamKinds, so return `true` to be safe
+    paramKinds.size < numArgs
+    -- One of the supplied parameters isn't explicit
+    || paramKinds[:numArgs].any (fun param => !param.bInfo.isExplicit)
+    -- The next parameter is implicit or inst implicit
+    || (numArgs < paramKinds.size && paramKinds[numArgs]!.bInfo matches .implicit | .instImplicit)
+    -- One of the parameters after the supplied parameters is explicit but not regular explicit.
+    || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
 
 /--
 Delaborates a function application in explicit mode, and ensures the resulting
@@ -223,7 +229,7 @@ def delabAppExplicitCore (numArgs : Nat) (delabHead : Delab) (paramKinds : Array
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do
       let stx ← delabHead
-      let insertExplicit := !stx.raw.isOfKind ``Lean.Parser.Term.explicit && needsExplicit numArgs paramKinds
+      let insertExplicit := !stx.raw.isOfKind ``Lean.Parser.Term.explicit && needsExplicit (← getExpr) numArgs paramKinds
       let stx ← if insertExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do

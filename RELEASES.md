@@ -66,6 +66,21 @@ v4.7.0 (development in progress)
     rw [h]
   ```
 
+* When adding new local theorems to `simp`, the system assumes that the function application arguments
+  have been annotated with `no_index`. This modification, which addresses issue [#2670](https://github.com/leanprover/lean4/issues/2670),
+  restores the Lean 3 behavior that users expect. With this modification, the following examples are now operational:
+  ```
+  example {α β : Type} {f : α × β → β → β} (h : ∀ p : α × β, f p p.2 = p.2)
+    (a : α) (b : β) : f (a, b) b = b := by
+    simp [h]
+
+  example {α β : Type} {f : α × β → β → β}
+    (a : α) (b : β) (h : f (a,b) (a,b).2 = (a,b).2) : f (a, b) b = b := by
+    simp [h]
+  ```
+  In both cases, `h` is applicable because `simp` does not index f-arguments anymore when adding `h` to the `simp`-set.
+  It's important to note, however, that global theorems continue to be indexed in the usual manner.
+
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration

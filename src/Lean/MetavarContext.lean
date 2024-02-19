@@ -405,7 +405,6 @@ def _root_.Lean.MVarId.isDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarI
 def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := do
   mvarId.isDelayedAssigned
 
-
 /--
 Check whether a metavariable is assigned or delayed-assigned. A
 delayed-assigned metavariable is already 'solved' but the solution cannot be

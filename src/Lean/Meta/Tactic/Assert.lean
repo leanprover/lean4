@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.List.BasicAux
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Revert
@@ -28,6 +27,11 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
 @[deprecated MVarId.assert]
 def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
   mvarId.assert name type val
+
+/-- Add the hypothesis `h : t`, given `v : t`, and return the new `FVarId`. -/
+def _root_.Lean.MVarId.note (g : MVarId) (h : Name) (v : Expr) (t? : Option Expr := .none) :
+    MetaM (FVarId × MVarId) := do
+  (← g.assert h (← match t? with | some t => pure t | none => inferType v) v).intro1P
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.

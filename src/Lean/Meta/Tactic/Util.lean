@@ -169,4 +169,13 @@ inductive TacticResultCNM where
   | noChange
   | modified (mvarId : MVarId)
 
+
+/-- Check if a goal is of a subsingleton type. -/
+def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
+  try
+    discard <| synthInstance (← mkAppM ``Subsingleton #[← g.getType])
+    return true
+  catch _ =>
+    return false
+
 end Lean.Meta

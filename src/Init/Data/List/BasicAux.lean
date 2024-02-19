@@ -208,8 +208,6 @@ if the result of each `f a` is a pointer equal value `a`.
 def mapMono (as : List α) (f : α → α) : List α :=
   Id.run <| as.mapMonoM f
 
-
-
 /--
 Monadic generalization of `List.partition`.
 

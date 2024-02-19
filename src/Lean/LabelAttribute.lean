@@ -3,6 +3,7 @@ Copyright (c) 2023 Scott Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.DocString
 
@@ -33,7 +34,7 @@ abbrev LabelExtension := SimpleScopedEnvExtension Name (Array Name)
 abbrev LabelExtensionMap := HashMap Name LabelExtension
 
 /-- Store the current `LabelExtension`s. -/
-initialize labelExtensionMapRef : IO.Ref LabelExtensionMap ← IO.mkRef {}
+builtin_initialize labelExtensionMapRef : IO.Ref LabelExtensionMap ← IO.mkRef {}
 
 /-- Helper function for `registerLabelAttr`. -/
 def mkLabelExt (name : Name := by exact decl_name%) : IO LabelExtension :=

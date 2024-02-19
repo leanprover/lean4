@@ -41,7 +41,6 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       decInits := decInits.push (← `(structInstField| $fid:ident := ← rpcDecode a.$fid))
 
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-  let structInst ← `(structInst| { $[$decInits],* })
   let indName := mkIdent indVal.name
   `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
     namespace $indName

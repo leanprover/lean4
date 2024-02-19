@@ -46,6 +46,7 @@ builtin_initialize
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
+  register_parser_alias recover
 
   registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer

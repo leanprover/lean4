@@ -26,6 +26,9 @@ LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
 LINK_OPTS =
 
+# more FS entries to build SRCS from, for parallel build of .oleans (but not .os)
+EXTRA_SRC_ROOTS =
+
 # ignore error messages from missing parts, e.g. Leanc/
 SRCS = $(shell find $(PKG) $(PKG).lean $(EXTRA_SRC_ROOTS) -name '*.lean' 2> /dev/null)
 DEPS = $(subst /lake/,/,$(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend)))
@@ -66,7 +69,6 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
-	set -x; \
 	LEAN_OPTS="$(LEAN_OPTS)"; \
 	[[ -z "$(LLVM)" ]] || LEAN_OPTS+=" --bc=$(TEMP_OUT)/$*.bc.tmp"; \
 	[[ "$<" != lake/* ]] || LEAN_OPTS+=" --root=lake"; \

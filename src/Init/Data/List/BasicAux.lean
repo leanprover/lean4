@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
+import Init.Data.Array.Basic
 import Init.Data.List.Basic
 import Init.Util
 
@@ -206,5 +207,26 @@ if the result of each `f a` is a pointer equal value `a`.
 
 def mapMono (as : List α) (f : α → α) : List α :=
   Id.run <| as.mapMonoM f
+
+
+
+/--
+Monadic generalization of `List.partition`.
+
+This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+-/
+@[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
+  go l #[] #[]
+where
+  /-- Auxiliary for `partitionM`:
+  `partitionM.go p l acc₁ acc₂` returns `(acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionM p l` returns `(left, right)`. -/
+  @[specialize] go : List α → Array α → Array α → m (List α × List α)
+  | [], acc₁, acc₂ => pure (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ => do
+    if ← p x then
+      go xs (acc₁.push x) acc₂
+    else
+      go xs acc₁ (acc₂.push x)
 
 end List

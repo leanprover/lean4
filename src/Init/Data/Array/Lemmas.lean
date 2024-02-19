@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
-import Init.Data.Nat
+import Init.Data.Nat.MinMax
 import Init.Data.List.Lemmas
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem

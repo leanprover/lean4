@@ -6,7 +6,6 @@
 
 /.github/ @Kha @semorrison
 /RELEASES.md @semorrison
-/src/ @leodemoura @Kha
 /src/Init/IO.lean @joehendrix
 /src/kernel/ @leodemoura
 /src/lake/ @tydeu

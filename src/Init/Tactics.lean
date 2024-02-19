@@ -567,6 +567,52 @@ syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 
 /--
+A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
+(which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
+-/
+def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+
+/-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
+syntax simpArgs := " [" simpArg,* "]"
+
+/--
+A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
+because it does not make sense to use hypotheses in `dsimp`.
+-/
+def dsimpArg := simpErase.binary `orelse simpLemma
+
+/-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
+syntax dsimpArgs := " [" dsimpArg,* "]"
+
+/-- The arguments to the `simpa` family tactics. -/
+syntax simpaArgsRest := (config)? (discharger)? &" only "? (simpArgs)? (" using " term)?
+
+/--
+This is a "finishing" tactic modification of `simp`. It has two forms.
+
+* `simpa [rules, ⋯] using e` will simplify the goal and the type of
+  `e` using `rules`, then try to close the goal using `e`.
+
+  Simplifying the type of `e` makes it more likely to match the goal
+  (which has also been simplified). This construction also tends to be
+  more robust under changes to the simp lemma set.
+
+* `simpa [rules, ⋯]` will simplify the goal and the type of a
+  hypothesis `this` if present in the context, then try to close the goal using
+  the `assumption` tactic.
+-/
+syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+@[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaArgsRest)
+
+@[inherit_doc simpa] macro "simpa?" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaArgsRest)
+
+@[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaArgsRest)
+
+/--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
 This is a low-level tactic, it will expose how recursive definitions have been
 compiled by Lean.

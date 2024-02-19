@@ -42,10 +42,6 @@ theorem max_comm (n m : Nat) : max n m = max m n :=
 
 theorem max_idem (n : Nat) : max n n = n := le_ext (by simp)
 
-theorem Nat.zero_max (n : Nat) : max 0 n = n := by simp [Nat.max_def]
-
-theorem Nat.max_zero (n : Nat) : max n 0 = n := by rw [max_comm, Nat.zero_max]
-
 instance : Associative (α := Nat) max := ⟨max_assoc⟩
 instance : Commutative (α := Nat) max := ⟨max_comm⟩
 instance : IdempotentOp (α := Nat) max := ⟨max_idem⟩

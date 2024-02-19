@@ -353,6 +353,11 @@ jobs:
           make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: Count Dynamic Symbols
+        if: matrix.name == 'Windows'
+        run: |
+          nm --dynamic --defined-only bin/libleanshared.dll | wc -l
+          nm --dynamic --defined-only bin/libleanshared.dll
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...

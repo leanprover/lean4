@@ -292,7 +292,10 @@ the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
 
 TODO: find better name for this function.
 -/
-def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
+def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
+    [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
+    (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
+  let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
   unless clsEnabled || trace.profiler.get opts do

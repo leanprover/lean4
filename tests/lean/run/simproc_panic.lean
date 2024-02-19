@@ -1,12 +1,6 @@
 -- Extracted from Mathlib.Data.UnionFind.
 -- This file was failing in Mathlib during development of #3124.
 
-section Std.Data.Nat.Lemmas
-
-protected theorem Nat.lt_or_eq_of_le {n m : Nat} (h : n ≤ m) : n < m ∨ n = m := sorry
-
-end Std.Data.Nat.Lemmas
-
 section Mathlib.Data.UnionFind
 
 structure UFNode (α : Type _) where

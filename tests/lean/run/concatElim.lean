@@ -43,7 +43,6 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     cases n with
     | zero   =>
       simp [lengthCons] at h
-      injection h
     | succ n =>
       have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
       have : xs.length = n := by rw [this] at h; injection h with h; injection h

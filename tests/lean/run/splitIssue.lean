@@ -5,9 +5,6 @@ def splitList {α : Type _} : (l : List α) → ListSplit l
   | [] => ListSplit.split [] []
   | h :: t => ListSplit.split [h] t
 
-theorem Nat.lt_add_left {m n : Nat}  : m < n + m := sorry
-theorem Nat.lt_add_right {m n : Nat} : m < m + n := sorry
-
 def len : List α → Nat
   | [] => 0
   | a :: [] => 1
@@ -16,11 +13,7 @@ def len : List α → Nat
     | ListSplit.split fst snd => len fst + len snd
 termination_by l => l.length
 decreasing_by
-  all_goals
-  simp [measure, id, invImage, InvImage, Nat.lt_wfRel, WellFoundedRelation.rel, sizeOf] <;>
-  first
-    | apply Nat.lt_add_right
-    | apply Nat.lt_add_left
+  all_goals sorry
 
 theorem len_nil : len ([] : List α) = 0 := by
   simp [len]

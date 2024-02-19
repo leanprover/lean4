@@ -4,5 +4,5 @@ fun y_1 => y.add y_1
 fun y => Nat.add _fvar.1 y
 fun (y : Nat) => Nat.add y y
 ?m.add y
-Nat.add (?m #0) #0
+Nat.add ?m(y := #0) #0
 fun y => (y.add y).add y

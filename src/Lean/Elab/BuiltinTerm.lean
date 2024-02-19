@@ -100,6 +100,41 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 
+@[builtin_term_elab «delayedAssignedMVar»] def elabDelayedAssignedMVar : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(?$arg($[$idents $[:= $terms]?],*)) => do
+    let mvar ←
+      if arg.raw.isIdent then
+        let userName := arg.raw.getId
+        match (← getMCtx).findUserName? userName with
+        | some mvarId => pure <| Expr.mvar mvarId
+        | none        => mkFreshExprMVar expectedType? .syntheticOpaque userName
+      else
+        mkFreshExprMVar expectedType? .syntheticOpaque
+    -- Resolve the fvars in the metavariable's local context and abstract the mvar
+    let mvarAbs ← mvar.mvarId!.withContext do
+      let fvars ← idents.mapM fun ident => do
+        let some fvar ← isLocalIdent? ident
+          | throwErrorAt ident "identifier '{ident}' is not a variable in the metavariable's local context:\n{mvar.mvarId!}"
+        addTermInfo ident fvar
+      let fwdDeps ← Meta.collectForwardDeps fvars false
+      if fwdDeps.size != fvars.size then
+        throwError "local variables in delayed assignment syntax must not have forward dependencies in the metavariable's local context:\n{mvar.mvarId!}"
+      if fwdDeps != fvars then
+        throwError "local variables in delayed assignment syntax must appear in order according to the metavariable's local context:\n{mvar.mvarId!}"
+      mkLambdaFVars fvars mvar >>= instantiateMVars
+    unless (← MetavarContext.isWellFormed (← getLCtx) mvarAbs) do
+      throwError "metavariable has incompatible local context for creating a delayed assignment"
+    -- Resolve the terms in the current local context
+    let (args, _) ← forallMetaBoundedTelescope (← inferType mvarAbs) idents.size
+    for i in [0:idents.size] do
+      let term := terms[i]!.getD ⟨idents[i]!⟩
+      let arg := args[i]!
+      let x ← elabTermEnsuringType term (← inferType arg)
+      arg.mvarId!.assign x
+    return mvarAbs.beta args
+  | _ => throwUnsupportedSyntax
+
 @[builtin_term_elab Lean.Parser.Term.omission] def elabOmission : TermElab := fun stx expectedType? => do
   logWarning m!"\
     The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. \

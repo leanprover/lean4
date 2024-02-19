@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT uint8_t l_Int_decidableDvd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decidableDvd___boxed(lean_object*, lean_object*);
 static lean_object* l_Int_bmod___closed__1;
-lean_object* l_Int_emod(lean_object*, lean_object*);
+lean_object* lean_int_emod(lean_object*, lean_object*);
 static lean_object* l_Int_bmod___closed__2;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Int_bmod___boxed(lean_object*, lean_object*);
@@ -26,7 +26,7 @@ lean_object* lean_int_sub(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-lean_object* l_Int_ediv(lean_object*, lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
 static lean_object* _init_l_Int_decidableDvd___closed__1() {
 _start:
 {
@@ -40,7 +40,7 @@ LEAN_EXPORT uint8_t l_Int_decidableDvd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Int_emod(x_2, x_1);
+x_3 = lean_int_emod(x_2, x_1);
 x_4 = l_Int_decidableDvd___closed__1;
 x_5 = lean_int_dec_eq(x_3, x_4);
 lean_dec(x_3);
@@ -81,11 +81,11 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_nat_to_int(x_2);
-x_4 = l_Int_emod(x_1, x_3);
+x_4 = lean_int_emod(x_1, x_3);
 x_5 = l_Int_bmod___closed__1;
 x_6 = lean_int_add(x_3, x_5);
 x_7 = l_Int_bmod___closed__2;
-x_8 = l_Int_ediv(x_6, x_7);
+x_8 = lean_int_ediv(x_6, x_7);
 lean_dec(x_6);
 x_9 = lean_int_dec_lt(x_4, x_8);
 lean_dec(x_8);

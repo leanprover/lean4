@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.Bitwise
-// Imports: Init.Data.Int.Basic Init.Data.Nat.Bitwise
+// Imports: Init.Data.Int.Basic Init.Data.Nat.Bitwise.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -143,7 +143,7 @@ return x_1;
 }
 }
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Bitwise(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_Bitwise(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -152,7 +152,7 @@ _G_initialized = true;
 res = initialize_Init_Data_Int_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Bitwise(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_not___closed__1 = _init_l_Int_not___closed__1();

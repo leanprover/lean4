@@ -15,7 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Int_fdiv___closed__1;
 LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_emod(lean_object*, lean_object*);
+lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ediv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_fdiv(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -37,7 +37,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instModInt;
-LEAN_EXPORT lean_object* l_Int_ediv(lean_object*, lean_object*);
+lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 static lean_object* l_Int_instModInt___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -294,151 +294,21 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_ediv(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = l_Int_fdiv___closed__1;
-x_4 = lean_int_dec_lt(x_1, x_3);
-if (x_4 == 0)
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_nat_abs(x_1);
-x_6 = lean_int_dec_lt(x_2, x_3);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_nat_abs(x_2);
-x_8 = lean_nat_div(x_5, x_7);
-lean_dec(x_7);
-lean_dec(x_5);
-x_9 = lean_nat_to_int(x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_10 = lean_nat_abs(x_2);
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = lean_nat_sub(x_10, x_11);
-lean_dec(x_10);
-x_13 = lean_nat_add(x_12, x_11);
-lean_dec(x_12);
-x_14 = lean_nat_div(x_5, x_13);
-lean_dec(x_13);
-lean_dec(x_5);
-x_15 = lean_nat_to_int(x_14);
-x_16 = lean_int_neg(x_15);
-lean_dec(x_15);
-return x_16;
-}
-}
-else
-{
-lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
-x_17 = lean_nat_abs(x_1);
-x_18 = lean_unsigned_to_nat(1u);
-x_19 = lean_nat_sub(x_17, x_18);
-lean_dec(x_17);
-x_20 = lean_int_dec_lt(x_2, x_3);
-if (x_20 == 0)
-{
-lean_object* x_21; lean_object* x_22; uint8_t x_23; 
-x_21 = lean_nat_abs(x_2);
-x_22 = lean_unsigned_to_nat(0u);
-x_23 = lean_nat_dec_eq(x_21, x_22);
-if (x_23 == 0)
-{
-lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
-x_24 = lean_nat_sub(x_21, x_18);
-lean_dec(x_21);
-x_25 = lean_nat_add(x_24, x_18);
-lean_dec(x_24);
-x_26 = lean_nat_div(x_19, x_25);
-lean_dec(x_25);
-lean_dec(x_19);
-x_27 = lean_int_neg_succ_of_nat(x_26);
-return x_27;
-}
-else
-{
-lean_object* x_28; 
-lean_dec(x_21);
-lean_dec(x_19);
-x_28 = l_Int_fdiv___closed__1;
-return x_28;
-}
-}
-else
-{
-lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_29 = lean_nat_abs(x_2);
-x_30 = lean_nat_sub(x_29, x_18);
-lean_dec(x_29);
-x_31 = lean_nat_add(x_30, x_18);
-lean_dec(x_30);
-x_32 = lean_nat_div(x_19, x_31);
-lean_dec(x_31);
-lean_dec(x_19);
-x_33 = lean_nat_add(x_32, x_18);
-lean_dec(x_32);
-x_34 = lean_nat_to_int(x_33);
-return x_34;
-}
-}
-}
-}
 LEAN_EXPORT lean_object* l_Int_ediv___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Int_ediv(x_1, x_2);
+x_3 = lean_int_ediv(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Int_emod(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; uint8_t x_4; 
-x_3 = l_Int_fdiv___closed__1;
-x_4 = lean_int_dec_lt(x_1, x_3);
-if (x_4 == 0)
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_nat_abs(x_1);
-x_6 = lean_nat_abs(x_2);
-x_7 = lean_nat_mod(x_5, x_6);
-lean_dec(x_6);
-lean_dec(x_5);
-x_8 = lean_nat_to_int(x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_9 = lean_nat_abs(x_1);
-x_10 = lean_unsigned_to_nat(1u);
-x_11 = lean_nat_sub(x_9, x_10);
-lean_dec(x_9);
-x_12 = lean_nat_abs(x_2);
-x_13 = lean_nat_mod(x_11, x_12);
-lean_dec(x_11);
-x_14 = lean_nat_add(x_13, x_10);
-lean_dec(x_13);
-x_15 = l_Int_subNatNat(x_12, x_14);
-lean_dec(x_14);
-lean_dec(x_12);
-return x_15;
-}
 }
 }
 LEAN_EXPORT lean_object* l_Int_emod___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Int_emod(x_1, x_2);
+x_3 = lean_int_emod(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

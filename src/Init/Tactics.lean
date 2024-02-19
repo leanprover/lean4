@@ -584,6 +584,43 @@ def dsimpArg := simpErase.binary `orelse simpLemma
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"
 
+/-- The common arguments of `simp?` and `simp?!`. -/
+syntax simpTraceArgsRest := (config)? (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
+
+/--
+`simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
+that would be sufficient to close the goal. This is useful for reducing the size of the simp
+set in a local invocation to speed up processing.
+```
+example (x : Nat) : (if True then x + 2 else 3) = x + 2 := by
+  simp? -- prints "Try this: simp only [ite_true]"
+```
+
+This command can also be used in `simp_all` and `dsimp`.
+-/
+syntax (name := simpTrace) "simp?" "!"? simpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp?!" rest:simpTraceArgsRest : tactic => `(tactic| simp?%$tk ! $rest)
+
+/-- The common arguments of `simp_all?` and `simp_all?!`. -/
+syntax simpAllTraceArgsRest := (config)? (discharger)? (&" only")? (dsimpArgs)?
+
+@[inherit_doc simpTrace]
+syntax (name := simpAllTrace) "simp_all?" "!"? simpAllTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp_all?!" rest:simpAllTraceArgsRest : tactic => `(tactic| simp_all?%$tk ! $rest)
+
+/-- The common arguments of `dsimp?` and `dsimp?!`. -/
+syntax dsimpTraceArgsRest := (config)? (&" only")? (dsimpArgs)? (ppSpace location)?
+
+@[inherit_doc simpTrace]
+syntax (name := dsimpTrace) "dsimp?" "!"? dsimpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"dsimp?!" rest:dsimpTraceArgsRest : tactic => `(tactic| dsimp?%$tk ! $rest)
+
 /-- The arguments to the `simpa` family tactics. -/
 syntax simpaArgsRest := (config)? (discharger)? &" only "? (simpArgs)? (" using " term)?
 

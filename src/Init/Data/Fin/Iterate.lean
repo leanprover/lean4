@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 prelude
+import Init.PropLemmas
 import Init.Data.Fin.Basic
 
 namespace Fin
@@ -21,7 +22,7 @@ def hIterateFrom (P : Nat → Sort _) {n} (f : ∀(i : Fin n), P i.val → P (i.
     hIterateFrom P f (i+1) g (f ⟨i, g⟩ a)
   else
     have p : i = n := (or_iff_left g).mp (Nat.eq_or_lt_of_le ubnd)
-    cast (congrArg P p) a
+    _root_.cast (congrArg P p) a
   termination_by n - i
 
 /--
@@ -57,8 +58,8 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
   | zero =>
     unfold hIterateFrom
     have g : ¬ (i < n) := by simp at p; simp [p]
-    have r : Q n (cast (congrArg P p) s) :=
-      @Eq.rec Nat i (fun k eq => Q k (cast (congrArg P eq) s)) init n p
+    have r : Q n (_root_.cast (congrArg P p) s) :=
+      @Eq.rec Nat i (fun k eq => Q k (_root_.cast (congrArg P eq) s)) init n p
     simp only [g, r, dite_false]
   | succ j inv =>
     unfold hIterateFrom

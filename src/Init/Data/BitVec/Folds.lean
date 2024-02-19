@@ -6,6 +6,7 @@ Authors: Joe Hendrix
 prelude
 import Init.Data.BitVec.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Fin.Iterate
 
 namespace Std.BitVec
 

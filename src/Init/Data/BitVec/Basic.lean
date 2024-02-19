@@ -6,7 +6,7 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 -/
 prelude
 import Init.Data.Fin.Basic
-import Init.Data.Nat.Bitwise.Basic
+import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 
 namespace Std
@@ -456,7 +456,7 @@ def zeroExtend (v : Nat) (x : BitVec w) : BitVec v :=
 Truncate the high bits of bitvector `x` of length `w`, resulting in a vector of length `v`.
 If `v > w` then it zero-extends the vector instead.
 -/
-alias truncate := zeroExtend
+abbrev truncate := @zeroExtend
 
 /--
 Sign extend a vector of length `w`, extending with `i` additional copies of the most significant

@@ -21,9 +21,6 @@ theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
 theorem eq_of_toNat_eq {n} : ∀ {i j : BitVec n}, i.toNat = j.toNat → i = j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
-/-- Replaced 2024-02-07. -/
-@[deprecated] alias zero_is_unique := eq_nil
-
 @[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
 
 theorem toNat_eq (x y : BitVec n) : x = y ↔ x.toNat = y.toNat :=
@@ -467,9 +464,6 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNa
   (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := rfl
 @[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := rfl
 
-/-- Replaced 2024-02-06. -/
-@[deprecated] alias sub_toNat := toNat_sub
-
 @[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) :=
   rfl
 @[simp] theorem sub_ofFin (x : BitVec n) (y : Fin (2^n)) : x - .ofFin y = .ofFin (x.toFin - y) :=
@@ -490,9 +484,6 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : x#n - y#n = .ofNat n (x + (2^n - y % 2
 
 @[simp] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
-
-/-- Replaced 2024-02-06. -/
-@[deprecated] alias neg_toNat := toNat_neg
 
 theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   apply eq_of_toNat_eq

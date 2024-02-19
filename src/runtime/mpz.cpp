@@ -667,6 +667,7 @@ mpz & mpz::rem(size_t sz, mpn_digit const * digits) {
             digits, sz,
             q1.begin(), r1.begin());
     set(r_sz, r1.begin());
+    m_sign = m_sign && !is_zero();
     return *this;
 }
 
@@ -745,42 +746,39 @@ mpz mpz::ediv(mpz const & n, mpz const & d) {
             return mpz(0);
         }
     } else {
-        bool sign = d.m_sign;
-        size_t sz = d.m_size;
-        mpn_digit const * digits = d.m_digits;
         digit_buffer q1, r1;
-        size_t q_sz = n.m_size - sz + 1;
-        size_t r_sz = sz;
+        size_t q_sz = n.m_size - d.m_size + 1;
+        size_t r_sz = d.m_size;
         q1.ensure_capacity(q_sz);
         r1.ensure_capacity(r_sz);
-        mpn_div(q.m_digits, q.m_size,
-                digits, sz,
+        mpn_div(n.m_digits, n.m_size,
+                d.m_digits, d.m_size,
                 q1.begin(), r1.begin());
         mpz q;
         q.set(q_sz, q1.begin());
-        q.m_sign = !is_zero() && n.m_sign != d.m_sign;
+        q.m_sign = !q.is_zero() && n.m_sign != d.m_sign;
         mpz r;
         r.set(r_sz, r1.begin());
-        r.m_sign = n.m_sign;
+        r.m_sign = n.m_sign && !r.is_zero();
         if (r.is_neg()) {
             if (d.is_pos()) {
-                q--;
+                q -= 1;
             } else {
-                q++;
+                q += 1;
             }
         }
+        return q;
     }
-    return q;
 }
 
 mpz mpz::emod(mpz const & n, mpz const & d) {
     mpz r(n);
-    r.rem(o.m_size, o.m_digits);
+    r.rem(d.m_size, d.m_digits);
     if (r.is_neg()) {
         if (d.is_pos()) {
-            r -= d;
-        } else {
             r += d;
+        } else {
+            r -= d;
         }
     }
     return r;

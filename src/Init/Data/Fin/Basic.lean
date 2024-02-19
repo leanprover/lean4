@@ -5,7 +5,7 @@ Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 -/
 prelude
 import Init.Data.Nat.Div
-import Init.Data.Nat.Bitwise
+import Init.Data.Nat.Bitwise.Basic
 import Init.Coe
 
 open Nat

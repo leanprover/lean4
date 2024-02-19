@@ -7,6 +7,7 @@ prelude
 import Init.Data.Basic
 import Init.Data.Nat
 import Init.Data.Bool
+import Init.Data.BitVec
 import Init.Data.Cast
 import Init.Data.Char
 import Init.Data.String

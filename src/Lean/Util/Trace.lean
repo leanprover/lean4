@@ -197,6 +197,9 @@ class MonadAlwaysExcept (ε : outParam (Type u)) (m : Type u → Type v) where
 instance (ε) : MonadAlwaysExcept ε (EIO ε) where
   except := inferInstance
 
+instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateT σ m) where
+  except := let _ := always.except; inferInstance
+
 instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
   except := let _ := always.except; inferInstance
 

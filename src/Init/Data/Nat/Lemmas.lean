@@ -595,10 +595,14 @@ protected theorem mul_self_sub_mul_self_eq (a b : Nat) : a * a - b * b = (a + b)
     Nat.sub_add_eq, Nat.add_sub_cancel]
 
 protected theorem pos_of_mul_pos_left {a b : Nat} (h : 0 < a * b) : 0 < b := by
-  by_contra w; simp_all
+  apply Decidable.by_contra
+  intros
+  simp_all
 
 protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
-  by_contra w; simp_all
+  apply Decidable.by_contra
+  intros
+  simp_all
 
 @[simp] protected theorem mul_pos_iff_of_pos_left {a b : Nat} (h : 0 < a) :
     0 < a * b ↔ 0 < b :=
@@ -684,7 +688,7 @@ theorem mul_mod_mul_right (z x y : Nat) : (x * z) % (y * z) = (x % y) * z := by
   rw [Nat.mul_comm x z, Nat.mul_comm y z, Nat.mul_comm (x % y) z]; apply mul_mod_mul_left
 
 @[simp] theorem mod_mod_of_dvd (a : Nat) (h : c ∣ b) : a % b % c = a % c := by
-  rw [← mod_add_div a b]
+  rw (config := {occs := .pos [2]}) [← mod_add_div a b]
   have ⟨x, h⟩ := h
   subst h
   rw [Nat.mul_assoc, add_mul_mod_self_left]
@@ -706,8 +710,9 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
   | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
-  conv => lhs; rw [
-    ← mod_add_div a n, ← mod_add_div b n, Nat.add_mul, Nat.mul_add, Nat.mul_add,
+  rw (config := {occs := .pos [1]}) [← mod_add_div a n]
+  rw (config := {occs := .pos [1]}) [← mod_add_div b n]
+  rw [Nat.add_mul, Nat.mul_add, Nat.mul_add,
     Nat.mul_assoc, Nat.mul_assoc, ← Nat.mul_add n, add_mul_mod_self_left,
     Nat.mul_comm _ (n * (b / n)), Nat.mul_assoc, add_mul_mod_self_left]
 
@@ -825,7 +830,8 @@ protected theorem pow_le_pow_of_le {a n m : Nat} (h : 1 < a) (w : n ≤ m) : a ^
 protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n ≤ a ^ m ↔ n ≤ m := by
   constructor
-  · by_contra w
+  · apply Decidable.by_contra
+    intros w
     simp [Decidable.not_imp_iff_and_not] at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_le_of_lt w.1 (Nat.pow_lt_pow_of_lt h w.2)
@@ -837,7 +843,8 @@ protected theorem pow_le_pow_iff_right {a n m : Nat} (h : 1 < a) :
 protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
     a ^ n < a ^ m ↔ n < m := by
   constructor
-  · by_contra w
+  · apply Decidable.by_contra
+    intros w
     simp at w
     apply Nat.lt_irrefl (a ^ n)
     exact Nat.lt_of_lt_of_le w.1 (Nat.pow_le_pow_of_le h w.2)

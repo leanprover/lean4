@@ -227,7 +227,7 @@ private def varSetToArray (s : VarSet) : Array Var :=
 private def varsToMessageData (vars : Array Var) : MessageData :=
   MessageData.joinSep (vars.toList.map fun n => MessageData.ofName (n.getId.simpMacroScopes)) " "
 
-partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
+partial def CodeBlock.toMessageData (codeBlock : CodeBlock) : MessageData :=
   let us := MessageData.ofList <| (varSetToArray codeBlock.uvars).toList.map MessageData.ofSyntax
   let rec loop : Code → MessageData
     | .decl xs _ k           => m!"let {varsToMessageData xs} := ...\n{loop k}"
@@ -235,15 +235,17 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | .joinpoint n ps body k => m!"let {n.simpMacroScopes} {varsToMessageData (ps.map Prod.fst)} := {indentD (loop body)}\n{loop k}"
     | .seq e k               => m!"{e}\n{loop k}"
     | .action e              => e
-    | .ite _ _ _ c t e       => m!"if {c} then {indentD (loop t)}\nelse{loop e}"
+    | .ite _ _ _ c t e       => m!"if {c} then {indentD (loop t)}\nelse{indentD (loop e)}"
     | .jmp _ j xs            => m!"jmp {j.simpMacroScopes} {xs.toList}"
     | .break _               => m!"break {us}"
     | .continue _            => m!"continue {us}"
     | .return _ v            => m!"return {v} {us}"
     | .match _ _ ds _ alts   =>
-      m!"match {ds} with"
-      ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
+      m!"match {ds.getSepArgs} with"
+      ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns.getSepArgs} => {indentD (loop alt.rhs)}"
   loop codeBlock.code
+
+instance : ToMessageData CodeBlock := ⟨CodeBlock.toMessageData⟩
 
 /-- Return true if the give code contains an exit point that satisfies `p` -/
 partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
@@ -572,9 +574,13 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
 
 /-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
-def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) : TermElabM CodeBlock := do
+def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) (allowUnreachable := false) : TermElabM CodeBlock := do
   unless hasTerminalAction terminal.code do
+    if allowUnreachable then
+      return terminal
     throwErrorAt kRef "`do` element is unreachable"
+  -- remove updates to variable `y` in `k` because `y` is being defined (see #2663)
+  let k := if let some y := y? then { k with uvars := eraseVars k.uvars #[y] } else k
   let (terminal, k) ← homogenize terminal k
   let xs := varSetToArray k.uvars
   let y ← match y? with | some y => pure y | none => `(y)
@@ -1332,9 +1338,7 @@ mutual
       | none =>
         checkLetArrowRHS doElem
         let c ← doSeqToCode [doElem]
-        match doElems with
-        | []       => pure c
-        | kRef::_  => concat c kRef y k
+        concat c (doElems.headD doLetArrow) y k (allowUnreachable := doElems.isEmpty)
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
       let doElem  := decl[2]

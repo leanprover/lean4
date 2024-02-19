@@ -5,6 +5,11 @@ Authors: Mario Carneiro
 -/
 prelude
 import Init.Data.Fin.Basic
+import Init.Data.Nat.Lemmas
+import Init.Ext
+import Init.ByCases
+import Init.Conv
+import Init.Omega
 
 namespace Fin
 

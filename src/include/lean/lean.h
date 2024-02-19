@@ -1320,6 +1320,8 @@ LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_mul(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_div(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
+LEAN_SHARED lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
+LEAN_SHARED lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -1458,6 +1460,81 @@ static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         }
     } else {
         return lean_int_big_mod(a1, a2);
+    }
+}
+
+/*
+lean_int_ediv and lean_int_emod implement "Euclidean" division and modulus using the
+algorithm in:
+  Division and Modulus for Computer Scientists
+  Daan Leijen
+  https://www.microsoft.com/en-us/research/publication/division-and-modulus-for-computer-scientists/
+
+*/
+
+static inline lean_obj_res lean_int_ediv(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t n = lean_scalar_to_int(a1);
+            int64_t d = lean_scalar_to_int(a2);
+            if (d == 0)
+                return lean_box(0);
+            else {
+                int64_t q = n / d;
+                int64_t r = n % d;
+                if (r < 0)
+                    q = (d > 0) ? q - 1 : q + 1;
+                return lean_int64_to_int(q);
+            }
+        } else {
+            /* 32-bit version */
+            int n = lean_scalar_to_int(a1);
+            int d = lean_scalar_to_int(a2);
+            if (d == 0) {
+                return lean_box(0);
+            } else {
+                int q = n / d;
+                int r = n % d;
+                if (r < 0)
+                    q = (d > 0) ? q - 1 : q + 1;
+                return lean_int_to_int(q);
+            }
+        }
+    } else {
+        return lean_int_big_ediv(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_emod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t n = lean_scalar_to_int64(a1);
+            int64_t d = lean_scalar_to_int64(a2);
+            if (d == 0) {
+                return a1;
+            } else {
+                int64_t r = n % d;
+                if (r < 0)
+                    r = (d > 0) ? r + d : r - d;
+                return lean_int64_to_int(r);
+            }
+        } else {
+            /* 32-bit version */
+            int n = lean_scalar_to_int(a1);
+            int d = lean_scalar_to_int(a2);
+            if (d == 0)
+                return a1;
+            else {
+                int r = n % d;
+                if (r < 0)
+                    r = (d > 0) ? r + d : r - d;
+                return lean_int_to_int(r);
+            }
+        }
+    } else {
+        return lean_int_big_emod(a1, a2);
     }
 }
 

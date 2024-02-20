@@ -1156,6 +1156,11 @@ end
 syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
+/--
+`norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
+-/
+syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+
 end Tactic
 
 namespace Attr

@@ -262,4 +262,12 @@ def evalPushCast : Tactic := fun stx => do
   dischargeWrapper.with fun discharge? =>
     discard <| simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
 
+open Command in
+@[builtin_command_elab Parser.Tactic.normCastAddElim] def elabAddElim : CommandElab := fun stx => do
+  match stx with
+  | `(norm_cast_add_elim $id:ident) =>
+    Elab.Command.liftCoreM do MetaM.run' do
+     addElim (← resolveGlobalConstNoOverload id)
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.NormCast

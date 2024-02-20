@@ -18,9 +18,9 @@ def 5 : Nat := 3
 theorem yep : True := by trivial
 
 theorem () : Nat := 99
-theorem 2.4 : Nat := 99
-theorem "nat" : Nat := 99
-theorem 3 : Nat := 99
+theorem 2.4 : Nat := )
+theorem "nat" : Nat := )
+theorem 3 : Nat := )
 
 opaque ((( : Nat := )
 

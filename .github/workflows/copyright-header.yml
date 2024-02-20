@@ -16,5 +16,5 @@ jobs:
           echo "$FILES"
           exit 1
         else
-          echo "All copyright headres present!"
+          echo "All copyright headers present."
         fi

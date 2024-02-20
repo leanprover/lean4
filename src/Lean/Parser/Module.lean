@@ -73,12 +73,10 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
   let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
-  match s.errorMsg with
-  | some errorMsg =>
-    let msg := mkErrorMessage inputCtx s.pos s.stxStack errorMsg
-    pure (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
-  | none =>
-    pure (stx, { pos := s.pos }, {})
+  let mut messages : MessageLog := {}
+  for (pos, stk, err) in s.allErrors do
+    messages := messages.add <| mkErrorMessage inputCtx pos stk err
+  pure (stx, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""

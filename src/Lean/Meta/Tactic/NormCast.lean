@@ -90,7 +90,7 @@ def classifyType (ty : Expr) : MetaM Label :=
         rhs must have fewer head coes than lhs{indentExpr ty}"
 
 /-- The `push_cast` simp attribute. -/
-initialize pushCastExt : SimpExtension ←
+builtin_initialize pushCastExt : SimpExtension ←
   registerSimpAttr `push_cast "\
     The `push_cast` simp attribute uses `norm_cast` lemmas \
     to move casts toward the leaf nodes of the expression."

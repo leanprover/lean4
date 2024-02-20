@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
+-/
 prelude
 import Init.Data.Nat.Div
 
@@ -84,7 +89,6 @@ instance decidable_dvd : @DecidableRel Nat (·∣·) :=
 theorem emod_pos_of_not_dvd {a b : Nat} (h : ¬ a ∣ b) : 0 < b % a := by
   rw [dvd_iff_mod_eq_zero] at h
   exact Nat.pos_of_ne_zero h
-
 
 protected theorem mul_div_cancel' {n m : Nat} (H : n ∣ m) : n * (m / n) = m := by
   have := mod_add_div m n

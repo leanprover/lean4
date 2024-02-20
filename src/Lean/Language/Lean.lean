@@ -245,7 +245,7 @@ General notes:
   as not to report this "fast forwarding" to the user as well as to make sure the next run sees all
   fast-forwarded snapshots without having to wait on tasks.
 -/
-partial def processLean (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
+partial def process (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   -- compute position of syntactic change once
   let firstDiffPos? := old?.map (·.ictx.input.firstDiffPos (← read).input)
   ReaderT.adapt ({ · with firstDiffPos? }) do
@@ -497,7 +497,8 @@ where
         }
       }
 
-private partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
+/-- Waits for and returns final environment, if importing was successful. -/
+partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
   let snap ← snap.success?
   let snap ← snap.processed.get.success?
   goCmd snap.next.get
@@ -508,8 +509,3 @@ where goCmd snap :=
     snap.data.sig.get.finished.get.cmdState.env
 
 end Lean
-
-/-- The Lean language processor. -/
-abbrev Lean : Language where
-  process := Lean.processLean
-  getFinalEnv? := Lean.getFinalEnv?

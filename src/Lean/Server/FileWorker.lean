@@ -227,7 +227,7 @@ section Initialization
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
     let chanOut ← mkLspOutputChannel maxDocVersionRef
-    let processor ← Language.Lean.mkIncrementalProcessor {
+    let processor ← Language.mkIncrementalProcessor Language.Lean.process {
       opts, mainModuleName
       fileSetupHandler? := some fun imports => do
         let result ← setupFile meta imports fun stderrLine => do

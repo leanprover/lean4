@@ -110,7 +110,6 @@ def runFrontend
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
-  let lang := Language.Lean
   if /- Lean #lang? -/ true then
     -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
     -- overhead of passing the environment between snapshots until we actually make good use of it
@@ -142,7 +141,7 @@ def runFrontend
     mainModuleName, opts, trustLevel
     fileSetupHandler? := none
   }
-  let snap ← lang.process none ctx
+  let snap ← Language.Lean.process none ctx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then
@@ -154,7 +153,7 @@ def runFrontend
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
   -- where we use the environment despite errors in the file is `--stats`
-  let env := lang.getFinalEnv? snap |>.getD (← mkEmptyEnvironment)
+  let env := Language.Lean.getFinalEnv? snap |>.getD (← mkEmptyEnvironment)
   pure (env, !hasErrors)
 
 

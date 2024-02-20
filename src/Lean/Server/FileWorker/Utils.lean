@@ -76,7 +76,6 @@ structure EditableDocumentCore where
   /-- The document. -/
   meta       : DocumentMeta
   /-- Initial processing snapshot. -/
-  -- TODO: generalize to other languages by moving request handlers into `Language`
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
   cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap

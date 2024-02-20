@@ -47,15 +47,14 @@ In Lean 4, the situation is different as `.olean` artifacts are required to exis
 
 ### Worker architecture
 
-The actual processing of the opened file is left to the generic `Lean.Language` interface.
-It currently has a single implementation `Lean.Language.Lean` for the main Lean 4 language but other languages will be loadable via a `#lang` file annotation in the future.
-The interface is shared with the cmdline driver that is used for building Lean files but the core concept of *snapshots* produced by a `Language` is mostly of interest to the worker: snapshots are how processing data is saved and reused between versions of a file such as to make processing on file edits incremental.
-How exactly incrementality is implemented is left completely to the `Language`; in a strictly ordered language like Lean, there may be a chain of snapshots for each top-level command, potentially with nested snapshots for increased granularity of incrementality.
+The actual processing of the opened file is left to the `Lean.Language.Lean` processor.
+The interface is shared with the cmdline driver that is used for building Lean files but the core concept of *snapshots* produced by a processor is mostly of interest to the worker: snapshots are how processing data is saved and reused between versions of a file such as to make processing on file edits incremental.
+How exactly incrementality is implemented is left completely to the processor; in a strictly ordered language like Lean, there may be a chain of snapshots for each top-level command, potentially with nested snapshots for increased granularity of incrementality.
 In languages with less strict ordering and less syntax extensibility, there may be a single snapshot for the full syntax tree of the file, and then nested snapshots for processing each declaration in it.
 In the simplest case, there may be a single snapshot after processing the full file, without any incrementality.
 All the worker needs to know is that `Language.process` returns a root snapshot of some type that can be transformed into an asynchronously constructed tree of the generic `Lean.Language.Snapshot` type via `Lean.Language.ToSnapshotTree`.
 We use a tree and not an asynchronous list (which would basically be a channel) in order to accommodate parallel processing where it's not clear a priori which of a number of child snapshots will be available first.
-After loading the file and after each edit, the server will obtain this tree from the `Language` given the new file content and asynchronously wait on all these nodes and report the processing status (diagnostics and progress information) stored therein to the client (`Lean.Server.FileWorker.reportSnapshots`).
+After loading the file and after each edit, the server will obtain this tree from the processor given the new file content and asynchronously wait on all these nodes and report the processing status (diagnostics and progress information) stored therein to the client (`Lean.Server.FileWorker.reportSnapshots`).
 
 (TODO: the remainder is currently hard-coded for the `Lean` language)
 

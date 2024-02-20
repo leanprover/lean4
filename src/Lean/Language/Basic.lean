@@ -215,34 +215,14 @@ def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
   return { msgLog, cacheRef? := some (← IO.mkRef none) }
 
 end Language
-open Language
-
-/-- Definition of a language processor that can be driven by the cmdline or language server. -/
-structure Language where
-  /--
-    Type of snapshot returned by `process`. It can be converted to a graph of homogeneous snapshot
-    types via `ToSnapshotTree`.  -/
-  InitialSnapshot : Type
-  /-- Instance for transforming the initial snapshot into a snapshot tree for reporting. -/
-  [instToSnapshotTree : ToSnapshotTree InitialSnapshot]
-  /--
-    Processes input into snapshots, potentially reusing information from a previous run.
-    Constructing the initial snapshot is assumed to be cheap enough that it can be done
-    synchronously, which simplifies use of this function. -/
-  process (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot
-  -- TODO: is this the right interface for other languages as well?
-  /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/
-  getFinalEnv? : InitialSnapshot → Option Environment
-
-instance (lang : Language) : ToSnapshotTree lang.InitialSnapshot := lang.instToSnapshotTree
 
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-partial def Language.mkIncrementalProcessor (lang : Language) (ctx : ModuleProcessingContext) :
-    BaseIO (Parser.InputContext → BaseIO lang.InitialSnapshot) := do
+partial def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
+    (ctx : ModuleProcessingContext) : BaseIO (Parser.InputContext → BaseIO InitSnap) := do
   let oldRef ← IO.mkRef none
   return fun ictx => do
-    let snap ← lang.process (← oldRef.get) { ctx, ictx with }
+    let snap ← process (← oldRef.get) { ctx, ictx with }
     oldRef.set (some snap)
     return snap

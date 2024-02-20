@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 /** \brief Wrapper for GMP integers */
-class mpz {
+class LEAN_EXPORT mpz {
     friend class object_compactor;
     friend class compacted_region;
 #ifdef LEAN_USE_GMP

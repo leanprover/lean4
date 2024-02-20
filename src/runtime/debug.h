@@ -103,10 +103,10 @@ Author: Leonardo de Moura
 namespace lean {
 void initialize_debug();
 void finalize_debug();
-void notify_assertion_violation(char const * file_name, int line, char const * condition);
+LEAN_EXPORT void notify_assertion_violation(char const * file_name, int line, char const * condition);
 void enable_debug(char const * tag);
 void disable_debug(char const * tag);
-bool is_debug_enabled(char const * tag);
+LEAN_EXPORT bool is_debug_enabled(char const * tag);
 void invoke_debugger();
 bool has_violations();
 void enable_debug_dialog(bool flag);

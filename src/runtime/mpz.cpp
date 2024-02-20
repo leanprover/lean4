@@ -130,15 +130,15 @@ mpz & mpz::operator=(int v) {
     mpz_set_si(m_val, v); return *this;
 }
 
-int cmp(mpz const & a, mpz const & b) {
+LEAN_EXPORT int cmp(mpz const & a, mpz const & b) {
     return mpz_cmp(a.m_val, b.m_val);
 }
 
-int cmp(mpz const & a, unsigned b) {
+LEAN_EXPORT int cmp(mpz const & a, unsigned b) {
     return mpz_cmp_ui(a.m_val, b);
 }
 
-int cmp(mpz const & a, int b) {
+LEAN_EXPORT int cmp(mpz const & a, int b) {
     return mpz_cmp_si(a.m_val, b);
 }
 
@@ -251,7 +251,7 @@ void display(std::ostream & out, __mpz_struct const * v) {
     }
 }
 
-std::ostream & operator<<(std::ostream & out, mpz const & v) {
+LEAN_EXPORT std::ostream & operator<<(std::ostream & out, mpz const & v) {
     display(out, v.m_val);
     return out;
 }

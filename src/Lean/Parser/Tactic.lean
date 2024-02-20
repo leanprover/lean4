@@ -66,12 +66,54 @@ doing a pattern match. This is equivalent to `fun` with match arms in term mode.
 @[builtin_tactic_parser] def introMatch := leading_parser
   nonReservedSymbol "intro" >> matchAlts
 
-/-- `decide` will attempt to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then evaluating it to `isTrue ..`. Because this uses kernel
-computation to evaluate the term, it may not work in the presence of definitions
-by well founded recursion, since this requires reducing proofs.
-```
+/--
+`decide` attempts to prove a goal of type `p` by synthesizing an instance
+of `Decidable p` and then reducing that instance. If it reduces to `isTrue h`,
+then `h` is used to close the goal.
+
+Limitations:
+- The goal is not allowed to have local variables or metavariables.
+  If there are local variables, you can try to `revert` them first.
+- Because this uses kernel reduction to evaluate the term, it may not work in the
+  presence of definitions by well founded recursion, since this requires reducing proofs.
+
+## Examples
+
+Proving inequalities:
+```lean
 example : 2 + 2 ≠ 5 := by decide
+```
+
+Trying to prove a false proposition:
+```lean
+example : 1 ≠ 1 := by decide
+/-
+tactic 'decide' proved that the proposition
+  1 ≠ 1
+is false
+-/
+```
+
+Trying to prove a proposition whose `Decidable` instance fails to reduce
+```lean
+opaque unknownProp : Prop
+
+open scoped Classical in
+example : unknownProp := by decide
+/-
+tactic 'decide' failed for proposition
+  unknownProp
+since its 'Decidable' instance did not reduce to the 'isTrue' constructor:
+  Classical.choice ⋯
+-/
+```
+
+## Properties and relations
+
+For equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.
+```lean
+example : 1 + 1 = 2 := by decide
+example : 1 + 1 = 2 := by rfl
 ```
 -/
 @[builtin_tactic_parser] def decide := leading_parser

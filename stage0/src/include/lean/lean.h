@@ -1092,12 +1092,12 @@ LEAN_SHARED lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, boo
 static inline lean_obj_res lean_task_spawn(lean_obj_arg c, lean_obj_arg prio) { return lean_task_spawn_core(c, lean_unbox(prio), false); }
 /* Convert a value `a : A` into `Task A` */
 LEAN_SHARED lean_obj_res lean_task_pure(lean_obj_arg a);
-LEAN_SHARED lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool keep_alive);
-/* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) : Task B */
-static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio) { return lean_task_bind_core(x, f, lean_unbox(prio), false); }
-LEAN_SHARED lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool keep_alive);
-/* Task.map (f : A -> B) (t : Task A) (prio : Nat) : Task B */
-static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio) { return lean_task_map_core(f, t, lean_unbox(prio), false); }
+LEAN_SHARED lean_obj_res lean_task_bind_core(lean_obj_arg x, lean_obj_arg f, unsigned prio, bool sync, bool keep_alive);
+/* Task.bind (x : Task A) (f : A -> Task B) (prio : Nat) (sync : Bool) : Task B */
+static inline lean_obj_res lean_task_bind(lean_obj_arg x, lean_obj_arg f, lean_obj_arg prio, uint8_t sync) { return lean_task_bind_core(x, f, lean_unbox(prio), sync, false); }
+LEAN_SHARED lean_obj_res lean_task_map_core(lean_obj_arg f, lean_obj_arg t, unsigned prio, bool sync, bool keep_alive);
+/* Task.map (f : A -> B) (t : Task A) (prio : Nat) (sync : Bool) : Task B */
+static inline lean_obj_res lean_task_map(lean_obj_arg f, lean_obj_arg t, lean_obj_arg prio, uint8_t sync) { return lean_task_map_core(f, t, lean_unbox(prio), sync, false); }
 LEAN_SHARED b_lean_obj_res lean_task_get(b_lean_obj_arg t);
 /* Primitive for implementing Task.get : Task A -> A */
 static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
@@ -1320,6 +1320,8 @@ LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_mul(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_div(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
+LEAN_SHARED lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
+LEAN_SHARED lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_eq(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_le(lean_object * a1, lean_object * a2);
 LEAN_SHARED bool lean_int_big_lt(lean_object * a1, lean_object * a2);
@@ -1458,6 +1460,81 @@ static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
         }
     } else {
         return lean_int_big_mod(a1, a2);
+    }
+}
+
+/*
+lean_int_ediv and lean_int_emod implement "Euclidean" division and modulus using the
+algorithm in:
+  Division and Modulus for Computer Scientists
+  Daan Leijen
+  https://www.microsoft.com/en-us/research/publication/division-and-modulus-for-computer-scientists/
+
+*/
+
+static inline lean_obj_res lean_int_ediv(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t n = lean_scalar_to_int(a1);
+            int64_t d = lean_scalar_to_int(a2);
+            if (d == 0)
+                return lean_box(0);
+            else {
+                int64_t q = n / d;
+                int64_t r = n % d;
+                if (r < 0)
+                    q = (d > 0) ? q - 1 : q + 1;
+                return lean_int64_to_int(q);
+            }
+        } else {
+            /* 32-bit version */
+            int n = lean_scalar_to_int(a1);
+            int d = lean_scalar_to_int(a2);
+            if (d == 0) {
+                return lean_box(0);
+            } else {
+                int q = n / d;
+                int r = n % d;
+                if (r < 0)
+                    q = (d > 0) ? q - 1 : q + 1;
+                return lean_int_to_int(q);
+            }
+        }
+    } else {
+        return lean_int_big_ediv(a1, a2);
+    }
+}
+
+static inline lean_obj_res lean_int_emod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
+        if (sizeof(void*) == 8) {
+            /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
+            int64_t n = lean_scalar_to_int64(a1);
+            int64_t d = lean_scalar_to_int64(a2);
+            if (d == 0) {
+                return a1;
+            } else {
+                int64_t r = n % d;
+                if (r < 0)
+                    r = (d > 0) ? r + d : r - d;
+                return lean_int64_to_int(r);
+            }
+        } else {
+            /* 32-bit version */
+            int n = lean_scalar_to_int(a1);
+            int d = lean_scalar_to_int(a2);
+            if (d == 0)
+                return a1;
+            else {
+                int r = n % d;
+                if (r < 0)
+                    r = (d > 0) ? r + d : r - d;
+                return lean_int_to_int(r);
+            }
+        }
+    } else {
+        return lean_int_big_emod(a1, a2);
     }
 }
 
@@ -1989,6 +2066,10 @@ static inline uint8_t lean_version_get_is_release(lean_obj_arg _unit) {
 
 static inline lean_obj_res lean_version_get_special_desc(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_SPECIAL_VERSION_DESC);
+}
+
+static inline lean_obj_res lean_system_platform_target(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_PLATFORM_TARGET);
 }
 
 static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {

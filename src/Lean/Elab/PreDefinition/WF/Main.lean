@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.PreDefinition.WF.PackDomain
@@ -92,7 +93,6 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
 
-  let extraParamss := preDefs.map (·.termination.extraParams)
   let wf ← do
     let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.termination_by?.isSome)
     if preDefsWith.isEmpty then
@@ -110,7 +110,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType extraParamss wf fun wfRel => do
+    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef

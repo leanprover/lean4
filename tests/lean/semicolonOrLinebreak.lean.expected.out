@@ -1,4 +1,9 @@
 semicolonOrLinebreak.lean:2:12: error: expected ';' or line break
 semicolonOrLinebreak.lean:9:31-10:8: error: fields missing: 'y'
 semicolonOrLinebreak.lean:10:8-10:9: error: unexpected identifier; expected command
-semicolonOrLinebreak.lean:20:7-20:9: error: unexpected token '}'; expected ':'
+semicolonOrLinebreak.lean:20:4-20:7: error: function expected at
+  x
+term has type
+  Nat
+semicolonOrLinebreak.lean:20:2-20:9: error: failed to synthesize instance
+  Singleton ?m Point

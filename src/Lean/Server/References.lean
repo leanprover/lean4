@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Joscha Mennicken
 -/
+prelude
 import Lean.Data.Lsp.Internal
 import Lean.Server.Utils
 

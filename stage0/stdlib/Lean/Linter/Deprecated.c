@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Deprecated
-// Imports: Init Lean.Linter.Basic Lean.Attributes Lean.Elab.InfoTree.Main
+// Imports: Lean.Linter.Basic Lean.Attributes Lean.Elab.InfoTree.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____closed__8;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____closed__9;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_isDeprecated___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__13(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -830,7 +830,7 @@ x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_1);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_10, x_10);
 x_14 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__3___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
@@ -902,7 +902,7 @@ x_37 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_38 = l_Lean_Syntax_formatStxAux(x_35, x_36, x_37, x_1);
 x_39 = l_Std_Format_defWidth;
-x_40 = lean_format_pretty(x_38, x_39);
+x_40 = lean_format_pretty(x_38, x_39, x_37, x_37);
 x_41 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__3___closed__1;
 x_42 = lean_string_append(x_41, x_40);
 lean_dec(x_40);
@@ -2507,7 +2507,6 @@ lean_dec(x_8);
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree_Main(uint8_t builtin, lean_object*);
@@ -2516,9 +2515,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_Deprecated(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Linter_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

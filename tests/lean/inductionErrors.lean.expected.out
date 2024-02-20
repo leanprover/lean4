@@ -6,7 +6,7 @@ inductionErrors.lean:12:12-12:27: error: unsolved goals
 case upper.h
 q d : Nat
 ⊢ q + Nat.succ d > q
-inductionErrors.lean:16:19-16:26: error: unknown constant 'elimEx2'
+inductionErrors.lean:16:19-16:26: error: unknown identifier 'elimEx2'
 inductionErrors.lean:22:2-25:45: error: insufficient number of targets for 'elimEx'
 inductionErrors.lean:28:16-28:23: error: unexpected eliminator resulting type
   Nat

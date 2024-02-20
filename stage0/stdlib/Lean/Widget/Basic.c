@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Basic
-// Imports: Init Lean.Elab.InfoTree Lean.Message Lean.Server.Rpc.Basic Lean.Server.InfoUtils Lean.Widget.Types
+// Imports: Lean.Elab.InfoTree Lean.Message Lean.Server.Rpc.Basic Lean.Server.InfoUtils Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -226,7 +226,6 @@ x_1 = l_Lean_Widget_instImpl____x40_Lean_Widget_Basic___hyg_85_;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
@@ -237,9 +236,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget_Basic(uint8_t builtin, lean_obje
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+prelude
 import Lean.Language.Lean
 import Lean.Server.Utils
 import Lean.Server.Snapshots

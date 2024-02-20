@@ -170,6 +170,19 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 
+/--
+Denotes a term that was omitted by the pretty printer.
+This is only used for pretty printing, and it cannot be elaborated.
+The presence of `⋯` is controlled by the `pp.deepTerms` and `pp.proofs` options.
+-/
+syntax "⋯" : term
+
+macro_rules | `(⋯) => Macro.throwError "\
+  Error: The '⋯' token is used by the pretty printer to indicate omitted terms, \
+  and it cannot be elaborated.\
+  \n\nIts presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
+  These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
 
@@ -177,9 +190,13 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
   | `($(_)) => `([])
 
 @[app_unexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x [])      => `([$x])
-  | `($(_) $x [$xs,*]) => `([$x, $xs,*])
-  | _                  => throw ()
+  | `($(_) $x $tail) =>
+    match tail with
+    | `([])      => `([$x])
+    | `([$xs,*]) => `([$x, $xs,*])
+    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    | _          => throw ()
+  | _ => throw ()
 
 @[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])
@@ -373,6 +390,23 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+macro_rules
+  | `(haveI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(haveI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(haveI _ $bs* := $val; $body) => `(haveI x $bs* : _ := $val; $body)
+  | `(haveI _ $bs* : $ty := $val; $body) => `(haveI x $bs* : $ty := $val; $body)
+  | `(haveI $x:ident $bs* := $val; $body) => `(haveI $x $bs* : _ := $val; $body)
+  | `(haveI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+macro_rules
+  | `(letI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(letI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(letI _ $bs* := $val; $body) => `(letI x $bs* : _ := $val; $body)
+  | `(letI _ $bs* : $ty := $val; $body) => `(letI x $bs* : $ty := $val; $body)
+  | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
+  | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
@@ -426,3 +460,9 @@ macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))
 
 end Lean
+
+syntax "{" term,+ "}" : term
+
+macro_rules
+  | `({$x:term}) => `(singleton $x)
+  | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})

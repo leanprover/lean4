@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ResolveName
-// Imports: Init Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception
+// Imports: Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_addAliasEntry___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getRevAliases___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_ResolveName_resolveGlobalName_loop___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadResolveName___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg___closed__1;
@@ -3337,7 +3337,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(145u);
+x_3 = lean_unsigned_to_nat(146u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4966,7 +4966,7 @@ x_7 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_8 = l_Lean_Syntax_formatStxAux(x_5, x_6, x_7, x_1);
 x_9 = l_Std_Format_defWidth;
-x_10 = lean_format_pretty(x_8, x_9);
+x_10 = lean_format_pretty(x_8, x_9, x_7, x_7);
 x_11 = l_Lean_resolveGlobalConstNoOverloadCore___rarg___lambda__1___closed__1;
 x_12 = lean_string_append(x_11, x_10);
 lean_dec(x_10);
@@ -5019,7 +5019,7 @@ x_31 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_32 = l_Lean_Syntax_formatStxAux(x_29, x_30, x_31, x_1);
 x_33 = l_Std_Format_defWidth;
-x_34 = lean_format_pretty(x_32, x_33);
+x_34 = lean_format_pretty(x_32, x_33, x_31, x_31);
 x_35 = l_Lean_resolveGlobalConstNoOverloadCore___rarg___lambda__1___closed__1;
 x_36 = lean_string_append(x_35, x_34);
 lean_dec(x_34);
@@ -6085,7 +6085,6 @@ x_7 = l_Lean_unresolveNameGlobal___rarg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Modifiers(uint8_t builtin, lean_object*);
@@ -6095,9 +6094,6 @@ LEAN_EXPORT lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

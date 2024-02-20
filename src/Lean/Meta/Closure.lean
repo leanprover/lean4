@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.FoldConsts
@@ -56,14 +57,14 @@ def aux := fun (y : Nat) => h (g y)
 Note that in this particular case, it is safe to lambda abstract the let-varible `y`.
 This module uses the following approach to decide whether it is safe or not to lambda
 abstract a let-variable.
-1) We enable zeta-expansion tracking in `MetaM`. That is, whenever we perform type checking
-   if a let-variable needs to zeta expanded, we store it in the set `zetaFVarIds`.
-   We say a let-variable is zeta expanded when we replace it with its value.
+1) We enable zetaDelta-expansion tracking in `MetaM`. That is, whenever we perform type checking
+   if a let-variable needs to zetaDelta expanded, we store it in the set `zetaDeltaFVarIds`.
+   We say a let-variable is zetaDelta expanded when we replace it with its value.
 2) We use the `MetaM` type checker `check` to type check the expression we want to close,
    and the type of the binders.
-3) If a let-variable is not in `zetaFVarIds`, we lambda abstract it.
+3) If a let-variable is not in `zetaDeltaFVarIds`, we lambda abstract it.
 
-Remark: We still use let-expressions for let-variables in `zetaFVarIds`, but we move the
+Remark: We still use let-expressions for let-variables in `zetaDeltaFVarIds`, but we move the
 `let` inside the lambdas. The idea is to make sure the auxiliary definition does not have
 an interleaving of `lambda` and `let` expressions. Thus, if the let-variable occurs in
 the type of one of the lambdas, we simply zeta-expand it there.
@@ -89,7 +90,7 @@ let n : Nat := 20;
 (let y : {v // v=n} := {val := 20, property := ex._proof_1}; y.val+n+f x, z+10)
 ```
 
-BTW, this module also provides the `zeta : Bool` flag. When set to true, it
+BTW, this module also provides the `zetaDelta : Bool` flag. When set to true, it
 expands all let-variables occurring in the target expression.
 -/
 
@@ -102,7 +103,7 @@ structure ToProcessElement where
   deriving Inhabited
 
 structure Context where
-  zeta : Bool
+  zetaDelta : Bool
 
 structure State where
   visitedLevel          : LevelMap Level := {}
@@ -165,9 +166,9 @@ def collectLevel (u : Level) : ClosureM Level := do
 def preprocess (e : Expr) : ClosureM Expr := do
   let e ← instantiateMVars e
   let ctx ← read
-  -- If we are not zeta-expanding let-decls, then we use `check` to find
+  -- If we are not zetaDelta-expanding let-decls, then we use `check` to find
   -- which let-decls are dependent. We say a let-decl is dependent if its lambda abstraction is type incorrect.
-  if !ctx.zeta then
+  if !ctx.zetaDelta then
     check e
   pure e
 
@@ -207,7 +208,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>
-    match (← read).zeta, (← fvarId.getValue?) with
+    match (← read).zetaDelta, (← fvarId.getValue?) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
       let newFVarId ← mkFreshFVarId
@@ -259,14 +260,14 @@ partial def process : ClosureM Unit := do
       pushFVarArg (mkFVar fvarId)
       process
     | .ldecl _ _ userName type val _ _ =>
-      let zetaFVarIds ← getZetaFVarIds
-      if !zetaFVarIds.contains fvarId then
+      let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      if !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl
 
-            Recall that if `fvarId` is in `zetaFVarIds`, then we zeta-expanded it
+            Recall that if `fvarId` is in `zetaDeltaFVarIds`, then we zetaDelta-expanded it
             during type checking (see `check` at `collectExpr`).
 
-            Our type checker may zeta-expand declarations that are not needed, but this
+            Our type checker may zetaDelta-expand declarations that are not needed, but this
             check is conservative, and seems to work well in practice. -/
         pushLocalDecl newFVarId userName type
         pushFVarArg (mkFVar fvarId)
@@ -315,15 +316,15 @@ structure MkValueTypeClosureResult where
   exprArgs    : Array Expr
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
-  resetZetaFVarIds
-  withTrackingZeta do
+  resetZetaDeltaFVarIds
+  withTrackingZetaDelta do
     let type  ← collectExpr type
     let value ← collectExpr value
     process
     pure (type, value)
 
-def mkValueTypeClosure (type : Expr) (value : Expr) (zeta : Bool) : MetaM MkValueTypeClosureResult := do
-  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zeta := zeta }).run {}
+def mkValueTypeClosure (type : Expr) (value : Expr) (zetaDelta : Bool) : MetaM MkValueTypeClosureResult := do
+  let ((type, value), s) ← ((mkValueTypeClosureAux type value).run { zetaDelta }).run {}
   let newLocalDecls := s.newLocalDecls.reverse ++ s.newLocalDeclsForMVars
   let newLetDecls   := s.newLetDecls.reverse
   let type  := mkForall newLocalDecls (mkForall newLetDecls type)
@@ -344,8 +345,8 @@ end Closure
   A "closure" is computed, and a term of the form `name.{u_1 ... u_n} t_1 ... t_m` is
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
-def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) (compile : Bool := true) : MetaM Expr := do
-  let result ← Closure.mkValueTypeClosure type value zeta
+def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) (compile : Bool := true) : MetaM Expr := do
+  let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let decl := Declaration.defnDecl {
     name        := name
@@ -361,16 +362,16 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
   return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
 
 /-- Similar to `mkAuxDefinition`, but infers the type of `value`. -/
-def mkAuxDefinitionFor (name : Name) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
+def mkAuxDefinitionFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
-  mkAuxDefinition name type value (zeta := zeta)
+  mkAuxDefinition name type value (zetaDelta := zetaDelta)
 
 /--
   Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
 -/
-def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
-  let result ← Closure.mkValueTypeClosure type value zeta
+def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
+  let result ← Closure.mkValueTypeClosure type value zetaDelta
   let env ← getEnv
   let decl :=
     if env.hasUnsafe result.type || env.hasUnsafe result.value then
@@ -396,9 +397,9 @@ def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zeta : Bool := fals
 /--
   Similar to `mkAuxTheorem`, but infers the type of `value`.
 -/
-def mkAuxTheoremFor (name : Name) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
+def mkAuxTheoremFor (name : Name) (value : Expr) (zetaDelta : Bool := false) : MetaM Expr := do
   let type ← inferType value
   let type := type.headBeta
-  mkAuxTheorem name type value zeta
+  mkAuxTheorem name type value zetaDelta
 
 end Lean.Meta

@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
 -/
+prelude
+import Init.System.IO
 
 namespace LLVM
 /-!
@@ -182,6 +184,18 @@ opaque createBuilderInContext (ctx : Context) : BaseIO (Builder ctx)
 @[extern "lean_llvm_append_basic_block_in_context"]
 opaque appendBasicBlockInContext (ctx : Context) (fn :  Value ctx) (name :  @&String) : BaseIO (BasicBlock ctx)
 
+@[extern "lean_llvm_count_basic_blocks"]
+opaque countBasicBlocks (fn : Value ctx) : BaseIO UInt64
+
+@[extern "lean_llvm_get_entry_basic_block"]
+opaque getEntryBasicBlock (fn : Value ctx) : BaseIO (BasicBlock ctx)
+
+@[extern "lean_llvm_get_first_instruction"]
+opaque getFirstInstruction (bb : BasicBlock ctx) : BaseIO (Option (Value ctx))
+
+@[extern "lean_llvm_position_builder_before"]
+opaque positionBuilderBefore (builder : Builder ctx) (instr : Value ctx) : BaseIO Unit
+
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder : Builder ctx) (bb :  BasicBlock ctx) : BaseIO Unit
 
@@ -326,6 +340,9 @@ opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
 @[extern "lean_llvm_dispose_module"]
 opaque disposeModule (m : Module ctx) : BaseIO Unit
 
+@[extern "lean_llvm_verify_module"]
+opaque verifyModule (m : Module ctx) : BaseIO (Option String)
+
 @[extern "lean_llvm_create_string_attribute"]
 opaque createStringAttribute (key : String) (value : String) : BaseIO (Attribute ctx)
 
@@ -439,6 +456,11 @@ def constInt32 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
 
-def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+def constIntSizeT (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual size_t of the target machine
   constInt' ctx 64 value signExtend
+
+def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual unsigned of the target machine
+  constInt' ctx 32 value signExtend
 end LLVM

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.KVMap
-// Imports: Init Lean.Data.Name
+// Imports: Init.Data.List.Control Init.Data.Format.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_getSyntax(lean_object*, lean_object*, lean
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_921____closed__8;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_updateNat(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_921____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_data_value_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueName___closed__3;
@@ -1422,7 +1422,7 @@ x_25 = 0;
 x_26 = lean_unsigned_to_nat(0u);
 x_27 = l_Lean_Syntax_formatStxAux(x_24, x_25, x_26, x_23);
 x_28 = l_Std_Format_defWidth;
-x_29 = lean_format_pretty(x_27, x_28);
+x_29 = lean_format_pretty(x_27, x_28, x_26, x_26);
 return x_29;
 }
 }
@@ -3902,17 +3902,17 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Format_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedDataValue___closed__1 = _init_l_Lean_instInhabitedDataValue___closed__1();

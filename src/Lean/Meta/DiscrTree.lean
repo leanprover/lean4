@@ -1,8 +1,9 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Jannis Limperg, Scott Morrison
 -/
+prelude
 import Lean.Meta.WHNF
 import Lean.Meta.Transform
 import Lean.Meta.DiscrTreeTypes
@@ -32,8 +33,8 @@ namespace Lean.Meta.DiscrTree
   and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
   respectively
   ```
-  ⟨Add.add, 4⟩, *, *, *, *
-  ⟨Add.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
+  ⟨Add.add, 4⟩, α, *, *, *
+  ⟨Add.add, 4⟩, Nat, *, ⟨a,0⟩, ⟨b,0⟩
   ```
 
   That is, we don't reduce `Add.add Nat inst a b` into `Nat.add a b`.
@@ -325,7 +326,26 @@ def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
+
+/--
+Append `n` wildcards to `todo`
+-/
+private def pushWildcards (n : Nat) (todo : Array Expr) : Array Expr :=
+  match n with
+  | 0   => todo
+  | n+1 => pushWildcards n (todo.push tmpStar)
+
+/--
+When `noIndexAtArgs := true`, `pushArgs` assumes function application arguments have a `no_index` annotation.
+That is, `f a b` is indexed as it was `f (no_index a) (no_index b)`.
+This feature is used when indexing local proofs in the simplifier. This is useful in examples like the one described on issue #2670.
+In this issue, we have a local hypotheses `(h : ∀ p : α × β, f p p.2 = p.2)`, and users expect it to be applicable to
+`f (a, b) b = b`. This worked in Lean 3 since no indexing was used. We can retrieve Lean 3 behavior by writing
+`(h : ∀ p : α × β, f p (no_index p.2) = p.2)`, but this is very inconvenient when the hypotheses was not written by the user in first place.
+For example, it was introduced by another tactic. Thus, when populating the discrimination tree explicit arguments provided to `simp` (e.g., `simp [h]`),
+we use `noIndexAtArgs := true`. See comment: https://github.com/leanprover/lean4/issues/2670#issuecomment-1758889365
+-/
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
@@ -333,7 +353,10 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
-      let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
+      let todo ← if noIndexAtArgs then
+        pure <| pushWildcards nargs todo
+      else
+        pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
     | .lit v     =>
@@ -377,22 +400,24 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
     | _ =>
       return (.other, todo)
 
-partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+@[inherit_doc pushArgs]
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
     let e    := todo.back
     let todo := todo.pop
-    let (k, todo) ← pushArgs root todo e config
-    mkPathAux false todo (keys.push k) config
+    let (k, todo) ← pushArgs root todo e config noIndexAtArgs
+    mkPathAux false todo (keys.push k) config noIndexAtArgs
 
 private def initCapacity := 8
 
-def mkPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+@[inherit_doc pushArgs]
+def mkPath (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := .mkEmpty initCapacity
     let keys : Array Key := .mkEmpty initCapacity
-    mkPathAux (root := true) (todo.push e) keys config
+    mkPathAux (root := true) (todo.push e) keys config noIndexAtArgs
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
@@ -446,9 +471,20 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
-def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) : MetaM (DiscrTree α) := do
-  let keys ← mkPath e config
+def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e config noIndexAtArgs
   return d.insertCore keys v
+
+/--
+Inserts a value into a discrimination tree,
+but only if its key is not of the form `#[*]` or `#[=, *, *, *]`.
+-/
+def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e config noIndexAtArgs
+  return if keys == #[Key.star] || keys == #[Key.const `Eq 3, Key.star, Key.star, Key.star] then
+    d
+  else
+    d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   let e ← reduceDT e root config
@@ -676,4 +712,124 @@ where
         | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
         | _      => visitNonStar k args (← visitStar result)
 
-end Lean.Meta.DiscrTree
+namespace Trie
+
+-- `Inhabited` instance to allow `partial` definitions below.
+private local instance [Monad m] : Inhabited (σ → β → m σ) := ⟨fun s _ => pure s⟩
+
+/--
+Monadically fold the keys and values stored in a `Trie`.
+-/
+partial def foldM [Monad m] (initialKeys : Array Key)
+    (f : σ → Array Key → α → m σ) : (init : σ) → Trie α → m σ
+  | init, Trie.node vs children => do
+    let s ← vs.foldlM (init := init) fun s v => f s initialKeys v
+    children.foldlM (init := s) fun s (k, t) =>
+      t.foldM (initialKeys.push k) f s
+
+/--
+Fold the keys and values stored in a `Trie`.
+-/
+@[inline]
+def fold (initialKeys : Array Key) (f : σ → Array Key → α → σ) (init : σ) (t : Trie α) : σ :=
+  Id.run <| t.foldM initialKeys (init := init) fun s k a => return f s k a
+
+/--
+Monadically fold the values stored in a `Trie`.
+-/
+partial def foldValuesM [Monad m] (f : σ → α → m σ) : (init : σ) → Trie α → m σ
+  | init, node vs children => do
+    let s ← vs.foldlM (init := init) f
+    children.foldlM (init := s) fun s (_, c) => c.foldValuesM (init := s) f
+
+/--
+Fold the values stored in a `Trie`.
+-/
+@[inline]
+def foldValues (f : σ → α → σ) (init : σ) (t : Trie α) : σ :=
+  Id.run <| t.foldValuesM (init := init) f
+
+/--
+The number of values stored in a `Trie`.
+-/
+partial def size : Trie α → Nat
+  | Trie.node vs children =>
+    children.foldl (init := vs.size) fun n (_, c) => n + size c
+
+end Trie
+
+
+/--
+Monadically fold over the keys and values stored in a `DiscrTree`.
+-/
+@[inline]
+def foldM [Monad m] (f : σ → Array Key → α → m σ) (init : σ)
+    (t : DiscrTree α) : m σ :=
+  t.root.foldlM (init := init) fun s k t => t.foldM #[k] (init := s) f
+
+/--
+Fold over the keys and values stored in a `DiscrTree`
+-/
+@[inline]
+def fold (f : σ → Array Key → α → σ) (init : σ) (t : DiscrTree α) : σ :=
+  Id.run <| t.foldM (init := init) fun s keys a => return f s keys a
+
+/--
+Monadically fold over the values stored in a `DiscrTree`.
+-/
+@[inline]
+def foldValuesM [Monad m] (f : σ → α → m σ) (init : σ) (t : DiscrTree α) :
+    m σ :=
+  t.root.foldlM (init := init) fun s _ t => t.foldValuesM (init := s) f
+
+/--
+Fold over the values stored in a `DiscrTree`.
+-/
+@[inline]
+def foldValues (f : σ → α → σ) (init : σ) (t : DiscrTree α) : σ :=
+  Id.run <| t.foldValuesM (init := init) f
+
+/--
+Check for the presence of a value satisfying a predicate.
+-/
+@[inline]
+def containsValueP [BEq α] (t : DiscrTree α) (f : α → Bool) : Bool :=
+  t.foldValues (init := false) fun r a => r || f a
+
+/--
+Extract the values stored in a `DiscrTree`.
+-/
+@[inline]
+def values (t : DiscrTree α) : Array α :=
+  t.foldValues (init := #[]) fun as a => as.push a
+
+/--
+Extract the keys and values stored in a `DiscrTree`.
+-/
+@[inline]
+def toArray (t : DiscrTree α) : Array (Array Key × α) :=
+  t.fold (init := #[]) fun as keys a => as.push (keys, a)
+
+/--
+Get the number of values stored in a `DiscrTree`. O(n) in the size of the tree.
+-/
+@[inline]
+def size (t : DiscrTree α) : Nat :=
+  t.root.foldl (init := 0) fun n _ t => n + t.size
+
+variable {m : Type → Type} [Monad m]
+
+/-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+partial def Trie.mapArraysM (t : DiscrTree.Trie α) (f : Array α → m (Array β)) :
+    m (DiscrTree.Trie β) :=
+  match t with
+  | .node vs children =>
+    return .node (← f vs) (← children.mapM fun (k, t') => do pure (k, ← t'.mapArraysM f))
+
+/-- Apply a monadic function to the array of values at each node in a `DiscrTree`. -/
+def mapArraysM (d : DiscrTree α) (f : Array α → m (Array β)) : m (DiscrTree β) := do
+  pure { root := ← d.root.mapM (fun t => t.mapArraysM f) }
+
+/-- Apply a function to the array of values at each node in a `DiscrTree`. -/
+def mapArrays (d : DiscrTree α) (f : Array α → Array β) : DiscrTree β :=
+  Id.run <| d.mapArraysM fun A => pure (f A)

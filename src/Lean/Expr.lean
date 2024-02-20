@@ -3,6 +3,8 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.Hashable
 import Lean.Data.KVMap
 import Lean.Level
 
@@ -408,7 +410,7 @@ inductive Expr where
 
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
-  to `(fun x : t => e) v`. Here is an example of a dependent let-expression
+  to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
@@ -884,182 +886,6 @@ def isLit : Expr → Bool
   | lit .. => true
   | _      => false
 
-/--
-Return the "body" of a forall expression.
-Example: let `e` be the representation for `forall (p : Prop) (q : Prop), p ∧ q`, then
-`getForallBody e` returns ``.app (.app (.const `And []) (.bvar 1)) (.bvar 0)``
--/
-def getForallBody : Expr → Expr
-  | forallE _ _ b .. => getForallBody b
-  | e                => e
-
-def getForallBodyMaxDepth : (maxDepth : Nat) → Expr → Expr
-  | (n+1), forallE _ _ b _ => getForallBodyMaxDepth n b
-  | 0, e => e
-  | _, e => e
-
-/-- Given a sequence of nested foralls `(a₁ : α₁) → ... → (aₙ : αₙ) → _`,
-returns the names `[a₁, ... aₙ]`. -/
-def getForallBinderNames : Expr → List Name
-  | forallE n _ b _ => n :: getForallBinderNames b
-  | _ => []
-
-/--
-If the given expression is a sequence of
-function applications `f a₁ .. aₙ`, return `f`.
-Otherwise return the input expression.
--/
-def getAppFn : Expr → Expr
-  | app f _ => getAppFn f
-  | e         => e
-
-private def getAppNumArgsAux : Expr → Nat → Nat
-  | app f _, n => getAppNumArgsAux f (n+1)
-  | _,       n => n
-
-/-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
-def getAppNumArgs (e : Expr) : Nat :=
-  getAppNumArgsAux e 0
-
-/--
-Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
-If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
-
-In particular, if the given expression is a sequence of function applications `f a₁ .. aₙ`,
-returns `f a₁ .. aₖ` where `k` is minimal such that `n - k ≤ maxArgs`.
--/
-def getBoundedAppFn : (maxArgs : Nat) → Expr → Expr
-  | maxArgs' + 1, .app f _ => getBoundedAppFn maxArgs' f
-  | _, e => e
-
-private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
-  | app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
-  | _,       as, _ => as
-
-/-- Given `f a₁ a₂ ... aₙ`, returns `#[a₁, ..., aₙ]` -/
-@[inline] def getAppArgs (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
-  let nargs := e.getAppNumArgs
-  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
-
-private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
-  | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
-  | _,       as, _     => as
-
-/--
-Like `Lean.Expr.getAppArgs` but returns up to `maxArgs` arguments.
-
-In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
-where `k` is minimal such that the size of this array is at most `maxArgs`.
--/
-@[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
-  let dummy := mkSort levelZero
-  let nargs := min maxArgs e.getAppNumArgs
-  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
-
-private def getAppRevArgsAux : Expr → Array Expr → Array Expr
-  | app f a, as => getAppRevArgsAux f (as.push a)
-  | _,       as => as
-
-/-- Same as `getAppArgs` but reverse the output array. -/
-@[inline] def getAppRevArgs (e : Expr) : Array Expr :=
-  getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
-
-@[specialize] def withAppAux (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
-  | app f a, as, i => withAppAux k f (as.set! i a) (i-1)
-  | f,       as, _ => k f as
-
-/-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
-@[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
-  let dummy := mkSort levelZero
-  let nargs := e.getAppNumArgs
-  withAppAux k e (mkArray nargs dummy) (nargs-1)
-
-/--
-Given `f a_1 ... a_n`, returns `#[a_1, ..., a_n]`.
-Note that `f` may be an application.
-The resulting array has size `n` even if `f.getAppNumArgs < n`.
--/
-@[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
-  let dummy := mkSort levelZero
-  loop n e (mkArray n dummy)
-where
-  loop : Nat → Expr → Array Expr → Array Expr
-    | 0,   _,        as => as
-    | i+1, .app f a, as => loop i f (as.set! i a)
-    | _,   _,        _  => panic! "too few arguments at"
-
-/--
-Given `e` of the form `f a_1 ... a_n`, return `f`.
-If `n` is greater than the number of arguments, then return `e.getAppFn`.
--/
-def stripArgsN (e : Expr) (n : Nat) : Expr :=
-  match n, e with
-  | 0,   _        => e
-  | n+1, .app f _ => stripArgsN f n
-  | _,   _        => e
-
-/--
-Given `e` of the form `f a_1 ... a_n ... a_m`, return `f a_1 ... a_n`.
-If `n` is greater than the arity, then return `e`.
--/
-def getAppPrefix (e : Expr) (n : Nat) : Expr :=
-  e.stripArgsN (e.getAppNumArgs - n)
-
-/-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
-makes a new function application with the results. -/
-def traverseApp {M} [Monad M]
-  (f : Expr → M Expr) (e : Expr) : M Expr :=
-  e.withApp fun fn args => mkAppN <$> f fn <*> args.mapM f
-
-@[specialize] private def withAppRevAux (k : Expr → Array Expr → α) : Expr → Array Expr → α
-  | app f a, as => withAppRevAux k f (as.push a)
-  | f,       as => k f as
-
-/-- Same as `withApp` but with arguments reversed. -/
-@[inline] def withAppRev (e : Expr) (k : Expr → Array Expr → α) : α :=
-  withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
-
-def getRevArgD : Expr → Nat → Expr → Expr
-  | app _ a, 0,   _ => a
-  | app f _, i+1, v => getRevArgD f i v
-  | _,       _,   v => v
-
-def getRevArg! : Expr → Nat → Expr
-  | app _ a, 0   => a
-  | app f _, i+1 => getRevArg! f i
-  | _,       _   => panic! "invalid index"
-
-/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
-@[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
-  getRevArg! e (n - i - 1)
-
-/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
-@[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
-  getRevArgD e (n - i - 1) v₀
-
-/-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n`. -/
-def isAppOf (e : Expr) (n : Name) : Bool :=
-  match e.getAppFn with
-  | const c _ => c == n
-  | _           => false
-
-/--
-Given `f a₁ ... aᵢ`, returns true if `f` is a constant
-with name `n` and has the correct number of arguments.
--/
-def isAppOfArity : Expr → Name → Nat → Bool
-  | const c _, n, 0   => c == n
-  | app f _,   n, a+1 => isAppOfArity f n a
-  | _,         _, _   => false
-
-/-- Similar to `isAppOfArity` but skips `Expr.mdata`. -/
-def isAppOfArity' : Expr → Name → Nat → Bool
-  | mdata _ b , n, a   => isAppOfArity' b n a
-  | const c _,  n, 0   => c == n
-  | app f _,    n, a+1 => isAppOfArity' f n a
-  | _,          _,  _   => false
-
 def appFn! : Expr → Expr
   | app f _ => f
   | _       => panic! "application expected"
@@ -1098,8 +924,9 @@ def isStringLit : Expr → Bool
   | lit (Literal.strVal _) => true
   | _                      => false
 
-def isCharLit (e : Expr) : Bool :=
-  e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isNatLit
+def isCharLit : Expr → Bool
+  | app (const c _) a => c == ``Char.ofNat && a.isNatLit
+  | _                 => false
 
 def constName! : Expr → Name
   | const n _ => n
@@ -1108,6 +935,10 @@ def constName! : Expr → Name
 def constName? : Expr → Option Name
   | const n _ => some n
   | _         => none
+
+/-- If the expression is a constant, return that name. Otherwise return `Name.anonymous`. -/
+def constName (e : Expr) : Name :=
+  e.constName?.getD Name.anonymous
 
 def constLevels! : Expr → List Level
   | const _ ls => ls
@@ -1176,6 +1007,213 @@ def projExpr! : Expr → Expr
 def projIdx! : Expr → Nat
   | proj _ i _ => i
   | _          => panic! "proj expression expected"
+
+/--
+Return the "body" of a forall expression.
+Example: let `e` be the representation for `forall (p : Prop) (q : Prop), p ∧ q`, then
+`getForallBody e` returns ``.app (.app (.const `And []) (.bvar 1)) (.bvar 0)``
+-/
+def getForallBody : Expr → Expr
+  | forallE _ _ b .. => getForallBody b
+  | e                => e
+
+def getForallBodyMaxDepth : (maxDepth : Nat) → Expr → Expr
+  | (n+1), forallE _ _ b _ => getForallBodyMaxDepth n b
+  | 0, e => e
+  | _, e => e
+
+/-- Given a sequence of nested foralls `(a₁ : α₁) → ... → (aₙ : αₙ) → _`,
+returns the names `[a₁, ... aₙ]`. -/
+def getForallBinderNames : Expr → List Name
+  | forallE n _ b _ => n :: getForallBinderNames b
+  | _ => []
+
+/--
+If the given expression is a sequence of
+function applications `f a₁ .. aₙ`, return `f`.
+Otherwise return the input expression.
+-/
+def getAppFn : Expr → Expr
+  | app f _ => getAppFn f
+  | e         => e
+
+/-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n`. -/
+def isAppOf (e : Expr) (n : Name) : Bool :=
+  match e.getAppFn with
+  | const c _ => c == n
+  | _           => false
+
+/--
+Given `f a₁ ... aᵢ`, returns true if `f` is a constant
+with name `n` and has the correct number of arguments.
+-/
+def isAppOfArity : Expr → Name → Nat → Bool
+  | const c _, n, 0   => c == n
+  | app f _,   n, a+1 => isAppOfArity f n a
+  | _,         _, _   => false
+
+/-- Similar to `isAppOfArity` but skips `Expr.mdata`. -/
+def isAppOfArity' : Expr → Name → Nat → Bool
+  | mdata _ b , n, a   => isAppOfArity' b n a
+  | const c _,  n, 0   => c == n
+  | app f _,    n, a+1 => isAppOfArity' f n a
+  | _,          _,  _   => false
+
+/--
+Checks if an expression is a "natural number numeral in normal form",
+i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
+where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
+and if so returns `n`.
+-/
+-- Note that `Expr.lit (.natVal n)` is not considered in normal form!
+def nat? (e : Expr) : Option Nat := do
+  guard <| e.isAppOfArity ``OfNat.ofNat 3
+  let lit (.natVal n) := e.appFn!.appArg! | none
+  n
+
+/--
+Checks if an expression is an "integer numeral in normal form",
+i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
+or the negation of a positive natural number numberal in normal form,
+and if so returns the integer.
+-/
+def int? (e : Expr) : Option Int :=
+  if e.isAppOfArity ``Neg.neg 3 then
+    match e.appArg!.nat? with
+    | none => none
+    | some 0 => none
+    | some n => some (-n)
+  else
+    e.nat?
+
+private def getAppNumArgsAux : Expr → Nat → Nat
+  | app f _, n => getAppNumArgsAux f (n+1)
+  | _,       n => n
+
+/-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
+def getAppNumArgs (e : Expr) : Nat :=
+  getAppNumArgsAux e 0
+
+/--
+Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
+If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
+
+In particular, if the given expression is a sequence of function applications `f a₁ .. aₙ`,
+returns `f a₁ .. aₖ` where `k` is minimal such that `n - k ≤ maxArgs`.
+-/
+def getBoundedAppFn : (maxArgs : Nat) → Expr → Expr
+  | maxArgs' + 1, .app f _ => getBoundedAppFn maxArgs' f
+  | _, e => e
+
+private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
+  | app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
+  | _,       as, _ => as
+
+/-- Given `f a₁ a₂ ... aₙ`, returns `#[a₁, ..., aₙ]` -/
+@[inline] def getAppArgs (e : Expr) : Array Expr :=
+  let dummy := mkSort levelZero
+  let nargs := e.getAppNumArgs
+  getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+
+private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
+  | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
+  | _,       as, _     => as
+
+/--
+Like `Lean.Expr.getAppArgs` but returns up to `maxArgs` arguments.
+
+In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
+where `k` is minimal such that the size of this array is at most `maxArgs`.
+-/
+@[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
+  let dummy := mkSort levelZero
+  let nargs := min maxArgs e.getAppNumArgs
+  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
+
+private def getAppRevArgsAux : Expr → Array Expr → Array Expr
+  | app f a, as => getAppRevArgsAux f (as.push a)
+  | _,       as => as
+
+/-- Same as `getAppArgs` but reverse the output array. -/
+@[inline] def getAppRevArgs (e : Expr) : Array Expr :=
+  getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
+
+@[specialize] def withAppAux (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
+  | app f a, as, i => withAppAux k f (as.set! i a) (i-1)
+  | f,       as, _ => k f as
+
+/-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
+@[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
+  let dummy := mkSort levelZero
+  let nargs := e.getAppNumArgs
+  withAppAux k e (mkArray nargs dummy) (nargs-1)
+
+/-- Return the function (name) and arguments of an application. -/
+def getAppFnArgs (e : Expr) : Name × Array Expr :=
+  withApp e λ e a => (e.constName, a)
+
+/--
+Given `f a_1 ... a_n`, returns `#[a_1, ..., a_n]`.
+Note that `f` may be an application.
+The resulting array has size `n` even if `f.getAppNumArgs < n`.
+-/
+@[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
+  let dummy := mkSort levelZero
+  loop n e (mkArray n dummy)
+where
+  loop : Nat → Expr → Array Expr → Array Expr
+    | 0,   _,        as => as
+    | i+1, .app f a, as => loop i f (as.set! i a)
+    | _,   _,        _  => panic! "too few arguments at"
+
+/--
+Given `e` of the form `f a_1 ... a_n`, return `f`.
+If `n` is greater than the number of arguments, then return `e.getAppFn`.
+-/
+def stripArgsN (e : Expr) (n : Nat) : Expr :=
+  match n, e with
+  | 0,   _        => e
+  | n+1, .app f _ => stripArgsN f n
+  | _,   _        => e
+
+/--
+Given `e` of the form `f a_1 ... a_n ... a_m`, return `f a_1 ... a_n`.
+If `n` is greater than the arity, then return `e`.
+-/
+def getAppPrefix (e : Expr) (n : Nat) : Expr :=
+  e.stripArgsN (e.getAppNumArgs - n)
+
+/-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
+makes a new function application with the results. -/
+def traverseApp {M} [Monad M]
+  (f : Expr → M Expr) (e : Expr) : M Expr :=
+  e.withApp fun fn args => mkAppN <$> f fn <*> args.mapM f
+
+@[specialize] private def withAppRevAux (k : Expr → Array Expr → α) : Expr → Array Expr → α
+  | app f a, as => withAppRevAux k f (as.push a)
+  | f,       as => k f as
+
+/-- Same as `withApp` but with arguments reversed. -/
+@[inline] def withAppRev (e : Expr) (k : Expr → Array Expr → α) : α :=
+  withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
+
+def getRevArgD : Expr → Nat → Expr → Expr
+  | app _ a, 0,   _ => a
+  | app f _, i+1, v => getRevArgD f i v
+  | _,       _,   v => v
+
+def getRevArg! : Expr → Nat → Expr
+  | app _ a, 0   => a
+  | app f _, i+1 => getRevArg! f i
+  | _,       _   => panic! "invalid index"
+
+/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
+@[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+  getRevArg! e (n - i - 1)
+
+/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
+@[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
+  getRevArgD e (n - i - 1) v₀
 
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
@@ -1559,6 +1597,12 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
 
+def isFalse (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``False
+
+def isTrue (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``True
+
 /-- Return true iff `e` contains a free variable which satisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else
@@ -1916,7 +1960,14 @@ def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
 def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q
 /-- Return `p ∧ q` -/
 def mkAnd (p q : Expr) : Expr := mkApp2 (mkConst ``And) p q
+/-- Make an n-ary `And` application. `mkAndN []` returns `True`. -/
+def mkAndN : List Expr → Expr
+  | [] => mkConst ``True
+  | [p] => p
+  | p :: ps => mkAnd p (mkAndN ps)
 /-- Return `Classical.em p` -/
 def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
+/-- Return `p ↔ q` -/
+def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
 end Lean

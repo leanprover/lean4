@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Format
-// Imports: Init Lean.Data.Options
+// Imports: Lean.Data.Options
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 extern lean_object* l_Std_Format_defIndent;
 static lean_object* l_Lean_instToFormatDataValue___closed__6;
 static lean_object* l_Lean_instToFormatProdNameDataValue___closed__1;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_27____closed__2;
 LEAN_EXPORT lean_object* l_Std_Format_initFn____x40_Lean_Data_Format___hyg_27_(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
@@ -669,11 +669,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Std_Format_pretty_x27(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Std_Format_pretty_x27___closed__1;
 x_4 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_2, x_3);
-x_5 = lean_format_pretty(x_1, x_4);
-return x_5;
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_format_pretty(x_1, x_4, x_5, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -3156,16 +3157,12 @@ x_1 = l_Lean_instToFormatKVMap___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

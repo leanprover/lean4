@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Attributes
 import Lean.Elab.Binders
 import Lean.Elab.DeclModifiers
@@ -97,7 +98,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
 
   let toLift ← views.mapIdxM fun i view => do
     let value := values[i]!
-    let termination ← view.termination.checkVars view.binderIds.size value
+    let termination := view.termination.rememberExtraParams view.binderIds.size value
     pure {
       ref            := view.ref
       fvarId         := fvars[i]!.fvarId!

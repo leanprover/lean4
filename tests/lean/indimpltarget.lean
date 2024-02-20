@@ -28,3 +28,16 @@ example (n : Nat) (m : Fin n) : n ≤ m := by
   case case1 => sorry
 
 end Ex3
+
+namespace Ex4
+
+-- anonymous implicit target
+
+theorem elim_with_implicit_target (motive : Bool → Nat → Prop)
+  (case1  : ∀ m k, motive m k) {_ : Bool} (m : Nat) : motive ‹Bool› m := case1 _ _
+
+example (n m : Nat) : n ≤ m := by
+  induction m using elim_with_implicit_target
+  case case1 => sorry
+
+end Ex4

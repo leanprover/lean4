@@ -122,7 +122,12 @@ def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Ar
   importJob.bindAsync fun _ importTrace => do
   modDynlibsJob.bindAsync fun modDynlibs modTrace => do
   return externDynlibsJob.mapWithTrace fun externDynlibs externTrace =>
-    let depTrace := extraDepTrace.mix <| importTrace.mix <| modTrace.mix externTrace
+    let depTrace := extraDepTrace.mix <| importTrace.mix <| modTrace
+    let depTrace :=
+      match mod.platformIndependent with
+      | none => depTrace.mix <| externTrace
+      | some false => depTrace.mix <| externTrace.mix <| platformTrace
+      | some true => depTrace
     /-
     Requirements:
     * Lean wants the external library symbols before module symbols.
@@ -241,8 +246,10 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
     externDynlibsJob.bindSync fun externDynlibs externLibsTrace => do
       let libNames := modDynlibs.map (·.name) ++ externDynlibs.map (·.name)
       let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
-      let depTrace := linksTrace.mix <| modLibsTrace.mix <| externLibsTrace.mix
-        <| (← getLeanTrace).mix <| ← computeHash mod.linkArgs
+      let depTrace :=
+        linksTrace.mix <| modLibsTrace.mix <| externLibsTrace.mix
+        <| (← getLeanTrace).mix <| (pureHash mod.linkArgs).mix <|
+        platformTrace
       let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
         let args :=
           links.map toString ++

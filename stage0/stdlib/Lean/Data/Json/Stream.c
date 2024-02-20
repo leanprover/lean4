@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Stream
-// Imports: Init Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer Lean.Data.Json.FromToJson
+// Imports: Init.System.IO Lean.Data.Json.Parser Lean.Data.Json.Printer Lean.Data.Json.FromToJson
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -152,7 +152,6 @@ return x_13;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Printer(uint8_t builtin, lean_object*);
@@ -162,9 +161,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Stream(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

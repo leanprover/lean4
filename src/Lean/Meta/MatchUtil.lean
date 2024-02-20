@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.Recognizers
 import Lean.Meta.Basic
 
@@ -40,7 +41,7 @@ def matchEqHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
     return none
 
 def matchFalse (e : Expr) : MetaM Bool := do
-  testHelper e fun e => return e.isConstOf ``False
+  testHelper e fun e => return e.isFalse
 
 def matchNot? (e : Expr) : MetaM (Option Expr) :=
   matchHelper? e fun e => do

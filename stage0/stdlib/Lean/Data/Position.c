@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Position
-// Imports: Init Lean.Data.Format Lean.ToExpr
+// Imports: Lean.Data.Format Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__2;
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__13;
+lean_object* l_String_Iterator_pos(lean_object*);
 static lean_object* l_Lean_Position_instToFormatPosition___closed__2;
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_lt___closed__2;
@@ -50,6 +51,7 @@ static lean_object* l_Lean_instInhabitedFileMap___closed__1;
 static lean_object* l_Lean_Position_instToFormatPosition___closed__6;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__15;
+LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Position_instToExprPosition___lambda__1(lean_object*);
@@ -59,9 +61,12 @@ static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__4;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition_toColumn(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_lt___closed__1;
+LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__3;
 static lean_object* l_Lean_Position_instToExprPosition___closed__4;
+lean_object* l_Array_back_x3f___rarg(lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__17;
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__1;
 static lean_object* l_Lean_Position_instToFormatPosition___closed__4;
@@ -70,6 +75,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition___
 static lean_object* l_Lean_instInhabitedFileMap___closed__2;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedFileMap;
+LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprPosition;
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_lt___boxed(lean_object*, lean_object*);
@@ -78,6 +84,7 @@ static lean_object* l_Lean_instInhabitedPosition___closed__1;
 static lean_object* l_Lean_Position_instToExprPosition___closed__3;
 static lean_object* l_Lean_instReprPosition___closed__1;
 extern lean_object* l_instInhabitedPos;
+lean_object* l_String_Iterator_nextn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_instToExprPosition;
 LEAN_EXPORT lean_object* l_String_toFileMap(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_32_(lean_object*, lean_object*);
@@ -1143,6 +1150,133 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_3, x_4);
+lean_dec(x_3);
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_1, 1);
+x_8 = lean_array_get_size(x_7);
+x_9 = lean_nat_dec_lt(x_5, x_8);
+lean_dec(x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; uint8_t x_11; 
+lean_dec(x_5);
+x_10 = lean_ctor_get(x_2, 1);
+lean_inc(x_10);
+lean_dec(x_2);
+x_11 = l_Array_isEmpty___rarg(x_7);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = l_instInhabitedPos;
+x_13 = l_Array_back___rarg(x_12, x_7);
+lean_inc(x_6);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_6);
+lean_ctor_set(x_14, 1, x_13);
+x_15 = l_String_Iterator_nextn(x_14, x_10);
+x_16 = l_String_Iterator_pos(x_15);
+lean_dec(x_15);
+return x_16;
+}
+else
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_17 = lean_unsigned_to_nat(0u);
+lean_inc(x_6);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_6);
+lean_ctor_set(x_18, 1, x_17);
+x_19 = l_String_Iterator_nextn(x_18, x_10);
+x_20 = l_String_Iterator_pos(x_19);
+lean_dec(x_19);
+return x_20;
+}
+}
+else
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_21 = lean_ctor_get(x_2, 1);
+lean_inc(x_21);
+lean_dec(x_2);
+x_22 = lean_array_fget(x_7, x_5);
+lean_dec(x_5);
+lean_inc(x_6);
+x_23 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_23, 0, x_6);
+lean_ctor_set(x_23, 1, x_22);
+x_24 = l_String_Iterator_nextn(x_23, x_21);
+x_25 = l_String_Iterator_pos(x_24);
+lean_dec(x_24);
+return x_25;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_ofPosition___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_FileMap_ofPosition(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_nat_sub(x_2, x_3);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = lean_array_get_size(x_5);
+x_7 = lean_nat_dec_lt(x_4, x_6);
+lean_dec(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+lean_dec(x_4);
+x_8 = l_Array_back_x3f___rarg(x_5);
+if (lean_obj_tag(x_8) == 0)
+{
+lean_object* x_9; 
+x_9 = lean_unsigned_to_nat(0u);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = lean_ctor_get(x_8, 0);
+lean_inc(x_10);
+lean_dec(x_8);
+return x_10;
+}
+}
+else
+{
+lean_object* x_11; 
+x_11 = lean_array_fget(x_5, x_4);
+lean_dec(x_4);
+return x_11;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_lineStart___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_FileMap_lineStart(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_String_toFileMap(lean_object* x_1) {
 _start:
 {
@@ -1151,7 +1285,6 @@ x_2 = l_Lean_FileMap_ofString(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1159,9 +1292,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

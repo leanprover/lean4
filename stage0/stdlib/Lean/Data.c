@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data
-// Imports: Init Lean.Data.AssocList Lean.Data.Format Lean.Data.HashMap Lean.Data.HashSet Lean.Data.Json Lean.Data.JsonRpc Lean.Data.KVMap Lean.Data.LBool Lean.Data.LOption Lean.Data.Lsp Lean.Data.Name Lean.Data.NameMap Lean.Data.OpenDecl Lean.Data.Options Lean.Data.Parsec Lean.Data.PersistentArray Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet Lean.Data.Position Lean.Data.PrefixTree Lean.Data.SMap Lean.Data.Trie Lean.Data.Xml Lean.Data.NameTrie Lean.Data.RBTree Lean.Data.RBMap Lean.Data.Rat
+// Imports: Lean.Data.AssocList Lean.Data.Format Lean.Data.HashMap Lean.Data.HashSet Lean.Data.Json Lean.Data.JsonRpc Lean.Data.KVMap Lean.Data.LBool Lean.Data.LOption Lean.Data.Lsp Lean.Data.Name Lean.Data.NameMap Lean.Data.OpenDecl Lean.Data.Options Lean.Data.Parsec Lean.Data.PersistentArray Lean.Data.PersistentHashMap Lean.Data.PersistentHashSet Lean.Data.Position Lean.Data.PrefixTree Lean.Data.SMap Lean.Data.Trie Lean.Data.Xml Lean.Data.NameTrie Lean.Data.RBTree Lean.Data.RBMap Lean.Data.Rat
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_HashMap(uint8_t builtin, lean_object*);
@@ -46,9 +45,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_AssocList(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

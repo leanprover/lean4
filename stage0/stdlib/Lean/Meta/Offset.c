@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Offset
-// Imports: Init Lean.Data.LBool Lean.Meta.InferType Lean.Meta.AppBuilder
+// Imports: Lean.Data.LBool Lean.Meta.InferType Lean.Meta.AppBuilder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -802,6 +802,7 @@ lean_dec(x_27);
 x_231 = lean_nat_sub(x_230, x_227);
 lean_dec(x_230);
 x_232 = l_Lean_Expr_getRevArg_x21(x_1, x_231);
+lean_dec(x_1);
 x_233 = l_Lean_Meta_evalNat(x_232, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_233) == 0)
 {
@@ -1140,7 +1141,6 @@ x_69 = lean_nat_sub(x_27, x_26);
 x_70 = lean_unsigned_to_nat(1u);
 x_71 = lean_nat_sub(x_69, x_70);
 lean_dec(x_69);
-lean_inc(x_1);
 x_72 = l_Lean_Expr_getRevArg_x21(x_1, x_71);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1196,6 +1196,7 @@ lean_dec(x_27);
 x_84 = lean_nat_sub(x_83, x_70);
 lean_dec(x_83);
 x_85 = l_Lean_Expr_getRevArg_x21(x_1, x_84);
+lean_dec(x_1);
 x_86 = l_Lean_Meta_evalNat(x_85, x_2, x_3, x_4, x_5, x_81);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -1388,7 +1389,6 @@ x_126 = lean_nat_sub(x_27, x_26);
 x_127 = lean_unsigned_to_nat(1u);
 x_128 = lean_nat_sub(x_126, x_127);
 lean_dec(x_126);
-lean_inc(x_1);
 x_129 = l_Lean_Expr_getRevArg_x21(x_1, x_128);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1444,6 +1444,7 @@ lean_dec(x_27);
 x_141 = lean_nat_sub(x_140, x_127);
 lean_dec(x_140);
 x_142 = l_Lean_Expr_getRevArg_x21(x_1, x_141);
+lean_dec(x_1);
 x_143 = l_Lean_Meta_evalNat(x_142, x_2, x_3, x_4, x_5, x_138);
 if (lean_obj_tag(x_143) == 0)
 {
@@ -1618,7 +1619,6 @@ x_176 = lean_nat_sub(x_27, x_26);
 x_177 = lean_unsigned_to_nat(1u);
 x_178 = lean_nat_sub(x_176, x_177);
 lean_dec(x_176);
-lean_inc(x_1);
 x_179 = l_Lean_Expr_getRevArg_x21(x_1, x_178);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1674,6 +1674,7 @@ lean_dec(x_27);
 x_191 = lean_nat_sub(x_190, x_177);
 lean_dec(x_190);
 x_192 = l_Lean_Expr_getRevArg_x21(x_1, x_191);
+lean_dec(x_1);
 x_193 = l_Lean_Meta_evalNat(x_192, x_2, x_3, x_4, x_5, x_188);
 if (lean_obj_tag(x_193) == 0)
 {
@@ -2753,7 +2754,6 @@ x_103 = lean_unsigned_to_nat(1u);
 x_104 = lean_nat_sub(x_28, x_103);
 x_105 = lean_nat_sub(x_104, x_103);
 lean_dec(x_104);
-lean_inc(x_1);
 x_106 = l_Lean_Expr_getRevArg_x21(x_1, x_105);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -2811,6 +2811,7 @@ lean_dec(x_28);
 x_119 = lean_nat_sub(x_118, x_103);
 lean_dec(x_118);
 x_120 = l_Lean_Expr_getRevArg_x21(x_1, x_119);
+lean_dec(x_1);
 x_121 = l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(x_120, x_2, x_3, x_4, x_5, x_115);
 if (lean_obj_tag(x_121) == 0)
 {
@@ -2925,6 +2926,7 @@ lean_dec(x_28);
 x_145 = lean_nat_sub(x_144, x_103);
 lean_dec(x_144);
 x_146 = l_Lean_Expr_getRevArg_x21(x_1, x_145);
+lean_dec(x_1);
 x_147 = l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(x_146, x_2, x_3, x_4, x_5, x_115);
 if (lean_obj_tag(x_147) == 0)
 {
@@ -5274,7 +5276,6 @@ return x_433;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_LBool(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_InferType(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
@@ -5283,9 +5284,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Offset(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_LBool(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -8,7 +8,85 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.6.0 (development in progress)
+v4.7.0 (development in progress)
+---------
+
+* When the `pp.proofs` is false, now omitted proofs use `⋯` rather than `_`,
+  which gives a more helpful error message when copied from the Infoview.
+  The `pp.proofs.threshold` option lets small proofs always be pretty printed.
+  [#3241](https://github.com/leanprover/lean4/pull/3241).
+
+* `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
+
+* New `simp` (and `dsimp`) configuration option: `zetaDelta`. It is `false` by default.
+  The `zeta` option is still `true` by default, but their meaning has changed.
+  - When `zeta := true`, `simp` and `dsimp` reduce terms of the form
+    `let x := val; e[x]` into `e[val]`.
+  - When `zetaDelta := true`, `simp` and `dsimp` will expand let-variables in
+    the context. For example, suppose the context contains `x := val`. Then,
+    any occurrence of `x` is replaced with `val`.
+
+  See issue [#2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
+  ```
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp
+    /-
+    New goal:
+    h : z = 9; x := 5 |- x + 4 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    -- Using both `zeta` and `zetaDelta`.
+    simp (config := { zetaDelta := true })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp [x] -- asks `simp` to unfold `x`
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp (config := { zetaDelta := true, zeta := false })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- let y := 4; 5 + y = z
+    -/
+    rw [h]
+  ```
+
+* When adding new local theorems to `simp`, the system assumes that the function application arguments
+  have been annotated with `no_index`. This modification, which addresses issue [#2670](https://github.com/leanprover/lean4/issues/2670),
+  restores the Lean 3 behavior that users expect. With this modification, the following examples are now operational:
+  ```
+  example {α β : Type} {f : α × β → β → β} (h : ∀ p : α × β, f p p.2 = p.2)
+    (a : α) (b : β) : f (a, b) b = b := by
+    simp [h]
+
+  example {α β : Type} {f : α × β → β → β}
+    (a : α) (b : β) (h : f (a,b) (a,b).2 = (a,b).2) : f (a, b) b = b := by
+    simp [h]
+  ```
+  In both cases, `h` is applicable because `simp` does not index f-arguments anymore when adding `h` to the `simp`-set.
+  It's important to note, however, that global theorems continue to be indexed in the usual manner.
+
+Breaking changes:
+* `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
+  fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration
+  monads built on `EIO Exception` should be synthesized automatically.
+
+v4.6.0
 ---------
 
 * Add custom simplification procedures (aka `simproc`s) to `simp`. Simprocs can be triggered by the simplifier on a specified term-pattern. Here is an small example:
@@ -22,20 +100,25 @@ def foo (x : Nat) : Nat :=
 The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
 -/
 simproc reduceFoo (foo _) :=
-  /- A term of type `Expr → SimpM (Option Step) -/
-  fun e => OptionT.run do
-    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
-    guard (e.isAppOfArity ``foo 1)
-    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
-    let n ← Nat.fromExpr? e.appArg!
+  /- A term of type `Expr → SimpM Step -/
+  fun e => do
     /-
-    The `Step` type has two constructors: `.done` and `.visit`.
+    The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
     * The constructor `.done` instructs `simp` that the result does
       not need to be simplied further.
     * The constructor `.visit` instructs `simp` to visit the resulting expression.
+    * The constructor `.continue` instructs `simp` to try other simplification procedures.
 
-    If the result holds definitionally as in this example, the field `proof?` can be omitted.
+    All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+    `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
+     If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
     -/
+    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+    unless e.isAppOfArity ``foo 1 do
+      return .continue
+    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+    let some n ← Nat.fromExpr? e.appArg!
+      | return .continue
     return .done { expr := Lean.mkNatLit (n+10) }
 ```
 We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
@@ -63,6 +146,10 @@ example : x + foo 2 = 12 + x := by
   /- We can use `-` to disable `simproc`s. -/
   fail_if_success simp [-reduceFoo]
   simp_arith
+```
+The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
+```lean
+simproc [my_simp] reduceFoo (foo _) := ...
 ```
 
 * The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
@@ -194,8 +281,41 @@ example : x + foo 2 = 12 + x := by
 
 * Modify `InfoTree.context` to facilitate augmenting it with partial contexts while elaborating a command. This breaks backwards compatibility with all downstream projects that traverse the `InfoTree` manually instead of going through the functions in `InfoUtils.lean`, as well as those manually creating and saving `InfoTree`s. See [PR #3159](https://github.com/leanprover/lean4/pull/3159) for how to migrate your code.
 
-* Add language server support for [call hierarchy requests](https://devblogs.microsoft.com/cppblog/c-extension-in-vs-code-1-16-release-call-hierarchy-more/) ([PR #3082](https://github.com/leanprover/lean4/pull/3082)). The change to the .ilean format in this PR means that projects must be fully rebuilt once in order to generate .ilean files with the new format before features like "find references" work correctly again.
+* Add language server support for [call hierarchy requests](https://www.youtube.com/watch?v=r5LA7ivUb2c) ([PR #3082](https://github.com/leanprover/lean4/pull/3082)). The change to the .ilean format in this PR means that projects must be fully rebuilt once in order to generate .ilean files with the new format before features like "find references" work correctly again.
 
+* Structure instances with multiple sources (for example `{a, b, c with x := 0}`) now have their fields filled from these sources
+  in strict left-to-right order. Furthermore, the structure instance elaborator now aggressively use sources to fill in subobject
+  fields, which prevents unnecessary eta expansion of the sources,
+  and hence greatly reduces the reliance on costly structure eta reduction. This has a large impact on mathlib,
+  reducing total CPU instructions by 3% and enabling impactful refactors like leanprover-community/mathlib4#8386
+  which reduces the build time by almost 20%.
+  See PR [#2478](https://github.com/leanprover/lean4/pull/2478) and RFC [#2451](https://github.com/leanprover/lean4/issues/2451).
+
+* Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
+
+* Add pretty printer options `pp.numeralTypes` and `pp.natLit`.
+  When `pp.numeralTypes` is true, then natural number literals, integer literals, and rational number literals
+  are pretty printed with type ascriptions, such as `(2 : Rat)`, `(-2 : Rat)`, and `(-2 / 3 : Rat)`.
+  When `pp.natLit` is true, then raw natural number literals are pretty printed as `nat_lit 2`.
+  [PR #2933](https://github.com/leanprover/lean4/pull/2933) and [RFC #3021](https://github.com/leanprover/lean4/issues/3021).
+
+Lake updates:
+* improved platform information & control [#3226](https://github.com/leanprover/lean4/pull/3226)
+* `lake update` from unsupported manifest versions [#3149](https://github.com/leanprover/lean4/pull/3149)
+
+Other improvements:
+* make `intro` be aware of `let_fun` [#3115](https://github.com/leanprover/lean4/pull/3115)
+* produce simpler proof terms in `rw` [#3121](https://github.com/leanprover/lean4/pull/3121)
+* fuse nested `mkCongrArg` calls in proofs generated by `simp` [#3203](https://github.com/leanprover/lean4/pull/3203)
+* `induction using` followed by a general term [#3188](https://github.com/leanprover/lean4/pull/3188)
+* allow generalization in `let` [#3060](https://github.com/leanprover/lean4/pull/3060, fixing [#3065](https://github.com/leanprover/lean4/issues/3065)
+* reducing out-of-bounds `swap!` should return `a`, not `default`` [#3197](https://github.com/leanprover/lean4/pull/3197), fixing [#3196](https://github.com/leanprover/lean4/issues/3196)
+* derive `BEq` on structure with `Prop`-fields [#3191](https://github.com/leanprover/lean4/pull/3191), fixing [#3140](https://github.com/leanprover/lean4/issues/3140)
+* refine through more `casesOnApp`/`matcherApp` [#3176](https://github.com/leanprover/lean4/pull/3176), fixing [#3175](https://github.com/leanprover/lean4/pull/3175)
+* do not strip dotted components from lean module names [#2994](https://github.com/leanprover/lean4/pull/2994), fixing [#2999](https://github.com/leanprover/lean4/issues/2999)
+* fix `deriving` only deriving the first declaration for some handlers [#3058](https://github.com/leanprover/lean4/pull/3058), fixing [#3057](https://github.com/leanprover/lean4/issues/3057)
+* do not instantiate metavariables in kabstract/rw for disallowed occurrences [#2539](https://github.com/leanprover/lean4/pull/2539), fixing [#2538](https://github.com/leanprover/lean4/issues/2538)
+* hover info for `cases h : ...` [#3084](https://github.com/leanprover/lean4/pull/3084)
 
 v4.5.0
 ---------

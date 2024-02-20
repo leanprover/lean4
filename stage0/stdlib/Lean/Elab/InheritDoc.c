@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InheritDoc
-// Imports: Init Lean.Elab.InfoTree.Main Lean.DocString
+// Imports: Lean.Elab.InfoTree.Main Lean.DocString
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_I
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__1___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_addConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__1;
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -713,7 +713,7 @@ x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_formatStxAux(x_8, x_9, x_10, x_1);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_10, x_10);
 x_14 = l_Lean_resolveGlobalConstNoOverload___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
@@ -785,7 +785,7 @@ x_37 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_38 = l_Lean_Syntax_formatStxAux(x_35, x_36, x_37, x_1);
 x_39 = l_Std_Format_defWidth;
-x_40 = lean_format_pretty(x_38, x_39);
+x_40 = lean_format_pretty(x_38, x_39, x_37, x_37);
 x_41 = l_Lean_resolveGlobalConstNoOverload___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___closed__1;
 x_42 = lean_string_append(x_41, x_40);
 lean_dec(x_40);
@@ -3750,7 +3750,6 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree_Main(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3758,9 +3757,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_InheritDoc(uint8_t builtin, lean_o
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree_Main(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

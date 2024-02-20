@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.CollectLevelParams
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
@@ -656,35 +657,40 @@ unsafe def elabEvalUnsafe : CommandElab
         return e
     -- Evaluate using term using `MetaEval` class.
     let elabMetaEval : CommandElabM Unit := do
-      -- act? is `some act` if elaborated `term` has type `CommandElabM α`
-      let act? ← runTermElabM fun _ => Term.withDeclName declName do
-        let e ← elabEvalTerm
-        let eType ← instantiateMVars (← inferType e)
-        if eType.isAppOfArity ``CommandElabM 1 then
-          let mut stx ← Term.exprToSyntax e
-          unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
-            stx ← `($stx >>= fun v => IO.println (repr v))
-          let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
-          pure <| some act
-        else
-          let e ← mkRunMetaEval e
-          let env ← getEnv
-          let opts ← getOptions
-          let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName finally setEnv env
-          let (out, res) ← act env opts -- we execute `act` using the environment
-          logInfoAt tk out
-          match res with
-          | Except.error e => throwError e.toString
-          | Except.ok env  => do setEnv env; pure none
-      let some act := act? | return ()
-      act
+      -- Generate an action without executing it. We use `withoutModifyingEnv` to ensure
+      -- we don't polute the environment with auxliary declarations.
+      -- We have special support for `CommandElabM` to ensure `#eval` can be used to execute commands
+      -- that modify `CommandElabM` state not just the `Environment`.
+      let act : Sum (CommandElabM Unit) (Environment → Options → IO (String × Except IO.Error Environment)) ←
+        runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
+          let e ← elabEvalTerm
+          let eType ← instantiateMVars (← inferType e)
+          if eType.isAppOfArity ``CommandElabM 1 then
+            let mut stx ← Term.exprToSyntax e
+            unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
+              stx ← `($stx >>= fun v => IO.println (repr v))
+            let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
+            pure <| Sum.inl act
+          else
+            let e ← mkRunMetaEval e
+            addAndCompile e
+            let act ← evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName
+            pure <| Sum.inr act
+      match act with
+      | .inl act => act
+      | .inr act =>
+        let (out, res) ← act (← getEnv) (← getOptions)
+        logInfoAt tk out
+        match res with
+        | Except.error e => throwError e.toString
+        | Except.ok env  => setEnv env; pure ()
     -- Evaluate using term using `Eval` class.
-    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do
+    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do withoutModifyingEnv do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
       let e ← mkRunEval (← elabEvalTerm)
-      let env ← getEnv
-      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) declName finally setEnv env
+      addAndCompile e
+      let act ← evalConst (IO (String × Except IO.Error Unit)) declName
       let (out, res) ← liftM (m := IO) act
       logInfoAt tk out
       match res with
@@ -698,6 +704,39 @@ unsafe def elabEvalUnsafe : CommandElab
 
 @[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
 opaque elabEval : CommandElab
+
+private def checkImportsForRunCmds : CommandElabM Unit := do
+  unless (← getEnv).contains ``CommandElabM do
+    throwError "to use this command, include `import Lean.Elab.Command`"
+
+@[builtin_command_elab runCmd]
+def elabRunCmd : CommandElab
+  | `(run_cmd $elems:doSeq) => do
+    checkImportsForRunCmds
+    (← liftTermElabM <| Term.withDeclName `_run_cmd <|
+      unsafe Term.evalTerm (CommandElabM Unit)
+        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+        (← `(discard do $elems)))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runElab]
+def elabRunElab : CommandElab
+  | `(run_elab $elems:doSeq) => do
+    checkImportsForRunCmds
+    (← liftTermElabM <| Term.withDeclName `_run_elab <|
+      unsafe Term.evalTerm (CommandElabM Unit)
+        (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
+        (← `(Command.liftTermElabM <| discard do $elems)))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runMeta]
+def elabRunMeta : CommandElab := fun stx =>
+  match stx with
+  | `(run_meta $elems:doSeq) => do
+     checkImportsForRunCmds
+     let stxNew ← `(command| run_elab (show Lean.Meta.MetaM Unit from do $elems))
+     withMacroExpansion stx stxNew do elabCommand stxNew
+  | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
@@ -722,6 +761,8 @@ opaque elabEval : CommandElab
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
     let declName ← resolveGlobalConstNoOverloadWithInfo id
+    unless ((← getEnv).getModuleIdxFor? declName).isNone do
+      throwError "invalid 'add_decl_doc', declaration is in an imported module"
     if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`

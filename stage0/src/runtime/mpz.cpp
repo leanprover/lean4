@@ -160,6 +160,43 @@ mpz & mpz::operator*=(unsigned u) { mpz_mul_ui(m_val, m_val, u); return *this; }
 
 mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 
+mpz mpz::ediv(mpz const & n, mpz const & d) {
+    mpz q;
+    mpz_t r;
+    mpz_init(r);
+    /* (q,r) = (n/d, n%d) */
+    mpz_tdiv_qr(q.m_val, r, n.m_val, d.m_val);
+    /* if (r < 0) */
+    if (mpz_sgn(r) < 0) {
+        if (mpz_sgn(d.m_val) > 0) {
+            /* q = q - 1. */
+            mpz_sub_ui(q.m_val, q.m_val, 1);
+        } else {
+            /* q = q + 1. */
+            mpz_add_ui(q.m_val, q.m_val, 1);
+        }
+    }
+    mpz_clear(r);
+    return q;
+}
+
+mpz mpz::emod(mpz const & n, mpz const & d) {
+    mpz r;
+    /* (q,r) = (n/d, n%d) */
+    mpz_tdiv_r(r.m_val, n.m_val, d.m_val);
+    /* if (r < 0) */
+    if (mpz_sgn(r.m_val) < 0) {
+        if (mpz_sgn(d.m_val) > 0) {
+            /* r = r + d. */
+            mpz_add(r.m_val, r.m_val, d.m_val);
+        } else {
+            /* r = r - d. */
+            mpz_sub(r.m_val, r.m_val, d.m_val);
+        }
+    }
+    return r;
+}
+
 mpz & mpz::operator/=(mpz const & o) { mpz_tdiv_q(m_val, m_val, o.m_val); return *this; }
 mpz & mpz::operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
 
@@ -630,6 +667,7 @@ mpz & mpz::rem(size_t sz, mpn_digit const * digits) {
             digits, sz,
             q1.begin(), r1.begin());
     set(r_sz, r1.begin());
+    m_sign = m_sign && !is_zero();
     return *this;
 }
 
@@ -697,6 +735,53 @@ mpz & mpz::operator/=(unsigned u) {
 
 mpz & mpz::operator%=(mpz const & o) {
     return rem(o.m_size, o.m_digits);
+}
+
+mpz mpz::ediv(mpz const & n, mpz const & d) {
+    if (d.m_size > n.m_size) {
+        if (n.is_neg()) {
+            int64_t r = d.is_pos() ? -1 : 1;
+            return mpz(r);
+        } else {
+            return mpz(0);
+        }
+    } else {
+        digit_buffer q1, r1;
+        size_t q_sz = n.m_size - d.m_size + 1;
+        size_t r_sz = d.m_size;
+        q1.ensure_capacity(q_sz);
+        r1.ensure_capacity(r_sz);
+        mpn_div(n.m_digits, n.m_size,
+                d.m_digits, d.m_size,
+                q1.begin(), r1.begin());
+        mpz q;
+        q.set(q_sz, q1.begin());
+        q.m_sign = !q.is_zero() && n.m_sign != d.m_sign;
+        mpz r;
+        r.set(r_sz, r1.begin());
+        r.m_sign = n.m_sign && !r.is_zero();
+        if (r.is_neg()) {
+            if (d.is_pos()) {
+                q -= 1;
+            } else {
+                q += 1;
+            }
+        }
+        return q;
+    }
+}
+
+mpz mpz::emod(mpz const & n, mpz const & d) {
+    mpz r(n);
+    r.rem(d.m_size, d.m_digits);
+    if (r.is_neg()) {
+        if (d.is_pos()) {
+            r += d;
+        } else {
+            r -= d;
+        }
+    }
+    return r;
 }
 
 mpz mpz::pow(unsigned int p) const {

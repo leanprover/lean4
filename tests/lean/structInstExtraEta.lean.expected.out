@@ -1,0 +1,9 @@
+def b : B :=
+let src := a;
+{ toA := src }
+def c : C :=
+let src := a;
+{ toB := { toA := src } }
+def d : D :=
+let src := c;
+{ toB := src.toB }

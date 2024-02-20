@@ -13,20 +13,10 @@ import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
-import Lake.Util.Platform
 
 open System Lean
 
 namespace Lake
-
-/--
-Platform-specific archive file with an optional name prefix
-(i.e., `{name}-{platformDescriptor}.tar.gz`).
--/
-def nameToArchive (name? : Option String) : String :=
-  match name? with
-  | none => s!"{platformDescriptor}.tar.gz"
-  | some name => s!"{name}-{platformDescriptor}.tar.gz"
 
 /--
 First tries to convert a string into a legal name.
@@ -151,10 +141,26 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   releaseRepo? : Option String := none
 
   /--
-  The name of the build archive on GitHub. Defaults to `none`.
-  The archive's full file name will be `nameToArchive buildArchive?`.
+  The URL of the GitHub repository to upload and download releases of this package.
+  If `none` (the default), for downloads, Lake uses the URL the package was download
+  from (if it is a dependency) and for uploads, uses `gh`'s default.
+  -/
+  releaseRepo : Option String := none
+
+  /--
+  A custom name for the build archive for the GitHub cloud release.
+  If `none` (the default), Lake uses `buildArchive`, which defaults to
+  `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
   buildArchive? : Option String := none
+
+  /--
+  A custom name for the build archive for the GitHub cloud release.
+  Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
+  -/
+  buildArchive : String :=
+    if let some name := buildArchive? then name else
+    s!"{name.toString false}-{System.Platform.target}.tar.gz"
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -295,19 +301,19 @@ namespace Package
 @[inline] def extraDepTargets (self : Package) : Array Name :=
   self.config.extraDepTargets
 
-/-- The package's `releaseRepo?` configuration. -/
+/-- The package's `platformIndependent` configuration. -/
+@[inline] def platformIndependent (self : Package) : Option Bool :=
+  self.config.platformIndependent
+
+/-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo?
+  self.config.releaseRepo <|> self.config.releaseRepo?
 
-/-- The package's `buildArchive?` configuration. -/
-@[inline] def buildArchive? (self : Package) : Option String :=
-  self.config.buildArchive?
-
-/-- The file name of the package's build archive derived from `buildArchive?`. -/
+/-- The package's `buildArchive`/`buildArchive?` configuration. -/
 @[inline] def buildArchive (self : Package) : String :=
-  nameToArchive self.buildArchive?
+  self.config.buildArchive
 
-/-- The package's `lakeDir` joined with its `buildArchive` configuration. -/
+/-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
   self.lakeDir / self.buildArchive
 

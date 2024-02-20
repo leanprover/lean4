@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Term
 
 namespace Lean
@@ -91,6 +92,9 @@ example : (List.range 1000).length = 1000 := by native_decide
 -/
 @[builtin_tactic_parser] def nativeDecide := leading_parser
   nonReservedSymbol "native_decide"
+
+builtin_initialize
+  register_parser_alias "matchRhsTacticSeq" matchRhs
 
 end Tactic
 end Parser

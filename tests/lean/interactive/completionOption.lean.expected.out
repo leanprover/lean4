@@ -28,6 +28,17 @@
    {"replace":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}}},
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}},
     "newText": "format.unicode",
     "insert":
     {"start": {"line": 1, "character": 11},
@@ -85,6 +96,17 @@
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 20}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 20}}},
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width"},
   {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
@@ -232,6 +254,17 @@
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
     "newText": "format.unicode",
     "insert":
     {"start": {"line": 13, "character": 11},
@@ -289,6 +322,17 @@
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width"},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},

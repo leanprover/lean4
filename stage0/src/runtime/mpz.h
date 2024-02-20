@@ -245,6 +245,14 @@ public:
 
     friend mpz operator%(mpz a, mpz const & b) { return a %= b; }
 
+    static mpz ediv(mpz const & n, mpz const & d);
+    static mpz ediv(int n, mpz const & d) { return ediv(mpz(n), d); }
+    static mpz ediv(mpz const& n, int d) { return ediv(n, mpz(d)); }
+
+    static mpz emod(mpz const & n, mpz const & d);
+    static mpz emod(int n, mpz const & d) { return emod(mpz(n), d); }
+    static mpz emod(mpz const & n, int d) { return emod(n, mpz(d)); };
+
     mpz & operator&=(mpz const & o);
     mpz & operator|=(mpz const & o);
     mpz & operator^=(mpz const & o);

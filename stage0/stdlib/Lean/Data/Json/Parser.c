@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Json.Parser
-// Imports: Init Lean.Data.Json.Basic Lean.Data.Parsec
+// Imports: Lean.Data.Json.Basic Lean.Data.Parsec Lean.Data.RBMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num___lambda__5___closed__2___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_natCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_objectCore(lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_num___lambda__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__2;
@@ -67,7 +67,6 @@ static lean_object* l_Lean_Json_Parser_anyCore___closed__4;
 static lean_object* l_Lean_Json_Parser_num___lambda__5___closed__1;
 static lean_object* l_Lean_Json_Parser_objectCore___closed__2;
 static lean_object* l_Lean_Json_Parser_anyCore___closed__3;
-lean_object* l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_882____at_instDecidableEqOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_num___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__5;
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_num___lambda__3___closed__3___boxed__const__1;
@@ -113,6 +112,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_Parser_arrayCore(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Json_parse(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_Parser_num___closed__1;
+lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_Parser_escapedChar___boxed__const__8;
 static lean_object* l_Lean_Json_Parser_natNonZero___closed__1;
@@ -2057,14 +2057,14 @@ lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44;
 x_41 = l_Lean_Json_Parser_num___lambda__3___closed__2;
 x_42 = l_Lean_Json_Parser_num___lambda__3___closed__1;
 lean_inc(x_40);
-x_43 = l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_882____at_instDecidableEqOption___spec__1___rarg(x_41, x_40, x_42);
+x_43 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(x_41, x_40, x_42);
 x_44 = lean_unbox(x_43);
 lean_dec(x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; uint8_t x_47; 
 x_45 = l_Lean_Json_Parser_num___lambda__3___closed__3;
-x_46 = l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_882____at_instDecidableEqOption___spec__1___rarg(x_41, x_40, x_45);
+x_46 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(x_41, x_40, x_45);
 x_47 = lean_unbox(x_46);
 lean_dec(x_46);
 if (x_47 == 0)
@@ -2217,7 +2217,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t 
 x_6 = l_Lean_Json_Parser_num___lambda__5___closed__1;
 x_7 = l_Lean_Json_Parser_num___lambda__3___closed__2;
 x_8 = l_Lean_Json_Parser_num___lambda__5___closed__2;
-x_9 = l___private_Init_Data_Option_Basic_0__decEqOption____x40_Init_Data_Option_Basic___hyg_882____at_instDecidableEqOption___spec__1___rarg(x_7, x_5, x_8);
+x_9 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(x_7, x_5, x_8);
 x_10 = lean_unbox(x_9);
 lean_dec(x_9);
 if (x_10 == 0)
@@ -4155,7 +4155,7 @@ x_10 = l_Nat_repr(x_9);
 x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = l_Std_Format_defWidth;
-x_13 = lean_format_pretty(x_11, x_12);
+x_13 = lean_format_pretty(x_11, x_12, x_2, x_2);
 x_14 = l_Lean_Json_parse___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
@@ -4171,21 +4171,21 @@ return x_21;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Parsec(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_RBMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Parser(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Parsec(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Json_Parser_hexChar___closed__1 = _init_l_Lean_Json_Parser_hexChar___closed__1();

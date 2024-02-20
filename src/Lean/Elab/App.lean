@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.FindMVar
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
@@ -690,10 +691,10 @@ builtin_initialize elabAsElim : TagAttribute ←
     (applicationTime := .afterCompilation)
     fun declName => do
       let go : MetaM Unit := do
-        discard <| getElimInfo declName
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
           throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
+        discard <| getElimInfo declName
       go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
@@ -937,6 +938,7 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
 where
   /-- Return `some info` if we should elaborate as an eliminator. -/
   elabAsElim? : TermElabM (Option ElimInfo) := do
+    unless (← read).heedElabAsElim do return none
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
@@ -957,8 +959,7 @@ where
   The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
   -/
   getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
-    let cinfo ← getConstInfo elimInfo.name
-    forallTelescope cinfo.type fun xs type => do
+    forallTelescope elimInfo.elimType fun xs type => do
       let resultArgs := type.getAppArgs
       let mut extraArgsPos := #[]
       for i in [:xs.size] do

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+prelude
+import Init.System.Uri
 import Lean.Data.Lsp.Communication
 import Lean.Data.Lsp.Diagnostics
 import Lean.Data.Lsp.Extra
@@ -117,7 +119,7 @@ def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp
   method := "textDocument/publishDiagnostics"
   param  := {
     uri         := m.uri
-    version?    := m.version
+    version?    := some m.version
     diagnostics := diagnostics
   }
 

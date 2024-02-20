@@ -69,10 +69,10 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
       mvarId.withContext do
         let errorMsgHeader? := if preDefs.size > 1 then
           "The termination argument types differ for the different functions, or depend on the " ++
-          "function's parameters. Try using `sizeOf` explicitly:\nThe termination argument"
+          "function's varying parameters. Try using `sizeOf` explicitly:\nThe termination argument"
         else
-          "The termination argument depends on the function's parameters. Try using `sizeOf` " ++
-          "explicitly:\nThe termination argument"
+          "The termination argument depends on the function's varying parameters. Try using " ++
+          "`sizeOf` explicitly:\nThe termination argument"
         let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
             (errorMsgHeader? := errorMsgHeader?)
         mvarId.assign value

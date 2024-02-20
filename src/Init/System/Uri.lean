@@ -5,6 +5,7 @@ Authors: Chris Lovett
 -/
 prelude
 import Init.Data.String.Extra
+import Init.Data.Nat.Linear
 import Init.System.FilePath
 
 namespace System

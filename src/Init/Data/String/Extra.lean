@@ -7,7 +7,6 @@ prelude
 import Init.Control.Except
 import Init.Data.ByteArray
 import Init.SimpLemmas
-import Init.Data.Nat.Linear
 import Init.Util
 import Init.WFTactics
 

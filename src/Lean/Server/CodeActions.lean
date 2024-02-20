@@ -94,7 +94,7 @@ builtin_initialize
       let env ← getEnv
       if builtin then
         let h := mkConst decl
-        declareBuiltin decl <| mkApp (mkConst ``addBuiltinCodeActionProvider) h
+        declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinCodeActionProvider) (toExpr decl) h
       else
         setEnv <| codeActionProviderExt.addEntry env decl
   }

@@ -63,9 +63,9 @@ private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : 
 where
   -- Error recovery might lead to there being some "junk" on the stack
   lastTrailing (s : SyntaxStack) : Option Substring :=
-    if s.size < 1 then none
-    else if let .original (trailing := trailing) .. := s.back.getTailInfo then some trailing
-    else lastTrailing s.pop
+    s.toSubarray.findSomeRevM? (m := Id) fun stx =>
+      if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
+        else none
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment

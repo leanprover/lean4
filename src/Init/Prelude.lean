@@ -2380,6 +2380,9 @@ Codepoint positions (counting the Unicode codepoints rather than bytes)
 are represented by plain `Nat`s instead.
 Indexing a `String` by a byte position is constant-time, while codepoint
 positions need to be translated internally to byte positions in linear-time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p`
+lies on a UTF8 byte boundary.
 -/
 structure String.Pos where
   /-- Get the underlying byte index of a `String.Pos` -/

@@ -84,6 +84,7 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
 
 @[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
+norm_cast_add_elim ne_eq
 @[simp] theorem ite_true (a b : α) : (if True then a else b) = a := rfl
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl

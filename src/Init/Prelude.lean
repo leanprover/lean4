@@ -1814,6 +1814,8 @@ structure Fin (n : Nat) where
   /-- If `i : Fin n`, then `i.2` is a proof that `i.1 < n`. -/
   isLt : LT.lt val n
 
+attribute [coe] Fin.val
+
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 

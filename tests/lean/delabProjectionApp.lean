@@ -47,13 +47,16 @@ set_option pp.structureProjections false
 
 end
 
-structure Fin' extends Fin 5
+structure Fin0 where
+  val : Nat
 
-structure Fin'' (n : Nat) extends Fin n
+structure Fin' extends Fin0
+
+structure Fin'' (n : Nat) extends Fin0
 
 structure D (n : Nat) extends A
 
-variable (x : Fin 5) (y : Fin') (z : Fin'' 5) (d : D 5)
+variable (x : Fin0) (y : Fin') (z : Fin'' 5) (d : D 5)
 
 section
 /-!
@@ -72,7 +75,7 @@ section
 Check handling of parameters when `pp.explicit` is true.
 -/
 set_option pp.explicit true
-
+-- TODO: double check whether the following outputs are the expected ones
 #check c.x
 #check x.val
 #check y.val

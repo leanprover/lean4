@@ -1018,7 +1018,6 @@ macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_
 /-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
 macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
 
-
 /--
 The `omega` tactic, for resolving integer and natural linear arithmetic problems.
 
@@ -1051,6 +1050,74 @@ can be used to:
 Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" (config)? : tactic
+
+/-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
+syntax (name := normCast0) "norm_cast0" (location)? : tactic
+
+/-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
+using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
+each hypothesis to move casts as far outwards as possible, so it can be used
+in more situations.
+
+Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
+normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
+macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
+
+/--
+The `norm_cast` family of tactics is used to normalize casts inside expressions.
+It is basically a `simp` tactic with a specific set of lemmas to move casts
+upwards in the expression.
+Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
+`norm_cast` is considered safe.
+It also has special handling of numerals.
+
+For instance, given an assumption
+```lean
+a b : ℤ
+h : ↑a + ↑b < (10 : ℚ)
+```
+
+writing `norm_cast at h` will turn `h` into
+```lean
+h : a + b < 10
+```
+
+There are also variants of `exact`, `apply`, `rw`, and `assumption` that
+work modulo `norm_cast` - in other words, they apply `norm_cast` to make
+them more flexible. They are called `exact_mod_cast`, `apply_mod_cast`,
+`rw_mod_cast`, and `assumption_mod_cast`, respectively.
+Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize casts
+in the goal and `h` before using `exact h` or `apply h`.
+Writing `assumption_mod_cast` will normalize casts in the goal and, for
+every hypothesis `h` in the context, it will try to normalize casts in `h` and use
+`exact h`.
+`rw_mod_cast` acts like the `rw` tactic but it applies `norm_cast` between steps.
+
+See also `push_cast`, which moves casts inwards rather than lifting them outwards.
+-/
+macro "norm_cast" loc:(location)? : tactic =>
+  `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+
+/--
+`push_cast` rewrites the goal to move casts inward, toward the leaf nodes.
+This uses `norm_cast` lemmas in the forward direction.
+For example, `↑(a + b)` will be written to `↑a + ↑b`.
+It is equivalent to `simp only with push_cast`.
+It can also be used at hypotheses with `push_cast at h`
+and with extra simp lemmas with `push_cast [int.add_zero]`.
+
+```lean
+example (a b : ℕ) (h1 : ((a + b : ℕ) : ℤ) = 10) (h2 : ((a + b + 0 : ℕ) : ℤ) = 10) :
+  ((a + b : ℕ) : ℤ) = 10 :=
+begin
+  push_cast,
+  push_cast at h1,
+  push_cast [int.add_zero] at h2,
+end
+```
+-/
+syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
+  (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 end Tactic
 
@@ -1099,6 +1166,59 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+
+/-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
+syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"
+
+/--
+The `norm_cast` attribute should be given to lemmas that describe the
+behaviour of a coercion with respect to an operator, a relation, or a particular
+function.
+
+It only concerns equality or iff lemmas involving `↑`, `⇑` and `↥`, describing the behavior of
+the coercion functions.
+It does not apply to the explicit functions that define the coercions.
+
+Examples:
+```lean
+@[norm_cast] theorem coe_nat_inj' {m n : ℕ} : (↑m : ℤ) = ↑n ↔ m = n
+
+@[norm_cast] theorem coe_int_denom (n : ℤ) : (n : ℚ).denom = 1
+
+@[norm_cast] theorem cast_id : ∀ n : ℚ, ↑n = n
+
+@[norm_cast] theorem coe_nat_add (m n : ℕ) : (↑(m + n) : ℤ) = ↑m + ↑n
+
+@[norm_cast] theorem cast_coe_nat (n : ℕ) : ((n : ℤ) : α) = n
+
+@[norm_cast] theorem cast_one : ((1 : ℚ) : α) = 1
+```
+
+Lemmas tagged with `@[norm_cast]` are classified into three categories: `move`, `elim`, and
+`squash`. They are classified roughly as follows:
+
+* elim lemma:   LHS has 0 head coes and ≥ 1 internal coe
+* move lemma:   LHS has 1 head coe and 0 internal coes,    RHS has 0 head coes and ≥ 1 internal coes
+* squash lemma: LHS has ≥ 1 head coes and 0 internal coes, RHS has fewer head coes
+
+`norm_cast` uses `move` and `elim` lemmas to factor coercions toward the root of an expression
+and to cancel them from both sides of an equation or relation. It uses `squash` lemmas to clean
+up the result.
+
+It is typically not necessary to specify these categories, as `norm_cast` lemmas are
+automatically classified by default. The automatic classification can be overridden by
+giving an optional `elim`, `move`, or `squash` parameter to the attribute.
+
+```lean
+@[simp, norm_cast elim] lemma nat_cast_re (n : ℕ) : (n : ℂ).re = n := by
+  rw [← of_real_nat_cast, of_real_re]
+```
+
+Don't do this unless you understand what you are doing.
+-/
+syntax (name := norm_cast) "norm_cast" (ppSpace normCastLabel)? (ppSpace num)? : attr
+
 end Attr
 
 end Parser

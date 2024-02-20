@@ -32,3 +32,4 @@ import Lean.Meta.Tactic.AC
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Congr
 import Lean.Meta.Tactic.Repeat
+import Lean.Meta.Tactic.NormCast

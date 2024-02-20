@@ -106,7 +106,7 @@ structure TryThisInfo : Type where
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
-@[code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result

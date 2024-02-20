@@ -799,7 +799,7 @@ def isType0 : Expr → Bool
   | sort (.succ .zero) => true
   | _ => false
 
-/-- Return `true` if the given expression is a `.sort .zero` -/
+/-- Return `true` if the given expression is `.sort .zero` -/
 def isProp : Expr → Bool
   | sort (.zero ..) => true
   | _ => false

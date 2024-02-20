@@ -356,8 +356,8 @@ jobs:
       - name: Count Dynamic Symbols
         if: matrix.name == 'Windows'
         run: |
-          nm --dynamic --defined-only lean-*/bin/libleanshared.dll | wc -l
-          nm --dynamic --defined-only lean-*/bin/libleanshared.dll
+          dumpbin /EXPORTS lean-*/bin/libleanshared.dll | wc -l
+          dumpbin /EXPORTS lean-*/bin/libleanshared.dll
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...

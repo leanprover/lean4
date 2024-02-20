@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
+import Init.Data.Nat.Lemmas
 import Init.PropLemmas
 import Init.Control.Lawful
 import Init.Hints
@@ -105,6 +106,11 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 @[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
 
+theorem get_append : ∀ {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length),
+    (l₁ ++ l₂).get ⟨n, length_append .. ▸ Nat.lt_add_right _ h⟩ = l₁.get ⟨n, h⟩
+| a :: l, _, 0, h => rfl
+| a :: l, _, n+1, h => by simp only [get, cons_append]; apply get_append
+
 /-! ### map -/
 
 @[simp] theorem map_nil {f : α → β} : map f [] = [] := rfl
@@ -203,6 +209,12 @@ theorem get?_eq_some : l.get? n = some a ↔ ∃ h, get l ⟨n, h⟩ = a :=
   | [], _ => rfl
   | _ :: _, 0 => rfl
   | _ :: l, n+1 => get?_map f l n
+
+theorem get?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
+  (l₁ ++ l₂).get? n = l₁.get? n := by
+  have hn' : n < (l₁ ++ l₂).length := Nat.lt_of_lt_of_le hn <|
+    length_append .. ▸ Nat.le_add_right ..
+  rw [get?_eq_get hn, get?_eq_get hn', get_append]
 
 @[simp] theorem get?_concat_length : ∀ (l : List α) (a : α), (l ++ [a]).get? l.length = some a
   | [], a => rfl

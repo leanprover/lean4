@@ -86,7 +86,7 @@ def tryAllM [Monad m] [Alternative m] (L : List α) (f : α → m β) : m (List 
 
 variable (cfg : BacktrackConfig)
 variable (trace : Name := .anonymous)
-variable (next : MVarId → (List MVarId -> MetaM (Option (List MVarId))) -> MetaM (List MVarId))
+variable (next : MVarId → (List MVarId → MetaM (Option (List MVarId))) → MetaM (List MVarId))
 
 /--
 * `n : Nat` steps remaining.

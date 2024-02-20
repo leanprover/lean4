@@ -65,12 +65,6 @@ def processSyntax (cfg : SolveByElimConfig := {}) (only star : Bool) (add remove
   let ⟨lemmas, ctx⟩ ← mkAssumptionSet only star add remove use
   SolveByElim.solveByElim cfg lemmas ctx goals
 
-
-/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
-add a hypothesis `h_symm : b ~ a`. -/
-elab "symm_saturate" : tactic => liftMetaTactic1 fun g => g.symmSaturate
-
--- See also `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.
 @[builtin_tactic Lean.Parser.Tactic.applyAssumption]
 def evalApplyAssumption : Tactic := fun stx =>
   match stx with
@@ -84,6 +78,11 @@ def evalApplyAssumption : Tactic := fun stx =>
     replaceMainGoal (← processSyntax cfg o.isSome star add remove use [← getMainGoal])
   | _ => throwUnsupportedSyntax
 
+/--
+Elaborator for apply_rules.
+
+See `Lean.MVarId.applyRules` for a `MetaM` level analogue of this tactic.
+-/
 @[builtin_tactic Lean.Parser.Tactic.applyRules]
 def evalApplyRules : Tactic := fun stx =>
   match stx with

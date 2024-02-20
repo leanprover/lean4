@@ -98,4 +98,18 @@ def applySymmAt (h : FVarId) (g : MVarId) : MetaM MVarId := do
   let h' ← (Expr.fvar h).applySymm
   pure (← g.replace h h').mvarId
 
+/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
+add a hypothesis `h_symm : b ~ a`. -/
+def symmSaturate (g : MVarId) : MetaM MVarId := g.withContext do
+  let mut g' := g
+  let hyps ← getLocalHyps
+  let types ← hyps.mapM inferType
+  for h in hyps do try
+    let symm ← h.applySymm
+    let symmType ← inferType symm
+    if ¬ (← types.anyM (isDefEq symmType)) then
+      (_, g') ← g'.note ((← h.fvarId!.getUserName).appendAfter "_symm") symm
+  catch _ => g' ← pure g'
+  return g'
+
 end Lean.MVarId

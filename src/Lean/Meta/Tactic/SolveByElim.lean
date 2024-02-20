@@ -33,24 +33,6 @@ reasonable to further separate these in future.
 
 open Lean Meta Elab Tactic
 
-namespace Lean.MVarId
-
-/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
-add a hypothesis `h_symm : b ~ a`. -/
-def symmSaturate (g : MVarId) : MetaM MVarId := g.withContext do
-  let mut g' := g
-  let hyps ← getLocalHyps
-  let types ← hyps.mapM inferType
-  for h in hyps do try
-    let symm ← h.applySymm
-    let symmType ← inferType symm
-    if ¬ (← types.anyM (isDefEq symmType)) then
-      (_, g') ← g'.note ((← h.fvarId!.getUserName).appendAfter "_symm") symm
-  catch _ => g' ← pure g'
-  return g'
-
-end Lean.MVarId
-
 namespace Lean.Meta.SolveByElim
 
 initialize registerTraceClass `Meta.Tactic.solveByElim
@@ -323,7 +305,7 @@ There are two separate problems that need to be solved.
 
 Lemmas with implicit arguments would be filled in with metavariables if we created the
 `Expr` objects immediately, so instead we return thunks that generate the expressions
-on demand. This is the first component, with type `List (TermElabM expr)`.
+on demand. This is the first component, with type `List (TermElabM Expr)`.
 
 As an example, we have `def rfl : ∀ {α : Sort u} {a : α}, a = a`, which on elaboration will become
 `@rfl ?m_1 ?m_2`.
@@ -341,7 +323,7 @@ See https://github.com/leanprover-community/mathlib/issues/2269
 `solve_by_elim*` works with multiple goals,
 and we need to use separate sets of local hypotheses for each goal.
 The second component of the returned value provides these local hypotheses.
-(Essentially using `local_context`, along with some filtering to remove hypotheses
+(Essentially using `getLocalHyps`, along with some filtering to remove hypotheses
 that have been explicitly removed via `only` or `[-h]`.)
 
 -/

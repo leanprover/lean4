@@ -17,3 +17,10 @@ def evalSymm : Tactic := fun stx =>
     let atTarget := liftMetaTactic1 fun g => g.applySymm
     withLocation (expandOptLocation loc) atHyp atTarget fun _ => throwError "symm made no progress"
   | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.symmSaturate]
+def evalSymmSaturate : Tactic := fun stx =>
+  match stx with
+  | `(tactic| symm_saturate) => do
+    liftMetaTactic1 fun g => g.symmSaturate
+  | _ => throwUnsupportedSyntax

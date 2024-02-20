@@ -1169,7 +1169,9 @@ syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
 -/
 syntax (name := symm) "symm" (Parser.Tactic.location)? : tactic
 
-section SolveByElim
+/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
+add a hypothesis `h_symm : b ~ a`. -/
+syntax (name := symmSaturate) "symm_saturate" : tactic
 
 namespace SolveByElim
 
@@ -1186,6 +1188,7 @@ syntax using_ := " using " ident,*
 
 end SolveByElim
 
+section SolveByElim
 open SolveByElim (args using_)
 
 /--

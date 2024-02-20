@@ -363,17 +363,6 @@ def getExprMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
   return (← getMCtx).dAssignment.find? mvarId
 
-/--
-Check whether a metavariable is assigned or delayed-assigned. A
-delayed-assigned metavariable is already 'solved' but the solution cannot be
-substituted yet because we have to wait for some other metavariables to be
-assigned first. So in most situations you want to treat a delayed-assigned
-metavariable as assigned.
--/
-def MetavarContext.isExprMVarAssignedOrDelayedAssigned (mctx : MetavarContext)
-    (mvarId : MVarId) : Bool :=
-  mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
-
 /-- Given a sequence of delayed assignments
    ```
    mvarId₁ := mvarId₂ ...;

@@ -310,9 +310,9 @@ structure Iterator where
   s : String
   /-- The current position.
 
-  This position is not necessarily legal for the string, for instance if one keeps calling
-  `Iterator.next` when `Iterator.atEnd` is true. If the position is not a legal one, then the
-  current character is `(default : Char)`, similar to `String.get` on an illegal position. -/
+  This position is not necessarily valid for the string, for instance if one keeps calling
+  `Iterator.next` when `Iterator.atEnd` is true. If the position is not valid, then the
+  current character is `(default : Char)`, similar to `String.get` on an invalid position. -/
   i : Pos
   deriving DecidableEq
 

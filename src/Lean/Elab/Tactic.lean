@@ -32,3 +32,4 @@ import Lean.Elab.Tactic.Change
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Elab.Tactic.Omega
 import Lean.Elab.Tactic.Simpa
+import Lean.Elab.Tactic.NormCast

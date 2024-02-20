@@ -587,6 +587,9 @@ def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSy
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
+def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
+  mkLit charLitKind (Char.quote val) info
+
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
@@ -1004,6 +1007,7 @@ instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨f
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
+instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
@@ -1280,6 +1284,41 @@ structure Config where
   occs : Occurrences := Occurrences.all
 
 end Rewrite
+
+namespace Omega
+
+/-- Configures the behaviour of the `omega` tactic. -/
+structure OmegaConfig where
+  /--
+  Split disjunctions in the context.
+
+  Note that with `splitDisjunctions := false` omega will not be able to solve `x = y` goals
+  as these are usually handled by introducing `¬ x = y` as a hypothesis, then replacing this with
+  `x < y ∨ x > y`.
+
+  On the other hand, `omega` does not currently detect disjunctions which, when split,
+  introduce no new useful information, so the presence of irrelevant disjunctions in the context
+  can significantly increase run time.
+  -/
+  splitDisjunctions : Bool := true
+  /--
+  Whenever `((a - b : Nat) : Int)` is found, register the disjunction
+  `b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0`
+  for later splitting.
+  -/
+  splitNatSub : Bool := true
+  /--
+  Whenever `Int.natAbs a` is found, register the disjunction
+  `0 ≤ a ∧ Int.natAbs a = a ∨ a < 0 ∧ Int.natAbs a = - a` for later splitting.
+  -/
+  splitNatAbs : Bool := true
+  /--
+  Whenever `min a b` or `max a b` is found, rewrite in terms of the definition
+  `if a ≤ b ...`, for later case splitting.
+  -/
+  splitMinMax : Bool := true
+
+end Omega
 
 end Meta
 

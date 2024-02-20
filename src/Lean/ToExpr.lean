@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Expr
 universe u
 
@@ -28,12 +29,18 @@ instance : ToExpr Nat where
   toExpr     := mkNatLit
   toTypeExpr := mkConst ``Nat
 
+instance : ToExpr Int where
+  toTypeExpr := .const ``Int []
+  toExpr i := match i with
+    | .ofNat n => mkApp (.const ``Int.ofNat []) (toExpr n)
+    | .negSucc n => mkApp (.const ``Int.negSucc []) (toExpr n)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool
 
 instance : ToExpr Char where
-  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (toExpr c.toNat)
+  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (mkRawNatLit c.toNat)
   toTypeExpr := mkConst ``Char
 
 instance : ToExpr String where

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter
-// Imports: Init Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter Lean.Parser.Module Lean.ParserCompiler
+// Imports: Lean.PrettyPrinter.Delaborator Lean.PrettyPrinter.Parenthesizer Lean.PrettyPrinter.Formatter Lean.Parser.Module Lean.ParserCompiler
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3099,7 +3099,6 @@ x_6 = l_Lean_ParserCompiler_registerParserCompiler___rarg(x_5, x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin, lean_object*);
@@ -3110,9 +3109,6 @@ LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

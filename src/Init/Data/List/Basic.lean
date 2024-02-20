@@ -604,6 +604,27 @@ def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
 
 /--
+`O(max |xs| |ys|)`.
+Version of `List.zipWith` that continues to the end of both lists,
+passing `none` to one argument once the shorter list has run out.
+-/
+def zipWithAll (f : Option α → Option β → γ) : List α → List β → List γ
+  | [], bs => bs.map fun b => f none (some b)
+  | a :: as, [] => (a :: as).map fun a => f (some a) none
+  | a :: as, b :: bs => f a b :: zipWithAll f as bs
+
+@[simp] theorem zipWithAll_nil_right :
+    zipWithAll f as [] = as.map fun a => f (some a) none := by
+  cases as <;> rfl
+
+@[simp] theorem zipWithAll_nil_left :
+    zipWithAll f [] bs = bs.map fun b => f none (some b) := by
+  rfl
+
+@[simp] theorem zipWithAll_cons_cons :
+    zipWithAll f (a :: as) (b :: bs) = f (some a) (some b) :: zipWithAll f as bs := rfl
+
+/--
 `O(|l|)`. Separates a list of pairs into two lists containing the first components and second components.
 * `unzip [(x₁, y₁), (x₂, y₂), (x₃, y₃)] = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
 -/
@@ -868,6 +889,33 @@ def minimum? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
+/-- Inserts an element into a list without duplication. -/
+@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
+  if l.elem a then l else a :: l
+
+instance decidableBEx (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x)
+  | [] => isFalse nofun
+  | x :: xs =>
+    if h₁ : p x then isTrue ⟨x, .head .., h₁⟩ else
+      match decidableBEx p xs with
+      | isTrue h₂ => isTrue <| let ⟨y, hm, hp⟩ := h₂; ⟨y, .tail _ hm, hp⟩
+      | isFalse h₂ => isFalse fun
+        | ⟨y, .tail _ h, hp⟩ => h₂ ⟨y, h, hp⟩
+        | ⟨_, .head .., hp⟩ => h₁ hp
+
+instance decidableBAll (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (∀ x, x ∈ l → p x)
+  | [] => isTrue nofun
+  | x :: xs =>
+    if h₁ : p x then
+      match decidableBAll p xs with
+      | isTrue h₂ => isTrue fun
+        | y, .tail _ h => h₂ y h
+        | _, .head .. => h₁
+      | isFalse h₂ => isFalse fun H => h₂ fun y hm => H y (.tail _ hm)
+    else isFalse fun H => h₁ <| H x (.head ..)
+
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
   eq_of_beq {as bs} := by
     induction as generalizing bs with
@@ -876,7 +924,7 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
       cases bs with
       | nil => intro h; contradiction
       | cons b bs =>
-        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl]
+        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl, -and_imp]
         intro ⟨h₁, h₂⟩
         exact ⟨h₁, ih h₂⟩
   rfl {as} := by

@@ -4,7 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-import Lean.Data.RBTree
+prelude
+import Init.Data.List.Control
+import Init.Data.Range
+import Init.Data.OfScientific
+import Lean.Data.RBMap
 namespace Lean
 
 -- mantissa * 10^-exponent
@@ -98,7 +102,7 @@ protected def toString : JsonNumber → String
     -- grow exponentially in the value of exponent.
     let exp : Int := 9 + countDigits m - (e : Int)
     let exp := if exp < 0 then exp else 0
-    let e' := (10 : Int) ^ (e - exp.natAbs)
+    let e' := 10 ^ (e - exp.natAbs)
     let left := (m / e').repr
     if m % e' = 0 && exp = 0 then
       s!"{sign}{left}"

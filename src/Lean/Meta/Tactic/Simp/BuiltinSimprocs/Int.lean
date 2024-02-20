@@ -3,6 +3,7 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ToExpr
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
@@ -49,6 +50,12 @@ def toExpr (v : Int) : Expr :=
   let some v₂ ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op v₁ v₂)
 
+@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : Int → Int → Bool) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some n ← fromExpr? e.appFn!.appArg! | return .continue
+  let some m ← fromExpr? e.appArg! | return .continue
+  return .done { expr := Lean.toExpr (op n m) }
+
 /-
 The following code assumes users did not override the `Int` instances for the arithmetic operators.
 If they do, they must disable the following `simprocs`.
@@ -93,5 +100,9 @@ builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.
 builtin_simproc [simp, seval] reduceLE  (( _ : Int) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] reduceGT  (( _ : Int) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc [simp, seval] reduceGE  (( _ : Int) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+builtin_simproc [simp, seval] reduceEq  (( _ : Int) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : Int) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+builtin_simproc [simp, seval] reduceBEq  (( _ : Int) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
+builtin_simproc [simp, seval] reduceBNe  (( _ : Int) != _)  := reduceBoolPred ``bne 4 (. != .)
 
 end Int

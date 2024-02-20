@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.CongrTheorems
-// Imports: Init Lean.Meta.AppBuilder Lean.Class
+// Imports: Lean.Meta.AppBuilder Lean.Class
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2032,9 +2032,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = l_Lean_Expr_appFn_x21(x_1);
-lean_dec(x_1);
 x_17 = l_Lean_Expr_appFn_x21(x_16);
-lean_dec(x_16);
 x_18 = l_Lean_Expr_appArg_x21(x_17);
 lean_dec(x_17);
 x_19 = l_Lean_Meta_mkHEqRefl(x_18, x_2, x_3, x_4, x_5, x_6);
@@ -2045,7 +2043,6 @@ else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l_Lean_Expr_appFn_x21(x_1);
-lean_dec(x_1);
 x_21 = l_Lean_Expr_appArg_x21(x_20);
 lean_dec(x_20);
 x_22 = l_Lean_Meta_mkEqRefl(x_21, x_2, x_3, x_4, x_5, x_6);
@@ -5014,7 +5011,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__2;
-x_3 = lean_unsigned_to_nat(142u);
+x_3 = lean_unsigned_to_nat(143u);
 x_4 = lean_unsigned_to_nat(61u);
 x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5143,6 +5140,7 @@ return x_19;
 else
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+lean_inc(x_13);
 x_20 = l_Lean_Expr_appFn_x21(x_13);
 x_21 = l_Lean_Expr_appArg_x21(x_20);
 lean_dec(x_20);
@@ -7398,7 +7396,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1;
-x_3 = lean_unsigned_to_nat(299u);
+x_3 = lean_unsigned_to_nat(300u);
 x_4 = lean_unsigned_to_nat(34u);
 x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -7720,7 +7718,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4___closed__1;
-x_3 = lean_unsigned_to_nat(294u);
+x_3 = lean_unsigned_to_nat(295u);
 x_4 = lean_unsigned_to_nat(43u);
 x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -7764,7 +7762,6 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = l_Lean_Expr_appFn_x21(x_3);
-lean_dec(x_3);
 x_19 = l_Lean_Expr_appArg_x21(x_18);
 lean_dec(x_18);
 x_20 = l_Lean_Meta_mkEqRefl(x_19, x_4, x_5, x_6, x_7, x_8);
@@ -8153,7 +8150,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__1;
 x_2 = l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___closed__1;
-x_3 = lean_unsigned_to_nat(269u);
+x_3 = lean_unsigned_to_nat(270u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCast_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9489,7 +9486,6 @@ x_9 = l_Lean_Meta_mkCongrSimp_x3f(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Class(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -9497,9 +9493,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_CongrTheorems(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Parenthesizer
-// Imports: Init Lean.Parser.Extension Lean.Parser.StrInterpolation Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Basic
+// Imports: Lean.Parser.Extension Lean.Parser.StrInterpolation Lean.ParserCompiler.Attribute Lean.PrettyPrinter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10974,7 +10974,6 @@ return x_20;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Extension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_StrInterpolation(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ParserCompiler_Attribute(uint8_t builtin, lean_object*);
@@ -10984,9 +10983,6 @@ LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Extension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

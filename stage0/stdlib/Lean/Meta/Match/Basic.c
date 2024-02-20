@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Match.Basic
-// Imports: Init Lean.Meta.Check Lean.Meta.CollectFVars Lean.Meta.Match.MatcherInfo Lean.Meta.Match.CaseArraySizes
+// Imports: Lean.Meta.Check Lean.Meta.CollectFVars Lean.Meta.Match.MatcherInfo Lean.Meta.Match.CaseArraySizes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -7257,7 +7257,6 @@ x_82 = lean_nat_sub(x_80, x_81);
 x_83 = lean_unsigned_to_nat(1u);
 x_84 = lean_nat_sub(x_82, x_83);
 lean_dec(x_82);
-lean_inc(x_78);
 x_85 = l_Lean_Expr_getRevArg_x21(x_78, x_84);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -7276,7 +7275,6 @@ x_89 = lean_ctor_get(x_86, 1);
 x_90 = lean_nat_sub(x_80, x_83);
 x_91 = lean_nat_sub(x_90, x_83);
 lean_dec(x_90);
-lean_inc(x_78);
 x_92 = l_Lean_Expr_getRevArg_x21(x_78, x_91);
 if (lean_obj_tag(x_92) == 1)
 {
@@ -7290,6 +7288,7 @@ lean_dec(x_80);
 x_96 = lean_nat_sub(x_95, x_83);
 lean_dec(x_95);
 x_97 = l_Lean_Expr_getRevArg_x21(x_78, x_96);
+lean_dec(x_78);
 if (lean_obj_tag(x_97) == 1)
 {
 lean_object* x_98; lean_object* x_99; 
@@ -7351,7 +7350,6 @@ lean_dec(x_86);
 x_106 = lean_nat_sub(x_80, x_83);
 x_107 = lean_nat_sub(x_106, x_83);
 lean_dec(x_106);
-lean_inc(x_78);
 x_108 = l_Lean_Expr_getRevArg_x21(x_78, x_107);
 if (lean_obj_tag(x_108) == 1)
 {
@@ -7365,6 +7363,7 @@ lean_dec(x_80);
 x_112 = lean_nat_sub(x_111, x_83);
 lean_dec(x_111);
 x_113 = l_Lean_Expr_getRevArg_x21(x_78, x_112);
+lean_dec(x_78);
 if (lean_obj_tag(x_113) == 1)
 {
 lean_object* x_114; lean_object* x_115; lean_object* x_116; 
@@ -7570,7 +7569,6 @@ lean_dec(x_2);
 return x_10;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_CollectFVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatcherInfo(uint8_t builtin, lean_object*);
@@ -7580,9 +7578,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_Basic(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

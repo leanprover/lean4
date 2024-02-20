@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Main
-// Imports: Init Lean.Meta.PPGoal
+// Imports: Lean.Meta.PPGoal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -781,7 +781,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f___closed__1;
 x_2 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(44u);
+x_3 = lean_unsigned_to_nat(45u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9617,7 +9617,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_PartialContextInfo_mergeIntoOuter_x3f___closed__1;
 x_2 = l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__4;
-x_3 = lean_unsigned_to_nat(388u);
+x_3 = lean_unsigned_to_nat(389u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10201,16 +10201,12 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Elab_getInfoTrees___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Main(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_PPGoal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

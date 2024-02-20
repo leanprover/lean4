@@ -3,7 +3,11 @@
 {"items":
  [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
   {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"}],
+  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "Std.BitVec.getLsb_ofNat",
+   "kind": 3,
+   "detail":
+   "∀ (n x i : Nat), Std.BitVec.getLsb (x#n) i = (decide (i < n) && Nat.testBit x i)"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 13, "character": 14}}

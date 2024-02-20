@@ -40,18 +40,32 @@ jobs:
       run: |
           git config --global user.name "Lean stage0 autoupdater"
           git config --global user.email "<>"
-    - if: env.should_update_stage0 == 'yes'
-      uses: DeterminateSystems/nix-installer-action@main
     # Would be nice, but does not work yet:
     # https://github.com/DeterminateSystems/magic-nix-cache/issues/39
     # This action does not run that often and building runs in a few minutes, so ok for now
     #- if: env.should_update_stage0 == 'yes'
     #  uses: DeterminateSystems/magic-nix-cache-action@v2
     - if: env.should_update_stage0 == 'yes'
-      name: Install Cachix
-      uses: cachix/cachix-action@v12
+      name: Restore Build Cache
+      uses: actions/cache/restore@v3
       with:
-        name: lean4
+        path: nix-store-cache
+        key: Nix Linux-nix-store-cache-${{ github.sha }}
+        # fall back to (latest) previous cache
+        restore-keys: |
+          Nix Linux-nix-store-cache
+    - if: env.should_update_stage0 == 'yes'
+      name: Further Set Up Nix Cache
+      shell: bash -euxo pipefail {0}
+      run: |
+        # Nix seems to mutate the cache, so make a copy
+        cp -r nix-store-cache nix-store-cache-copy || true
+    - if: env.should_update_stage0 == 'yes'
+      name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
+      with:
+        extra-conf: |
+          substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org  
     - if: env.should_update_stage0 == 'yes'
       run: nix run .#update-stage0-commit
     - if: env.should_update_stage0 == 'yes'

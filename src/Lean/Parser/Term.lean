@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 -/
+prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
 
@@ -569,6 +570,12 @@ def haveDecl     := leading_parser (withAnonymousAntiquot := false)
   haveIdDecl <|> (ppSpace >> letPatDecl) <|> haveEqnsDecl
 @[builtin_term_parser] def «have» := leading_parser:leadPrec
   withPosition ("have" >> haveDecl) >> optSemicolon termParser
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+@[builtin_term_parser] def «haveI» := leading_parser
+  withPosition ("haveI " >> haveDecl) >> optSemicolon termParser
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+@[builtin_term_parser] def «letI» := leading_parser
+  withPosition ("letI " >> haveDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "

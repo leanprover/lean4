@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_List_foldl___at_Std_Format_join___spec__1(lean_object
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_isNil(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_cast___at___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___spec__1(lean_object*);
 static lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___rarg___lambda__9___closed__1;
 extern lean_object* l_instInhabitedPUnit;
 static lean_object* l_Std_Format_paren___closed__4;
@@ -616,6 +617,14 @@ x_4 = l___private_Init_Data_Format_Basic_0__Std_Format_merge(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Nat_cast___at___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___closed__1() {

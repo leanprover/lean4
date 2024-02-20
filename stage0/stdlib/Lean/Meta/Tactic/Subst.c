@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Subst
-// Imports: Init Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Meta.Tactic.Util Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Clear Lean.Meta.Tactic.FVarSubst
+// Imports: Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Meta.Tactic.Util Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Clear Lean.Meta.Tactic.FVarSubst
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2058,7 +2058,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_substCore___lambda__14___closed__5;
-x_3 = lean_unsigned_to_nat(64u);
+x_3 = lean_unsigned_to_nat(65u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4986,8 +4986,11 @@ else
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_free_object(x_13);
+lean_inc(x_15);
 x_21 = l_Lean_Expr_appFn_x21(x_15);
+lean_inc(x_21);
 x_22 = l_Lean_Expr_appFn_x21(x_21);
+lean_inc(x_22);
 x_23 = l_Lean_Expr_appFn_x21(x_22);
 x_24 = l_Lean_Expr_appArg_x21(x_23);
 lean_dec(x_23);
@@ -5308,8 +5311,11 @@ return x_83;
 else
 {
 lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
+lean_inc(x_77);
 x_84 = l_Lean_Expr_appFn_x21(x_77);
+lean_inc(x_84);
 x_85 = l_Lean_Expr_appFn_x21(x_84);
+lean_inc(x_85);
 x_86 = l_Lean_Expr_appFn_x21(x_85);
 x_87 = l_Lean_Expr_appArg_x21(x_86);
 lean_dec(x_86);
@@ -5732,7 +5738,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_subst_substEq___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(157u);
+x_3 = lean_unsigned_to_nat(158u);
 x_4 = lean_unsigned_to_nat(55u);
 x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12069,7 +12075,6 @@ x_5 = l_Lean_registerTraceClass(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Util(uint8_t builtin, lean_object*);
@@ -12083,9 +12088,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -484,6 +484,9 @@ instance : Coe Syntax (TSyntax `rawStx) where
 /-- `with_annotate_term stx e` annotates the lexical range of `stx : Syntax` with term info for `e`. -/
 scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace term : term
 
+/-- Normalize casts in an expression using the same method as the `norm_cast` tactic. -/
+syntax (name := modCast) "mod_cast " term : term
+
 /--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
@@ -528,5 +531,4 @@ except that it doesn't print an empty diagnostic.
 
 (This is effectively a synonym for `run_elab`.)
 -/
-macro (name := runMeta) "run_meta " elems:doSeq : command =>
-  `(command| run_elab (show MetaM Unit from do $elems))
+syntax (name := runMeta) "run_meta " doSeq : command

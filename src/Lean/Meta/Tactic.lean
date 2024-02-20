@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
@@ -31,3 +32,4 @@ import Lean.Meta.Tactic.AC
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Congr
 import Lean.Meta.Tactic.Repeat
+import Lean.Meta.Tactic.NormCast

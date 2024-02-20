@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
-
+prelude
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.InfoUtils
 
@@ -94,7 +94,7 @@ builtin_initialize
       let env ← getEnv
       if builtin then
         let h := mkConst decl
-        declareBuiltin decl <| mkApp (mkConst ``addBuiltinCodeActionProvider) h
+        declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinCodeActionProvider) (toExpr decl) h
       else
         setEnv <| codeActionProviderExt.addEntry env decl
   }

@@ -3,6 +3,7 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ToExpr
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
@@ -42,6 +43,12 @@ def Value.toExpr (v : Value) : Expr :=
   let some v₂ ← fromExpr? e.appArg! | return .continue
   evalPropStep e (op v₁.value v₂.value)
 
+@[inline] def reduceBoolPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName arity do return .continue
+  let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
+  let some v₂ ← fromExpr? e.appArg! | return .continue
+  return .done { expr := Lean.toExpr (op v₁.value v₂.value) }
+
 /-
 The following code assumes users did not override the `Fin n` instances for the arithmetic operators.
 If they do, they must disable the following `simprocs`.
@@ -57,6 +64,10 @@ builtin_simproc [simp, seval] reduceLT  (( _ : Fin _) < _)  := reduceBinPred ``L
 builtin_simproc [simp, seval] reduceLE  (( _ : Fin _) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] reduceGT  (( _ : Fin _) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc [simp, seval] reduceGE  (( _ : Fin _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+builtin_simproc [simp, seval] reduceEq  (( _ : Fin _) = _)  := reduceBinPred ``Eq 3 (. = .)
+builtin_simproc [simp, seval] reduceNe  (( _ : Fin _) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
+builtin_simproc [simp, seval] reduceBEq  (( _ : Fin _) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
+builtin_simproc [simp, seval] reduceBNe  (( _ : Fin _) != _)  := reduceBoolPred ``bne 4 (. != .)
 
 /-- Return `.done` for Fin values. We don't want to unfold in the symbolic evaluator. -/
 builtin_simproc [seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do

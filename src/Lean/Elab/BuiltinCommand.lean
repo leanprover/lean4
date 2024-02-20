@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.CollectLevelParams
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
@@ -704,22 +705,37 @@ unsafe def elabEvalUnsafe : CommandElab
 @[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
 opaque elabEval : CommandElab
 
+private def checkImportsForRunCmds : CommandElabM Unit := do
+  unless (← getEnv).contains ``CommandElabM do
+    throwError "to use this command, include `import Lean.Elab.Command`"
+
 @[builtin_command_elab runCmd]
 def elabRunCmd : CommandElab
   | `(run_cmd $elems:doSeq) => do
-    ← liftTermElabM <| Term.withDeclName `_run_cmd <|
+    checkImportsForRunCmds
+    (← liftTermElabM <| Term.withDeclName `_run_cmd <|
       unsafe Term.evalTerm (CommandElabM Unit)
         (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
-        (← `(discard do $elems))
+        (← `(discard do $elems)))
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab runElab]
 def elabRunElab : CommandElab
   | `(run_elab $elems:doSeq) => do
-    ← liftTermElabM <| Term.withDeclName `_run_elab <|
+    checkImportsForRunCmds
+    (← liftTermElabM <| Term.withDeclName `_run_elab <|
       unsafe Term.evalTerm (CommandElabM Unit)
         (mkApp (mkConst ``CommandElabM) (mkConst ``Unit))
-        (← `(Command.liftTermElabM <| discard do $elems))
+        (← `(Command.liftTermElabM <| discard do $elems)))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab runMeta]
+def elabRunMeta : CommandElab := fun stx =>
+  match stx with
+  | `(run_meta $elems:doSeq) => do
+     checkImportsForRunCmds
+     let stxNew ← `(command| run_elab (show Lean.Meta.MetaM Unit from do $elems))
+     withMacroExpansion stx stxNew do elabCommand stxNew
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do

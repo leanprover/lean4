@@ -55,10 +55,6 @@ end
 #eval lex (m := Except LexErr) "1+23".iter
 #eval lex (m := Except LexErr) "1+23()".iter
 
-def Option.toList : Option α -> List α
-  | none   => []
-  | some x => [x]
-
 namespace NonMutual
 
 def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Iterator) : m (List Token) := do

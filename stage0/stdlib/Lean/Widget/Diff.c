@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.Diff
-// Imports: Init Lean.Meta.PPGoal Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal Lean.Data.Lsp.Extra Lean.Elab.InfoTree
+// Imports: Lean.Meta.PPGoal Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal Lean.Data.Lsp.Extra Lean.Elab.InfoTree
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9276,7 +9276,6 @@ x_10 = l_Lean_Widget_diffInteractiveGoals(x_9, x_2, x_3, x_4, x_5, x_6, x_7, x_8
 return x_10;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_PPGoal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_InteractiveCode(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_InteractiveGoal(uint8_t builtin, lean_object*);
@@ -9287,9 +9286,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget_Diff(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_PPGoal(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

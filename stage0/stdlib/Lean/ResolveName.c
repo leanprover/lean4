@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ResolveName
-// Imports: Init Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception
+// Imports: Lean.Data.OpenDecl Lean.Hygiene Lean.Modifiers Lean.Exception
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3337,7 +3337,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__2;
-x_3 = lean_unsigned_to_nat(145u);
+x_3 = lean_unsigned_to_nat(146u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6085,7 +6085,6 @@ x_7 = l_Lean_unresolveNameGlobal___rarg(x_1, x_2, x_3, x_4, x_6);
 return x_7;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Hygiene(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Modifiers(uint8_t builtin, lean_object*);
@@ -6095,9 +6094,6 @@ LEAN_EXPORT lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

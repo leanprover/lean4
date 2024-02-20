@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner
 -/
+prelude
 import Lean.Elab.Deriving.Basic
 
 namespace Lean.Elab

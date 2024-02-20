@@ -22,7 +22,7 @@ namespace Int
 
 /-! ### `/`  -/
 
-@[simp] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp
@@ -102,7 +102,7 @@ theorem ofNat_mod (m n : Nat) : (↑(m % n) : Int) = mod m n := rfl
 
 theorem ofNat_mod_ofNat (m n : Nat) : (m % n : Int) = ↑(m % n) := rfl
 
-@[simp] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
+@[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
 
 @[simp] theorem zero_emod (b : Int) : 0 % b = 0 := by simp [mod_def', emod]
 
@@ -260,7 +260,7 @@ protected theorem dvd_sub : ∀ {a b c : Int}, a ∣ b → a ∣ c → a ∣ b -
   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => ⟨d - e, by rw [Int.mul_sub]⟩
 
 
-theorem ofNat_dvd {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n := by
+@[norm_cast] theorem ofNat_dvd {m n : Nat} : (↑m : Int) ∣ ↑n ↔ m ∣ n := by
   refine ⟨fun ⟨a, ae⟩ => ?_, fun ⟨k, e⟩ => ⟨k, by rw [e, Int.ofNat_mul]⟩⟩
   match Int.le_total a 0 with
   | .inl h =>

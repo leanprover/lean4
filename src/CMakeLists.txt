@@ -299,22 +299,23 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
     string(APPEND LEANSHARED_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
   endif()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
 else()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
 endif()
-string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake")
+
+string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
-
-string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
-string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
 if (LLVM)
   string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
@@ -525,7 +526,7 @@ endif()
 string(APPEND LEANSHARED_LINKER_FLAGS " -lInit_shared")
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND LEAN_EXE_LINKER_FLAGS " ${LEANC_STATIC_LINKER_FLAGS}")
+  string(APPEND LEAN_EXE_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS}")
 endif()
 
 # Build the compiler using the bootstrapped C sources for stage0, and use

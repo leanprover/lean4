@@ -524,6 +524,10 @@ else()
 endif()
 string(APPEND LEANSHARED_LINKER_FLAGS " -lInit_shared")
 
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  string(APPEND LEAN_EXE_LINKER_FLAGS " ${LEANC_STATIC_LINKER_FLAGS}")
+endif()
+
 # Build the compiler using the bootstrapped C sources for stage0, and use
 # the LLVM build for stage1 and further.
 if (LLVM AND ${STAGE} GREATER 0)

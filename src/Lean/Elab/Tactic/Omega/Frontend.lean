@@ -42,6 +42,17 @@ where
     mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
         (.app (.const ``instOfNat []) r)
 
+
+/-- Match on the two ways of spelling successor that are defeq : `n+1`, `n.succ`. -/
+def succ? (e : Expr) : Option Expr :=
+  match e.getAppFnArgs with
+  | (``Nat.succ, #[n]) => some n
+  | (``HAdd.hAdd, #[_, _, _, _, a, b]) => do
+     if b == toExpr (1 : Nat)
+     then some a
+     else none
+  | _ => none
+
 /--
 A partially processed `omega` context.
 
@@ -220,6 +231,16 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       rewrite e (mkApp2 (.const ``Int.max_def []) a b)
     else
       mkAtomLinearCombo e
+  | (``HPow.hPow, #[_, _, _, _, b, exp]) =>
+    trace[omega] "found hPow | '{b}' '{exp}'"
+    match succ? exp with /- match for (e+1) and (e.succ) -/
+    | none => mkAtomLinearCombo e
+    | some exppred =>
+        trace[omega] "found hPow | '{b}' e+1='{exppred}'+1"
+        trace[omega] "base = groundNat:{groundNat? b} | groundInt:{groundInt? b}"
+        match groundInt? b with
+        | some _bint => rewrite e (mkApp2 (.const ``Int.pow_succ []) b exppred)
+        | none => mkAtomLinearCombo e
   | (``Nat.cast, #[.const ``Int [], i, n]) =>
       handleNatCast e i n
   | (``Prod.fst, #[α, β, p]) => match p with
@@ -261,8 +282,10 @@ where
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
-    | (``HPow.hPow, #[_, _, _, _, a, b]) => match groundNat? a, groundNat? b with
-      | some _, some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
+    | (``HPow.hPow, #[_, _, _, _, a, b]) =>
+      trace[omega] "found hPow groundNat? groundNat? '{a}={groundNat? a}' '{b}={groundNat? b}'"
+      match groundNat? a, groundNat? b with
+      | some _, _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
       | _, _ => mkAtomLinearCombo e
     | (``Prod.fst, #[_, β, p]) => match p with
       | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>

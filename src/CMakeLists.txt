@@ -551,17 +551,23 @@ endif()
 # We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
 # (e.g. `libLean.a`) are now newer than the target file
 
-add_custom_target(Init_shared ALL
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS make_stdlib leanrt_initial-exec
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init_shared
-  VERBATIM)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  # dummy targets, see `MAIN_MODULE` discussion above
+  add_custom_target(Init_shared)
+  add_custom_target(leanshared)
+else()
+  add_custom_target(Init_shared ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS make_stdlib leanrt_initial-exec
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init_shared
+    VERBATIM)
 
-add_custom_target(leanshared ALL
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS make_stdlib Init_shared leancpp
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
-  VERBATIM)
+  add_custom_target(leanshared ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS make_stdlib Init_shared leancpp
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
+    VERBATIM)
+endif()
 
 if(${STAGE} GREATER 0)
   if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)

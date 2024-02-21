@@ -33,7 +33,19 @@ structure BitVec (w : Nat) where
   /-- Interpret a bitvector as a number less than `2^w`.
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
-  deriving DecidableEq
+
+-- We manually derive the `DecidableEq` instances for `BitVec` because
+-- we want to have builtin support for bit-vector literals, and we
+-- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
+def BitVec.decEq (a b : BitVec n) : Decidable (a = b) :=
+  match a, b with
+  | ⟨n⟩, ⟨m⟩ =>
+    if h : n = m then
+      isTrue (h ▸ rfl)
+    else
+      isFalse (fun h' => BitVec.noConfusion h' (fun h' => absurd h' h))
+
+instance : DecidableEq (BitVec n) := BitVec.decEq
 
 namespace BitVec
 

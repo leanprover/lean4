@@ -488,19 +488,18 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     ```
     We can improve this failure in the future by applying default instances before reporting a type mismatch.
     -/
-    let lhs ← withRef stx[2] <| toTree stx[2]
-    let rhs ← withRef stx[3] <| toTree stx[3]
+    let lhsStx := stx[2]
+    let rhsStx := stx[3]
+    let lhs ← withRef lhsStx <| toTree lhsStx
+    let rhs ← withRef rhsStx <| toTree rhsStx
     let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← toExprCore lhs
-      let rhs ← toExprCore rhs
-      let lhs ← toBoolIfNecessary lhs
-      let rhs ← toBoolIfNecessary rhs
+      let lhs ← withRef lhsStx do toExprCore lhs >>= toBoolIfNecessary
       let lhsType ← inferType lhs
-      let rhs ← ensureHasType lhsType rhs
+      let rhs ← withRef rhsStx do toExprCore rhs >>= toBoolIfNecessary >>= ensureHasType lhsType
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
     else
       let mut maxType := r.max?.get!

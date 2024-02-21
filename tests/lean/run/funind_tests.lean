@@ -1,5 +1,3 @@
-import Lean.Meta.Tactic.FunInd
-
 namespace Unary
 
 def ackermann : (Nat × Nat) → Nat

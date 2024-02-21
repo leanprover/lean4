@@ -1,5 +1,3 @@
-import Lean.Meta.Tactic.FunInd
-
 set_option autoImplicit false
 
 def ackermann : Nat → Nat → Nat

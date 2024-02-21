@@ -846,15 +846,9 @@ def deriveInduction (name : Name) : MetaM Unit := do
   else
     _ ← deriveUnaryInduction name
 
-/--
-`derive_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
-will define a theorem `foo.induct` which provides an induction principle that follows the branching
-and recursion pattern of `foo`.
-
-If `foo` is part of a mutual recursion group, this defines such `.induct`-theorems for all functions
-in the group.
--/
-elab "derive_induction " ident:ident : command => Command.runTermElabM fun _xs => do
+@[builtin_command_elab Parser.Command.deriveInduction]
+def elabDeriveInduction : Command.CommandElab := fun stx => Command.runTermElabM fun _xs => do
+  let ident := stx[1]
   let name ← resolveGlobalConstNoOverloadWithInfo ident
   deriveInduction name
 

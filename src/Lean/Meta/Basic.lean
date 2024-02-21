@@ -1348,6 +1348,16 @@ private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : 
     modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
+Removes `fvarId` from the local context, and replaces occurrences of it with `e`.
+It is the responsibility of the caller to ensure that `e` is well-typed in the context
+of any occurrence of `fvarId`.
+-/
+def withReplaceFVarId {α} (fvarId : FVarId) (e : Expr) : MetaM α → MetaM α :=
+  withReader fun ctx => { ctx with
+    lctx := ctx.lctx.replaceFVarId fvarId e
+    localInstances := ctx.localInstances.erase fvarId }
+
+/--
   `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
   where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
   If `allowLevelAssignments` is set to true, then the level metavariable depth

@@ -73,13 +73,13 @@ If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
 
 Limitations:
 - The target is not allowed to contain local variables or metavariables.
-  If there are local variables, you can try using the `revert` tactic with these local variables first
-  to move them into the target, which may allowed `decide` to succeed.
+  If there are local variables, you can try first using the `revert` tactic with these local variables
+  to move them into the target, which may allow `decide` to succeed.
 - Because this uses kernel reduction to evaluate the term, `Decidable` instances defined
   by well-founded recursion might not work, because evaluating them requires reducing proofs.
   The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.
-  These can appear for instances defined using the `rw` and `simp` for example --
-  rather than rewriting the proposition, make sure to use definitions such as `decidable_of_iff` instead.
+  These can appear for instances defined using the `rw` and `simp` tactics for example --
+  make sure to use definitions such as `decidable_of_iff` instead.
 
 ## Examples
 

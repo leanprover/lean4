@@ -12,10 +12,11 @@ namespace Lean.Elab.Tactic
 @[builtin_tactic Lean.Parser.Tactic.symm]
 def evalSymm : Tactic := fun stx =>
   match stx with
-  | `(tactic| symm $(loc)) => do
+  | `(tactic| symm $(loc?)?) => do
     let atHyp h := liftMetaTactic1 fun g => g.applySymmAt h
     let atTarget := liftMetaTactic1 fun g => g.applySymm
-    withLocation (expandOptLocation loc) atHyp atTarget fun _ => throwError "symm made no progress"
+    let loc := if let some loc := loc? then expandLocation loc else Location.targets #[] true
+    withLocation loc atHyp atTarget fun _ => throwError "symm made no progress"
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.symmSaturate]

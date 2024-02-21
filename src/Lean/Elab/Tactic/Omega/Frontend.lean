@@ -24,6 +24,24 @@ Allow elaboration of `OmegaConfig` arguments to tactics.
 declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
 
 
+
+
+/--
+The current `ToExpr` instance for `Int` is bad,
+so we roll our own here.
+-/
+def mkInt (i : Int) : Expr :=
+  if 0 ≤ i then
+    mkNat i.toNat
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (mkNat (-i).toNat)
+      (.const ``Int.instNegInt [])
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
+        (.app (.const ``instOfNat []) r)
+
 /--
 A partially processed `omega` context.
 
@@ -114,7 +132,7 @@ We also transform the expression as we descend into it:
 -/
 partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
   trace[omega] "processing {e}"
-  match e.int? with
+  match groundInt? e with
   | some i =>
     let lc := {const := i}
     return ⟨lc, mkEvalRflProof e lc, ∅⟩
@@ -177,17 +195,20 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | some r => pure r
     | none => mkAtomLinearCombo e
   | (``HMod.hMod, #[_, _, _, _, n, k]) =>
-    match natCast? k with
-    | some _ => rewrite e (mkApp2 (.const ``Int.emod_def []) n k)
+    match groundNat? k with
+    | some k' => do
+      let k' := mkInt k'
+      rewrite (← mkAppM ``HMod.hMod #[n, k']) (mkApp2 (.const ``Int.emod_def []) n k')
     | none => mkAtomLinearCombo e
   | (``HDiv.hDiv, #[_, _, _, _, x, z]) =>
-    match intCast? z with
+    match groundInt? z with
     | some 0 => rewrite e (mkApp (.const ``Int.ediv_zero []) x)
-    | some i =>
+    | some i => do
+      let e' ← mkAppM ``HDiv.hDiv #[x, mkInt i]
       if i < 0 then
-        rewrite e (mkApp2 (.const ``Int.ediv_neg []) x (toExpr (-i)))
+        rewrite e' (mkApp2 (.const ``Int.ediv_neg []) x (mkInt (-i)))
       else
-        mkAtomLinearCombo e
+        mkAtomLinearCombo e'
     | _ => mkAtomLinearCombo e
   | (``Min.min, #[_, _, a, b]) =>
     if (← cfg).splitMinMax then
@@ -216,6 +237,9 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
+    | (``HPow.hPow, #[_, _, _, _, a, b]) => match groundNat? a, groundNat? b with
+      | some _, some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
+      | _, _ => mkAtomLinearCombo e
     | (``Prod.fst, #[_, β, p]) => match p with
       | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>
         rewrite e (mkApp3 (.const ``Int.ofNat_fst_mk [v]) β x y)
@@ -226,6 +250,10 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       | _ => mkAtomLinearCombo e
     | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
     | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
+      rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
+    | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>
+      rewrite e (mkApp2 (.const ``Int.ofNat_shiftRight_eq_div_pow []) a b)
     | (``Int.natAbs, #[n]) =>
       if (← cfg).splitNatAbs then
         rewrite e (mkApp (.const ``Int.ofNat_natAbs []) n)

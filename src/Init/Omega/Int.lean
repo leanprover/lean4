@@ -5,6 +5,8 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.Data.Int.Order
+import Init.Data.Int.DivModLemmas
+import Init.Data.Nat.Lemmas
 
 /-!
 # Lemmas about `Nat` and `Int` needed internally by `omega`.
@@ -42,6 +44,12 @@ theorem ofNat_lt_of_lt {x y : Nat} (h : x < y) : (x : Int) < (y : Int) :=
 
 theorem ofNat_le_of_le {x y : Nat} (h : x ≤ y) : (x : Int) ≤ (y : Int) :=
   Int.ofNat_le.mpr h
+
+theorem ofNat_shiftLeft_eq {x y : Nat} : (x <<< y : Int) = (x : Int) * (2 ^ y : Nat) := by
+  simp [Nat.shiftLeft_eq]
+
+theorem ofNat_shiftRight_eq_div_pow {x y : Nat} : (x >>> y : Int) = (x : Int) / (2 ^ y : Nat) := by
+  simp [Nat.shiftRight_eq_div_pow]
 
 -- FIXME these are insane:
 theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h

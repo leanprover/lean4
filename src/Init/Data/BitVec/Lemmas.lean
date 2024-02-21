@@ -123,7 +123,6 @@ private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) :
 
 /-! ### msb -/
 
-@[simp]
 theorem msb_eq_getLsb_last (x : BitVec w) :
     x.msb = x.getLsb (w - 1) := by
   simp [BitVec.msb, getMsb, getLsb]
@@ -131,7 +130,6 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   · simp [BitVec.eq_nil x]
   · simp
 
-@[simp]
 theorem getLsb_last (x : BitVec (Nat.succ w)) :
     x.getLsb w = decide (2 ^ w ≤ x.toNat) := by
   simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
@@ -144,8 +142,9 @@ theorem getLsb_last (x : BitVec (Nat.succ w)) :
     · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
       omega
 
+@[simp]
 theorem msb_eq_decide (x : BitVec (Nat.succ w)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
-  simp
+  simp [msb_eq_getLsb_last, getLsb_last]
 
 /-! ### cast -/
 

@@ -503,8 +503,10 @@ Decides which variable to run Fourier-Motzkin elimination on, and returns the as
 We prefer eliminations which introduce no new inequalities, or otherwise exact eliminations,
 and break ties by the number of new inequalities introduced.
 -/
-def fourierMotzkinSelect (data : Array FourierMotzkinData) : FourierMotzkinData := Id.run do
+def fourierMotzkinSelect (data : Array FourierMotzkinData) : MetaM FourierMotzkinData := do
   let data := data.filter fun d => ¬ d.isEmpty
+  trace[omega] "Selecting variable to eliminate from (idx, size, exact) triples:\n\
+    {data.map fun d => (d.var, d.size, d.exact)}"
   let mut bestIdx := 0
   let mut bestSize := data[0]!.size
   let mut bestExact := data[0]!.exact
@@ -512,20 +514,22 @@ def fourierMotzkinSelect (data : Array FourierMotzkinData) : FourierMotzkinData 
   for i in [1:data.size] do
     let exact := data[i]!.exact
     let size := data[i]!.size
-    if size = 0 || !bestExact && exact || size < bestSize then
+    if size = 0 || !bestExact && exact || (bestExact == exact) && size < bestSize then
       if size = 0 then return data[i]!
       bestIdx := i
       bestExact := exact
       bestSize := size
+  trace[omega] "Selected variable {bestIdx}."
   return data[bestIdx]!
 
 /--
 Run Fourier-Motzkin elimination on one variable.
 -/
-def fourierMotzkin (p : Problem) : Problem := Id.run do
+-- This is only in MetaM to enable tracing.
+def fourierMotzkin (p : Problem) : MetaM Problem := do
   let data := p.fourierMotzkinData
   -- Now perform the elimination.
-  let ⟨_, irrelevant, lower, upper, _, _⟩ := fourierMotzkinSelect data
+  let ⟨_, irrelevant, lower, upper, _, _⟩ ← fourierMotzkinSelect data
   let mut r : Problem := { assumptions := p.assumptions, eliminations := p.eliminations }
   for f in irrelevant do
     r := r.insertConstraint f
@@ -554,7 +558,7 @@ partial def elimination (p : Problem) : OmegaM Problem :=
       return p
     else do
       trace[omega] "Running Fourier-Motzkin elimination on:\n{p}"
-      runOmega p.fourierMotzkin
+      runOmega (← p.fourierMotzkin)
   else
     return p
 

@@ -380,3 +380,8 @@ example (i j : Nat) (p : i ≥ j) : True := by
 example (i : Fin 7) : (i : Nat) < 8 := by omega
 
 example (x y z i : Nat) (hz : z ≤ 1) : x % 2 ^ i + y % 2 ^ i + z < 2 * 2^ i := by omega
+
+open Std in
+example (x y : BitVec 8) (hx : x < 16) (hy : y < 16) : x + y < 31 := by
+  simp [BitVec.lt_def] at *
+  omega

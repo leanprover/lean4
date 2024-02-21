@@ -497,9 +497,12 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← withRef lhsStx do toExprCore lhs >>= toBoolIfNecessary
+      let lhs ← withRef lhsStx <| toExprCore lhs
+      let rhs ← withRef rhsStx <| toExprCore rhs
+      let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
+      let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
-      let rhs ← withRef rhsStx do toExprCore rhs >>= toBoolIfNecessary >>= ensureHasType lhsType
+      let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
     else
       let mut maxType := r.max?.get!

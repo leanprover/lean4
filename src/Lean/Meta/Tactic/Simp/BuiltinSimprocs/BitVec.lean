@@ -225,6 +225,15 @@ builtin_simproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   let lit : Literal := { n, value := BitVec.ofInt n i }
   return .done { expr := lit.toExpr }
 
+/-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
+builtin_simproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
+  unless e.isAppOfArity ``BitVec.ofNat 2 do return .continue
+  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let some v ← Nat.fromExpr? e.appArg! | return .continue
+  let bv := BitVec.ofNat n v
+  if bv.toNat == v then return .continue -- already normalized
+  return .done { expr := { n, value := BitVec.ofNat n v : Literal }.toExpr }
+
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)
 /-- Simplification procedure for `≤` on `BitVec`s. -/

@@ -69,9 +69,14 @@ builtin_simproc [simp, seval] reduceNe  (( _ : Fin _) ≠ _)  := reduceBinPred `
 builtin_simproc [simp, seval] reduceBEq  (( _ : Fin _) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_simproc [simp, seval] reduceBNe  (( _ : Fin _) != _)  := reduceBoolPred ``bne 4 (. != .)
 
-/-- Return `.done` for Fin values. We don't want to unfold in the symbolic evaluator. -/
-builtin_simproc [seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
-  return .done { expr := e }
+/-- Simplification procedure for ensuring `Fin` literals are normalized. -/
+builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
+  let some v ← fromExpr? e | return .continue
+  let v' ← Nat.fromExpr? e.appFn!.appArg!
+  if v.value == v' then
+    -- Design decision: should we return `.continue` instead of `.done` when simplifying.
+    -- In the symbolic evaluator, we must return `.done`, otherwise it will unfold the `OfNat.ofNat`
+    return .done { expr := e }
+  return .done { expr := v.toExpr }
 
 end Fin

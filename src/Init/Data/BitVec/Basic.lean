@@ -23,8 +23,10 @@ of SMT-LIBv2.
 -/
 
 /--
-A bitvector of the specified width. This is represented as the underlying `Nat` number
-in both the runtime and the kernel, inheriting all the special support for `Nat`.
+A bitvector of the specified width.
+
+This is represented as the underlying `Nat` number in both the runtime
+and the kernel, inheriting all the special support for `Nat`.
 -/
 structure BitVec (w : Nat) where
   /-- Construct a `BitVec w` from a number less than `2^w`.

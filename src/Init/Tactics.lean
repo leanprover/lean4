@@ -1167,7 +1167,7 @@ syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
   It replaces the target with `u ~ t`.
 * `symm at h` will rewrite a hypothesis `h : t ~ u` to `h : u ~ t`.
 -/
-syntax (name := symm) "symm" (Parser.Tactic.location)? : tactic
+syntax (name := symm) "symm" (location)? : tactic
 
 /-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
 add a hypothesis `h_symm : b ~ a`. -/

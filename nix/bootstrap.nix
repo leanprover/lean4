@@ -65,12 +65,7 @@ rec {
     installPhase = ''
       mkdir -p $out/bin $out/lib/lean
       mv bin/lean $out/bin/
-      mv lib/lean/libleanshared.* $out/lib/lean
-   '' + lib.optionalString stdenv.isDarwin ''
-      for lib in $(otool -L $out/bin/lean | tail -n +2 | cut -d' ' -f1); do
-        if [[ "$lib" == *lean* ]]; then install_name_tool -change "$lib" "$out/lib/lean/$(basename $lib)" $out/bin/lean; fi
-      done
-      otool -L $out/bin/lean
+      mv lib/lean/*.so $out/lib/lean
     '';
     meta.mainProgram = "lean";
   });
@@ -120,11 +115,17 @@ rec {
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${leancpp}/lib/lean";
+      libInit_shared = runCommand "libInit_shared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
+        mkdir $out
+        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared -Wl,-Bsymbolic \
+          -Wl,--whole-archive -lInit ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++ -lm ${stdlibLinkFlags} \
+          $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
+          -o $out/$libName
+      '';
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
-        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
-          ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
-            else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
+        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared -Wl,-Bsymbolic \
+          -L${libInit_shared} -lInit_shared -Wl,--whole-archive -lLean -lleancpp -Wl,--no-whole-archive -lstdc++ -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
@@ -142,7 +143,7 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${leanshared}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${libInit_shared}/* ${leanshared}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanc}/bin/leanc ${Lake-Main.executable}/bin/lake $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`

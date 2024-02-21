@@ -381,7 +381,20 @@ example (i : Fin 7) : (i : Nat) < 8 := by omega
 
 example (x y z i : Nat) (hz : z ≤ 1) : x % 2 ^ i + y % 2 ^ i + z < 2 * 2^ i := by omega
 
-open Std in
+/-! ### BitVec -/
+-- Currently these tests require calling `simp` with many lemmas.
+-- We need a good `BitVec` to `Nat` preprocessor.
+
+open Std
+
 example (x y : BitVec 8) (hx : x < 16) (hy : y < 16) : x + y < 31 := by
   simp [BitVec.lt_def] at *
+  omega
+
+example (x y z : BitVec 8) (hx : x >>> 1 < 16) (hy : y < 16) (hz : z = x + 2 * y) : z ≤ 64 := by
+  simp [BitVec.lt_def, BitVec.le_def, BitVec.toNat_eq, Nat.shiftRight_eq_div_pow, BitVec.toNat_mul] at *
+  omega
+
+example (x : BitVec 8) (hx : (x + 1) <<< 1 = 3) : False := by
+  simp [BitVec.toNat_eq, Nat.shiftLeft_eq] at *
   omega

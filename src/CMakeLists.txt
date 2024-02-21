@@ -351,7 +351,6 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lm")
 endif()
 
-string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if(BSYMBOLIC)
     string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
@@ -530,10 +529,6 @@ if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
-# Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
-configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
@@ -565,6 +560,8 @@ else()
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
     VERBATIM)
+
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
 add_dependencies(Init_shared make_stdlib leanrt_initial-exec)
 add_dependencies(leanshared Init_shared leancpp)
@@ -641,3 +638,8 @@ if(LEAN_INSTALL_PREFIX)
   set(LEAN_INSTALL_SUFFIX "-${LOWER_SYSTEM_NAME}" CACHE STRING "If LEAN_INSTALL_PREFIX is set, append this value to CMAKE_INSTALL_PREFIX")
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
+
+# Escape for `make`. Yes, twice.
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)

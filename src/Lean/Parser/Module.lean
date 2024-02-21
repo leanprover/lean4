@@ -37,8 +37,8 @@ structure ModuleParserState where
   recovering : Bool       := false
   deriving Inhabited
 
-private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Error) : Message := Id.run do
-  let mut pos := s.pos
+private partial def mkErrorMessage (c : InputContext) (pos : String.Pos) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
+  let mut pos := pos
   let mut endPos? := none
   let mut e := e
   unless e.unexpectedTk.isMissing do
@@ -53,7 +53,7 @@ private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Erro
     e := { e with unexpected }
     -- if there is an unexpected token, include preceding whitespace as well as the expected token could
     -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
-    if let .original (trailing := trailing) .. := s.stxStack.back.getTailInfo then
+    if let some trailing := lastTrailing stk then
       if trailing.stopPos == pos then
         pos := trailing.startPos
   { fileName := c.fileName
@@ -61,6 +61,12 @@ private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Erro
     endPos := c.fileMap.toPosition <$> endPos?
     keepFullRange := true
     data := toString e }
+where
+  -- Error recovery might lead to there being some "junk" on the stack
+  lastTrailing (s : SyntaxStack) : Option Substring :=
+    s.toSubarray.findSomeRevM? (m := Id) fun stx =>
+      if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
+        else none
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
@@ -68,12 +74,10 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
   let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
-  match s.errorMsg with
-  | some errorMsg =>
-    let msg := mkErrorMessage inputCtx s errorMsg
-    pure (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
-  | none =>
-    pure (stx, { pos := s.pos }, {})
+  let mut messages : MessageLog := {}
+  for (pos, stk, err) in s.allErrors do
+    messages := messages.add <| mkErrorMessage inputCtx pos stk err
+  pure (stx, {pos := s.pos, recovering := s.hasError}, messages)
 
 private def mkEOI (pos : String.Pos) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
@@ -104,6 +108,9 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     let pos' := pos
     let p := andthenFn whitespace topLevelCommandParserFn
     let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.input, pos }
+    -- save errors from sub-recoveries
+    for (rpos, rstk, recovered) in s.recoveredErrors do
+      messages := messages.add <| mkErrorMessage inputCtx rpos rstk recovered
     pos := s.pos
     if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
       -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
@@ -122,7 +129,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
       let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
       unless recovering && ignore do
-        messages := messages.add <| mkErrorMessage inputCtx s errorMsg
+        messages := messages.add <| mkErrorMessage inputCtx s.pos s.stxStack errorMsg
       recovering := true
       if ignore then
         continue

@@ -194,6 +194,12 @@ def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter :=
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
 
+@[combinator_formatter recover]
+def recover.formatter (fmt : PrettyPrinter.Formatter) := fmt
+
+@[combinator_formatter recover']
+def recover'.formatter (fmt : PrettyPrinter.Formatter) := fmt
+
 -- `mkAntiquot` is quite complex, so we'd rather have its formatter synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere

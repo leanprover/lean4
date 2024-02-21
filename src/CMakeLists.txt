@@ -554,9 +554,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   # dummy targets, see `MAIN_MODULE` discussion above
   add_custom_target(Init_shared ALL
     DEPENDS make_stdlib leanrt_initial-exec
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   add_custom_target(leanshared ALL
     DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
 else()
   add_custom_target(Init_shared ALL
@@ -574,7 +576,7 @@ else()
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
 
-if(${STAGE} GREATER 0)
+if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
     message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
   endif()
@@ -595,7 +597,7 @@ endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean)
+if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc

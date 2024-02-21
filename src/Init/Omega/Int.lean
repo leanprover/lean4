@@ -9,7 +9,7 @@ import Init.Data.Int.DivModLemmas
 import Init.Data.Nat.Lemmas
 
 /-!
-# Lemmas about `Nat` and `Int` needed internally by `omega`.
+# Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
 
 These statements are useful for constructing proof expressions,
 but unlikely to be widely useful, so are inside the `Std.Tactic.Omega` namespace.
@@ -162,6 +162,38 @@ theorem lt_of_gt {x y : Nat} (h : x > y) : y < x := gt_iff_lt.mp h
 theorem le_of_ge {x y : Nat} (h : x ≥ y) : y ≤ x := ge_iff_le.mp h
 
 end Nat
+
+namespace Fin
+
+theorem ne_iff_lt_or_gt {i j : Fin n} : i ≠ j ↔ i < j ∨ i > j := by
+  cases i; cases j; simp only [ne_eq, Fin.mk.injEq, Nat.ne_iff_lt_or_gt, gt_iff_lt]; rfl
+
+protected theorem lt_or_gt_of_ne {i j : Fin n} (h : i ≠ j) : i < j ∨ i > j := Fin.ne_iff_lt_or_gt.mp h
+
+theorem not_le {i j : Fin n} : ¬ i ≤ j ↔ j < i := by
+  cases i; cases j; exact Nat.not_le
+
+theorem not_lt {i j : Fin n} : ¬ i < j ↔ j ≤ i := by
+  cases i; cases j; exact Nat.not_lt
+
+protected theorem lt_of_not_le {i j : Fin n} (h : ¬ i ≤ j) : j < i := Fin.not_le.mp h
+protected theorem le_of_not_lt {i j : Fin n} (h : ¬ i < j) : j ≤ i := Fin.not_lt.mp h
+
+theorem ofNat_val_add {x y : Fin n} :
+    (((x + y : Fin n)) : Int) = ((x : Int) + (y : Int)) % n := rfl
+
+theorem ofNat_val_sub {x y : Fin n} :
+    (((x - y : Fin n)) : Int) = ((x : Int) + ((n - y : Nat) : Int)) % n := rfl
+
+theorem ofNat_val_mul {x y : Fin n} :
+    (((x * y : Fin n)) : Int) = ((x : Int) * (y : Int)) % n := rfl
+
+theorem ofNat_val_natCast {n x y : Nat} (h : y = x % (n + 1)):
+    @Nat.cast Int instNatCastInt (@Fin.val (n + 1) (OfNat.ofNat x)) = OfNat.ofNat y := by
+  rw [h]
+  rfl
+
+end Fin
 
 namespace Prod
 

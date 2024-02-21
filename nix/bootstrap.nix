@@ -94,8 +94,8 @@ rec {
       };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = attachSharedLib leanshared Init';
-      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
+      Init = Init';
+      Lean = Lean' // { allExternalDeps = [ Init ]; };
       Lake = build {
         name = "Lake";
         src = src + "/src/lake";
@@ -115,7 +115,7 @@ rec {
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${leancpp}/lib/lean";
-      libInit_shared = runCommand "libInit_shared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
+      libInit_shared = runCommand "libInit_shared" { buildInputs = [ stdenv.cc ]; libName = "libInit_shared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared -Wl,-Bsymbolic \
           -Wl,--whole-archive -lInit ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++ -lm ${stdlibLinkFlags} \
@@ -125,18 +125,18 @@ rec {
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared -Wl,-Bsymbolic \
-          -L${libInit_shared} -lInit_shared -Wl,--whole-archive -lLean -lleancpp -Wl,--no-whole-archive -lstdc++ -lm ${stdlibLinkFlags} \
+          ${libInit_shared}/* -Wl,--whole-archive -lLean -lleancpp -Wl,--no-whole-archive -lstdc++ -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
       mods = foldl' (mods: pkg: mods // pkg.mods) {} stdlib;
       print-paths = Lean.makePrintPathsFor [] mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${libInit_shared} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
-        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
+        ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${libInit_shared}/* ${leanshared}/* -o $out/bin/lean
       '';
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
       lean-all = stdenv.mkDerivation {

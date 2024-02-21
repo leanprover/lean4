@@ -299,13 +299,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
     string(APPEND LEANSHARED_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
   endif()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
 else()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
 endif()
-string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake")
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
@@ -313,8 +312,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
-string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 
 if (LLVM)
   string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
@@ -368,11 +369,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
-  # We do not use dynamic linking via leanshared for Emscripten to keep things
-  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
-  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
-  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -522,6 +518,14 @@ else()
   endif()
 endif()
 string(APPEND LEANSHARED_LINKER_FLAGS " -lInit_shared")
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  # We do not use dynamic linking via leanshared for Emscripten to keep things
+  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
+  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
+  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  string(APPEND LEAN_EXE_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+endif()
 
 # Build the compiler using the bootstrapped C sources for stage0, and use
 # the LLVM build for stage1 and further.

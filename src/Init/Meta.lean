@@ -9,6 +9,7 @@ prelude
 import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
+import Init.Data.String.Extra
 
 namespace Lean
 
@@ -104,6 +105,42 @@ def idBeginEscape := '«'
 def idEndEscape   := '»'
 def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
 def isIdEndEscape (c : Char) : Bool := c = idEndEscape
+
+private def findLeadingSpacesSize (s : String) : Nat :=
+  let it := s.iter
+  let it := it.find (· == '\n') |>.next
+  consumeSpaces it 0 s.length
+where
+  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else if it.curr == '\n' then findNextLine it.next min
+    else findNextLine it.next (Nat.min curr min)
+  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == '\n' then consumeSpaces it.next 0 min
+    else findNextLine it.next min
+
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.iter ""
+where
+  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if it.atEnd then r
+       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       else saveLine it r
+  termination_by (it, 1)
+  saveLine (it : String.Iterator) (r : String) : String :=
+    if it.atEnd then r
+    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
+    else saveLine it.next (r.push it.curr)
+  termination_by (it, 0)
+
+def removeLeadingSpaces (s : String) : String :=
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
 
 namespace Name
 
@@ -1261,6 +1298,11 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
   let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
+def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
+  match stx.raw[1] with
+  | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
+  | _                 => ""
+
 end TSyntax
 
 namespace Meta
@@ -1322,7 +1364,9 @@ end Omega
 
 end Meta
 
-namespace Parser.Tactic
+namespace Parser
+
+namespace Tactic
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
@@ -1383,6 +1427,26 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
-end Parser.Tactic
+end Tactic
+
+namespace Command
+
+/--
+Initialize a new "label" attribute.
+Declarations tagged with the attribute can be retrieved using `Std.Tactic.LabelAttr.labelled`.
+-/
+macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
+  doc:(docComment)? "register_label_attr " id:ident : command => do
+  let str := id.getId.toString
+  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
+  let descr := quote (removeLeadingSpaces
+    (doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)))
+  `($[$doc:docComment]? initialize ext : LabelExtension ←
+      registerLabelAttr $(quote id.getId) $descr $(quote id.getId)
+    $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str : attr)
+
+end Command
+
+end Parser
 
 end Lean

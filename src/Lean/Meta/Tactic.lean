@@ -33,3 +33,7 @@ import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Congr
 import Lean.Meta.Tactic.Repeat
 import Lean.Meta.Tactic.NormCast
+import Lean.Meta.Tactic.IndependentOf
+import Lean.Meta.Tactic.Symm
+import Lean.Meta.Tactic.Backtrack
+import Lean.Meta.Tactic.SolveByElim

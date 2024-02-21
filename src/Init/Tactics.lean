@@ -1161,6 +1161,125 @@ syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
 -/
 syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
 
+/--
+* `symm` applies to a goal whose target has the form `t ~ u` where `~` is a symmetric relation,
+  that is, a relation which has a symmetry lemma tagged with the attribute [symm].
+  It replaces the target with `u ~ t`.
+* `symm at h` will rewrite a hypothesis `h : t ~ u` to `h : u ~ t`.
+-/
+syntax (name := symm) "symm" (Parser.Tactic.location)? : tactic
+
+/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
+add a hypothesis `h_symm : b ~ a`. -/
+syntax (name := symmSaturate) "symm_saturate" : tactic
+
+namespace SolveByElim
+
+/-- Syntax for omitting a local hypothesis in `solve_by_elim`. -/
+syntax erase := "-" term:max
+/-- Syntax for including all local hypotheses in `solve_by_elim`. -/
+syntax star := "*"
+/-- Syntax for adding or removing a term, or `*`, in `solve_by_elim`. -/
+syntax arg := star <|> erase <|> term
+/-- Syntax for adding and removing terms in `solve_by_elim`. -/
+syntax args := " [" SolveByElim.arg,* "]"
+/-- Syntax for using all lemmas labelled with an attribute in `solve_by_elim`. -/
+syntax using_ := " using " ident,*
+
+end SolveByElim
+
+section SolveByElim
+open SolveByElim (args using_)
+
+/--
+`solve_by_elim` calls `apply` on the main goal to find an assumption whose head matches
+and then repeatedly calls `apply` on the generated subgoals until no subgoals remain,
+performing at most `maxDepth` (defaults to 6) recursive steps.
+
+`solve_by_elim` discharges the current goal or fails.
+
+`solve_by_elim` performs backtracking if subgoals can not be solved.
+
+By default, the assumptions passed to `apply` are the local context, `rfl`, `trivial`,
+`congrFun` and `congrArg`.
+
+The assumptions can be modified with similar syntax as for `simp`:
+* `solve_by_elim [h₁, h₂, ..., hᵣ]` also applies the given expressions.
+* `solve_by_elim only [h₁, h₂, ..., hᵣ]` does not include the local context,
+  `rfl`, `trivial`, `congrFun`, or `congrArg` unless they are explicitly included.
+* `solve_by_elim [-h₁, ... -hₙ]` removes the given local hypotheses.
+* `solve_by_elim using [a₁, ...]` uses all lemmas which have been labelled
+  with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`solve_by_elim*` tries to solve all goals together, using backtracking if a solution for one goal
+makes other goals impossible.
+(Adding or removing local hypotheses may not be well-behaved when starting with multiple goals.)
+
+Optional arguments passed via a configuration argument as `solve_by_elim (config := { ... })`
+- `maxDepth`: number of attempts at discharging generated subgoals
+- `symm`: adds all hypotheses derived by `symm` (defaults to `true`).
+- `exfalso`: allow calling `exfalso` and trying again if `solve_by_elim` fails
+  (defaults to `true`).
+- `transparency`: change the transparency mode when calling `apply`. Defaults to `.default`,
+  but it is often useful to change to `.reducible`,
+  so semireducible definitions will not be unfolded when trying to apply a lemma.
+
+See also the doc-comment for `Std.Tactic.BacktrackConfig` for the options
+`proc`, `suspend`, and `discharge` which allow further customization of `solve_by_elim`.
+Both `apply_assumption` and `apply_rules` are implemented via these hooks.
+-/
+syntax (name := solveByElim)
+  "solve_by_elim" "*"? (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_assumption` looks for an assumption of the form `... → ∀ _, ... → head`
+where `head` matches the current goal.
+
+You can specify additional rules to apply using `apply_assumption [...]`.
+By default `apply_assumption` will also try `rfl`, `trivial`, `congrFun`, and `congrArg`.
+If you don't want these, or don't want to use all hypotheses, use `apply_assumption only [...]`.
+You can use `apply_assumption [-h]` to omit a local hypothesis.
+You can use `apply_assumption using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`apply_assumption` will use consequences of local hypotheses obtained via `symm`.
+
+If `apply_assumption` fails, it will call `exfalso` and try again.
+Thus if there is an assumption of the form `P → ¬ Q`, the new tactic state
+will have two goals, `P` and `Q`.
+
+You can pass a further configuration via the syntax `apply_rules (config := {...}) lemmas`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+-/
+syntax (name := applyAssumption)
+  "apply_assumption" (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_rules [l₁, l₂, ...]` tries to solve the main goal by iteratively
+applying the list of lemmas `[l₁, l₂, ...]` or by applying a local hypothesis.
+If `apply` generates new goals, `apply_rules` iteratively tries to solve those goals.
+You can use `apply_rules [-h]` to omit a local hypothesis.
+
+`apply_rules` will also use `rfl`, `trivial`, `congrFun` and `congrArg`.
+These can be disabled, as can local hypotheses, by using `apply_rules only [...]`.
+
+You can use `apply_rules using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+You can pass a further configuration via the syntax `apply_rules (config := {...})`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+
+`apply_rules` will try calling `symm` on hypotheses and `exfalso` on the goal as needed.
+This can be disabled with `apply_rules (config := {symm := false, exfalso := false})`.
+
+You can bound the iteration depth using the syntax `apply_rules (config := {maxDepth := n})`.
+
+Unlike `solve_by_elim`, `apply_rules` does not perform backtracking, and greedily applies
+a lemma from the list until it gets stuck.
+-/
+syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
+end SolveByElim
+
 end Tactic
 
 namespace Attr

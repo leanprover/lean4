@@ -275,6 +275,11 @@ def exceptOptionEmoji : Except ε (Option α) → String
   | .ok (some _) => checkEmoji
   | .ok none => crossEmoji
 
+/-- Visualize an `Except` using a checkmark or a cross. -/
+def exceptEmoji : Except ε α → String
+  | .error _ => crossEmoji
+  | .ok _ => checkEmoji
+
 class ExceptToEmoji (ε α : Type) where
   toEmoji : Except ε α → String
 

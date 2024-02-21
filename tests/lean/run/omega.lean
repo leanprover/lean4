@@ -377,7 +377,39 @@ example (i j : Nat) (p : i ≥ j) : True := by
   have _ : i ≥ k := by omega
   trivial
 
+/-! ### Fin -/
+
+
+-- Test `<`
+example (n : Nat) (i j : Fin n) (h : i < j) : (i : Nat) < n - 1 := by omega
+
+-- Test `≤`
+example (n : Nat) (i j : Fin n) (h : i < j) : (i : Nat) ≤ n - 2 := by omega
+
+-- Test `>`
+example (n : Nat) (i j : Fin n) (h : i < j) : n - 1 > i := by omega
+
+-- Test `≥`
+example (n : Nat) (i : Fin n) : n - 1 ≥ i := by omega
+
+-- Test `=`
+example (n : Nat) (i j : Fin n) (h : i = j) : (i : Int) = j := by omega
+
+example (i j : Fin n) (w : i < j) : i < j := by omega
+
+example (n m i : Nat) (j : Fin (n - m)) (h : i < j) (h2 : m ≥ 4) :
+    (i : Int) < n - 5 := by omega
+
+example (x y : Nat) (_ : 2 ≤ x) (_ : x ≤ 3) (_ : 2 ≤ y) (_ : y ≤ 3) :
+    4 ≤ (x + y) % 8 ∧ (x + y) % 8 ≤ 6 := by
+  omega
+
+example (x y : Fin 8) (_ : 2 ≤ x) (_ : x ≤ 3) (_ : 2 ≤ y) (_ : y ≤ 3) : 4 ≤ x + y ∧ x + y ≤ 6 := by
+  omega
+
 example (i : Fin 7) : (i : Nat) < 8 := by omega
+
+/-! ### mod 2^n -/
 
 example (x y z i : Nat) (hz : z ≤ 1) : x % 2 ^ i + y % 2 ^ i + z < 2 * 2^ i := by omega
 

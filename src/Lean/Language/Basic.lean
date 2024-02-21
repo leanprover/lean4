@@ -195,16 +195,17 @@ structure ModuleProcessingContext where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
-  /--
-    Callback available in server mode for building imports and retrieving per-library options using
-    `lake setup-file`. -/
-  fileSetupHandler? : Option (Array Import → IO Server.FileWorker.FileSetupResult)
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends ModuleProcessingContext, Parser.InputContext
 
+/-- Monad transformer holding all relevant data for processing. -/
+abbrev ProcessingT m := ReaderT ProcessingContext m
 /-- Monad holding all relevant data for processing. -/
-abbrev ProcessingM := ReaderT ProcessingContext BaseIO
+abbrev ProcessingM := ProcessingT BaseIO
+
+instance : MonadLift ProcessingM (ProcessingT IO) where
+  monadLift := fun act ctx => act ctx
 
 /--
 Creates snapshot message log from non-interactive message log, caching derived interactive
@@ -213,6 +214,23 @@ diagnostics.
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
     ProcessingM Snapshot.Diagnostics := do
   return { msgLog, cacheRef? := some (← IO.mkRef none) }
+/-- Creates diagnostics from a single error message that should span the whole file. -/
+def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
+  let msgLog := MessageLog.empty.add {
+    fileName := "<input>"
+    pos := ⟨0, 0⟩
+    endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    data := msg
+  }
+  Snapshot.Diagnostics.ofMessageLog msgLog
+
+/--
+  Adds unexpected exceptions from header processing to the message log as a last resort; standard
+  errors should already have been caught earlier. -/
+def withHeaderExceptions (ex : Snapshot → α) (act : ProcessingT IO α) : ProcessingM α := do
+  match (← (act (← read)).toBaseIO) with
+  | .error e => return ex { diagnostics := (← diagnosticsOfHeaderError e.toString) }
+  | .ok a => return a
 
 end Language
 

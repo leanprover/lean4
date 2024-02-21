@@ -207,6 +207,7 @@ structure AvailableImportsCache where
 
 structure WorkerState where
   doc                : EditableDocument
+  srcSearchPathTask  : Task SearchPath
   importCachingTask? : Option (Task (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
@@ -214,6 +215,53 @@ structure WorkerState where
   rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
+
+/-- Makes sure we load imports at most once per process as they cannot be unloaded. -/
+private builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
+
+open Language Lean in
+def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
+    (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
+    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
+  let imports := Elab.headerToImports stx
+  let fileSetupResult ← setupFile meta imports fun stderrLine => do
+    let progressDiagnostic := {
+      range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      -- make progress visible anywhere in the file
+      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+      severity?  := DiagnosticSeverity.information
+      message    := stderrLine
+    }
+    chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+  -- clear progress notifications in the end
+  chanOut.send <| mkPublishDiagnosticsNotification meta #[]
+  match fileSetupResult.kind with
+  | .importsOutOfDate =>
+    return .error {
+      diagnostics := (← Language.diagnosticsOfHeaderError
+        "Imports are out of date and must be rebuilt; \
+          use the \"Restart File\" command in your editor.")
+      success? := none
+    }
+  | .error msg =>
+    return .error {
+      diagnostics := (← diagnosticsOfHeaderError msg)
+      success? := none
+    }
+  | _ => pure ()
+
+  let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
+  if importsAlreadyLoaded then
+    -- As we never unload imports in the server, we should not run the code below twice in the
+    -- same process and instead ask the watchdog to restart the worker
+    IO.sleep 200  -- give user time to make further edits before restart
+    unless (← IO.checkCanceled) do
+      IO.Process.exit 2  -- signal restart request to watchdog
+    -- should not be visible to user as task is already canceled
+    return .error { diagnostics := .empty, success? := none }
+
+  srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
+  return .ok fileSetupResult.fileOptions
 
 /- Worker initialization sequence. -/
 section Initialization
@@ -227,22 +275,10 @@ section Initialization
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
     let chanOut ← mkLspOutputChannel maxDocVersionRef
-    let processor ← Language.mkIncrementalProcessor Language.Lean.process {
-      opts, mainModuleName
-      fileSetupHandler? := some fun imports => do
-        let result ← setupFile meta imports fun stderrLine => do
-          let progressDiagnostic := {
-            range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
-            -- make progress visible anywhere in the file
-            fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
-            severity?  := DiagnosticSeverity.information
-            message    := stderrLine
-          }
-          chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
-        -- clear progress notifications in the end
-        chanOut.send <| mkPublishDiagnosticsNotification meta #[]
-        return result
-    }
+    let srcSearchPathPromise ← IO.Promise.new
+
+    let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
+    let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
     let initSnap ← processor meta.mkInputContext
     let ctx := {
       chanOut
@@ -260,6 +296,7 @@ section Initialization
     let reporter ← reportSnapshots ctx doc
     return (ctx, {
       doc := { doc with reporter }
+      srcSearchPathTask  := srcSearchPathPromise.result
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -452,9 +489,7 @@ section MessageHandling
 
     -- we assume that any other request requires at least the the search path
     -- TODO: move into language-specific request handling
-    let srcSearchPathTask :=
-      st.doc.initSnap.processedSuccessfully.map (·.map (·.srcSearchPath) |>.getD ∅)
-    let t ← IO.bindTask srcSearchPathTask.task fun srcSearchPath => do
+    let t ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath

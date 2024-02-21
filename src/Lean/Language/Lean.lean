@@ -142,18 +142,16 @@ partial def CommandParsedSnapshot.cancel (snap : CommandParsedSnapshot) : BaseIO
     let _ ← IO.mapTask (sync := true) (·.cancel) next.task
 
 /-- State after successful importing. -/
-structure HeaderProcessedSucessfully where
+structure HeaderProcessedSuccessfully where
   /-- The resulting initial elaboration state. -/
   cmdState : Command.State
-  /-- The search path communicated by `lake setup-file`, if any. -/
-  srcSearchPath : SearchPath
   /-- First command task (there is always at least a terminal command). -/
   next : SnapshotTask CommandParsedSnapshot
 
 /-- State after the module header has been processed including imports. -/
 structure HeaderProcessedSnapshot extends Snapshot where
   /-- State after successful importing. -/
-  success? : Option HeaderProcessedSucessfully
+  success? : Option HeaderProcessedSuccessfully
   isFatal := success?.isNone
 instance : ToSnapshotTree HeaderProcessedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[] |>
@@ -182,7 +180,7 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
 
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedSuccessfully (snap : HeaderParsedSnapshot) :
-    SnapshotTask (Option HeaderProcessedSucessfully) :=
+    SnapshotTask (Option HeaderProcessedSuccessfully) :=
   snap.success?.bind (·.processed.map (sync := true) (·.success?)) |>.getD (.pure none)
 
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
@@ -201,7 +199,7 @@ abbrev LeanProcessingM := LeanProcessingT BaseIO
 instance : MonadLift LeanProcessingM (LeanProcessingT IO) where
   monadLift := fun act ctx => act ctx
 
-instance : MonadLift ProcessingM LeanProcessingM where
+instance : MonadLift (ProcessingT m) (LeanProcessingT m) where
   monadLift := fun act ctx => act ctx.toProcessingContext
 
 /--
@@ -211,15 +209,6 @@ compared to it.
 def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
-private def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
-  let msgLog := MessageLog.empty.add {
-    fileName := "<input>"
-    pos := ⟨0, 0⟩
-    endPos := dbgTraceVal <| (← read).fileMap.toPosition (← read).fileMap.source.endPos
-    data := msg
-  }
-  Snapshot.Diagnostics.ofMessageLog msgLog
-
 /--
   Adds unexpected exceptions from header processing to the message log as a last resort; standard
   errors should already have been caught earlier. -/
@@ -228,9 +217,6 @@ private def withHeaderExceptions (ex : Snapshot → α) (act : LeanProcessingT I
   match (← (act (← read)).toBaseIO) with
   | .error e => return ex { diagnostics := (← diagnosticsOfHeaderError e.toString) }
   | .ok a => return a
-
-/-- Makes sure we load imports at most once per process as they cannot be unloaded. -/
-private builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
 
 /-- Entry point of the Lean language processor. -/
 /-
@@ -245,7 +231,10 @@ General notes:
   as not to report this "fast forwarding" to the user as well as to make sure the next run sees all
   fast-forwarded snapshots without having to wait on tasks.
 -/
-partial def process (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
+partial def process
+    (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot Options) :=
+      fun _ => pure <| .ok {})
+    (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   -- compute position of syntactic change once
   let firstDiffPos? := old?.map (·.ictx.input.firstDiffPos (← read).input)
   ReaderT.adapt ({ · with firstDiffPos? }) do
@@ -320,39 +309,11 @@ where
     SnapshotTask.ofIO ⟨0, ctx.input.endPos⟩ <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with success? := none }) do
-      -- use `lake setup-file` if in language server
-      let fileSetupResult ← if let some handler := ctx.fileSetupHandler? then
-        handler (Elab.headerToImports stx)
-      else
-        pure { kind := .success, srcSearchPath := ∅, fileOptions := .empty }
-      match fileSetupResult.kind with
-      | .importsOutOfDate =>
-        return {
-          diagnostics := (← diagnosticsOfHeaderError
-            "Imports are out of date and must be rebuilt; \
-             use the \"Restart File\" command in your editor.")
-          success? := none
-        }
-      | .error msg =>
-        return {
-          diagnostics := (← diagnosticsOfHeaderError msg)
-          success? := none
-        }
-      | _ => pure ()
-
-      let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
-      if importsAlreadyLoaded then
-        -- As we never unload imports in the server, we should not run the code below twice in the
-        -- same process and instead ask the watchdog to restart the worker
-        IO.sleep 200  -- give user time to make further edits before restart
-        unless (← IO.checkCanceled) do
-          IO.Process.exit 2  -- signal restart request to watchdog
-        -- should not be visible to user as task is already canceled
-        return { diagnostics := .empty, success? := none }
-
+      let opts ← match (← setupImports stx) with
+        | .ok opts => pure opts
+        | .error snap => return snap
       -- override context options with file options
-      let opts := ctx.opts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
-
+      let opts := ctx.opts.mergeBy (fun _ _ fileOpt => fileOpt) opts
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
         ctx.toInputContext ctx.trustLevel
@@ -361,7 +322,7 @@ where
         return { diagnostics, success? := none }
 
       let headerEnv := headerEnv.setMainModule ctx.mainModuleName
-      let cmdState := Elab.Command.mkState headerEnv msgLog opts
+      let cmdState := Elab.Command.mkState headerEnv msgLog ctx.opts
       let cmdState := { cmdState with infoState := {
         enabled := true
         trees := #[Elab.InfoTree.context (.commandCtx {
@@ -383,7 +344,6 @@ where
         infoTree? := cmdState.infoState.trees[0]!
         success? := some {
           cmdState
-          srcSearchPath := fileSetupResult.srcSearchPath
           next := (← parseCmd none parserState cmdState)
         }
       }

@@ -137,11 +137,9 @@ def runFrontend
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 
-  let ctx := { inputCtx with
-    mainModuleName, opts, trustLevel
-    fileSetupHandler? := none
-  }
-  let snap ← Language.Lean.process none ctx
+  let ctx := { inputCtx with mainModuleName, opts, trustLevel }
+  let processor := Language.Lean.process
+  let snap ← processor none ctx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then

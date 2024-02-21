@@ -108,6 +108,45 @@ def intCast? (n : Expr) : Option Int :=
   | (``Nat.cast, #[_, _, n]) => n.nat?
   | _ => n.int?
 
+/--
+If `groundNat? e = some n`, then `e` is definitionally equal to `OfNat.ofNat n`.
+-/
+-- We may want to replace this with an implementation using
+-- the internals of `simp (config := {ground := true})`
+partial def groundNat? (e : Expr) : Option Nat :=
+  match e.getAppFnArgs with
+  | (``Nat.cast, #[_, _, n]) => groundNat? n
+  | (``HAdd.hAdd, #[_, _, _, _, x, y]) => op (· + ·) x y
+  | (``HMul.hMul, #[_, _, _, _, x, y]) => op (· * ·) x y
+  | (``HSub.hSub, #[_, _, _, _, x, y]) => op (· - ·) x y
+  | (``HDiv.hDiv, #[_, _, _, _, x, y]) => op (· / ·) x y
+  | (``HPow.hPow, #[_, _, _, _, x, y]) => op (· ^ ·) x y
+  | _ => e.nat?
+where op (f : Nat → Nat → Nat) (x y : Expr) : Option Nat :=
+  match groundNat? x, groundNat? y with
+    | some x', some y' => some (f x' y')
+    | _, _ => none
+
+/--
+If `groundInt? e = some i`,
+then `e` is definitionally equal to the standard expression for `i`.
+-/
+partial def groundInt? (e : Expr) : Option Int :=
+  match e.getAppFnArgs with
+  | (``Nat.cast, #[_, _, n]) => groundNat? n
+  | (``HAdd.hAdd, #[_, _, _, _, x, y]) => op (· + ·) x y
+  | (``HMul.hMul, #[_, _, _, _, x, y]) => op (· * ·) x y
+  | (``HSub.hSub, #[_, _, _, _, x, y]) => op (· - ·) x y
+  | (``HDiv.hDiv, #[_, _, _, _, x, y]) => op (· / ·) x y
+  | (``HPow.hPow, #[_, _, _, _, x, y]) => match groundInt? x, groundNat? y with
+    | some x', some y' => some (x' ^ y')
+    | _, _ => none
+  | _ => e.int?
+where op (f : Int → Int → Int) (x y : Expr) : Option Int :=
+  match groundNat? x, groundNat? y with
+    | some x', some y' => some (f x' y')
+    | _, _ => none
+
 /-- Construct the term with type hint `(Eq.refl a : a = b)`-/
 def mkEqReflWithExpectedType (a b : Expr) : MetaM Expr := do
   mkExpectedTypeHint (← mkEqRefl a) (← mkEq a b)

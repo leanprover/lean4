@@ -285,6 +285,17 @@ def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m
       return pre
   | stx => throwErrorAt stx s!"expected identifier"
 
+/--
+Given a list of names produced by `resolveGlobalConst`, throw an error if the list does not contain
+exactly one element.
+Recall that `resolveGlobalConst` does not return empty lists.
+-/
+def ensureNonAmbiguous [Monad m] [MonadError m] (id : Syntax) (cs : List Name) : m Name := do
+  match cs with
+  | []  => unreachable!
+  | [c] => pure c
+  | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
+
 /-- Interpret the syntax `n` as an identifier for a global constant, and return a resolved
 constant name. If there are multiple possible interpretations it will throw.
 
@@ -305,10 +316,7 @@ After `open Foo open Boo`, we have
 - `resolveGlobalConstNoOverload x.z.w` => error: unknown constant
 -/
 def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m Name := do
-  let cs ← resolveGlobalConst id
-  match cs with
-  | [c] => pure c
-  | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
+  ensureNonAmbiguous id (← resolveGlobalConst id)
 
 def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) : m Name := do
   if n₀.hasMacroScopes then return n₀

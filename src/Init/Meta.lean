@@ -1429,24 +1429,6 @@ declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean
 
 end Tactic
 
-namespace Command
-
-/--
-Initialize a new "label" attribute.
-Declarations tagged with the attribute can be retrieved using `Std.Tactic.LabelAttr.labelled`.
--/
-macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
-  doc:(docComment)? "register_label_attr " id:ident : command => do
-  let str := id.getId.toString
-  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  let descr := quote (removeLeadingSpaces
-    (doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)))
-  `($[$doc:docComment]? initialize ext : LabelExtension ←
-      registerLabelAttr $(quote id.getId) $descr $(quote id.getId)
-    $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str : attr)
-
-end Command
-
 end Parser
 
 end Lean

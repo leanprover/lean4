@@ -72,6 +72,20 @@ def registerLabelAttr (attrName : Name) (attrDescr : String)
   labelExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
+/--
+Initialize a new "label" attribute.
+Declarations tagged with the attribute can be retrieved using `Std.Tactic.LabelAttr.labelled`.
+-/
+macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
+  doc:(docComment)? "register_label_attr " id:ident : command => do
+  let str := id.getId.toString
+  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
+  let descr := quote (removeLeadingSpaces
+    (doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)))
+  `($[$doc:docComment]? initialize ext : Lean.LabelExtension ←
+      registerLabelAttr $(quote id.getId) $descr $(quote id.getId)
+    $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str : attr)
+
 /-- When `attrName` is an attribute created using `register_labelled_attr`,
 return the names of all declarations labelled using that attribute. -/
 def labelled (attrName : Name) : CoreM (Array Name) := do

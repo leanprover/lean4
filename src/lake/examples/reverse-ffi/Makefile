@@ -39,7 +39,7 @@ endif
 ifeq ($(OS),Windows_NT)
 SHLIB_PREFIX :=
 SHLIB_EXT := dll
-LEAN_SHLIB_ROOT := $(LEAN_SYSROOT)/bin
+LEAN_SHLIB_ROOT := $(shell cygpath $(LEAN_SYSROOT)/bin)
 else
 SHLIB_PREFIX := lib
 # Add current directory to loader path (default on Windows)

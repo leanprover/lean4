@@ -67,15 +67,19 @@ doing a pattern match. This is equivalent to `fun` with match arms in term mode.
   nonReservedSymbol "intro" >> matchAlts
 
 /--
-`decide` attempts to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then reducing that instance. If it reduces to `isTrue h`,
-then `h` is used to close the goal.
+`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`
+and then reducing that instance to evaluate the truth value of `p`.
+If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
 
 Limitations:
-- The goal is not allowed to have local variables or metavariables.
-  If there are local variables, you can try to `revert` them first.
-- Because this uses kernel reduction to evaluate the term, it may not work in the
-  presence of definitions by well founded recursion, since this requires reducing proofs.
+- The target is not allowed to contain local variables or metavariables.
+  If there are local variables, you can try using the `revert` tactic with these local variables first
+  to move them into the target, which may allowed `decide` to succeed.
+- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined
+  by well-founded recursion might not work, because evaluating them requires reducing proofs.
+  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.
+  These can appear for instances defined using the `rw` and `simp` for example --
+  rather than rewriting the proposition, make sure to use definitions such as `decidable_of_iff` instead.
 
 ## Examples
 
@@ -103,8 +107,9 @@ example : unknownProp := by decide
 /-
 tactic 'decide' failed for proposition
   unknownProp
-since its 'Decidable' instance did not reduce to the 'isTrue' constructor:
+since its 'Decidable' instance reduced to
   Classical.choice ⋯
+rather than to the 'isTrue' constructor.
 -/
 ```
 

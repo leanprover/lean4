@@ -385,8 +385,9 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
       throwError "\
         tactic 'decide' failed for proposition\
         {indentExpr expectedType}\n\
-        since its 'Decidable' instance did not reduce to the 'isTrue' constructor:\
-        {indentExpr r}"
+        since its 'Decidable' instance reduced to\
+        {indentExpr r}\n\
+        rather than to the 'isTrue' constructor."
     -- While we have a proof from reduction, we do not embed it in the proof term,
     -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)

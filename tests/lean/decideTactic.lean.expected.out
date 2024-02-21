@@ -3,5 +3,6 @@ decideTactic.lean:13:22-13:28: error: tactic 'decide' proved that the propositio
 is false
 decideTactic.lean:21:28-21:34: error: tactic 'decide' failed for proposition
   unknownProp
-since its 'Decidable' instance did not reduce to the 'isTrue' constructor:
+since its 'Decidable' instance reduced to
   Classical.choice ⋯
+rather than to the 'isTrue' constructor.

@@ -548,23 +548,27 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   # dummy targets, see `MAIN_MODULE` discussion above
-  add_custom_target(Init_shared)
-  add_custom_target(leanshared)
+  add_custom_target(Init_shared ALL
+    DEPENDS make_stdlib leanrt_initial-exec
+  )
+  add_custom_target(leanshared ALL
+    DEPENDS Init_shared leancpp
+  )
 else()
   add_custom_target(Init_shared ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS make_stdlib leanrt_initial-exec
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init_shared
     VERBATIM)
 
   add_custom_target(leanshared ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS Init_shared leancpp
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
     VERBATIM)
 
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
-add_dependencies(Init_shared make_stdlib leanrt_initial-exec)
-add_dependencies(leanshared Init_shared leancpp)
 
 if(${STAGE} GREATER 0)
   if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)

@@ -505,7 +505,6 @@ partial def omegaImpl (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withCont
     trace[omega] "Justification:\n{p'.explanation?.get}"
     let prf ← instantiateMVars (← prf)
     trace[omega] "omega found a contradiction, proving {← inferType prf}"
-    trace[omega] "{prf}"
     g.assign prf
 
 end

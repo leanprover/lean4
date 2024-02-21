@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #else
 #include <pthread.h>
 #endif
+#include <lean/lean.h>
 #include <lean/config.h>
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
@@ -46,18 +47,26 @@ void reset_thread_local() {
 
 using runnable = std::function<void()>;
 
-static void thread_main(void * p) {
+extern "C" LEAN_EXPORT void lean_thread_initialize() {
 #ifdef LEAN_SMALL_ALLOCATOR
     init_thread_heap();
 #endif
+}
+
+extern "C" LEAN_EXPORT void lean_thread_finalize() {
+    run_thread_finalizers();
+    run_post_thread_finalizers();
+}
+
+static void thread_main(void * p) {
+    lean_thread_initialize();
     std::unique_ptr<runnable> f;
     f.reset(reinterpret_cast<runnable *>(p));
 
     (*f)();
     f.reset();
 
-    run_thread_finalizers();
-    run_post_thread_finalizers();
+    lean_thread_finalize();
 }
 
 #if defined(LEAN_MULTI_THREAD)
@@ -310,4 +319,24 @@ void finalize_thread() {
     finalize_thread_local_reset_fns();
 }
 #endif
+
+// Exposed versions of thread primitives for FFI
+extern "C" LEAN_EXPORT bool lean_in_thread_finalization() {
+    return in_thread_finalization();
+}
+extern "C" LEAN_EXPORT void lean_reset_thread_local() {
+    reset_thread_local();
+}
+extern "C" LEAN_EXPORT void lean_register_thread_finalizer(thread_finalizer fn, void * p) {
+    register_thread_finalizer(fn, p);
+}
+extern "C" LEAN_EXPORT void lean_register_post_thread_finalizer(thread_finalizer fn, void * p) {
+    register_post_thread_finalizer(fn, p);
+}
+extern "C" LEAN_EXPORT void lean_run_thread_finalizers() {
+    run_thread_finalizers();
+}
+extern "C" LEAN_EXPORT void lean_run_post_thread_finalizers() {
+    run_post_thread_finalizers();
+}
 }

@@ -7,8 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 
 namespace lean {
-void initialize();
-void finalize();
 /** \brief Helper object for initializing Lean */
 class initializer {
 public:

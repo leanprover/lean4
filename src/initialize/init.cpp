@@ -37,7 +37,7 @@ extern "C" LEAN_EXPORT void lean_initialize() {
     initialize_constructions_module();
 }
 
-void finalize() {
+extern "C" LEAN_EXPORT void lean_finalize() {
     run_thread_finalizers();
     finalize_constructions_module();
     finalize_compiler_module();
@@ -57,6 +57,6 @@ initializer::initializer() {
 }
 
 initializer::~initializer() {
-    finalize();
+    lean_finalize();
 }
 }

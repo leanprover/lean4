@@ -1,18 +1,14 @@
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
- "position": {"line": 5, "character": 10}}
+ "position": {"line": 4, "character": 11}}
 {"items":
- [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "Std.BitVec.getLsb_ofNat",
-   "kind": 3,
-   "detail":
-   "∀ (n x i : Nat), Std.BitVec.getLsb (x#n) i = (decide (i < n) && Nat.testBit x i)"}],
+ [{"label": "gfxabc", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "gfxacc", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "gfxadc", "kind": 3, "detail": "Nat → Nat"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
- "position": {"line": 13, "character": 14}}
+ "position": {"line": 12, "character": 15}}
 {"items":
- [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"}],
+ [{"label": "gfxabc", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "gfxacc", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "gfxadc", "kind": 3, "detail": "Nat → Nat"}],
  "isIncomplete": true}

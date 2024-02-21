@@ -78,8 +78,8 @@ Limitations:
 - Because this uses kernel reduction to evaluate the term, `Decidable` instances defined
   by well-founded recursion might not work, because evaluating them requires reducing proofs.
   The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.
-  These can appear for instances defined using the `rw` and `simp` tactics for example --
-  make sure to use definitions such as `decidable_of_iff` instead.
+  These can appear for instances defined using tactics (such as `rw` and `simp`).
+  To avoid this, use definitions such as `decidable_of_iff` instead.
 
 ## Examples
 

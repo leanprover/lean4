@@ -91,11 +91,6 @@ builtin_simproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
   let some v₂ ← Nat.fromExpr? e.appArg! | return .continue
   return .done { expr := toExpr (v₁ ^ v₂) }
 
-builtin_simproc [simp, seval] reduceAbs (natAbs _) := fun e => do
-  unless e.isAppOfArity ``natAbs 1 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  return .done { expr := mkNatLit (natAbs v) }
-
 builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)
 builtin_simproc [simp, seval] reduceLE  (( _ : Int) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] reduceGT  (( _ : Int) > _)  := reduceBinPred ``GT.gt 4 (. > .)
@@ -104,5 +99,13 @@ builtin_simproc [simp, seval] reduceEq  (( _ : Int) = _)  := reduceBinPred ``Eq 
 builtin_simproc [simp, seval] reduceNe  (( _ : Int) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 builtin_simproc [simp, seval] reduceBEq  (( _ : Int) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_simproc [simp, seval] reduceBNe  (( _ : Int) != _)  := reduceBoolPred ``bne 4 (. != .)
+
+@[inline] def reduceNatCore (declName : Name) (op : Int → Nat) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName 1 do return .continue
+  let some v ← fromExpr? e.appArg! | return .continue
+  return .done { expr := mkNatLit (op v) }
+
+builtin_simproc [simp, seval] reduceAbs (natAbs _) := reduceNatCore ``natAbs natAbs
+builtin_simproc [simp, seval] reduceToNat (Int.toNat _) := reduceNatCore ``Int.toNat Int.toNat
 
 end Int

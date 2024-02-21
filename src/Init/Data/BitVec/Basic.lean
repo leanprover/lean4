@@ -545,7 +545,6 @@ SMT-Lib name: `rotate_right` except this operator uses a `Nat` shift amount.
 -/
 def rotateRight (x : BitVec w) (n : Nat) : BitVec w := x >>> n ||| x <<< (w - n)
 
-
 /--
 Concatenation of bitvectors. This uses the "big endian" convention that the more significant
 input is on the left, so `0xAB#8 ++ 0xCD#8 = 0xABCD#16`.
@@ -565,9 +564,6 @@ def replicate : (i : Nat) → BitVec w → BitVec (w*i)
     have hEq : w + w*n = w*(n + 1) := by
       rw [Nat.mul_add, Nat.add_comm, Nat.mul_one]
     hEq ▸ (x ++ replicate n x)
-
-
-
 
 /-!
 ### Cons and Concat

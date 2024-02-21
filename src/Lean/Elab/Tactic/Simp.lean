@@ -178,13 +178,24 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
-            let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
-            if (← Simp.isSimproc declName) then
-              simprocs := simprocs.erase declName
-            else if ctx.config.autoUnfold then
-              thms := thms.eraseCore (.decl declName)
+            let id := arg[1]
+            let declNames? ← try pure (some (← resolveGlobalConst id)) catch _ => pure none
+            if let some declNames := declNames? then
+              let declName ← ensureNonAmbiguous id declNames
+              if (← Simp.isSimproc declName) then
+                simprocs := simprocs.erase declName
+              else if ctx.config.autoUnfold then
+                thms := thms.eraseCore (.decl declName)
+              else
+                thms ← thms.erase (.decl declName)
             else
-              thms ← thms.erase (.decl declName)
+              -- If `id` could not be resolved, we should check whether it is a builtin simproc.
+              -- before returning error.
+              let name := id.getId.eraseMacroScopes
+              if (← Simp.isBuiltinSimproc name) then
+                simprocs := simprocs.erase name
+              else
+                throwUnknownConstant name
         else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then

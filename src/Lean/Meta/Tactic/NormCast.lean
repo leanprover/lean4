@@ -3,6 +3,7 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+prelude
 import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.CoeAttr

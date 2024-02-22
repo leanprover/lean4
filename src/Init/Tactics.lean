@@ -1287,6 +1287,12 @@ a lemma from the list until it gets stuck.
 syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
 end SolveByElim
 
+/-- Syntax for `exact?` -/
+syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+
+/-- Syntax for `apply?` -/
+syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+
 end Tactic
 
 namespace Attr

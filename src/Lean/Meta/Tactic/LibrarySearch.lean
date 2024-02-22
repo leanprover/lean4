@@ -161,8 +161,6 @@ def mkImportFinder : IO CandidateFinder := do
 
 end IncDiscrTreeFinder
 
-
-
 initialize registerTraceClass `Tactic.stdLibrarySearch
 initialize registerTraceClass `Tactic.stdLibrarySearch.lemmas
 
@@ -177,7 +175,6 @@ private instance : Inhabited LibSearchState where
 
 private initialize ext : EnvExtension LibSearchState ←
   registerEnvExtension (IO.mkRef .none)
-
 
 /--
 The preferred candidate finding function.

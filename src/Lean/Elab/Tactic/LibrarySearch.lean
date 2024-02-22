@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2021-2024 Gabriel Ebner and Lean FRO. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Gabriel Ebner, Joe Hendrix, Scott Morrison
+-/
 import Lean.Meta.Tactic.LibrarySearch
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.BuiltinTactic
@@ -48,22 +53,21 @@ def exact? (tk : Syntax) (required : Option (Array (TSyntax `term)))
       if suggestions.isEmpty then logError "std_apply? didn't find any relevant lemmas"
       admitGoal goal
 
-/-- Syntax for `exact?` -/
-syntax (name := exact?') "exact?" (" using " (colGt ident),+)?
-    ("=>" tacticSeq)? : tactic
+@[builtin_tactic Lean.Parser.Tactic.exact?]
+def evalExact : Tactic := fun stx => do
+  let `(tactic| exact? $[using $[$required],*]?) := stx
+        | throwUnsupportedSyntax
+  exact? (← getRef) required none true
 
-elab_rules : tactic
-  | `(tactic| exact? $[using $[$lemmas],*]? $[=> $solver]?) => do
-  exact? (← getRef) lemmas solver true
 
-/-- Syntax for `apply?` -/
-syntax (name := apply?') "apply?" (" using " (colGt term),+)? : tactic
-
-elab_rules : tactic | `(tactic| apply? $[using $[$required],*]?) => do
+@[builtin_tactic Lean.Parser.Tactic.apply?]
+def evalApply : Tactic := fun stx => do
+  let `(tactic| apply? $[using $[$required],*]?) := stx
+        | throwUnsupportedSyntax
   exact? (← getRef) required none false
 
 /-- Term elaborator using the `exact?` tactic. -/
-elab tk:"std_exact?%" : term <= expectedType => do
+elab tk:"exact?%" : term <= expectedType => do
   let goal ← mkFreshExprMVar expectedType
   let (_, introdGoal) ← goal.mvarId!.intros
   introdGoal.withContext do

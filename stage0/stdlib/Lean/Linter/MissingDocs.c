@@ -99,7 +99,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_Mis
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lint___spec__1___closed__2;
-lean_object* l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBuiltinOption___closed__5;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Linter_MissingDocs_hasInheritDoc___spec__1(lean_object*, size_t, size_t);
 uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
@@ -351,6 +350,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_MissingDocs_checkD
 static lean_object* l_Lean_Linter_MissingDocs_lint___closed__2;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____closed__5;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____closed__24;
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_handleIn___rarg___lambda__1(lean_object*, lean_object*);
@@ -2416,7 +2416,7 @@ _start:
 lean_object* x_7; 
 lean_dec(x_3);
 lean_inc(x_1);
-x_7 = l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(x_1, x_4, x_5, x_6);
+x_7 = l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__16(x_1, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -2857,7 +2857,7 @@ _start:
 lean_object* x_8; 
 lean_dec(x_4);
 lean_inc(x_1);
-x_8 = l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(x_1, x_5, x_6, x_7);
+x_8 = l_Lean_getConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__16(x_1, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 

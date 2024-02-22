@@ -18,18 +18,28 @@ Author: Leonardo de Moura
 #include "kernel/equiv_manager.h"
 
 namespace lean {
+
+struct expr_ptr_eq {
+    bool operator()(expr const & a, expr const & b) const {
+        return a.raw() == b.raw();
+    }
+};
+
+template<typename T>
+using expr_ptr_map = typename std::unordered_map<expr, T, expr_hash, expr_ptr_eq>;
+
+
 /** \brief Lean Type Checker. It can also be used to infer types, check whether a
     type \c A is convertible to a type \c B, etc. */
 class type_checker {
 public:
     class state {
-        typedef expr_map<expr> infer_cache;
         typedef std::unordered_set<expr_pair, expr_pair_hash, expr_pair_eq> expr_pair_set;
         environment               m_env;
         name_generator            m_ngen;
-        infer_cache               m_infer_type[2];
-        expr_map<expr>            m_whnf_core;
-        expr_map<expr>            m_whnf;
+        expr_ptr_map<expr>        m_infer_type[2];
+        expr_ptr_map<expr>        m_whnf_core;
+        expr_ptr_map<expr>        m_whnf;
         equiv_manager             m_eqv_manager;
         expr_pair_set             m_failure;
         friend type_checker;

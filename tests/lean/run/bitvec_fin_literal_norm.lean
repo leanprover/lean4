@@ -1,4 +1,4 @@
-open Std BitVec
+open BitVec
 
 example : (5 : Fin 4) = x := by
   simp

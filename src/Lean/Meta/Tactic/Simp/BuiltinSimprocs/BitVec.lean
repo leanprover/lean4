@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Basic
 
-namespace Std.BitVec
+namespace BitVec
 open Lean Meta Simp
 
 /-- A bit-vector literal -/
@@ -30,16 +30,16 @@ private def fromOfNatExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
   return { n, value := BitVec.ofNat n v }
 
 /--
-Try to convert an `Std.BitVec.ofNat`-application into a bitvector literal.
+Try to convert an `BitVec.ofNat`-application into a bitvector literal.
 -/
 private def fromBitVecExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
-  guard (e.isAppOfArity ``Std.BitVec.ofNat 2)
+  guard (e.isAppOfArity ``BitVec.ofNat 2)
   let n ← Nat.fromExpr? e.appFn!.appArg!
   let v ← Nat.fromExpr? e.appArg!
   return { n, value := BitVec.ofNat n v }
 
 /--
-Try to convert `OfNat.ofNat`/`Std.BitVec.OfNat` application into a
+Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
 bitvector literal.
 -/
 def fromExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
@@ -48,9 +48,9 @@ def fromExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
 /--
 Convert a bitvector literal into an expression.
 -/
--- Using `Std.BitVec.ofNat` because it is being used in `simp` theorems
+-- Using `BitVec.ofNat` because it is being used in `simp` theorems
 def Literal.toExpr (lit : Literal) : Expr :=
-  mkApp2 (mkConst ``Std.BitVec.ofNat) (mkNatLit lit.n) (mkNatLit lit.value.toNat)
+  mkApp2 (mkConst ``BitVec.ofNat) (mkNatLit lit.n) (mkNatLit lit.value.toNat)
 
 /--
 Helper function for reducing homogenous unary bitvector operators.
@@ -305,4 +305,4 @@ builtin_simproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
   let lit : Literal := { n, value := allOnes n }
   return .done { expr := lit.toExpr }
 
-end Std.BitVec
+end BitVec

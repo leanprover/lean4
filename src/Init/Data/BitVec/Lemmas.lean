@@ -9,7 +9,7 @@ import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 
-namespace Std.BitVec
+namespace BitVec
 
 /--
 This normalized a bitvec using `ofFin` to `ofNat`.
@@ -598,3 +598,5 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   let ⟨y, lt⟩ := y
   simp
   exact Nat.lt_of_le_of_ne
+
+end BitVec

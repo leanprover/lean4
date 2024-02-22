@@ -77,9 +77,27 @@ where
         go sources (sourcesNew.push source)
       else
         withFreshMacroScope do
-          let sourceNew ← `(src)
+          /-
+          Recall that local variables starting with `__` are treated as impl detail.
+          See `LocalContext.lean`.
+          Moreover, implementation detail let-vars are unfolded by `simp`
+          even when `zetaDelta := false`.
+          Motivation: the following failure when `zetaDelta := true`
+          ```
+          structure A where
+            a : Nat
+          structure B extends A where
+            b : Nat
+            w : a = b
+          def x : A where a := 37
+          @[simp] theorem x_a : x.a = 37 := rfl
+
+          def y : B := { x with b := 37, w := by simp }
+          ```
+          -/
+          let sourceNew ← `(__src)
           let r ← go sources (sourcesNew.push sourceNew)
-          `(let src := $source; $r)
+          `(let __src := $source; $r)
 
 structure ExplicitSourceInfo where
   stx        : Syntax

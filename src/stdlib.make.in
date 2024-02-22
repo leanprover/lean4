@@ -37,7 +37,7 @@ Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 # Build .oleans of downstream libraries as well for better parallelism
 	+"${LEAN_BIN}/leanmake" objs lib PKG=Init $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING \
-	  EXTRA_SRC_ROOTS="Lean Lean.lean lake/Lake lake/Lake.lean"
+	  EXTRA_SRC_ROOTS="Lean Lean.lean"
 
 Lean: Init
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING

@@ -31,9 +31,9 @@ EXTRA_SRC_ROOTS =
 
 # ignore error messages from missing parts, e.g. Leanc/
 SRCS = $(shell find $(PKG) $(PKG).lean $(EXTRA_SRC_ROOTS) -name '*.lean' 2> /dev/null)
-DEPS = $(subst /lake/,/,$(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend)))
+DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH += @LEAN_PATH_SEPARATOR@$(OLEAN_OUT)
-OBJS = $(subst /lake/,/,$(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean)))
+OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 REL_OS = $(patsubst %.lean,%.o,$(shell find $(PKG) $(PKG).lean -name '*.lean' 2> /dev/null))
 
 SHELL = /usr/bin/env bash -euo pipefail
@@ -55,23 +55,20 @@ $(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
 
 # Make sure the .olean output directory exists so that `lean --deps` knows where this package's
 # .olean files will be located even before any of them are actually built.
-.SECONDEXPANSION:
-$(TEMP_OUT)/%.depend: $$(subst ./Lake,./lake/Lake,./%.lean) | $(OLEAN_OUT)/$(PKG)
+$(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
 # convert path separators and newlines on Windows
 	deps=`$(LEAN) --deps $<` || (echo "$(LEAN) --deps $< failed ($$?): $$deps"; exit 1); \
   deps=`echo "$$deps" | tr '\\\\' / | tr -d '\\r'`; \
   echo $(OLEAN_OUT)/$*.olean: $$deps > $@
 
-.SECONDEXPANSION:
-$(OLEAN_OUT)/%.olean: $$(subst ./Lake,./lake/Lake,./%.lean) $(TEMP_OUT)/%.depend $(MORE_DEPS)
+$(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
 	LEAN_OPTS="$(LEAN_OPTS)"; \
 	[[ -z "$(LLVM)" ]] || LEAN_OPTS+=" --bc=$(TEMP_OUT)/$*.bc.tmp"; \
-	[[ "$<" != lake/* ]] || LEAN_OPTS+=" --root=lake"; \
 	$(LEAN) $$LEAN_OPTS -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" "$<"
 # create the .c file atomically
 	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"

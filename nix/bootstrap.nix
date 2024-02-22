@@ -94,8 +94,8 @@ rec {
       };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = Init';
-      Lean = Lean' // { allExternalDeps = [ Init ]; };
+      Init = attachSharedLib leanshared Init';
+      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
       Lake = build {
         name = "Lake";
         src = src + "/src/lake";

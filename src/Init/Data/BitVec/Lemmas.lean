@@ -117,9 +117,16 @@ private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) :
 
 /-! ### msb -/
 
-theorem msb_eq_decide (x : BitVec (Nat.succ w)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
-  simp only [BitVec.msb, getMsb, Nat.zero_lt_succ,
-    decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
+theorem msb_eq_getLsb_last (x : BitVec w) :
+    x.msb = x.getLsb (w - 1) := by
+  simp [BitVec.msb, getMsb, getLsb]
+  rcases w  with rfl | w
+  · simp [BitVec.eq_nil x]
+  · simp
+
+@[simp] theorem getLsb_last (x : BitVec (w + 1)) :
+    x.getLsb w = decide (2 ^ w ≤ x.toNat) := by
+  simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
     Nat.sub_zero, Nat.and_one_is_mod, Bool.true_and, Nat.shiftRight_eq_div_pow]
   rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
   · simp [Nat.div_eq_of_lt h, h]
@@ -128,6 +135,10 @@ theorem msb_eq_decide (x : BitVec (Nat.succ w)) : BitVec.msb x = decide (2 ^ w �
     · decide
     · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
       omega
+
+@[simp]
+theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
+  simp [msb_eq_getLsb_last]
 
 /-! ### cast -/
 

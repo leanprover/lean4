@@ -576,7 +576,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
-x_17 = l_Lean_Elab_Eqns_simpMatch_x3f(x_1, x_4, x_5, x_6, x_7, x_16);
+x_17 = l_Lean_Elab_Eqns_whnfReducibleLHS_x3f(x_1, x_4, x_5, x_6, x_7, x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -593,7 +593,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
-x_20 = l_Lean_Elab_Eqns_simpIf_x3f(x_1, x_4, x_5, x_6, x_7, x_19);
+x_20 = l_Lean_Elab_Eqns_simpMatch_x3f(x_1, x_4, x_5, x_6, x_7, x_19);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
@@ -610,7 +610,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
-x_23 = l_Lean_Elab_Eqns_whnfReducibleLHS_x3f(x_1, x_4, x_5, x_6, x_7, x_22);
+x_23 = l_Lean_Elab_Eqns_simpIf_x3f(x_1, x_4, x_5, x_6, x_7, x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; 

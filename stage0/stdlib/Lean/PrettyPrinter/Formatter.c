@@ -25,6 +25,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_withAntiquotSuffixSplice_formatter___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_format___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_String_endsWith(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_checkKind___closed__7;
@@ -126,7 +127,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_getStackSize___rarg___bo
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkNoWsBefore_formatter___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_format(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__4;
-lean_object* l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_4813_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_error_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_FormatterM_orElse(lean_object*);
@@ -951,7 +951,7 @@ lean_object* x_18; lean_object* x_19;
 lean_free_object(x_11);
 x_18 = lean_box(0);
 lean_inc(x_1);
-x_19 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(x_2, x_1, x_18, x_4, x_5, x_14);
+x_19 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(x_2, x_1, x_18, x_4, x_5, x_14);
 if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
@@ -1046,7 +1046,7 @@ else
 lean_object* x_35; lean_object* x_36; 
 x_35 = lean_box(0);
 lean_inc(x_1);
-x_36 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(x_2, x_1, x_35, x_4, x_5, x_29);
+x_36 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(x_2, x_1, x_35, x_4, x_5, x_29);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; 

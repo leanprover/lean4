@@ -124,7 +124,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Quotation_pr
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckBinopLazy___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_precheck___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckBinrelNoProp___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_Precheck_0__Lean_Elab_Term_Quotation_isSectionVariable___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -207,6 +206,7 @@ static lean_object* l_Lean_Elab_Term_Quotation_precheckRightact___closed__1;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckIdent___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_85____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute(lean_object*);
+lean_object* l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Term_Quotation_precheckIdent___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Quotation_precheck___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_85____closed__10;
@@ -720,7 +720,7 @@ lean_object* x_21; lean_object* x_22;
 lean_free_object(x_14);
 x_21 = lean_box(0);
 lean_inc(x_9);
-x_22 = l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__12(x_7, x_9, x_21, x_3, x_4, x_17);
+x_22 = l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(x_7, x_9, x_21, x_3, x_4, x_17);
 lean_dec(x_4);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -818,7 +818,7 @@ else
 lean_object* x_38; lean_object* x_39; 
 x_38 = lean_box(0);
 lean_inc(x_9);
-x_39 = l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__12(x_7, x_9, x_38, x_3, x_4, x_32);
+x_39 = l_Lean_Elab_addConstInfo___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_42____spec__14(x_7, x_9, x_38, x_3, x_4, x_32);
 lean_dec(x_4);
 if (lean_obj_tag(x_39) == 0)
 {

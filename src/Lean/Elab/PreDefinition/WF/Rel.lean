@@ -68,7 +68,7 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
       let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
       mvarId.withContext do
         let errorMsgHeader? := if preDefs.size > 1 then
-          "The termination argument types differ for the different functions, or depends on the " ++
+          "The termination argument types differ for the different functions, or depend on the " ++
           "function's varying parameters. Try using `sizeOf` explicitly:\nThe termination argument"
         else
           "The termination argument depends on the function's varying parameters. Try using " ++

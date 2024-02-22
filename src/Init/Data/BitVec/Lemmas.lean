@@ -26,6 +26,9 @@ theorem eq_of_toNat_eq {n} : ∀ {i j : BitVec n}, i.toNat = j.toNat → i = j
 theorem toNat_eq (x y : BitVec n) : x = y ↔ x.toNat = y.toNat :=
   Iff.intro (congrArg BitVec.toNat) eq_of_toNat_eq
 
+theorem toNat_ne (x y : BitVec n) : x ≠ y ↔ x.toNat ≠ y.toNat := by
+  rw [Ne, toNat_eq]
+
 theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.toFin.2
 
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsb i := rfl

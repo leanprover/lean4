@@ -223,6 +223,16 @@ open Language Lean in
 def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
     Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
+  let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
+  if importsAlreadyLoaded then
+    -- As we never unload imports in the server, we should not run the code below twice in the
+    -- same process and instead ask the watchdog to restart the worker
+    IO.sleep 200  -- give user time to make further edits before restart
+    unless (← IO.checkCanceled) do
+      IO.Process.exit 2  -- signal restart request to watchdog
+    -- should not be visible to user as task is already canceled
+    return .error { diagnostics := .empty, success? := none }
+
   let imports := Elab.headerToImports stx
   let fileSetupResult ← setupFile meta imports fun stderrLine => do
     let progressDiagnostic := {
@@ -249,16 +259,6 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
       success? := none
     }
   | _ => pure ()
-
-  let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
-  if importsAlreadyLoaded then
-    -- As we never unload imports in the server, we should not run the code below twice in the
-    -- same process and instead ask the watchdog to restart the worker
-    IO.sleep 200  -- give user time to make further edits before restart
-    unless (← IO.checkCanceled) do
-      IO.Process.exit 2  -- signal restart request to watchdog
-    -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, success? := none }
 
   srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
   return .ok fileSetupResult.fileOptions

@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Tactic.SolveByElim
 import Lean.Elab.Tactic.Config
 
-namespace Lean.Elab.Tactic
+namespace Lean.Elab.Tactic.SolveByElim
 open Meta
 
 open Lean.Parser.Tactic
@@ -110,4 +110,4 @@ def evalSolveByElim : Tactic := fun stx =>
     pure ()
   | _ => throwUnsupportedSyntax
 
-end Lean.Elab.Tactic
+end Lean.Elab.Tactic.SolveByElim

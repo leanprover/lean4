@@ -1,4 +1,3 @@
-
 example : True := by
   fail_if_success omega
   trivial
@@ -428,7 +427,7 @@ example : 2^7 < 165 := by omega
 example (_ : x % 2^7 < 3) : x % 128 < 5 := by omega
 
 /-! ### BitVec -/
-open Std BitVec
+open BitVec
 
 example (x y : BitVec 8) (_ : x < y) : x ≠ y := by
   bv_omega

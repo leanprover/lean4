@@ -8,7 +8,7 @@ import Init.Data.BitVec.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Fin.Iterate
 
-namespace Std.BitVec
+namespace BitVec
 
 /--
 iunfoldr is an iterative operation that applies a function `f` repeatedly.
@@ -57,3 +57,5 @@ theorem iunfoldr_replace
     (step : ∀(i : Fin w), f i (state i.val) = (state (i.val+1), value.getLsb i.val)) :
     iunfoldr f a = (state w, value) := by
   simp [iunfoldr.eq_test state value a init step]
+
+end BitVec

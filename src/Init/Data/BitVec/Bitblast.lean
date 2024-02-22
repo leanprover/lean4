@@ -45,7 +45,7 @@ end Bool
 
 /-! ### Preliminaries -/
 
-namespace Std.BitVec
+namespace BitVec
 
 private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
     testBit x i = decide (x ≥ 2^i) := by
@@ -173,3 +173,5 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 /-- Subtracting `x` from the all ones bitvector is equivalent to taking its complement -/
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
+
+end BitVec

@@ -8,8 +8,6 @@ import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
 
-namespace Std
-
 /-!
 We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
 (Lean has special support for `Nat`), alignment with `UIntXY` types which are also represented
@@ -34,6 +32,8 @@ structure BitVec (w : Nat) where
   /-- Interpret a bitvector as a number less than `2^w`.
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
+
+@[deprecated] abbrev Std.BitVec := _root_.BitVec
 
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
@@ -166,7 +166,7 @@ protected def toHex {n : Nat} (x : BitVec n) : String :=
   let t := (List.replicate ((n+3) / 4 - s.length) '0').asString
   t ++ s
 
-instance : Repr (BitVec n) where reprPrec a _ := "0x" ++ (a.toHex : Format) ++ "#" ++ repr n
+instance : Repr (BitVec n) where reprPrec a _ := "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
 instance : ToString (BitVec n) where toString a := toString (repr a)
 
 end repr_toString
@@ -606,3 +606,5 @@ section normalization_eqs
 @[simp] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
 @[simp] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
 end normalization_eqs
+
+end BitVec

@@ -232,12 +232,9 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     else
       mkAtomLinearCombo e
   | (``HPow.hPow, #[_, _, _, _, b, exp]) =>
-    trace[omega] "found hPow | '{b}' '{exp}'"
     match succ? exp with /- match for (e+1) and (e.succ) -/
     | none => mkAtomLinearCombo e
     | some exppred =>
-        trace[omega] "found hPow | '{b}' e+1='{exppred}'+1"
-        trace[omega] "base = groundNat:{groundNat? b} | groundInt:{groundInt? b}"
         match groundInt? b with
         | some _bint => rewrite e (mkApp2 (.const ``Int.pow_succ []) b exppred)
         | none => mkAtomLinearCombo e
@@ -283,7 +280,6 @@ where
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
-      trace[omega] "found hPow groundNat? groundNat? '{a}={groundNat? a}' '{b}={groundNat? b}'"
       match groundNat? a, groundNat? b with
       | some _, _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
       | _, _ => mkAtomLinearCombo e

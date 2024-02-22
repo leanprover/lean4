@@ -472,7 +472,6 @@ jobs:
 
   # checks that each `Lean` module contains a `prelude` line
   check-prelude:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -486,9 +485,9 @@ jobs:
             if ! grep -q "^prelude$" "$file"; then
               failed_files="$failed_files$file\n"
             fi
-          done < <(find src/Lean -type f -print0)
+          done < <(find src/Lean -name '*.lean' -print0)
           if [ -n "$failed_files" ]; then
-            echo -e "The following files should not import `Init`:\n$failed_files"
+            echo -e "The following files should not import 'Init':\n$failed_files"
             exit 1
           fi
 

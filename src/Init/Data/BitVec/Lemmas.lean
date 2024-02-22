@@ -421,6 +421,17 @@ theorem truncate_succ (x : BitVec w) :
     have j_lt : j.val < i := Nat.lt_of_le_of_ne (Nat.le_of_succ_le_succ j.isLt) j_eq
     simp [j_eq, j_lt]
 
+/-! ### concat -/
+
+@[simp] theorem getLsb_concat (x : BitVec w) (b : Bool) (i : Nat) :
+    (concat x b).getLsb i = match i with
+      | 0 => b
+      | i+1 => x.getLsb i := by
+  simp only [concat, getLsb, toNat_append, toNat_ofBool, Nat.testBit_or, Nat.shiftLeft_eq]
+  cases i
+  · simp [Nat.mod_eq_of_lt b.toNat_lt]
+  · simp [Nat.div_eq_of_lt b.toNat_lt]
+
 /-! ### add -/
 
 theorem add_def {n} (x y : BitVec n) : x + y = .ofNat n (x.toNat + y.toNat) := rfl

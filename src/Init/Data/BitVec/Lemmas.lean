@@ -115,6 +115,16 @@ theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
+/-! ### ult -/
+
+@[simp] theorem ofNat_ult_ofNat (w : Nat) (x y : Nat) :
+    BitVec.ult x#w y#w = decide (x % 2^w < y % 2^w) := rfl
+
+/-! ### ule -/
+
+@[simp] theorem ofNat_ule_ofNat (w : Nat) (x y : Nat) :
+    BitVec.ule x#w y#w = decide (x % 2^w ≤ y % 2^w) := rfl
+
 /-! ### msb -/
 
 theorem msb_eq_getLsb_last (x : BitVec w) :

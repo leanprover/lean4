@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Notation for operators defined at Prelude.lean
 -/
 prelude
-import Init.NotationExtra
+import Init.Meta
 
 namespace Lean.Parser.Tactic.Conv
 

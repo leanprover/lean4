@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #pragma once
 #include "runtime/object.h"
 namespace lean {
-object * curry(void * f, unsigned n, object ** as);
+LEAN_EXPORT object * curry(void * f, unsigned n, object ** as);
 }

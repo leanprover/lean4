@@ -23,9 +23,6 @@ Allow elaboration of `OmegaConfig` arguments to tactics.
 -/
 declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
 
-
-
-
 /--
 The current `ToExpr` instance for `Int` is bad,
 so we roll our own here.
@@ -42,15 +39,12 @@ where
     mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
         (.app (.const ``instOfNat []) r)
 
-
-/-- Match on the two ways of spelling successor that are defeq : `n+1`, `n.succ`. -/
+/-- Match on the two defeq expressions for successor: `n+1`, `n.succ`. -/
 def succ? (e : Expr) : Option Expr :=
   match e.getAppFnArgs with
   | (``Nat.succ, #[n]) => some n
   | (``HAdd.hAdd, #[_, _, _, _, a, b]) => do
-     if b == toExpr (1 : Nat)
-     then some a
-     else none
+     if b == toExpr (1 : Nat) then some a else none
   | _ => none
 
 /--
@@ -231,12 +225,12 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       rewrite e (mkApp2 (.const ``Int.max_def []) a b)
     else
       mkAtomLinearCombo e
-  | (``HPow.hPow, #[_, _, _, _, b, exp]) =>
-    match succ? exp with /- match for (e+1) and (e.succ) -/
+  | (``HPow.hPow, #[_, _, _, _, b, k]) =>
+    match succ? k with /- match for `e+1` and `e.succ` -/
     | none => mkAtomLinearCombo e
-    | some exppred =>
+    | some k' =>
         match groundInt? b with
-        | some _bint => rewrite e (mkApp2 (.const ``Int.pow_succ []) b exppred)
+        | some _ => rewrite e (mkApp2 (.const ``Int.pow_succ []) b k')
         | none => mkAtomLinearCombo e
   | (``Nat.cast, #[.const ``Int [], i, n]) =>
       handleNatCast e i n

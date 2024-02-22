@@ -5,7 +5,7 @@ Authors: Joachim Breitner
 -/
 prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.Match.Match
+import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
 import Lean.Elab.Quotation

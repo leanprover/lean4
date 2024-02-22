@@ -1088,6 +1088,13 @@ Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" (config)? : tactic
 
+/--
+`bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
+Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
+`bv_toNat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
+-/
+macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 

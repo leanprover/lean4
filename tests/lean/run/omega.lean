@@ -419,26 +419,24 @@ example : 2^7 < 165 := by omega
 example (_ : x % 2^7 < 3) : x % 128 < 5 := by omega
 
 /-! ### BitVec -/
--- Currently these tests require calling `simp` with many lemmas,
--- and sometimes adding `toNat_lt` as a hypothesis.
--- We need a good `BitVec` to `Nat` preprocessor.
-
 open Std BitVec
 
+example (x y : BitVec 8) (_ : x < y) : x ≠ y := by
+  bv_omega
+
 example (x y : BitVec 8) (hx : x < 16) (hy : y < 16) : x + y < 31 := by
-  simp [BitVec.lt_def] at *
-  omega
+  bv_omega
 
 example (x y z : BitVec 8)
     (hx : x >>> 1 < 16) (hy : y < 16) (hz : z = x + 2 * y) : z ≤ 64 := by
-  simp [BitVec.lt_def, BitVec.le_def, BitVec.toNat_eq, BitVec.toNat_mul] at *
-  omega
+  bv_omega
 
 example (x : BitVec 8) (hx : (x + 1) <<< 1 = 3) : False := by
-  simp [BitVec.toNat_eq] at *
-  omega
+  bv_omega
 
 example (x : BitVec 8) (hx : (x + 1) <<< 1 = 4) : x = 1 ∨ x = 129 := by
-  have := toNat_lt x
-  simp [BitVec.toNat_eq, BitVec.lt_def] at *
-  omega
+  bv_omega
+
+example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
+    ~~~x > (1#64 <<< 63) := by
+  bv_omega

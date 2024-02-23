@@ -445,6 +445,15 @@ theorem truncate_succ (x : BitVec w) :
 
 /-! ### concat -/
 
+@[simp] theorem toNat_concat (x : BitVec w) (b : Bool) :
+    (concat x b).toNat = x.toNat * 2 + b.toNat := by
+  apply Nat.eq_of_testBit_eq
+  simp only [concat, toNat_append, Nat.shiftLeft_eq, Nat.pow_one, toNat_ofBool, Nat.testBit_or]
+  cases b
+  · simp
+  · rintro (_ | i)
+    <;> simp [Nat.add_mod, Nat.add_comm, Nat.add_mul_div_right]
+
 theorem getLsb_concat (x : BitVec w) (b : Bool) (i : Nat) :
     (concat x b).getLsb i = if i = 0 then b else x.getLsb (i - 1) := by
   simp only [concat, getLsb, toNat_append, toNat_ofBool, Nat.testBit_or, Nat.shiftLeft_eq]

@@ -11,6 +11,7 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 prelude
 import Init.System.IO
 import Init.Data.List.Control
+import Init.Data.Option.BasicAux
 
 namespace Lean
 open System

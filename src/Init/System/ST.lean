@@ -5,8 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Classical
-import Init.Control.EState
-import Init.Control.Reader
 
 def EST (ε : Type) (σ : Type) : Type → Type := EStateM ε σ
 abbrev ST (σ : Type) := EST Empty σ

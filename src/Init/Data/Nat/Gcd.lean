@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Dvd
+import Init.WFTactics
 
 namespace Nat
 

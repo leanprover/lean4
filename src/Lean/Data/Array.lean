@@ -5,6 +5,7 @@ Authors: Joachim Breitner
 -/
 prelude
 import Init.Data.Range
+import Init.Data.Array.Basic
 
 namespace Array
 

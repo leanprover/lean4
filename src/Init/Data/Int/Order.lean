@@ -5,7 +5,7 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
 prelude
 import Init.Data.Int.Lemmas
-import Init.ByCases
+import Init.Classical
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.

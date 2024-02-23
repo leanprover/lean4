@@ -8,7 +8,8 @@ Extra notation that depends on Init/Meta
 prelude
 import Init.Meta
 import Init.Data.Array.Subarray
-import Init.Data.ToString
+import Init.Data.ToString.Macro
+
 namespace Lean
 
 macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>

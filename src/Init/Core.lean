@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 notation, basic datatypes and type classes
 -/
 prelude
-import Init.Prelude
 import Init.SizeOf
+import Init.Tactics
+
 set_option linter.missingDocs true -- keep it documented
 
 universe u v w

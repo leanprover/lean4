@@ -7,8 +7,9 @@ This provides additional lemmas about propositional types beyond what is
 needed for Core and SimpLemmas.
 -/
 prelude
-import Init.Core
 import Init.NotationExtra
+import Init.Core
+import Init.SimpLemmas
 set_option linter.missingDocs true -- keep it documented
 
 /-! ## not -/

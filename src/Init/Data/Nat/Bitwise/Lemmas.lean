@@ -9,7 +9,9 @@ import Init.Data.Bool
 import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.TacticsExtra
-import Init.Omega
+import Init.Omega.Constraint
+import Init.Omega.Logic
+import Init.Omega.LinearCombo
 
 /-
 This module defines properties of the bitwise operations on Natural numbers.

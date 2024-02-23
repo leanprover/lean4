@@ -5,6 +5,8 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Ord
+import Init.Util
+
 namespace Lean
 
 instance : Coe String Name := ⟨Name.mkSimple⟩

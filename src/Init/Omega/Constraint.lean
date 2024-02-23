@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 prelude
-import Init.Omega.LinearCombo
 import Init.Omega.Int
+import Init.Omega.Coeffs
 
 /-!
 A `Constraint` consists of an optional lower and upper bound (inclusive),

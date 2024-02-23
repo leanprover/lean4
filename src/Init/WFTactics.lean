@@ -4,14 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.SizeOf
-import Init.MetaTypes
 import Init.WF
+import Init.MetaTypes -- for Simp.Config
 
 /-- Unfold definitions commonly used in well founded relation definitions.
 This is primarily intended for internal use in `decreasing_tactic`. -/
 macro "simp_wf" : tactic =>
-  `(tactic| try simp (config := { unfoldPartialApp := true, zetaDelta := true }) [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
+  `(tactic| simp (config := { unfoldPartialApp := true, zetaDelta := true, failIfUnchanged := false }) [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.

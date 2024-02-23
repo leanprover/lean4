@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import Init.Tactics
+import Init.Notation
+
 set_option linter.missingDocs true -- keep it documented
 
 /-! # SizeOf -/
@@ -83,7 +84,7 @@ deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
 
 @[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := rfl
-@[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := by cases b <;> rfl
+@[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := b.casesOn (Eq.refl _) (Eq.refl _)
 
 namespace Lean
 

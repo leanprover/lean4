@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.BuiltinTactic
+import Init.Conv
 
 namespace Lean.Elab.Tactic.Conv
 open Meta

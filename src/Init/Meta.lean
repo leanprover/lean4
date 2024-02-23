@@ -8,7 +8,6 @@ Additional goodies for writing macros
 prelude
 import Init.MetaTypes
 import Init.Data.Array.Basic
-import Init.Data.Option.BasicAux
 import Init.Data.String.Extra
 
 namespace Lean

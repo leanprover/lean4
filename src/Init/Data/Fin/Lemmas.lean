@@ -6,10 +6,12 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Lemmas
-import Init.Ext
 import Init.ByCases
 import Init.Conv
-import Init.Omega
+import Init.Omega.Constraint
+import Init.Omega.Logic
+import Init.Omega.LinearCombo
+import Init.Ext
 
 namespace Fin
 

@@ -5,10 +5,11 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Coe
-import Init.ByCases
 import Init.Data.Nat.Basic
 import Init.Data.List.Basic
 import Init.Data.Prod
+import Init.PropLemmas
+import Init.ByCases
 
 namespace Nat.Linear
 

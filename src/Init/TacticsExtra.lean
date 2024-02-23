@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Tactics
-import Init.NotationExtra
+import Init.Meta
 
 /-!
 Extra tactics and implementation for some tactics defined at `Init/Tactic.lean`

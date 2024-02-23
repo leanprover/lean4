@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Jacob von Raumer
 -/
 prelude
+import Init.Meta
 import Init.Tactics
-import Init.NotationExtra
 
 /-!
 # Recursive cases (`rcases`) tactic and related tactics

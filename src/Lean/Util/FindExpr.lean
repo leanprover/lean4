@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Expr
 import Lean.Util.PtrSet
+import Init.Control.Option
 
 namespace Lean
 namespace Expr

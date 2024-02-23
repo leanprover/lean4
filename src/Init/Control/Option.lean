@@ -6,7 +6,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Init.Data.Option.Basic
 import Init.Control.Basic
-import Init.Control.Except
 
 universe u v
 

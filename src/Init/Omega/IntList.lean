@@ -5,6 +5,8 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.Data.List.Lemmas
+import Init.Data.Int.DivModLemmas
+import Init.Data.Int.Gcd
 
 namespace Lean.Omega
 

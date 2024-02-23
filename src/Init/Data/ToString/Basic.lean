@@ -11,7 +11,7 @@ import Init.Data.Repr
 import Init.Data.Int.Basic
 import Init.Data.Format.Basic
 import Init.Control.Id
-import Init.Control.Option
+import Init.Data.Option.Basic
 open Sum Subtype Nat
 
 open Std

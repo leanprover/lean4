@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
-import Init.TacticsExtra
+import Init.Data.Format.Macro
+import Init.Data.ToString.Macro
 import Init.RCases
+import Init.Meta
 
 namespace Lean
 namespace Parser.Attr

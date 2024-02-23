@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.UInt.Basic
-import Init.Data.String
+import Init.Data.Array.Basic
 universe u
 
 instance : Hashable Nat where

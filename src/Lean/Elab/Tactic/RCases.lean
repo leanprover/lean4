@@ -5,6 +5,7 @@ Authors: Mario Carneiro, Jacob von Raumer
 -/
 prelude
 import Lean.Elab.Tactic.Induction
+import Init.RCases
 
 namespace Lean.Elab.Tactic.RCases
 open Meta Parser Tactic

@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
-import Init.Data.Option.Basic
+import Init.WFTactics
+
 universe u
 
 def List.asString (s : List Char) : String :=

@@ -5,6 +5,7 @@ Authors: Jeremy Avigad, Mario Carneiro
 -/
 prelude
 import Init.Data.Int.Basic
+import Init.Data.Nat.Div
 
 open Nat
 

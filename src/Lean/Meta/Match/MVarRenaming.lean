@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.ReplaceExpr
+import Init.Data.Option.BasicAux
 
 namespace Lean.Meta
 

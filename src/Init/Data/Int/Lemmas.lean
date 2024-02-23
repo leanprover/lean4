@@ -5,8 +5,8 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 -/
 prelude
 import Init.Data.Int.Basic
+import Init.Data.Nat.Lemmas
 import Init.Conv
-import Init.PropLemmas
 
 namespace Int
 

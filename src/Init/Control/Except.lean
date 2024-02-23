@@ -9,6 +9,7 @@ prelude
 import Init.Control.Basic
 import Init.Control.Id
 import Init.Coe
+import Init.Core
 
 namespace Except
 variable {ε : Type u}

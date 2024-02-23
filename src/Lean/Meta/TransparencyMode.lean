@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.UInt.Basic
+import Init.MetaTypes
+
 namespace Lean.Meta
 
 namespace TransparencyMode

@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Format.Basic
-import Init.Data.ToString.Macro
+import Init.Meta
 
 namespace Std
 

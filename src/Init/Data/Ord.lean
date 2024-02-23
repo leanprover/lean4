@@ -5,8 +5,8 @@ Authors: Dany Fabian, Sebastian Ullrich
 -/
 
 prelude
-import Init.Data.Int
-import Init.Data.String
+import Init.Data.Int.Basic
+import Init.Data.String.Basic
 
 inductive Ordering where
   | lt | eq | gt

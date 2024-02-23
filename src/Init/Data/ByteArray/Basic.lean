@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
-import Init.Data.Array.Subarray
 import Init.Data.UInt.Basic
 import Init.Data.Option.Basic
 universe u

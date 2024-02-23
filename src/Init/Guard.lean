@@ -6,7 +6,6 @@ Authors: Mario Carneiro
 prelude
 import Init.Tactics
 import Init.Conv
-import Init.NotationExtra
 
 namespace Lean.Parser
 

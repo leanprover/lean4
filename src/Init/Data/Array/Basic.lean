@@ -11,6 +11,7 @@ import Init.Data.UInt.Basic
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.Util
+
 universe u v w
 
 namespace Array

@@ -10,6 +10,7 @@ import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
+import Init.Data.Nat.Gcd
 
 namespace Lean.Meta
 

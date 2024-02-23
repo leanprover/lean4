@@ -127,7 +127,7 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   · simp [BitVec.eq_nil x]
   · simp
 
-@[simp] theorem getLsb_last (x : BitVec (w + 1)) :
+@[bv_toNat] theorem getLsb_last (x : BitVec (w + 1)) :
     x.getLsb w = decide (2 ^ w ≤ x.toNat) := by
   simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
     Nat.sub_zero, Nat.and_one_is_mod, Bool.true_and, Nat.shiftRight_eq_div_pow]
@@ -139,9 +139,8 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
     · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
       omega
 
-@[simp]
-theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
-  simp [msb_eq_getLsb_last]
+@[bv_toNat] theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
+  simp [msb_eq_getLsb_last, getLsb_last]
 
 /-! ### cast -/
 

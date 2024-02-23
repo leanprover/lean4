@@ -1,0 +1,2 @@
+isDefEqDelayedMVarsBug.lean:10:8-10:9: warning: declaration uses 'sorry'
+isDefEqDelayedMVarsBug.lean:14:8-14:10: warning: declaration uses 'sorry'

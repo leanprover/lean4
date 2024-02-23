@@ -42,6 +42,13 @@ where
     mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
         (.app (.const ``instOfNat []) r)
 
+instance : ToExpr (Fin n) where
+  toTypeExpr := .app (mkConst ``Fin) (toExpr n)
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (.app (mkConst ``Fin) (toExpr n)) r
+      (mkApp2 (.const ``Fin.instOfNat []) (mkRawNatLit (n-1)) r)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool

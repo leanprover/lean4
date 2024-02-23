@@ -321,6 +321,27 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
   · exact (Nat.add_sub_cancel_left ..).symm
   · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
+/- ## add/sub injectivity -/
+
+@[simp]
+theorem add_right_inj (i j k : Int) : (i + k = j + k) ↔ i = j := by
+  apply Iff.intro
+  · intro p
+    rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
+  · exact congrArg (· + k)
+
+@[simp]
+theorem add_left_inj (i j k : Int) : (k + i = k + j) ↔ i = j := by
+  simp [Int.add_comm k]
+
+@[simp]
+theorem sub_left_inj (i j k : Int) : (k - i = k - j) ↔ i = j := by
+  simp [Int.sub_eq_add_neg, Int.neg_inj]
+
+@[simp]
+theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
+  simp [Int.sub_eq_add_neg]
+
 /- ## Ring properties -/
 
 @[simp] theorem ofNat_mul_negSucc (m n : Nat) : (m : Int) * -[n+1] = -↑(m * succ n) := rfl

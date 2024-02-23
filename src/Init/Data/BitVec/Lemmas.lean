@@ -148,6 +148,15 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
 @[bv_toNat] theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
   simp [msb_eq_getLsb_last, getLsb_last]
 
+theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2^(n-1) := by
+  match n with
+  | 0 =>
+    simp [BitVec.msb, BitVec.getMsb] at p
+  | n + 1 =>
+    simp [BitVec.msb_eq_decide] at p
+    omega
+
+
 /-! ### cast -/
 
 @[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (cast h x).toNat = x.toNat := rfl
@@ -162,6 +171,84 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   subst h; simp
 @[simp] theorem msb_cast (h : w = v) (x : BitVec w) : (cast h x).msb = x.msb := by
   simp [BitVec.msb]
+
+/-! ### toInt/ofInt -/
+
+/-- Prove equality of bitvectors in terms of nat operations. -/
+theorem toInt_eq_toNat_cond (i : BitVec n) :
+    i.toInt =
+      if 2*i.toNat < 2^n then
+        (i.toNat : Int)
+      else
+        (i.toNat : Int) - (2 : Nat)^n := by
+  split
+  case inl h =>
+    unfold BitVec.toInt
+    unfold Int.bmod
+    simp [← Int.ofNat_emod, Nat.mod_eq_of_lt, i.isLt]
+    omega
+  case inr h =>
+    unfold BitVec.toInt
+    unfold Int.bmod
+    simp at h
+    simp only [Int.powOfNat 2 n]
+    split
+    case inl g =>
+      norm_cast at g
+      simp at g
+      norm_cast
+      simp
+      omega
+    case inr g =>
+      simp [Int.powOfNat 2 n, ← Int.ofNat_emod]
+
+theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
+  simp only [toInt_eq_toNat_cond]
+  split
+  case inl g =>
+    rw [Int.bmod_pos] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    omega
+  case inr g =>
+    rw [Int.powNatCast]
+    rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
+    omega
+
+/-- Prove equality of bitvectors in terms of nat operations. -/
+theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
+  intro eq
+  simp [toInt_eq_toNat_cond] at eq
+  if p : 2 * BitVec.toNat i < 2 ^ n then
+    if q : 2 * BitVec.toNat j < 2 ^ n then
+      simp [p, q] at eq
+      apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
+    else
+      simp [p, q, Int.powOfNat 2 n] at eq
+      omega
+  else
+    if q : 2 * BitVec.toNat j < 2 ^ n then
+      simp [p, q, Int.powOfNat 2 n] at eq
+      omega
+    else
+      simp [p, q] at eq
+      apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
+
+@[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
+  (BitVec.ofInt n i).toNat = (i % (2^n)).toNat := by
+  unfold BitVec.ofInt
+  rw [Int.powOfNat]
+  simp
+
+
+@[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
+  (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
+  simp [toInt_eq_toNat_bmod]
+  rw [Int.powOfNat, Int.toNat_of_nonneg _]
+  . simp
+  · apply Int.emod_nonneg
+    intro eq
+    apply Nat.ne_of_gt (Nat.two_pow_pos n)
+    apply Int.ofNat_inj.mp eq
+
 
 /-! ### zeroExtend and truncate -/
 

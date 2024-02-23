@@ -158,4 +158,38 @@ instance : Div Int where
 instance : Mod Int where
   mod := Int.emod
 
+/-!
+# `bmod` ("balanced" mod)
+
+Balanced mod (and balanced div) are a division and modulus pair such
+that `b * (Int.bdiv a b) + Int.bmod a b = a` and `b/2 ≤ Int.bmod a b <
+b/2` for all `a : Int` and `b > 0`.
+
+This is used in Omega as well as signed bitvectors.
+-/
+
+/--
+Balanced mod, taking values in the range [- m/2, (m - 1)/2].
+-/
+def bdiv (x : Int) (m : Nat) : Int :=
+  if m = 0 then
+    0
+  else
+    let q := x / m
+    let r := x % m
+    if r < (m + 1) / 2 then
+      q
+    else
+      q + 1
+
+/--
+Balanced mod, taking values in the range [- m/2, (m - 1)/2].
+-/
+def bmod (x : Int) (m : Nat) : Int :=
+  let r := x % m
+  if r < (m + 1) / 2 then
+    r
+  else
+    r - m
+
 end Int

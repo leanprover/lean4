@@ -1423,11 +1423,11 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option (Expr × Option Lo
     let mut lctx := lctx
     logInfo m!"fvars: {fvars}, {fvars.size}; tArgs: {tArgs}, {tArgs.size}"
     for i in [:fvars.size] do
-      let some fvar := fvars[i]?
-        | throwError "fvar access failed: fvars[{i}] (fvars.size = {fvars.size}, fvars = {fvars})"
+      let fvar := fvars[i]!
+      logInfo m!"{i} fvar: {fvar}"
       let decl ← fvar.fvarId!.getDecl
-      let some tArg := tArgs[i]?
-        | throwError "tArg access failed: tArgs[{i}] (tArgs.size = {tArgs.size}, tArgs = {tArgs})"
+      let tArg := tArgs[i]!
+      logInfo m!"{i} tArg: {tArg}"
       if decl.isLet then throwError "{fvar} = fvars[{i}] is unexpectedly a let decl"
       let decl := match decl with
         | d@(.ldecl _ _ _ _ _ _ _) => d

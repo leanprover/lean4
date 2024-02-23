@@ -31,9 +31,16 @@ instance : ToExpr Nat where
 
 instance : ToExpr Int where
   toTypeExpr := .const ``Int []
-  toExpr i := match i with
-    | .ofNat n => mkApp (.const ``Int.ofNat []) (toExpr n)
-    | .negSucc n => mkApp (.const ``Int.negSucc []) (toExpr n)
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNat
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (mkNat (-i).toNat)
+      (.const ``Int.instNegInt [])
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
+        (.app (.const ``instOfNat []) r)
 
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false

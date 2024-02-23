@@ -15,10 +15,7 @@ open Elab Tactic TryThis
 
 -- TODO: implement the additional options for `library_search` from Lean 3,
 -- in particular including additional lemmas
--- with `std_exact? [X, Y, Z]` or `std_exact? with attr`.
-
--- For now we only implement the basic functionality.
--- The full syntax is recognized, but will produce a "Tactic has not been implemented" error.
+-- with `exact? [X, Y, Z]` or `exact? with attr`.
 
 /-- Implementation of the `exact?` tactic. -/
 def exact? (tk : Syntax) (required : Option (Array (TSyntax `term)))
@@ -45,7 +42,7 @@ def exact? (tk : Syntax) (required : Option (Array (TSyntax `term)))
     -- Found suggestions
     | some suggestions =>
       if requireClose then throwError
-        "`std_exact?` could not close the goal. Try `std_apply?` to see partial suggestions."
+        "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
       reportOutOfHeartbeats `library_search tk
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
@@ -77,7 +74,7 @@ elab tk:"exact?%" : term <= expectedType => do
       for suggestion in suggestions do
         withMCtx suggestion.2 do
           addTermSuggestion tk (← instantiateMVars goal).headBeta
-      if suggestions.isEmpty then logError "std_exact? didn't find any relevant lemmas"
+      if suggestions.isEmpty then logError "exact?# didn't find any relevant lemmas"
       mkSorry expectedType (synthetic := true)
     else
       addTermSuggestion tk (← instantiateMVars goal).headBeta

@@ -1287,10 +1287,23 @@ a lemma from the list until it gets stuck.
 syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
 end SolveByElim
 
-/-- Syntax for `exact?` -/
+/--
+Searches environment for definitions or theorems that can solve the goal using `exact`
+with conditions resolved by `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used by `exact?` when closing the goal.  This is most useful if there are multiple
+ways to resolve the goal, and one wants to guide which lemma is used.
+-/
 syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
 
-/-- Syntax for `apply?` -/
+/--
+Searches environment for definitions or theorems that can refine the goal using `apply`
+with conditions resolved when possible with `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used when closing the goal.
+-/
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 
 end Tactic

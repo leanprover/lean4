@@ -10,20 +10,17 @@ import Lean.Util.Heartbeats
 /-!
 # Library search
 
-This file defines tactics `std_exact?` and `std_apply?`,
+This file defines tactics `exact?` and `apply?`,
 (formerly known as `library_search`)
-and a term elaborator `std_exact?%`
+and a term elaborator `exact?%`
 that tries to find a lemma
 solving the current goal
 (subgoals are solved using `solveByElim`).
 
 ```
-example : x < x + 1 := std_exact?%
-example : Nat := by std_exact?
+example : x < x + 1 := exact?%
+example : Nat := by exact?
 ```
-
-These functions will likely lose their `std_` prefix once
-we are ready to replace the corresponding implementations in Mathlib.
 -/
 
 
@@ -69,7 +66,7 @@ def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
 namespace DiscrTreeFinder
 
-/-- Add a path to a discrimination tree.-/
+/-- Adds a path to a discrimination tree. -/
 private def addPath [BEq α] (config : WhnfCoreConfig) (tree : DiscrTree α) (tp : Expr) (v : α) :
     MetaM (DiscrTree α) := do
   let k ← DiscrTree.mkPath tp config
@@ -92,7 +89,7 @@ private def updateTree (config : WhnfCoreConfig) (tree : DiscrTree (Name × Decl
       return tree
 
 /--
-Constructs an discriminator tree from the current environment.
+Constructs an discrimination tree from the current environment.
 -/
 def buildImportCache (config : WhnfCoreConfig) : MetaM (DiscrTree (Name × DeclMod)) := do
   let profilingName := "apply?: init cache"
@@ -103,8 +100,9 @@ def buildImportCache (config : WhnfCoreConfig) : MetaM (DiscrTree (Name × DeclM
     (·.mapArrays post) <$> (← getEnv).constants.map₁.foldM (init := {}) (updateTree config)
 
 /--
-Return matches from local constants.
-
+Returns matches from local constants.
+-/
+/-
 N.B. The efficiency of this could likely be considerably improved by caching in environment
 extension.
 -/
@@ -113,7 +111,7 @@ def localMatches (config : WhnfCoreConfig) (ty : Expr) : MetaM (Array (Name × D
   pure <| (← locals.getMatch  ty config).reverse
 
 /--
-Candidate finding function that uses strict discrimination tree for resolution.
+Candidate-finding function that uses a strict discrimination tree for resolution.
 -/
 def mkImportFinder (config : WhnfCoreConfig) (importTree : DiscrTree (Name × DeclMod))
     (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
@@ -126,9 +124,9 @@ namespace IncDiscrTreeFinder
 open LazyDiscrTree (InitEntry createImportedEnvironment)
 
 /--
-The maximum number of constants an individual task performed.
+The maximum number of constants an individual task may perform.
 
-The value below was picked because it roughly correponded to 50ms of work on the machine this was
+The value was picked because it roughly correponded to 50ms of work on the machine this was
 developed on.  Smaller numbers did not seem to improve performance when importing Std and larger
 numbers (<10k) seemed to degrade initialization performance.
 -/
@@ -147,7 +145,7 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
       pure a
 
 /--
-Candidate finding function that uses strict discrimination tree for resolution.
+Candidate-finding function that uses a strict discrimination tree for resolution.
 -/
 def mkImportFinder : IO CandidateFinder := do
   let ref ← IO.mkRef none
@@ -230,8 +228,8 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
 
 
 /--
-An exception Id that indicates further speculation on candidate lemmas should stop
-and current results returned.
+An exception ID that indicates further speculation on candidate lemmas should stop
+and current results should be returned.
 -/
 private initialize abortSpeculationId : InternalExceptionId ←
   registerInternalExceptionId `Std.Tactic.LibrarySearch.abortSpeculation
@@ -274,7 +272,7 @@ def librarySearchSymm (searchFn : CandidateFinder) (goal : MVarId) : MetaM (Arra
   else
     pure $ l1.map (coreGoalCtx, ·)
 
-private def emoji (e:Except ε α) := if e.toBool then checkEmoji else crossEmoji
+private def emoji (e : Except ε α) := if e.toBool then checkEmoji else crossEmoji
 
 /-- Create lemma from name and mod. -/
 def mkLibrarySearchLemma (lem : Name) (mod : DeclMod) : MetaM Expr := do
@@ -285,10 +283,10 @@ def mkLibrarySearchLemma (lem : Name) (mod : DeclMod) : MetaM Expr := do
   | .mpr => mapForallTelescope (fun e => mkAppM ``Iff.mpr #[e]) lem
 
 /--
-Try applying the given lemma (with symmetry modifier) to the goal,
-then try to close subsequent goals using `solveByElim`.
-If `solveByElim` succeeds, we return `[]` as the list of new subgoals,
-otherwise the full list of subgoals.
+Tries to apply the given lemma (with symmetry modifier) to the goal,
+then tries to close subsequent goals using `solveByElim`.
+If `solveByElim` succeeds, `[]` is returned as the list of new subgoals,
+otherwise the full list of subgoals is returned.
 -/
 private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool) (cand : Candidate)  : MetaM (List MVarId) := do
@@ -366,7 +364,7 @@ private def librarySearch' (goal : MVarId)
   tryOnEach act candidates
 
 /--
-Try to solve the goal either by:
+Tries to solve the goal either by:
 * calling `tactic true`
 * or applying a library lemma then calling `tactic false` on the resulting goals.
 

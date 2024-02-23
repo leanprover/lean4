@@ -19,7 +19,7 @@ use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler
 namespace Lean
 
 /--
-Count the number of heartbeats used during a monadic function.
+Counts the number of heartbeats used during a monadic function.
 
 Remember that user facing heartbeats (e.g. as used in `set_option maxHeartbeats`)
 differ from the internally tracked heartbeats by a factor of 1000,
@@ -32,18 +32,18 @@ def withHeartbeats [Monad m] [MonadLiftT BaseIO m] (x : m α) : m (α × Nat) :=
   let finish ← IO.getNumHeartbeats
   return (r, finish - start)
 
-/-- Return the current `maxHeartbeats`. -/
+/-- Returns the current `maxHeartbeats`. -/
 def getMaxHeartbeats : CoreM Nat := do pure <| (← read).maxHeartbeats
 
-/-- Return the current `initHeartbeats`. -/
+/-- Returns the current `initHeartbeats`. -/
 def getInitHeartbeats : CoreM Nat := do pure <| (← read).initHeartbeats
 
-/-- Return the remaining heartbeats available in this computation. -/
+/-- Returns the remaining heartbeats available in this computation. -/
 def getRemainingHeartbeats : CoreM Nat := do
   pure <| (← getMaxHeartbeats) - ((← IO.getNumHeartbeats) - (← getInitHeartbeats))
 
 /--
-Return the percentage of the max heartbeats allowed
+Returns the percentage of the max heartbeats allowed
 that have been consumed so far in this computation.
 -/
 def heartbeatsPercent : CoreM Nat := do

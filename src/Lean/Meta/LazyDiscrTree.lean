@@ -10,7 +10,7 @@ import Lean.Meta.DiscrTree
 # Lazy Discrimination Tree
 
 This file defines a new type of discrimination tree optimized for
-rapidly population of imported modules for use in tactics.  It uses a
+rapid population of imported modules for use in tactics.  It uses a
 lazy initialization strategy.
 
 The discrimination tree can be created through
@@ -61,25 +61,26 @@ private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
 /--
-  Return true iff the argument should be treated as a "wildcard" by the discrimination tree.
+  Returns true iff the argument should be treated as a "wildcard" by the discrimination tree.
 
-  - We ignore proofs because of proof irrelevance. It doesn't make sense to try to
+  - Proofs are ignored because of proof irrelevance. It doesn't make sense to try to
     index their structure.
 
-  - We ignore instance implicit arguments (e.g., `[Add α]`) because they are "morally" canonical.
-    Moreover, we may have many definitionally equal terms floating around.
+  - Instance implicit arguments (e.g., `[Add α]`) are ignored because they are "morally"
+    canonical. Moreover, we may have many definitionally equal terms floating around.
     Example: `Ring.hasAdd Int Int.isRing` and `Int.hasAdd`.
 
-  - We considered ignoring implicit arguments (e.g., `{α : Type}`) since users don't "see" them,
-    and may not even understand why some simplification rule is not firing.
-    However, in type class resolution, we have instance such as `Decidable (@Eq Nat x y)`,
-    where `Nat` is an implicit argument. Thus, we would add the path
+  - Implicit arguments (e.g., `{α : Type}`) are not ignored. It may seem that they
+    should be, since users don't "see" them,  and may not even understand why
+    some simplification rule is not firing.
+    However, in type class resolution, there are instances such as `Decidable (@Eq Nat x y)`,
+    where `Nat` is an implicit argument. Thus, the path
     ```
     Decidable -> Eq -> * -> * -> * -> [Nat.decEq]
     ```
-    to the discrimination tree IF we ignored the implicit `Nat` argument.
+    would be added to the discrimination tree IF the implicit `Nat` argument were ignored.
     This would be BAD since **ALL** decidable equality instances would be in the same path.
-    So, we index implicit arguments if they are types.
+    So, implicit arguments are indexed if they are types.
     This setting seems sensible for simplification theorems such as:
     ```
     forall (x y : Unit), (@Eq Unit x y) = true
@@ -112,7 +113,7 @@ private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Arr
   | _, _, todo => return todo
 
 /--
-  Return true if `e` is one of the following
+  Returns `true` if `e` is one of the following
   - A nat literal (numeral)
   - `Nat.zero`
   - `Nat.succ x` where `isNumeral x`
@@ -158,7 +159,7 @@ private def isNatType (e : Expr) : MetaM Bool :=
   return (← whnf e).isConstOf ``Nat
 
 /--
-  Return true if `e` is one of the following
+  Returns `true` if `e` is one of the following
   - `Nat.add _ k` where `isNumeral k`
   - `Add.add Nat _ _ k` where `isNumeral k`
   - `HAdd.hAdd _ Nat _ _ k` where `isNumeral k`
@@ -175,7 +176,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   else
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
-/--
+/-
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 

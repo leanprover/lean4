@@ -1068,21 +1068,21 @@ def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallTelescopeImp type k) k
 
 /--
-Given a monadic function `F` that takes a type and a term of that type and produces a new term,
-lifts this to the monadic function that opens a `∀` telescope, applies `F` to the body,
+Given a monadic function `f` that takes a type and a term of that type and produces a new term,
+lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
 and then builds the lambda telescope term for the new term.
 -/
-def mapForallTelescope' (F : Expr → Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+def mapForallTelescope' (f : Expr → Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
   forallTelescope (← inferType forallTerm) fun xs ty => do
-    mkLambdaFVars xs (← F ty (mkAppN forallTerm xs))
+    mkLambdaFVars xs (← f ty (mkAppN forallTerm xs))
 
 /--
-Given a monadic function `F` that takes a term and produces a new term,
-lifts this to the monadic function that opens a `∀` telescope, applies `F` to the body,
+Given a monadic function `f` that takes a term and produces a new term,
+lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
 and then builds the lambda telescope term for the new term.
 -/
-def mapForallTelescope (F : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
-  mapForallTelescope' (fun _ e => F e) forallTerm
+def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+  mapForallTelescope' (fun _ e => f e) forallTerm
 
 private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
   forallTelescopeReducingAux type (maxFVars? := none) k

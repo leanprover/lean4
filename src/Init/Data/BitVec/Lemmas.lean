@@ -81,6 +81,8 @@ theorem eq_of_getMsb_eq {x y : BitVec w}
     have q := pred ⟨w - 1 - i, q_lt⟩
     simpa [q_lt, Nat.sub_sub_self, r] using q
 
+@[simp] theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
+
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
@@ -110,7 +112,9 @@ theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
   getLsb (x#n) i = (i < n && x.testBit i) := by
   simp [getLsb, BitVec.ofNat, Fin.val_ofNat']
 
-@[deprecated toNat_ofNat] theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
+@[simp, deprecated toNat_ofNat] theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
+
+@[simp] theorem getLsb_zero : (0#w).getLsb i = false := by simp [getLsb]
 
 @[simp] theorem toNat_mod_cancel (x : BitVec n) : x.toNat % (2^n) = x.toNat :=
   Nat.mod_eq_of_lt x.isLt
@@ -119,6 +123,8 @@ private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) :
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
 /-! ### msb -/
+
+@[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsb]
 
 theorem msb_eq_getLsb_last (x : BitVec w) :
     x.msb = x.getLsb (w - 1) := by
@@ -203,6 +209,23 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
 @[simp] theorem getLsb_truncate (m : Nat) (x : BitVec n) (i : Nat) :
     getLsb (truncate m x) i = (decide (i < m) && getLsb x i) :=
   getLsb_zeroExtend m x i
+
+@[simp] theorem zeroExtend_zeroExtend_of_le (x : BitVec w) (h : k ≤ l) :
+    (x.zeroExtend l).zeroExtend k = x.zeroExtend k := by
+  ext i
+  simp only [getLsb_zeroExtend, Fin.is_lt, decide_True, Bool.true_and]
+  have p := lt_of_getLsb x i
+  revert p
+  cases getLsb x i <;> simp; omega
+
+@[simp] theorem truncate_truncate_of_le (x : BitVec w) (h : k ≤ l) :
+    (x.truncate l).truncate k = x.truncate k :=
+  zeroExtend_zeroExtend_of_le x h
+
+theorem msb_zeroExtend (x : BitVec w) : (x.zeroExtend v).msb = (decide (0 < v) && x.getLsb (v - 1)) := by
+  rw [msb_eq_getLsb_last]
+  simp only [getLsb_zeroExtend]
+  cases getLsb x (v - 1) <;> simp; omega
 
 /-! ## extractLsb -/
 

@@ -31,7 +31,6 @@ namespace MatchClone
 Discrimination tree key.
 -/
 private inductive Key where
-    /-- Constant -/
   | const : Name → Nat → Key
   | fvar  : FVarId → Nat → Key
   | lit   : Literal → Key
@@ -61,35 +60,15 @@ private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
 /--
-  Returns true iff the argument should be treated as a "wildcard" by the discrimination tree.
+  Returns true iff the argument should be treated as a "wildcard" by the
+  discrimination tree.
 
-  - Proofs are ignored because of proof irrelevance. It doesn't make sense to try to
-    index their structure.
+  This includes proofs, instance implicit arguments, implicit arguments,
+  and terms of the form `noIndexing t`
 
-  - Instance implicit arguments (e.g., `[Add α]`) are ignored because they are "morally"
-    canonical. Moreover, we may have many definitionally equal terms floating around.
-    Example: `Ring.hasAdd Int Int.isRing` and `Int.hasAdd`.
-
-  - Implicit arguments (e.g., `{α : Type}`) are not ignored. It may seem that they
-    should be, since users don't "see" them,  and may not even understand why
-    some simplification rule is not firing.
-    However, in type class resolution, there are instances such as `Decidable (@Eq Nat x y)`,
-    where `Nat` is an implicit argument. Thus, the path
-    ```
-    Decidable -> Eq -> * -> * -> * -> [Nat.decEq]
-    ```
-    would be added to the discrimination tree IF the implicit `Nat` argument were ignored.
-    This would be BAD since **ALL** decidable equality instances would be in the same path.
-    So, implicit arguments are indexed if they are types.
-    This setting seems sensible for simplification theorems such as:
-    ```
-    forall (x y : Unit), (@Eq Unit x y) = true
-    ```
-    If we ignore the implicit argument `Unit`, the `DiscrTree` will say it is a candidate
-    simplification theorem for any equality in our goal.
-
-  Remark: if users have problems with the solution above, we may provide a `noIndexing` annotation,
-  and `ignoreArg` would return true for any term of the form `noIndexing t`.
+  This is a clone of `Lean.Meta.DiscrTree.ignoreArg` and mainly added to
+  avoid coupling between `DiscrTree` and `LazyDiscrTree` while both are
+  potentially subject to independent changes.
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
@@ -103,8 +82,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
   else
     isProof a
 
-private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr →
-    MetaM (Array Expr)
+private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
   | i, .app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
@@ -166,7 +144,7 @@ private def isNatType (e : Expr) : MetaM Bool :=
   - `Nat.succ _`
   This function assumes `e.isAppOf fName`
 -/
-private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
+private def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
   if fName == ``Nat.add && e.getAppNumArgs == 2 then
     return isNumeral e.appArg!
   else if fName == ``Add.add && e.getAppNumArgs == 4 then
@@ -188,7 +166,7 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   In this scenario, we want to retrieve `Nat.succ ?m |-> v`
 -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
-  isOffset fName e
+  isNatOffset fName e
 
 /--
   Try to eliminate loose bound variables by performing beta-reduction.
@@ -542,9 +520,21 @@ private def getTrie (d : LazyDiscrTree α) (idx : TrieIndex) :
   runMatch d (evalNode idx)
 
 /--
-A match result repres
+A match result contains the terms formed from matching a term against
+patterns in the discrimination tree.
+
 -/
 private structure MatchResult (α : Type) where
+  /--
+  The elements in the match result.
+
+  The top-level array represents an array from `score` values to the
+  results with that score. A `score` is the number of non-star matches
+  in a pattern against the term, and thus bounded by the size of the
+  term being matched against.  The elements of this array are themselves
+  arrays of non-empty arrays so that we can defer concatenating results until
+  needed.
+  -/
   elts : Array (Array (Array α)) := #[]
 
 private def MatchResult.push (r : MatchResult α) (score : Nat) (e : Array α) : MatchResult α :=

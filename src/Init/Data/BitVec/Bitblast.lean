@@ -97,7 +97,7 @@ def adc (x y : BitVec w) : Bool → Bool × BitVec w :=
   iunfoldr fun (i : Fin w) c => adcb (x.getLsb i) (y.getLsb i) c
 
 theorem adc_overflow_limit (x y i : Nat) (c : Bool) : x % 2^i + (y % 2^i + c.toNat) < 2^(i+1) := by
-  have : c.toNat ≤ 1 := Bool.toNat_le_one c
+  have : c.toNat ≤ 1 := Bool.toNat_le c
   rw [Nat.pow_succ]
   omega
 

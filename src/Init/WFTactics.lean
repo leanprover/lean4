@@ -34,7 +34,7 @@ The latter should be done carefully to keep the tactic swift.
 syntax "decreasing_trivial" : tactic
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| omega)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| (try simp) <;> omega)
 
 -- This namespace enables `decreasing_trivial` rules lemmas useful before
 -- we have omega available

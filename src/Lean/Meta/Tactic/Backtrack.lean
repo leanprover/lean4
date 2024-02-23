@@ -7,7 +7,7 @@ prelude
 import Init.Data.List.BasicAux
 import Lean.Meta.Iterator
 import Lean.Meta.Tactic.IndependentOf
-import Lean.Elab.Tactic.Omega
+import Init.Omega
 
 /-!
 # `backtrack`

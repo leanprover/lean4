@@ -24,24 +24,6 @@ Allow elaboration of `OmegaConfig` arguments to tactics.
 declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
 
 
-
-
-/--
-The current `ToExpr` instance for `Int` is bad,
-so we roll our own here.
--/
-def mkInt (i : Int) : Expr :=
-  if 0 ≤ i then
-    mkNat i.toNat
-  else
-    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (mkNat (-i).toNat)
-      (.const ``Int.instNegInt [])
-where
-  mkNat (n : Nat) : Expr :=
-    let r := mkRawNatLit n
-    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
-        (.app (.const ``instOfNat []) r)
-
 /--
 A partially processed `omega` context.
 
@@ -197,16 +179,16 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
   | (``HMod.hMod, #[_, _, _, _, n, k]) =>
     match groundNat? k with
     | some k' => do
-      let k' := mkInt k'
+      let k' := toExpr k'
       rewrite (← mkAppM ``HMod.hMod #[n, k']) (mkApp2 (.const ``Int.emod_def []) n k')
     | none => mkAtomLinearCombo e
   | (``HDiv.hDiv, #[_, _, _, _, x, z]) =>
     match groundInt? z with
     | some 0 => rewrite e (mkApp (.const ``Int.ediv_zero []) x)
     | some i => do
-      let e' ← mkAppM ``HDiv.hDiv #[x, mkInt i]
+      let e' ← mkAppM ``HDiv.hDiv #[x, toExpr i]
       if i < 0 then
-        rewrite e' (mkApp2 (.const ``Int.ediv_neg []) x (mkInt (-i)))
+        rewrite e' (mkApp2 (.const ``Int.ediv_neg []) x (toExpr (-i)))
       else
         mkAtomLinearCombo e'
     | _ => mkAtomLinearCombo e

@@ -7,6 +7,7 @@ prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
 import Init.Omega.Logic
+import Init.Data.BitVec
 import Lean.Meta.AppBuilder
 
 /-!
@@ -173,8 +174,8 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
         r := r.insert (mkApp (.const ``Int.neg_le_natAbs []) x)
       | _, (``Fin.val, #[n, i]) =>
         r := r.insert (mkApp2 (.const ``Fin.isLt []) n i)
-      | _, (`Std.BitVec.toNat, #[n, x]) =>
-        r := r.insert (mkApp2 (.const `Std.BitVec.toNat_lt []) n x)
+      | _, (``BitVec.toNat, #[n, x]) =>
+        r := r.insert (mkApp2 (.const ``BitVec.toNat_lt []) n x)
       | _, _ => pure ()
     return r
   | (``HDiv.hDiv, #[_, _, _, _, x, k]) => match natCast? k with

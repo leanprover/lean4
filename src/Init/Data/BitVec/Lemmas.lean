@@ -142,8 +142,7 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   · simp only [h]
     rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
     · decide
-    · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
-      omega
+    · omega
 
 @[bv_toNat] theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
   simp [msb_eq_getLsb_last, getLsb_last]

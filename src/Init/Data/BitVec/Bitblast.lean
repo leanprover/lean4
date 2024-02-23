@@ -89,12 +89,6 @@ private theorem mod_two_pow_succ (x i : Nat) :
     have not_j_ge_i : ¬(j ≥ i) := Nat.not_le_of_lt j_lt_i
     simp [j_lt_i, j_le_i, not_j_ge_i, j_le_i_succ]
 
-private theorem mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ
-     (x y i : Nat) (c : Bool) : x % 2^i + (y % 2^i + c.toNat) < 2^(i+1) := by
-  have : c.toNat ≤ 1 := Bool.toNat_le c
-  rw [Nat.pow_succ]
-  omega
-
 /-! ### Addition -/
 
 /-- carry i x y c returns true if the `i` carry bit is true when computing `x + y + c`. -/
@@ -110,7 +104,7 @@ theorem carry_succ (i : Nat) (x y : BitVec w) (c : Bool) :
   simp only [Nat.pow_succ']
   have sum_bnd : x.toNat%2^i + (y.toNat%2^i + c.toNat) < 2*2^i := by
     simp only [← Nat.pow_succ']
-    exact mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ ..
+    omega
   cases x.toNat.testBit i <;> cases y.toNat.testBit i <;> (simp; omega)
 
 /-- Carry function for bitwise addition. -/
@@ -136,9 +130,9 @@ theorem getLsb_add_add_bool {i : Nat} (i_lt : i < w) (x y : BitVec w) (c : Bool)
       decide_True,
       Bool.true_and,
       Nat.add_assoc,
-      Nat.add_left_comm (_%_) (_ * _) _,
-      testBit_limit (mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ x y i c)
+      Nat.add_left_comm (_%_) (_ * _) _
     ]
+  rw [testBit_limit (by omega)]
   simp [testBit_to_div_mod, carry, Nat.add_assoc]
 
 theorem getLsb_add {i : Nat} (i_lt : i < w) (x y : BitVec w) :

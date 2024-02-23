@@ -274,7 +274,7 @@ structure CallHierarchyItem where
   uri            : DocumentUri
   range          : Range
   selectionRange : Range
-  -- data? : Option unknown
+  data?          : Option Json := none
   deriving FromJson, ToJson, BEq, Hashable, Inhabited
 
 structure CallHierarchyIncomingCallsParams where

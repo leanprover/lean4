@@ -1422,11 +1422,16 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option (Expr × Option Lo
   let lctx ← withLCtx declPending.lctx declPending.localInstances <| do
     let mut lctx := lctx
     for i in [:fvars.size] do
-      let decl ← fvars[i]!.fvarId!.getDecl
+      let some fvar := fvars[i]?
+        | throwError "fvar access failed: fvars[{i}] (fvars.size = {fvars.size}, fvars = {fvars})"
+      let decl ← fvar.fvarId!.getDecl
+      let some tArg := tArgs[i]?
+        | throwError "tArg access failed: tArgs[{i}] (tArgs.size = {tArgs.size}, tArgs = {tArgs})"
+      if decl.isLet then throwError "{fvar} = fvars[{i}] is unexpectedly a let decl"
       let decl := match decl with
         | d@(.ldecl _ _ _ _ _ _ _) => d
         | .cdecl i fvarId n type _ kind =>
-          .ldecl i fvarId n type tArgs[i]! false kind
+          .ldecl i fvarId n type tArg false kind
       lctx := lctx.addDecl decl
     pure lctx
   let e := mkAppRange (.mvar mvarIdPending) fvars.size tArgs.size tArgs

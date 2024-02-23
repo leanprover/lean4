@@ -96,13 +96,11 @@ def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := d
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := do
   let rc ← readThe RequestContext
-  let t ← EIO.asTask <| t.run rc
-  return t.map liftExcept
+  EIO.asTask <| t.run rc
 
 def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext
-  let t ← EIO.mapTask (f · rc) t
-  return t.map liftExcept
+  EIO.mapTask (f · rc) t
 
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext

@@ -7,6 +7,8 @@ prelude
 import Init.BinderPredicates
 import Init.Data.List
 import Init.Data.Option
+import Init.Data.Int.Order
+import Init.TacticsExtra
 
 /-!
 # `List.nonzeroMinimum`, `List.minNatAbs`, `List.maxNatAbs`

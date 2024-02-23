@@ -1421,6 +1421,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option (Expr × Option Lo
   let lctx ← getLCtx
   let lctx ← withLCtx declPending.lctx declPending.localInstances <| do
     let mut lctx := lctx
+    logInfo m!"fvars: {fvars}, {fvars.size}; tArgs: {tArgs}, {tArgs.size}"
     for i in [:fvars.size] do
       let some fvar := fvars[i]?
         | throwError "fvar access failed: fvars[{i}] (fvars.size = {fvars.size}, fvars = {fvars})"

@@ -1417,7 +1417,19 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none
-  return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
+  let lctx ← getLCtx
+  let declPending ← mvarIdPending.getDecl
+  if declPending.lctx.isSubPrefixOf lctx then
+    return mkAppRange (.mvar mvarIdPending) fvars.size tArgs.size tArgs
+  else if lctx.isSubPrefixOf declPending.lctx then
+    let type ← instantiateMVars declPending.type
+    -- Attempt to clear any novel fvars from `mvarIdPending`'s context
+    unless (← MetavarContext.isWellFormed lctx type) do return none
+    let newMVar ← mkFreshExprMVar type declPending.kind declPending.userName
+    mvarIdPending.assign newMVar
+    return mkAppRange newMVar fvars.size tArgs.size tArgs
+  else
+    return none
 
 private def isAssignable : Expr → MetaM Bool
   | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)

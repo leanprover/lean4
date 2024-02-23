@@ -179,7 +179,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
   | (``HMod.hMod, #[_, _, _, _, n, k]) =>
     match groundNat? k with
     | some k' => do
-      let k' := toExpr k'
+      let k' := toExpr (k' : Int)
       rewrite (← mkAppM ``HMod.hMod #[n, k']) (mkApp2 (.const ``Int.emod_def []) n k')
     | none => mkAtomLinearCombo e
   | (``HDiv.hDiv, #[_, _, _, _, x, z]) =>

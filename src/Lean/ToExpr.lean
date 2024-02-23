@@ -34,8 +34,8 @@ instance : ToExpr Int where
   toExpr i := if 0 ≤ i then
     mkNat i.toNat
   else
-    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (mkNat (-i).toNat)
-      (.const ``Int.instNegInt [])
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (.const ``Int.instNegInt [])
+      (mkNat (-i).toNat)
 where
   mkNat (n : Nat) : Expr :=
     let r := mkRawNatLit n

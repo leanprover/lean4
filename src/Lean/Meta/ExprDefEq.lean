@@ -1417,7 +1417,9 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
   if tArgs.size < fvars.size then return none
-  return some <| (← mkLambdaFVars fvars (.mvar mvarIdPending)).beta tArgs
+  let decl ← mvarIdPending.getDecl
+  let l ← withLCtx decl.lctx decl.localInstances <| mkLambdaFVars fvars (.mvar mvarIdPending)
+  return some <| l.beta tArgs
 
 private def isAssignable : Expr → MetaM Bool
   | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)

@@ -23,6 +23,13 @@ Allow elaboration of `OmegaConfig` arguments to tactics.
 -/
 declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
 
+/-- Match on the two defeq expressions for successor: `n+1`, `n.succ`. -/
+def succ? (e : Expr) : Option Expr :=
+  match e.getAppFnArgs with
+  | (``Nat.succ, #[n]) => some n
+  | (``HAdd.hAdd, #[_, _, _, _, a, b]) => do
+     if b == toExpr (1 : Nat) then some a else none
+  | _ => none
 
 /--
 A partially processed `omega` context.
@@ -202,6 +209,13 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       rewrite e (mkApp2 (.const ``Int.max_def []) a b)
     else
       mkAtomLinearCombo e
+  | (``HPow.hPow, #[_, _, _, _, b, k]) =>
+    match succ? k with /- match for `e+1` and `e.succ` -/
+    | none => mkAtomLinearCombo e
+    | some k' =>
+        match groundInt? b with
+        | some _ => rewrite e (mkApp2 (.const ``Int.pow_succ []) b k')
+        | none => mkAtomLinearCombo e
   | (``Nat.cast, #[.const ``Int [], i, n]) =>
       handleNatCast e i n
   | (``Prod.fst, #[α, β, p]) => match p with
@@ -243,9 +257,10 @@ where
     | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
     | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
-    | (``HPow.hPow, #[_, _, _, _, a, b]) => match groundNat? a, groundNat? b with
-      | some _, some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
-      | _, _ => mkAtomLinearCombo e
+    | (``HPow.hPow, #[_, _, _, _, a, b]) =>
+      match groundNat? a with
+      | some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
+      | none => mkAtomLinearCombo e
     | (``Prod.fst, #[_, β, p]) => match p with
       | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>
         rewrite e (mkApp3 (.const ``Int.ofNat_fst_mk [v]) β x y)

@@ -12,7 +12,7 @@ import Init.Data.Nat.Lemmas
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
 
 These statements are useful for constructing proof expressions,
-but unlikely to be widely useful, so are inside the `Std.Tactic.Omega` namespace.
+but unlikely to be widely useful, so are inside the `Lean.Omega` namespace.
 
 If you do find a use for them, please move them into the appropriate file and namespace!
 -/

@@ -9,7 +9,7 @@ import Init.PropLemmas
 # Specializations of basic logic lemmas
 
 These are useful for `omega` while constructing proofs, but not considered generally useful
-so are hidden in the `Std.Tactic.Omega` namespace.
+so are hidden in the `Lean.Omega` namespace.
 
 If you find yourself needing them elsewhere, please move them first to another file.
 -/

@@ -44,6 +44,13 @@ def handleCompletion (p : CompletionParams)
         return r
       return { items := #[ ], isIncomplete := true })
 
+/--
+Handles `completionItem/resolve` requests that are sent by the client after the user selects
+a completion item that was provided by `textDocument/completion`. Resolving the item fills the
+`detail?` field of the item with the pretty-printed type.
+This control flow is necessary because pretty-printing the type for every single completion item
+(even those never selected by the user) is inefficient.
+-/
 def handleCompletionItemResolve (item : CompletionItem)
     : RequestM (RequestTask CompletionItem) := do
   let doc ← readDoc

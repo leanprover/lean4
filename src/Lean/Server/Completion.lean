@@ -31,9 +31,14 @@ private partial def Lean.Server.Completion.consumeImplicitPrefix (e : Expr) (k :
 
 namespace Lean.Lsp
 
+/--
+Identifier that is sent from the server to the client as part of the `CompletionItem.data?` field.
+Needed to resolve the `CompletionItem` when the client sends a `completionItem/resolve` request
+for that item, again containing the `data?` field provided by the server.
+-/
 inductive CompletionIdentifier where
   | const (declName : Name)
-  | fvar  (id : FVarId)
+  | fvar  (id       : FVarId)
 
 instance : ToJson CompletionIdentifier where
   toJson
@@ -48,11 +53,17 @@ instance : FromJson CompletionIdentifier where
       return .fvar id
     .error "invalid CompletionItemData"
 
-structure CompletionItemDataWithId where
-  params : CompletionParams
+/--
+`CompletionItemData` that also contains a `CompletionIdentifier`.
+See the documentation of`CompletionItemData` and `CompletionIdentifier`.
+-/
+structure CompletionItemDataWithId extends CompletionItemData where
   id?    : Option CompletionIdentifier
   deriving FromJson, ToJson
 
+/--
+Fills the `CompletionItem.detail?` field of `item` using the pretty-printed type identified by `id`.
+-/
 def CompletionItem.resolve
     (item : CompletionItem)
     (id   : CompletionIdentifier)
@@ -82,8 +93,10 @@ open Elab
 open Meta
 open FuzzyMatching
 
+/-- Cached header declarations for which `allowCompletion headerEnv decl` is true. -/
 builtin_initialize eligibleHeaderDeclsRef : IO.Ref (HashMap Name ConstantInfo) ← IO.mkRef {}
 
+/-- Caches the declarations in the header for which `allowCompletion headerEnv decl` is true. -/
 def fillEligibleHeaderDecls (headerEnv : Environment) : IO Unit := do
   eligibleHeaderDeclsRef.modify fun startEligibleHeaderDecls =>
     (·.2) <| StateT.run (m := Id) (s := startEligibleHeaderDecls) do
@@ -94,6 +107,7 @@ def fillEligibleHeaderDecls (headerEnv : Environment) : IO Unit := do
           else
             eligibleHeaderDecls
 
+/-- Iterate over all declarations that are allowed in completion results. -/
 private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]
     (f : Name → ConstantInfo → m PUnit) : m PUnit := do
   let env ← getEnv
@@ -103,6 +117,7 @@ private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorl
     if allowCompletion env name then
       f name c
 
+/-- Checks whether this declaration can appear in completion results. -/
 private def allowCompletion [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]
     (declName : Name) : m Bool := do
   let env ← getEnv
@@ -112,6 +127,10 @@ private def allowCompletion [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld)
     return true
   return false
 
+/--
+Sorts `items` descendingly according to their score and ascendingly according to their label
+for equal scores.
+-/
 private def sortCompletionItems (items : Array (CompletionItem × Float)) : Array CompletionItem :=
   let items := items.qsort fun (i1, s1) (i2, s2) =>
     if s1 != s2 then
@@ -120,11 +139,18 @@ private def sortCompletionItems (items : Array (CompletionItem × Float)) : Arra
       i1.label.map (·.toLower) < i2.label.map (·.toLower)
   items.map (·.1)
 
+/-- Intermediate state while completions are being computed. -/
 structure State where
+  /-- All completion items and their fuzzy match scores so far. -/
   items  : Array (CompletionItem × Float) := #[]
 
+/--
+Monad used for completion computation that allows modifying a completion `State` and reading
+`CompletionParams`.
+-/
 abbrev M := OptionT $ ReaderT CompletionParams $ StateRefT State MetaM
 
+/-- Adds a new completion item to the state in `M`. -/
 private def addItem
     (item  : CompletionItem)
     (score : Float)
@@ -135,6 +161,10 @@ private def addItem
   let item := { item with data? := toJson data }
   modify fun s => { s with items := s.items.push (item, score) }
 
+/--
+Adds a new completion item with the given `label`, `id`, `kind` and `score` to the state in `M`.
+Computes the doc string from the environment if available.
+-/
 private def addUnresolvedCompletionItem
     (label         : Name)
     (id            : CompletionIdentifier)
@@ -422,15 +452,26 @@ private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : Meta
         return true
     return false
 
+/--
+Checks whether the expected type of `info.type` can be reduced to an application of `typeName`.
+-/
 private def isDotIdCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool := do
   forallTelescopeReducing info.type fun _ type =>
     isDefEqToAppOf type.consumeMData typeName
 
+/--
+Converts `n` to `Name.anonymous` if `n` is a private prefix (see `Lean.isPrivatePrefix`).
+-/
 private def stripPrivatePrefix (n : Name) : Name :=
   match n with
   | .num _ 0 => if isPrivatePrefix n then .anonymous else n
   | _ => n
 
+/--
+Compares `n₁` and `n₂` modulo private prefixes. Similar to `Name.cmp` but ignores all
+private prefixes in both names.
+Necessary because the namespaces of private names do not contain private prefixes.
+-/
 partial def cmpModPrivate (n₁ n₂ : Name) : Ordering :=
   let n₁ := stripPrivatePrefix n₁
   let n₂ := stripPrivatePrefix n₂
@@ -449,6 +490,12 @@ partial def cmpModPrivate (n₁ n₂ : Name) : Ordering :=
     | Ordering.eq => cmpModPrivate p₁ p₂
     | ord         => ord
 
+/--
+`NameSet` where names are compared according to `cmpModPrivate`.
+Helps speed up dot completion because it allows us to look up names without first having to
+strip the private prefix from deep in the name, letting us reject most names without
+having to scan the full name first.
+-/
 def NameSetModPrivate := RBTree Name cmpModPrivate
 
 /--
@@ -667,6 +714,11 @@ where
     else
       best?
 
+/--
+Assigns the `CompletionItem.sortText?` for all items in `completions` according to their order
+in `completions`. This is necessary because clients will use their own sort order if the server
+does not set it.
+-/
 private def assignSortTexts (completions : CompletionList) : CompletionList := Id.run do
   if completions.items.isEmpty then
     return completions
@@ -705,6 +757,10 @@ partial def find?
     | _ => return none
   return completionList?.map assignSortTexts
 
+/--
+Fills the `CompletionItem.detail?` field of `item` using the pretty-printed type identified by `id`
+in the context found at `hoverPos` in `infoTree`.
+-/
 def resolveCompletionItem?
     (fileMap  : FileMap)
     (hoverPos : String.Pos)

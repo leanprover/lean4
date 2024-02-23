@@ -58,6 +58,10 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | endSection stx .. => stx
   | tactic stx ..     => stx
 
+/--
+Obtains the `LocalContext` from this `CompletionInfo` if available and yields an empty context
+otherwise.
+-/
 def CompletionInfo.lctx : CompletionInfo → LocalContext
   | dot i ..            => i.lctx
   | id _ _ _ lctx ..    => lctx

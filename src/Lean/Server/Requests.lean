@@ -184,6 +184,10 @@ open Lsp
 structure RequestHandler where
   fileSource          : Json → Except RequestError Lsp.DocumentUri
   handle              : Json → RequestM (RequestTask Json)
+  /--
+  Handler that is called by the file worker after processing the header with the header environment.
+  Enables request handlers to cache data related to imports.
+  -/
   handleHeaderCaching : Environment → IO Unit
 
 builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
@@ -249,6 +253,10 @@ def chainLspRequestHandler (method : String)
   else
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
 
+/--
+Runs the header caching handler for every single registered request handler using the given
+`headerEnv`.
+-/
 def runHeaderCachingHandlers (headerEnv : Environment) : IO Unit := do
   (← requestHandlers.get).forM fun _ handler =>
     handler.handleHeaderCaching headerEnv

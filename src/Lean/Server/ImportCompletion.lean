@@ -121,6 +121,11 @@ def collectAvailableImports : IO AvailableImports := do
     ImportCompletion.collectAvailableImportsFromSrcSearchPath
   | some availableImports => pure availableImports
 
+/--
+Sets the `data?` field of every `CompletionItem` in `completionList` using `params`. Ensures that
+`completionItem/resolve` requests can be routed to the correct file worker even for
+`CompletionItem`s produced by the import completion.
+-/
 def addCompletionItemData (completionList : CompletionList) (params : CompletionParams)
     : CompletionList :=
   let data := { params : Lean.Lsp.CompletionItemData }

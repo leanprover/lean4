@@ -1,0 +1,10 @@
+2 : Fin 4
+3 : Fin 5
+44#8 : BitVec 8
+300#32 : BitVec 32
+58#8 : BitVec 8
+20 : UInt8
+30 : UInt16
+40 : UInt32
+50 : UInt64
+60 : USize

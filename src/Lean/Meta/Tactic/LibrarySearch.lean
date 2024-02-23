@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Joe Hendrix, Scott Morrison
 -/
 prelude
+import Init.Data.Nat.MinMax
 import Lean.Meta.LazyDiscrTree
 import Lean.Meta.Tactic.SolveByElim
 import Lean.Util.Heartbeats

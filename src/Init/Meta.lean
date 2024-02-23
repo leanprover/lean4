@@ -11,6 +11,8 @@ import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
 import Init.Data.String.Extra
 
+open Init.PreOmega
+
 namespace Lean
 
 @[extern "lean_version_get_major"]

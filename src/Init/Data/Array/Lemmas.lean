@@ -9,6 +9,8 @@ import Init.Data.List.Lemmas
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
 
+open Init.PreOmega
+
 /-!
 ## Bootstrapping theorems about arrays
 

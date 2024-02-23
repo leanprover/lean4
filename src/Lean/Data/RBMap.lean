@@ -7,6 +7,8 @@ prelude
 import Init.Data.Ord
 import Init.Data.Nat.Linear
 
+open Init.PreOmega
+
 namespace Lean
 universe u v w w'
 

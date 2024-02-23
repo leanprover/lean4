@@ -8,6 +8,8 @@ import Init.Data.Ord
 import Init.Data.Array.DecidableEq
 import Lean.Data.Rat
 
+open Init.PreOmega
+
 namespace Lean.Meta.Linear
 
 structure Var where

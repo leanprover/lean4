@@ -9,6 +9,8 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
 
+open Init.PreOmega
+
 namespace Lean.Meta
 /-- Controls which new mvars are turned in to goals by the `apply` tactic.
 - `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.

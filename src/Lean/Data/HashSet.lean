@@ -6,7 +6,11 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Init.Data.List.Control
+
+open Init.PreOmega
+
 namespace Lean
+
 universe u v w
 
 def HashSetBucket (α : Type u) :=

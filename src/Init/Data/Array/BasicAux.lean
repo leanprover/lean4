@@ -8,6 +8,8 @@ import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
 import Init.NotationExtra
 
+open Init.PreOmega
+
 theorem Array.of_push_eq_push {as bs : Array α} (h : as.push a = bs.push b) : as = bs ∧ a = b := by
   simp [push] at h
   have ⟨h₁, h₂⟩ := List.of_concat_eq_concat h

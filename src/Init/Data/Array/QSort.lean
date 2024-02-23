@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
+open Init.PreOmega
+
 namespace Array
 -- TODO: remove the [Inhabited α] parameters as soon as we have the tactic framework for automating proof generation and using Array.fget
 

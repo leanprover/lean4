@@ -8,6 +8,8 @@ import Lean.Meta.WHNF
 import Lean.Meta.Transform
 import Lean.Meta.DiscrTreeTypes
 
+open Init.PreOmega
+
 namespace Lean.Meta.DiscrTree
 /-!
   (Imperfect) discrimination trees.

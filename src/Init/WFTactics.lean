@@ -13,20 +13,39 @@ This is primarily intended for internal use in `decreasing_tactic`. -/
 macro "simp_wf" : tactic =>
   `(tactic| try simp (config := { unfoldPartialApp := true, zetaDelta := true }) [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
 
-/-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
-reasoning after applying lexicographic order lemmas.
-It can be extended by adding more macro definitions, e.g.
+
+/-- Extensible helper tactic for `decreasing_tactic`.
+
+This handles the "base case" reasoning after applying lexicographic order lemmas.
+Its main strategies are
+
+ * `assumption`, so that termination proofs added to the function definition with `have`
+    are used
+ * simplification in the goal and assumptions (with the `simp_wf` simp set enabled), followed
+    by `omega`
+
+It can be extended by adding extending the default simp set, by extendin the `simp_wf` simp set
+or by adding more macro definitions, e.g.
 ```
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| linarith)
 ```
+The latter should be done carefully to keep the tactic swift.
 -/
 syntax "decreasing_trivial" : tactic
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp (config := { arith := true, failIfUnchanged := false })); done)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| omega)
+
+-- This namespace enables `decreasing_trivial` rules lemmas useful before
+-- we have omega available
+namespace Init.PreOmega
+
+scoped macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp (config := { arith := true, failIfUnchanged := false })); done)
+scoped macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
+scoped macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i
+scoped macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
+
+end Init.PreOmega
 
 /-- Constructs a proof of decreasing along a well founded relation, by applying
 lexicographic order lemmas and using `ts` to solve the base case. If it fails,

@@ -6,6 +6,9 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.Nat.Power2
 import Lean.Data.AssocList
+
+open Init.PreOmega
+
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=

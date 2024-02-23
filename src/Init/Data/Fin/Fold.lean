@@ -6,6 +6,8 @@ Authors: François G. Dorais
 prelude
 import Init.Data.Nat.Linear
 
+open Init.PreOmega
+
 /-- Folds over `Fin n` from the left: `foldl 3 f x = f (f (f x 0) 1) 2`. -/
 @[inline] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
   /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`  -/

@@ -13,6 +13,8 @@ import Init.Data.ToString.Basic
 import Init.Util
 universe u v w
 
+open Init.PreOmega
+
 namespace Array
 variable {α : Type u}
 

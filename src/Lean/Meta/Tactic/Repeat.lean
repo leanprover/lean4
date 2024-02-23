@@ -6,6 +6,8 @@ Authors: Mario Carneiro, Scott Morrison
 prelude
 import Lean.Meta.Basic
 
+open Init.PreOmega
+
 namespace Lean.Meta
 /--
 Implementation of `repeat'` and `repeat1'`.

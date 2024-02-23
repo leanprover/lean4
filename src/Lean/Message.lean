@@ -13,6 +13,8 @@ import Lean.Environment
 import Lean.Util.PPExt
 import Lean.Util.Sorry
 
+open Init.PreOmega
+
 namespace Lean
 
 def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (endPos : Option Position := none) : String :=

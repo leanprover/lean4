@@ -7,6 +7,8 @@ prelude
 import Init.PropLemmas
 import Init.Data.Fin.Basic
 
+open Init.PreOmega
+
 namespace Fin
 
 /--

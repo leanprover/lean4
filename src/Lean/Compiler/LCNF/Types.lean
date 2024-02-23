@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Elab.Tactic.Omega
 
 namespace Lean.Compiler
 

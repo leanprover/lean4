@@ -21,6 +21,6 @@ jobs:
             fi
           done < <(find src/Lean -name '*.lean' -print0)
           if [ -n "$failed_files" ]; then
-            echo -e "The following files use 'prelude':\n$failed_files"
+            echo -e "The following files should use 'prelude':\n$failed_files"
             exit 1
           fi

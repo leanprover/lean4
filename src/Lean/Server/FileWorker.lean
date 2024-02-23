@@ -69,6 +69,9 @@ structure WorkerContext where
   -/
   maxDocVersionRef     : IO.Ref Int
   freshRequestIdRef    : IO.Ref Int
+  /--
+  Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
+  -/
   stickyDiagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
   hLog                 : FS.Stream
   initParams           : InitializeParams
@@ -98,6 +101,7 @@ section Elab
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoFinal"
 
+  /-- Yields a `$/lean/importClosure` notification. -/
   private def mkImportClosureNotification (importClosure : Array DocumentUri)
       : JsonRpc.Notification Lsp.LeanImportClosureParams := {
     method := "$/lean/importClosure",
@@ -134,6 +138,10 @@ This option can only be set on the command line, not in the lakefile or via `set
     diags : Array Widget.InteractiveDiagnostic
   deriving TypeName
 
+  /--
+  Sends a `textDocument/publishDiagnostics` notification to the client that contains the diagnostics
+  in `ctx.stickyDiagnosticsRef` and `doc.diagnosticsRef`.
+  -/
   private def publishDiagnostics (ctx : WorkerContext) (doc : EditableDocumentCore)
       : BaseIO Unit := do
     let stickyInteractiveDiagnostics ← ctx.stickyDiagnosticsRef.get
@@ -422,6 +430,10 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
+  /--
+  Received from the watchdog when a dependency of this file is detected as being stale.
+  Issues a `LanguageServer_ImportOutOfDate` sticky diagnostic to the client.
+  -/
   def handleStaleDependency (p : LeanStaleDependencyParams) : WorkerM Unit := do
     let ctx ← read
     let s ← get

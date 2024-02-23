@@ -17,6 +17,7 @@ inductive GoToKind
   | declaration | definition | type
   deriving BEq, ToJson, FromJson
 
+/-- Finds the URI corresponding to `modName` in `searchSearchPath`. -/
 def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name)
     : IO (Option DocumentUri) := do
   let some modFname ← srcSearchPath.findModuleWithExt "lean" modName
@@ -26,6 +27,7 @@ def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name)
   let modFname ← IO.FS.realPath modFname
   return some <| System.Uri.pathToUri modFname
 
+/-- Finds the module name corresponding to `uri` in `srcSearchPath`. -/
 def moduleFromDocumentUri (srcSearchPath : SearchPath) (uri : DocumentUri)
     : IO (Option Name) := do
   let some modFname := System.Uri.fileUriToPath? uri

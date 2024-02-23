@@ -143,10 +143,14 @@ section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
   abbrev ImportMap := RBMap DocumentUri (RBTree DocumentUri compare) compare
 
+  /-- Global import data for all open files managed by this watchdog. -/
   structure ImportData where
+    /-- For every open file, the files that it imports. -/
     imports    : ImportMap
+    /-- For every open file, the files that it is imported by. -/
     importedBy : ImportMap
 
+  /-- Updates `d` with the new set of `imports` for the file `uri`. -/
   def ImportData.update (d : ImportData) (uri : DocumentUri) (imports : RBTree DocumentUri compare)
       : ImportData := Id.run do
     let oldImports     := d.imports.findD uri ∅
@@ -175,6 +179,9 @@ section ServerM
 
     return { imports, importedBy }
 
+  /--
+  Sets the imports of `uri` in `d` to the empty set.
+  -/
   def ImportData.eraseImportsOf (d : ImportData) (uri : DocumentUri) : ImportData :=
     d.update uri ∅
 
@@ -263,6 +270,10 @@ section ServerM
     s.references.modify fun refs =>
       refs.finalizeWorkerRefs module params.version params.references
 
+  /--
+  Updates the global import data with the import closure provided by the file worker after it
+  successfully processed its header.
+  -/
   def handleImportClosure (fw : FileWorker) (params : LeanImportClosureParams) : ServerM Unit := do
     let s ← read
     s.importData.modify fun importData =>
@@ -449,6 +460,10 @@ section ServerM
       catch _ =>
         handleCrash uri initialQueuedMsgs
 
+  /--
+  Sends a notification to the file worker identified by `uri` that its dependency `staleDependency`
+  is out-of-date.
+  -/
   def notifyAboutStaleDependency (uri : DocumentUri) (staleDependency : DocumentUri)
       : ServerM Unit :=
     let notification := Notification.mk "$/lean/staleDependency" {
@@ -734,6 +749,11 @@ section NotificationHandling
     let notification := Notification.mk "textDocument/didChange" p
     tryWriteMessage doc.uri notification (restartCrashedWorker := true)
 
+  /--
+  When a file is saved, notifies all file workers for files that depend on this file that this
+  specific import is now stale so that the file worker can issue a diagnostic asking users to
+  restart the file.
+  -/
   def handleDidSave (p : DidSaveTextDocumentParams) : ServerM Unit := do
     let s ← read
     let fileWorkers ← s.fileWorkersRef.get

@@ -10,3 +10,7 @@ axiom F {α} : α → Prop
 theorem x : F (fun _ : Nat => 2) := by
   test F (fun _ : Nat => ?e)
   admit
+
+theorem xh : F (fun (x : Nat) (h : F x) => 2) := by
+  test F (fun x h => ?e)
+  admit

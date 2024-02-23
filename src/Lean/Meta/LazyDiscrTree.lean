@@ -10,9 +10,9 @@ import Lean.Meta.DiscrTree
 /-!
 # Lazy Discrimination Tree
 
-This file defines a new type of discrimination tree optimized for
-rapid population of imported modules for use in tactics.  It uses a
-lazy initialization strategy.
+This file defines a new type of discrimination tree optimized for rapid
+population of imported modules for use in tactics.  It uses a lazy
+initialization strategy.
 
 The discrimination tree can be created through
 `createImportedEnvironment`. This creates a discrimination tree from all
@@ -156,35 +156,23 @@ private def isNatOffset (fName : Name) (e : Expr) : MetaM Bool := do
     return fName == ``Nat.succ && e.getAppNumArgs == 1
 
 /-
-  TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
-  Different `DiscrTree` users may populate this set using, for example, attributes.
+This is a hook to determine if we should add an expression as a wildcard pattern.
 
-  Remark: we currently tag "offset" terms as star to avoid having to add special
-  support for offset terms.
-  Example, suppose the discrimination tree contains the entry
-  `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for
-  `Expr.lit (Literal.natVal 1) _`.
-  In this scenario, we want to retrieve `Nat.succ ?m |-> v`
+Clone of `Lean.Meta.DiscrTree.shouldAddAsStar`.  See it for more discussion.
 -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
   isNatOffset fName e
 
 /--
-  Try to eliminate loose bound variables by performing beta-reduction.
-  We use this method when processing terms in discrimination trees.
-  These trees distinguish dependent arrows from nondependent ones.
-  Recall that dependent arrows are indexed as `.other`, but nondependent arrows as `.arrow ..`.
-  Motivation: we want to "discriminate" implications and simple arrows in our index.
+Eliminate loose bound variables via beta-reduction.
 
-  Now suppose we add the term `Foo (Nat → Nat)` to our index. The nested arrow appears as
-  `.arrow ..`. Then, suppose we want to check whether the index contains
-  `(x : Nat) → (fun _ => Nat) x`, but it will fail to retrieve `Foo (Nat → Nat)` because
-  it assumes the nested arrow is a dependent one and uses `.other`.
+This is primarily used to reduce pi-terms `∀(x : P), T` into
+non-dependend functions `P → T`.  The latter has a more specific
+discrimination tree key `.arrow..` and this improves the accuracy of the
+discrimination tree.
 
-  We use this method to address this issue by beta-reducing terms containing loose bound variables.
-  See issue #2232.
-
-  Remark: we expect the performance impact will be minimal.
+Clone of `Lean.Meta.DiscrTree.elimLooseBVarsByBeta`.  See it for more
+discussion.
 -/
 private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
   Core.transform e
@@ -212,17 +200,6 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
             unfolded.  This can happen if the metavariables in `e` are "blocking" smart unfolding.
            If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to
            postpone TC resolution.
-           Here is an example. Suppose we have
-           ```
-            inductive Ty where
-              | bool | fn (a ty : Ty)
-
-
-            @[reducible] def Ty.interp : Ty → Type
-              | bool   => Bool
-              | fn a b => a.interp → b.interp
-           ```
-           and we are trying to synthesize `BEq (Ty.interp ?m)`
         -/
         Meta.throwIsDefEqStuck
       else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
@@ -391,10 +368,6 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
       let nargs := e.getAppNumArgs
       push (.proj s i nargs) nargs (todo.push a)
     | .fvar _fvarId   =>
---      let bi ← fvarId.getBinderInfo
---      if bi.isInstImplicit then
---        return (.other, todo)
---      else
       return (.star, todo)
     | .mvar mvarId   =>
       if mvarId == MatchClone.tmpMVarId then

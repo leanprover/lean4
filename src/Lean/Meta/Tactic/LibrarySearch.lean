@@ -30,10 +30,11 @@ namespace Lean.Meta.LibrarySearch
 
 open SolveByElim
 
-/-- Shortcut for calling `solveByElim`. -/
+/--
+Wrapper for calling `Lean.Meta.SolveByElim.solveByElim with
+appropriate arguments for library search.
+-/
 def solveByElim (required : List Expr) (exfalso : Bool) (goals : List MVarId) (maxDepth : Nat) := do
-  -- There is only a marginal decrease in performance for using the `symm` option for `solveByElim`.
-  -- (measured via `lake build && time lake env lean test/librarySearch.lean`).
   let cfg : SolveByElimConfig :=
     { maxDepth, exfalso := exfalso, symm := true, commitIndependentGoals := true,
       transparency := ← getTransparency,

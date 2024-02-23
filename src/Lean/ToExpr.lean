@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
+import Init.Data.BitVec.Basic
 universe u
 
 namespace Lean
@@ -48,6 +49,11 @@ instance : ToExpr (Fin n) where
     let r := mkRawNatLit a.val
     mkApp3 (.const ``OfNat.ofNat [0]) (.app (mkConst ``Fin) (toExpr n)) r
       (mkApp2 (.const ``Fin.instOfNat []) (mkRawNatLit (n-1)) r)
+
+instance : ToExpr (BitVec n) where
+  toTypeExpr := .app (mkConst ``BitVec) (toExpr n)
+  -- Remark: We use ``BitVec.ofNat to represent bitvector literals
+  toExpr a := mkApp2 (.const ``BitVec.ofNat []) (toExpr n) (toExpr a.toNat)
 
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false

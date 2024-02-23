@@ -1421,14 +1421,14 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option (Expr × Option Lo
   let lctx ← getLCtx
   let lctx ← withLCtx declPending.lctx declPending.localInstances <| do
     let mut lctx := lctx
-    logInfo m!"fvars: {fvars}, {fvars.size}; tArgs: {tArgs}, {tArgs.size}"
+    -- logInfo m!"fvars: {fvars}, {fvars.size}; tArgs: {tArgs}, {tArgs.size}"
     for i in [:fvars.size] do
       let fvar := fvars[i]!
-      logInfo m!"{i} fvar: {fvar}"
+      -- logInfo m!"{i} fvar: {fvar}"
       let decl ← fvar.fvarId!.getDecl
       let tArg := tArgs[i]!
-      logInfo m!"{i} tArg: {tArg}"
-      if decl.isLet then throwError "{fvar} = fvars[{i}] is unexpectedly a let decl"
+      -- logInfo m!"{i} tArg: {tArg}"
+      -- if decl.isLet then throwError "{fvar} = fvars[{i}] is unexpectedly a let decl"
       let decl := match decl with
         | d@(.ldecl _ _ _ _ _ _ _) => d
         | .cdecl i fvarId n type _ kind =>

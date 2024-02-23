@@ -44,27 +44,25 @@ def hIterate (P : Nat → Sort _) {n : Nat} (init : P 0) (f : ∀(i : Fin n), P 
     P n :=
   hIterateFrom P f 0 (Nat.zero_le n) init
 
-private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i → Prop)
-    {n  : Nat}
+private theorem hIterateFrom_elim {P : Nat → Sort _} {n  : Nat} (Q : ∀(i : Fin (n+1)), P i → Prop)
     (f : ∀(i : Fin n), P i.val → P (i.val+1))
     {i : Nat} (ubnd : i ≤ n)
     (s : P i)
-    (init : Q i s)
-    (step : ∀(k : Fin n) (s : P k.val), Q k.val s → Q (k.val+1) (f k s)) :
-    Q n (hIterateFrom P f i ubnd s) := by
+    (init : Q ⟨i, Nat.lt_succ_of_le ubnd⟩ s)
+    (step : ∀(k : Fin n) (s : P k.val), Q k.castSucc s → Q (k.succ) (f k s)) :
+    Q (Fin.last _) (hIterateFrom P f i ubnd s) := by
   let ⟨j, p⟩ := Nat.le.dest ubnd
   induction j generalizing i ubnd init with
   | zero =>
-    unfold hIterateFrom
-    have g : ¬ (i < n) := by simp at p; simp [p]
-    have r : Q n (_root_.cast (congrArg P p) s) :=
-      @Eq.rec Nat i (fun k eq => Q k (_root_.cast (congrArg P eq) s)) init n p
-    simp only [g, r, dite_false]
+    have : i = n := by simp at p; simp [p]
+    subst this
+    simp only [hIterateFrom, last, Nat.lt_irrefl, ↓reduceDite]
+    exact init
   | succ j inv =>
     unfold hIterateFrom
     have d : Nat.succ i + j = n := by simp [Nat.succ_add]; exact p
     have g : i < n := Nat.le.intro d
-    simp only [g]
+    simp only [g, last]
     exact inv _ _ (step ⟨i,g⟩ s init) d
 
 /-
@@ -72,10 +70,10 @@ private theorem hIterateFrom_elim {P : Nat → Sort _}(Q : ∀(i : Nat), P i →
 `hIterate` satisifies a property `Q stop` by showing that the states
 at the intermediate indices `i : start ≤ i < stop` satisfy `Q i`.
 -/
-theorem hIterate_elim {P : Nat → Sort _} (Q : ∀(i : Nat), P i → Prop)
-    {n : Nat} (f : ∀(i : Fin n), P i.val → P (i.val+1)) (s : P 0) (init : Q 0 s)
-    (step : ∀(k : Fin n) (s : P k.val), Q k.val s → Q (k.val+1) (f k s)) :
-    Q n (hIterate P s f) := by
+theorem hIterate_elim {n : Nat} {P : Nat → Sort _} (Q : ∀(i : Fin (n+1)), P i → Prop)
+     (f : ∀(i : Fin n), P i.castSucc → P (i.succ)) (s : P 0) (init : Q 0 s)
+    (step : ∀(k : Fin n) (s : P k), Q k.castSucc s → Q k.succ (f k s)) :
+    Q (Fin.last _) (hIterate P s f) := by
   exact hIterateFrom_elim _ _ _ _ init step
 
 /-
@@ -85,11 +83,11 @@ function `state` showing that matches the steps performed by `hIterate`.
 This allows rewriting incremental code using `hIterate` with a
 non-incremental state function.
 -/
-theorem hIterate_eq {P : Nat → Sort _} (state : ∀(i : Nat), P i)
-    {n : Nat} (f : ∀(i : Fin n), P i.val → P (i.val+1)) (s : P 0)
+theorem hIterate_eq {P : Nat → Sort _} {n : Nat}
+    (state : ∀ (i : Fin (n+1)), P i) (f : ∀(i : Fin n), P i.val → P (i.val+1)) (s : P 0)
     (init : s = state 0)
-    (step : ∀(i : Fin n), f i (state i) = state (i+1)) :
-    hIterate P s f = state n := by
+    (step : ∀(i : Fin n), f i (state i.castSucc) = state (i.succ)) :
+    hIterate P s f = state (Fin.last _) := by
   apply hIterate_elim (fun i s => s = state i) f s init
   intro i s s_eq
   simp only [s_eq, step]

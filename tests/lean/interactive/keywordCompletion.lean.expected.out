@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///keywordCompletion.lean"},
      "position": {"line": 4, "character": 10}},
-    "id": {"const": "bin"}}},
+    "id": {"const": {"declName": "bin"}}}},
   {"sortText": "1",
    "label": "binder_predicate",
    "kind": 14,

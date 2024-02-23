@@ -39,19 +39,7 @@ for that item, again containing the `data?` field provided by the server.
 inductive CompletionIdentifier where
   | const (declName : Name)
   | fvar  (id       : FVarId)
-
-instance : ToJson CompletionIdentifier where
-  toJson
-    | .const declName => Json.mkObj [("const", toJson declName)]
-    | .fvar id        => Json.mkObj [("fvar", toJson id)]
-
-instance : FromJson CompletionIdentifier where
-  fromJson? j := do
-    if let .ok declName := j.getObjValAs? Name "const" then
-      return .const declName
-    if let .ok id := j.getObjValAs? FVarId "fvar" then
-      return .fvar id
-    .error "invalid CompletionItemData"
+  deriving FromJson, ToJson
 
 /--
 `CompletionItemData` that also contains a `CompletionIdentifier`.

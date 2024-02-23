@@ -14,5 +14,5 @@
    {"params":
     {"textDocument": {"uri": "file:///editCompletion.lean"},
      "position": {"line": 3, "character": 22}},
-    "id": {"const": "Foo.foo"}}}],
+    "id": {"const": {"declName": "Foo.foo"}}}}],
  "isIncomplete": true}

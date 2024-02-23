@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
      "position": {"line": 4, "character": 5}},
-    "id": {"const": "Boo.true"}}},
+    "id": {"const": {"declName": "Boo.true"}}}},
   {"sortText": "1",
    "label": "truth",
    "kind": 4,
@@ -16,5 +16,5 @@
    {"params":
     {"textDocument": {"uri": "file:///dotIdCompletion.lean"},
      "position": {"line": 4, "character": 5}},
-    "id": {"const": "Boo.truth"}}}],
+    "id": {"const": {"declName": "Boo.truth"}}}}],
  "isIncomplete": true}

@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": "gfxabc"}}},
+    "id": {"const": {"declName": "gfxabc"}}}},
   {"sortText": "1",
    "label": "gfxacc",
    "kind": 3,
@@ -16,7 +16,7 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": "gfxacc"}}},
+    "id": {"const": {"declName": "gfxacc"}}}},
   {"sortText": "2",
    "label": "gfxadc",
    "kind": 3,
@@ -24,7 +24,7 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": "gfxadc"}}}],
+    "id": {"const": {"declName": "gfxadc"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 12, "character": 15}}
@@ -36,7 +36,7 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": "Boo.gfxabc"}}},
+    "id": {"const": {"declName": "Boo.gfxabc"}}}},
   {"sortText": "1",
    "label": "gfxacc",
    "kind": 3,
@@ -44,7 +44,7 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": "Boo.gfxacc"}}},
+    "id": {"const": {"declName": "Boo.gfxacc"}}}},
   {"sortText": "2",
    "label": "gfxadc",
    "kind": 3,
@@ -52,5 +52,5 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": "Boo.gfxadc"}}}],
+    "id": {"const": {"declName": "Boo.gfxadc"}}}}],
  "isIncomplete": true}

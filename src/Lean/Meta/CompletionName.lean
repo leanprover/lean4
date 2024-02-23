@@ -34,16 +34,16 @@ Checks whether a given name is internal due to something other than `_private`.
 Correctly deals with names like `_private.<SomeNamespace>.0.<SomeType>._sizeOf_1` in a private type
 `SomeType`, which `n.isInternal && !isPrivateName n` does not.
 -/
-private def isNonPrivateInternalName : Name → Bool
-  | n@(.str p s) => s.get 0 == '_' && n != privateHeader || isNonPrivateInternalName p
-  | .num p _ => isNonPrivateInternalName p
+private def isInternalNameModuloPrivate : Name → Bool
+  | n@(.str p s) => s.get 0 == '_' && n != privateHeader || isInternalNameModuloPrivate p
+  | .num p _ => isInternalNameModuloPrivate p
   | _       => false
 
 /--
 Return true if name is blacklisted for completion purposes.
 -/
 private def isBlacklisted (env : Environment) (declName : Name) : Bool :=
-  isNonPrivateInternalName declName
+  isInternalNameModuloPrivate declName
   || isAuxRecursor env declName
   || isNoConfusion env declName
   || isRecCore env declName

@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
      "position": {"line": 1, "character": 64}},
-    "id": {"fvar": "_uniq.29"}}},
+    "id": {"fvar": {"id": "_uniq.29"}}}},
   {"sortText": "1",
    "label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
@@ -16,5 +16,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
      "position": {"line": 1, "character": 64}},
-    "id": {"const": "veryLongDefinitionNameVeryLongDefinitionName"}}}],
+    "id":
+    {"const": {"declName": "veryLongDefinitionNameVeryLongDefinitionName"}}}}],
  "isIncomplete": true}

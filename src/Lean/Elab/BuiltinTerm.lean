@@ -159,7 +159,7 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
 @[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun stx expectedType? => do
-  if let `(.) := stx then
+  if stx[0].getAtomVal == "." then
     -- Users may input bad cdots because they are trying to auto-complete them using the expected type
     addCompletionInfo <| CompletionInfo.dotId stx .anonymous (← getLCtx) expectedType?
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"

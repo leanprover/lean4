@@ -9,5 +9,7 @@
     {"textDocument": {"uri": "file:///completionOpenNamespaces.lean"},
      "position": {"line": 4, "character": 68}},
     "id":
-    {"const": "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}}}],
+    {"const":
+     {"declName":
+      "A.B1.verySpecificDefinitionNameOfCompletionOpenNamespaces"}}}}],
  "isIncomplete": true}

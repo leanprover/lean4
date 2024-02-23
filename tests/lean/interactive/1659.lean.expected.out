@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 9, "character": 23}},
-    "id": {"const": "Lean.Elab.Tactic.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.Tactic.elabTermEnsuringType"}}}},
   {"sortText": "1",
    "label": "Lean.Elab.Term.elabTermEnsuringType",
    "kind": 21,
@@ -16,7 +16,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 9, "character": 23}},
-    "id": {"const": "Lean.Elab.Term.elabTermEnsuringType"}}}],
+    "id": {"const": {"declName": "Lean.Elab.Term.elabTermEnsuringType"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///1659.lean"},
  "position": {"line": 15, "character": 23}}
@@ -28,7 +28,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 15, "character": 23}},
-    "id": {"const": "Lean.Elab.Tactic.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.Tactic.elabTermEnsuringType"}}}},
   {"sortText": "1",
    "label": "Term.elabTermEnsuringType",
    "kind": 21,
@@ -36,7 +36,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 15, "character": 23}},
-    "id": {"const": "Lean.Elab.Term.elabTermEnsuringType"}}}],
+    "id": {"const": {"declName": "Lean.Elab.Term.elabTermEnsuringType"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///1659.lean"},
  "position": {"line": 21, "character": 23}}
@@ -48,7 +48,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 21, "character": 23}},
-    "id": {"const": "Lean.Elab.Term.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.Term.elabTermEnsuringType"}}}},
   {"sortText": "1",
    "label": "Lean.Elab.Tactic.elabTermEnsuringType",
    "kind": 21,
@@ -56,7 +56,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 21, "character": 23}},
-    "id": {"const": "Lean.Elab.Tactic.elabTermEnsuringType"}}}],
+    "id": {"const": {"declName": "Lean.Elab.Tactic.elabTermEnsuringType"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///1659.lean"},
  "position": {"line": 27, "character": 23}}
@@ -68,7 +68,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 27, "character": 23}},
-    "id": {"const": "elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "elabTermEnsuringType"}}}},
   {"sortText": "1",
    "label": "Lean.Elab.Tactic.elabTermEnsuringType",
    "kind": 21,
@@ -76,7 +76,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 27, "character": 23}},
-    "id": {"const": "Lean.Elab.Tactic.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.Tactic.elabTermEnsuringType"}}}},
   {"sortText": "2",
    "label": "Lean.Elab.Term.elabTermEnsuringType",
    "kind": 21,
@@ -84,7 +84,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 27, "character": 23}},
-    "id": {"const": "Lean.Elab.Term.elabTermEnsuringType"}}}],
+    "id": {"const": {"declName": "Lean.Elab.Term.elabTermEnsuringType"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///1659.lean"},
  "position": {"line": 33, "character": 23}}
@@ -96,7 +96,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 33, "character": 23}},
-    "id": {"const": "elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "elabTermEnsuringType"}}}},
   {"sortText": "1",
    "label": "Lean.Elab.elabTermEnsuringType",
    "kind": 21,
@@ -104,7 +104,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 33, "character": 23}},
-    "id": {"const": "Lean.Elab.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.elabTermEnsuringType"}}}},
   {"sortText": "2",
    "label": "Lean.Elab.Tactic.elabTermEnsuringType",
    "kind": 21,
@@ -112,7 +112,7 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 33, "character": 23}},
-    "id": {"const": "Lean.Elab.Tactic.elabTermEnsuringType"}}},
+    "id": {"const": {"declName": "Lean.Elab.Tactic.elabTermEnsuringType"}}}},
   {"sortText": "3",
    "label": "Lean.Elab.Term.elabTermEnsuringType",
    "kind": 21,
@@ -120,5 +120,5 @@
    {"params":
     {"textDocument": {"uri": "file:///1659.lean"},
      "position": {"line": 33, "character": 23}},
-    "id": {"const": "Lean.Elab.Term.elabTermEnsuringType"}}}],
+    "id": {"const": {"declName": "Lean.Elab.Term.elabTermEnsuringType"}}}}],
  "isIncomplete": true}

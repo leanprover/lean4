@@ -8,7 +8,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 19, "character": 10}},
-    "id": {"const": "Foo.Bla.ax1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
   {"sortText": "1",
    "label": "ex1",
    "kind": 3,
@@ -16,7 +16,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 19, "character": 10}},
-    "id": {"const": "Foo.Bla.ex1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
   {"sortText": "2",
    "label": "ex2",
    "kind": 3,
@@ -24,7 +24,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 19, "character": 10}},
-    "id": {"const": "Foo.Bla.ex2"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
   {"sortText": "3",
    "label": "ex3",
    "kind": 3,
@@ -32,7 +32,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 19, "character": 10}},
-    "id": {"const": "Foo.Bla.ex3"}}}],
+    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 25, "character": 6}}
@@ -44,7 +44,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 25, "character": 6}},
-    "id": {"const": "Foo.Bla.ax1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
   {"sortText": "1",
    "label": "ex1",
    "kind": 3,
@@ -52,7 +52,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 25, "character": 6}},
-    "id": {"const": "Foo.Bla.ex1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
   {"sortText": "2",
    "label": "ex2",
    "kind": 3,
@@ -60,7 +60,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 25, "character": 6}},
-    "id": {"const": "Foo.Bla.ex2"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
   {"sortText": "3",
    "label": "ex3",
    "kind": 3,
@@ -68,7 +68,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 25, "character": 6}},
-    "id": {"const": "Foo.Bla.ex3"}}}],
+    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 30, "character": 21}}
@@ -80,7 +80,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 30, "character": 21}},
-    "id": {"const": "Foo.Bla.ax1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ax1"}}}},
   {"sortText": "1",
    "label": "ex1",
    "kind": 3,
@@ -88,7 +88,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 30, "character": 21}},
-    "id": {"const": "Foo.Bla.ex1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
   {"sortText": "2",
    "label": "ex2",
    "kind": 3,
@@ -96,7 +96,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 30, "character": 21}},
-    "id": {"const": "Foo.Bla.ex2"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
   {"sortText": "3",
    "label": "ex3",
    "kind": 3,
@@ -104,7 +104,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 30, "character": 21}},
-    "id": {"const": "Foo.Bla.ex3"}}}],
+    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 37, "character": 22}}
@@ -116,7 +116,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 37, "character": 22}},
-    "id": {"const": "Foo.Bla.ex1"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex1"}}}},
   {"sortText": "1",
    "label": "ex2",
    "kind": 3,
@@ -124,7 +124,7 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 37, "character": 22}},
-    "id": {"const": "Foo.Bla.ex2"}}},
+    "id": {"const": {"declName": "Foo.Bla.ex2"}}}},
   {"sortText": "2",
    "label": "ex3",
    "kind": 3,
@@ -132,5 +132,5 @@
    {"params":
     {"textDocument": {"uri": "file:///completion2.lean"},
      "position": {"line": 37, "character": 22}},
-    "id": {"const": "Foo.Bla.ex3"}}}],
+    "id": {"const": {"declName": "Foo.Bla.ex3"}}}}],
  "isIncomplete": true}

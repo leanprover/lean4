@@ -225,10 +225,10 @@ theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   Nat.lt_succ_of_le (toNat_le _)
 
-@[simp] theorem decide_toNat_eq_zero (b : Bool) : decide (b.toNat = 0) = !b := by
-  cases b <;> rfl
-@[simp] theorem decide_toNat_eq_one (b : Bool) : decide (b.toNat = 1) = b := by
-  cases b <;> rfl
+@[simp] theorem toNat_eq_zero (b : Bool) : b.toNat = 0 ↔ b = false := by
+  cases b <;> simp
+@[simp] theorem toNat_eq_one (b : Bool) : b.toNat = 1 ↔ b = true := by
+  cases b <;> simp
 
 end Bool
 

@@ -3,6 +3,8 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
+import Init.Omega.Constraint
 import Lean.Elab.Tactic.Omega.OmegaM
 import Lean.Elab.Tactic.Omega.MinNatAbs
 

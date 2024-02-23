@@ -1,0 +1,15 @@
+issue2260.lean:8:20-8:21: error: The termination argument depends on the function's varying parameters. Try using `sizeOf` explicitly:
+The termination argument has type
+  DNat i : Type
+but is expected to have type
+  ?β : Sort ?u
+issue2260.lean:15:20-15:21: error: The termination argument types differ for the different functions, or depend on the function's varying parameters. Try using `sizeOf` explicitly:
+The termination argument has type
+  DNat i : Type
+but is expected to have type
+  ?β : Sort ?u
+issue2260.lean:31:20-31:21: error: The termination argument types differ for the different functions, or depend on the function's varying parameters. Try using `sizeOf` explicitly:
+The termination argument has type
+  DNat i : Type
+but is expected to have type
+  Nat : Type

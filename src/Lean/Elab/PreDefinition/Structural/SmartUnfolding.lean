@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Meta.Match.MatcherApp.Basic
 
 namespace Lean.Elab.Structural
 open Meta

@@ -288,7 +288,7 @@ where
 partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
   let opts ← getOptions
   return e.isFVar
-         || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
+         || e.isConst || e.isMVar || e.isRawNatLit || e.isStringLit || e.isSort
          || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity ``OfNat.ofNat 3)
          || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity ``OfScientific.ofScientific 5)
 

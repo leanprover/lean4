@@ -96,7 +96,7 @@ private def hasValPattern (p : Problem) : Bool :=
 
 private def hasNatValPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
-    | .val v :: _ => v.isNatLit
+    | .val v :: _ => v.isRawNatLit -- TODO: support `OfNat.ofNat`?
     | _           => false
 
 private def hasVarPattern (p : Problem) : Bool :=

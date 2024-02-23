@@ -912,7 +912,7 @@ def litValue! : Expr → Literal
   | lit v => v
   | _     => panic! "literal expected"
 
-def isNatLit : Expr → Bool
+def isRawNatLit : Expr → Bool
   | lit (Literal.natVal _) => true
   | _                      => false
 
@@ -925,7 +925,7 @@ def isStringLit : Expr → Bool
   | _                      => false
 
 def isCharLit : Expr → Bool
-  | app (const c _) a => c == ``Char.ofNat && a.isNatLit
+  | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
 def constName! : Expr → Name

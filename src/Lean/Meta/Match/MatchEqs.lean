@@ -356,7 +356,7 @@ private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
         unless (← isDefEq lhs rhs) do
           let lhs ← whnf lhs
           let rhs ← whnf rhs
-          unless lhs.isNatLit && rhs.isNatLit do
+          unless lhs.isRawNatLit && rhs.isRawNatLit do
             try
               match (← injection mvarId localDecl.fvarId) with
               | InjectionResult.solved  => return InjectionAnyResult.solved

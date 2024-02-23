@@ -111,7 +111,7 @@ where
       if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
-        if lhs.isNatLit && rhs.isNatLit then cont
+        if lhs.isRawNatLit && rhs.isRawNatLit then cont
         else
           try
             match (← injection mvarId fvarId newNames) with

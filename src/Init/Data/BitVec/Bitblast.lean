@@ -91,7 +91,7 @@ private theorem mod_two_pow_succ (x i : Nat) :
 
 private theorem mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ
      (x y i : Nat) (c : Bool) : x % 2^i + (y % 2^i + c.toNat) < 2^(i+1) := by
-  have : c.toNat ≤ 1 := Bool.toNat_le_one c
+  have : c.toNat ≤ 1 := Bool.toNat_le c
   rw [Nat.pow_succ]
   omega
 

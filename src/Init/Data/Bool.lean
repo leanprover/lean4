@@ -217,11 +217,13 @@ def toNat (b:Bool) : Nat := cond b 1 0
 
 @[simp] theorem toNat_true : true.toNat = 1 := rfl
 
-theorem toNat_le_one (c:Bool) : c.toNat ≤ 1 := by
+theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
 
+@[deprecated toNat_le] abbrev toNat_le_one := toNat_le
+
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
-  Nat.lt_succ_of_le (toNat_le_one _)
+  Nat.lt_succ_of_le (toNat_le _)
 
 @[simp] theorem toNat_eq_zero (b : Bool) : b.toNat = 0 ↔ b = false := by
   cases b <;> simp

@@ -33,7 +33,7 @@ def Config.updateArith (c : Config) : CoreM Config := do
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
-  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
+  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isRawNatLit
 
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do

@@ -16,7 +16,7 @@ private def isUIntTypeName (n : Name) : Bool :=
   UIntTypeNames.contains n
 
 def isFinPatLit (e : Expr) : Bool :=
-  e.isAppOfArity `Fin.ofNat 2 && e.appArg!.isNatLit
+  e.isAppOfArity `Fin.ofNat 2 && e.appArg!.isRawNatLit
 
 /-- Return `some (typeName, numLit)` if `v` is of the form `UInt*.mk (Fin.ofNat _ numLit)` -/
 def isUIntPatLit? (v : Expr) : Option (Name × Expr) :=
@@ -43,6 +43,6 @@ def foldPatValue (v : Expr) : Expr :=
 
 /-- Return true is `e` is a term that should be processed by the `match`-compiler using `casesValues` -/
 def isMatchValue (e : Expr) : Bool :=
-  e.isNatLit || e.isCharLit || e.isStringLit || isFinPatLit e || isUIntPatLit e
+  e.isRawNatLit || e.isCharLit || e.isStringLit || isFinPatLit e || isUIntPatLit e
 
 end Lean.Meta

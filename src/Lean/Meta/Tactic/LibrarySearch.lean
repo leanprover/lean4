@@ -162,8 +162,8 @@ def mkImportFinder : IO CandidateFinder := do
 
 end IncDiscrTreeFinder
 
-initialize registerTraceClass `Tactic.stdLibrarySearch
-initialize registerTraceClass `Tactic.stdLibrarySearch.lemmas
+initialize registerTraceClass `Tactic.librarySearch
+initialize registerTraceClass `Tactic.librarySearch.lemmas
 
 /-- State for resolving imports -/
 private def LibSearchState := IO.Ref (Option CandidateFinder)
@@ -294,7 +294,7 @@ otherwise the full list of subgoals is returned.
 private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool) (cand : Candidate)  : MetaM (List MVarId) := do
   let ((goal, mctx), (name, mod)) := cand
-  withTraceNode `Tactic.stdLibrarySearch (return m!"{emoji ·} trying {name} with {mod} ") do
+  withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name} with {mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
     let newGoals ← goal.apply lem cfg
@@ -342,7 +342,7 @@ private def librarySearch' (goal : MVarId)
     (allowFailure : MVarId → MetaM Bool)
     (leavePercentHeartbeats : Nat) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
-  withTraceNode `Tactic.stdLibrarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
+  withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
   let importFinder ← do
         let r := ext.getState (←getEnv)

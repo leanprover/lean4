@@ -3,6 +3,7 @@ Copyright (c) 2021-2023 Gabriel Ebner and Lean FRO. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Joe Hendrix, Scott Morrison
 -/
+prelude
 import Lean.Meta.LazyDiscrTree
 import Lean.Meta.Tactic.SolveByElim
 import Lean.Util.Heartbeats

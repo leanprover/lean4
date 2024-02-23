@@ -501,4 +501,9 @@ theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 @[simp] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp
 
+@[simp] theorem natCast_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
+  induction b with
+  | zero => rfl
+  | succ b ih => rw [Nat.pow_succ, Int.ofNat_mul, ih]; rfl
+
 end Int

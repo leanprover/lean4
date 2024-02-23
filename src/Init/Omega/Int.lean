@@ -7,6 +7,7 @@ prelude
 import Init.Data.Int.Order
 import Init.Data.Int.DivModLemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Int.Lemmas
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
@@ -21,13 +22,8 @@ namespace Lean.Omega
 
 namespace Int
 
-theorem ofNat_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
-  induction b with
-  | zero => rfl
-  | succ b ih => rw [Nat.pow_succ, Int.ofNat_mul, ih]; rfl
-
 theorem pos_pow_of_pos (a : Int) (b : Nat) (h : 0 < a) : 0 < a ^ b := by
-  rw [Int.eq_natAbs_of_zero_le (Int.le_of_lt h), ← Int.ofNat_zero, ← Int.ofNat_pow, Int.ofNat_lt]
+  rw [Int.eq_natAbs_of_zero_le (Int.le_of_lt h), ← Int.ofNat_zero, ← Int.natCast_pow, Int.ofNat_lt]
   exact Nat.pos_pow_of_pos _ (Int.natAbs_pos.mpr (Int.ne_of_gt h))
 
 theorem ofNat_pos {a : Nat} : 0 < (a : Int) ↔ 0 < a := by

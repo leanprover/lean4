@@ -601,4 +601,22 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   simp
   exact Nat.lt_of_le_of_ne
 
+/- ! ### toInt -/
+theorem toInt_eq (x : BitVec w) : x.toInt = if x.msb then (x.toNat : Int) - 2^w else x.toNat := by
+  simp [BitVec.toInt]
+
+theorem toInt_eq_of_msb_false (x : BitVec w) (hx : x.msb = false) : x.toInt = x.toNat := by
+  simp [BitVec.toInt, hx]
+
+theorem toInt_eq_of_toNat_lt (x : BitVec w) (hx : x.toNat < 2^(w-1)) : x.toInt = x.toNat := by
+  apply toInt_eq_of_msb_false
+  simp [BitVec.msb_eq_decide, hx]
+
+theorem toInt_eq_of_msb_true (x : BitVec w) (hx : x.msb = true) : x.toInt = ↑x.toNat - 2^w := by
+  simp [BitVec.toInt, hx]
+
+theorem toInt_eq_of_toNat_geq (x : BitVec w) (hx : x.toNat ≥ 2^(w-1)) : x.toInt = ↑x.toNat - 2^w := by
+  apply toInt_eq_of_msb_true
+  simp [BitVec.msb_eq_decide, hx]
+
 end BitVec

@@ -1457,3 +1457,9 @@ macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 @[inherit_doc getElem]
 syntax term noWs "[" withoutPosition(term) "]'" term:max : term
 macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+
+/--
+Searches environment for definitions or theorems that can be substituted in
+for `exact?% to solve the goal.
+ -/
+syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term

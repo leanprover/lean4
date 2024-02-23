@@ -10,74 +10,72 @@ import Lean.Elab.Tactic.BuiltinTactic
 namespace Lean.Elab.LibrarySearch
 
 open Lean Meta LibrarySearch
-open Elab Tactic TryThis
+open Elab Tactic Term TryThis
 
+/--
+Implementation of the `exact?` tactic.
 
--- TODO: implement the additional options for `library_search` from Lean 3,
--- in particular including additional lemmas
--- with `exact? [X, Y, Z]` or `exact? with attr`.
-
-/-- Implementation of the `exact?` tactic. -/
-def exact? (tk : Syntax) (required : Option (Array (TSyntax `term)))
-   (solver : Option (TSyntax `Lean.Parser.Tactic.tacticSeq)) (requireClose : Bool) :
+* `ref` contains the input syntax and is used for locations in error reporting.
+* `required` contains an optional list of terms that should be used in closing the goal.
+* `requireClose` indicates if the goal must be closed.
+  It is `true` for `exact?` and `false` for `apply?`.
+-/
+def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
   let mvar ← getMainGoal
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
-    let tactic ←
-      match solver with
-      | none =>
-        pure (fun exfalso => solveByElim required (exfalso := exfalso) (maxDepth := 6))
-      | some t =>
-        let _ <- mkInitialTacticInfo t
-        throwError "Do not yet support custom std_exact?/std_apply? tactics."
+    let tactic := fun exfalso =>
+          solveByElim required (exfalso := exfalso) (maxDepth := 6)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
     match ← librarySearch goal tactic allowFailure with
     -- Found goal that closed problem
     | none =>
-      addExactSuggestion tk (← instantiateMVars (mkMVar mvar)).headBeta
+      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
     -- Found suggestions
     | some suggestions =>
       if requireClose then throwError
         "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
-      reportOutOfHeartbeats `library_search tk
+      reportOutOfHeartbeats `library_search ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
-          addExactSuggestion tk (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)
-      if suggestions.isEmpty then logError "std_apply? didn't find any relevant lemmas"
+          addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)
+      if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do
   let `(tactic| exact? $[using $[$required],*]?) := stx
         | throwUnsupportedSyntax
-  exact? (← getRef) required none true
+  exact? (← getRef) required true
 
 
 @[builtin_tactic Lean.Parser.Tactic.apply?]
 def evalApply : Tactic := fun stx => do
   let `(tactic| apply? $[using $[$required],*]?) := stx
         | throwUnsupportedSyntax
-  exact? (← getRef) required none false
+  exact? (← getRef) required false
 
-/-- Term elaborator using the `exact?` tactic. -/
-elab tk:"exact?%" : term <= expectedType => do
-  let goal ← mkFreshExprMVar expectedType
-  let (_, introdGoal) ← goal.mvarId!.intros
-  introdGoal.withContext do
-    let tactic := fun exfalso g => solveByElim []  (maxDepth := 6) exfalso g
-    if let some suggestions ← librarySearch introdGoal tactic then
-      reportOutOfHeartbeats `library_search tk
-      for suggestion in suggestions do
-        withMCtx suggestion.2 do
-          addTermSuggestion tk (← instantiateMVars goal).headBeta
-      if suggestions.isEmpty then logError "exact?# didn't find any relevant lemmas"
-      mkSorry expectedType (synthetic := true)
-    else
-      addTermSuggestion tk (← instantiateMVars goal).headBeta
-      instantiateMVars goal
+@[builtin_term_elab Lean.Parser.Syntax.exact?]
+def elabExact?Term : TermElab := fun stx expectedType? => do
+  let `(exact?%) := stx | throwUnsupportedSyntax
+  withExpectedType expectedType? fun expectedType => do
+    let goal ← mkFreshExprMVar expectedType
+    let (_, introdGoal) ← goal.mvarId!.intros
+    introdGoal.withContext do
+      let tactic := fun exfalso g => solveByElim []  (maxDepth := 6) exfalso g
+      if let some suggestions ← librarySearch introdGoal tactic then
+        reportOutOfHeartbeats `library_search stx
+        for suggestion in suggestions do
+          withMCtx suggestion.2 do
+            addTermSuggestion stx (← instantiateMVars goal).headBeta
+        if suggestions.isEmpty then logError "exact?# didn't find any relevant lemmas"
+        mkSorry expectedType (synthetic := true)
+      else
+        addTermSuggestion stx (← instantiateMVars goal).headBeta
+        instantiateMVars goal
 
 end Lean.Elab.LibrarySearch

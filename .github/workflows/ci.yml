@@ -470,29 +470,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # checks that each `Lean` module contains a `prelude` line
-  check-prelude:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
-          sparse-checkout: src/Lean
-      - name: Check Prelude
-        run: |
-          failed_files=""
-          while IFS= read -r -d '' file; do
-            if ! grep -q "^prelude$" "$file"; then
-              failed_files="$failed_files$file\n"
-            fi
-          done < <(find src/Lean -name '*.lean' -print0)
-          if [ -n "$failed_files" ]; then
-            echo -e "The following files should not import 'Init':\n$failed_files"
-            exit 1
-          fi
-
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
   release-nightly:

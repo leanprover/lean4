@@ -191,6 +191,13 @@ def optSemicolon (p : Parser) : Parser :=
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
+/--
+Denotes a term that was omitted by the pretty printer.
+This is only meant to be used for pretty printing, however for copy/paste friendliness it elaborates like `_` while logging a warning.
+The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+-/
+@[builtin_term_parser] def omission := leading_parser
+  "⋯"
 def binderIdent : Parser  := ident <|> hole
 /-- A temporary placeholder for a missing proof or value. -/
 @[builtin_term_parser] def «sorry» := leading_parser

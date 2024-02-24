@@ -7,6 +7,7 @@ prelude
 import Lean.Expr
 
 namespace Lean.Meta
+-- TODO: produce error for `USize` because `USize.decEq` depends on an opaque value: `System.Platform.numBits`.
 
 -- TODO: move?
 private def UIntTypeNames : Array Name :=

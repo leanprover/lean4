@@ -170,19 +170,6 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 
-/--
-Denotes a term that was omitted by the pretty printer.
-This is only used for pretty printing, and it cannot be elaborated.
-The presence of `⋯` is controlled by the `pp.deepTerms` and `pp.proofs` options.
--/
-syntax "⋯" : term
-
-macro_rules | `(⋯) => Macro.throwError "\
-  Error: The '⋯' token is used by the pretty printer to indicate omitted terms, \
-  and it cannot be elaborated.\
-  \n\nIts presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
-  These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
-
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
 
@@ -194,7 +181,7 @@ macro_rules | `(⋯) => Macro.throwError "\
     match tail with
     | `([])      => `([$x])
     | `([$xs,*]) => `([$x, $xs,*])
-    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    --| `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
     | _          => throw ()
   | _ => throw ()
 

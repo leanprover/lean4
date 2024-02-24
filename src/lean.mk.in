@@ -34,7 +34,12 @@ SRCS = $(shell find $(PKG) $(PKG).lean $(EXTRA_SRC_ROOTS) -name '*.lean' 2> /dev
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH += @LEAN_PATH_SEPARATOR@$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
+ifdef C_ONLY
+# There are no .lean files in stage0/src/
+REL_OS = $(patsubst %.c,%.o,$(shell cd $(C_OUT); find $(PKG) $(PKG).c -name '*.c' 2> /dev/null))
+else
 REL_OS = $(patsubst %.lean,%.o,$(shell find $(PKG) $(PKG).lean -name '*.lean' 2> /dev/null))
+endif
 
 SHELL = /usr/bin/env bash -euo pipefail
 

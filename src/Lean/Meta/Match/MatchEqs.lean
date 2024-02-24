@@ -16,6 +16,35 @@ import Lean.Meta.Tactic.Contradiction
 namespace Lean.Meta
 
 /--
+A custom, approximated, and quick `contradiction` tactic.
+It only finds contradictions of the form `(h₁ : p)` and `(h₂ : ¬ p)` where
+`p`s are structurally equal. The procedure is not quadratic like `contradiction`.
+
+We use it to improve the performance of `proveSubgoalLoop` at `mkSplitterProof`.
+We will eventually have to write more efficient proof automation for this module.
+The new proof automation should exploit the structure of the generated goals and avoid general purpose tactics
+such as `contradiction`.
+-/
+private def _root_.Lean.MVarId.contradictionQuick (mvarId : MVarId) : MetaM Bool := do
+  mvarId.withContext do
+    let mut posMap : HashMap Expr FVarId := {}
+    let mut negMap : HashMap Expr FVarId := {}
+    for localDecl in (← getLCtx) do
+      unless localDecl.isImplementationDetail do
+        if let some p ← matchNot? localDecl.type then
+          if let some pFVarId := posMap.find? p then
+            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
+            return true
+          negMap := negMap.insert p localDecl.fvarId
+        if (← isProp localDecl.type) then
+          if let some nFVarId := negMap.find? localDecl.type then
+            mvarId.assign (← mkAbsurd (← mvarId.getType) localDecl.toExpr (mkFVar nFVarId))
+            return true
+          posMap := posMap.insert localDecl.type localDecl.fvarId
+      pure ()
+    return false
+
+/--
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
   apply `cases xMajor`. -/
 partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
@@ -567,6 +596,8 @@ where
 
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
     trace[Meta.Match.matchEqs] "proveSubgoalLoop\n{mvarId}"
+    if (← mvarId.contradictionQuick) then
+      return ()
     match (← injectionAny mvarId) with
     | InjectionAnyResult.solved => return ()
     | InjectionAnyResult.failed =>

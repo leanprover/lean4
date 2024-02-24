@@ -132,6 +132,15 @@ private def isValueTransition (p : Problem) : Bool :=
      | .var _ :: _ => true
      | _           => false
 
+private def isFinValueTransition (p : Problem) : MetaM Bool := do
+  if hasVarPattern p then return false
+  if !hasValPattern p then return false
+  p.alts.allM fun alt => do
+     match alt.patterns with
+     | .val v :: _   => return (← getFinValue? v).isSome
+     | .ctor .. :: _ => return true
+     | _             => return false
+
 private def isArrayLitTransition (p : Problem) : Bool :=
   hasArrayLitPattern p && hasVarPattern p
   && p.alts.all fun alt => match alt.patterns with
@@ -597,6 +606,19 @@ private def expandNatValuePattern (p : Problem) : MetaM Problem := do
     | _ => return alt
   return { p with alts := alts }
 
+private def expandFinValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | .val n :: ps =>
+      match (← getFinValue? n) with
+      | some ⟨n, v⟩ =>
+        let p ← mkLt (toExpr v.val) (toExpr n)
+        let h ← mkDecideProof p
+        return { alt with patterns := .ctor ``Fin.mk [] [toExpr n] [.val (toExpr v.val), .inaccessible h] :: ps }
+      | _ => return alt
+    | _ => return alt
+  return { p with alts := alts }
+
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do
   trace[Meta.Match.match] "{msg} step"
 
@@ -643,6 +665,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
+  else if (← isFinValueTransition p) then
+    traceStep ("fin value to constructor")
+    process (← expandFinValuePattern p)
   else if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p

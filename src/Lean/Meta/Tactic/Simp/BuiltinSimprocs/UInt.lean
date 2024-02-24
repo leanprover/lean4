@@ -97,4 +97,8 @@ declare_uint_simprocs UInt8
 declare_uint_simprocs UInt16
 declare_uint_simprocs UInt32
 declare_uint_simprocs UInt64
-declare_uint_simprocs USize
+/-
+We disabled the simprocs for USize since the result of most operations depend on an opaque value: `System.Platform.numBits`.
+We could reduce some cases using the fact that this opaque value is `32` or `64`, but it is unclear whether it would be useful in practice.
+-/
+-- declare_uint_simprocs USize

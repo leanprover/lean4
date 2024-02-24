@@ -5,33 +5,14 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.ToExpr
+import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
 namespace Int
 open Lean Meta Simp
 
-def fromExpr? (e : Expr) : SimpM (Option Int) := OptionT.run do
-  let mut e := e
-  let mut isNeg := false
-  if e.isAppOfArity ``Neg.neg 3 then
-    e := e.appArg!
-    isNeg := true
-  guard (e.isAppOfArity ``OfNat.ofNat 3)
-  let type ← whnf e.appFn!.appFn!.appArg!
-  guard (type.isConstOf ``Int)
-  let value ← Nat.fromExpr? e.appFn!.appArg!
-  let mut value : Int := value
-  if isNeg then value := - value
-  return value
-
-def toExpr (v : Int) : Expr :=
-  let n := v.natAbs
-  let r := mkRawNatLit n
-  let e := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Int) r (mkApp (mkConst ``instOfNat) r)
-  if v < 0 then
-    mkAppN (mkConst ``Neg.neg [levelZero]) #[mkConst ``Int, mkConst ``instNegInt, e]
-  else
-    e
+def fromExpr? (e : Expr) : SimpM (Option Int) :=
+  getIntValue? e
 
 @[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Int → Int) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue

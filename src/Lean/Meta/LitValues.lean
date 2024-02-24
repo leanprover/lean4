@@ -16,6 +16,7 @@ It also provides support for the following exceptional cases.
 - Bit-vectors encoded using `OfNat.ofNat` and `BitVec.ofNat`.
 - Negative integers encoded using raw natural numbers.
 - Characters encoded `Char.ofNat n` where `n` can be a raw natural number or an `OfNat.ofNat`.
+- Nested `Expr.mdata`.
 -/
 
 /-- Returns `some n` if `e` is a raw natural number, i.e., it is of the form `.lit (.natVal n)`. -/
@@ -26,7 +27,7 @@ def getRawNatValue? (e : Expr) : Option Nat :=
 
 /-- Return `some (n, type)` if `e` is an `OfNat.ofNat`-application encoding `n` for a type with name `typeDeclName`. -/
 def getOfNatValue? (e : Expr) (typeDeclName : Name) : MetaM (Option (Nat × Expr)) := OptionT.run do
-  guard <| e.isAppOfArity ``OfNat.ofNat 3
+  guard <| e.isAppOfArity' ``OfNat.ofNat 3
   let type ← whnfD e.appFn!.appFn!.appArg!
   guard <| type.getAppFn.isConstOf typeDeclName
   let .lit (.natVal n) := e.appFn!.appArg! | failure
@@ -43,15 +44,15 @@ def getNatValue? (e : Expr) : MetaM (Option Nat) := do
 def getIntValue? (e : Expr) : MetaM (Option Int) := do
   if let some (n, _) ← getOfNatValue? e ``Int then
     return some n
-  if e.isAppOfArity ``Neg.neg 3 then
-    let some (n, _) ← getOfNatValue? e.appArg! ``Int | return none
+  if e.isAppOfArity' ``Neg.neg 3 then
+    let some (n, _) ← getOfNatValue? e.appArg!.consumeMData ``Int | return none
     return some (-n)
   return none
 
 /-- Return `some c` if `e` is a `Char.ofNat`-application encoding character `c`. -/
 def getCharValue? (e : Expr) : MetaM (Option Char) := OptionT.run do
-  guard <| e.isAppOfArity ``Char.ofNat 1
-  let n ← getNatValue? e.appArg!
+  guard <| e.isAppOfArity' ``Char.ofNat 1
+  let n ← getNatValue? e.appArg!.consumeMData
   return Char.ofNat n
 
 /-- Return `some s` if `e` is of the form `.lit (.strVal s)`. -/
@@ -70,9 +71,9 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
 
 /-- Return `some ⟨n, v⟩` if `e` is af `OfNat.ofNat` application encoding a `BitVec n` with value `v` -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
-  if e.isAppOfArity ``BitVec.ofNat 2 then
-    let n ← getNatValue? e.appFn!.appArg!
-    let v ← getNatValue? e.appArg!
+  if e.isAppOfArity' ``BitVec.ofNat 2 then
+    let n ← getNatValue? e.appFn!.appArg!.consumeMData
+    let v ← getNatValue? e.appArg!.consumeMData
     return ⟨n, BitVec.ofNat n v⟩
   let (v, type) ← getOfNatValue? e ``BitVec
   IO.println v
@@ -98,5 +99,23 @@ def getUInt32Value? (e : Expr) : MetaM (Option UInt32) := OptionT.run do
 def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt64
   return UInt64.ofNat n
+
+/--
+If `e` is literal value, ensure it is encoded using the standard representation.
+Otherwise, just return `e`.
+-/
+def normLitValue (e : Expr) : MetaM Expr := do
+  let e ← instantiateMVars e
+  if let some n ← getNatValue? e then return toExpr n
+  if let some n ← getIntValue? e then return toExpr n
+  if let some ⟨_, n⟩ ← getFinValue? e then return toExpr n
+  if let some ⟨_, n⟩ ← getBitVecValue? e then return toExpr n
+  if let some s := getStringValue? e then return toExpr s
+  if let some c ← getCharValue? e then return toExpr c
+  if let some n ← getUInt8Value? e then return toExpr n
+  if let some n ← getUInt16Value? e then return toExpr n
+  if let some n ← getUInt32Value? e then return toExpr n
+  if let some n ← getUInt64Value? e then return toExpr n
+  return e
 
 end Lean.Meta

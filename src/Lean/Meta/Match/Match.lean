@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.LitValues
 import Lean.Meta.Check
 import Lean.Meta.Closure
 import Lean.Meta.Tactic.Cases
@@ -94,10 +95,11 @@ private def hasValPattern (p : Problem) : Bool :=
     | .val _ :: _ => true
     | _           => false
 
-private def hasNatValPattern (p : Problem) : Bool :=
-  p.alts.any fun alt => match alt.patterns with
-    | .val v :: _ => v.isRawNatLit -- TODO: support `OfNat.ofNat`?
-    | _           => false
+private def hasNatValPattern (p : Problem) : MetaM Bool :=
+  p.alts.anyM fun alt => do
+    match alt.patterns with
+    | .val v :: _ => return (← getNatValue? v).isSome
+    | _           => return false
 
 private def hasVarPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
@@ -137,13 +139,13 @@ private def isArrayLitTransition (p : Problem) : Bool :=
      | .var _ :: _       => true
      | _                 => false
 
-private def isNatValueTransition (p : Problem) : Bool :=
-  hasNatValPattern p
-  && (!isNextVar p ||
+private def isNatValueTransition (p : Problem) : MetaM Bool := do
+  unless (← hasNatValPattern p) do return false
+  return !isNextVar p ||
       p.alts.any fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .inaccessible _ :: _ => true
-      | _                    => false)
+      | _                    => false
 
 private def processSkipInaccessible (p : Problem) : Problem := Id.run do
   let x :: xs := p.vars | unreachable!
@@ -584,12 +586,16 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
       let newAlts := p.alts.filter isFirstPatternVar
       return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
-private def expandNatValuePattern (p : Problem) : Problem :=
-  let alts := p.alts.map fun alt => match alt.patterns with
-    | .val (.lit (.natVal 0)) :: ps     => { alt with patterns := .ctor ``Nat.zero [] [] [] :: ps }
-    | .val (.lit (.natVal (n+1))) :: ps => { alt with patterns := .ctor ``Nat.succ [] [] [.val (mkRawNatLit n)] :: ps }
-    | _                                 => alt
-  { p with alts := alts }
+private def expandNatValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | .val n :: ps =>
+      match (← getNatValue? n) with
+      | some 0     => return { alt with patterns := .ctor ``Nat.zero [] [] [] :: ps }
+      | some (n+1) => return { alt with patterns := .ctor ``Nat.succ [] [] [.val (toExpr n)] :: ps }
+      | _ => return alt
+    | _ => return alt
+  return { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do
   trace[Meta.Match.match] "{msg} step"
@@ -634,9 +640,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     traceStep ("as-pattern")
     let p ← processAsPattern p
     process p
-  else if isNatValueTransition p then
+  else if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
+    process (← expandNatValuePattern p)
   else if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p
@@ -654,11 +660,11 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if isArrayLitTransition p then
     let ps ← processArrayLit p
     ps.forM process
-  else if hasNatValPattern p then
+  else if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
     traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
+    process (← expandNatValuePattern p)
   else
     checkNextPatternTypes p
     throwNonSupported p

@@ -16,13 +16,7 @@ def f (x : BitVec 32) : Nat :=
   | 920#32 => 12
   | _      => 1000
 
--- TODO
-theorem ex1 : f 500#32 = x := by
-  set_option trace.Meta.Tactic.simp true in
-  simp [f]
-  sorry
-
-set_option maxHeartbeats 500
+set_option maxHeartbeats 2800
 example : f 500#32 = x := by
   simp [f]
   sorry

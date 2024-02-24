@@ -48,7 +48,7 @@ instance : ToExpr (Fin n) where
   toExpr a :=
     let r := mkRawNatLit a.val
     mkApp3 (.const ``OfNat.ofNat [0]) (.app (mkConst ``Fin) (toExpr n)) r
-      (mkApp2 (.const ``Fin.instOfNat []) (mkRawNatLit (n-1)) r)
+      (mkApp2 (.const ``Fin.instOfNat []) (mkNatLit (n-1)) r)
 
 instance : ToExpr (BitVec n) where
   toTypeExpr := .app (mkConst ``BitVec) (toExpr n)

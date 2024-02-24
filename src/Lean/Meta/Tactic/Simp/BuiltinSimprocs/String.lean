@@ -10,9 +10,8 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Char
 namespace String
 open Lean Meta Simp
 
-def fromExpr? (e : Expr) : SimpM (Option String) := OptionT.run do
-  let .lit (.strVal s) := e | failure
-  return s
+def fromExpr? (e : Expr) : SimpM (Option String) := do
+  return getStringValue? e
 
 builtin_simproc [simp, seval] reduceAppend ((_ ++ _ : String)) := fun e => do
   unless e.isAppOfArity ``HAppend.hAppend 6 do return .continue

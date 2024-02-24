@@ -139,13 +139,55 @@ def optSemicolon (p : Parser) : Parser :=
 /-- The universe of propositions. `Prop ≡ Sort 0`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
-/-- A placeholder term, to be synthesized by unification. -/
+/-- A *hole* (or *placeholder term*), which stands for an unknown term that should be synthesized by unification.
+The `_` syntax creates a fresh metavariable. -/
 @[builtin_term_parser] def hole := leading_parser
   "_"
-/-- Parses a "synthetic hole", that is, `?foo` or `?_`.
-This syntax is used to construct named metavariables. -/
+/--
+A *synthetic hole* (or *synthetic placeholder*), which stands for an unknown term that should should be synthesized using tactics.
+- `?_` creates a fresh synthetic metavariable with an auto-generated name.
+- `?foo` either refers to a pre-existing synthetic metavariable named `foo` or creates a fresh synthetic metavariable with that name.
+
+In particular, the synthetic hole syntax creates synthetic opaque metavariables,
+the same kind of metavariable used to represent goals in the tactic state.
+During elaboration, unification does not assign to synthetic opaque metavariables,
+since this can lead to counterintuitive behavior.
+
+Synthetic holes are similar to placeholders (the `_` syntax) in that they also stand for metavariables,
+but synthetic opaque metavariables have some different features:
+- In tactics such as `refine`, new synthetic holes yield new goals.
+- When synthetic holes appear under binders, they capture local variables using a more complicated mechanism known as delayed assignment.
+  (Delayed assignment metavariables pretty print as `?foo(x := a)`.)
+- During the course of elaboration, unification will not solve for synthetic opaque metavariables.
+-/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
+def delayedAssignedMVarItem : Parser := leading_parser
+  ident >> optional (" := " >> termParser)
+/--
+A delayed assignment metavariable.
+- `?foo(x := a, y := b)` takes the metavariable for the synthetic hole `?foo`
+  and create a term that effectively substitutes `a` and `b`
+  as the values for the local variables `x` and `y` from the local context of the metavariable `?foo`.
+- `?foo(x, y)` is short for `?foo(x := x, y := y)`.
+
+Delayed assignment is a mechanism where values can be substituted into the local context of another metavariable.
+You can think of delayed assigment as being a purely syntactic way to "apply" a metavariable as if it were a lambda abstraction.
+
+The way it works is the following. Suppose `?foo : T` has local variables `x : A` and `y : B` and we have terms `a : A` and `b : B`.
+Then `?foo(x := a, y := b)` creates a new metavariable `?m : A → B → T` without `x` or `y` in context,
+registers a delayed assignment with the data that `?m` is waiting on `?foo`, and then elaborates to `?m a b`.
+Once `?foo` is fully assigned (in that once all its metavariables are recursively instantiated, it contains no metavariables),
+then `?m a b` is replaced by the value of `?foo` with `x` and `y` substituted for `a` and `b`, respectively.
+
+The delayed assignment mechanism is necessary for the implementation of the `intro` tactic.
+The tactic `intro x` creates a new metavariable `?goal` with a local variable named `x`,
+solves the current goal with the term `fun x' => ?goal(x := x')`, and then uses `?goal` for the new goal.
+Note that if you write `refine fun x => ?goal` and `?goal` is a fresh metavariable,
+a delayed assignment will automatically be created to account for the captured local context.
+-/
+@[builtin_term_parser] def delayedAssignedMVar := leading_parser
+  syntheticHole >> checkNoWsBefore >> "(" >> sepBy delayedAssignedMVarItem ", " (allowTrailingSep := true) >> ")"
 /--
 The `⋯` term denotes a term that was omitted by the pretty printer.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,

@@ -181,7 +181,7 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
     match tail with
     | `([])      => `([$x])
     | `([$xs,*]) => `([$x, $xs,*])
-    --| `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
     | _          => throw ()
   | _ => throw ()
 

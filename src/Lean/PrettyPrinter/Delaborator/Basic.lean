@@ -328,8 +328,7 @@ Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, wh
 subterm omitted by `⋯` is delaborated when hovered over.
 -/
 def omission : Delab := do
-  --let stx ← `(⋯)
-  let stx : Term := ⟨mkNode ``Lean.Parser.Term.omission #[]⟩
+  let stx ← `(⋯)
   let stx ← annotateCurPos stx
   addOmissionInfo (← getPos) stx (← getExpr)
   pure stx

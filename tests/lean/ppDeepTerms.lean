@@ -32,3 +32,8 @@ Nothing is omitted in short lists
 In longer lists, the tail is omitted
 -/
 #check [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+/-!
+Checking the message when an omission is copied from the Infoview
+-/
+#check [1, 2, 3, 4, 5, 6, 7, 8, ⋯]

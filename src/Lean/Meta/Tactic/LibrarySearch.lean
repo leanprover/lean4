@@ -386,7 +386,8 @@ unless the goal was completely solved.)
 this is not currently tracked.)
 -/
 def librarySearch (goal : MVarId)
-    (tactic : Bool → List MVarId → MetaM (List MVarId))
+    (tactic : Bool → List MVarId → MetaM (List MVarId) :=
+      fun initial g => solveByElim [] (maxDepth := 6) (exfalso := initial) g)
     (allowFailure : MVarId → MetaM Bool := fun _ => pure true)
     (leavePercentHeartbeats : Nat := 10) :
     MetaM (Option (Array (List MVarId × MetavarContext))) := do

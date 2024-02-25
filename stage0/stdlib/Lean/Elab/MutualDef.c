@@ -159,6 +159,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabMut
 lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 static lean_object* l_Lean_Elab_elabAttr___at_Lean_Elab_Command_elabMutualDef___spec__4___closed__4;
 lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
+uint8_t l_Array_contains___at_Lean_findField_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___rarg___lambda__3(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___spec__5___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___spec__6(lean_object*);
 uint8_t l_Lean_HashSetImp_contains___at_Lean_CollectLevelParams_visitLevel___spec__1(lean_object*, lean_object*);
@@ -228,7 +229,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_MutualClosur
 static lean_object* l_Lean_ensureNonAmbiguous___at_Lean_Elab_Term_elabMutualDef_processDeriving___spec__6___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereStructInst___spec__5___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereStructInst___spec__5___lambda__2___closed__1;
-uint8_t l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabMutualDef___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__6___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_WF_TerminationHints_none;
@@ -27401,7 +27401,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_7 = lean_array_uget(x_3, x_4);
 x_8 = lean_ctor_get(x_2, 2);
-x_9 = l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(x_8, x_7);
+x_9 = l_Array_contains___at_Lean_findField_x3f___spec__1(x_8, x_7);
 if (x_9 == 0)
 {
 uint8_t x_10; 

@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_mkInjectiveTheorems___
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_mkInjectiveTheorems___spec__7___rarg___closed__2;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_mapForallTelescope_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkInjectiveTheorems___spec__2___closed__2;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -167,7 +168,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_mkInjectiveTheor
 static lean_object* l_Lean_withTraceNode___at_Lean_Meta_mkInjectiveTheorems___spec__5___lambda__3___closed__5;
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_simpExtension;
-lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_mkInjectiveTheorems___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_mkInjectiveTheorems___spec__5___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2084,7 +2084,7 @@ lean_closure_set(x_13, 2, x_5);
 lean_closure_set(x_13, 3, x_12);
 lean_closure_set(x_13, 4, x_4);
 lean_closure_set(x_13, 5, x_6);
-x_14 = l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(x_6, x_13, x_7, x_8, x_9, x_10, x_11);
+x_14 = l_Lean_Meta_forallTelescope___at_Lean_Meta_mapForallTelescope_x27___spec__1___rarg(x_6, x_13, x_7, x_8, x_9, x_10, x_11);
 return x_14;
 }
 }

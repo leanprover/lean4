@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "runtime/stack_overflow.h"
 #include "runtime/process.h"
 #include "runtime/mutex.h"
+#include "runtime/init_module.h"
 
 namespace lean {
 extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {

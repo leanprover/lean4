@@ -101,6 +101,12 @@ private def hasNatValPattern (p : Problem) : MetaM Bool :=
     | .val v :: _ => return (← getNatValue? v).isSome
     | _           => return false
 
+private def hasIntValPattern (p : Problem) : MetaM Bool :=
+  p.alts.anyM fun alt => do
+    match alt.patterns with
+    | .val v :: _ => return (← getIntValue? v).isSome
+    | _           => return false
+
 private def hasVarPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
     | .var _ :: _ => true
@@ -148,13 +154,20 @@ private def isArrayLitTransition (p : Problem) : Bool :=
      | .var _ :: _       => true
      | _                 => false
 
+private def hasCtorOrInaccessible (p : Problem) : Bool :=
+  !isNextVar p ||
+    p.alts.any fun alt => match alt.patterns with
+    | .ctor .. :: _        => true
+    | .inaccessible _ :: _ => true
+    | _                    => false
+
 private def isNatValueTransition (p : Problem) : MetaM Bool := do
   unless (← hasNatValPattern p) do return false
-  return !isNextVar p ||
-      p.alts.any fun alt => match alt.patterns with
-      | .ctor .. :: _        => true
-      | .inaccessible _ :: _ => true
-      | _                    => false
+  return hasCtorOrInaccessible p
+
+private def isIntValueTransition (p : Problem) : MetaM Bool := do
+  unless (← hasIntValPattern p) do return false
+  return hasCtorOrInaccessible p
 
 private def processSkipInaccessible (p : Problem) : Problem := Id.run do
   let x :: xs := p.vars | unreachable!
@@ -606,6 +619,20 @@ private def expandNatValuePattern (p : Problem) : MetaM Problem := do
     | _ => return alt
   return { p with alts := alts }
 
+private def expandIntValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | .val n :: ps =>
+      match (← getIntValue? n) with
+      | some i =>
+        if i >= 0 then
+        return { alt with patterns := .ctor ``Int.ofNat [] [] [.val (toExpr i.toNat)] :: ps }
+        else
+        return { alt with patterns := .ctor ``Int.negSucc [] [] [.val (toExpr (-(i + 1)).toNat)] :: ps }
+      | _ => return alt
+    | _ => return alt
+  return { p with alts := alts }
+
 private def expandFinValuePattern (p : Problem) : MetaM Problem := do
   let alts ← p.alts.mapM fun alt => do
     match alt.patterns with
@@ -665,6 +692,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
     process (← expandNatValuePattern p)
+  else if (← isIntValueTransition p) then
+    traceStep ("int value to constructor")
+    process (← expandIntValuePattern p)
   else if (← isFinValueTransition p) then
     traceStep ("fin value to constructor")
     process (← expandFinValuePattern p)

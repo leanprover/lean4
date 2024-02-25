@@ -518,6 +518,11 @@ This attribute marks a code action, which is used to suggest new tactics or repl
 syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
 
 /--
+Builtin command code action. See `command_code_action`.
+-/
+syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace ident)* : attr
+
+/--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
 a string literal with the contents of the file at `"parent_dir" / "path" / "to" / "file"`. If this
 file cannot be read, elaboration fails.

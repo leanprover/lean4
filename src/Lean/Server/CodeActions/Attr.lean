@@ -91,12 +91,17 @@ def CommandCodeActions.insert (self : CommandCodeActions)
     { self with onCmd := tacticKinds.foldl (init := self.onCmd) fun m a =>
         m.insert a ((m.findD a #[]).push action) }
 
+builtin_initialize builtinCmdCodeActions : IO.Ref CommandCodeActions ← IO.mkRef {}
+
+def insertBuiltin (args : Array Name) (proc : CommandCodeAction) : IO Unit := do
+  builtinCmdCodeActions.modify fun self => self.insert args proc
+
 /-- An extension which collects all the command code actions. -/
 builtin_initialize cmdCodeActionExt :
     PersistentEnvExtension CommandCodeActionEntry (CommandCodeActionEntry × CommandCodeAction)
       (Array CommandCodeActionEntry × CommandCodeActions) ←
   registerPersistentEnvExtension {
-    mkInitial := pure (#[], {})
+    mkInitial := return (#[], ← builtinCmdCodeActions.get)
     addImportedFn := fun as => return (#[], ← as.foldlM (init := {}) fun m as =>
       as.foldlM (init := m) fun m ⟨name, kinds⟩ =>
         return m.insert kinds (← mkCommandCodeAction name))
@@ -116,4 +121,26 @@ builtin_initialize
       let args ← args.mapM resolveGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
+  }
+
+private def addBuiltin (declName : Name) (args : Array Name) : AttrM Unit := do
+  let go : MetaM Unit := do
+    let val := mkAppN (mkConst ``insertBuiltin) #[toExpr args, mkConst declName]
+    let initDeclName ← mkFreshUserName (declName ++ `declare)
+    declareBuiltin initDeclName val
+  go.run' {}
+
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `builtin_command_code_action
+    descr           := "Declare a new builtin command code action, to appear in the code actions on commands"
+    applicationTime := .afterCompilation
+    add             := fun decl stx kind => do
+      unless kind == AttributeKind.global do
+        throwError "invalid attribute 'command_code_action', must be global"
+      let `(attr| builtin_command_code_action $args*) := stx | return
+      let args ← args.mapM resolveGlobalConstNoOverloadWithInfo
+      if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
+      addBuiltin decl args
   }

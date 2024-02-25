@@ -98,6 +98,7 @@ deriving TypeName
       pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
   | _ => throwUnsupportedSyntax
 
+#exit
 open CodeAction Server RequestM in
 /-- A code action which will update the doc comment on a `#guard_msgs` invocation. -/
 @[command_code_action guardMsgsCmd]

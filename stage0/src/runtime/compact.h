@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 namespace lean {
 typedef lean_object * object_offset;
 
-class object_compactor {
+class LEAN_EXPORT object_compactor {
     struct max_sharing_table;
     friend struct max_sharing_hash;
     friend struct max_sharing_eq;
@@ -55,7 +55,7 @@ public:
     void const * data() const { return m_begin; }
 };
 
-class compacted_region {
+class LEAN_EXPORT compacted_region {
     // see `object_compactor::m_base_addr`
     void * m_base_addr;
     bool m_is_mmap;

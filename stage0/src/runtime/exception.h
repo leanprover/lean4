@@ -8,11 +8,12 @@ Author: Leonardo de Moura
 #include <exception>
 #include <string>
 #include <memory>
+#include "lean/lean.h"
 
 namespace lean {
 class sstream;
 /** \brief Base class for all Lean exceptions */
-class throwable : public std::exception {
+class LEAN_EXPORT throwable : public std::exception {
 protected:
     std::string m_msg;
     throwable() {}
@@ -26,7 +27,7 @@ public:
 
 /** \brief Base class for all Lean "logical" exceptions, that is, exceptions not related
     to resource constraints, and runtime errors */
-class exception : public throwable {
+class LEAN_EXPORT exception : public throwable {
 protected:
     exception() {}
 public:
@@ -36,14 +37,14 @@ public:
 };
 
 /** \brief Exception used to sign that a computation was interrupted */
-class interrupted {
+class LEAN_EXPORT interrupted {
 public:
     interrupted() {}
     virtual ~interrupted() noexcept {}
     virtual char const * what() const noexcept { return "interrupted"; }
 };
 
-class stack_space_exception : public throwable {
+class LEAN_EXPORT stack_space_exception : public throwable {
     std::string m_msg;
     stack_space_exception(std::string const & msg):m_msg(msg) {}
 public:
@@ -51,7 +52,7 @@ public:
     virtual char const * what() const noexcept { return m_msg.c_str(); }
 };
 
-class memory_exception : public throwable {
+class LEAN_EXPORT memory_exception : public throwable {
     std::string m_msg;
     memory_exception(std::string const & msg):m_msg(msg) {}
 public:
@@ -59,7 +60,7 @@ public:
     virtual char const * what() const noexcept { return m_msg.c_str(); }
 };
 
-class heartbeat_exception : public throwable {
+class LEAN_EXPORT heartbeat_exception : public throwable {
 public:
     heartbeat_exception() {}
     virtual char const * what() const noexcept;

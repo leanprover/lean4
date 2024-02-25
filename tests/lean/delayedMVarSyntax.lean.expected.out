@@ -1,0 +1,40 @@
+f : Nat → Nat := fun x => ?a(x := x)
+g : Nat → Nat → Nat := fun x y => ?b(x := x, y := y) + ?b(y := y, x := 1) + ?b(x := x, y := 1) + ?a(x := x) + ?a(x := y)
+v : Nat := ?b(x := 4, y := 6)
+⊢ True
+
+case b
+f : Nat → Nat := fun x => ?a(x := x)
+x y : Nat
+⊢ Nat
+
+case a
+x : Nat
+⊢ Nat
+f : Nat → Nat := fun x => ?a(x := x)
+g : Nat → Nat → Nat := fun x y => 3 * x + y + (3 * 1 + y) + (3 * x + 1) + ?a(x := x) + ?a(x := y)
+v : Nat := 3 * 4 + 6
+⊢ True
+
+case a
+x : Nat
+⊢ Nat
+f : Nat → Nat := fun x => x + 2
+g : Nat → Nat → Nat := fun x y => 3 * x + y + (3 * 1 + y) + (3 * x + 1) + (x + 2) + (y + 2)
+v : Nat := 3 * 4 + 6
+⊢ True
+delayedMVarSyntax.lean:24:11-24:29: error: local variables in delayed assignment syntax must appear in order according to the metavariable's local context:
+case a
+x y : Nat
+⊢ Nat
+delayedMVarSyntax.lean:22:18-24:29: error: unsolved goals
+f : Nat → Nat → Nat := fun x y => ?a(x := x, y := y)
+⊢ True
+delayedMVarSyntax.lean:31:11-31:21: error: local variables in delayed assignment syntax must not have forward dependencies in the metavariable's local context:
+case a
+n : Nat
+m : Fin n
+⊢ Nat
+delayedMVarSyntax.lean:29:18-31:21: error: unsolved goals
+f : (n : Nat) → Fin n → Nat := fun n m => ?a(n := n, m := m)
+⊢ True

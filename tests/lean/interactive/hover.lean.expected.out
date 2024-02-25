@@ -497,7 +497,7 @@
   "end": {"line": 249, "character": 10}},
  "contents":
  {"value":
-  "```lean\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nℕ\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that should be synthesized by unification.\nThe `_` syntax creates a fresh metavariable. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 249, "character": 11}}
@@ -563,7 +563,7 @@
  {"start": {"line": 266, "character": 2}, "end": {"line": 266, "character": 3}},
  "contents":
  {"value":
-  "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA *hole* (or *placeholder term*), which stands for an unknown term that should be synthesized by unification.\nThe `_` syntax creates a fresh metavariable. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 269, "character": 4}}

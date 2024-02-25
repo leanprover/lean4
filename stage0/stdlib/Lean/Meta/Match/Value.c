@@ -22,6 +22,7 @@ static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames
 static lean_object* l_Lean_Meta_isFinPatLit___closed__2;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__3;
+uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isStringLit(lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__4;
@@ -29,7 +30,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l_Lean_Expr_isCharLit(lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__10;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___boxed(lean_object*);
-uint8_t l_Lean_Expr_isNatLit(lean_object*);
 LEAN_EXPORT uint8_t l_Array_contains___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames;
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__13;
@@ -373,7 +373,7 @@ else
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = l_Lean_Expr_appArg_x21(x_1);
-x_7 = l_Lean_Expr_isNatLit(x_6);
+x_7 = l_Lean_Expr_isRawNatLit(x_6);
 lean_dec(x_6);
 return x_7;
 }
@@ -562,7 +562,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_isMatchValue(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
-x_2 = l_Lean_Expr_isNatLit(x_1);
+x_2 = l_Lean_Expr_isRawNatLit(x_1);
 if (x_2 == 0)
 {
 uint8_t x_3; 

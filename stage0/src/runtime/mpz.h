@@ -21,7 +21,7 @@ Author: Leonardo de Moura
 namespace lean {
 
 /** \brief Wrapper for GMP integers */
-class mpz {
+class LEAN_EXPORT mpz {
     friend class object_compactor;
     friend class compacted_region;
 #ifdef LEAN_USE_GMP
@@ -146,9 +146,9 @@ public:
     mpz & operator=(unsigned int v);
     mpz & operator=(int v);
 
-    friend int cmp(mpz const & a, mpz const & b);
-    friend int cmp(mpz const & a, unsigned b);
-    friend int cmp(mpz const & a, int b);
+    LEAN_EXPORT friend int cmp(mpz const & a, mpz const & b);
+    LEAN_EXPORT friend int cmp(mpz const & a, unsigned b);
+    LEAN_EXPORT friend int cmp(mpz const & a, int b);
 
     friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; }
@@ -284,7 +284,7 @@ public:
     friend void gcd(mpz & g, mpz const & a, mpz const & b);
     friend mpz gcd(mpz const & a, mpz const & b) { mpz r; gcd(r, a, b); return r; }
 
-    friend std::ostream & operator<<(std::ostream & out, mpz const & v);
+    LEAN_EXPORT friend std::ostream & operator<<(std::ostream & out, mpz const & v);
 
     std::string to_string() const;
 };

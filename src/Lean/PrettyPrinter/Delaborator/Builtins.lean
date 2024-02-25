@@ -346,6 +346,38 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   else
     delabAppCore (n - arity) (withAnnotateTermInfo x)
 
+@[builtin_delab app]
+def delabDelayedAssignment : Delab := do
+  let e ← getExpr
+  let .mvar mvarId := e.getAppFn | failure
+  let some decl ← getDelayedMVarAssignment? mvarId | failure
+  let mvarIdPending := decl.mvarIdPending
+  let mvarDecl ← mvarIdPending.getDecl
+  let n :=
+    match mvarDecl.userName with
+    | Name.anonymous => mvarIdPending.name.replacePrefix `_uniq `m
+    | n => n
+  withOverApp decl.fvars.size do
+    let (head, _, names, args) ← withAppFnArgs
+      (do
+        let pos ← getPos
+        -- TODO(kmill): get formatter to tag the syntheticHole using its position
+        -- so that the whole syntheticHole is hoverable
+        let n := annotatePos pos <| mkIdent n
+        let head := annotatePos pos <| ← `(syntheticHole|?$n)
+        mvarIdPending.withContext <| addTermInfo pos head (.mvar mvarIdPending)
+        return (head, decl.fvars.toList, #[], #[]))
+      (fun (head, fvars, names, args) => do
+        let fvar :: fvars' := fvars | unreachable!
+        let name ← mvarIdPending.withContext do
+          let pos ← nextExtraPos
+          let ident : Ident := annotatePos pos <| mkIdent (← fvar.fvarId!.getUserName)
+          addTermInfo pos ident fvar
+          pure ident
+        let arg ← delab
+        return (head, fvars', names.push name, args.push arg))
+    `(delayedAssignedMVar| $head:syntheticHole($[$names := $args],*))
+
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
   info        : MatcherInfo

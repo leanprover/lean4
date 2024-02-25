@@ -1037,6 +1037,14 @@ def getAppFn : Expr → Expr
   | app f _ => getAppFn f
   | e         => e
 
+/--
+Similar to `getAppFn`, but skips `mdata`
+-/
+def getAppFn' : Expr → Expr
+  | app f _   => getAppFn' f
+  | mdata _ a => getAppFn' a
+  | e         => e
+
 /-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n`. -/
 def isAppOf (e : Expr) (n : Name) : Bool :=
   match e.getAppFn with
@@ -1207,9 +1215,20 @@ def getRevArg! : Expr → Nat → Expr
   | app f _, i+1 => getRevArg! f i
   | _,       _   => panic! "invalid index"
 
+/-- Similar to `getRevArg!` but skips `mdata` -/
+def getRevArg!' : Expr → Nat → Expr
+  | mdata _ a, i => getRevArg!' a i
+  | app _ a, 0   => a
+  | app f _, i+1 => getRevArg!' f i
+  | _,       _   => panic! "invalid index"
+
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
 @[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
   getRevArg! e (n - i - 1)
+
+/-- Similar to `getArg!`, but skips mdata -/
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+  getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=

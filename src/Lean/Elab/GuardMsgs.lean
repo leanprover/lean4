@@ -100,7 +100,7 @@ deriving TypeName
 
 open CodeAction Server RequestM in
 /-- A code action which will update the doc comment on a `#guard_msgs` invocation. -/
-@[command_code_action guardMsgsCmd]
+@[builtin_command_code_action guardMsgsCmd]
 def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
   let .node _ ts := node | return #[]
   let res := ts.findSome? fun

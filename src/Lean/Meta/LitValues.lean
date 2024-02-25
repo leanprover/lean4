@@ -21,20 +21,22 @@ It also provides support for the following exceptional cases.
 
 /-- Returns `some n` if `e` is a raw natural number, i.e., it is of the form `.lit (.natVal n)`. -/
 def getRawNatValue? (e : Expr) : Option Nat :=
-  match e with
+  match e.consumeMData with
   | .lit (.natVal n) => some n
   | _ => none
 
 /-- Return `some (n, type)` if `e` is an `OfNat.ofNat`-application encoding `n` for a type with name `typeDeclName`. -/
 def getOfNatValue? (e : Expr) (typeDeclName : Name) : MetaM (Option (Nat × Expr)) := OptionT.run do
+  let e := e.consumeMData
   guard <| e.isAppOfArity' ``OfNat.ofNat 3
-  let type ← whnfD e.appFn!.appFn!.appArg!
+  let type ← whnfD (e.getArg!' 0)
   guard <| type.getAppFn.isConstOf typeDeclName
-  let .lit (.natVal n) := e.appFn!.appArg! | failure
+  let .lit (.natVal n) := (e.getArg!' 1).consumeMData | failure
   return (n, type)
 
 /-- Return `some n` if `e` is a raw natural number or an `OfNat.ofNat`-application encoding `n`. -/
 def getNatValue? (e : Expr) : MetaM (Option Nat) := do
+  let e := e.consumeMData
   if let some n := getRawNatValue? e then
     return some n
   let some (n, _) ← getOfNatValue? e ``Nat | return none
@@ -45,14 +47,14 @@ def getIntValue? (e : Expr) : MetaM (Option Int) := do
   if let some (n, _) ← getOfNatValue? e ``Int then
     return some n
   if e.isAppOfArity' ``Neg.neg 3 then
-    let some (n, _) ← getOfNatValue? e.appArg!.consumeMData ``Int | return none
+    let some (n, _) ← getOfNatValue? (e.getArg!' 2) ``Int | return none
     return some (-n)
   return none
 
 /-- Return `some c` if `e` is a `Char.ofNat`-application encoding character `c`. -/
 def getCharValue? (e : Expr) : MetaM (Option Char) := OptionT.run do
   guard <| e.isAppOfArity' ``Char.ofNat 1
-  let n ← getNatValue? e.appArg!.consumeMData
+  let n ← getNatValue? (e.getArg!' 0)
   return Char.ofNat n
 
 /-- Return `some s` if `e` is of the form `.lit (.strVal s)`. -/
@@ -72,8 +74,8 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
 /-- Return `some ⟨n, v⟩` if `e` is af `OfNat.ofNat` application encoding a `BitVec n` with value `v` -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
   if e.isAppOfArity' ``BitVec.ofNat 2 then
-    let n ← getNatValue? e.appFn!.appArg!.consumeMData
-    let v ← getNatValue? e.appArg!.consumeMData
+    let n ← getNatValue? (e.getArg!' 0)
+    let v ← getNatValue? (e.getArg!' 1)
     return ⟨n, BitVec.ofNat n v⟩
   let (v, type) ← getOfNatValue? e ``BitVec
   IO.println v

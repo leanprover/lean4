@@ -28,13 +28,13 @@ LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit(uint8_t, uint8_t, uint8_t, lea
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__4(lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduce_visit___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Meta_reduce_visit___spec__12(lean_object*, lean_object*);
@@ -1643,7 +1643,7 @@ if (x_70 == 0)
 lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_71 = l_Lean_instInhabitedExpr;
 x_72 = l___private_Init_Util_0__outOfBounds___rarg(x_71);
-x_73 = l_Lean_Expr_isNatLit(x_72);
+x_73 = l_Lean_Expr_isRawNatLit(x_72);
 lean_dec(x_72);
 if (x_73 == 0)
 {
@@ -1668,7 +1668,7 @@ else
 {
 lean_object* x_76; uint8_t x_77; 
 x_76 = lean_array_fget(x_34, x_21);
-x_77 = l_Lean_Expr_isNatLit(x_76);
+x_77 = l_Lean_Expr_isRawNatLit(x_76);
 lean_dec(x_76);
 if (x_77 == 0)
 {
@@ -1885,7 +1885,7 @@ if (x_131 == 0)
 lean_object* x_132; lean_object* x_133; uint8_t x_134; 
 x_132 = l_Lean_instInhabitedExpr;
 x_133 = l___private_Init_Util_0__outOfBounds___rarg(x_132);
-x_134 = l_Lean_Expr_isNatLit(x_133);
+x_134 = l_Lean_Expr_isRawNatLit(x_133);
 lean_dec(x_133);
 if (x_134 == 0)
 {
@@ -1910,7 +1910,7 @@ else
 {
 lean_object* x_138; uint8_t x_139; 
 x_138 = lean_array_fget(x_93, x_21);
-x_139 = l_Lean_Expr_isNatLit(x_138);
+x_139 = l_Lean_Expr_isRawNatLit(x_138);
 lean_dec(x_138);
 if (x_139 == 0)
 {

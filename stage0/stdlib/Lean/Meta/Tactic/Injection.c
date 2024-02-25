@@ -24,13 +24,13 @@ lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEqHEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__10;
 static lean_object* l_Lean_Meta_injectionCore___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isNatLit(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__1;
@@ -3278,7 +3278,7 @@ if (lean_is_exclusive(x_35)) {
  lean_dec_ref(x_35);
  x_38 = lean_box(0);
 }
-x_89 = l_Lean_Expr_isNatLit(x_33);
+x_89 = l_Lean_Expr_isRawNatLit(x_33);
 lean_dec(x_33);
 if (x_89 == 0)
 {
@@ -3291,7 +3291,7 @@ goto block_88;
 else
 {
 uint8_t x_91; 
-x_91 = l_Lean_Expr_isNatLit(x_36);
+x_91 = l_Lean_Expr_isRawNatLit(x_36);
 lean_dec(x_36);
 if (x_91 == 0)
 {

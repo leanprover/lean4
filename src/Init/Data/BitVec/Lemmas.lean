@@ -601,18 +601,16 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
 
 /- ! ### intMax -/
 
-/-- A bitvector when interpreted as an integer is the least value: -2^(w-1) when w > 0-/
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
 def intMax (w : Nat) : BitVec w  := (2^w - 1)#w
 
-theorem intMax_getLsb_eq (w : Nat) : (intMax w).getLsb i = decide (i < w) := by
+theorem getLsb_intMax_eq (w : Nat) : (intMax w).getLsb i = decide (i < w) := by
   simp [intMax, getLsb]
 
-theorem intMax_toNat_eq : (intMax w).toNat = if w = 0 then 0 else 2^w - 1 := by
-  rcases w with rfl | w
-  · simp
-  · have h : 2^w.succ - 1 < 2^w.succ := by
-     have pos : 2^w.succ > 0 := Nat.pow_pos (by decide)
-     omega
-    simp [intMax, Nat.shiftLeft_eq, Nat.one_mul, natCast_eq_ofNat, toNat_ofNat, Nat.mod_eq_of_lt h]
+theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
+  have h : 2^w - 1 < 2^w := by
+    have pos : 2^w > 0 := Nat.pow_pos (by decide)
+    omega
+  simp [intMax, Nat.shiftLeft_eq, Nat.one_mul, natCast_eq_ofNat, toNat_ofNat, Nat.mod_eq_of_lt h]
 
 end BitVec

@@ -32,7 +32,7 @@ def mkHoleCodeAction (n : Name) : ImportM HoleCodeAction := do
   IO.ofExcept <| unsafe env.evalConstCheck HoleCodeAction opts ``HoleCodeAction n
 
 /-- An extension which collects all the hole code actions. -/
-initialize holeCodeActionExt :
+builtin_initialize holeCodeActionExt :
     PersistentEnvExtension Name (Name × HoleCodeAction) (Array Name × Array HoleCodeAction) ←
   registerPersistentEnvExtension {
     mkInitial := pure (#[], #[])
@@ -42,7 +42,7 @@ initialize holeCodeActionExt :
     exportEntriesFn := (·.1)
   }
 
-initialize
+builtin_initialize
   registerBuiltinAttribute {
     name := `hole_code_action
     descr := "Declare a new hole code action, to appear in the code actions on ?_ and _"
@@ -92,7 +92,7 @@ def CommandCodeActions.insert (self : CommandCodeActions)
         m.insert a ((m.findD a #[]).push action) }
 
 /-- An extension which collects all the command code actions. -/
-initialize cmdCodeActionExt :
+builtin_initialize cmdCodeActionExt :
     PersistentEnvExtension CommandCodeActionEntry (CommandCodeActionEntry × CommandCodeAction)
       (Array CommandCodeActionEntry × CommandCodeActions) ←
   registerPersistentEnvExtension {
@@ -118,7 +118,7 @@ This attribute marks a code action, which is used to suggest new tactics or repl
 -/
 syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
 
-initialize
+builtin_initialize
   registerBuiltinAttribute {
     name := `command_code_action
     descr := "Declare a new command code action, to appear in the code actions on commands"

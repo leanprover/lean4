@@ -504,6 +504,20 @@ applications of this function as `↑` when printing expressions.
 syntax (name := Attr.coe) "coe" : attr
 
 /--
+This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+
+* `@[command_code_action kind]`: This is a code action which applies to applications of the command
+  `kind` (a command syntax kind), which can replace the command or insert things before or after it.
+
+* `@[command_code_action kind₁ kind₂]`: shorthand for
+  `@[command_code_action kind₁, command_code_action kind₂]`.
+
+* `@[command_code_action]`: This is a command code action that applies to all commands.
+  Use sparingly.
+-/
+syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
+
+/--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
 a string literal with the contents of the file at `"parent_dir" / "path" / "to" / "file"`. If this
 file cannot be read, elaboration fails.

@@ -15,6 +15,9 @@ theorem of_eq_false (h : p = False) : ¬ p := fun hp => False.elim (h.mp hp)
 theorem eq_true (h : p) : p = True :=
   propext ⟨fun _ => trivial, fun _ => h⟩
 
+/- simp in Mathlib -/
+attribute [simp] cast_heq
+
 theorem eq_false (h : ¬ p) : p = False :=
   propext ⟨fun h' => absurd h' h, fun h' => False.elim h'⟩
 
@@ -213,7 +216,11 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_eq_false (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
 
 @[simp] theorem decide_eq_true_eq {_ : Decidable p} : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
-@[simp] theorem decide_not {h : Decidable p} : decide (¬ p) = !decide p := by cases h <;> rfl
+@[simp] theorem decide_not {g : Decidable p} {h : Decidable (Not p)}
+    : decide (Not p) = !(decide p) := by cases g <;> (simp [*]; rfl)
+theorem decide_not_inv {g : Decidable p} {h : Decidable (Not p)}
+    : decide (Not p) = !(decide p) := by cases g <;> (simp [*]; rfl)
+
 @[simp] theorem not_decide_eq_true {h : Decidable p} : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
 
 @[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq

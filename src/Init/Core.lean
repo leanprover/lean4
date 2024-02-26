@@ -677,7 +677,8 @@ You can prove theorems about the resulting element by induction on `h`, since
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
-theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
+/- jhx: simp in Mathlib -/
+@[simp] theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
 /--
@@ -1405,7 +1406,8 @@ theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.in
 
 @[simp] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 
-theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
+/- jhx: made simp in Mathlib. -/
+@[simp] theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
 
 theorem imp.swap : (a → b → c) ↔ (b → a → c) := Iff.intro flip flip
 

@@ -15,8 +15,9 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.Command
 
 /-!
-This module contains code to derive, from the definition of a (possibly mutual) recursive function,
-a **functional induction principle** tailored to proofs about that function. For example from:
+This module contains code to derive, from the definition of a (possibly mutual) well-founded
+recursive function, a **functional induction principle** tailored to proofs about that
+function. For example from:
 
 ```
 def ackermann : Nat → Nat → Nat
@@ -33,21 +34,21 @@ ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 
   (x x : Nat) : motive x x
 ```
 
-## Spec
+## Specification
 
 The functional induction principle
 
-* Take the same fixed parameters as the function.
-* The motive takes the same non-fixed parameter as the original function.
+* Takes the same fixed parameters as the function.
+* The motive takes the same non-fixed parameters as the original function.
 * For each branch of the original function, there is a case in the induction principle.
-  Here branch roughly corresponds to tail-call positions: Branches of top-level
-  if-then-else and matches.
+  Here "branch" roughly corresponds to tail-call positions: branches of top-level
+  `if`-`then`-`else` and `match` expressions.
 * The local context of the branch (e.g. the condition of an if-then-else) is provided as assumptions
-  in the case.
+  in the corresponding induction case.
 * In addition, for every recursive call in that branch, an induction hypothesis asserting the motive
   for the arguments of the recursive call is provided.
-* If the recursive call is under binder and it, or its proof of termination, on the the bound,
-  values, these become assumptions on the inductive hypothesis.
+* If the recursive call is under binder and it, or its proof of termination, depend on the the
+  bound values, then these become assumptions on the inductive hypothesis.
 * Mutual recursion is supported and results in multiple motives.
 
 
@@ -57,11 +58,11 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
 1. expect its definition, possibly after some `whnf`’ing, to be of the form
    ```
-   def foo := fun x₁ … xₙ (y : a) => fix (fun y' oldIH => body) y
+   def foo := fun x₁ … xₙ (y : a) => WellFounded.fix (fun y' oldIH => body) y
    ```
    where `xᵢ…` are the fixed prefix and `y` is parameter of the function.
 
-2. From this structure we derive the type of the `motive`, and start assembling the induction
+2. From this structure we derive the type of the motive, and start assembling the induction
    principle:
    ```
    def foo.induct := fun x₁ … xₙ (motive : (y : a) → Prop) =>
@@ -70,24 +71,24 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
 3. The first phase, transformation `T1[body]` (implemented in) `buildInductionBody`,
    mirrors the branching structure of `foo`, i.e. replicates `ite` and matcher applications,
-   while adjusting their motive. It also unfolds call to `oldIH` and collects induction hypotheses
+   while adjusting their motive. It also unfolds calls to `oldIH` and collects induction hypotheses
    in conditions (see below).
 
-   In particular when translating a `match`, it is prepared to see the idiom
+   In particular, when translating a `match` it is prepared to recognize the idiom
    as introduced by `mkFix` via `Lean.Meta.MatcherApp.addArg?`, which refines the type of `oldIH`
-   throught the match. The transformation will replace `oldIH` with `newIH` here.
+   throughout the match. The transformation will replace `oldIH` with `newIH` here.
    ```
         T[(match (motive := fun oldIH => …) y with | … => fun oldIH' => body) oldIH]
     ==> (match (motive := fun newIH => …) y with | … => fun newIH' => T[body]) newIH
    ```
 
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
-   type of the case: A fresh `MVar` asserts the current goal, unwanted values from the local context
+   type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
    are cleared, and the current `body` is frisked for induction hypotheses using `collectIHs`,
    which are then asserted in the `MVar`.
 
 
-5. Function `collectIHs` walks the term and collects the induction hypotheses for the current case
+5. The function `collectIHs` walks the term and collects the induction hypotheses for the current case
    (with proofs). When it encounters a saturated application of `oldIH x proof`, it returns
    `newIH x proof : motive x`.
 
@@ -95,12 +96,12 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    `foldCalls` to replace these with calls to `foo`. This assumes that the
    termination proof `proof` works nevertheless.
 
-   Again, we may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again we thread `newIH`
+   Again, `collectIHs` may encounter the `Lean.Meta.Matcherapp.addArg?` idiom, and again it threads `newIH`
    through, replacing the extra argument. The resulting type of this induction hypothesis is now
    itself a `match` statement (cf. `Lean.Meta.MatcherApp.inferMatchType`)
 
-   The termination proof of `foo` may have abstracted over some proofs; we need to transfer these
-   proofs, so we unfold these auxillary lemmas if needed.
+   The termination proof of `foo` may have abstracted over some proofs; these proofs must be transferred, so
+   auxillary lemmas are unfolded if needed.
 
 6. The function `foldCalls` replaces calls to `oldIH` with calls to `foo` that
    make sense to the user.
@@ -144,7 +145,7 @@ namespace Lean.Tactic.FunInd
 open Lean Elab Meta
 
 /-- Opens the body of a lambda, _without_ putting the free variable into the local context.
-This is used when replacing that paramters with a different expression.
+This is used when replacing parameters with different expressions.
 This way it will not be picked up by metavariables.
 -/
 def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α := do
@@ -153,8 +154,7 @@ def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α :
   let b := b.instantiate1 (.fvar x)
   k x b
 
--- Replace calls to oldIH back to calls to the original function. At the end,
--- oldIH better be unused
+/-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
 partial def foldCalls (fn : Expr) (oldIH : FVarId) (e : Expr) : MetaM Expr := do
   unless e.containsFVar oldIH do
     return e
@@ -661,7 +661,7 @@ partial def mkPSigmaNCasesOn (y : FVarId) (codomain : Expr) (alt : Expr) : MetaM
 
 /--
 Given expression `e` with type `(x : A) → (y : B[x]) → … → (z : D[x,y]) → R`
-return an expression of type `(x : A ⊗' B ⊗' … ⊗' D) → R`.
+returns an expression of type `(x : A ⊗' B ⊗' … ⊗' D) → R`.
 -/
 partial def curryPSigma (e : Expr) : MetaM Expr := do
   let (d, codomain) ← forallTelescope (← inferType e) fun xs codomain => do
@@ -731,6 +731,7 @@ def deMorganPSumPSigma (e : Expr) : MetaM Expr := do
   Combine/pack the values of the different definitions in a single value
   `x` is `PSum`, and we use `PSum.casesOn` to select the appropriate `preDefs.value`.
   See: `packMutual`.
+
   Remark: this method does not replace the nested recursive `preDefValues` applications.
   This step is performed by `transform` with the following `post` method.
  -/
@@ -836,7 +837,7 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
 
 /--
-Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for detials.
+Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
 -/
 def deriveInduction (name : Name) : MetaM Unit := do
   if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then

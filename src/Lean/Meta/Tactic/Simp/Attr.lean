@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Meta.Tactic.Simp.Simproc
 
 namespace Lean.Meta
+open Simp
 
 def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
     (ref : Name := by exact decl_name%) : IO Unit :=
@@ -16,29 +18,37 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun declName stx attrKind =>
-      let go : MetaM Unit := do
-        let info ← getConstInfo declName
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        let prio ← getAttrParamOptPrio stx[2]
-        if (← isProp info.type) then
-          addSimpTheorem ext declName post (inv := false) attrKind prio
-        else if info.hasValue then
-          if let some eqns ← getEqnsFor? declName then
-            for eqn in eqns do
-              addSimpTheorem ext eqn post (inv := false) attrKind prio
-            ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
-            if hasSmartUnfoldingDecl (← getEnv) declName then
+    add   := fun declName stx attrKind => do
+      if (← isSimproc declName <||> isBuiltinSimproc declName) then
+        let simprocAttrName := simpAttrNameToSimprocAttrName attrName
+        Attribute.add declName simprocAttrName stx attrKind
+      else
+        let go : MetaM Unit := do
+          let info ← getConstInfo declName
+          let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+          let prio ← getAttrParamOptPrio stx[2]
+          if (← isProp info.type) then
+            addSimpTheorem ext declName post (inv := false) attrKind prio
+          else if info.hasValue then
+            if let some eqns ← getEqnsFor? declName then
+              for eqn in eqns do
+                addSimpTheorem ext eqn post (inv := false) attrKind prio
+              ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
+              if hasSmartUnfoldingDecl (← getEnv) declName then
+                ext.add (SimpEntry.toUnfold declName) attrKind
+            else
               ext.add (SimpEntry.toUnfold declName) attrKind
           else
-            ext.add (SimpEntry.toUnfold declName) attrKind
-        else
-          throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
-      discard <| go.run {} {}
+            throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
+        discard <| go.run {} {}
     erase := fun declName => do
-      let s := ext.getState (← getEnv)
-      let s ← s.erase (.decl declName)
-      modifyEnv fun env => ext.modifyState env fun _ => s
+      if (← isSimproc declName <||> isBuiltinSimproc declName) then
+        let simprocAttrName := simpAttrNameToSimprocAttrName attrName
+        Attribute.erase declName simprocAttrName
+      else
+        let s := ext.getState (← getEnv)
+        let s ← s.erase (.decl declName)
+        modifyEnv fun env => ext.modifyState env fun _ => s
   }
 
 def registerSimpAttr (attrName : Name) (attrDescr : String)

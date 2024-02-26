@@ -15,9 +15,10 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.Command
 
 /-!
-This module contains code to derive, from the definition of a (possibly mutual) well-founded
-recursive function, a **functional induction principle** tailored to proofs about that
-function. For example from:
+This module contains code to derive, from the definition of a recursive function
+(or mutually recursive functions) defined by well-founded recursion, a
+**functional induction principle** tailored to proofs about that function(s). For
+example from:
 
 ```
 def ackermann : Nat → Nat → Nat

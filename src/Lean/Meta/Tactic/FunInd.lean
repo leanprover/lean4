@@ -684,7 +684,7 @@ partial def curryPSigma (e : Expr) : MetaM Expr := do
 
 /--
 Given type `(a ⊗' b ⊕' c ⊗' d) → e`, brings `a → b → e` and `c → d → e`
-into scope as fresh local declarations and passes their FVars to the continuation.
+into scope as fresh local declarations and passes their FVars to the continuation `k`.
 The `name` is used to form the variable names; uses `name1`, `name2`, … if there are multiple.
 -/
 def withCurriedDecl {α} (name : String) (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do

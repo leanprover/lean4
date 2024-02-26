@@ -35,7 +35,10 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
     job ← job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job ← job.add (← self.release.fetch).try?
+    job ← job.add <| ← (← self.release.fetch).attempt.bindSync fun success t => do
+      unless success do
+        logWarning "fetching cloud release failed; falling back to local build"
+      return ((), t)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job ← job.mix <| ← self.fetchTargetJob target

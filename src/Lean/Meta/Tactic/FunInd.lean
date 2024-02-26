@@ -113,6 +113,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 The resulting term then becomes `foo.induct` at its inferred type.
 
 If `foo` is not unary and/or part of a mutual reduction, then the induction theorem for `foo._unary`
+(i.e. the unary non-mutual recursion function produced by the equation compiler)
 of the form
 ```
 foo._unary.induct : {motive : (a ⊗' b) ⊕' c → Prop} →

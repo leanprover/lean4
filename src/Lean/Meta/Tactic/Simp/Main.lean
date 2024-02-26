@@ -76,9 +76,11 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
 
-private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : MetaM Expr := do
+private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : SimpM Expr := do
   let localDecl ← getFVarLocalDecl e
   if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! || localDecl.isImplementationDetail then
+    if !cfg.zetaDelta && thms.isLetDeclToUnfold e.fvarId! then
+      recordSimpTheorem (.fvar localDecl.fvarId)
     let some v := localDecl.value? | return e
     return v
   else

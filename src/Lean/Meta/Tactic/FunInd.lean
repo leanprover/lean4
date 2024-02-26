@@ -700,9 +700,10 @@ where
 
 
 /--
-Given expression `e` of type `(x : a ⊗' b ⊕' c ⊗' d) → e[x]`, returns expression of type
+Given expression `e` of type `(x : a ⊗' b ⊕' c ⊗' d) → e[x]`, wraps that expression
+to produce an expression of the isomorphic type
 ```
-((x: a) → (y : b) → e[inl (x,y)]) ∧ ((x : c) → (y : d) → e[inr (x,y)])
+((x: a) → (y : b) → e[.inl (x,y)]) ∧ ((x : c) → (y : d) → e[.inr (x,y)])
 ```
 -/
 def deMorganPSumPSigma (e : Expr) : MetaM Expr := do

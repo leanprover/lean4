@@ -165,9 +165,21 @@ private def isNatValueTransition (p : Problem) : MetaM Bool := do
   unless (← hasNatValPattern p) do return false
   return hasCtorOrInaccessible p
 
+/--
+Predicate for testing whether we need to expand `Int` value patterns into constructors.
+There are two cases:
+- We have constructor or inaccessible patterns. Example:
+```
+| 0, ...
+| Int.toVal p, ...
+...
+```
+- We don't have the `else`-case (i.e., variable pattern). This can happen
+when the non-value cases are unreachable.
+-/
 private def isIntValueTransition (p : Problem) : MetaM Bool := do
   unless (← hasIntValPattern p) do return false
-  return hasCtorOrInaccessible p
+  return hasCtorOrInaccessible p || !hasVarPattern p
 
 private def processSkipInaccessible (p : Problem) : Problem := Id.run do
   let x :: xs := p.vars | unreachable!

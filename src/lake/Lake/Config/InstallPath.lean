@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.NativeLib
+import Lake.Config.Defaults
 
 open System
 namespace Lake
@@ -78,17 +79,17 @@ def LeanInstall.sharedLibPath (self : LeanInstall) : SearchPath :=
 def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
   if self.customCc then self.cc.toString else none
 
-/-- Standard path of `lake` in a Lake installation. -/
-def lakeExe (buildHome : FilePath) :=
-  buildHome / "bin" / "lake" |>.addExtension FilePath.exeExtension
+/-- Lake executable file path. -/
+def lakeExe : FilePath :=
+  FilePath.mk "lake" |>.addExtension FilePath.exeExtension
 
 /-- Path information about the local Lake installation. -/
 structure LakeInstall where
   home : FilePath
   srcDir := home
-  binDir := home / "build" / "bin"
-  libDir := home / "build" / "lib"
-  lake := lakeExe <| home / "build"
+  binDir := home / defaultBuildDir / defaultBinDir
+  libDir := home / defaultBuildDir / defaultLeanLibDir
+  lake := binDir / lakeExe
   deriving Inhabited, Repr
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
@@ -97,7 +98,7 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
-  lake := lakeExe lean.sysroot
+  lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/
 

@@ -16,6 +16,9 @@ open Git System
 /-- The default module of an executable in `std` package. -/
 def defaultExeRoot : Name := `Main
 
+/-- `elan` toolchain file name -/
+def toolchainFileName : FilePath := "lean-toolchain"
+
 def gitignoreContents :=
 s!"/{defaultLakeDir}
 "

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Config.Opaque
+import Lake.Config.Defaults
 import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
@@ -25,25 +26,6 @@ Currently used for package and target names taken from the CLI.
 -/
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
-
---------------------------------------------------------------------------------
-/-! # Defaults -/
---------------------------------------------------------------------------------
-
-/-- The default setting for a `PackageConfig`'s `buildDir` option. -/
-def defaultBuildDir : FilePath := "build"
-
-/-- The default setting for a `PackageConfig`'s `leanLibDir` option. -/
-def defaultLeanLibDir : FilePath := "lib"
-
-/-- The default setting for a `PackageConfig`'s `nativeLibDir` option. -/
-def defaultNativeLibDir : FilePath := "lib"
-
-/-- The default setting for a `PackageConfig`'s `binDir` option. -/
-def defaultBinDir : FilePath := "bin"
-
-/-- The default setting for a `PackageConfig`'s `irDir` option. -/
-def defaultIrDir : FilePath := "ir"
 
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
@@ -102,9 +84,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The directory to which Lake should output the package's build results.
-  Defaults to `defaultLakeDir / defaultBuildDir` (i.e., `.lake/build`).
+  Defaults to `defaultBuildDir` (i.e., `.lake/build`).
   -/
-  buildDir : FilePath := defaultLakeDir / defaultBuildDir
+  buildDir : FilePath := defaultBuildDir
 
   /--
   The build subdirectory to which Lake should output the package's

@@ -113,7 +113,7 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   This can be used to use the alternative of a match expression in its splitter.
 -/
-partial def forallAltTelescope {α} (altType : Expr) (altNumParams numDiscrEqs : Nat)
+partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
     : MetaM α := do
   go #[] #[] #[] #[] 0 altType

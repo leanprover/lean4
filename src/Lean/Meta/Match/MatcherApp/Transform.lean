@@ -158,7 +158,9 @@ def refineThrough? (matcherApp : MatcherApp) (e : Expr) :
 
 
 /--
-Given `n` and a type `α₁ → α₂ → ... → αₙ → Sort u`, returns the types `α₁, α₂, ..., αₙ`.
+Given `n` and a non-dependent function type `α₁ → α₂ → ... → αₙ → Sort u`, returns the
+types `α₁, α₂, ..., αₙ`. Throws an error if there are not at least `n` argument types or if a
+later argument type depends on a prior one (i.e., it's a dependent function type).
 
 This can be used to infer the expected type of the alternatives when constructing a `MatcherApp`.
 -/
@@ -309,7 +311,7 @@ For example, given
  0 => 1
  _ => true) ()
 ```
-(for any `?`; this will be ignored) will give this type
+(for any `?`; the motive’s result type be ignored) will give this type
 ```
 (match n with
  | 0 => Nat

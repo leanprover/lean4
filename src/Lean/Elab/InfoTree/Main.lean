@@ -49,14 +49,25 @@ def PartialContextInfo.mergeIntoOuter?
     some { outer with parentDecl? := innerParentDecl }
 
 def CompletionInfo.stx : CompletionInfo → Syntax
-  | dot i .. => i.stx
-  | id stx .. => stx
-  | dotId stx .. => stx
-  | fieldId stx .. => stx
-  | namespaceId stx => stx
-  | option stx => stx
+  | dot i ..          => i.stx
+  | id stx ..         => stx
+  | dotId stx ..      => stx
+  | fieldId stx ..    => stx
+  | namespaceId stx   => stx
+  | option stx        => stx
   | endSection stx .. => stx
-  | tactic stx .. => stx
+  | tactic stx ..     => stx
+
+/--
+Obtains the `LocalContext` from this `CompletionInfo` if available and yields an empty context
+otherwise.
+-/
+def CompletionInfo.lctx : CompletionInfo → LocalContext
+  | dot i ..            => i.lctx
+  | id _ _ _ lctx ..    => lctx
+  | dotId _ _ lctx ..   => lctx
+  | fieldId _ _ lctx .. => lctx
+  | _                   => .empty
 
 def CustomInfo.format : CustomInfo → Format
   | i => f!"CustomInfo({i.value.typeName})"

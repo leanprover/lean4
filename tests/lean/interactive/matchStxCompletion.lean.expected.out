@@ -1,7 +1,28 @@
 {"textDocument": {"uri": "file:///matchStxCompletion.lean"},
  "position": {"line": 8, "character": 9}}
 {"items":
- [{"label": "b1", "kind": 5, "detail": "C → String"},
-  {"label": "f1", "kind": 5, "detail": "C → Nat"},
-  {"label": "f2", "kind": 5, "detail": "C → Bool"}],
+ [{"sortText": "0",
+   "label": "b1",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///matchStxCompletion.lean"},
+     "position": {"line": 8, "character": 9}},
+    "id": {"const": {"declName": "C.b1"}}}},
+  {"sortText": "1",
+   "label": "f1",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///matchStxCompletion.lean"},
+     "position": {"line": 8, "character": 9}},
+    "id": {"const": {"declName": "C.f1"}}}},
+  {"sortText": "2",
+   "label": "f2",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///matchStxCompletion.lean"},
+     "position": {"line": 8, "character": 9}},
+    "id": {"const": {"declName": "C.f2"}}}}],
  "isIncomplete": true}

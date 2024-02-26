@@ -534,10 +534,10 @@ open Meta
 def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
     -- show signature for `#check id`/`#check @id`
-    if let `($_:ident) := term then
+    if let `($id:ident) := term then
       try
         for c in (← resolveGlobalConstWithInfos term) do
-          addCompletionInfo <| .id term c (danglingDot := false) {} none
+          addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
           logInfoAt tk <| .ofPPFormat { pp := fun
             | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
             | none     => return f!"{c}"  -- should never happen

@@ -38,10 +38,32 @@ def handleCompletion (p : CompletionParams)
     (notFoundX := pure { items := #[], isIncomplete := true })
     (abortedX :=
       -- work around https://github.com/microsoft/vscode/issues/155738
-      pure { items := #[{label := "-"}], isIncomplete := true }) fun snap => do
-      if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
+      pure { items := #[{label := "-"}], isIncomplete := true })
+    (x := fun snap => do
+      if let some r ← Completion.find? p doc.meta.text pos snap.infoTree caps then
         return r
-      return { items := #[ ], isIncomplete := true }
+      return { items := #[ ], isIncomplete := true })
+
+/--
+Handles `completionItem/resolve` requests that are sent by the client after the user selects
+a completion item that was provided by `textDocument/completion`. Resolving the item fills the
+`detail?` field of the item with the pretty-printed type.
+This control flow is necessary because pretty-printing the type for every single completion item
+(even those never selected by the user) is inefficient.
+-/
+def handleCompletionItemResolve (item : CompletionItem)
+    : RequestM (RequestTask CompletionItem) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let some (data : CompletionItemDataWithId) := item.data?.bind fun data => (fromJson? data).toOption
+    | return .pure item
+  let some id := data.id?
+    | return .pure item
+  let pos := text.lspPosToUtf8Pos data.params.position
+  withWaitFindSnap doc (·.endPos + ' ' >= pos)
+    (notFoundX := pure item)
+    (abortedX := pure item)
+    (x := fun snap => Completion.resolveCompletionItem? text pos snap.infoTree item id)
 
 open Elab in
 def handleHover (p : HoverParams)
@@ -609,18 +631,76 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize
-  registerLspRequestHandler "textDocument/waitForDiagnostics"   WaitForDiagnosticsParams   WaitForDiagnostics      handleWaitForDiagnostics
-  registerLspRequestHandler "textDocument/completion"           CompletionParams           CompletionList          handleCompletion
-  registerLspRequestHandler "textDocument/hover"                HoverParams                (Option Hover)          handleHover
-  registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
-  registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
-  registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
-  registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
-  registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
-  registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull
-  registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
-  registerLspRequestHandler "textDocument/foldingRange"         FoldingRangeParams         (Array FoldingRange)    handleFoldingRange
-  registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
-  registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
+  registerLspRequestHandler
+    "textDocument/waitForDiagnostics"
+    WaitForDiagnosticsParams
+    WaitForDiagnostics
+    handleWaitForDiagnostics
+  registerLspRequestHandler
+    "textDocument/completion"
+    CompletionParams
+    CompletionList
+    handleCompletion
+    Completion.fillEligibleHeaderDecls
+  registerLspRequestHandler
+    "completionItem/resolve"
+    CompletionItem
+    CompletionItem
+    handleCompletionItemResolve
+  registerLspRequestHandler
+    "textDocument/hover"
+    HoverParams
+    (Option Hover)
+    handleHover
+  registerLspRequestHandler
+    "textDocument/declaration"
+    TextDocumentPositionParams
+    (Array LocationLink)
+    (handleDefinition GoToKind.declaration)
+  registerLspRequestHandler
+    "textDocument/definition"
+    TextDocumentPositionParams
+    (Array LocationLink)
+    (handleDefinition GoToKind.definition)
+  registerLspRequestHandler
+    "textDocument/typeDefinition"
+    TextDocumentPositionParams
+    (Array LocationLink)
+    (handleDefinition GoToKind.type)
+  registerLspRequestHandler
+    "textDocument/documentHighlight"
+    DocumentHighlightParams
+    DocumentHighlightResult
+    handleDocumentHighlight
+  registerLspRequestHandler
+    "textDocument/documentSymbol"
+    DocumentSymbolParams
+    DocumentSymbolResult
+    handleDocumentSymbol
+  registerLspRequestHandler
+    "textDocument/semanticTokens/full"
+    SemanticTokensParams
+    SemanticTokens
+    handleSemanticTokensFull
+  registerLspRequestHandler
+    "textDocument/semanticTokens/range"
+    SemanticTokensRangeParams
+    SemanticTokens
+    handleSemanticTokensRange
+  registerLspRequestHandler
+    "textDocument/foldingRange"
+    FoldingRangeParams
+    (Array FoldingRange)
+    handleFoldingRange
+  registerLspRequestHandler
+    "$/lean/plainGoal"
+    PlainGoalParams
+    (Option PlainGoal)
+    handlePlainGoal
+  registerLspRequestHandler
+    "$/lean/plainTermGoal"
+    PlainTermGoalParams
+    (Option PlainTermGoal)
+    handlePlainTermGoal
 
 end Lean.Server.FileWorker

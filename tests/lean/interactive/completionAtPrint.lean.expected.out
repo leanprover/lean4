@@ -1,14 +1,24 @@
 {"textDocument": {"uri": "file:///completionAtPrint.lean"},
  "position": {"line": 2, "character": 25}}
 {"items":
- [{"label": "find?",
+ [{"sortText": "0",
+   "label": "find?",
    "kind": 3,
-   "detail": "Lean.Environment → Lean.Name → Option Lean.ConstantInfo"},
-  {"label": "freeRegions",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
+     "position": {"line": 2, "character": 25}},
+    "id": {"const": {"declName": "Lean.Environment.find?"}}}},
+  {"sortText": "1",
+   "label": "freeRegions",
    "kind": 3,
    "documentation":
    {"value":
     "Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in\nparticular, `env` should be the last reference to any `Environment` derived from these imports. ",
     "kind": "markdown"},
-   "detail": "Lean.Environment → IO Unit"}],
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
+     "position": {"line": 2, "character": 25}},
+    "id": {"const": {"declName": "Lean.Environment.freeRegions"}}}}],
  "isIncomplete": true}

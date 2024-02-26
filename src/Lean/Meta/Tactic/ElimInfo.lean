@@ -37,6 +37,15 @@ structure ElimInfo where
   altsInfo   : Array ElimAltInfo := #[]
   deriving Repr, Inhabited
 
+
+/-- Given the type `t` of an alternative, determines the number of parameters
+(.forall and .let)-bound, and whether the conclusion is a `motive`-application.  -/
+def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
+  | .forallE _ _ b _ => altArity motive (n+1) b
+  | .letE _ _ _ b _ => altArity motive (n+1) b
+  | conclusion => (n, conclusion.getAppFn == motive)
+
+
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
   trace[Elab.induction] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
@@ -64,8 +73,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
-          let (numFields, provesMotive) ← forallTelescopeReducing xDecl.type fun args concl =>
-            pure (args.size, concl.getAppFn == motive)
+          let (numFields, provesMotive) := altArity motive 0 xDecl.type
           let name := xDecl.userName
           let declName? := do
             let base ← baseDeclName?

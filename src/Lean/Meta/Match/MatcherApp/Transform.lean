@@ -179,7 +179,7 @@ def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
 /--
 Performs a possibly type-changing transformation to a `MatcherApp`.
 
-* `onParams` is run on each parameter and discrimitant
+* `onParams` is run on each parameter and discriminant
 * `onMotive` runs on the body of the motive, and is passed the motive parameters
   (same number as discrs)
 * `onAlt` runs on each alternative, and is passed the expected type of the alternative,

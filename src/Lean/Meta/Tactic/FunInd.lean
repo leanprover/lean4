@@ -70,7 +70,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    ```
 
 3. The first phase, transformation `T1[body]` (implemented in) `buildInductionBody`,
-   mirrors the branching structure of `foo`, i.e. replicates `ite` and matcher applications,
+   mirrors the branching structure of `foo`, i.e. replicates `dite` and matcher applications,
    while adjusting their motive. It also unfolds calls to `oldIH` and collects induction hypotheses
    in conditions (see below).
 

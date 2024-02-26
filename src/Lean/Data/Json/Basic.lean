@@ -8,6 +8,7 @@ prelude
 import Init.Data.List.Control
 import Init.Data.Range
 import Init.Data.OfScientific
+import Init.Data.Hashable
 import Lean.Data.RBMap
 namespace Lean
 
@@ -15,7 +16,7 @@ namespace Lean
 structure JsonNumber where
   mantissa : Int
   exponent : Nat
-  deriving DecidableEq
+  deriving DecidableEq, Hashable
 
 namespace JsonNumber
 
@@ -204,6 +205,19 @@ private partial def beq' : Json → Json → Bool
 
 instance : BEq Json where
   beq := beq'
+
+private partial def hash' : Json → UInt64
+  | null   => 11
+  | bool b => mixHash 13 <| hash b
+  | num n  => mixHash 17 <| hash n
+  | str s  => mixHash 19 <| hash s
+  | arr elems =>
+    mixHash 23 <| elems.foldl (init := 7) fun r a => mixHash r (hash' a)
+  | obj kvPairs =>
+    mixHash 29 <| kvPairs.fold (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
+
+instance : Hashable Json where
+  hash := hash'
 
 -- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
 def mkObj (o : List (String × Json)) : Json :=

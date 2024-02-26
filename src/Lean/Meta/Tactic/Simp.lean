@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Simp.SimpAll
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 import Lean.Meta.Tactic.Simp.RegisterCommand
+import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean
 

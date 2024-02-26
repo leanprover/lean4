@@ -362,37 +362,6 @@ def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : 
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 
-def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
-    (ref : Name := by exact decl_name%) : IO Unit :=
-  registerBuiltinAttribute {
-    ref   := ref
-    name  := attrName
-    descr := attrDescr
-    applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun declName stx attrKind =>
-      let go : MetaM Unit := do
-        let info ← getConstInfo declName
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        let prio ← getAttrParamOptPrio stx[2]
-        if (← isProp info.type) then
-          addSimpTheorem ext declName post (inv := false) attrKind prio
-        else if info.hasValue then
-          if let some eqns ← getEqnsFor? declName then
-            for eqn in eqns do
-              addSimpTheorem ext eqn post (inv := false) attrKind prio
-            ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
-            if hasSmartUnfoldingDecl (← getEnv) declName then
-              ext.add (SimpEntry.toUnfold declName) attrKind
-          else
-            ext.add (SimpEntry.toUnfold declName) attrKind
-        else
-          throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
-      discard <| go.run {} {}
-    erase := fun declName => do
-      let s := ext.getState (← getEnv)
-      let s ← s.erase (.decl declName)
-      modifyEnv fun env => ext.modifyState env fun _ => s
-  }
 
 def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
   registerSimpleScopedEnvExtension {
@@ -409,25 +378,8 @@ abbrev SimpExtensionMap := HashMap Name SimpExtension
 
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
-def registerSimpAttr (attrName : Name) (attrDescr : String)
-    (ref : Name := by exact decl_name%) : IO SimpExtension := do
-  let ext ← mkSimpExt ref
-  mkSimpAttr attrName attrDescr ext ref -- Remark: it will fail if it is not performed during initialization
-  simpExtensionMapRef.modify fun map => map.insert attrName ext
-  return ext
-
-builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
-
-builtin_initialize sevalSimpExtension : SimpExtension ← registerSimpAttr `seval "symbolic evaluator theorem"
-
 def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
   return (← simpExtensionMapRef.get).find? attrName
-
-def getSimpTheorems : CoreM SimpTheorems :=
-  simpExtension.getTheorems
-
-def getSEvalTheorems : CoreM SimpTheorems :=
-  sevalSimpExtension.getTheorems
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do

@@ -36,20 +36,23 @@ ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 
 
 ## Specification
 
-The functional induction principle
+The functional induction principle takes the same fixed parameters as the function, and
+the motive takes the same non-fixed parameters as the original function.
 
-* Takes the same fixed parameters as the function.
-* The motive takes the same non-fixed parameters as the original function.
-* For each branch of the original function, there is a case in the induction principle.
-  Here "branch" roughly corresponds to tail-call positions: branches of top-level
-  `if`-`then`-`else` and `match` expressions.
-* The local context of the branch (e.g. the condition of an if-then-else) is provided as assumptions
-  in the corresponding induction case.
-* In addition, for every recursive call in that branch, an induction hypothesis asserting the motive
-  for the arguments of the recursive call is provided.
-* If the recursive call is under binder and it, or its proof of termination, depend on the the
-  bound values, then these become assumptions on the inductive hypothesis.
-* Mutual recursion is supported and results in multiple motives.
+For each branch of the original function, there is a case in the induction principle.
+Here "branch" roughly corresponds to tail-call positions: branches of top-level
+`if`-`then`-`else` and `match` expressions.
+
+For every recursive call in that branch, an induction hypothesis asserting the
+motive for the arguments of the recursive call is provided.
+If the recursive call is under binder and it, or its proof of termination,
+depend on the the bound values, then these become assumptions on the inductive
+hypothesis.
+
+Additionally, the local context of the branch (e.g. the condition of an
+if-then-else) is provided as assumptions in the corresponding induction case.
+
+Mutual recursion is supported and results in multiple motives.
 
 
 ## Implementation overview

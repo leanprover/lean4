@@ -181,7 +181,7 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 
 * `onParams` is run on each parameter and discriminant
 * `onMotive` runs on the body of the motive, and is passed the motive parameters
-  (same number as discrs)
+  (one for each `MatcherApp.discrs`)
 * `onAlt` runs on each alternative, and is passed the expected type of the alternative,
    as inferred from the motive
 * `onRemaining` runs on the remaining arguments (and may change their number)

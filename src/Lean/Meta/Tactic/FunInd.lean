@@ -64,7 +64,8 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    ```
    def foo := fun x₁ … xₙ (y : a) => WellFounded.fix (fun y' oldIH => body) y
    ```
-   where `xᵢ…` are the fixed prefix and `y` is parameter of the function.
+   where `xᵢ…` are the fixed parameter prefix and `y` is the varying parameter of
+   the function.
 
 2. From this structure we derive the type of the motive, and start assembling the induction
    principle:

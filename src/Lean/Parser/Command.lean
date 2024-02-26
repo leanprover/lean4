@@ -280,7 +280,7 @@ def initializeKeyword := leading_parser
   docComment >> "add_decl_doc " >> ident
 
 /--
-`derive_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
+`derive_functional_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
 will define a theorem `foo.induct` which provides an induction principle that follows the branching
 and recursion pattern of `foo`.
 
@@ -288,7 +288,7 @@ If `foo` is part of a mutual recursion group, this defines such `.induct`-theore
 in the group.
 -/
 @[builtin_command_parser] def deriveInduction := leading_parser
-  "derive_induction " >> Parser.ident
+  "derive_functional_induction " >> Parser.ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

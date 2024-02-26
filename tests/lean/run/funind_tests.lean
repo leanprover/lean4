@@ -6,7 +6,7 @@ def ackermann : (Nat × Nat) → Nat
   | (n+1, m+1) => ackermann (n, ackermann (n + 1, m))
 termination_by p => p
 
-derive_induction ackermann
+derive_functional_induction ackermann
 
 /--
 info: Unary.ackermann.induct (motive : Nat × Nat → Prop) (case1 : ∀ (m : Nat), motive (0, m))
@@ -26,7 +26,7 @@ def ackermann : Nat → Nat → Nat
   | n+1, 0 => ackermann n 1
   | n+1, m+1 => ackermann n (ackermann (n + 1) m)
 termination_by n m => (n, m)
-derive_induction ackermann
+derive_functional_induction ackermann
 
 /--
 info: Binary.ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
@@ -45,7 +45,7 @@ opaque _root_.List.attach : {α : Type u} → (l : List α) → List { x // x �
 inductive Tree | node : List Tree → Tree
 def Tree.rev : Tree → Tree
   | node ts => .node (ts.attach.map (fun ⟨t, _ht⟩ => t.rev) |>.reverse)
-derive_induction Tree.rev
+derive_functional_induction Tree.rev
 
 /--
 info: Tree.rev.induct (motive : Tree → Prop)
@@ -61,7 +61,7 @@ def fib : Nat → Nat
   | n+2 => fib n + fib (n+1)
 termination_by n => n
 
-derive_induction fib
+derive_functional_induction fib
 /--
 info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
   (case3 : ∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) (x : Nat) : motive x
@@ -76,7 +76,7 @@ def have_tailrec : Nat → Nat
     have h2 : n < n+1 := Nat.lt_succ_self n
     have_tailrec n
 termination_by n => n
-derive_induction have_tailrec
+derive_functional_induction have_tailrec
 
 /--
 info: have_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -93,7 +93,7 @@ def have_non_tailrec : Nat → Nat
       have h2 : n < n+1 := Nat.lt_succ_self n
       have_non_tailrec n
 termination_by n => n
-derive_induction have_non_tailrec
+derive_functional_induction have_non_tailrec
 
 /--
 info: have_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
@@ -109,7 +109,7 @@ def let_tailrec : Nat → Nat
     let h2 : n < n+1 := Nat.lt_succ_self n
     let_tailrec n
 termination_by n => n
-derive_induction let_tailrec
+derive_functional_induction let_tailrec
 
 /--
 info: let_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -130,7 +130,7 @@ def let_non_tailrec : Nat → Nat
       let h2 : n < n+1 := Nat.lt_succ_self n
       let_non_tailrec n
 termination_by n => n
-derive_induction let_non_tailrec
+derive_functional_induction let_non_tailrec
 
 /--
 info: let_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
@@ -149,7 +149,7 @@ def with_ite_tailrec : Nat → Nat
     else
       with_ite_tailrec n
 termination_by n => n
-derive_induction with_ite_tailrec
+derive_functional_induction with_ite_tailrec
 
 /--
 info: with_ite_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -171,7 +171,7 @@ def with_ite_non_tailrec : Nat → Nat
       else
         with_ite_non_tailrec n
 termination_by n => n
-derive_induction with_ite_non_tailrec
+derive_functional_induction with_ite_non_tailrec
 
 /--
 info: with_ite_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
@@ -188,7 +188,7 @@ def with_dite_non_tailrec (n : Nat) : Nat :=
     else
       0
 termination_by n
-derive_induction with_dite_non_tailrec
+derive_functional_induction with_dite_non_tailrec
 
 /--
 info: with_dite_non_tailrec.induct (motive : Nat → Prop)
@@ -205,7 +205,7 @@ def with_dite_tailrec (n : Nat) : Nat :=
     else
       0
 termination_by n
-derive_induction with_dite_tailrec
+derive_functional_induction with_dite_tailrec
 
 /--
 info: with_dite_tailrec.induct (motive : Nat → Prop)
@@ -223,7 +223,7 @@ def with_match_refining_tailrec : Nat → Nat
     | 0 => with_match_refining_tailrec 0
     | m => with_match_refining_tailrec m
 termination_by n => n
-derive_induction with_match_refining_tailrec
+derive_functional_induction with_match_refining_tailrec
 
 /--
 info: with_match_refining_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 0 → motive (Nat.succ 0))
@@ -241,7 +241,7 @@ def with_match_tailrec : Nat → Nat
     | 0 => with_match_tailrec n
     | _ => with_match_tailrec n
 termination_by n => n
-derive_induction with_match_tailrec
+derive_functional_induction with_match_tailrec
 
 /--
 info: with_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
@@ -260,7 +260,7 @@ def with_match_non_tailrec : Nat → Nat
     | 0 => with_match_non_tailrec n
     | _ => with_match_non_tailrec n
 termination_by n => n
-derive_induction with_match_non_tailrec
+derive_functional_induction with_match_non_tailrec
 
 /--
 info: with_match_non_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -278,7 +278,7 @@ def with_match_non_tailrec_refining : Nat → Nat
     | 0 => with_match_non_tailrec_refining 0
     | m => with_match_non_tailrec_refining m
 termination_by n => n
-derive_induction with_match_non_tailrec_refining
+derive_functional_induction with_match_non_tailrec_refining
 
 /--
 info: with_match_non_tailrec_refining.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -301,7 +301,7 @@ def with_overlap : Nat → Nat
   | 3 => 3
   | n+1 => with_overlap n
 termination_by n => n
-derive_induction with_overlap
+derive_functional_induction with_overlap
 
 /--
 info: with_overlap.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1) (case3 : motive 2) (case4 : motive 3)
@@ -320,7 +320,7 @@ def unary (base : Nat) : Nat → Nat
   | 0 => base
   | n+1 => unary base n
 termination_by n => n
-derive_induction unary
+derive_functional_induction unary
 
 /--
 info: UnusedExtraParams.unary.induct (base : Nat) (motive : Nat → Prop) (case1 : motive 0)
@@ -333,7 +333,7 @@ def binary (base : Nat) : Nat → Nat → Nat
   | 0, m => base + m
   | n+1, m => binary base n m
 termination_by n => n
-derive_induction binary
+derive_functional_induction binary
 
 /--
 info: UnusedExtraParams.binary.induct (base : Nat) (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
@@ -364,7 +364,7 @@ def match_non_tail_induct
       case1 (n+1) (IH n (Nat.lt_succ_self _))
   ) n
 
-derive_induction match_non_tail
+derive_functional_induction match_non_tail
 
 /--
 info: NonTailrecMatch.match_non_tail.induct (motive : Nat → Prop)
@@ -397,7 +397,7 @@ def foo (n : Nat) :=
   | 0 => 0
   | x@(n+1) => x + foo n
 termination_by n
-derive_induction foo
+derive_functional_induction foo
 
 /--
 info: AsPattern.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
@@ -414,7 +414,7 @@ def bar (n : Nat) :=
   | 0 => 0
   | x@(n+1) => x + bar n
 termination_by n
-derive_induction bar
+derive_functional_induction bar
 
 /--
 info: AsPattern.bar.induct (motive : Nat → Prop)
@@ -455,7 +455,7 @@ decreasing_by
   simp_wf
   simp [below_lt, *]
 
-derive_induction foo
+derive_functional_induction foo
 /--
 info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (∀ (i : Nat), below x i → motive i) → motive x)
   (x : Nat) : motive x
@@ -473,7 +473,7 @@ def foo {α} (x : α) : List α → Nat
       let this := foo x ys
       this
 termination_by xs => xs
-derive_induction foo
+derive_functional_induction foo
 /--
 info: LetFun.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (x : List α) : motive x
@@ -489,7 +489,7 @@ def bar {α} (x : α) : List α → Nat
       this
 termination_by xs => xs
 
-derive_induction bar
+derive_functional_induction bar
 /--
 info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (x : List α) : motive x
@@ -506,7 +506,7 @@ def foo : Nat → Nat
   | 0 => 0
   | n+1 => if foo n = 0 then 1 else 0
 termination_by n => n
-derive_induction foo
+derive_functional_induction foo
 
 /--
 info: RecCallInDisrs.foo.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -524,7 +524,7 @@ def bar : Nat → Nat
     | 0, _ => 1 -- Bug: The information bar n ≠ 0 is lost here
     | m+1, _ => bar m
 termination_by n => n
-derive_induction bar
+derive_functional_induction bar
 
 /--
 info: RecCallInDisrs.bar.induct (motive : Nat → Prop) (case1 : motive 0)
@@ -548,7 +548,7 @@ def odd : Nat → Bool
   | n+1 => even n
 termination_by n => n
 end
-derive_induction even
+derive_functional_induction even
 
 /--
 info: EvenOdd.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0)
@@ -580,7 +580,7 @@ def Tree.map (f : Tree → Tree) : Tree → Tree
 def Tree.map_forest (f : Tree → Tree) (ts : List Tree) : List Tree :=
   ts.attach.map (fun ⟨t, _ht⟩ => Tree.map f t)
 end
-derive_induction Tree.map
+derive_functional_induction Tree.map
 
 /--
 info: Tree.Tree.map.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
@@ -609,7 +609,7 @@ def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
   | 0 => m
   | n+1 => foo fixed n m
 termination_by n
-derive_induction foo
+derive_functional_induction foo
 
 /--
 info: DefaultArgument.foo.induct (fixed : Bool) (motive : Nat → Nat → Prop) (case1 : ∀ (snd : Nat), motive 0 snd)
@@ -629,7 +629,7 @@ def foo : Nat → Nat → (k : Nat) → Fin k → Nat
   | _, _, 1, _ => 0
   | n+1, m+1, k+2, _ => foo n m (k+1) ⟨0, Nat.zero_lt_succ _⟩
 termination_by n => n
-derive_induction foo
+derive_functional_induction foo
 
 /--
 info: Nary.foo.induct (motive : Nat → Nat → (x : Nat) → Fin x → Prop)
@@ -655,7 +655,7 @@ def foo (n : Nat) : Nat :=
     foo j
   else
     42
-derive_induction foo
+derive_functional_induction foo
 
 /--
 info: Dite.foo.induct (motive : Nat → Prop)
@@ -676,7 +676,7 @@ end Dite
 
 namespace CommandIdempotence
 
--- This checks that the `derive_induction` command gracefully handles being called twice
+-- This checks that the `derive_functional_induction` command gracefully handles being called twice
 
 mutual
 def even : Nat → Bool
@@ -689,7 +689,7 @@ def odd : Nat → Bool
 termination_by n => n
 end
 
-derive_induction even._mutual
+derive_functional_induction even._mutual
 
 /--
 info: CommandIdempotence.even._mutual.induct (motive : Nat ⊕' Nat → Prop) (case1 : motive (PSum.inl 0))
@@ -703,7 +703,7 @@ info: CommandIdempotence.even._mutual.induct (motive : Nat ⊕' Nat → Prop) (c
 #guard_msgs in
 #check even.induct
 
-derive_induction even
+derive_functional_induction even
 
 /--
 info: CommandIdempotence.even._mutual.induct (motive : Nat ⊕' Nat → Prop) (case1 : motive (PSum.inl 0))
@@ -721,6 +721,6 @@ info: CommandIdempotence.even.induct (motive1 motive2 : Nat → Prop) (case1 : m
 #guard_msgs in
 #check even.induct
 
-derive_induction even
+derive_functional_induction even
 
 end CommandIdempotence

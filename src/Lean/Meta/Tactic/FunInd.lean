@@ -84,7 +84,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
-   are cleared, and the current `body` is frisked for induction hypotheses using `collectIHs`,
+   are cleared, and the current `body` is combed for induction hypotheses using `collectIHs`,
    which are then asserted in the `MVar`.
 
 

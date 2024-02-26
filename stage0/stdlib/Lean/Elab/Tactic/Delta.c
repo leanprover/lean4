@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_Tactic_evalDelta___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_evalDelta___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1417,7 +1417,7 @@ x_16 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_17 = l_Lean_Syntax_formatStxAux(x_14, x_15, x_16, x_1);
 x_18 = l_Std_Format_defWidth;
-x_19 = lean_format_pretty(x_17, x_18);
+x_19 = lean_format_pretty(x_17, x_18, x_16, x_16);
 x_20 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tactic_evalDelta___spec__2___closed__1;
 x_21 = lean_string_append(x_20, x_19);
 lean_dec(x_19);
@@ -1495,7 +1495,7 @@ x_43 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_44 = l_Lean_Syntax_formatStxAux(x_41, x_42, x_43, x_1);
 x_45 = l_Std_Format_defWidth;
-x_46 = lean_format_pretty(x_44, x_45);
+x_46 = lean_format_pretty(x_44, x_45, x_43, x_43);
 x_47 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tactic_evalDelta___spec__2___closed__1;
 x_48 = lean_string_append(x_47, x_46);
 lean_dec(x_46);

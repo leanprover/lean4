@@ -21,6 +21,21 @@ def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
   data := List.replicate n v
 }
 
+/--
+`ofFn f` with `f : Fin n → α` returns the list whose ith element is `f i`.
+```
+ofFn f = #[f 0, f 1, ... , f(n - 1)]
+``` -/
+def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
+  /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
+  go (i : Nat) (acc : Array α) : Array α :=
+    if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
+termination_by n - i
+
+/-- The array `#[0, 1, ..., n - 1]`. -/
+def range (n : Nat) : Array Nat :=
+  n.fold (flip Array.push) (mkEmpty n)
+
 @[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
   List.length_replicate ..
 
@@ -71,6 +86,12 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
   a.set ⟨i.toNat, h⟩ v
 
+/--
+Swaps two entries in an array.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
@@ -78,12 +99,18 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
+/--
+Swaps two entries in an array, or panics if either index is out of bounds.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
   if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-  else panic! "index out of bounds"
-  else panic! "index out of bounds"
+  else a
+  else a
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
@@ -401,6 +428,10 @@ def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :
 def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
   Id.run <| as.mapIdxM f
 
+/-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
+def zipWithIndex (arr : Array α) : Array (α × Nat) :=
+  arr.mapIdx fun i a => (a, i)
+
 @[inline]
 def find? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
   Id.run <| as.findM? p
@@ -475,6 +506,11 @@ def elem [BEq α] (a : α) (as : Array α) : Bool :=
 def toList (as : Array α) : List α :=
   as.foldr List.cons []
 
+/-- Prepends an `Array α` onto the front of a list.  Equivalent to `as.toList ++ l`. -/
+@[inline]
+def toListAppend (as : Array α) (l : List α) : List α :=
+  as.foldr List.cons l
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec a _ :=
     let _ : Std.ToFormat α := ⟨repr⟩
@@ -503,6 +539,13 @@ def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β
 @[inline]
 def concatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
+
+/-- Joins array of array into a single array.
+
+`flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
+-/
+def flatten (as : Array (Array α)) : Array α :=
+  as.foldl (init := empty) fun r a => r ++ a
 
 end Array
 

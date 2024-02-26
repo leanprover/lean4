@@ -31,7 +31,7 @@ static lean_object* l_Lean_Elab_Term_elabSyntheticHole___closed__6;
 static lean_object* l_Lean_Elab_Term_elabIncludeStr___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabNumLit_declRange___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabSort___closed__2;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Term_elabOpen___spec__25___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabCompletion___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabWithDeclName_declRange___closed__4;
@@ -2556,11 +2556,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabHole(lean_object* x_1, lean_object
 _start:
 {
 uint8_t x_10; 
-x_10 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
+x_10 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 8);
+x_11 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 9);
 if (x_11 == 0)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -3867,7 +3867,7 @@ x_11 = l_Lean_Name_isAnonymous(x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
+x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -4438,7 +4438,7 @@ return x_144;
 else
 {
 uint8_t x_145; 
-x_145 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
+x_145 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_145 == 0)
 {
 uint8_t x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; uint8_t x_152; 
@@ -9493,7 +9493,7 @@ x_14 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_15 = l_Lean_Syntax_formatStxAux(x_12, x_13, x_14, x_1);
 x_16 = l_Std_Format_defWidth;
-x_17 = lean_format_pretty(x_15, x_16);
+x_17 = lean_format_pretty(x_15, x_16, x_14, x_14);
 x_18 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Term_elabDoubleQuotedName___spec__2___closed__1;
 x_19 = lean_string_append(x_18, x_17);
 lean_dec(x_17);
@@ -9574,7 +9574,7 @@ x_41 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_42 = l_Lean_Syntax_formatStxAux(x_39, x_40, x_41, x_1);
 x_43 = l_Std_Format_defWidth;
-x_44 = lean_format_pretty(x_42, x_43);
+x_44 = lean_format_pretty(x_42, x_43, x_41, x_41);
 x_45 = l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Term_elabDoubleQuotedName___spec__2___closed__1;
 x_46 = lean_string_append(x_45, x_44);
 lean_dec(x_44);

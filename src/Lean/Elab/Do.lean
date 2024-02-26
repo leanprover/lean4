@@ -1368,7 +1368,7 @@ mutual
     else
       pure doElems.toArray
     let contSeq := mkDoSeq contSeq
-    let auxDo ← `(do let __discr := $val; match __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+    let auxDo ← `(do match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
     doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 
   /-- Generate `CodeBlock` for `doReassignArrow; doElems`

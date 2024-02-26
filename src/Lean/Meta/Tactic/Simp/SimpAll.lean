@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
-open Simp (UsedSimps)
+open Simp (UsedSimps SimprocsArray)
 
 namespace SimpAll
 
@@ -27,7 +27,7 @@ structure State where
   mvarId    : MVarId
   entries   : Array Entry := #[]
   ctx       : Simp.Context
-  simprocs  : Simprocs
+  simprocs  : SimprocsArray
   usedSimps : UsedSimps := {}
 
 abbrev M := StateRefT State MetaM
@@ -142,7 +142,7 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs := {}) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   mvarId.withContext do
     let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps, simprocs }
     if let .some mvarIdNew := r then

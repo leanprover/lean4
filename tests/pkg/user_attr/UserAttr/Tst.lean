@@ -75,3 +75,16 @@ def showThmsOf (simpAttrName : Name) : MetaM Unit := do
     IO.println thmName
 
 #eval showThmsOf `my_simp
+
+def boo (x : Nat) : Nat :=
+  x + 10
+
+open Lean Meta in
+simproc [my_simp] reduceBoo (boo _) := fun e => do
+  unless e.isAppOfArity ``boo 1 do return .continue
+  let some n ← Nat.fromExpr? e.appArg! | return .continue
+  return .done { expr := mkNatLit (n+10) }
+
+example : f x + boo 2 = id (x + 2) + 12 := by
+  simp
+  simp [my_simp] -- Applies the simp and simproc sets

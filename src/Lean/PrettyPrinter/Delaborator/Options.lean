@@ -63,6 +63,16 @@ register_builtin_option pp.letVarTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of let-bound variables"
 }
+register_builtin_option pp.natLit : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display raw natural number literals with `nat_lit` prefix"
+}
+register_builtin_option pp.numericTypes : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display types of numeric literals"
+}
 register_builtin_option pp.instantiateMVars : Bool := {
   defValue := false -- TODO: default to true?
   group    := "pp"
@@ -125,6 +135,16 @@ register_builtin_option pp.instanceTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
 }
+register_builtin_option pp.deepTerms : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display deeply nested terms, replacing them with `⋯` if set to false"
+}
+register_builtin_option pp.deepTerms.threshold : Nat := {
+  defValue := 20
+  group    := "pp"
+  descr    := "(pretty printer) when `pp.deepTerms` is false, the depth at which terms start being replaced with `⋯`"
+}
 register_builtin_option pp.motives.pi : Bool := {
   defValue := true
   group    := "pp"
@@ -183,6 +203,8 @@ def getPPAll (o : Options) : Bool := o.get pp.all.name false
 def getPPFunBinderTypes (o : Options) : Bool := o.get pp.funBinderTypes.name (getPPAll o)
 def getPPPiBinderTypes (o : Options) : Bool := o.get pp.piBinderTypes.name pp.piBinderTypes.defValue
 def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll o)
+def getPPNumericTypes (o : Options) : Bool := o.get pp.numericTypes.name pp.numericTypes.defValue
+def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes o && !getPPAll o)
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
@@ -205,5 +227,7 @@ def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name 
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
 def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
+def getPPDeepTerms (o : Options) : Bool := o.get pp.deepTerms.name pp.deepTerms.defValue
+def getPPDeepTermsThreshold (o : Options) : Nat := o.get pp.deepTerms.threshold.name pp.deepTerms.threshold.defValue
 
 end Lean

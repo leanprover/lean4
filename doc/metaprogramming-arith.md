@@ -60,7 +60,7 @@ While parsing `a * (b + c)`, `(b + c)` is assigned a precedence `60` by the addi
 the right argument to have precedence **at least** 71. Thus, this parse is invalid. In contrast, `(a * b) + c` assigns
 a precedence of `70` to `(a * b)`. This is compatible with addition which expects the left argument to have precedence
 **at least `60` ** (`70` is greater than `60`). Thus, the string `a * b + c` is parsed as `(a * b) + c`.
-For more details, please look at the [Lean manual on syntax extensions](../syntax.md#notations-and-precedence).
+For more details, please look at the [Lean manual on syntax extensions](./notation.md#notations-and-precedence).
 
 To go from strings into `Arith`, we define a macro to
 translate the syntax category `arith` into an `Arith` inductive value that

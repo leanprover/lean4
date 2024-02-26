@@ -77,7 +77,7 @@ end Ex4
 namespace Ex5
 -- Empty proof. Produces parse error and unsolved goals.
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
-termination_by n m => (n, m)
+termination_by (n, m)
 decreasing_by -- Error
 
 end Ex5

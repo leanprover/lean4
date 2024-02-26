@@ -408,7 +408,7 @@ inductive Expr where
 
   Given an environment, a metavariable context, and a local context,
   we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
-  to `(fun x : t => e) v`. Here is an example of a dependent let-expression
+  to `(fun x : t => e) v`. In contrast, the dependent let-expression
   `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
   but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
 
@@ -655,7 +655,7 @@ def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
 /--
 `.app f a` is now the preferred form.
 -/
-def mkApp (f a : Expr) : Expr :=
+@[match_pattern] def mkApp (f a : Expr) : Expr :=
   .app f a
 
 /--
@@ -684,16 +684,16 @@ def mkSimpleThunk (type : Expr) : Expr :=
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   .letE x t v b nonDep
 
-def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-def mkApp2 (f a b : Expr) := mkAppB f a b
-def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+@[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+@[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
+@[match_pattern] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+@[match_pattern] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+@[match_pattern] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+@[match_pattern] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+@[match_pattern] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+@[match_pattern] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+@[match_pattern] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+@[match_pattern] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 /--
 `.lit l` is now the preferred form.
@@ -735,7 +735,9 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
 
-/-- `mkAppN f #[a₀, ..., aₙ]` ==> `f a₀ a₁ .. aₙ`-/
+/--
+`mkAppN f #[a₀, ..., aₙ]` constructs the application `f a₀ a₁ ... aₙ`.
+-/
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
@@ -1227,32 +1229,84 @@ def inferImplicit : Expr → Nat → Bool → Expr
   | e, _, _ => e
 
 /--
-Instantiate the loose bound variables in `e` using `subst`.
-That is, a loose `Expr.bvar i` is replaced with `subst[i]`.
+Instantiates the loose bound variables in `e` using the `subst` array,
+where a loose `Expr.bvar i` at "binding depth" `d` is instantiated with `subst[i - d]` if `0 <= i - d < subst.size`,
+and otherwise it is replaced with `Expr.bvar (i - subst.size)`; non-loose bound variables are not touched.
+
+If we imagine all expressions as being able to refer to the infinite list of loose bound variables ..., 3, 2, 1, 0 in that order,
+then conceptually `instantiate` is instantiating the last `n` of these and reindexing the remaining ones.
+Warning: `instantiate` uses the de Bruijn indexing to index the `subst` array, which might be the reverse order from what you might expect.
+See also `Lean.Expr.instantiateRev`.
+
+**Terminology.** The "binding depth" of a subexpression is the number of bound variables available to that subexpression
+by virtue of being in the bodies of `Expr.forallE`, `Expr.lam`, and `Expr.letE` expressions.
+A bound variable `Expr.bvar i` is "loose" if its de Bruijn index `i` is not less than its binding depth.)
+
+**About instantiation.** Instantiation isn't mere substitution.
+When an expression from `subst` is being instantiated, its internal loose bound variables have their de Bruijn indices incremented
+by the binding depth of the replaced loose bound variable.
+This is necessary for the substituted expression to still refer to the correct binders after instantiation.
+Similarly, the reason loose bound variables not instantiated using `subst` have their de Bruijn indices decremented like `Expr.bvar (i - subst.size)`
+is that `instantiate` can be used to eliminate binding expressions internal to a larger expression,
+and this adjustment keeps these bound variables referring to the same binders.
 -/
 @[extern "lean_expr_instantiate"]
 opaque instantiate (e : @& Expr) (subst : @& Array Expr) : Expr
 
+/--
+Instantiates loose bound variable `0` in `e` using the expression `subst`,
+where in particular a loose `Expr.bvar i` at binding depth `d` is instantiated with `subst` if `i = d`,
+and otherwise it is replaced with `Expr.bvar (i - 1)`; non-loose bound variables are not touched.
+
+If we imagine all expressions as being able to refer to the infinite list of loose bound variables ..., 3, 2, 1, 0 in that order,
+then conceptually `instantiate1` is instantiating the last one of these and reindexing the remaining ones.
+
+This function is equivalent to `instantiate e #[subst]`, but it avoids allocating an array.
+
+See the documentation for `Lean.Expr.instantiate` for a description of instantiation.
+In short, during instantiation the loose bound variables in `subst` have their own de Bruijn indices updated to account
+for the binding depth of the replaced loose bound variable.
+-/
 @[extern "lean_expr_instantiate1"]
 opaque instantiate1 (e : @& Expr) (subst : @& Expr) : Expr
 
-/-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
+/--
+Instantiates the loose bound variables in `e` using the `subst` array.
+This is equivalent to `Lean.Expr.instantiate e subst.reverse`, but it avoids reversing the array.
+In particular, rather than instantiating `Expr.bvar i` with `subst[i - d]` it instantiates with `subst[subst.size - 1 - (i - d)]`,
+where `d` is the binding depth.
+
+This function instantiates with the "forwards" indexing scheme.
+For example, if `e` represents the expression `fun x y => x + y`,
+then `instantiateRev e.bindingBody!.bindingBody! #[a, b]` yields `a + b`.
+The `instantiate` function on the other hand would yield `b + a`, since de Bruijn indices count outwards.
+ -/
 @[extern "lean_expr_instantiate_rev"]
 opaque instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr
 
 /--
-Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
-Function panics if `beginIdx <= endIdx <= xs.size` does not hold.
+Similar to `Lean.Expr.instantiate`, but considers only the substitutions `subst` in the range `[beginIdx, endIdx)`.
+Function panics if `beginIdx <= endIdx <= subst.size` does not hold.
+
+This function is equivalent to `instantiate e (subst.extract beginIdx endIdx)`, but it does not allocate a new array.
+
+This instantiates with the "backwards" indexing scheme.
+See also `Lean.Expr.instantiateRevRange`, which instantiates with the "forwards" indexing scheme.
 -/
 @[extern "lean_expr_instantiate_range"]
-opaque instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
+opaque instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
 /--
-Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
-Function panics if `beginIdx <= endIdx <= xs.size` does not hold.
+Similar to `Lean.Expr.instantiateRev`, but considers only the substitutions `subst` in the range `[beginIdx, endIdx)`.
+Function panics if `beginIdx <= endIdx <= subst.size` does not hold.
+
+This function is equivalent to `instantiateRev e (subst.extract beginIdx endIdx)`, but it does not allocate a new array.
+
+This instantiates with the "forwards" indexing scheme (see the docstring for `Lean.Expr.instantiateRev` for an example).
+See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" indexing scheme.
 -/
 @[extern "lean_expr_instantiate_rev_range"]
-opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
+opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
 /-- Replace free (or meta) variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]

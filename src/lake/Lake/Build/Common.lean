@@ -16,6 +16,13 @@ namespace Lake
 
 /-! ## General Utilities -/
 
+/--
+Build trace for the host platform.
+If an artifact includes this in its trace, it is platform-dependent
+and will be rebuilt on different host platforms.
+-/
+def platformTrace := pureHash System.Platform.target
+
 /-- Check if the `info` is up-to-date by comparing `depTrace` with `traceFile`. -/
 @[specialize] def BuildTrace.checkUpToDate [CheckExists ι] [GetMTime ι]
 (info : ι) (depTrace : BuildTrace) (traceFile : FilePath) : JobM Bool := do
@@ -138,7 +145,8 @@ which will be computed in the resulting `BuildJob` before building.
 (oFile : FilePath) (srcJob : BuildJob FilePath)
 (weakArgs traceArgs : Array String := #[]) (compiler : FilePath := "cc")
 (extraDepTrace : BuildM _ := pure BuildTrace.nil) : SchedulerM (BuildJob FilePath) :=
-  let extraDepTrace := return mixTrace (← extraDepTrace) (← computeHash traceArgs)
+  let extraDepTrace :=
+    return (← extraDepTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
     compileO name oFile srcFile (weakArgs ++ traceArgs) compiler
 
@@ -146,7 +154,8 @@ which will be computed in the resulting `BuildJob` before building.
 @[inline] def buildLeanO (name : String)
 (oFile : FilePath) (srcJob : BuildJob FilePath)
 (weakArgs traceArgs : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
-  let extraDepTrace := return mixTrace (← getLeanTrace) (← computeHash traceArgs)
+  let extraDepTrace :=
+    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
      compileO name oFile srcFile (weakArgs ++ traceArgs) (← getLeanc)
 
@@ -162,7 +171,8 @@ def buildLeanSharedLib
 (libFile : FilePath) (linkJobs : Array (BuildJob FilePath))
 (weakArgs traceArgs : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
   let name := libFile.fileName.getD libFile.toString
-  let extraDepTrace := return mixTrace (← getLeanTrace) (← computeHash traceArgs)
+  let extraDepTrace :=
+    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray libFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
     compileSharedLib name libFile (links.map toString ++ weakArgs ++ traceArgs) (← getLeanc)
 
@@ -171,7 +181,8 @@ def buildLeanExe
 (exeFile : FilePath) (linkJobs : Array (BuildJob FilePath))
 (weakArgs traceArgs : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
   let name := exeFile.fileName.getD exeFile.toString
-  let extraDepTrace := return mixTrace (← getLeanTrace) (← computeHash traceArgs)
+  let extraDepTrace :=
+    return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray exeFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
     compileExe name exeFile links (weakArgs ++ traceArgs) (← getLeanc)
 
@@ -186,7 +197,7 @@ def buildLeanSharedLibOfStatic (staticLibJob : BuildJob FilePath)
       else
         #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
     let depTrace := staticTrace.mix <|
-      mixTrace (← getLeanTrace) (← computeHash traceArgs)
+      (← getLeanTrace).mix <| (pureHash traceArgs).mix <| platformTrace
     let args := baseArgs ++ weakArgs ++ traceArgs
     let trace ← buildFileUnlessUpToDate dynlib depTrace do
       let name := dynlib.fileName.getD dynlib.toString

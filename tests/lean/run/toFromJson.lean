@@ -2,13 +2,13 @@ import Lean
 
 open Lean
 
-declare_syntax_cat json
-syntax str : json
-syntax num : json
-syntax "{" (ident ": " json),* "}" : json
-syntax "[" json,* "]" : json
+declare_syntax_cat mjson
+syntax str : mjson
+syntax num : mjson
+syntax "{" (ident ": " mjson),* "}" : mjson
+syntax "[" mjson,* "]" : mjson
 
-syntax "json " json : term
+syntax "json " mjson : term
 
 /- declare a micro json parser, so we can write our tests in a more legible way. -/
 open Json in macro_rules

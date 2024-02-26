@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Core
@@ -123,21 +123,15 @@ theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
+end Classical
+
 /--
 `by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
 -/
 syntax "by_cases " (atomic(ident " : "))? term : tactic
 
 macro_rules
+  | `(tactic| by_cases $e) => `(tactic| by_cases h : $e)
+macro_rules
   | `(tactic| by_cases $h : $e) =>
-    `(tactic|
-      cases em $e with
-      | inl $h => _
-      | inr $h => _)
-  | `(tactic| by_cases $e) =>
-    `(tactic|
-      cases em $e with
-      | inl h => _
-      | inr h => _)
-
-end Classical
+    `(tactic| open Classical in refine if $h:ident : $e then ?pos else ?neg)

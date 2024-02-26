@@ -117,20 +117,23 @@ opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task �
 
 /-- See `BaseIO.asTask`. -/
 @[extern "lean_io_map_task"]
-opaque mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
+opaque mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) (sync := false) :
+    BaseIO (Task β) :=
   Task.pure <$> f t.get
 
 /-- See `BaseIO.asTask`. -/
 @[extern "lean_io_bind_task"]
-opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default)
+    (sync := false) : BaseIO (Task β) :=
   f t.get
 
-def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default)
+    (sync := false) : BaseIO (Task β) :=
   go tasks []
 where
   go
     | t::ts, as =>
-      BaseIO.bindTask t (fun a => go ts (a :: as)) prio
+      BaseIO.bindTask t (fun a => go ts (a :: as)) prio sync
     | [], as => f as.reverse |>.asTask prio
 
 end BaseIO
@@ -142,16 +145,20 @@ namespace EIO
   act.toBaseIO.asTask prio
 
 /-- `EIO` specialization of `BaseIO.mapTask`. -/
-@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
-  BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio
+@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default)
+    (sync := false) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio sync
 
 /-- `EIO` specialization of `BaseIO.bindTask`. -/
-@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
-  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e) prio
+@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β)))
+    (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
+  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
+    prio sync
 
 /-- `EIO` specialization of `BaseIO.mapTasks`. -/
-@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
-  BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio
+@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α))
+    (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio sync
 
 end EIO
 
@@ -184,16 +191,19 @@ def sleep (ms : UInt32) : BaseIO Unit :=
   EIO.asTask act prio
 
 /-- `IO` specialization of `EIO.mapTask`. -/
-@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
-  EIO.mapTask f t prio
+@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) (sync := false) :
+    BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTask f t prio sync
 
 /-- `IO` specialization of `EIO.bindTask`. -/
-@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
-  EIO.bindTask t f prio
+@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β)))
+    (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.bindTask t f prio sync
 
 /-- `IO` specialization of `EIO.mapTasks`. -/
-@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
-  EIO.mapTasks f tasks prio
+@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default)
+    (sync := false) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTasks f tasks prio sync
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"] opaque checkCanceled : BaseIO Bool

@@ -1,10 +1,11 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Gabriel Ebner
 -/
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.SetOption
 
 namespace Lean.Elab.Command
 
@@ -238,10 +239,11 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   let s ← get
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
-  return InfoTree.context {
+  let ctx := PartialContextInfo.commandCtx {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace,
     openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
-  } tree
+  }
+  return InfoTree.context ctx tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
@@ -501,6 +503,49 @@ def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM Expand
   return r
 
 end Elab.Command
+
+open Elab Command MonadRecDepth
+
+/--
+Lifts an action in `CommandElabM` into `CoreM`, updating the traces and the environment.
+
+Commands that modify the processing of subsequent commands,
+such as `open` and `namespace` commands,
+only have an effect for the remainder of the `CommandElabM` computation passed here,
+and do not affect subsequent commands.
+-/
+def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
+  let (a, commandState) ←
+    cmd.run {
+      fileName := ← getFileName
+      fileMap := ← getFileMap
+      ref := ← getRef
+      tacticCache? := none
+    } |>.run {
+      env := ← getEnv
+      maxRecDepth := ← getMaxRecDepth
+      scopes := [{ header := "", opts := ← getOptions }]
+    }
+  modify fun coreState => { coreState with
+    traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+    env := commandState.env
+  }
+  if let some err := commandState.messages.msgs.toArray.find? (·.severity matches .error) then
+    throwError err.data
+  pure a
+
+/--
+Given a command elaborator `cmd`, returns a new command elaborator that
+first evaluates any local `set_option ... in ...` clauses and then invokes `cmd` on what remains.
+-/
+partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
+  if stx.getKind == ``Lean.Parser.Command.in &&
+     stx[0].getKind == ``Lean.Parser.Command.set_option then
+      let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
+      Command.withScope (fun scope => { scope with opts }) do
+        withSetOptionIn cmd stx[1]
+  else
+    cmd stx
 
 export Elab.Command (Linter addLinter)
 

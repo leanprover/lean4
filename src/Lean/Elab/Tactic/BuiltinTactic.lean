@@ -3,14 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Refl
 import Lean.Elab.Binders
 import Lean.Elab.Open
+import Lean.Elab.Eval
 import Lean.Elab.SetOption
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.Do
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -324,6 +327,12 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
 /--
+`subst_eq` repeatedly substitutes according to the equality proof hypotheses in the context,
+replacing the left side of the equality with the right, until no more progress can be made.
+-/
+elab "subst_eqs" : tactic => Elab.Tactic.liftMetaTactic1 (·.substEqs)
+
+/--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
   If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
@@ -467,5 +476,32 @@ where
   match stx[1].isNatLit? with
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32
+
+@[builtin_tactic left] def evalLeft : Tactic := fun _stx => do
+  liftMetaTactic (fun g => g.nthConstructor `left 0 (some 2))
+
+@[builtin_tactic right] def evalRight : Tactic := fun _stx => do
+  liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
+
+@[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
+  match stx with
+  | `(tactic| replace $decl:haveDecl) =>
+    withMainContext do
+      let vars ← Elab.Term.Do.getDoHaveVars <| mkNullNode #[.missing, decl]
+      let origLCtx ← getLCtx
+      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      let mut toClear := #[]
+      for fv in vars do
+        if let some ldecl := origLCtx.findFromUserName? fv.getId then
+          toClear := toClear.push ldecl.fvarId
+      liftMetaTactic1 (·.tryClearMany toClear)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic runTac] def evalRunTac : Tactic := fun stx => do
+  match stx with
+  | `(tactic| run_tac $e:doSeq) =>
+    ← unsafe Term.evalTerm (TacticM Unit) (mkApp (Lean.mkConst ``TacticM) (Lean.mkConst ``Unit))
+      (← `(discard do $e))
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

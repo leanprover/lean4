@@ -16,7 +16,7 @@ inductive Exception where
   | error (ref : Syntax) (msg : MessageData)
   /--
   Internal exceptions that are not meant to be seen by users.
-  Examples: "pospone elaboration", "stuck at universe constraint", etc
+  Examples: "postpone elaboration", "stuck at universe constraint", etc.
   -/
   | internal (id : InternalExceptionId) (extra : KVMap := {})
 

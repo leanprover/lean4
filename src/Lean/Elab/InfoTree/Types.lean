@@ -14,10 +14,12 @@ import Lean.Widget.Types
 
 namespace Lean.Elab
 
-/-- Context after executing `liftTermElabM`.
-   Note that the term information collected during elaboration may contain metavariables, and their
-   assignments are stored at `mctx`. -/
-structure ContextInfo where
+/--
+Context after executing `liftTermElabM`.
+Note that the term information collected during elaboration may contain metavariables, and their
+assignments are stored at `mctx`.
+-/
+structure CommandContextInfo where
   env           : Environment
   fileMap       : FileMap
   mctx          : MetavarContext := {}
@@ -25,6 +27,31 @@ structure ContextInfo where
   currNamespace : Name           := Name.anonymous
   openDecls     : List OpenDecl  := []
   ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
+
+/--
+Context from the root of the `InfoTree` up to this node.
+Note that the term information collected during elaboration may contain metavariables, and their
+assignments are stored at `mctx`.
+-/
+structure ContextInfo extends CommandContextInfo where
+  parentDecl? : Option Name := none
+
+/--
+Context for a sub-`InfoTree`.
+
+Within `InfoTree`, this must fulfill the invariant that every non-`commandCtx` `PartialContextInfo`
+node is always contained within a `commandCtx` node.
+-/
+inductive PartialContextInfo where
+  | commandCtx (info : CommandContextInfo)
+  /--
+  Context for the name of the declaration that surrounds nodes contained within this `context` node.
+  For example, this makes the name of the surrounding declaration available in `InfoTree` nodes
+  corresponding to the terms within the declaration.
+  -/
+  | parentDeclCtx (parentDecl : Name)
+  -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
+  -- used for (e.g. eliminating `Info.updateContext?` would be nice!).
 
 /-- Base structure for `TermInfo`, `CommandInfo` and `TacticInfo`. -/
 structure ElabInfo where
@@ -127,6 +154,15 @@ structure Bar extends Foo :=
 structure FieldRedeclInfo where
   stx : Syntax
 
+/--
+Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
+due to `pp.deepTerms false`. Omission needs to be treated differently from regular terms because
+it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
+Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
+regular delaboration settings.
+-/
+structure OmissionInfo extends TermInfo
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -140,6 +176,7 @@ inductive Info where
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
+  | ofOmissionInfo (i : OmissionInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used
@@ -164,8 +201,8 @@ inductive Info where
     `hole`s which are filled in later in the same way that unassigned metavariables are.
 -/
 inductive InfoTree where
-  /-- The context object is created by `liftTermElabM` at `Command.lean` -/
-  | context (i : ContextInfo) (t : InfoTree)
+  /-- The context object is created at appropriate points during elaboration -/
+  | context (i : PartialContextInfo) (t : InfoTree)
   /-- The children contain information for nested term elaboration and tactic evaluation -/
   | node (i : Info) (children : PersistentArray InfoTree)
   /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
@@ -191,7 +228,7 @@ structure InfoState where
   trees      : PersistentArray InfoTree := {}
   deriving Inhabited
 
-class MonadInfoTree (m : Type → Type)  where
+class MonadInfoTree (m : Type → Type) where
   getInfoState    : m InfoState
   modifyInfoState : (InfoState → InfoState) → m Unit
 
@@ -203,5 +240,10 @@ instance [MonadLift m n] [MonadInfoTree m] : MonadInfoTree n where
 
 def setInfoState [MonadInfoTree m] (s : InfoState) : m Unit :=
   modifyInfoState fun _ => s
+
+class MonadParentDecl (m : Type → Type) where
+  getParentDeclName? : m (Option Name)
+
+export MonadParentDecl (getParentDeclName?)
 
 end Lean.Elab

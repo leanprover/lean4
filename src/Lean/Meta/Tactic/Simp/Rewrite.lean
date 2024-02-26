@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 

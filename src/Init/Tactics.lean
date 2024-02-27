@@ -1425,13 +1425,14 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith`
+where `i < arr.size` is in the context) and `simp_arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`

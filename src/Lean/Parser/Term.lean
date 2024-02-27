@@ -123,8 +123,8 @@ the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
   "termination_by " >>
-    optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
-    termParser
+  optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
+  termParser
 
 @[inherit_doc terminationBy]
 def terminationBy? := leading_parser

@@ -81,6 +81,8 @@ v4.7.0 (development in progress)
   In both cases, `h` is applicable because `simp` does not index f-arguments anymore when adding `h` to the `simp`-set.
   It's important to note, however, that global theorems continue to be indexed in the usual manner.
 
+* Improved the error messages produced by the `decide` tactic. [#3422](https://github.com/leanprover/lean4/pull/3422)
+
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration

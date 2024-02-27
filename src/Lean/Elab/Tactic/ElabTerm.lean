@@ -372,10 +372,24 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
-    let r ← withDefault <| whnf d
-    unless r.isConstOf ``true do
-      throwError "failed to reduce to 'true'{indentExpr r}"
-    let s := d.appArg! -- get instance from `d`
+    -- Get instance from `d`
+    let s := d.appArg!
+    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    let r ← withDefault <| whnf s
+    if r.isAppOf ``isFalse then
+      throwError "\
+        tactic 'decide' proved that the proposition\
+        {indentExpr expectedType}\n\
+        is false"
+    unless r.isAppOf ``isTrue do
+      throwError "\
+        tactic 'decide' failed for proposition\
+        {indentExpr expectedType}\n\
+        since its 'Decidable' instance reduced to\
+        {indentExpr r}\n\
+        rather than to the 'isTrue' constructor."
+    -- While we have a proof from reduction, we do not embed it in the proof term,
+    -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 

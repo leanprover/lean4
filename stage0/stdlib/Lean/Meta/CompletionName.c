@@ -16,26 +16,30 @@ extern "C" {
 static lean_object* l_Lean_Meta_addToCompletionBlackList___closed__1;
 uint8_t lean_is_matcher(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___boxed(lean_object*, lean_object*);
+uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__3;
 uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_allowCompletion___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_privateHeader;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___boxed(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__2;
 LEAN_EXPORT uint8_t l_Lean_Meta_allowCompletion(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_completionBlackListExt;
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isPrivateName(lean_object*);
 uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_completion_add_to_black_list(lean_object*, lean_object*);
 extern lean_object* l_Lean_noConfusionExt;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__1;
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5_(lean_object*);
-uint8_t l_Lean_Name_isInternal(lean_object*);
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_CompletionName___hyg_5____closed__1() {
 _start:
 {
@@ -97,6 +101,68 @@ x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_string_utf8_get(x_4, x_5);
+x_7 = 95;
+x_8 = lean_uint32_dec_eq(x_6, x_7);
+if (x_8 == 0)
+{
+x_1 = x_3;
+goto _start;
+}
+else
+{
+lean_object* x_10; uint8_t x_11; 
+x_10 = l_Lean_privateHeader;
+x_11 = lean_name_eq(x_1, x_10);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+x_12 = 1;
+return x_12;
+}
+else
+{
+x_1 = x_3;
+goto _start;
+}
+}
+}
+default: 
+{
+lean_object* x_14; 
+x_14 = lean_ctor_get(x_1, 0);
+x_1 = x_14;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 static lean_object* _init_l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted___closed__1() {
 _start:
 {
@@ -108,39 +174,11 @@ return x_1;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_CompletionName_0__Lean_Meta_isBlacklisted(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; uint8_t x_16; 
-x_16 = l_Lean_Name_isInternal(x_2);
-if (x_16 == 0)
-{
-lean_object* x_17; 
-x_17 = lean_box(0);
-x_3 = x_17;
-goto block_15;
-}
-else
-{
-uint8_t x_18; 
-x_18 = l_Lean_isPrivateName(x_2);
-if (x_18 == 0)
-{
-uint8_t x_19; 
-lean_dec(x_2);
-lean_dec(x_1);
-x_19 = 1;
-return x_19;
-}
-else
-{
-lean_object* x_20; 
-x_20 = lean_box(0);
-x_3 = x_20;
-goto block_15;
-}
-}
-block_15:
+uint8_t x_3; 
+x_3 = l___private_Lean_Meta_CompletionName_0__Lean_Meta_isInternalNameModuloPrivate(x_2);
+if (x_3 == 0)
 {
 uint8_t x_4; 
-lean_dec(x_3);
 lean_inc(x_2);
 lean_inc(x_1);
 x_4 = lean_is_aux_recursor(x_1, x_2);
@@ -205,6 +243,14 @@ lean_dec(x_1);
 x_14 = 1;
 return x_14;
 }
+}
+else
+{
+uint8_t x_15; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_15 = 1;
+return x_15;
 }
 }
 }

@@ -353,14 +353,13 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
           | true  => `(Parser.Tactic.simpLemma| $decl:term)
           | false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
         args := args.push arg
-    | .fvar fvarId => -- local hypotheses in the context
-      -- `simp_all` always uses all propositional hypotheses (and it can't use
-      -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would
-      -- be redundant. It would also be confusing since it suggests that only
-      -- `h` is used.
-      if isSimpAll then
-        continue
+    | .fvar fvarId =>
+      -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
+        -- `simp_all` always uses all propositional hypotheses.
+        -- So `simp_all only [x]`, only makes sense if `ldecl` is a let-variable.
+        if isSimpAll && !ldecl.hasValue then
+          continue
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&
               (lctx.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then

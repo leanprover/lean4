@@ -25,13 +25,12 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
 @[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx =>
   match stx with
   | `(tactic|
-      simp?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => do
+      simp?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => withMainContext do
     let stx ← if bang.isSome then
       `(tactic| simp!%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| simp%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
-    let { ctx, simprocs, dischargeWrapper } ←
-      withMainContext <| mkSimpContext stx (eraseLocal := false)
+    let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
     let usedSimps ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
         (loc.map expandLocation).getD (.targets #[] true)

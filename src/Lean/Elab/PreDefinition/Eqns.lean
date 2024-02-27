@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Eqns
+import Lean.Meta.CtorRecognizer
 import Lean.Util.CollectFVars
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Tactic.Split
@@ -218,13 +219,14 @@ where
 -/
 private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
   let env ← getEnv
-  return Option.isSome <| e.find? fun e => Id.run do
-    if let some info := isMatcherAppCore? env e then
-      let args := e.getAppArgs
-      for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        if discr.isConstructorApp env then
-          return true
-    return false
+  let find (root : Expr) : ExceptT Unit MetaM Unit :=
+    root.forEach fun e => do
+      if let some info := isMatcherAppCore? env e then
+        let args := e.getAppArgs
+        for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+          if (← Meta.isConstructorApp discr) then
+            throwThe Unit ()
+  return (← (find e).run) matches .error _
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]

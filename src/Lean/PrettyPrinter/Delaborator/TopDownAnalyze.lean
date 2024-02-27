@@ -6,6 +6,7 @@ Authors: Daniel Selsam
 prelude
 import Lean.Data.RBMap
 import Lean.Meta.SynthInstance
+import Lean.Meta.CtorRecognizer
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
@@ -152,7 +153,7 @@ def isIdLike (arg : Expr) : Bool :=
   | _ => false
 
 def isStructureInstance (e : Expr) : MetaM Bool := do
-  match e.isConstructorApp? (← getEnv) with
+  match (← isConstructorApp? e) with
   | some s => return isStructure (← getEnv) s.induct
   | none   => return false
 

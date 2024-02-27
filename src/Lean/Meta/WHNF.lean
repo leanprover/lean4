@@ -8,6 +8,7 @@ import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
 
@@ -133,7 +134,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   let env ← getEnv
   if !isStructureLike env inductName then
     return major
-  else if let some _ := major.isConstructorApp? env then
+  else if let some _ ← isConstructorApp? major then
     return major
   else
     let majorType ← inferType major
@@ -754,7 +755,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
+                if !(← isConstructorApp (← whnfMatcher recArg)) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

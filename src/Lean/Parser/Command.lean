@@ -335,6 +335,11 @@ but it opens a namespace only within the tactics `tacs`. -/
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+
+-- /-- `set_option opt val in tacs` (the conv tactic) acts like `set_option opt val` at the command level,
+-- but it sets the option only within the conv tactics `tacs`. -/
+-- @[builtin_tactic_parser] def Conv.«set_option» := leading_parser:leadPrec
+--   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> convSeq
 end Tactic
 
 end Parser

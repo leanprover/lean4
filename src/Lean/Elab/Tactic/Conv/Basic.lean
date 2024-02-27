@@ -188,3 +188,17 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
   Tactic.evalFirst
 
 end Lean.Elab.Tactic.Conv
+
+open Lean.Parser Tactic.Conv in
+/-- `set_option opt val in tacs` (the conv tactic) acts like `set_option opt val` at the command level,
+but it sets the option only within the conv tactics `tacs`. -/
+syntax (name := Lean.Parser.Tactic.Conv.«set_option») "set_option " ident ppSpace Lean.Parser.Command.optionValue " in " convSeq : conv
+
+namespace Lean.Elab.Tactic.Conv
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.set_option] def elabSetOption : Tactic := fun stx => do
+  let options ← Elab.elabSetOption stx[1] stx[2]
+  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
+    evalTactic stx[4]
+
+end Lean.Elab.Tactic.Conv

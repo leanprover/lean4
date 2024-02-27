@@ -73,10 +73,6 @@ builtin_initialize
   mkAttr true `builtin_unused_variables_ignore_fn
   mkAttr false `unused_variables_ignore_fn
 
--- matches builtinUnused variable pattern
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn fun stx _ _ =>
-    stx.getId.toString.startsWith "_"
-
 -- is variable
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
     stack.matches [`null, none, `null, ``Lean.Parser.Command.variable])

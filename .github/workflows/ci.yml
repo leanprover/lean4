@@ -410,7 +410,8 @@ jobs:
         run: |
           cd build
           ulimit -c unlimited # coredumps
-          make update-stage0 && make -j4
+          # clean rebuild in case of Makefile changes
+          make update-stage0 && rm -rf ./stage* && make -j4
         if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s
@@ -421,19 +422,21 @@ jobs:
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
             echo bt | $GDB/bin/gdb -q $progbin $c || true
           done
-      - name: Upload coredumps
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
-        with:
-          name: coredumps-${{ matrix.name }}
-          path: |
-            ./coredumps
-            ./build/stage0/bin/lean
-            ./build/stage0/lib/lean/libleanshared.so
-            ./build/stage1/bin/lean
-            ./build/stage1/lib/lean/libleanshared.so
-            ./build/stage2/bin/lean
-            ./build/stage2/lib/lean/libleanshared.so
+      # has not been used in a long while, would need to be adapted to new
+      # shared libs
+      #- name: Upload coredumps
+      #  uses: actions/upload-artifact@v3
+      #  if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
+      #  with:
+      #    name: coredumps-${{ matrix.name }}
+      #    path: |
+      #      ./coredumps
+      #      ./build/stage0/bin/lean
+      #      ./build/stage0/lib/lean/libleanshared.so
+      #      ./build/stage1/bin/lean
+      #      ./build/stage1/lib/lean/libleanshared.so
+      #      ./build/stage2/bin/lean
+      #      ./build/stage2/lib/lean/libleanshared.so
 
   # This job collects results from all the matrix jobs
   # This can be made the “required” job, instead of listing each

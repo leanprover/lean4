@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Siddhartha Gadgil
 -/
+prelude
 import Lean.Util.FindMVar
 import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
@@ -187,6 +188,10 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
 @[deprecated MVarId.apply]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   mvarId.apply e cfg
+
+/-- Short-hand for applying a constant to the goal. -/
+def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
+  mvar.apply (← mkConstWithFreshMVarLevels c) cfg
 
 partial def splitAndCore (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.withContext do

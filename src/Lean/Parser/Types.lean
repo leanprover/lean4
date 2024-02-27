@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Data.Trie
 import Lean.Syntax
 import Lean.Message
@@ -198,6 +199,7 @@ structure ParserState where
   pos      : String.Pos := 0
   cache    : ParserCache
   errorMsg : Option Error := none
+  recoveredErrors : Array (String.Pos × SyntaxStack × Error) := #[]
 
 namespace ParserState
 
@@ -232,16 +234,9 @@ def next (s : ParserState) (input : String) (pos : String.Pos) : ParserState :=
 def next' (s : ParserState) (input : String) (pos : String.Pos) (h : ¬ input.atEnd pos) : ParserState :=
   { s with pos := input.next' pos h }
 
-def toErrorMsg (ctx : InputContext) (s : ParserState) : String :=
-  match s.errorMsg with
-  | none     => ""
-  | some msg =>
-    let pos := ctx.fileMap.toPosition s.pos
-    mkErrorStringWithPos ctx.fileName pos (toString msg)
-
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err, recovered⟩ =>
     if err != none && stack.size == iniStackSz then
       -- If there is an error but there are no new nodes on the stack, use `missing` instead.
       -- Thus we ensure the property that an syntax tree contains (at least) one `missing` node
@@ -251,25 +246,28 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
       -- `node k1 p1 <|> ... <|> node kn pn` when all parsers fail. With the code below we
       -- instead return a less misleading single `missing` node without randomly selecting any `ki`.
       let stack   := stack.push Syntax.missing
-      ⟨stack, lhsPrec, pos, cache, err⟩
+      ⟨stack, lhsPrec, pos, cache, err, recovered⟩
     else
       let newNode := Syntax.node SourceInfo.none k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz
       let stack   := stack.push newNode
-      ⟨stack, lhsPrec, pos, cache, err⟩
+      ⟨stack, lhsPrec, pos, cache, err, recovered⟩
 
 def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err, errs⟩ =>
     let newNode := Syntax.node SourceInfo.none k (stack.extract (iniStackSz - 1) stack.size)
     let stack   := stack.shrink (iniStackSz - 1)
     let stack   := stack.push newNode
-    ⟨stack, lhsPrec, pos, cache, err⟩
+    ⟨stack, lhsPrec, pos, cache, err, errs⟩
+
+def allErrors (s : ParserState) : Array (String.Pos × SyntaxStack × Error) :=
+  s.recoveredErrors ++ (s.errorMsg.map (fun e => #[(s.pos, s.stxStack, e)])).getD #[]
 
 @[inline]
 def setError (s : ParserState) (e : Error) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some e⟩
+  | ⟨stack, lhsPrec, pos, cache, _, errs⟩ => ⟨stack, lhsPrec, pos, cache, some e, errs⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
   s.setError { expected := [msg] } |>.pushSyntax .missing
@@ -312,6 +310,14 @@ def mkUnexpectedTokenError (s : ParserState) (msg : String) (iniPos : String.Pos
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   s.setPos pos |>.mkUnexpectedError msg
+
+def toErrorMsg (ctx : InputContext) (s : ParserState) : String := Id.run do
+  let mut errStr := ""
+  for (pos, _stk, err) in s.allErrors do
+    if errStr != "" then errStr := errStr ++ "\n"
+    let pos := ctx.fileMap.toPosition pos
+    errStr := errStr ++ mkErrorStringWithPos ctx.fileName pos (toString err)
+  errStr
 
 end ParserState
 
@@ -415,7 +421,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
   if let some r := s.cache.parserCache.find? key then
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
-    return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg⟩
+    return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg, s.recoveredErrors⟩
   let initStackSz := s.stxStack.raw.size
   let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then

@@ -3,6 +3,7 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Extension
 import Lean.Parser.StrInterpolation
 import Lean.ParserCompiler.Attribute
@@ -265,6 +266,12 @@ def visitToken : Parenthesizer := do
     -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
+
+@[combinator_parenthesizer recover]
+def recover.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
+@[combinator_parenthesizer recover']
+def recover'.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
 
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
 -- Note that there is a mutual recursion

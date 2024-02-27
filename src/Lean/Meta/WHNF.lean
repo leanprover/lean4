@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
@@ -335,11 +336,7 @@ structure WhnfCoreConfig where
   /-- Control projection reduction at `whnfCore`. -/
   proj : ProjReductionKind := .yesWithDelta
   /--
-  Zeta reduction.
-  It includes two kinds of reduction:
-  - `let x := v; e[x]` reduces to `e[v]`.
-  - Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
-
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
   We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
   Recall that
   ```
@@ -352,6 +349,10 @@ structure WhnfCoreConfig where
   is not.
   -/
   zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
@@ -371,9 +372,11 @@ structure WhnfCoreConfig where
     match decl with
     | .cdecl .. => return e
     | .ldecl (value := v) .. =>
-      unless config.zeta do return e
-      if (← getConfig).trackZeta then
-        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
+      -- Let-declarations marked as implementation detail should always be unfolded
+      -- We initially added this feature for `simp`, and added it here for consistency.
+      unless config.zetaDelta || decl.isImplementationDetail do return e
+      if (← getConfig).trackZetaDelta then
+        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k config
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
@@ -447,6 +450,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
+       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq

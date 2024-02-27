@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Mario Carneiro
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
@@ -472,7 +473,7 @@ partial def normalize (e : Expr) : M Expr := do
         let p ← normalize p
         addVar h
         return mkApp4 e.getAppFn (e.getArg! 0) x p h
-      else if isMatchValue e then
+      else if (← isMatchValue e) then
         return e
       else if e.isFVar then
         if (← isExplicitPatternVar e) then
@@ -570,8 +571,8 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
         | _,           _           => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
-      else if isMatchValue e then
-        return Pattern.val e
+      else if (← isMatchValue e) then
+        return Pattern.val (← normLitValue e)
       else if e.isFVar then
         return Pattern.var e.fvarId!
       else

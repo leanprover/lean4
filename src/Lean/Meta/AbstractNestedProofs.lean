@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Closure
 
 namespace Lean.Meta
@@ -35,10 +36,10 @@ private def mkAuxLemma (e : Expr) : M Expr := do
   let s ← get
   let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
-  /- We turn on zeta-expansion to make sure we don't need to perform an expensive `check` step to
-     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expansion step.
+  /- We turn on zetaDelta-expansion to make sure we don't need to perform an expensive `check` step to
+     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zetaDelta expansion step.
      It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
-  mkAuxTheoremFor lemmaName e (zeta := true)
+  mkAuxTheoremFor lemmaName e (zetaDelta := true)
 
 partial def visit (e : Expr) : M Expr := do
   if e.isAtomic then

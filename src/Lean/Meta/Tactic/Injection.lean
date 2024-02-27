@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Clear
@@ -110,7 +111,7 @@ where
       if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
-        if lhs.isNatLit && rhs.isNatLit then cont
+        if lhs.isRawNatLit && rhs.isRawNatLit then cont
         else
           try
             match (← injection mvarId fvarId newNames) with

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 
 namespace Lean.Meta
@@ -126,46 +127,5 @@ def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
 
 def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
   return isMatcherAppCore (← getEnv) e
-
-structure MatcherApp where
-  matcherName   : Name
-  matcherLevels : Array Level
-  uElimPos?     : Option Nat
-  params        : Array Expr
-  motive        : Expr
-  discrs        : Array Expr
-  altNumParams  : Array Nat
-  alts          : Array Expr
-  remaining     : Array Expr
-
-def matchMatcherApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option MatcherApp) := do
-  match e.getAppFn with
-  | Expr.const declName declLevels =>
-    match (← getMatcherInfo? declName) with
-    | none => return none
-    | some info =>
-      let args := e.getAppArgs
-      if args.size < info.arity then
-        return none
-      else
-        return some {
-          matcherName   := declName
-          matcherLevels := declLevels.toArray
-          uElimPos?     := info.uElimPos?
-          params        := args.extract 0 info.numParams
-          motive        := args[info.getMotivePos]!
-          discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
-          altNumParams  := info.altNumParams
-          alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
-          remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
-        }
-  | _ => return none
-
-def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=
-  let result := mkAppN (mkConst matcherApp.matcherName matcherApp.matcherLevels.toList) matcherApp.params
-  let result := mkApp result matcherApp.motive
-  let result := mkAppN result matcherApp.discrs
-  let result := mkAppN result matcherApp.alts
-  mkAppN result matcherApp.remaining
 
 end Lean.Meta

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Basic
 import Lean.Compiler.InitAttr
 import Lean.ScopedEnvExtension
@@ -451,7 +452,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let p := andthenFn whitespace (categoryParserFnImpl catName)
   let ictx := mkInputContext input fileName
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
-  if s.hasError then
+  if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
   else if input.atEnd s.pos then
     Except.ok s.stxStack.back

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
 import Lean.Elab.Term
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
@@ -248,6 +249,19 @@ def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
   act { ctx with depth := ctx.depth + 1 }
 
 /--
+Returns true if `e` is a "shallow" expression.
+Local variables, constants, and other atomic expressions are always shallow.
+In general, an expression is considered to be shallow if its depth is at most `threshold`.
+
+Since the implementation uses `Lean.Expr.approxDepth`, the `threshold` is clamped to `[0, 254]`.
+-/
+def isShallowExpression (threshold : Nat) (e : Expr) : Bool :=
+  -- Approximate depth is saturated at 255 for very deep expressions.
+  -- Need to clamp to `[0, 254]` so that not every expression is shallow.
+  let threshold := min 254 threshold
+  e.approxDepth.toNat ≤ threshold
+
+/--
 Returns `true` if, at the current depth, we should omit the term and use `⋯` rather than
 delaborating it. This function can only return `true` if `pp.deepTerms` is set to `false`.
 It also contains a heuristic to allow "shallow terms" to be delaborated, even if they appear deep in
@@ -255,25 +269,59 @@ an expression, which prevents terms such as atomic expressions or `OfNat.ofNat` 
 delaborated as `⋯`.
 -/
 def shouldOmitExpr (e : Expr) : DelabM Bool := do
-  if ← getPPOption getPPDeepTerms then
+  -- Atomic expressions never get omitted, so we can do an early return here.
+  if e.isAtomic then
+    return false
+
+  if (← getPPOption getPPDeepTerms) then
     return false
 
   let depth := (← read).depth
   let depthThreshold ← getPPOption getPPDeepTermsThreshold
-  let approxDepth := e.approxDepth.toNat
   let depthExcess := depth - depthThreshold
+  -- This threshold for shallow expressions effectively allows full terms to be pretty printed 25% deeper,
+  -- so long as the subterm actually can be fully pretty printed within this extra 25% depth.
+  let threshold := depthThreshold/4 - depthExcess
 
-  let isMaxedOutApproxDepth := approxDepth >= 255
-  let isShallowExpression :=
-    !isMaxedOutApproxDepth && approxDepth <= depthThreshold/4 - depthExcess
+  return depthExcess > 0 && !isShallowExpression threshold e
 
-  return depthExcess > 0 && !isShallowExpression
+/--
+Returns `true` if the given expression is a proof and should be omitted.
+This function only returns `true` if `pp.proofs` is set to `false`.
 
+"Shallow" proofs are not omitted.
+The `pp.proofs.threshold` option controls the depth threshold for what constitutes a shallow proof.
+See `Lean.PrettyPrinter.Delaborator.isShallowExpression`.
+-/
+def shouldOmitProof (e : Expr) : DelabM Bool := do
+  -- Atomic expressions never get omitted, so we can do an early return here.
+  if e.isAtomic then
+    return false
+
+  if (← getPPOption getPPProofs) then
+    return false
+
+  unless (← try Meta.isProof e catch _ => pure false) do
+    return false
+
+  return !isShallowExpression (← getPPOption getPPProofsThreshold) e
+
+/--
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression.
+-/
 def annotateTermInfo (stx : Term) : Delab := do
   let stx ← annotateCurPos stx
   addTermInfo (← getPos) stx (← getExpr)
   pure stx
 
+/--
+Modifies the delaborator so that it annotates the resulting term with the current expression
+position and registers `TermInfo` to associate the term to the current expression.
+-/
+def withAnnotateTermInfo (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfo stx
 
 /--
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the
@@ -299,13 +347,14 @@ partial def delab : Delab := do
   if ← shouldOmitExpr e then
     return ← omission
 
-  -- no need to hide atomic proofs
-  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch _ => pure false) then
+  if ← shouldOmitProof e then
+    let pf ← omission
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
-      return ← annotateTermInfo (← `((_ : $stx)))
+      return ← annotateCurPos (← `(($pf : $stx)))
     else
-      return ← annotateTermInfo (← ``(_))
+      return pf
+
   let k ← getExprKind
   let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then

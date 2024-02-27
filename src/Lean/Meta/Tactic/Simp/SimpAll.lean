@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Simp.Main
@@ -130,7 +131,7 @@ def main : M (Option MVarId) := do
     let mut toClear := #[]
     let mut modified := false
     for e in (← get).entries do
-      if e.type.consumeMData.isConstOf ``True then
+      if e.type.isTrue then
         -- Do not assert `True` hypotheses
         toClear := toClear.push e.fvarId
       else if modified || e.type != e.origType then

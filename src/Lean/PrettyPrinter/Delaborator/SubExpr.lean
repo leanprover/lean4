@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.SubExpr
 import Lean.Data.RBMap
@@ -63,6 +64,16 @@ def withBoundedAppFnArgs (maxArgs : Nat) (xf : m α) (xa : α → m α) : m α :
     let acc ← withAppFn (withBoundedAppFnArgs maxArgs' xf xa)
     withAppArg (xa acc)
   | _, _ => xf
+
+/--
+Runs `xf` in the context of `Lean.Expr.getBoundedAppFn maxArgs`.
+This is equivalent to `withBoundedAppFnArgs maxArgs xf pure`.
+-/
+def withBoundedAppFn (maxArgs : Nat) (xf : m α) : m α := do
+  let e ← getExpr
+  let numArgs := min maxArgs e.getAppNumArgs
+  let newPos := (← getPos).pushNaryFn numArgs
+  withTheReader SubExpr (fun cfg => { cfg with expr := e.getBoundedAppFn numArgs, pos := newPos }) xf
 
 def withBindingDomain (x : m α) : m α := do descend (← getExpr).bindingDomain! 0 x
 

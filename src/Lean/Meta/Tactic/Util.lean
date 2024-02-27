@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
@@ -167,5 +168,14 @@ inductive TacticResultCNM where
   | closed
   | noChange
   | modified (mvarId : MVarId)
+
+
+/-- Check if a goal is of a subsingleton type. -/
+def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
+  try
+    discard <| synthInstance (← mkAppM ``Subsingleton #[← g.getType])
+    return true
+  catch _ =>
+    return false
 
 end Lean.Meta

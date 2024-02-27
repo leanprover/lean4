@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+prelude
 import Lean.Data.RBMap
 import Lean.Meta.SynthInstance
 import Lean.Util.FindMVar
@@ -287,7 +288,7 @@ where
 partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
   let opts ← getOptions
   return e.isFVar
-         || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
+         || e.isConst || e.isMVar || e.isRawNatLit || e.isStringLit || e.isSort
          || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity ``OfNat.ofNat 3)
          || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity ``OfScientific.ofScientific 5)
 

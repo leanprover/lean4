@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.ACLt
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
@@ -11,20 +12,32 @@ import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 
-def synthesizeArgs (thmId : Origin) (xs : Array Expr) (bis : Array BinderInfo) : SimpM Bool := do
-  for x in xs, bi in bis do
+def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
+  for x in xs do
     let type ← inferType x
-    -- Note that the binderInfo may be misleading here:
-    -- `simp [foo _]` uses `abstractMVars` to turn the elaborated term with
-    -- mvars into the lambda expression `fun α x inst => foo x`, and all
-    -- its bound variables have default binderInfo!
-    if bi.isInstImplicit then
-      unless (← synthesizeInstance x type) do
-        return false
-    else if (← instantiateMVars x).isMVar then
+    /-
+    We used to invoke `synthesizeInstance` for every instance implicit argument,
+    to ensure the synthesized instance was definitionally equal to the one in
+    the term, but it turned out to be to inconvenient in practice. Here is an
+    example:
+    ```
+    theorem dec_and (p q : Prop) [Decidable (p ∧ q)] [Decidable p] [Decidable q] : decide (p ∧ q) = (p && q) := by
+      by_cases p <;> by_cases q <;> simp [*]
+
+    theorem dec_not (p : Prop) [Decidable (¬p)] [Decidable p] : decide (¬p) = !p := by
+      by_cases p <;> simp [*]
+
+    example [Decidable u] [Decidable v] : decide (u ∧ (v → False)) = (decide u && !decide v) := by
+      simp only [imp_false]
+      simp only [dec_and]
+      simp only [dec_not]
+    ```
+    -/
+    if (← instantiateMVars x).isMVar then
       -- A hypothesis can be both a type class instance as well as a proposition,
       -- in that case we try both TC synthesis and the discharger
       -- (because we don't know whether the argument was originally explicit or instance-implicit).
@@ -59,10 +72,10 @@ where
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
-private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
+private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs thm.origin xs bis) do
+      unless (← synthesizeArgs thm.origin xs) do
         return none
       let proof? ← if thm.rfl then
         pure none
@@ -113,25 +126,25 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, bis, type) ← forallMetaTelescopeReducing type
+    let (xs, _, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    tryTheoremCore lhs xs bis val type e thm numExtraArgs
+    tryTheoremCore lhs xs val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, bis, type) ← forallMetaTelescopeReducing type
+    let (xs, _, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    match (← tryTheoremCore lhs xs bis val type e thm 0) with
+    match (← tryTheoremCore lhs xs val type e thm 0) with
     | some result => return some result
     | none =>
       let lhsNumArgs := lhs.getAppNumArgs
       let eNumArgs   := e.getAppNumArgs
       if eNumArgs > lhsNumArgs then
-        tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
+        tryTheoremCore lhs xs val type e thm (eNumArgs - lhsNumArgs)
       else
         return none
 
@@ -182,7 +195,7 @@ def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
 @[inline] def simpUsingDecide : Simproc := fun e => do
   unless (← getConfig).decide do
     return .continue
-  if e.hasFVar || e.hasMVar || e.consumeMData.isConstOf ``True || e.consumeMData.isConstOf ``False then
+  if e.hasFVar || e.hasMVar || e.isTrue || e.isFalse then
     return .continue
   try
     let d ← mkDecide e
@@ -288,7 +301,7 @@ Discharge procedure for the ground/symbolic evaluator.
 def dischargeGround (e : Expr) : SimpM (Option Expr) := do
   trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
   let r ← simp e
-  if r.expr.consumeMData.isConstOf ``True then
+  if r.expr.isTrue then
     try
       return some (← mkOfEqTrue (← r.getProof))
     catch _ =>
@@ -387,9 +400,10 @@ def simpGround : Simproc := fun e => do
   if ctx.simpTheorems.isErased (.decl declName) then return .continue
   -- Matcher applications should have been reduced before we get here.
   if (← isMatcher declName) then return .continue
-  trace[Meta.Tactic.Simp.ground] "seval: {e}"
-  let r ← seval e
-  trace[Meta.Tactic.Simp.ground] "seval result: {e} => {r.expr}"
+  let r ← withTraceNode `Meta.Tactic.simp.ground (fun
+      | .ok r => return m!"seval: {e} => {r.expr}"
+      | .error err => return m!"seval: {e} => {err.toMessageData}") do
+    seval e
   return .done r
 
 def preDefault (s : SimprocsArray) : Simproc :=
@@ -431,7 +445,7 @@ where
   go (e : Expr) : Bool :=
     match e with
     | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
-    | _ => e.consumeMData.isConstOf ``False
+    | _ => e.isFalse
 
 def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   (← getLCtx).findDeclRevM? fun localDecl => do
@@ -471,6 +485,7 @@ where
       return some mvarId
 
 def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
+  let e := e.cleanupAnnotations
   if isEqnThmHypothesis e then
     if let some r ← dischargeUsingAssumption? e then
       return some r
@@ -484,7 +499,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
   else
     withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
       let r ← simp e
-      if r.expr.consumeMData.isConstOf ``True then
+      if r.expr.isTrue then
         try
           return some (← mkOfEqTrue (← r.getProof))
         catch _ =>

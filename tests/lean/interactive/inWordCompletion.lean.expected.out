@@ -1,14 +1,56 @@
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
- "position": {"line": 5, "character": 10}}
+ "position": {"line": 4, "character": 11}}
 {"items":
- [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"}],
+ [{"sortText": "0",
+   "label": "gfxabc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 4, "character": 11}},
+    "id": {"const": {"declName": "gfxabc"}}}},
+  {"sortText": "1",
+   "label": "gfxacc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 4, "character": 11}},
+    "id": {"const": {"declName": "gfxacc"}}}},
+  {"sortText": "2",
+   "label": "gfxadc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 4, "character": 11}},
+    "id": {"const": {"declName": "gfxadc"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
- "position": {"line": 13, "character": 14}}
+ "position": {"line": 12, "character": 15}}
 {"items":
- [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"}],
+ [{"sortText": "0",
+   "label": "gfxabc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 12, "character": 15}},
+    "id": {"const": {"declName": "Boo.gfxabc"}}}},
+  {"sortText": "1",
+   "label": "gfxacc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 12, "character": 15}},
+    "id": {"const": {"declName": "Boo.gfxacc"}}}},
+  {"sortText": "2",
+   "label": "gfxadc",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///inWordCompletion.lean"},
+     "position": {"line": 12, "character": 15}},
+    "id": {"const": {"declName": "Boo.gfxadc"}}}}],
  "isIncomplete": true}

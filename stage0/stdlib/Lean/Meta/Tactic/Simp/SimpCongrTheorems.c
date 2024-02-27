@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp.SimpCongrTheorems
-// Imports: Init Lean.ScopedEnvExtension Lean.Util.Recognizers Lean.Util.CollectMVars Lean.Meta.Basic
+// Imports: Lean.ScopedEnvExtension Lean.Util.Recognizers Lean.Util.CollectMVars Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4482,6 +4482,7 @@ return x_52;
 else
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
+lean_inc(x_5);
 x_53 = l_Lean_Expr_appFn_x21(x_5);
 x_54 = l_Lean_Expr_appArg_x21(x_53);
 lean_dec(x_53);
@@ -4497,6 +4498,7 @@ goto block_44;
 else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+lean_inc(x_5);
 x_57 = l_Lean_Expr_appFn_x21(x_5);
 x_58 = l_Lean_Expr_appArg_x21(x_57);
 lean_dec(x_57);
@@ -7843,6 +7845,7 @@ return x_63;
 else
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+lean_inc(x_28);
 x_64 = l_Lean_Expr_appFn_x21(x_28);
 x_65 = l_Lean_Expr_appArg_x21(x_64);
 lean_dec(x_64);
@@ -7856,6 +7859,7 @@ goto block_47;
 else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
+lean_inc(x_28);
 x_67 = l_Lean_Expr_appFn_x21(x_28);
 x_68 = l_Lean_Expr_appArg_x21(x_67);
 lean_dec(x_67);
@@ -7991,6 +7995,7 @@ return x_106;
 else
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
+lean_inc(x_71);
 x_107 = l_Lean_Expr_appFn_x21(x_71);
 x_108 = l_Lean_Expr_appArg_x21(x_107);
 lean_dec(x_107);
@@ -8005,6 +8010,7 @@ goto block_90;
 else
 {
 lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; 
+lean_inc(x_71);
 x_111 = l_Lean_Expr_appFn_x21(x_71);
 x_112 = l_Lean_Expr_appArg_x21(x_111);
 lean_dec(x_111);
@@ -8312,6 +8318,7 @@ return x_191;
 else
 {
 lean_object* x_192; lean_object* x_193; lean_object* x_194; lean_object* x_195; 
+lean_inc(x_155);
 x_192 = l_Lean_Expr_appFn_x21(x_155);
 x_193 = l_Lean_Expr_appArg_x21(x_192);
 lean_dec(x_192);
@@ -8330,6 +8337,7 @@ goto block_175;
 else
 {
 lean_object* x_196; lean_object* x_197; lean_object* x_198; lean_object* x_199; 
+lean_inc(x_155);
 x_196 = l_Lean_Expr_appFn_x21(x_155);
 x_197 = l_Lean_Expr_appArg_x21(x_196);
 lean_dec(x_196);
@@ -8675,6 +8683,7 @@ return x_284;
 else
 {
 lean_object* x_285; lean_object* x_286; lean_object* x_287; lean_object* x_288; 
+lean_inc(x_248);
 x_285 = l_Lean_Expr_appFn_x21(x_248);
 x_286 = l_Lean_Expr_appArg_x21(x_285);
 lean_dec(x_285);
@@ -8693,6 +8702,7 @@ goto block_268;
 else
 {
 lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; 
+lean_inc(x_248);
 x_289 = l_Lean_Expr_appFn_x21(x_248);
 x_290 = l_Lean_Expr_appArg_x21(x_289);
 lean_dec(x_289);
@@ -10566,7 +10576,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_CollectMVars(uint8_t builtin, lean_object*);
@@ -10576,9 +10585,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_SimpCongrTheorems(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_ScopedEnvExtension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

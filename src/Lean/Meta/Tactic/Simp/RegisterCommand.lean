@@ -3,8 +3,10 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Injection
-// Imports: Init Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Intro
+// Imports: Lean.Meta.AppBuilder Lean.Meta.MatchUtil Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Subst Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Intro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,13 +24,13 @@ lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEqHEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isRawNatLit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__10;
 static lean_object* l_Lean_Meta_injectionCore___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isNatLit(lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__1;
@@ -683,6 +683,7 @@ return x_26;
 else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_inc(x_16);
 x_27 = l_Lean_Expr_appFn_x21(x_16);
 x_28 = l_Lean_Expr_appArg_x21(x_27);
 lean_dec(x_27);
@@ -1260,8 +1261,11 @@ return x_137;
 else
 {
 lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; lean_object* x_144; lean_object* x_145; 
+lean_inc(x_16);
 x_138 = l_Lean_Expr_appFn_x21(x_16);
+lean_inc(x_138);
 x_139 = l_Lean_Expr_appFn_x21(x_138);
+lean_inc(x_139);
 x_140 = l_Lean_Expr_appFn_x21(x_139);
 x_141 = l_Lean_Expr_appArg_x21(x_140);
 lean_dec(x_140);
@@ -1931,6 +1935,7 @@ return x_273;
 else
 {
 lean_object* x_274; lean_object* x_275; lean_object* x_276; lean_object* x_277; 
+lean_inc(x_264);
 x_274 = l_Lean_Expr_appFn_x21(x_264);
 x_275 = l_Lean_Expr_appArg_x21(x_274);
 lean_dec(x_274);
@@ -3273,7 +3278,7 @@ if (lean_is_exclusive(x_35)) {
  lean_dec_ref(x_35);
  x_38 = lean_box(0);
 }
-x_89 = l_Lean_Expr_isNatLit(x_33);
+x_89 = l_Lean_Expr_isRawNatLit(x_33);
 lean_dec(x_33);
 if (x_89 == 0)
 {
@@ -3286,7 +3291,7 @@ goto block_88;
 else
 {
 uint8_t x_91; 
-x_91 = l_Lean_Expr_isNatLit(x_36);
+x_91 = l_Lean_Expr_isRawNatLit(x_36);
 lean_dec(x_36);
 if (x_91 == 0)
 {
@@ -3765,7 +3770,6 @@ x_10 = l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_
 return x_10;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Clear(uint8_t builtin, lean_object*);
@@ -3777,9 +3781,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Injection(uint8_t builtin, 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers, Wojciech Nawrocki
 -/
+prelude
 import Lean.Elab.Eval
 import Lean.Server.Rpc.RequestHandling
 
@@ -56,10 +57,11 @@ class ToModule (α : Type u) where
 
 instance : ToModule Module := ⟨id⟩
 
-private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 Module compare) ← IO.mkRef ∅
+private builtin_initialize builtinModulesRef : IO.Ref (RBMap UInt64 (Name × Module) compare) ←
+  IO.mkRef ∅
 
-def addBuiltinModule (m : Module) : IO Unit :=
-  builtinModulesRef.modify (·.insert m.javascriptHash m)
+def addBuiltinModule (id : Name) (m : Module) : IO Unit :=
+  builtinModulesRef.modify (·.insert m.javascriptHash (id, m))
 
 /-- Every constant `c : α` marked with `@[widget_module]` is registered here.
 The registry maps `hash (toModule c).javascript` to ``(`c, `(@toModule α inst c))``
@@ -93,14 +95,15 @@ builtin_initialize widgetModuleAttrImpl : AttributeImpl ←
         let e ← mkAppM ``ToModule.toModule #[.const decl []]
         let mod ← evalModule e
         let env ← getEnv
-        if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
-          logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
+        unless builtin do  -- don't warn on collision between previous and current stage
+          if let some _ := (← builtinModulesRef.get).find? mod.javascriptHash then
+            logWarning m!"A builtin widget module with the same hash(JS source code) was already registered."
         if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
           logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
         let env ← getEnv
         if builtin then
           let h := mkConst decl
-          declareBuiltin decl <| mkApp (mkConst ``addBuiltinModule) h
+          declareBuiltin decl <| mkApp2 (mkConst ``addBuiltinModule) (toExpr decl) h
         else
           setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
     }
@@ -123,9 +126,8 @@ structure WidgetSource where
   deriving Inhabited, ToJson, FromJson
 
 open Server RequestM in
-@[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
-  if let some m := (← builtinModulesRef.get).find? args.hash then
+  if let some (_, m) := (← builtinModulesRef.get).find? args.hash then
     return .pure { sourcetext := m.javascript }
 
   let doc ← readDoc
@@ -139,6 +141,9 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
           return { sourcetext := (← evalModule e).javascript }
       else
         notFound
+
+builtin_initialize
+  Server.registerBuiltinRpcProcedure ``getWidgetSource _ _ getWidgetSource
 
 /-! ## Storage of panel widget instances -/
 
@@ -212,10 +217,12 @@ def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 `hash` must be `hash (toModule c).javascript`
 where `c` is some global constant annotated with `@[widget_module]`. -/
-def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
-    (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) : m Unit := do
+def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
+    CoreM Unit := do
   let env ← getEnv
-  let some (id, _) := moduleRegistry.getState env |>.find? hash
+  let builtins ← builtinModulesRef.get
+  let some id :=
+    (builtins.find? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.find? hash |>.map (·.1))
     | throwError s!"No widget module with hash {hash} registered"
   pushInfoLeaf <| .ofUserWidgetInfo { id, javascriptHash := hash, props, stx }
 
@@ -357,9 +364,8 @@ opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadEr
 
 /-- Save a user-widget instance to the infotree.
     The given `widgetId` should be the declaration name of the widget definition. -/
-@[deprecated savePanelWidgetInfo] def saveWidgetInfo
-    [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadInfoTree m]
-    (widgetId : Name) (props : Json) (stx : Syntax) : m Unit := do
+@[deprecated savePanelWidgetInfo] def saveWidgetInfo (widgetId : Name) (props : Json)
+    (stx : Syntax) : CoreM Unit := do
   let uwd ← evalUserWidgetDefinition widgetId
   savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
 
@@ -397,7 +403,6 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/
-@[server_rpc_method]
 def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
@@ -430,6 +435,9 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
             return uwd.name
         return { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
       return { widgets := ws' ++ ws }
+
+builtin_initialize
+  Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets
 
 attribute [deprecated Module] UserWidgetDefinition
 

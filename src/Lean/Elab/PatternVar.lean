@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Elab.Arg
 import Lean.Elab.MatchAltView
@@ -158,6 +159,19 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     discard <| processVar h
     ``(_root_.namedPattern $id $pat $h)
   else if k == ``Lean.Parser.Term.binop then
+    /-
+    We support `binop%` syntax in patterns because we
+    wanted to support `x+1` in patterns.
+    Recall that the `binop%` syntax was added to improve elaboration of some binary operators: `+` is one of them.
+    Recall that `HAdd.hAdd` is marked as `[match_pattern]`
+    TODO for a distant future: make this whole procedure extensible.
+    -/
+    -- Check whether the `binop%` operator is marked with `[match_pattern]`,
+    -- We must check that otherwise Lean will accept operators that are not tagged with this annotation.
+    let some (.const fName _) ← resolveId? stx[1] "pattern"
+      | throwCtorExpected
+    unless hasMatchPatternAttribute (← getEnv) fName do
+      throwCtorExpected
     let lhs ← collect stx[2]
     let rhs ← collect stx[3]
     return stx.setArg 2 lhs |>.setArg 3 rhs

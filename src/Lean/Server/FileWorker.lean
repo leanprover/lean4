@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Init.System.IO
+
 import Lean.Data.RBMap
 import Lean.Environment
 
@@ -229,6 +231,8 @@ section Initialization
         publishDiagnostics m #[progressDiagnostic] hOut
       let fileSetupResult := fileSetupResult.addGlobalOptions globalOptions
       let (headerEnv, envMsgLog) ← buildHeaderEnv m headerStx fileSetupResult
+      -- Prepare header-based caches that requests may use
+      runHeaderCachingHandlers headerEnv
       let headerMsgLog := parseMsgLog.append envMsgLog
       let cmdState := buildCommandState m headerStx headerEnv headerMsgLog fileSetupResult.fileOptions
       let headerSnap := {

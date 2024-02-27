@@ -1,0 +1,26 @@
+name: Check for modules that should use `prelude`
+
+on: [pull_request]
+
+jobs:
+  check-prelude:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
+          sparse-checkout: src/Lean
+      - name: Check Prelude
+        run: |
+          failed_files=""
+          while IFS= read -r -d '' file; do
+            if ! grep -q "^prelude$" "$file"; then
+              failed_files="$failed_files$file\n"
+            fi
+          done < <(find src/Lean -name '*.lean' -print0)
+          if [ -n "$failed_files" ]; then
+            echo -e "The following files should use 'prelude':\n$failed_files"
+            exit 1
+          fi

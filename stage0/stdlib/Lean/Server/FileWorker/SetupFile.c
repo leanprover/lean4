@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.FileWorker.SetupFile
-// Imports: Init Init.System.IO Lean.Server.Utils Lean.Util.FileSetupInfo Lean.Util.LakePath Lean.LoadDynlib
+// Imports: Init.System.IO Lean.Server.Utils Lean.Util.FileSetupInfo Lean.Util.LakePath Lean.LoadDynlib
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,7 @@ lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_forEachModuleInDir___spec__1(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Server_FileWorker_setupFile___lambda__1___closed__2;
 lean_object* l_String_trim(lean_object*);
@@ -48,7 +49,6 @@ lean_object* l_Lean_initSearchPath(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1___closed__1;
 static lean_object* l_Lean_Server_FileWorker_FileSetupResult_addGlobalOptions___closed__1;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_forEachModuleInDir___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Server_FileWorker_setupFile___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_FS_Handle_readToEnd_loop(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LeanOptions_toOptions(lean_object*);
@@ -1920,7 +1920,7 @@ lean_dec(x_6);
 lean_inc(x_16);
 x_17 = l_System_FilePath_fileName(x_16);
 x_18 = l_Lean_Server_FileWorker_setupFile___closed__2;
-x_19 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_forEachModuleInDir___spec__1(x_17, x_18);
+x_19 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_forEachModuleInDir___spec__1(x_17, x_18);
 lean_dec(x_17);
 if (x_19 == 0)
 {
@@ -2007,7 +2007,6 @@ lean_dec(x_6);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Utils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FileSetupInfo(uint8_t builtin, lean_object*);
@@ -2018,9 +2017,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Server_FileWorker_SetupFile(uint8_t bui
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Clear
@@ -356,7 +357,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
 
 /--
    Make sure `expectedType` does not contain free and metavariables.
-   It applies zeta-reduction to eliminate let-free-vars.
+   It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
 -/
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType

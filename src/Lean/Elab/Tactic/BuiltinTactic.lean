@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
@@ -326,11 +327,8 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
-/--
-`subst_eq` repeatedly substitutes according to the equality proof hypotheses in the context,
-replacing the left side of the equality with the right, until no more progress can be made.
--/
-elab "subst_eqs" : tactic => Elab.Tactic.liftMetaTactic1 (·.substEqs)
+@[builtin_tactic Lean.Parser.Tactic.substEqs] def evalSubstEqs : Tactic := fun _ =>
+  Elab.Tactic.liftMetaTactic1 (·.substEqs)
 
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.

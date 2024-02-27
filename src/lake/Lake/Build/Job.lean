@@ -21,6 +21,12 @@ abbrev ResultM := OptionIO
 
 namespace Job
 
+@[inline] def attempt (self : Job α) : Job Bool := do
+  Option.isSome <$> self.run
+
+@[inline] def attempt? (self : Job α) : Job (Option α) := do
+  some <$> self.run
+
 @[inline] def nil : Job Unit :=
  pure ()
 
@@ -62,6 +68,16 @@ namespace BuildJob
 
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
 
+@[inline] def attempt (self : BuildJob α) : BuildJob Bool :=
+  mk <| self.toJob.map fun
+    | none => some (false, nilTrace)
+    | some (_, t) => some (true, t)
+
+@[inline] def attempt? (self : BuildJob α) : BuildJob (Option α) :=
+  mk <| self.toJob.map fun
+    | none => some (none, nilTrace)
+    | some (a, t) => some (some a, t)
+
 @[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => (f a,t)) <$> self.toJob
 
@@ -87,6 +103,9 @@ instance : Await BuildJob ResultM := ⟨BuildJob.await⟩
 
 @[inline] def materialize (self : BuildJob α) : ResultM Unit :=
   discard <| await self.toJob
+
+def add (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob α) :=
+  mk <$> seqLeftAsync t1.toJob t2.toJob
 
 def mix (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob Unit) :=
   mk <$> seqWithAsync (fun (_,t) (_,t') => ((), mixTrace t t')) t1.toJob t2.toJob

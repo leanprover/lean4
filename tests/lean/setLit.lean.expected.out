@@ -1,0 +1,10 @@
+setLit.lean:22:19-22:21: error: overloaded, errors 
+  failed to synthesize instance
+    EmptyCollection String
+  
+  fields missing: 'data'
+setLit.lean:24:31-24:38: error: overloaded, errors 
+  failed to synthesize instance
+    Singleton Nat String
+  
+  24:33 'val' is not a field of structure 'String'

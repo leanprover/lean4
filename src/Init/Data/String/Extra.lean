@@ -4,12 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Except
 import Init.Data.ByteArray
-import Init.SimpLemmas
-import Init.Data.Nat.Linear
-import Init.Util
-import Init.WFTactics
 
 namespace String
 

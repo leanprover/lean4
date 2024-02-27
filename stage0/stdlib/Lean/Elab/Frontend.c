@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Frontend
-// Imports: Init Lean.Elab.Import Lean.Elab.Command Lean.Util.Profile Lean.Server.References
+// Imports: Lean.Elab.Import Lean.Elab.Command Lean.Util.Profile Lean.Server.References
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2708,7 +2708,6 @@ x_9 = lean_run_frontend(x_1, x_2, x_3, x_4, x_8, x_6, x_7);
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Import(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Profile(uint8_t builtin, lean_object*);
@@ -2718,9 +2717,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Frontend(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Import(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

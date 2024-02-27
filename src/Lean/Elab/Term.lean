@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
@@ -864,6 +865,12 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
   let some expectedType ← tryPostponeIfHasMVars? expectedType? |
     throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
+
+def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType?
+    | throwError "expected type must be known"
+  x expectedType
 
 /--
   Save relevant context for term elaboration postponement.

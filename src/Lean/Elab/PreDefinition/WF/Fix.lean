@@ -3,8 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
@@ -77,34 +77,16 @@ where
     | Expr.proj n i e => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          if !(← Structural.refinedArgType matcherApp F) then
-            processApp F e
-          else
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaTelescope alt fun xs altBody => do
-                unless xs.size >= numParams do
-                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let FAlt := xs[numParams - 1]!
-                mkLambdaFVars xs (← loop FAlt altBody)
-            return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-        else
-          processApp F e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
-          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
+          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               unless xs.size >= numParams do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams]!
+                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let FAlt := xs[numParams - 1]!
               mkLambdaFVars xs (← loop FAlt altBody)
-          return { casesOnApp with
-                   alts      := altsNew
-                   remaining := (← casesOnApp.remaining.mapM (loop F)) }.toExpr
+          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
         else
           processApp F e
       | none => processApp F e

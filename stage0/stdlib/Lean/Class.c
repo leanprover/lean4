@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Class
-// Imports: Init Lean.Attributes
+// Imports: Lean.Attributes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -120,6 +120,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_getOutParamPosition
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_78____closed__5;
 uint8_t l_Lean_BinderInfo_isInstImplicit(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_ClassState_addEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
 static lean_object* l_Lean_addClass___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Class___hyg_768____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Class_0__Lean_checkOutParam___spec__2(lean_object*, lean_object*, size_t, size_t);
@@ -193,7 +194,6 @@ size_t lean_usize_add(size_t, size_t);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
-lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at_Lean_isClass___spec__3___boxed(lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Expr_bindingBody_x21(lean_object*);
@@ -2712,7 +2712,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__2;
-x_3 = lean_unsigned_to_nat(1664u);
+x_3 = lean_unsigned_to_nat(1727u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2733,7 +2733,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__5;
-x_3 = lean_unsigned_to_nat(1653u);
+x_3 = lean_unsigned_to_nat(1716u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2833,7 +2833,7 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
 x_27 = l_Lean_mkOutParamArgsImplicit_go___closed__4;
-x_28 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_27);
+x_28 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_27);
 return x_28;
 }
 }
@@ -2915,7 +2915,7 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
 x_48 = l_Lean_mkOutParamArgsImplicit_go___closed__4;
-x_49 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_48);
+x_49 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_48);
 return x_49;
 }
 }
@@ -3000,7 +3000,7 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
 x_76 = l_Lean_mkOutParamArgsImplicit_go___closed__6;
-x_77 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_76);
+x_77 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_76);
 return x_77;
 }
 }
@@ -3090,7 +3090,7 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
 x_105 = l_Lean_mkOutParamArgsImplicit_go___closed__6;
-x_106 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_105);
+x_106 = l_panic___at_Lean_Expr_appFn_x21___spec__1(x_105);
 return x_106;
 }
 }
@@ -3827,16 +3827,12 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Class(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

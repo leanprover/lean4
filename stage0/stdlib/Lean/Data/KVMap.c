@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.KVMap
-// Imports: Init Lean.Data.Name
+// Imports: Init.Data.List.Control Init.Data.Format.Syntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -178,7 +178,6 @@ static lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueInt___lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_erase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_DataValue_sameCtor___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2056_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_get___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueDataValue;
@@ -244,6 +243,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_getName___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_get___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueSyntax___closed__3;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_3429_(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_921____spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_instCoeIntDataValue(lean_object*);
@@ -1078,7 +1078,7 @@ lean_inc(x_81);
 lean_dec(x_1);
 x_82 = lean_unsigned_to_nat(1024u);
 x_83 = lean_nat_dec_le(x_82, x_2);
-x_84 = l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_2056_(x_81, x_82);
+x_84 = l___private_Init_Meta_0__Lean_Syntax_reprSyntax____x40_Init_Meta___hyg_3429_(x_81, x_82);
 x_85 = l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_273____closed__34;
 x_86 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_86, 0, x_85);
@@ -3902,17 +3902,17 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Control(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Format_Syntax(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_List_Control(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Format_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedDataValue___closed__1 = _init_l_Lean_instInhabitedDataValue___closed__1();

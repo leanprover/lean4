@@ -1,4 +1,4 @@
-@[inline] def decidable_of_iff {b : Prop} (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
+@[inline] def decidable_of_iff'' {b : Prop} (a : Prop) (h : a ↔ b) [Decidable a] : Decidable b :=
   decidable_of_decidable_of_iff h
 
 theorem LE.le.lt_or_eq_dec {a b : Nat} (hab : a ≤ b) : a < b ∨ a = b :=

@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Basic
 import Lean.Parser.Level
 import Lean.Parser.Term
@@ -46,6 +47,7 @@ builtin_initialize
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }
+  register_parser_alias recover
 
   registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer

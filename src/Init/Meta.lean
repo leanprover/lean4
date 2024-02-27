@@ -9,6 +9,7 @@ prelude
 import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
+import Init.Data.String.Extra
 
 namespace Lean
 
@@ -104,6 +105,42 @@ def idBeginEscape := '«'
 def idEndEscape   := '»'
 def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
 def isIdEndEscape (c : Char) : Bool := c = idEndEscape
+
+private def findLeadingSpacesSize (s : String) : Nat :=
+  let it := s.iter
+  let it := it.find (· == '\n') |>.next
+  consumeSpaces it 0 s.length
+where
+  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else if it.curr == '\n' then findNextLine it.next min
+    else findNextLine it.next (Nat.min curr min)
+  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == '\n' then consumeSpaces it.next 0 min
+    else findNextLine it.next min
+
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.iter ""
+where
+  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if it.atEnd then r
+       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       else saveLine it r
+  termination_by (it, 1)
+  saveLine (it : String.Iterator) (r : String) : String :=
+    if it.atEnd then r
+    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
+    else saveLine it.next (r.push it.curr)
+  termination_by (it, 0)
+
+def removeLeadingSpaces (s : String) : String :=
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
 
 namespace Name
 
@@ -587,6 +624,9 @@ def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSy
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
+def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
+  mkLit charLitKind (Char.quote val) info
+
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
 
@@ -1004,6 +1044,7 @@ instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨f
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
+instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
@@ -1257,6 +1298,11 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
   let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
+def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
+  match stx.raw[1] with
+  | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
+  | _                 => ""
+
 end TSyntax
 
 namespace Meta
@@ -1281,9 +1327,46 @@ structure Config where
 
 end Rewrite
 
+namespace Omega
+
+/-- Configures the behaviour of the `omega` tactic. -/
+structure OmegaConfig where
+  /--
+  Split disjunctions in the context.
+
+  Note that with `splitDisjunctions := false` omega will not be able to solve `x = y` goals
+  as these are usually handled by introducing `¬ x = y` as a hypothesis, then replacing this with
+  `x < y ∨ x > y`.
+
+  On the other hand, `omega` does not currently detect disjunctions which, when split,
+  introduce no new useful information, so the presence of irrelevant disjunctions in the context
+  can significantly increase run time.
+  -/
+  splitDisjunctions : Bool := true
+  /--
+  Whenever `((a - b : Nat) : Int)` is found, register the disjunction
+  `b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0`
+  for later splitting.
+  -/
+  splitNatSub : Bool := true
+  /--
+  Whenever `Int.natAbs a` is found, register the disjunction
+  `0 ≤ a ∧ Int.natAbs a = a ∨ a < 0 ∧ Int.natAbs a = - a` for later splitting.
+  -/
+  splitNatAbs : Bool := true
+  /--
+  Whenever `min a b` or `max a b` is found, rewrite in terms of the definition
+  `if a ≤ b ...`, for later case splitting.
+  -/
+  splitMinMax : Bool := true
+
+end Omega
+
 end Meta
 
-namespace Parser.Tactic
+namespace Parser
+
+namespace Tactic
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
@@ -1344,6 +1427,8 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
-end Parser.Tactic
+end Tactic
+
+end Parser
 
 end Lean

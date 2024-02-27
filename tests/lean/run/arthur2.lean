@@ -146,10 +146,6 @@ def Value.mul : Value → Value → Except String Value
   | lit $ .float fₗ, lit $ .int   iᵣ => return .lit $ .float $ fₗ *  (.ofInt iᵣ)
   | l,               r               => throw $ opError "*" l.typeStr r.typeStr
 
-def Bool.toNat : Bool → Nat
-  | false => 0
-  | true  => 1
-
 def Value.lt : Value → Value → Except String Value
   | lit $ .bool  bₗ, lit $ .bool  bᵣ => return lit $ .bool $ bₗ.toNat < bᵣ.toNat
   | lit $ .int   iₗ, lit $ .int   iᵣ => return lit $ .bool $ iₗ < iᵣ

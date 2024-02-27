@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.LinearArith.Nat.Basic
-// Imports: Init Lean.Meta.Check Lean.Meta.Offset Lean.Meta.KExprMap
+// Imports: Lean.Meta.Check Lean.Meta.Offset Lean.Meta.KExprMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3205,7 +3205,6 @@ x_111 = lean_nat_sub(x_17, x_16);
 x_112 = lean_unsigned_to_nat(1u);
 x_113 = lean_nat_sub(x_111, x_112);
 lean_dec(x_111);
-lean_inc(x_1);
 x_114 = l_Lean_Expr_getRevArg_x21(x_1, x_113);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -3225,6 +3224,7 @@ lean_dec(x_17);
 x_119 = lean_nat_sub(x_118, x_112);
 lean_dec(x_118);
 x_120 = l_Lean_Expr_getRevArg_x21(x_1, x_119);
+lean_dec(x_1);
 x_121 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_120, x_2, x_3, x_4, x_5, x_6, x_117);
 if (lean_obj_tag(x_121) == 0)
 {
@@ -3348,7 +3348,6 @@ lean_dec(x_15);
 x_145 = lean_nat_sub(x_17, x_16);
 x_146 = lean_nat_sub(x_145, x_137);
 lean_dec(x_145);
-lean_inc(x_1);
 x_147 = l_Lean_Expr_getRevArg_x21(x_1, x_146);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -3368,6 +3367,7 @@ lean_dec(x_17);
 x_152 = lean_nat_sub(x_151, x_137);
 lean_dec(x_151);
 x_153 = l_Lean_Expr_getRevArg_x21(x_1, x_152);
+lean_dec(x_1);
 x_154 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_153, x_2, x_3, x_4, x_5, x_6, x_150);
 if (lean_obj_tag(x_154) == 0)
 {
@@ -3687,7 +3687,6 @@ x_49 = lean_nat_sub(x_17, x_16);
 x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_sub(x_49, x_50);
 lean_dec(x_49);
-lean_inc(x_1);
 x_52 = l_Lean_Expr_getRevArg_x21(x_1, x_51);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -3709,7 +3708,6 @@ x_56 = lean_nat_sub(x_17, x_50);
 lean_dec(x_17);
 x_57 = lean_nat_sub(x_56, x_50);
 lean_dec(x_56);
-lean_inc(x_1);
 x_58 = l_Lean_Expr_getRevArg_x21(x_1, x_57);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -3841,6 +3839,7 @@ lean_dec(x_17);
 x_84 = lean_nat_sub(x_83, x_50);
 lean_dec(x_83);
 x_85 = l_Lean_Expr_getRevArg_x21(x_1, x_84);
+lean_dec(x_1);
 x_86 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_85, x_2, x_3, x_4, x_5, x_6, x_81);
 if (lean_obj_tag(x_86) == 0)
 {
@@ -4379,7 +4378,6 @@ x_197 = lean_unsigned_to_nat(1u);
 x_198 = lean_nat_sub(x_24, x_197);
 x_199 = lean_nat_sub(x_198, x_197);
 lean_dec(x_198);
-lean_inc(x_1);
 x_200 = l_Lean_Expr_getRevArg_x21(x_1, x_199);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -4400,6 +4398,7 @@ lean_dec(x_24);
 x_206 = lean_nat_sub(x_205, x_197);
 lean_dec(x_205);
 x_207 = l_Lean_Expr_getRevArg_x21(x_1, x_206);
+lean_dec(x_1);
 x_208 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_207, x_2, x_3, x_4, x_5, x_6, x_203);
 if (lean_obj_tag(x_208) == 0)
 {
@@ -4503,7 +4502,6 @@ lean_dec(x_24);
 x_27 = lean_unsigned_to_nat(1u);
 x_28 = lean_nat_sub(x_26, x_27);
 lean_dec(x_26);
-lean_inc(x_1);
 x_29 = l_Lean_Expr_getRevArg_x21(x_1, x_28);
 x_30 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___closed__1;
 lean_inc(x_6);
@@ -4965,7 +4963,6 @@ x_120 = lean_nat_sub(x_24, x_23);
 x_121 = lean_unsigned_to_nat(1u);
 x_122 = lean_nat_sub(x_120, x_121);
 lean_dec(x_120);
-lean_inc(x_1);
 x_123 = l_Lean_Expr_getRevArg_x21(x_1, x_122);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -4985,6 +4982,7 @@ lean_dec(x_24);
 x_128 = lean_nat_sub(x_127, x_121);
 lean_dec(x_127);
 x_129 = l_Lean_Expr_getRevArg_x21(x_1, x_128);
+lean_dec(x_1);
 x_130 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_129, x_2, x_3, x_4, x_5, x_6, x_126);
 if (lean_obj_tag(x_130) == 0)
 {
@@ -5115,7 +5113,6 @@ x_160 = lean_nat_sub(x_24, x_23);
 x_161 = lean_unsigned_to_nat(1u);
 x_162 = lean_nat_sub(x_160, x_161);
 lean_dec(x_160);
-lean_inc(x_1);
 x_163 = l_Lean_Expr_getRevArg_x21(x_1, x_162);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -5135,6 +5132,7 @@ lean_dec(x_24);
 x_168 = lean_nat_sub(x_167, x_161);
 lean_dec(x_167);
 x_169 = l_Lean_Expr_getRevArg_x21(x_1, x_168);
+lean_dec(x_1);
 x_170 = l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(x_169, x_2, x_3, x_4, x_5, x_6, x_166);
 if (lean_obj_tag(x_170) == 0)
 {
@@ -5449,7 +5447,6 @@ x_1 = l_Lean_Meta_Linear_Nat_reflTrue___closed__7;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Offset(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_KExprMap(uint8_t builtin, lean_object*);
@@ -5458,9 +5455,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_LinearArith_Nat_Basic(uint8
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

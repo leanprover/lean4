@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Syntax
 import Lean.Elab.AuxDef
 import Lean.Elab.BuiltinNotation
@@ -106,22 +107,10 @@ def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Mac
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)
   let lhs := Syntax.mkApp lhs (.mk args)
-  -- allow over-application, avoiding nested `app` nodes
-  let lhsWithMoreArgs := flattenApp (← `($lhs $$moreArgs*))
-  let patWithMoreArgs := flattenApp (← `($pat $$moreArgs*))
   `(@[$attrKind app_unexpander $(mkIdent c)]
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs)             => withRef f `($pat)
-      -- must be a separate case as the LHS and RHS above might not be `app` nodes
-      | `($lhsWithMoreArgs) => withRef f `($patWithMoreArgs)
       | _                   => throw ())
-where
-  -- NOTE: we consider only one nesting level here
-  flattenApp : Term → Term
-    | stx@`($f $xs*) => match f with
-      | `($f' $xs'*) => Syntax.mkApp f' (xs' ++ xs)
-      | _            => stx
-    | stx            => stx
 
 private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     (doc? : Option (TSyntax ``docComment))

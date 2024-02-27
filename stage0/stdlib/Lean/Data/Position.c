@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Position
-// Imports: Init Lean.Data.Format Lean.ToExpr
+// Imports: Lean.Data.Format Lean.ToExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,7 +25,6 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__2;
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__13;
-lean_object* l_String_Iterator_pos(lean_object*);
 static lean_object* l_Lean_Position_instToFormatPosition___closed__2;
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_lt___closed__2;
@@ -1182,7 +1181,8 @@ x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_6);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_String_Iterator_nextn(x_14, x_10);
-x_16 = l_String_Iterator_pos(x_15);
+x_16 = lean_ctor_get(x_15, 1);
+lean_inc(x_16);
 lean_dec(x_15);
 return x_16;
 }
@@ -1195,7 +1195,8 @@ x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_6);
 lean_ctor_set(x_18, 1, x_17);
 x_19 = l_String_Iterator_nextn(x_18, x_10);
-x_20 = l_String_Iterator_pos(x_19);
+x_20 = lean_ctor_get(x_19, 1);
+lean_inc(x_20);
 lean_dec(x_19);
 return x_20;
 }
@@ -1213,7 +1214,8 @@ x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_6);
 lean_ctor_set(x_23, 1, x_22);
 x_24 = l_String_Iterator_nextn(x_23, x_21);
-x_25 = l_String_Iterator_pos(x_24);
+x_25 = lean_ctor_get(x_24, 1);
+lean_inc(x_25);
 lean_dec(x_24);
 return x_25;
 }
@@ -1285,7 +1287,6 @@ x_2 = l_Lean_FileMap_ofString(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_ToExpr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1293,9 +1294,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_obj
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

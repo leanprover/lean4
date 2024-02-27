@@ -18,6 +18,10 @@ v4.7.0 (development in progress)
 
 * `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
 
+* The pretty printer for applications now handles the case of over-application itself when applying app unexpanders.
+  In particular, the ``| `($_ $a $b $xs*) => `(($a + $b) $xs*)`` case of an `app_unexpander` is no longer necessary.
+  [#3495](https://github.com/leanprover/lean4/pull/3495).
+
 * New `simp` (and `dsimp`) configuration option: `zetaDelta`. It is `false` by default.
   The `zeta` option is still `true` by default, but their meaning has changed.
   - When `zeta := true`, `simp` and `dsimp` reduce terms of the form

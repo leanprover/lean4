@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.Recognizers
 import Lean.Meta.Basic
+import Lean.Meta.CtorRecognizer
 
 namespace Lean.Meta
 
@@ -62,8 +63,6 @@ def matchNe? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
       return none
 
 def matchConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-  let env ← getEnv
-  matchHelper? e fun e =>
-    return e.isConstructorApp? env
+  matchHelper? e isConstructorApp?
 
 end Lean.Meta

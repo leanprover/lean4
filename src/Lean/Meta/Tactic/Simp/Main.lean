@@ -69,7 +69,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           unless e.getAppNumArgs > projInfo.numParams do
             return none
           let major := e.getArg! projInfo.numParams
-          unless major.isConstructorApp (← getEnv) do
+          unless (← isConstructorApp major) do
             return none
           reduceProjCont? (← withDefault <| unfoldDefinition? e)
       else

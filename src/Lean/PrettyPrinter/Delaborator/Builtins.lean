@@ -178,7 +178,7 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv
   let e ← getExpr
-  let some s ← pure $ e.isConstructorApp? env | failure
+  let some s ← isConstructorApp? e | failure
   guard $ isStructure env s.induct;
   /- If implicit arguments should be shown, and the structure has parameters, we should not
      pretty print using { ... }, because we will not be able to see the parameters. -/

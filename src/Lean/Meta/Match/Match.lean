@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.LitValues
 import Lean.Meta.Check
 import Lean.Meta.Closure
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
@@ -409,14 +410,13 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
    update the next patterns with the fields of the constructor.
    Otherwise, return none. -/
 def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
-  let env ← getEnv
   match alt.patterns with
   | p@(.inaccessible e) :: ps =>
     trace[Meta.Match.match] "inaccessible in ctor step {e}"
     withExistingLocalDecls alt.fvarDecls do
       -- Try to push inaccessible annotations.
       let e ← whnfD e
-      match e.constructorApp? env with
+      match (← constructorApp? e) with
       | some (ctorVal, ctorArgs) =>
         if ctorVal.name == ctorName then
           let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
@@ -497,12 +497,12 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
   p.alts.allM fun alt => do match alt.patterns with
     | .ctor .. :: _ => return true
-    | .inaccessible e :: _ => return (← whnfD e).isConstructorApp (← getEnv)
+    | .inaccessible e :: _ => isConstructorApp e
     | _ => return false
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
-  if let some (ctorVal, xArgs) := (← whnfD x).constructorApp? (← getEnv) then
+  if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
     if (← altsAreCtorLike p) then
       let alts ← p.alts.filterMapM fun alt => do
         match alt.patterns with

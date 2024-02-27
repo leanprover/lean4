@@ -168,22 +168,11 @@ where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 
--- TODO: workaround for `Expr.constructorApp?` limitations. We should handle `OfNat.ofNat` there
-private def reduceOfNatNat (e : Expr) : MetaM Expr := do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do
-    return e
-  unless (← whnfD (e.getArg! 0)).isConstOf ``Nat do
-    return e
-  return e.getArg! 1
-
 def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
   match e.eq? with
   | none => return .continue
   | some (_, lhs, rhs) =>
-    let lhs ← reduceOfNatNat (← whnf lhs)
-    let rhs ← reduceOfNatNat (← whnf rhs)
-    let env ← getEnv
-    match lhs.constructorApp? env, rhs.constructorApp? env with
+    match (← constructorApp'? lhs), (← constructorApp'? rhs) with
     | some (c₁, _), some (c₂, _) =>
       if c₁.name != c₂.name then
         withLocalDeclD `h e fun h =>

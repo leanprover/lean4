@@ -103,7 +103,7 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   return UInt64.ofNat n
 
 /--
-If `e` is literal value, ensure it is encoded using the standard representation.
+If `e` is a literal value, ensure it is encoded using the standard representation.
 Otherwise, just return `e`.
 -/
 def normLitValue (e : Expr) : MetaM Expr := do
@@ -118,6 +118,34 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt16Value? e then return toExpr n
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
+  return e
+
+/--
+If `e` is a `Nat`, `Int`, or `Fin` literal value, converts it into a constructor application.
+Otherwise, just return `e`.
+-/
+-- TODO: support other builtin literals if needed
+def litToCtor (e : Expr) : MetaM Expr := do
+  let e ← instantiateMVars e
+  if let some n ← getNatValue? e then
+    if n = 0 then
+      return mkConst ``Nat.zero
+    else
+      return .app (mkConst ``Nat.succ) (toExpr (n-1))
+  if let some n ← getIntValue? e then
+    if n < 0 then
+      return .app (mkConst ``Int.negSucc) (toExpr (- (n+1)).toNat)
+    else
+      return .app (mkConst ``Int.ofNat) (toExpr n.toNat)
+  if let some ⟨n, v⟩ ← getFinValue? e then
+    let i := toExpr v.val
+    let n := toExpr n
+    -- Remark: we construct the proof manually here to avoid a cyclic dependency.
+    let p := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) i n
+    let h := mkApp3 (mkConst ``of_decide_eq_true) p
+      (mkApp2 (mkConst ``Nat.decLt) i n)
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``true))
+    return mkApp3 (mkConst ``Fin.mk) n i h
   return e
 
 end Lean.Meta

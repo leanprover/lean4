@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.Match
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Apply
@@ -250,7 +251,7 @@ private def processNextEq : M Bool := do
           return true
         -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
         else
-          match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
+          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
           | some lhsCtor, some rhsCtor =>
             if lhsCtor.name != rhsCtor.name then
               return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
@@ -378,7 +379,7 @@ private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr))
       return some (lhs, rhs)
   return none
 
-private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
+private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult := do
   mvarId.withContext do
     for localDecl in (← getLCtx) do
       if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then

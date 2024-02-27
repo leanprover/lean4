@@ -466,3 +466,19 @@ syntax "{" term,+ "}" : term
 macro_rules
   | `({$x:term}) => `(singleton $x)
   | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+namespace Lean
+
+/-- Unexpander for the `{ x }` notation. -/
+@[app_unexpander singleton]
+def singletonUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a) => `({ $a:term })
+  | _ => throw ()
+
+/-- Unexpander for the `{ x, y, ... }` notation. -/
+@[app_unexpander insert]
+def insertUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
+  | _ => throw ()
+
+end Lean

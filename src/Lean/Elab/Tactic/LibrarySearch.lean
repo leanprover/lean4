@@ -67,8 +67,7 @@ def elabExact?Term : TermElab := fun stx expectedType? => do
     let goal ← mkFreshExprMVar expectedType
     let (_, introdGoal) ← goal.mvarId!.intros
     introdGoal.withContext do
-      let tactic := fun exfalso g => solveByElim []  (maxDepth := 6) exfalso g
-      if let some suggestions ← librarySearch introdGoal tactic then
+      if let some suggestions ← librarySearch introdGoal then
         reportOutOfHeartbeats `library_search stx
         for suggestion in suggestions do
           withMCtx suggestion.2 do

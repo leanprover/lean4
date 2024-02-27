@@ -118,13 +118,17 @@ def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
 ```
 
-If omitted, a termination argument will be inferred.
+If omitted, a termination argument will be inferred. If written as `termination_by?`,
+the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
-  ppDedent ppLine >>
   "termination_by " >>
-  optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
-  termParser
+    optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
+    termParser
+
+@[inherit_doc terminationBy]
+def terminationBy? := leading_parser
+  "termination_by?"
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
@@ -139,7 +143,7 @@ def decreasingBy := leading_parser
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 def suffix := leading_parser
-  optional terminationBy >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
 
 end Termination
 

@@ -27,7 +27,7 @@ structure TerminationBy where
   deriving Inhabited
 
 open Parser.Termination in
-def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
+def TerminationBy.unexpand (wf : TerminationBy) : MetaM (TSyntax ``terminationBy) := do
   -- TODO: Why can I not just use $wf.vars in the quotation below?
   let vars : TSyntaxArray `ident := wf.vars.map (⟨·.raw⟩)
   if vars.isEmpty then
@@ -50,6 +50,7 @@ is what `Term.runTactic` expects.
  -/
 structure TerminationHints where
   ref : Syntax
+  termination_by?? : Option Syntax
   termination_by? : Option TerminationBy
   decreasing_by?  : Option DecreasingBy
   /-- Here we record the number of parameters past the `:`. It is set by
@@ -63,7 +64,7 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
-def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, 0⟩
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): CoreM Unit := do
@@ -111,19 +112,23 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
   if let .missing := stx.raw then
     return { TerminationHints.none with ref := stx }
   match stx with
-  | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) => do
-    let termination_by? ← t?.mapM fun t => match t with
-      | `(terminationBy|termination_by $vars* => $body) =>
-        if vars.isEmpty then
-          throwErrorAt t "no extra parameters bounds, please omit the `=>`"
-        else
-          pure {ref := t, vars, body}
-      | `(terminationBy|termination_by $body:term) => pure {ref := t, vars := #[], body}
+  | `(suffix| $[$t?]? $[$d?:decreasingBy]? ) => do
+    let termination_by?? : Option Syntax ← if let some t := t? then match t with
+      | `(terminationBy?|termination_by?) => pure (some t)
+      | _ => pure none
+      else pure none
+    let termination_by? : Option TerminationBy ← if let some t := t? then match t with
+      | `(terminationBy|termination_by => $_body) =>
+        throwErrorAt t "no extra parameters bounds, please omit the `=>`"
+      | `(terminationBy|termination_by $vars* => $body) => pure (some {ref := t, vars, body})
+      | `(terminationBy|termination_by $body:term) => pure (some {ref := t, vars := #[], body})
+      | `(terminationBy?|termination_by?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
+      else pure none
     let decreasing_by? ← d?.mapM fun d => match d with
       | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}
       | _ => throwErrorAt d "unexpected `decreasing_by` syntax"
-    return { ref := stx, termination_by?, decreasing_by?, extraParams := 0 }
+    return { ref := stx, termination_by??, termination_by?, decreasing_by?, extraParams := 0 }
   | _ => throwErrorAt stx s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

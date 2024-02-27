@@ -8,6 +8,7 @@ import Lean.Util.HasConstCache
 import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -709,10 +710,12 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   | .some solution => do
     let wf ← buildTermWF originalVarNamess varNamess solution
 
-    if showInferredTerminationBy.get (← getOptions) then
-      let wf' := trimTermWF extraParamss wf
-      for preDef in preDefs, term in wf' do
+    let wf' := trimTermWF extraParamss wf
+    for preDef in preDefs, term in wf' do
+      if showInferredTerminationBy.get (← getOptions) then
         logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
+      if let some ref := preDef.termination.termination_by?? then
+        Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
     return wf
   | .none =>

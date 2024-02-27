@@ -162,10 +162,8 @@ def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
       result := result.push { name := n, bInfo := bi, defVal, isAutoParam := t.isAutoParam }
       fnType := b
     fnType := fnType.instantiateRevRange j args.size args
-    -- We still want to consider parameters past the ones for the supplied arguments.
-    -- We don't want to reduce too much here, since for example it might be an `IO`-valued or `Set`-valued function.
-    -- Knowing whether there are more expected arguments may require reducing instances too.
-    withTransparency .instances <| forallTelescopeReducing fnType fun xs _ => do
+    -- We still want to consider parameters past the ones for the supplied arguments for analysis.
+    forallTelescopeReducing fnType fun xs _ => do
       xs.foldlM (init := result) fun result x => do
         let l ← x.fvarId!.getDecl
         -- Warning: the defVal might refer to fvars that are only valid in this context
@@ -251,20 +249,22 @@ This delaborator is where `app_unexpander`s and the structure instance unexpande
 Assumes `numArgs ≤ paramKinds.size`.
 -/
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
-  let (shouldUnexpand, fnStx, _, argStxs, argData) ←
+  let (shouldUnexpand, fnStx, _, _, argStxs, argData) ←
     withBoundedAppFnArgs numArgs
       (do
         let head ← getExpr
         let shouldUnexpand ← pure (unexpand && head.consumeMData.isConst)
           <&&> not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)
-        return (shouldUnexpand, ← delabHead, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (shouldUnexpand, 0)))
-      (fun (shouldUnexpand, fnStx, paramKinds, argStxs, argData) => do
-        -- - `argStxs` is the accumulated array of arguments that should be pretty printed
-        -- - `argData` is a list of `Bool × Nat` used to figure out
-        --   1. whether an unexpander could be used for the prefix up to this argument and
-        --   2. how many arguments we need to include after this one when annotating the result of unexpansion.
-        --   Argument `argStxs[i]` corresponds to `argData[i+1]`, with `argData[0]` being for the head itself.
-        let (argUnexpandable, stx?) ← mkArgStx paramKinds
+        return (shouldUnexpand, ← delabHead, numArgs, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (shouldUnexpand, 0)))
+      (fun (shouldUnexpand, fnStx, remainingArgs, paramKinds, argStxs, argData) => do
+        /-
+        - `argStxs` is the accumulated array of arguments that should be pretty printed
+        - `argData` is a list of `Bool × Nat` used to figure out:
+          1. whether an unexpander could be used for the prefix up to this argument and
+          2. how many arguments we need to include after this one when annotating the result of unexpansion.
+          Argument `argStxs[i]` corresponds to `argData[i+1]`, with `argData[0]` being for the head itself.
+        -/
+        let (argUnexpandable, stx?) ← mkArgStx (remainingArgs - 1) paramKinds
         let shouldUnexpand := shouldUnexpand && argUnexpandable
         let (argStxs, argData) :=
           match stx?, argData.back with
@@ -272,7 +272,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
           | some stx, _ => (argStxs.push stx, argData.push (shouldUnexpand, 1))
           -- A non-pretty-printed argument is accounted for by the previous pretty printed one.
           | none, (_, argCount) => (argStxs, argData.pop.push (shouldUnexpand, argCount + 1))
-        return (shouldUnexpand, fnStx, paramKinds.tailD [], argStxs, argData))
+        return (shouldUnexpand, fnStx, remainingArgs - 1, paramKinds.tailD [], argStxs, argData))
   if ← pure (argData.any Prod.fst) <&&> getPPOption getPPNotation then
     -- Try using an app unexpander for a prefix of the arguments.
     if let some stx ← (some <$> tryAppUnexpanders fnStx argStxs argData) <|> pure none then
@@ -290,16 +290,18 @@ where
   /--
   If the argument should be pretty printed then it returns the syntax for that argument.
   The boolean is `false` if an unexpander should not be used for the application due to this argument.
+  The argumnet `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArgStx (paramKinds : List ParamKind) : DelabM (Bool × Option Syntax) := do
+  mkArgStx (remainingArgs : Nat) (paramKinds : List ParamKind) : DelabM (Bool × Option Syntax) := do
     if ← getPPOption getPPAnalysisSkip then return (true, none)
     else if ← getPPOption getPPAnalysisHole then return (true, ← `(_))
     else
       let arg ← getExpr
-      let param :: rest := paramKinds | unreachable!
+      let param :: _ := paramKinds | unreachable!
       if ← getPPOption getPPAnalysisNamedArg then
         mkNamedArg param.name (← delab)
-      else if param.defVal.isSome && rest.isEmpty && param.defVal.get! == arg then
+      else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
+        -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
         return (true, none)
       else if param.bInfo.isExplicit then
         return (true, ← delab)
@@ -366,7 +368,7 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
 /--
 Delaborates applications. Removes up to `maxArgs` arguments to form
 the "head" of the application and delaborates the head using `delabHead`.
-These arguments are then processed in a way depending on whether the application should delaborate in explicit mode.
+Then the application is then processed in explicit mode or implicit mode depending on which should be used.
 -/
 def delabAppCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) : Delab := do
   let e ← getExpr

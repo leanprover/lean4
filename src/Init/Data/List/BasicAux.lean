@@ -227,4 +227,23 @@ where
     else
       go xs acc₁ (acc₂.push x)
 
+/--
+Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`
+whilst partitioning the result it into a pair of lists, `List β × List γ`,
+partitioning the `.inl _` into the left list, and the `.inr _` into the right List.
+```
+partitionMap (id : Nat ⊕ Nat → Nat ⊕ Nat) [inl 0, inr 1, inl 2] = ([0, 2], [1])
+```
+-/
+@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
+  /-- Auxiliary for `partitionMap`:
+  `partitionMap.go f l acc₁ acc₂ = (acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionMap f l = (left, right)`. -/
+  @[specialize] go : List α → Array β → Array γ → List β × List γ
+  | [], acc₁, acc₂ => (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ =>
+    match f x with
+    | .inl a => go xs (acc₁.push a) acc₂
+    | .inr b => go xs acc₁ (acc₂.push b)
+
 end List

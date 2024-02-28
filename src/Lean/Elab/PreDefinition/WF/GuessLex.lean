@@ -703,7 +703,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
   let recCalls := filterSubsumed recCalls
-  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasing_by?)) ·)
+  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve measures callMatrix with

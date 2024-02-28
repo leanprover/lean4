@@ -94,12 +94,12 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
 
   let wf ← do
-    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.termination_by?.isSome)
+    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
     if preDefsWith.isEmpty then
       -- No termination_by anywhere, so guess one
       guessLex preDefs unaryPreDef fixedPrefixSize
     else if preDefsWithout.isEmpty then
-      pure <| preDefsWith.map (·.termination.termination_by?.get!)
+      pure <| preDefsWith.map (·.termination.terminationBy?.get!)
     else
       -- Some have, some do not, so report errors
       preDefsWithout.forM fun preDef => do

@@ -714,7 +714,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     for preDef in preDefs, term in wf' do
       if showInferredTerminationBy.get (← getOptions) then
         logInfoAt preDef.ref m!"Inferred termination argument:\n{← term.unexpand}"
-      if let some ref := preDef.termination.termination_by?? then
+      if let some ref := preDef.termination.terminationBy?? then
         Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
     return wf

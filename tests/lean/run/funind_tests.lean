@@ -250,6 +250,35 @@ info: with_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case
 #guard_msgs in
 #check with_match_tailrec.induct
 
+def with_arg_refining_match1 (i : Nat) : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    if h : i = 0 then 0 else with_arg_refining_match1 (i - 1) n
+termination_by i
+derive_functional_induction with_arg_refining_match1
+
+/--
+info: with_arg_refining_match1.induct (motive : Nat → Nat → Prop)
+  (case1 : ∀ (fst snd : Nat), (∀ (n : Nat), ¬fst = 0 → motive (fst - 1) n) → motive fst snd) (x x : Nat) : motive x x
+-/
+#guard_msgs in
+#check with_arg_refining_match1.induct
+
+def with_arg_refining_match2 (i : Nat) (n : Nat) : Nat :=
+  if i = 0 then 0 else match n with
+  | 0 => 0
+  | n+1 => with_arg_refining_match2 (i - 1) n
+termination_by i
+derive_functional_induction with_arg_refining_match2
+
+/--
+info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : ∀ (fst snd : Nat), fst = 0 → motive fst snd)
+  (case2 : ∀ (fst snd : Nat), ¬fst = 0 → (∀ (n : Nat), motive (fst - 1) n) → motive fst snd) (x x : Nat) : motive x x
+-/
+#guard_msgs in
+#check with_arg_refining_match2.induct
+
+
 
 set_option linter.unusedVariables false in
 def with_match_non_tailrec : Nat → Nat

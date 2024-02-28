@@ -725,3 +725,34 @@ info: CommandIdempotence.even.induct (motive1 motive2 : Nat → Prop) (case1 : m
 derive_functional_induction even
 
 end CommandIdempotence
+
+namespace Errors
+
+/-- error: unknown constant 'doesNotExist' -/
+#guard_msgs in
+derive_functional_induction doesNotExist
+
+def takeWhile (p : α → Bool) (as : Array α) : Array α :=
+  foo 0 #[]
+where
+  foo (i : Nat) (r : Array α) : Array α :=
+    if h : i < as.size then
+      let a := as.get ⟨i, h⟩
+      if p a then
+        foo (i+1) (r.push a)
+      else
+        r
+    else
+      r
+  termination_by as.size - i
+
+/--
+error: Function Errors.takeWhile does not look like a function defined by well-founded recursion.
+NB: If Errors.takeWhile is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `Errors.takeWhile.go` where `go` is name of the inner function.
+-/
+#guard_msgs in
+derive_functional_induction takeWhile -- Cryptic error message
+
+derive_functional_induction takeWhile.foo
+
+end Errors

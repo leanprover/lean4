@@ -480,16 +480,17 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
 
   buildInductionCase motiveFVar fn oldIH newIH toClear toPreserve goal IHs e
 
-partial def findFixF {α} (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   lambdaTelescope e fun params body => do
     if body.isAppOf ``WellFounded.fixF then
       k params body
+    else if body.isAppOf ``WellFounded.fix then
+      findFixF name (← unfoldDefinition body) fun args e' => k (params ++ args) e'
     else
-      let body' ← whnf body
-      if body == body' then
-        throwError "Term {body} is not a fixF application"
-      else
-        findFixF body' fun args e' => k (params ++ args) e'
+      throwError m!"Function {name} does not look like a function defined by well-founded " ++
+        m!"recursion.\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
+        m!"function (via `let rec` or `where`), try `{name}.go` where `go` is name of the inner " ++
+        "function."
 
 /--
 Given a definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
@@ -499,12 +500,11 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let inductName := .append name `induct
   if ← hasConst inductName then return inductName
 
-  let info ← getConstInfo name
-  let e := Expr.const name (info.levelParams.map mkLevelParam)
-  findFixF e fun params body => body.withApp fun f fixArgs => do
+  let info ← getConstInfoDefn name
+  findFixF name info.value fun params body => body.withApp fun f fixArgs => do
     -- logInfo f!"{fixArgs}"
     unless params.size > 0 do
-      throwError "Term {e} is not a lambda application"
+      throwError "Value of {name} is not a lambda application"
     unless f.isConstOf ``WellFounded.fixF do
       throwError "Term isn’t application of {``WellFounded.fixF}, but of {f}"
     let #[argType, rel, _motive, body, arg, acc] := fixArgs |
@@ -519,7 +519,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     withLocalDecl `motive .default motiveType fun motive => do
 
     let e' := mkAppN (.const ``WellFounded.fixF [argLevel, levelZero]) #[argType, rel, motive]
-    let fn := mkAppN e params.pop
+    let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
       let #[param, genIH] := xs | unreachable!
       -- open body with the same arg

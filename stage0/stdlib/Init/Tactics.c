@@ -868,6 +868,7 @@ static lean_object* l_Lean_Parser_Tactic_simpTraceArgsRest___closed__3;
 static lean_object* l_Lean_Parser_Tactic_dsimpTrace___closed__6;
 static lean_object* l_Lean_Parser_Tactic_simp___closed__14;
 static lean_object* l_Lean_Parser_Tactic_refine___closed__1;
+LEAN_EXPORT lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_simp___closed__3;
 static lean_object* l_Lean_Parser_Tactic_case___closed__9;
 static lean_object* l_Lean_Parser_Tactic_pushCast___closed__7;
@@ -22610,6 +22611,51 @@ x_63 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_63, 0, x_62);
 lean_ctor_set(x_63, 1, x_3);
 return x_63;
+}
+}
+}
+LEAN_EXPORT lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = l_tacticGet__elem__tactic__trivial___closed__2;
+x_5 = l_Lean_Syntax_isOfKind(x_1, x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_2);
+x_6 = lean_box(1);
+x_7 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_3);
+return x_7;
+}
+else
+{
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_8 = lean_ctor_get(x_2, 5);
+lean_inc(x_8);
+lean_dec(x_2);
+x_9 = 0;
+x_10 = l_Lean_SourceInfo_fromRef(x_8, x_9);
+x_11 = l_Lean_Parser_Tactic_omega___closed__1;
+lean_inc(x_10);
+x_12 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticExfalso__1___closed__14;
+x_14 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__5;
+lean_inc(x_10);
+x_15 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_15, 0, x_10);
+lean_ctor_set(x_15, 1, x_13);
+lean_ctor_set(x_15, 2, x_14);
+x_16 = l_Lean_Parser_Tactic_omega___closed__2;
+x_17 = l_Lean_Syntax_node2(x_10, x_16, x_12, x_15);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_3);
+return x_18;
 }
 }
 }

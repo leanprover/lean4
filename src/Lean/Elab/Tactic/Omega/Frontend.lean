@@ -260,7 +260,7 @@ where
       rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
     | (``HPow.hPow, #[_, _, _, _, a, b]) =>
       match groundNat? a with
-      | some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
+      | some _ => rewrite e (mkApp2 (.const ``Int.natCast_pow []) a b)
       | none => mkAtomLinearCombo e
     | (``Prod.fst, #[_, β, p]) => match p with
       | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>

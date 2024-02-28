@@ -51,27 +51,44 @@ derive_functional_induction Expr.typeCheck
 
 /--
 info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), motive (Expr.nat a))
-  (case2 : ∀ (a : Bool), motive (Expr.bool a)) (case3 : ∀ (a b : Expr), motive a → motive b → motive (Expr.plus a b))
-  (case4 : ∀ (a b : Expr), motive a → motive b → motive (Expr.and a b)) (x : Expr) : motive x
+  (case2 : ∀ (a : Bool), motive (Expr.bool a))
+  (case3 : ∀ (a b : Expr), HasType a Ty.nat → HasType b Ty.nat → motive a → motive b → motive (Expr.plus a b))
+  (case4 :
+    ∀ (a b : Expr) (x : {{ ty | HasType a ty }}) (x_1 : {{ ty | HasType b ty }}),
+      (∀ (h₁ : HasType a Ty.nat) (h₂ : HasType b Ty.nat),
+          x = Maybe.found Ty.nat h₁ → x_1 = Maybe.found Ty.nat h₂ → False) →
+        motive a → motive b → motive (Expr.plus a b))
+  (case5 : ∀ (a b : Expr), HasType a Ty.bool → HasType b Ty.bool → motive a → motive b → motive (Expr.and a b))
+  (case6 :
+    ∀ (a b : Expr) (x : {{ ty | HasType a ty }}) (x_1 : {{ ty | HasType b ty }}),
+      (∀ (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
+          x = Maybe.found Ty.bool h₁ → x_1 = Maybe.found Ty.bool h₂ → False) →
+        motive a → motive b → motive (Expr.and a b))
+  (x : Expr) : motive x
 -/
 #guard_msgs in
 #check Expr.typeCheck.induct
+
+/-
+This no longer works after splitting non-refining tail-call matches,
+as we now have different number of variables
 
 theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
   apply Expr.typeCheck.induct (motive := fun e => e.typeCheck = .unknown → ¬ HasType e ty)
     <;> simp [typeCheck]
     <;> {
-      intro a b iha ihb
+      intro _ _ a b iha ihb
       split <;> simp [*]
       intro ht; cases ht
       next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))
     }
+-/
 
 -- The same, using the induction tactic
 theorem Expr.typeCheck_complete' {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
   induction e using Expr.typeCheck.induct
   all_goals simp [typeCheck]
-  case case3 a b iha ihb | case4 a b iha ihb =>
+  case case3 iha ihb | case4 iha ihb | case5 iha ihb | case6 iha ihb =>
       split <;> simp [*]
       intro ht; cases ht
       next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))

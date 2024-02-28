@@ -187,7 +187,12 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 * `onRemaining` runs on the remaining arguments (and may change their number)
 
 If `useSplitter` is true, the matcher is replaced with the splitter.
-NB: Not all code can handle a `MatcherApp` where `matcherName` is a splitter.
+NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitter.
+
+If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
+alternative (like in `match h : x with …`) are added for all discriminants where
+ * there isn't already one on the `match` (TODO)
+ * the discriminant does not appear in the motive (TODO)
 
 This function works even if the the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
@@ -195,6 +200,7 @@ infer a type, given all the alternatives.
 -/
 def transform (matcherApp : MatcherApp)
     (useSplitter := false)
+    -- (addEqualities := false)
     (onParams : Expr → MetaM Expr := pure)
     (onMotive : Array Expr → Expr → MetaM Expr := fun _ e => pure e)
     (onAlt : Expr → Expr → MetaM Expr := fun _ e => pure e)

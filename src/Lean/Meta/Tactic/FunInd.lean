@@ -420,14 +420,13 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
 
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-      -- Collect IHs from the parameters and discrs of the matcher
-      let mut IHs := IHs
-      for param in matcherApp.params do
-        IHs := IHs ++ (← collectIHs fn oldIH newIH param)
-      for discr in matcherApp.discrs do
-        IHs := IHs ++ (← collectIHs fn oldIH newIH discr)
+    -- Collect IHs from the parameters and discrs of the matcher
+    let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
+    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs fn oldIH newIH))
 
+    -- A match that refines the parameter has been modified by `Fix.lean` to refine the IH,
+    -- so we need to replace that IH
+    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (onParams := foldCalls fn oldIH)
         (onMotive := fun xs _body => do
@@ -447,6 +446,16 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
               let alt' ← buildInductionBody motiveFVar fn (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! IHs alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
+      return matcherApp'.toExpr
+
+    -- A match that does not refine the parameter, but that we still want to split into separate
+    -- cases
+    if matcherApp.remaining.isEmpty then
+      let matcherApp' ← matcherApp.transform (useSplitter := true)
+        (onParams := foldCalls fn oldIH)
+        (onMotive := fun _xs _body => pure goal)
+        (onAlt := fun expAltType alt => do
+          buildInductionBody motiveFVar fn toClear toPreserve expAltType oldIH newIH IHs alt)
       return matcherApp'.toExpr
 
   if let .letE n t v b _ := e then

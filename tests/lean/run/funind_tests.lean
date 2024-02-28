@@ -242,8 +242,9 @@ termination_by i
 derive_functional_induction with_arg_refining_match1
 
 /--
-info: with_arg_refining_match1.induct (motive : Nat → Nat → Prop)
-  (case1 : ∀ (fst snd : Nat), (∀ (n : Nat), ¬fst = 0 → motive (fst - 1) n) → motive fst snd) (x x : Nat) : motive x x
+info: with_arg_refining_match1.induct (motive : Nat → Nat → Prop) (case1 : ∀ (fst snd : Nat), motive fst snd)
+  (case2 : ∀ (fst snd : Nat), fst = 0 → motive fst snd)
+  (case3 : ∀ (fst snd n : Nat), ¬fst = 0 → motive (fst - 1) n → motive fst snd) (x x : Nat) : motive x x
 -/
 #guard_msgs in
 #check with_arg_refining_match1.induct
@@ -257,7 +258,8 @@ derive_functional_induction with_arg_refining_match2
 
 /--
 info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : ∀ (fst snd : Nat), fst = 0 → motive fst snd)
-  (case2 : ∀ (fst snd : Nat), ¬fst = 0 → (∀ (n : Nat), motive (fst - 1) n) → motive fst snd) (x x : Nat) : motive x x
+  (case2 : ∀ (fst snd : Nat), ¬fst = 0 → motive fst snd)
+  (case3 : ∀ (fst snd : Nat), ¬fst = 0 → ∀ (n : Nat), motive (fst - 1) n → motive fst snd) (x x : Nat) : motive x x
 -/
 #guard_msgs in
 #check with_arg_refining_match2.induct
@@ -275,7 +277,7 @@ derive_functional_induction with_other_match_tailrec
 
 /--
 info: with_other_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n)) (x : Nat) : motive x
+  (case2 case3 : ∀ (n : Nat), motive n → motive (Nat.succ n)) (x : Nat) : motive x
 -/
 #guard_msgs in
 #check with_other_match_tailrec.induct
@@ -311,8 +313,10 @@ derive_functional_induction with_mixed_match_tailrec2
 /--
 info: with_mixed_match_tailrec2.induct (motive : Nat → Nat → Nat → Nat → Nat → Prop)
   (case1 : ∀ (fst fst_1 fst_2 snd : Nat), motive 0 fst fst_1 fst_2 snd)
-  (case2 :
-    ∀ (fst fst_1 fst_2 snd n : Nat), (∀ (a x y z : Nat), motive n a x y z) → motive (Nat.succ n) fst fst_1 fst_2 snd)
+  (case2 : ∀ (fst fst_1 fst_2 snd n x x_1 : Nat), fst_1 = x → snd % 2 = x_1 → motive (Nat.succ n) fst fst_1 fst_2 snd)
+  (case3 :
+    ∀ (fst fst_1 fst_2 snd n a x y z : Nat),
+      fst_1 = x → snd % 2 = z → motive n a x y z → motive (Nat.succ n) fst fst_1 fst_2 snd)
   (x x x x x : Nat) : motive x x x x x
 -/
 #guard_msgs in

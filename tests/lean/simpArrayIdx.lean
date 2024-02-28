@@ -18,8 +18,9 @@ variable (j_lt : j < (a.set! i v).size)
 #check_simp (a.set! i v)[j]'j_lt  ~> (a.setD i v)[j]'_
 #check_simp (a.setD i v)[j]'j_lt !~>
 
--- This doesn't work currently.
--- It will be address in the comprehensive overhaul of array lemmas.
--- #check_simp (a.set! i v)[i]? ~> .some v
+section
+variable (p : i < a.size)
+#check_tactic (a.set! i v)[i]? ~> .some v by simp[p]
+end
 
 end

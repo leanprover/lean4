@@ -16,6 +16,45 @@ import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 
+/--
+Helper type for implementing `discharge?'`
+-/
+inductive DischargeResult where
+  | proved
+  | notProved
+  | maxDepth
+  | failedAssign
+  deriving DecidableEq
+
+/--
+Wrapper for invoking `discharge?`. It checks for maximum discharge depth, create trace nodes, and ensure
+the generated proof was successfully assigned to `x`.
+-/
+def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
+  let r : DischargeResult ← withTraceNode `Meta.Tactic.simp.discharge (fun
+      | .ok .proved       => return m!"{← ppOrigin thmId} discharge {checkEmoji}{indentExpr type}"
+      | .ok .notProved    => return m!"{← ppOrigin thmId} discharge {crossEmoji}{indentExpr type}"
+      | .ok .maxDepth     => return m!"{← ppOrigin thmId} discharge {crossEmoji} max depth{indentExpr type}"
+      | .ok .failedAssign => return m!"{← ppOrigin thmId} discharge {crossEmoji} failed to assign proof{indentExpr type}"
+      | .error err        => return m!"{← ppOrigin thmId} discharge {crossEmoji}{indentExpr type}{indentD err.toMessageData}") do
+    let ctx ← getContext
+    if ctx.dischargeDepth >= ctx.maxDischargeDepth then
+      return .maxDepth
+    else withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+      -- We save the state, so that `UsedTheorems` does not accumulate
+      -- `simp` lemmas used during unsuccessful discharging.
+      let usedTheorems := (← get).usedTheorems
+      match (← discharge? type) with
+      | some proof =>
+        unless (← isDefEq x proof) do
+          modify fun s => { s with usedTheorems }
+          return .failedAssign
+        return .proved
+      | none =>
+        modify fun s => { s with usedTheorems }
+        return .notProved
+  return r = .proved
+
 def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
   for x in xs do
     let type ← inferType x
@@ -45,18 +84,7 @@ def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
         if (← synthesizeInstance x type) then
           continue
       if (← isProp type) then
-        -- We save the state, so that `UsedTheorems` does not accumulate
-        -- `simp` lemmas used during unsuccessful discharging.
-        let usedTheorems := (← get).usedTheorems
-        match (← discharge? type) with
-        | some proof =>
-          unless (← isDefEq x proof) do
-            trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign proof{indentExpr type}"
-            modify fun s => { s with usedTheorems }
-            return false
-        | none =>
-          trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to discharge hypotheses{indentExpr type}"
-          modify fun s => { s with usedTheorems }
+        unless (← discharge?' thmId x type) do
           return false
   return true
 where
@@ -288,7 +316,6 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
 Discharge procedure for the ground/symbolic evaluator.
 -/
 def dischargeGround (e : Expr) : SimpM (Option Expr) := do
-  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
   let r ← simp e
   if r.expr.isTrue then
     try
@@ -480,21 +507,11 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
       return some r
     if let some r ← dischargeEqnThmHypothesis? e then
       return some r
-  let ctx ← getContext
-  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
-  if ctx.dischargeDepth >= ctx.maxDischargeDepth then
-    trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
-    return none
+  let r ← simp e
+  if r.expr.isTrue then
+    return some (← mkOfEqTrue (← r.getProof))
   else
-    withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
-      let r ← simp e
-      if r.expr.isTrue then
-        try
-          return some (← mkOfEqTrue (← r.getProof))
-        catch _ =>
-          return none
-      else
-        return none
+    return none
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 

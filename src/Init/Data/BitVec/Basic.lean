@@ -123,7 +123,11 @@ end getXsb
 section Int
 
 /-- Interpret the bitvector as an integer stored in two's complement form. -/
-protected def toInt (a : BitVec n) : Int := Int.bmod (a.toNat) (2^n)
+protected def toInt (a : BitVec n) : Int :=
+  if 2 * a.toNat < 2^n then
+    a.toNat
+  else
+    (a.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
 protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by

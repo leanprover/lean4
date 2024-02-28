@@ -476,7 +476,7 @@ def processCongrHypothesis (h : Expr) : SimpM Bool := do
 def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName
-  let (xs, _, type) ← forallMetaTelescopeReducing (← inferType thm)
+  let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
   if c.hypothesesPos.any (· ≥ xs.size) then
     return none
   let isIff := type.isAppOf ``Iff
@@ -504,7 +504,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     unless modified do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
       return none
-    unless (← synthesizeArgs (.decl c.theoremName) xs) do
+    unless (← synthesizeArgs (.decl c.theoremName) bis xs) do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
       return none
     let eNew ← instantiateMVars rhs

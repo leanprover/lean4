@@ -8,6 +8,7 @@ import Lean.Meta.ACLt
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
+import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
@@ -55,9 +56,15 @@ def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
         return .notProved
   return r = .proved
 
-def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
-  for x in xs do
+def synthesizeArgs (thmId : Origin) (bis : Array BinderInfo) (xs : Array Expr) : SimpM Bool := do
+  let skipAssignedInstances := tactic.skipAssignedInstances.get (← getOptions)
+  for x in xs, bi in bis do
     let type ← inferType x
+    -- We use the flag `tactic.skipAssignedInstances` for backward compatibility.
+    -- See comment below.
+    if !skipAssignedInstances && bi.isInstImplicit then
+      unless (← synthesizeInstance x type) do
+        return false
     /-
     We used to invoke `synthesizeInstance` for every instance implicit argument,
     to ensure the synthesized instance was definitionally equal to the one in
@@ -100,10 +107,10 @@ where
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
-private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
+private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs thm.origin xs) do
+      unless (← synthesizeArgs thm.origin bis xs) do
         return none
       let proof? ← if thm.rfl then
         pure none
@@ -154,25 +161,25 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, _, type) ← forallMetaTelescopeReducing type
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    tryTheoremCore lhs xs val type e thm numExtraArgs
+    tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, _, type) ← forallMetaTelescopeReducing type
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    match (← tryTheoremCore lhs xs val type e thm 0) with
+    match (← tryTheoremCore lhs xs bis val type e thm 0) with
     | some result => return some result
     | none =>
       let lhsNumArgs := lhs.getAppNumArgs
       let eNumArgs   := e.getAppNumArgs
       if eNumArgs > lhsNumArgs then
-        tryTheoremCore lhs xs val type e thm (eNumArgs - lhsNumArgs)
+        tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
       else
         return none
 

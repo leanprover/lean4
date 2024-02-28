@@ -178,4 +178,10 @@ def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
   catch _ =>
     return false
 
+register_builtin_option tactic.skipAssignedInstances : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
+}
+
 end Lean.Meta

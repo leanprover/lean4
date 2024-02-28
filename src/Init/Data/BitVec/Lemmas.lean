@@ -599,4 +599,18 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   simp
   exact Nat.lt_of_le_of_ne
 
+/- ! ### intMax -/
+
+/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+def intMax (w : Nat) : BitVec w  := (2^w - 1)#w
+
+theorem getLsb_intMax_eq (w : Nat) : (intMax w).getLsb i = decide (i < w) := by
+  simp [intMax, getLsb]
+
+theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
+  have h : 2^w - 1 < 2^w := by
+    have pos : 2^w > 0 := Nat.pow_pos (by decide)
+    omega
+  simp [intMax, Nat.shiftLeft_eq, Nat.one_mul, natCast_eq_ofNat, toNat_ofNat, Nat.mod_eq_of_lt h]
+
 end BitVec

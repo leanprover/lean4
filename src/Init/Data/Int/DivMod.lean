@@ -169,7 +169,23 @@ This is used in Omega as well as signed bitvectors.
 -/
 
 /--
-Balanced mod, taking values in the range [- m/2, (m - 1)/2].
+Balanced modulus.  This version of Integer modulus uses the
+balanced rounding convention, which guarantees that
+`m/2 ≤ bmod x m < m/2` for `m ≠ 0` and `bmod x m` is congruent
+to `x` modulo `m`.
+
+If `m = 0`, then `bmod x m = x`.
+-/
+def bmod (x : Int) (m : Nat) : Int :=
+  let r := x % m
+  if r < (m + 1) / 2 then
+    r
+  else
+    r - m
+
+/--
+Balanced division.  This returns the unique integer so that
+`b * (Int.bdiv a b) + Int.bmod a b = a`.
 -/
 def bdiv (x : Int) (m : Nat) : Int :=
   if m = 0 then
@@ -181,15 +197,5 @@ def bdiv (x : Int) (m : Nat) : Int :=
       q
     else
       q + 1
-
-/--
-Balanced mod, taking values in the range [- m/2, (m - 1)/2].
--/
-def bmod (x : Int) (m : Nat) : Int :=
-  let r := x % m
-  if r < (m + 1) / 2 then
-    r
-  else
-    r - m
 
 end Int

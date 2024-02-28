@@ -51,7 +51,7 @@ structure Context where
 /-- The internal state for the `OmegaM` monad, recording previously encountered atoms. -/
 structure State where
   /-- The atoms up-to-defeq encountered so far. -/
-  atoms : Array Expr := #[]
+  atoms : HashMap Expr Nat := {}
 
 /-- An intermediate layer in the `OmegaM` monad. -/
 abbrev OmegaM' := StateRefT State (ReaderT Context MetaM)
@@ -76,10 +76,11 @@ def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
 
 /-- Retrieve the list of atoms. -/
-def atoms : OmegaM (List Expr) := return (← getThe State).atoms.toList
+def atoms : OmegaM (Array Expr) := do
+  return (← getThe State).atoms.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 /-- Return the `Expr` representing the list of atoms. -/
-def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms)
+def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms).toList
 
 /-- Return the `Expr` representing the list of atoms as a `Coeffs`. -/
 def atomsCoeffs : OmegaM Expr := do
@@ -243,15 +244,16 @@ Return its index, and, if it is new, a collection of interesting facts about the
 -/
 def lookup (e : Expr) : OmegaM (Nat × Option (HashSet Expr)) := do
   let c ← getThe State
-  for h : i in [:c.atoms.size] do
-    if ← isDefEq e c.atoms[i] then
-      return (i, none)
+  match c.atoms.find? e with
+  | some i => return (i, none)
+  | none =>
   trace[omega] "New atom: {e}"
   let facts ← analyzeAtom e
   if ← isTracingEnabledFor `omega then
     unless facts.isEmpty do
       trace[omega] "New facts: {← facts.toList.mapM fun e => inferType e}"
-  let i ← modifyGetThe State fun c => (c.atoms.size, { c with atoms := c.atoms.push e })
+  let i ← modifyGetThe State fun c =>
+    (c.atoms.size, { c with atoms := c.atoms.insert e c.atoms.size })
   return (i, some facts)
 
 end Omega

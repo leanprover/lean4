@@ -268,8 +268,6 @@ example (x y : Int) (h : x < y) : x ≠ y := by omega
 
 example (x y : Int) (h : x < y) : ¬ x = y := by omega
 
-example (x : Int) : id x ≥ x := by omega
-
 example (prime : Nat → Prop) (x y z : Int) (h1 : 2 * x + ((-3) * y) < 0) (h2 : (-4) * x + 2*  z < 0)
     (h3 : 12 * y + (-4) * z < 0) (_ : prime 7) : False := by omega
 
@@ -425,6 +423,10 @@ example (x : Int) (e : Nat) (hx : x < (2 : Int)^(e+1)) : x < 2^e * 2 := by omega
 
 example : 2^7 < 165 := by omega
 example (_ : x % 2^7 < 3) : x % 128 < 5 := by omega
+
+example (a : Nat) :
+    (((a + (2 ^ 64 - 1)) % 2 ^ 64 + 1) * 8 - 1 - (a + (2 ^ 64 - 1)) % 2 ^ 64 * 8 + 1) = 8 := by
+  omega
 
 /-! ### BitVec -/
 open BitVec

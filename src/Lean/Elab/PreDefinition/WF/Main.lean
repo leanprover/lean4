@@ -114,7 +114,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs wfRel (preDefs.map (·.termination.decreasing_by?))
+        let value ← mkFix unaryPreDef prefixArgs wfRel (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

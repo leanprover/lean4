@@ -325,19 +325,6 @@ protected def pow (m : Int) : Nat → Int
 instance : HPow Int Nat Int where
   hPow := Int.pow
 
-protected
-theorem pow_succ (b : Int) (n : Nat) : b ^ (n+1) = b^n * b := by rfl
-
-theorem powNatCast (b n : Nat) : (@Nat.cast Int _ b) ^ n = (b^n : Nat) := by
-  match n with
-  | 0 => rfl
-  | n + 1 =>
-    simp only [Int.pow_succ, powNatCast b n, Nat.pow_succ]
-    rfl
-
-theorem powOfNat (b n : Nat) : (@OfNat.ofNat Int b _) ^ n = (b^n : Nat) :=
-  powNatCast b n
-
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption
   rfl := by simp [BEq.beq]

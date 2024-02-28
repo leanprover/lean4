@@ -180,7 +180,7 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
       if 2*i.toNat < 2^n then
         (i.toNat : Int)
       else
-        (i.toNat : Int) - (2 : Nat)^n := by
+        (i.toNat : Int) - (2^n : Nat) := by
   split
   case inl h =>
     unfold BitVec.toInt
@@ -191,7 +191,7 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
     unfold BitVec.toInt
     unfold Int.bmod
     simp at h
-    simp only [Int.powOfNat 2 n]
+    simp only []
     split
     case inl g =>
       norm_cast at g
@@ -200,7 +200,7 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
       simp
       omega
     case inr g =>
-      simp [Int.powOfNat 2 n, ← Int.ofNat_emod]
+      simp [← Int.ofNat_emod]
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
@@ -209,7 +209,6 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
     rw [Int.bmod_pos] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
   case inr g =>
-    rw [Int.powNatCast]
     rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
 
@@ -222,33 +221,30 @@ theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
       simp [p, q] at eq
       apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
     else
-      simp [p, q, Int.powOfNat 2 n] at eq
+      have _jlt := j.isLt
       omega
   else
     if q : 2 * BitVec.toNat j < 2 ^ n then
-      simp [p, q, Int.powOfNat 2 n] at eq
+      have _ilt := i.isLt
       omega
     else
       simp [p, q] at eq
       apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
 
 @[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
-  (BitVec.ofInt n i).toNat = (i % (2^n)).toNat := by
+  (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt
-  rw [Int.powOfNat]
   simp
 
+@[simp] theorem toInt_ofNat {n : Nat} (x : Nat) :
+  (BitVec.ofNat n x).toInt = (x : Int).bmod (2^n) := by
+  simp [toInt_eq_toNat_bmod]
 
 @[simp] theorem toInt_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toInt = i.bmod (2^n) := by
-  simp [toInt_eq_toNat_bmod]
-  rw [Int.powOfNat, Int.toNat_of_nonneg _]
-  . simp
-  · apply Int.emod_nonneg
-    intro eq
-    apply Nat.ne_of_gt (Nat.two_pow_pos n)
-    apply Int.ofNat_inj.mp eq
-
+  have _ := Nat.two_pow_pos n
+  have p : 0 ≤ i % (2^n : Nat) := by omega
+  simp [toInt_eq_toNat_bmod, Int.toNat_of_nonneg p]
 
 /-! ### zeroExtend and truncate -/
 

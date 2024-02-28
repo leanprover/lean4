@@ -42,16 +42,19 @@ the motive takes the same non-fixed parameters as the original function.
 
 For each branch of the original function, there is a case in the induction principle.
 Here "branch" roughly corresponds to tail-call positions: branches of top-level
-`if`-`then`-`else` and `match` expressions.
+`if`-`then`-`else` and of `match` expressions that pattern-match on function arguments
+(but, for now, not those that match on more complicated terms).
 
 For every recursive call in that branch, an induction hypothesis asserting the
 motive for the arguments of the recursive call is provided.
-If the recursive call is under binder and it, or its proof of termination,
-depend on the the bound values, then these become assumptions on the inductive
+If the recursive call is under binders and it, or its proof of termination,
+depend on the the bound values, then these become assumptions of the inductive
 hypothesis.
 
 Additionally, the local context of the branch (e.g. the condition of an
-if-then-else) is provided as assumptions in the corresponding induction case.
+if-then-else; a let-binding, a have-binding) is provided as assumptions in the
+corresponding induction case, if they are likely to be useful (as determined
+by `MVarId.cleanup`).
 
 Mutual recursion is supported and results in multiple motives.
 
@@ -75,7 +78,7 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
    ```
 
 3. The first phase, transformation `T1[body]` (implemented in) `buildInductionBody`,
-   mirrors the branching structure of `foo`, i.e. replicates `dite` and matcher applications,
+   mirrors the branching structure of `foo`, i.e. replicates `dite` and some matcher applications,
    while adjusting their motive. It also unfolds calls to `oldIH` and collects induction hypotheses
    in conditions (see below).
 
@@ -87,11 +90,13 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
     ==> (match (motive := fun newIH => …) y with | … => fun newIH' => T[body]) newIH
    ```
 
+   Match statements that do *not* refine the IH in this way are left alone (for now); to split
+   them in a useful way requires to treat it as if every discriminant had a `h :` annotation.
+
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context
    are cleared, and the current `body` is searched for recursive calls using `collectIHs`,
    which are then asserted as inductive hyptheses in the `MVar`.
-
 
 5. The function `collectIHs` walks the term and collects the induction hypotheses for the current case
    (with proofs). When it encounters a saturated application of `oldIH x proof`, it returns

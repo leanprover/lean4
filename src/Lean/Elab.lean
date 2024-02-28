@@ -48,3 +48,4 @@ import Lean.Elab.Calc
 import Lean.Elab.InheritDoc
 import Lean.Elab.ParseImportsFast
 import Lean.Elab.GuardMsgs
+import Lean.Elab.CheckTactic

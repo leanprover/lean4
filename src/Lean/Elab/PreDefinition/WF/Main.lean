@@ -94,12 +94,12 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
 
   let wf ← do
-    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.termination_by?.isSome)
+    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
     if preDefsWith.isEmpty then
       -- No termination_by anywhere, so guess one
       guessLex preDefs unaryPreDef fixedPrefixSize
     else if preDefsWithout.isEmpty then
-      pure <| preDefsWith.map (·.termination.termination_by?.get!)
+      pure <| preDefsWith.map (·.termination.terminationBy?.get!)
     else
       -- Some have, some do not, so report errors
       preDefsWithout.forM fun preDef => do
@@ -114,7 +114,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs wfRel (preDefs.map (·.termination.decreasing_by?))
+        let value ← mkFix unaryPreDef prefixArgs wfRel (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

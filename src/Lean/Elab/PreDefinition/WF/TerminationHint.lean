@@ -27,7 +27,7 @@ structure TerminationBy where
   deriving Inhabited
 
 open Parser.Termination in
-def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
+def TerminationBy.unexpand (wf : TerminationBy) : MetaM (TSyntax ``terminationBy) := do
   -- TODO: Why can I not just use $wf.vars in the quotation below?
   let vars : TSyntaxArray `ident := wf.vars.map (⟨·.raw⟩)
   if vars.isEmpty then
@@ -50,8 +50,9 @@ is what `Term.runTactic` expects.
  -/
 structure TerminationHints where
   ref : Syntax
-  termination_by? : Option TerminationBy
-  decreasing_by?  : Option DecreasingBy
+  terminationBy?? : Option Syntax
+  terminationBy? : Option TerminationBy
+  decreasingBy?  : Option DecreasingBy
   /-- Here we record the number of parameters past the `:`. It is set by
   `TerminationHints.rememberExtraParams` and used as folows:
 
@@ -63,18 +64,26 @@ structure TerminationHints where
   extraParams : Nat
   deriving Inhabited
 
-def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, 0⟩
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): CoreM Unit := do
-  match hints.termination_by?, hints.decreasing_by? with
-  | .none, .none => pure ()
-  | .none, .some dec_by =>
+  match hints.terminationBy??, hints.terminationBy?, hints.decreasingBy? with
+  | .none, .none, .none => pure ()
+  | .none, .none, .some dec_by =>
     logErrorAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
-  | .some term_by, .none =>
+  | .some term_by?, .none, .none =>
+    logErrorAt term_by? m!"unused `termination_by?`, function is {reason}"
+  | .none, .some term_by, .none =>
     logErrorAt term_by.ref m!"unused `termination_by`, function is {reason}"
-  | .some _, .some _ =>
+  | _, _, _ =>
     logErrorAt hints.ref m!"unused termination hints, function is {reason}"
+
+/-- True if any form of termination hint is present. -/
+def TerminationHints.isNotNone (hints : TerminationHints) : Bool :=
+  hints.terminationBy??.isSome ||
+  hints.terminationBy?.isSome ||
+  hints.decreasingBy?.isSome
 
 /--
 Remembers `extraParams` for later use. Needs to happen early enough where we still know
@@ -111,19 +120,23 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
   if let .missing := stx.raw then
     return { TerminationHints.none with ref := stx }
   match stx with
-  | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) => do
-    let termination_by? ← t?.mapM fun t => match t with
-      | `(terminationBy|termination_by $vars* => $body) =>
-        if vars.isEmpty then
-          throwErrorAt t "no extra parameters bounds, please omit the `=>`"
-        else
-          pure {ref := t, vars, body}
-      | `(terminationBy|termination_by $body:term) => pure {ref := t, vars := #[], body}
+  | `(suffix| $[$t?]? $[$d?:decreasingBy]? ) => do
+    let terminationBy?? : Option Syntax ← if let some t := t? then match t with
+      | `(terminationBy?|termination_by?) => pure (some t)
+      | _ => pure none
+      else pure none
+    let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
+      | `(terminationBy|termination_by => $_body) =>
+        throwErrorAt t "no extra parameters bounds, please omit the `=>`"
+      | `(terminationBy|termination_by $vars* => $body) => pure (some {ref := t, vars, body})
+      | `(terminationBy|termination_by $body:term) => pure (some {ref := t, vars := #[], body})
+      | `(terminationBy?|termination_by?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
-    let decreasing_by? ← d?.mapM fun d => match d with
+      else pure none
+    let decreasingBy? ← d?.mapM fun d => match d with
       | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}
       | _ => throwErrorAt d "unexpected `decreasing_by` syntax"
-    return { ref := stx, termination_by?, decreasing_by?, extraParams := 0 }
+    return { ref := stx, terminationBy??, terminationBy?, decreasingBy?, extraParams := 0 }
   | _ => throwErrorAt stx s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

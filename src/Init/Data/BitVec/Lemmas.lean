@@ -182,9 +182,7 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
         (i.toNat : Int) - (2^n : Nat) := by
   split
   case inl h =>
-    unfold BitVec.toInt
-    unfold Int.bmod
-    simp [← Int.ofNat_emod, Nat.mod_eq_of_lt, i.isLt]
+    simp [BitVec.toInt, Int.bmod, ← Int.ofNat_emod, Nat.mod_eq_of_lt, i.isLt]
     omega
   case inr h =>
     unfold BitVec.toInt
@@ -195,8 +193,6 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
     case inl g =>
       norm_cast at g
       simp at g
-      norm_cast
-      simp
       omega
     case inr g =>
       simp [← Int.ofNat_emod]
@@ -215,20 +211,11 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
 theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
   intro eq
   simp [toInt_eq_toNat_cond] at eq
-  if p : 2 * BitVec.toNat i < 2 ^ n then
-    if q : 2 * BitVec.toNat j < 2 ^ n then
-      simp [p, q] at eq
-      apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
-    else
-      have _jlt := j.isLt
-      omega
-  else
-    if q : 2 * BitVec.toNat j < 2 ^ n then
-      have _ilt := i.isLt
-      omega
-    else
-      simp [p, q] at eq
-      apply eq_of_toNat_eq (Int.ofNat_inj.mp eq)
+  apply eq_of_toNat_eq
+  revert eq
+  have _ilt := i.isLt
+  have _jlt := j.isLt
+  split <;> split <;> omega
 
 @[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by

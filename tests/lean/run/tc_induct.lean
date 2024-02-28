@@ -1,3 +1,5 @@
+import Lean.Elab.Tactic.Guard
+
 inductive Expr where
   | nat  : Nat → Expr
   | plus : Expr → Expr → Expr
@@ -46,6 +48,13 @@ theorem Expr.typeCheck_correct (h₁ : HasType e ty) (h₂ : e.typeCheck ≠ .un
   | unknown => intros; contradiction
 
 derive_functional_induction Expr.typeCheck
+
+/--
+info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), motive (Expr.nat a))
+  (case2 : ∀ (a : Bool), motive (Expr.bool a)) (case3 : ∀ (a b : Expr), motive a → motive b → motive (Expr.plus a b))
+  (case4 : ∀ (a b : Expr), motive a → motive b → motive (Expr.and a b)) (x : Expr) : motive x
+-/
+#guard_msgs in
 #check Expr.typeCheck.induct
 
 theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
@@ -57,3 +66,12 @@ theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasTy
       intro ht; cases ht
       next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))
     }
+
+-- The same, using the induction tactic
+theorem Expr.typeCheck_complete' {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
+  induction e using Expr.typeCheck.induct
+  all_goals simp [typeCheck]
+  case case3 a b iha ihb | case4 a b iha ihb =>
+      split <;> simp [*]
+      intro ht; cases ht
+      next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))

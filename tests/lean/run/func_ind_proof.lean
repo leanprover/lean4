@@ -26,6 +26,16 @@ end
 
 derive_functional_induction replaceConst
 
+/--
+info: Term.replaceConst.induct (a b : String) (motive1 : Term → Prop) (motive2 : List Term → Prop)
+  (case1 : ∀ (a_1 : String), (a == a_1) = true → motive1 (const a_1))
+  (case2 : ∀ (a_1 : String), ¬(a == a_1) = true → motive1 (const a_1))
+  (case3 : ∀ (a : String) (cs : List Term), motive2 cs → motive1 (app a cs)) (case4 : motive2 [])
+  (case5 : ∀ (c : Term) (cs : List Term), motive1 c → motive2 cs → motive2 (c :: cs)) (x : Term) : motive1 x
+-/
+#guard_msgs in
+#check replaceConst.induct
+
 theorem numConsts_replaceConst (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
   apply replaceConst.induct
     (motive1 := fun e => numConsts (replaceConst a b e) = numConsts e)
@@ -48,5 +58,10 @@ theorem numConsts_replaceConst' (a b : String) (e : Term) : numConsts (replaceCo
     (motive1 := fun e => numConsts (replaceConst a b e) = numConsts e)
     (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es)
   <;> intros <;> simp [replaceConst, numConsts, replaceConstLst, numConstsLst, *]
+
+theorem numConsts_replaceConst'' (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
+  induction e using replaceConst.induct (a := a) (b := b)
+    (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es) <;>
+    simp [replaceConst, numConsts, replaceConstLst, numConstsLst, *]
 
 end Term

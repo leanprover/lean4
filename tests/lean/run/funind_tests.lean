@@ -237,16 +237,15 @@ set_option linter.unusedVariables false in
 def with_match_tailrec : Nat → Nat
   | 0 => 0
   | n+1 =>
-    match h : n % 2 with
+    match n % 2 with
     | 0 => with_match_tailrec n
     | _ => with_match_tailrec n
 termination_by n => n
 derive_functional_induction with_match_tailrec
 
 /--
-info: with_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), n % 2 = 0 → motive n → motive (Nat.succ n))
-  (case3 : ∀ (n x : Nat), (x = 0 → False) → n % 2 = x → motive n → motive (Nat.succ n)) (x : Nat) : motive x
+info: with_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
+  (x : Nat) : motive x
 -/
 #guard_msgs in
 #check with_match_tailrec.induct

@@ -1430,9 +1430,9 @@ where `i < arr.size` is in the context) and `simp_arith` and `omega`
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
@@ -1443,6 +1443,24 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
+      /-
+      Recall that `macro_rules` are tried in reverse order.
+      We want `assumption` to be tried first.
+      This is important for theorems such as
+      ```
+      [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
+      a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
+      ```
+      There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
+      If `omega` is used to "fill" this proof, we will have a more complex proof term that
+      cannot be inferred by unification.
+      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      they add new `macro_rules` for `get_elem_tactic_trivial`.
+
+      TODO: Implement priorities for `macro_rules`.
+      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      -/
+    | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid

@@ -359,15 +359,6 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
   | .fvar _ =>
     throwError "collectIHs: could not collect recursive calls, unsaturated application of old induction hypothesis"
 
-def withLetDecls {α} (vals : Array Expr) (k : Array FVarId → MetaM α) (i : Nat := 0) : MetaM α := do
-  if h : i < vals.size then
-    let e := vals[i]
-    withLetDecl s!"IH{i+1}" e (← inferType e) fun a =>
-      withLetDecls vals (fun args => k (args.push a.fvarId!)) (i + 1)
-  else
-    k #[]
-termination_by vals.size - i
-
 -- Because of term duplications we might encounter the same IH multiple times.
 -- We deduplicate them (by type, not proof term) here.
 -- This could be improved and catch cases where the same IH is used in different contexts.
@@ -385,7 +376,7 @@ def deduplicateIHs (vals : Array Expr) : MetaM (Array Expr) := do
 def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   let mut mvarid := mvarid
   for v in vals.reverse, i in [0:vals.size] do
-    mvarid ← mvarid.assert s!"IH{i+1}" (← inferType v) v
+    mvarid ← mvarid.assert s!"ih{i+1}" (← inferType v) v
   return mvarid
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/

@@ -68,7 +68,7 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 `e = (coordinate n).eval atoms`. -/
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
-    let atoms := (← getThe State).atoms
+    let atoms ← atoms
     let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
     mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))

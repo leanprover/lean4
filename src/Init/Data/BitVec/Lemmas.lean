@@ -156,7 +156,6 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
     simp [BitVec.msb_eq_decide] at p
     omega
 
-
 /-! ### cast -/
 
 @[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (cast h x).toNat = x.toNat := rfl

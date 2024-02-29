@@ -191,7 +191,7 @@ NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitte
 
 The array `addEqualities`, if provided, indicates for which of the discriminants an equality
 connecting the discriminant to the parameters of the alternative (like in `match h : x with …`)
-should be added (TODO: if it is isn't already there).
+should be added (if it is isn't already there).
 
 This function works even if the the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
@@ -208,6 +208,10 @@ def transform (matcherApp : MatcherApp)
 
   if addEqualities.size != matcherApp.discrs.size then
     throwError "MatcherApp.transform: addEqualities has wrong size"
+
+  -- Do not add equalities when the matcher already does so
+  let addEqualities := Array.zipWith addEqualities matcherApp.discrInfos fun b di =>
+    if di.hName?.isSome then false else b
 
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.

@@ -277,8 +277,8 @@ derive_functional_induction with_other_match_tailrec
 
 /--
 info: with_other_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), 0 = n % 2 → motive n → motive (Nat.succ n))
-  (case3 : ∀ (n m : Nat), (m = 0 → False) → m = n % 2 → motive n → motive (Nat.succ n)) (x : Nat) : motive x
+  (case2 : ∀ (n : Nat), n % 2 = 0 → motive n → motive (Nat.succ n))
+  (case3 : ∀ (n m : Nat), (m = 0 → False) → n % 2 = m → motive n → motive (Nat.succ n)) (x : Nat) : motive x
 -/
 #guard_msgs in
 #check with_other_match_tailrec.induct
@@ -293,11 +293,10 @@ derive_functional_induction with_mixed_match_tailrec
 
 /--
 info: with_mixed_match_tailrec.induct (motive : Nat → Nat → Nat → Nat → Prop)
-  (case1 :
-    ∀ (fst fst_1 snd x x_1 x_2 : Nat), fst = x → snd % 2 = x_2 → x_2 = snd % 2 → x_1 = fst_1 % 2 → motive 0 x fst_1 snd)
+  (case1 : ∀ (fst fst_1 snd x x_1 x_2 : Nat), fst = x → snd % 2 = x_2 → fst_1 % 2 = x_1 → motive 0 x fst_1 snd)
   (case2 :
     ∀ (fst fst_1 snd a x y z : Nat),
-      fst = x → snd % 2 = z → z = snd % 2 → y = fst_1 % 2 → motive a x y z → motive (Nat.succ a) x fst_1 snd)
+      fst = x → snd % 2 = z → fst_1 % 2 = y → motive a x y z → motive (Nat.succ a) x fst_1 snd)
   (x x x x : Nat) : motive x x x x
 -/
 #guard_msgs in
@@ -318,12 +317,10 @@ derive_functional_induction with_mixed_match_tailrec2
 info: with_mixed_match_tailrec2.induct (motive : Nat → Nat → Nat → Nat → Nat → Prop)
   (case1 : ∀ (fst fst_1 fst_2 snd : Nat), motive 0 fst fst_1 fst_2 snd)
   (case2 :
-    ∀ (fst fst_1 snd n x x_1 x_2 : Nat),
-      fst = x → snd % 2 = x_2 → x_2 = snd % 2 → x_1 = fst_1 % 2 → motive (Nat.succ n) 0 x fst_1 snd)
+    ∀ (fst fst_1 snd n x x_1 x_2 : Nat), fst = x → snd % 2 = x_2 → fst_1 % 2 = x_1 → motive (Nat.succ n) 0 x fst_1 snd)
   (case3 :
     ∀ (fst fst_1 snd n a x y z : Nat),
-      fst = x →
-        snd % 2 = z → z = snd % 2 → y = fst_1 % 2 → motive n a x y z → motive (Nat.succ n) (Nat.succ a) x fst_1 snd)
+      fst = x → snd % 2 = z → fst_1 % 2 = y → motive n a x y z → motive (Nat.succ n) (Nat.succ a) x fst_1 snd)
   (x x x x x : Nat) : motive x x x x x
 -/
 #guard_msgs in
@@ -606,9 +603,9 @@ derive_functional_induction bar
 
 /--
 info: RecCallInDisrs.bar.induct (motive : Nat → Prop) (case1 : motive 0)
-  (case2 : ∀ (n : Nat), n = 0 → 0 = bar n → motive n → motive (Nat.succ 0))
-  (case3 : ∀ (n x : Nat), (x = 0 → False) → n = 0 → x = bar n → motive n → motive (Nat.succ 0))
-  (case4 : ∀ (n m x : Nat), n = Nat.succ m → x = bar n → motive n → motive m → motive (Nat.succ (Nat.succ m)))
+  (case2 : ∀ (n : Nat), n = 0 → bar n = 0 → motive n → motive (Nat.succ 0))
+  (case3 : ∀ (n x : Nat), (x = 0 → False) → n = 0 → bar n = x → motive n → motive (Nat.succ 0))
+  (case4 : ∀ (n m x : Nat), n = Nat.succ m → bar n = x → motive n → motive m → motive (Nat.succ (Nat.succ m)))
   (x : Nat) : motive x
 -/
 #guard_msgs in

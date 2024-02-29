@@ -801,7 +801,7 @@ def isType0 : Expr → Bool
 
 /-- Return `true` if the given expression is `.sort .zero` -/
 def isProp : Expr → Bool
-  | sort (.zero ..) => true
+  | sort .zero => true
   | _ => false
 
 /-- Return `true` if the given expression is a bound variable. -/

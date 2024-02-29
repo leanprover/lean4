@@ -233,22 +233,6 @@ info: with_match_refining_tailrec.induct (motive : Nat → Prop) (case1 : motive
 #check with_match_refining_tailrec.induct
 
 
-set_option linter.unusedVariables false in
-def with_match_tailrec : Nat → Nat
-  | 0 => 0
-  | n+1 =>
-    match n % 2 with
-    | 0 => with_match_tailrec n
-    | _ => with_match_tailrec n
-termination_by n => n
-derive_functional_induction with_match_tailrec
-
-/--
-info: with_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n))
-  (x : Nat) : motive x
--/
-#guard_msgs in
-#check with_match_tailrec.induct
 
 def with_arg_refining_match1 (i : Nat) : Nat → Nat
   | 0 => 0
@@ -279,6 +263,60 @@ info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : �
 #check with_arg_refining_match2.induct
 
 
+set_option linter.unusedVariables false in
+def with_other_match_tailrec : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    match n % 2 with
+    | 0 => with_other_match_tailrec n
+    | _ => with_other_match_tailrec n
+termination_by n => n
+derive_functional_induction with_other_match_tailrec
+
+/--
+info: with_other_match_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n)) (x : Nat) : motive x
+-/
+#guard_msgs in
+#check with_other_match_tailrec.induct
+
+set_option linter.unusedVariables false in
+def with_mixed_match_tailrec : Nat → Nat → Nat → Nat → Nat := fun a b c d =>
+  match a, h: b, c % 2, h : d % 2 with
+  | 0, _, _, _ => 0
+  | a+1, x, y, z => with_mixed_match_tailrec a x y z
+termination_by n => n
+derive_functional_induction with_mixed_match_tailrec
+
+/--
+info: with_mixed_match_tailrec.induct (motive : Nat → Nat → Nat → Nat → Prop)
+  (case1 : ∀ (fst fst_1 snd x x_1 : Nat), fst = x → snd % 2 = x_1 → motive 0 x fst_1 snd)
+  (case2 : ∀ (fst fst_1 snd a x y z : Nat), fst = x → snd % 2 = z → motive a x y z → motive (Nat.succ a) x fst_1 snd)
+  (x x x x : Nat) : motive x x x x
+-/
+#guard_msgs in
+#check with_mixed_match_tailrec.induct
+
+set_option linter.unusedVariables false in
+def with_mixed_match_tailrec2 : Nat → Nat → Nat → Nat → Nat → Nat := fun n a b c d =>
+  match n with
+  | 0 => 0
+  | n+1 =>
+    match a, h: b, c % 2, h : d % 2 with
+    | 0, _, _, _ => 0
+    | a+1, x, y, z => with_mixed_match_tailrec2 n a x y z
+termination_by n => n
+derive_functional_induction with_mixed_match_tailrec2
+
+/--
+info: with_mixed_match_tailrec2.induct (motive : Nat → Nat → Nat → Nat → Nat → Prop)
+  (case1 : ∀ (fst fst_1 fst_2 snd : Nat), motive 0 fst fst_1 fst_2 snd)
+  (case2 :
+    ∀ (fst fst_1 fst_2 snd n : Nat), (∀ (a x y z : Nat), motive n a x y z) → motive (Nat.succ n) fst fst_1 fst_2 snd)
+  (x x x x x : Nat) : motive x x x x x
+-/
+#guard_msgs in
+#check with_mixed_match_tailrec2.induct
 
 set_option linter.unusedVariables false in
 def with_match_non_tailrec : Nat → Nat

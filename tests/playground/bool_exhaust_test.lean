@@ -3,18 +3,6 @@ import Lean.Elab.Command
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 
--- FIXME: Add lemmas below
-
-/-
-This lemma is needed for resolving non-confluence of `decide (ite u b c = true)`:
-
-This reduces to the two pairs
-1. `ite u b c` via `decide_coe`
-2. `decide (ite u (b = true) (c = true))` via `ite_eq_true_distrib`
-
--/
-
-/-- TODO: Replace `decide_coe` with this one. -/
 
 
 -- This file runs many tests on simp and other operations on
@@ -47,10 +35,6 @@ The specific operations we want to test are:
 * dec
 * `∀(b:Bool)`,  `∀(p:Prop)`, `∃(b:Bool)`, and `∃(p:Prop)`.
 -/
--- TODO:
--- * Add test for exclusive or
--- * Add test for decidable quantifiers
--- * Add test for ite/dite
 
 inductive BoolType where
   | prop
@@ -120,12 +104,13 @@ inductive BoolVal where
   | trueVal (tp : BoolType)
   | falseVal (tp : BoolType)
   | var (idx : Nat) (v : TSyntax `ident) (tp : BoolType)
-    /-- `(t : Prop)` when `t` is a `Bool`.
+    /--
+    `(t : Prop)` when `t` is a `Bool`.
+
     Equaivalent to `t = true`.
     -/
   | boolToProp (t : BoolVal)
-    /-- `decide t` is the same as `p : Bool`
-    -/
+    /-- `decide t` is the same as `p : Bool` -/
   | decide (t : BoolVal)
   | not (x   : BoolVal) (tp : BoolType)
   | and (x y : BoolVal) (tp : BoolType)
@@ -197,7 +182,6 @@ def render [Monad M] [MonadQuotation M] (v : BoolVal) :
     | .condBool => do
       `(term| bif $(←c.render) then $(←t.render) else $(←f.render))
 
-
 def map (f : BoolVal -> BoolVal) (v : BoolVal) : BoolVal :=
   match v with
   | .trueVal _ | .falseVal _ | .var _ _ _ => v
@@ -233,10 +217,6 @@ instance : OrOp BoolVal where
   or x y  := BoolVal.or x y (BoolVal.typeOf x)
 
 section
-
---set_option quotPrecheck false
---local prefix:40 "↓ " => simp
---set_option quotPrecheck true
 
 /--
 Returns true if we have syntactic rules to

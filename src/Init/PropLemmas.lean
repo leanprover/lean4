@@ -136,35 +136,41 @@ theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.
 /-! ## Ite -/
 
 @[simp]
-theorem if_true_left {p q : Prop} [h : Decidable p] :
-    ite p True q ↔ p ∨ q := by cases h <;> simp [*]
-
-@[simp]
 theorem if_false_left {p q : Prop} [h : Decidable p] :
-    ite p False q ↔ ¬p ∧ q := by cases h <;> simp [*]
-
-@[simp]
-theorem if_true_right {p q : Prop} [h : Decidable p] :
-    ite p q True ↔ ¬p ∨ q := by cases h <;> simp [*]
+    ite p False q ↔ ¬p ∧ q := by cases h <;> (rename_i g ; simp [g])
 
 @[simp]
 theorem if_false_right {p q : Prop} [h : Decidable p] :
-    ite p q False ↔ p ∧ q := by cases h <;> simp [*]
+    ite p q False ↔ p ∧ q := by cases h <;> (rename_i g ; simp [g])
+
+/-
+`if_true_left` and `if_true_right` are lower priority because
+they introduce disjunctions and we prefer `if_false_left` and
+`if_false_right` if they overlap.
+-/
+
+@[simp low]
+theorem if_true_left {p q : Prop} [h : Decidable p] :
+    ite p True q ↔ ¬p → q := by cases h <;> (rename_i g ; simp [g])
+
+@[simp low]
+theorem if_true_right {p q : Prop} [h : Decidable p] :
+    ite p q True ↔ p → q := by cases h <;> (rename_i g ; simp [g])
 
 /-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
 @[simp] theorem dite_not (P : Prop) {hn : Decidable (¬P) } {h : Decidable P}  (x : ¬P → α) (y : ¬¬P → α) :
     dite (¬P) x y = dite P (fun h => y (not_not_intro h)) x := by
-  cases h <;> simp [*]
+  cases h <;> (rename_i g ; simp [g])
 
 /-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
 @[simp] theorem ite_not (P : Prop) {_ : Decidable P} (x y : α) : ite (¬P) x y = ite P y x :=
   dite_not P (fun _ => x) (fun _ => y)
 
-@[simp] theorem ite_true_same (p q : Prop) [h : Decidable p] : (if p then p else q) = (p ∨ q) := by
-  cases h <;> simp [*]
+@[simp] theorem ite_true_same (p q : Prop) [h : Decidable p] : (if p then p else q) = (¬p → q) := by
+  cases h <;> (rename_i g ; simp [g])
 
 @[simp] theorem ite_false_same (p q : Prop) [h : Decidable p] : (if p then q else p) = (p ∧ q) := by
-  cases h <;> simp [*]
+  cases h <;> (rename_i g ; simp [g])
 
 /-! ## exists and forall -/
 
@@ -454,8 +460,12 @@ theorem Decidable.and_iff_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ �
   rw [← not_and_iff_or_not_not, not_not]
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
-  ⟨fun H => (Decidable.em a).imp_right fun ha' => H.1 fun ha => (ha' ha).elim,
-   fun H => H.elim imp_iff_right fun hb => iff_of_true (fun _ => hb) hb⟩
+  Iff.intro
+    (fun h => (Decidable.em a).imp_right fun ha' => h.mp fun ha => (ha' ha).elim)
+    (fun ab => ab.elim imp_iff_right fun hb => iff_of_true (fun _ => hb) hb)
+
+theorem Decidable.imp_iff_left_iff  [Decidable a] : (b ↔ a → b) ↔ a ∨ b :=
+  propext (@Iff.comm (a → b) b) ▸ (@Decidable.imp_iff_right_iff a b _)
 
 theorem Decidable.and_or_imp [Decidable a] : a ∧ b ∨ (a → c) ↔ a → b ∨ c :=
   if ha : a then by simp only [ha, true_and, true_imp_iff]
@@ -501,6 +511,8 @@ protected theorem Decidable.not_exists_not {p : α → Prop} [∀ x, Decidable (
     (¬∃ x, ¬p x) ↔ ∀ x, p x := by
   simp only [not_exists, Decidable.not_not]
 
+export Decidable (not_imp_self)
+
 /-
 `decide_implies` simp justification.
 
@@ -543,4 +555,12 @@ theorem decide_ite (u : Prop) {du : Decidable u} (p q : Prop)
     decide (ite u p q) = ite u (decide p) (decide q) := by
   cases du <;> simp [*]
 
-export Decidable (not_imp_self)
+/- Confluence for `ite_true_same` and `decide_ite`. -/
+@[simp] theorem ite_true_decide_same (p : Prop) [h : Decidable p] (b : Bool) :
+  (if p then decide p else b) = (decide p || b) := by
+  cases h <;> (rename_i pt ; simp [pt])
+
+/- Confluence for `ite_false_same` and `decide_ite`. -/
+@[simp] theorem ite_false_decide_same (p : Prop) [h : Decidable p] (b : Bool) :
+  (if p then b else decide p) = (decide p && b) := by
+  cases h <;> (rename_i pt ; simp [pt])

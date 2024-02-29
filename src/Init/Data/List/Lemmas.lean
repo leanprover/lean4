@@ -451,9 +451,9 @@ theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
   | nil => simp [filter]
   | cons a as ih =>
-    by_cases h : p a <;> simp [*, or_and_right]
-    · exact or_congr_left (and_iff_left_of_imp fun | rfl => h).symm
-    · exact (or_iff_right fun ⟨rfl, h'⟩ => h h').symm
+    by_cases h : p a
+    · simp_all [or_and_left]
+    · simp_all [or_and_right]
 
 theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]

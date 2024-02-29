@@ -127,6 +127,7 @@ end SimprocHelperLemmas
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide
 
 @[simp] theorem not_iff_self : ¬(¬a ↔ a) | H => iff_not_self H.symm
+attribute [simp] iff_not_self
 
 /-! ## and -/
 
@@ -175,6 +176,11 @@ theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.r
 
 @[simp] theorem or_iff_left_iff_imp  : (a ∨ b ↔ a) ↔ (b → a) := Iff.intro (·.mp ∘ Or.inr) or_iff_left_of_imp
 @[simp] theorem or_iff_right_iff_imp : (a ∨ b ↔ b) ↔ (a → b) := by rw [or_comm, or_iff_left_iff_imp]
+
+@[simp] theorem iff_self_or (a b : Prop) : (a ↔ a ∨ b) ↔ (b → a) :=
+  propext (@Iff.comm _ a) ▸ @or_iff_left_iff_imp a b
+@[simp] theorem iff_or_self (a b : Prop) : (b ↔ a ∨ b) ↔ (a → b) :=
+  propext (@Iff.comm _ b) ▸ @or_iff_right_iff_imp a b
 
 /-# Bool -/
 

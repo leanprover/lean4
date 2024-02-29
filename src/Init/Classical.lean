@@ -146,6 +146,7 @@ theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_an
 
 theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
+@[simp] theorem imp_iff_left_iff  : (b ↔ a → b) ↔ a ∨ b := Decidable.imp_iff_left_iff
 @[simp] theorem imp_iff_right_iff : (a → b ↔ b) ↔ a ∨ b := Decidable.imp_iff_right_iff
 
 @[simp] theorem and_or_imp : a ∧ b ∨ (a → c) ↔ a → b ∨ c := Decidable.and_or_imp

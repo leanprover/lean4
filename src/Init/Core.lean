@@ -1403,7 +1403,7 @@ theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro Fals
 
 theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
 
-@[simp] theorem imp_self : (a → a) ↔ True := iff_true_intro id
+@[simp high] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 
 @[simp] theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
 

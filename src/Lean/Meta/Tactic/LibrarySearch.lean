@@ -317,7 +317,7 @@ private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM 
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
     let lemType ← instantiateMVars (← inferType lem)
-    if ←isNonspecific lemType then
+    if ← isNonspecific lemType then
       failure
     let newGoals ← goal.apply lem cfg
     try

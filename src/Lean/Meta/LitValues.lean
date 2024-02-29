@@ -78,7 +78,6 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let v ← getNatValue? (e.getArg!' 1)
     return ⟨n, BitVec.ofNat n v⟩
   let (v, type) ← getOfNatValue? e ``BitVec
-  IO.println v
   let n ← getNatValue? (← whnfD type.appArg!)
   return ⟨n, BitVec.ofNat n v⟩
 

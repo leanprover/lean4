@@ -51,7 +51,7 @@ ${LIB}/temp/empty.c:
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LIB}/temp/empty.c
 ifeq "${INIT_SHARED_LINKER_FLAGS}" ""
   # create empty library on platforms without restrictive symbol limits; avoids costly indirections and troubles with cross-library exceptions
-	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LIB}/temp/empty.c
+	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LIB}/temp/empty.c ${TOOLCHAIN_SHARED_LINKER_FLAGS} ${LEANC_OPTS}
 else
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)

@@ -817,6 +817,12 @@ def macroLastArg   := macroDollarArg <|> macroArg
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent
 
+/--
+Implementation of the `show_term` term elaborator.
+-/
+@[builtin_term_parser] def showTermElabImpl :=
+  leading_parser:leadPrec "show_term_elab " >> termParser
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser

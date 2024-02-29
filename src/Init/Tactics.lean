@@ -1306,6 +1306,28 @@ used when closing the goal.
 -/
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 
+/--
+`show_term tac` runs `tac`, then prints the generated term in the form
+"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+
+(For some tactics, the printed term will not be human readable.)
+-/
+syntax (name := showTerm) "show_term " tacticSeq : tactic
+
+/--
+`show_term e` elaborates `e`, then prints the generated term.
+
+(For some tactics, the printed term will not be human readable.)
+-/
+macro (name := showTermElab) tk:"show_term " t:term : term =>
+  `(no_implicit_lambda% (show_term_elab%$tk $t))
+
+/--
+The command `by?` will print a suggestion for replacing the proof block with a proof term
+using `show_term`.
+-/
+macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+
 end Tactic
 
 namespace Attr

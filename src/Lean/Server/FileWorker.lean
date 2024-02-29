@@ -101,6 +101,7 @@ section Elab
     newInfoTrees : Array Elab.InfoTree := #[]
     /-- Whether we should finish with a fatal progress notification. -/
     isFatal := false
+  deriving Inhabited
 
   register_builtin_option server.reportDelayMs : Nat := {
     defValue := 200
@@ -132,32 +133,33 @@ section Elab
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
-  private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore) :
-      BaseIO (Task Unit) := do
+  private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
+      (cancelTk : CancelToken) : BaseIO (Task Unit) := do
     let t ← BaseIO.asTask do
       IO.sleep (server.reportDelayMs.get ctx.opts).toUInt32
-    BaseIO.bindTask t fun _ =>
-      start
+    BaseIO.bindTask t fun _ => do
+      BaseIO.bindTask (← go (toSnapshotTree doc.initSnap) {}) fun st => do
+        if (← cancelTk.isSet) then
+          return .pure ()
+
+        -- callback at the end of reporting
+        if st.isFatal then
+          ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
+        else
+          ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
+        unless st.hasBlocked do
+          publishDiagnostics
+        -- This will overwrite existing ilean info for the file, in case something
+        -- went wrong during the incremental updates.
+        ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+        return .pure ()
   where
-    start := go (toSnapshotTree doc.initSnap) { : ReportSnapshotsState } fun st => do
-      -- callback at the end of reporting
-      if st.isFatal then
-        ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
-      else
-        ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
-      unless st.hasBlocked do
-        publishDiagnostics
-      -- This will overwrite existing ilean info for the file, in case something
-      -- went wrong during the incremental updates.
-      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
-      return .pure ()
     publishDiagnostics := do
       ctx.chanOut.send <| mkPublishDiagnosticsNotification doc.meta <|
         (← doc.diagnosticsRef.get).map (·.toDiagnostic)
-    go (node : SnapshotTree) (st : ReportSnapshotsState)
-        (cont : ReportSnapshotsState → BaseIO (Task Unit)) : BaseIO (Task Unit) := do
+    go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
       if (← IO.checkCanceled) then
-        return .pure ()
+        return .pure st
 
       if !node.element.diagnostics.msgLog.isEmpty then
         let diags ←
@@ -183,10 +185,10 @@ section Elab
           newInfoTrees := #[]
         st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
-      goSeq st cont node.children.toList
-    goSeq (st : ReportSnapshotsState) (cont : ReportSnapshotsState → BaseIO (Task Unit)) :
-        List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
-      | [] => cont st
+      goSeq st node.children.toList
+    goSeq (st : ReportSnapshotsState) :
+        List (SnapshotTask SnapshotTree) → BaseIO (Task ReportSnapshotsState)
+      | [] => return .pure st
       | t::ts => do
         let mut st := st
         unless (← IO.hasFinished t.task) do
@@ -194,8 +196,8 @@ section Elab
           if !st.hasBlocked then
             publishDiagnostics
             st := { st with hasBlocked := true }
-        BaseIO.bindTask t.task fun node =>
-          go node st (goSeq · cont ts)
+        BaseIO.bindTask t.task fun t => do
+          BaseIO.bindTask (← go t st) (goSeq · ts)
 end Elab
 
 -- Pending requests are tracked so they can be canceled
@@ -207,6 +209,8 @@ structure AvailableImportsCache where
 
 structure WorkerState where
   doc                : EditableDocument
+  /-- Token flagged for aborting `doc.reporter` when a new document version comes in. -/
+  reporterCancelTk   : CancelToken
   srcSearchPathTask  : Task SearchPath
   importCachingTask? : Option (Task (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
@@ -295,9 +299,11 @@ section Initialization
       meta, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
-    let reporter ← reportSnapshots ctx doc
+    let reporterCancelTk ← CancelToken.new
+    let reporter ← reportSnapshots ctx doc reporterCancelTk
     return (ctx, {
       doc := { doc with reporter }
+      reporterCancelTk
       srcSearchPathTask  := srcSearchPathPromise.result
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
@@ -335,14 +341,16 @@ section Updates
 
   /-- Given the new document, updates editable doc state. -/
   def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
+    (← get).reporterCancelTk.set
     let ctx ← read
     let initSnap ← ctx.processor meta.mkInputContext
     let doc : EditableDocumentCore := {
       meta, initSnap
       diagnosticsRef := (← IO.mkRef ∅)
     }
-    let reporter ← reportSnapshots ctx doc
-    modify fun st => { st with doc := { doc with reporter } }
+    let reporterCancelTk ← CancelToken.new
+    let reporter ← reportSnapshots ctx doc reporterCancelTk
+    modify fun st => { st with doc := { doc with reporter }, reporterCancelTk }
     -- we assume version updates are monotonous and that we are on the main thread
     ctx.maxDocVersionRef.set meta.version
 end Updates

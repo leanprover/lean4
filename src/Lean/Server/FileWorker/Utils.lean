@@ -38,8 +38,11 @@ def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m
   if c then
     throw ElabTaskError.aborted
 
-def set (tk : CancelToken) : IO Unit :=
+def set (tk : CancelToken) : BaseIO Unit :=
   tk.ref.set true
+
+def isSet (tk : CancelToken) : BaseIO Bool :=
+  tk.ref.get
 
 end CancelToken
 

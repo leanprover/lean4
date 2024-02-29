@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lean.CoreM
 import Lake.Toml.Value
 import Lake.Toml.Grammar
+import Lean.Elab.ElabRules
 
 /-!
 # TOML Elaboration
@@ -281,24 +282,21 @@ structure ElabState where
   arrKeyTys : NameMap (NameMap KeyTy) := {}
   arrParents : NameMap Name := {}
   currArrKey : Name := .anonymous
-  rootTable : Table := {}
-  currTable : Table := {}
   currKey : Name := .anonymous
+  items : Array (Name × Value) := {}
   deriving Inhabited
 
 abbrev TomlElabM := StateT ElabState CoreM
 
-def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM (Name × Name) := do
-  ks.foldlM (init := ((← get).currKey, Name.anonymous)) fun (rootKey, subKey) kStx => do
-    let kPart ← elabSimpleKey kStx
-    let subKey := subKey.str kPart
-    let rootKey := rootKey.str kPart
-    if let some ty := (← get).keyTys.find? rootKey then
+def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
+  ks.foldlM (init := (← get).currKey) fun k kStx => do
+    let k := k.str <| ← elabSimpleKey kStx
+    if let some ty := (← get).keyTys.find? k then
       unless ty matches .dottedPrefix do
-        throwErrorAt kStx "cannot redefine {ty} key '{rootKey}'"
+        throwErrorAt kStx "cannot redefine {ty} key '{k}'"
     else
-      modify fun s => {s with keyTys := s.keyTys.insert rootKey .dottedPrefix}
-    return (rootKey, subKey)
+      modify fun s => {s with keyTys := s.keyTys.insert k .dottedPrefix}
+    return k
 
 def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
   let `(keyval|$k = $v) := kv
@@ -306,41 +304,17 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
   let `(key|$[$ks:simpleKey].*) := k
     | throwErrorAt k "ill-formed key syntax"
   let tailKeyStx := ks.back
-  let (rootKey, subKey) ← elabSubKeys ks.pop
-  let tailKey ← elabSimpleKey tailKeyStx
-  let subKey := subKey.str tailKey
-  let rootKey := rootKey.str tailKey
-  if let some ty := (← get).keyTys.find? rootKey then
-    throwErrorAt tailKeyStx "cannot redefine {ty} key '{rootKey}'"
+  let k ← elabSubKeys ks.pop
+  let k := k.str <| ← elabSimpleKey tailKeyStx
+  if let some ty := (← get).keyTys.find? k then
+    throwErrorAt tailKeyStx "cannot redefine {ty} key '{k}'"
   else
     let v ← elabVal v
     modify fun s => {
       s with
-      currTable := s.currTable.push subKey v
-      keyTys := s.keyTys.insert rootKey .value
+      items := s.items.push (k, v)
+      keyTys := s.keyTys.insert k .value
   }
-
-def saveCurrTable : TomlElabM Unit := do
-  let currKey ← modifyGet fun s => (s.currKey, {s with currKey := .anonymous})
-  let currTable ← modifyGet fun s => (s.currTable, {s with currTable := {}})
-  if currKey.isAnonymous then
-    modify fun s => {s with rootTable := s.rootTable.append currTable}
-  else
-    let rootTable ← modifyGet fun s => (s.rootTable, {s with rootTable := {}})
-    try
-      let rootTable ← rootTable.insertMapM currKey fun (v? : Option Value) => do
-        if let some v := v? then
-          if let .array ts := v then
-            return .array (ts.push currTable)
-          else
-            let ty := toString <$> (← get).keyTys.find? currKey |>.getD "unknown"
-            throwError "attempted to overwrite {ty} key '{currKey}'"
-        else
-          return .table currTable
-      modify fun s => {s with rootTable}
-    catch e =>
-      modify fun s => {s with rootTable}
-      throw e
 
 def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
   modify fun s =>
@@ -370,7 +344,6 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
     | throwErrorAt x "ill-formed table syntax"
   let `(key|$[$ks:simpleKey].*) := k
     | throwErrorAt k "ill-formed key syntax"
-  saveCurrTable
   let tailKey := ks.back
   let k ← elabHeaderKeys ks.pop
   let k ← k.str <$> elabSimpleKey tailKey
@@ -390,7 +363,11 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
       let s ← get
       let some keyTys := s.arrParents.find? k >>= s.arrKeyTys.find?
         | throwError "(internal) bad array key '{k}'"
-      modify fun s => {s with keyTys, currArrKey := k}
+      modify fun s => {
+        s with
+        keyTys, currArrKey := k
+        items := s.items.push (k, .array #[{}])
+      }
     else
       throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
   else
@@ -402,14 +379,13 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
         currArrKey := k
         arrKeyTys := s.arrKeyTys.insert s.currArrKey keyTys
         arrParents := s.arrParents.insert k s.currArrKey
-        rootTable := s.rootTable.insert k (.array #[])
+        items := s.items.push (k, .array #[{}])
       }
   return k
 
 def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
   let `(arrayTable|[[$k]]) := x
     | throwErrorAt x "ill-formed array table syntax"
-  saveCurrTable
   let k ← elabArrayTableKey k
   modify fun s => {s with currKey := k}
 
@@ -420,8 +396,33 @@ def elabExpression (x : TSyntax ``expression) : TomlElabM Unit := do
   | `(expression|$x:arrayTable) => elabArrayTable x
   | _ => throwErrorAt x "ill-formed expression syntax"
 
-nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table :=
-  (·.2.rootTable) <$> (x *> saveCurrTable).run {}
+def mkSimpleTable (items : Array (Name × Value)) : Table :=
+  items.foldl (init := {}) fun t (k,v) =>
+    match k.components with
+    | .nil => t
+    | .cons k ks => insert t k ks v
+where
+  insert (t : Table) k ks newV :=
+    match ks with
+    | .nil => t.insertMap k fun v? =>
+      match v? with
+      | some (.array vs) => vs.push {}
+      | _ => newV
+    | k' :: ks => t.insertMap k fun v? =>
+      if let some v := v? then
+        match v with
+        | .array vs =>
+          vs.modify (vs.size-1) fun
+          | .table t' => .table <| insert t' k' ks newV
+          | _ => {}
+        | .table t' => .table <| insert t' k' ks v
+        | _ => {}
+      else
+        insert {} k' ks newV
+
+nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
+  let (_,s) ← x.run {}
+  return mkSimpleTable s.items
 
 def elabToml (x : TSyntax ``toml) : CoreM Table := do
   let `(toml|$xs*) := x

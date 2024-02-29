@@ -116,13 +116,14 @@ deriving Inhabited, BEq
 abbrev Table := NameDict Value
 
 instance : OfNat Value n := ⟨.integer n⟩
-instance : Coe String Value := ⟨Value.string⟩
-instance : Coe Int Value := ⟨Value.integer⟩
-instance : Coe Float Value := ⟨Value.float⟩
-instance : Coe Bool Value := ⟨Value.boolean⟩
-instance : Coe DateTime Value := ⟨Value.dateTime⟩
-instance : Coe (Array Value) Value := ⟨Value.array⟩
-instance : Coe Table Value := ⟨Value.table⟩
+instance : EmptyCollection Value := ⟨.table {}⟩
+instance : Coe String Value := ⟨.string⟩
+instance : Coe Int Value := ⟨.integer⟩
+instance : Coe Float Value := ⟨.float⟩
+instance : Coe Bool Value := ⟨.boolean⟩
+instance : Coe DateTime Value := ⟨.dateTime⟩
+instance : Coe (Array Value) Value := ⟨.array⟩
+instance : Coe Table Value := ⟨.table⟩
 
 --------------------------------------------------------------------------------
 /-! ## Pretty Printing -/

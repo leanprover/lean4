@@ -13,7 +13,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - `set(LEAN_VERSION_IS_RELEASE 1)`
   - (both of these should already be in place from the release candidates)
 - Run `git diff master RELEASES.md`.
-  - You should expect to see changes in the `v4.7.0-rc1` section
+  - You should expect to see changes in the `v4.7.0-rc1` section, which you may ignore.
     (i.e. the new release notes for the upcoming release candidate).
   - But if there are discrepancies in the `v4.6.0` section, you should reconcile these, either by:
     - Using `git cherry-pick` to pull the commits that modified the release notes on `master`
@@ -34,9 +34,9 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - For each of the repositories listed below:
     - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`.
       The PR title should be "chore: bump toolchain to v4.6.0".
-      Since the `v4.6.0` should be functionally identical to the last release candidate,
-      which the repository should already be on, this PR is a no-op besides change the toolchain.
-    - Once this is merged, create the tag `v4.6.0` and push it.
+      Since the `v4.6.0` release should be functionally identical to the last release candidate,
+      which the repository should already be on, this PR is a no-op besides changing the toolchain.
+    - Once this is merged, create the tag `v4.6.0` from `master`/`main` and push it.
     - Merge the tag `v4.6.0` into the stable branch.
   - We do this for the repositories:
     - [lean4checker](https://github.com/leanprover/lean4checker)
@@ -54,7 +54,8 @@ We'll use `v4.6.0` as the intended release version as a running example.
         `git checkout toolchain/v4.6.0` to the appropriate tag,
         and then run `.github/workflows/mk_build_yml.sh`.
     - [REPL](https://github.com/leanprover-community/repl)
-      - Note that there are two `lean-toolchain`/`lakefile.lean`: in the root, and in `test/Mathlib/`.
+      - Note that there are two copies of `lean-toolchain`/`lakefile.lean`: 
+        in the root, and in `test/Mathlib/`.
   - Note that there are dependencies between these packages:
     you should update the lakefile so that you are using the `v4.6.0` tag of upstream repositories
     (or the sequential tag for `ProofWidgets4`), and run `lake update` before committing.
@@ -64,7 +65,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - `Std` has no dependencies
     - `Aesop` depends on `Std`
     - `ProofWidgets4` depends on `Std`
-    - `Mathlib` depends on `Aesop`, `ProofWidgets4`, and `lean4checker` (and transitively `Std`)
+    - `Mathlib` depends on `Aesop`, `ProofWidgets4`, and `lean4checker` (and transitively on `Std`)
     - `REPL` depends on `Mathlib` (this dependency is only for testing).
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
@@ -73,14 +74,14 @@ We'll use `v4.6.0` as the intended release version as a running example.
   If you are making a blog post, that should be coordinated with the announcement on Zulip and linked from there.
   Please also make sure that whoever is handling social media knows the release is out.
 
-## Time estimates:
+## Optimistic time estimates:
 - Initial checks and push the tag: 30 minutes.
 - Note that if `RELEASES.md` has discrepancies this could take longer!
 - Waiting for the release: 60 minutes.
 - Fixing release notes: 15 minutes.
-- Bumping toolchains in downstream repositories, up to craeting the Mathlib PR: 30 minutes.
+- Bumping toolchains in downstream repositories, up to creating the Mathlib PR: 30 minutes.
 - Waiting for Mathlib CI and bors: 120 minutes.
-- Finalising Mathlib tags and stable branch, and updating REPL: 15 minutes.
+- Finalizing Mathlib tags and stable branch, and updating REPL: 15 minutes.
 - Posting announcement and/or blog post: 20 minutes.
 
 # Creating a release candidate.
@@ -104,15 +105,15 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     ```
 - In `RELEASES.md` remove `(development in progress)` from the `v4.7.0` section header.
 - Unfortunately, we are not yet consistent about updating `RELEASES.md` as part of each feature PR, so there may be manual work at this stage updating it.
-  - Do not wait on `RELEASES.md` being perfect before creating the `release/v4.7.0` branch. It is essential to fix the nightly which will become the release candidate as early as possible, to avoid confusion.
+  - Do not wait on `RELEASES.md` being perfect before creating the `release/v4.7.0` branch. It is essential to choose the nightly which will become the release candidate as early as possible, to avoid confusion.
   - You may like to solicit updates to `RELEASES.md` from other developers. Ideally these will land on `master` before the nightly.
-  - I will usually go through the list of all PRs merged since the previous release branch `releases/v4.6.0` (TODO: suggest a URL).
-  Many PRs do not warrant mention in `RELEASES.md`. For many medium scale PRs, it suffices to just copy and paste the title, along with a link. (See existing format in `RELEASES.md`.) If you find something major, it may require correspondence with the author of that PR to prepare a good paragraph.
+  - I will usually go through the list of all PRs merged since the previous release branch `releases/v4.6.0`.
+  Many PRs do not warrant mention in `RELEASES.md`. For many medium scale PRs, it suffices to just copy and paste the title, along with a link. (See existing format in `RELEASES.md`.) If you find something major that has not been mentioned, it may require correspondence with the author of that PR to prepare a good paragraph.
   - Commit your changes to `RELEASES.md`, and push.
   - Remember that changes to `RELEASES.md` after you have branched `releases/v4.7.0` should also be cherry-picked back to `master`.
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.
-  - `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change).
+  - `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
   - Commit your changes to `src/CMakeLists.txt`, and push.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`

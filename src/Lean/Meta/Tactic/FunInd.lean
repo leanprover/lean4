@@ -9,6 +9,7 @@ import Lean.Meta.Basic
 import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Cleanup
+import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.WF.PackMutual
@@ -396,6 +397,9 @@ def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) 
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
   mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  logInfo m!"before: {mvarId}"
+  mvarId ← substVars mvarId
+  logInfo m!"after: {mvarId}"
   let (_, _mvarId) ← mvarId.revertAfter motiveFVar
   let mvar ← instantiateMVars mvar
   pure mvar

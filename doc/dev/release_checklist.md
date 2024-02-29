@@ -67,6 +67,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - `ProofWidgets4` depends on `Std`
     - `Mathlib` depends on `Aesop`, `ProofWidgets4`, and `lean4checker` (and transitively on `Std`)
     - `REPL` depends on `Mathlib` (this dependency is only for testing).
+- Merge the release announcement PR for the Lean website - it will be deployed automatically
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.

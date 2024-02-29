@@ -125,10 +125,8 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 /-- The Double Negation Theorem: `¬¬P` is equivalent to `P`.
 The left-to-right direction, double negation elimination (DNE),
 is classically true but not constructively. -/
-/- jhx: global simp in Mathlib -/
 @[simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
 
-/- jhx: This reorders lemmas in implication; low precedence so `not_imp` gets priority. -/
 @[simp low] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
 
 theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not
@@ -136,7 +134,6 @@ theorem not_exists_not {p : α → Prop} : (¬∃ x, ¬p x) ↔ ∀ x, p x := De
 
 theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a := by
   rw [← not_forall]; exact em _
-
 theorem exists_or_forall_not (P : α → Prop) : (∃ a, P a) ∨ ∀ a, ¬ P a := by
   rw [← not_exists]; exact em _
 
@@ -149,18 +146,13 @@ theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_an
 
 theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
 
-/- jhx: Simp rule in Mathlib in root namespace. -/
 @[simp] theorem imp_iff_right_iff : (a → b ↔ b) ↔ a ∨ b := Decidable.imp_iff_right_iff
 
-/- jhx: Simp rule in Mathlib in root namespace. -/
 @[simp] theorem and_or_imp : a ∧ b ∨ (a → c) ↔ a → b ∨ c := Decidable.and_or_imp
 
-/- jhx: simp in Mathlib root namespace. -/
 @[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
 
-/- jhx: simp in Mathlib root namespace. -/
-@[simp]
-theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
+@[simp] theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
   Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
             (fun a => And.intro (fun _ => a) (fun _ => a))
 

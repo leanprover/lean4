@@ -135,22 +135,18 @@ theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.
 
 /-! ## Ite -/
 
-/- jhx: Mathlib simp rule -/
 @[simp]
 theorem if_true_left {p q : Prop} [h : Decidable p] :
     ite p True q ↔ p ∨ q := by cases h <;> simp [*]
 
-/- jhx: Mathlib simp rule -/
 @[simp]
 theorem if_false_left {p q : Prop} [h : Decidable p] :
     ite p False q ↔ ¬p ∧ q := by cases h <;> simp [*]
 
-/- jhx: Mathlib simp rule -/
 @[simp]
 theorem if_true_right {p q : Prop} [h : Decidable p] :
     ite p q True ↔ ¬p ∨ q := by cases h <;> simp [*]
 
-/- jhx: Mathlib simp rule -/
 @[simp]
 theorem if_false_right {p q : Prop} [h : Decidable p] :
     ite p q False ↔ p ∧ q := by cases h <;> simp [*]
@@ -164,11 +160,9 @@ theorem if_false_right {p q : Prop} [h : Decidable p] :
 @[simp] theorem ite_not (P : Prop) {_ : Decidable P} (x y : α) : ite (¬P) x y = ite P y x :=
   dite_not P (fun _ => x) (fun _ => y)
 
-/- New simp rule -/
 @[simp] theorem ite_true_same (p q : Prop) [h : Decidable p] : (if p then p else q) = (p ∨ q) := by
   cases h <;> simp [*]
 
-/- New simp rule -/
 @[simp] theorem ite_false_same (p q : Prop) [h : Decidable p] : (if p then q else p) = (p ∧ q) := by
   cases h <;> simp [*]
 
@@ -332,7 +326,6 @@ end quantifiers
 
 /-! ## decidable -/
 
-/- jhx: Mathlib makes Classical.not_not simp, so we make this as  well. -/
 @[simp] theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
 
 /-- Excluded middle.  Added as alias for Decidable.em -/
@@ -382,7 +375,6 @@ theorem Decidable.not_imp_symm [Decidable a] (h : ¬a → b) (hb : ¬b) : a :=
 theorem Decidable.not_imp_comm [Decidable a] [Decidable b] : (¬a → b) ↔ (¬b → a) :=
   ⟨not_imp_symm, not_imp_symm⟩
 
-/- jhx: simp in Mathlib. -/
 @[simp] theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
   have := @imp_not_self (¬a); rwa [not_not] at this
 

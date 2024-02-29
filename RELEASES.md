@@ -18,6 +18,10 @@ v4.7.0 (development in progress)
 
 * `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
 
+* The pretty printer for applications now handles the case of over-application itself when applying app unexpanders.
+  In particular, the ``| `($_ $a $b $xs*) => `(($a + $b) $xs*)`` case of an `app_unexpander` is no longer necessary.
+  [#3495](https://github.com/leanprover/lean4/pull/3495).
+
 * New `simp` (and `dsimp`) configuration option: `zetaDelta`. It is `false` by default.
   The `zeta` option is still `true` by default, but their meaning has changed.
   - When `zeta := true`, `simp` and `dsimp` reduce terms of the form
@@ -26,7 +30,7 @@ v4.7.0 (development in progress)
     the context. For example, suppose the context contains `x := val`. Then,
     any occurrence of `x` is replaced with `val`.
 
-  See issue [#2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
+  See [issue #2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
   ```
   example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
     intro x
@@ -67,7 +71,7 @@ v4.7.0 (development in progress)
   ```
 
 * When adding new local theorems to `simp`, the system assumes that the function application arguments
-  have been annotated with `no_index`. This modification, which addresses issue [#2670](https://github.com/leanprover/lean4/issues/2670),
+  have been annotated with `no_index`. This modification, which addresses [issue #2670](https://github.com/leanprover/lean4/issues/2670),
   restores the Lean 3 behavior that users expect. With this modification, the following examples are now operational:
   ```
   example {α β : Type} {f : α × β → β → β} (h : ∀ p : α × β, f p p.2 = p.2)
@@ -81,6 +85,12 @@ v4.7.0 (development in progress)
   In both cases, `h` is applicable because `simp` does not index f-arguments anymore when adding `h` to the `simp`-set.
   It's important to note, however, that global theorems continue to be indexed in the usual manner.
 
+* Improved the error messages produced by the `decide` tactic. [#3422](https://github.com/leanprover/lean4/pull/3422)
+
+* Improved auto-completion performance. [#3460](https://github.com/leanprover/lean4/pull/3460)
+
+* Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
+
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration
@@ -90,67 +100,67 @@ v4.6.0
 ---------
 
 * Add custom simplification procedures (aka `simproc`s) to `simp`. Simprocs can be triggered by the simplifier on a specified term-pattern. Here is an small example:
-```lean
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+  ```lean
+  import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
-def foo (x : Nat) : Nat :=
-  x + 10
+  def foo (x : Nat) : Nat :=
+    x + 10
 
-/--
-The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
--/
-simproc reduceFoo (foo _) :=
-  /- A term of type `Expr → SimpM Step -/
-  fun e => do
+  /--
+  The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
+  -/
+  simproc reduceFoo (foo _) :=
+    /- A term of type `Expr → SimpM Step -/
+    fun e => do
+      /-
+      The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
+      * The constructor `.done` instructs `simp` that the result does
+        not need to be simplied further.
+      * The constructor `.visit` instructs `simp` to visit the resulting expression.
+      * The constructor `.continue` instructs `simp` to try other simplification procedures.
+
+      All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+      `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
+       If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
+      -/
+      /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+      unless e.isAppOfArity ``foo 1 do
+        return .continue
+      /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+      let some n ← Nat.fromExpr? e.appArg!
+        | return .continue
+      return .done { expr := Lean.mkNatLit (n+10) }
+  ```
+  We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
+  Simprocs can be scoped, manually added to `simp` commands, and suppressed using `-`. They are also supported by `simp?`. `simp only` does not execute any `simproc`. Here are some examples for the `simproc` defined above.
+  ```lean
+  example : x + foo 2 = 12 + x := by
+    set_option simprocs false in
+      /- This `simp` command does not make progress since `simproc`s are disabled. -/
+      fail_if_success simp
+    simp_arith
+
+  example : x + foo 2 = 12 + x := by
+    /- `simp only` must not use the default simproc set. -/
+    fail_if_success simp only
+    simp_arith
+
+  example : x + foo 2 = 12 + x := by
     /-
-    The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
-    * The constructor `.done` instructs `simp` that the result does
-      not need to be simplied further.
-    * The constructor `.visit` instructs `simp` to visit the resulting expression.
-    * The constructor `.continue` instructs `simp` to try other simplification procedures.
+    `simp only` does not use the default simproc set,
+    but we can provide simprocs as arguments. -/
+    simp only [reduceFoo]
+    simp_arith
 
-    All three constructors take a `Result`. The `.continue` contructor may also take `none`.
-    `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
-     If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
-    -/
-    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
-    unless e.isAppOfArity ``foo 1 do
-      return .continue
-    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
-    let some n ← Nat.fromExpr? e.appArg!
-      | return .continue
-    return .done { expr := Lean.mkNatLit (n+10) }
-```
-We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
-Simprocs can be scoped, manually added to `simp` commands, and suppressed using `-`. They are also supported by `simp?`. `simp only` does not execute any `simproc`. Here are some examples for the `simproc` defined above.
-```lean
-example : x + foo 2 = 12 + x := by
-  set_option simprocs false in
-    /- This `simp` command does not make progress since `simproc`s are disabled. -/
-    fail_if_success simp
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /- `simp only` must not use the default simproc set. -/
-  fail_if_success simp only
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /-
-  `simp only` does not use the default simproc set,
-  but we can provide simprocs as arguments. -/
-  simp only [reduceFoo]
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /- We can use `-` to disable `simproc`s. -/
-  fail_if_success simp [-reduceFoo]
-  simp_arith
-```
-The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
-```lean
-simproc [my_simp] reduceFoo (foo _) := ...
-```
+  example : x + foo 2 = 12 + x := by
+    /- We can use `-` to disable `simproc`s. -/
+    fail_if_success simp [-reduceFoo]
+    simp_arith
+  ```
+  The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
+  ```lean
+  simproc [my_simp] reduceFoo (foo _) := ...
+  ```
 
 * The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
 
@@ -289,7 +299,7 @@ simproc [my_simp] reduceFoo (foo _) := ...
   and hence greatly reduces the reliance on costly structure eta reduction. This has a large impact on mathlib,
   reducing total CPU instructions by 3% and enabling impactful refactors like leanprover-community/mathlib4#8386
   which reduces the build time by almost 20%.
-  See PR [#2478](https://github.com/leanprover/lean4/pull/2478) and RFC [#2451](https://github.com/leanprover/lean4/issues/2451).
+  See [PR #2478](https://github.com/leanprover/lean4/pull/2478) and [RFC #2451](https://github.com/leanprover/lean4/issues/2451).
 
 * Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
 
@@ -308,7 +318,7 @@ Other improvements:
 * produce simpler proof terms in `rw` [#3121](https://github.com/leanprover/lean4/pull/3121)
 * fuse nested `mkCongrArg` calls in proofs generated by `simp` [#3203](https://github.com/leanprover/lean4/pull/3203)
 * `induction using` followed by a general term [#3188](https://github.com/leanprover/lean4/pull/3188)
-* allow generalization in `let` [#3060](https://github.com/leanprover/lean4/pull/3060, fixing [#3065](https://github.com/leanprover/lean4/issues/3065)
+* allow generalization in `let` [#3060](https://github.com/leanprover/lean4/pull/3060), fixing [#3065](https://github.com/leanprover/lean4/issues/3065)
 * reducing out-of-bounds `swap!` should return `a`, not `default`` [#3197](https://github.com/leanprover/lean4/pull/3197), fixing [#3196](https://github.com/leanprover/lean4/issues/3196)
 * derive `BEq` on structure with `Prop`-fields [#3191](https://github.com/leanprover/lean4/pull/3191), fixing [#3140](https://github.com/leanprover/lean4/issues/3140)
 * refine through more `casesOnApp`/`matcherApp` [#3176](https://github.com/leanprover/lean4/pull/3176), fixing [#3175](https://github.com/leanprover/lean4/pull/3175)

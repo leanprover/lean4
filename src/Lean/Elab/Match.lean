@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Lean.Util.ForEachExprWhere
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.ForEachExpr
@@ -442,7 +443,7 @@ private def applyRefMap (e : Expr) (map : ExprMap Expr) : Expr :=
 -/
 private def whnfPreservingPatternRef (e : Expr) : MetaM Expr := do
   let eNew ← whnf e
-  if eNew.isConstructorApp (← getEnv) then
+  if (← isConstructorApp eNew) then
     return eNew
   else
     return applyRefMap eNew (mkPatternRefMap e)
@@ -473,7 +474,7 @@ partial def normalize (e : Expr) : M Expr := do
         let p ← normalize p
         addVar h
         return mkApp4 e.getAppFn (e.getArg! 0) x p h
-      else if isMatchValue e then
+      else if (← isMatchValue e) then
         return e
       else if e.isFVar then
         if (← isExplicitPatternVar e) then
@@ -571,8 +572,8 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
         | _,           _           => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
-      else if isMatchValue e then
-        return Pattern.val e
+      else if (← isMatchValue e) then
+        return Pattern.val (← normLitValue e)
       else if e.isFVar then
         return Pattern.var e.fvarId!
       else

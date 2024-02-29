@@ -33,7 +33,7 @@ def Config.updateArith (c : Config) : CoreM Config := do
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
-  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
+  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isRawNatLit
 
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
@@ -69,18 +69,20 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           unless e.getAppNumArgs > projInfo.numParams do
             return none
           let major := e.getArg! projInfo.numParams
-          unless major.isConstructorApp (← getEnv) do
+          unless (← isConstructorApp major) do
             return none
           reduceProjCont? (← withDefault <| unfoldDefinition? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
 
-private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : MetaM Expr := do
-  if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! then
-    match (← getFVarLocalDecl e).value? with
-    | some v => return v
-    | none   => return e
+private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : SimpM Expr := do
+  let localDecl ← getFVarLocalDecl e
+  if cfg.zetaDelta || thms.isLetDeclToUnfold e.fvarId! || localDecl.isImplementationDetail then
+    if !cfg.zetaDelta && thms.isLetDeclToUnfold e.fvarId! then
+      recordSimpTheorem (.fvar localDecl.fvarId)
+    let some v := localDecl.value? | return e
+    return v
   else
     return e
 
@@ -502,7 +504,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     unless modified do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
       return none
-    unless (← synthesizeArgs (.decl c.theoremName) xs bis) do
+    unless (← synthesizeArgs (.decl c.theoremName) bis xs) do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
       return none
     let eNew ← instantiateMVars rhs

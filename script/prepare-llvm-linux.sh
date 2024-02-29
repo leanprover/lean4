@@ -25,6 +25,8 @@ cp -L llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/
+# general clang++ dependency, breaks cross-library C++ exceptions if linked statically
+$CP $GCC_LIB/lib/libgcc_s.so* stage1/lib/
 # bundle libatomic (referenced by LLVM >= 15, and required by the lean executable to run)
 $CP $GCC_LIB/lib/libatomic.so* stage1/lib/
 
@@ -60,7 +62,7 @@ fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a -Wl,--as-needed -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a -Wl,--as-needed -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -Wl,--no-as-needed -fuse-ld=lld'"
 # when not using the above flags, link GMP dynamically/as usual
 echo -n " -DLEAN_EXTRA_LINKER_FLAGS='-Wl,--as-needed -lgmp -Wl,--no-as-needed'"
 # do not set `LEAN_CC` for tests

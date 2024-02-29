@@ -3,8 +3,9 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+prelude
 import Lean.Meta.CongrTheorems
-import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.CoeAttr
 
 namespace Lean.Meta.NormCast
@@ -90,7 +91,7 @@ def classifyType (ty : Expr) : MetaM Label :=
         rhs must have fewer head coes than lhs{indentExpr ty}"
 
 /-- The `push_cast` simp attribute. -/
-initialize pushCastExt : SimpExtension ←
+builtin_initialize pushCastExt : SimpExtension ←
   registerSimpAttr `push_cast "\
     The `push_cast` simp attribute uses `norm_cast` lemmas \
     to move casts toward the leaf nodes of the expression."

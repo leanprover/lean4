@@ -92,9 +92,6 @@ structure Context where
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
-def Context.mkDefault : MetaM Context :=
-  return { config := {}, simpTheorems := #[(← getSimpTheorems)], congrTheorems := (← getSimpCongrTheorems) }
-
 abbrev UsedSimps := HashMap Origin Nat
 
 structure State where

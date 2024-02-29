@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 

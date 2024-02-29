@@ -185,3 +185,84 @@ theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start 
 
 theorem mem_def (a : α) (as : Array α) : a ∈ as ↔ a ∈ as.data :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+/-- # get -/
+@[simp] theorem get_eq_getElem (a : Array α) (i : Fin _) : a.get i = a[i.1] := rfl
+
+theorem getElem?_lt
+    (a : Array α) {i : Nat} (h : i < a.size) : a[i]? = some (a[i]) := dif_pos h
+
+theorem getElem?_ge
+    (a : Array α) {i : Nat} (h : i ≥ a.size) : a[i]? = none := dif_neg (Nat.not_lt_of_le h)
+
+@[simp] theorem get?_eq_getElem? (a : Array α) (i : Nat) : a.get? i = a[i]? := rfl
+
+theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = none := by
+  simp [getElem?_ge, h]
+
+theorem getD_get? (a : Array α) (i : Nat) (d : α) :
+  Option.getD a[i]? d = if p : i < a.size then a[i]'p else d := by
+  if h : i < a.size then
+    simp [setD, h, getElem?]
+  else
+    have p : i ≥ a.size := Nat.le_of_not_gt h
+    simp [setD, getElem?_len_le _ p, h]
+
+@[simp] theorem getD_eq_get? (a : Array α) (n d) : a.getD n d = (a[n]?).getD d := by
+  simp only [getD, get_eq_getElem, get?_eq_getElem?]; split <;> simp [getD_get?, *]
+
+theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default := rfl
+
+@[simp] theorem get!_eq_getElem? [Inhabited α] (a : Array α) (i : Nat) : a.get! i = (a.get? i).getD default := by
+  by_cases p : i < a.size <;> simp [getD_get?, get!_eq_getD, p]
+
+/-- # set -/
+
+@[simp] theorem getElem_set_eq (a : Array α) (i : Fin a.size) (v : α) {j : Nat}
+      (eq : i.val = j) (p : j < (a.set i v).size) :
+    (a.set i v)[j]'p = v := by
+  simp [set, getElem_eq_data_get, ←eq]
+
+@[simp] theorem getElem_set_ne (a : Array α) (i : Fin a.size) (v : α) {j : Nat} (pj : j < (a.set i v).size)
+    (h : i.val ≠ j) : (a.set i v)[j]'pj = a[j]'(size_set a i v ▸ pj) := by
+  simp only [set, getElem_eq_data_get, List.get_set_ne _ h]
+
+theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
+    (h : j < (a.set i v).size) :
+    (a.set i v)[j]'h = if i = j then v else a[j]'(size_set a i v ▸ h) := by
+  by_cases p : i.1 = j <;> simp [p]
+
+@[simp] theorem getElem?_set_eq (a : Array α) (i : Fin a.size) (v : α) :
+    (a.set i v)[i.1]? = v := by simp [getElem?_lt, i.2]
+
+@[simp] theorem getElem?_set_ne (a : Array α) (i : Fin a.size) {j : Nat} (v : α)
+    (ne : i.val ≠ j) : (a.set i v)[j]? = a[j]? := by
+  by_cases h : j < a.size <;> simp [getElem?_lt, getElem?_ge, Nat.ge_of_not_lt, ne, h]
+
+/- # setD -/
+
+@[simp] theorem set!_is_setD : @set! = @setD := rfl
+
+@[simp] theorem size_setD (a : Array α) (index : Nat) (val : α) :
+  (Array.setD a index val).size = a.size := by
+  if h : index < a.size  then
+    simp [setD, h]
+  else
+    simp [setD, h]
+
+@[simp] theorem getElem_setD_eq (a : Array α) {i : Nat} (v : α) (h : _) :
+  (setD a i v)[i]'h = v := by
+  simp at h
+  simp only [setD, h, dite_true, getElem_set, ite_true]
+
+@[simp]
+theorem getElem?_setD_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) : (a.setD i v)[i]? = some v := by
+  simp [getElem?_lt, p]
+
+/-- Simplifies a normal form from `get!` -/
+@[simp] theorem getD_get?_setD (a : Array α) (i : Nat) (v d : α) :
+  Option.getD (setD a i v)[i]? d = if i < a.size then v else d := by
+  by_cases h : i < a.size <;>
+    simp [setD, Nat.not_lt_of_le, h,  getD_get?]
+
+end Array

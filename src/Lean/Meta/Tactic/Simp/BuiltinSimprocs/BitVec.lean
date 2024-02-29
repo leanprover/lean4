@@ -4,11 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Basic
 
-namespace Std.BitVec
+namespace BitVec
 open Lean Meta Simp
 
 /-- A bit-vector literal -/
@@ -19,38 +20,12 @@ structure Literal where
   value : BitVec n
 
 /--
-Try to convert an `OfNat.ofNat`-application into a bitvector literal.
--/
-private def fromOfNatExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
-  guard (e.isAppOfArity ``OfNat.ofNat 3)
-  let type ← whnf e.appFn!.appFn!.appArg!
-  guard (type.isAppOfArity ``BitVec 1)
-  let n ← Nat.fromExpr? type.appArg!
-  let v ← Nat.fromExpr? e.appFn!.appArg!
-  return { n, value := BitVec.ofNat n v }
-
-/--
-Try to convert an `Std.BitVec.ofNat`-application into a bitvector literal.
--/
-private def fromBitVecExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
-  guard (e.isAppOfArity ``Std.BitVec.ofNat 2)
-  let n ← Nat.fromExpr? e.appFn!.appArg!
-  let v ← Nat.fromExpr? e.appArg!
-  return { n, value := BitVec.ofNat n v }
-
-/--
-Try to convert `OfNat.ofNat`/`Std.BitVec.OfNat` application into a
+Try to convert `OfNat.ofNat`/`BitVec.OfNat` application into a
 bitvector literal.
 -/
-def fromExpr? (e : Expr) : SimpM (Option Literal) := OptionT.run do
-  fromBitVecExpr? e <|> fromOfNatExpr? e
-
-/--
-Convert a bitvector literal into an expression.
--/
--- Using `Std.BitVec.ofNat` because it is being used in `simp` theorems
-def Literal.toExpr (lit : Literal) : Expr :=
-  mkApp2 (mkConst ``Std.BitVec.ofNat) (mkNatLit lit.n) (mkNatLit lit.value.toNat)
+def fromExpr? (e : Expr) : SimpM (Option Literal) := do
+  let some ⟨n, value⟩ ← getBitVecValue? e | return none
+  return some { n, value }
 
 /--
 Helper function for reducing homogenous unary bitvector operators.
@@ -59,8 +34,7 @@ Helper function for reducing homogenous unary bitvector operators.
     (op : {n : Nat} → BitVec n → BitVec n) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
-  let v := { v with value := op v.value }
-  return .done { expr := v.toExpr }
+  return .done { expr := toExpr (op v.value) }
 
 /--
 Helper function for reducing homogenous binary bitvector operators.
@@ -72,8 +46,7 @@ Helper function for reducing homogenous binary bitvector operators.
   let some v₂ ← fromExpr? e.appArg! | return .continue
   if h : v₁.n = v₂.n then
     trace[Meta.debug] "reduce [{declName}] {v₁.value}, {v₂.value}"
-    let v := { v₁ with value := op v₁.value (h ▸ v₂.value) }
-    return .done { expr := v.toExpr }
+    return .done { expr := toExpr (op v₁.value (h ▸ v₂.value)) }
   else
     return .continue
 
@@ -83,8 +56,7 @@ Helper function for reducing homogenous binary bitvector operators.
   unless e.isAppOfArity declName 3 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
   let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let lit : Literal := { n, value := op n v.value }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (op n v.value) }
 
 /--
 Helper function for reducing bitvector functions such as `getLsb` and `getMsb`.
@@ -105,8 +77,7 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
   unless e.isAppOfArity declName arity do return .continue
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
   let some i ← Nat.fromExpr? e.appArg! | return .continue
-  let v := { v with value := op v.value i }
-  return .done { expr := v.toExpr }
+  return .done { expr := toExpr (op v.value i) }
 
 /--
 Helper function for reducing bitvector predicates.
@@ -194,16 +165,14 @@ builtin_simproc [simp, seval] reduceAppend ((_ ++ _ : BitVec _)) := fun e => do
   unless e.isAppOfArity ``HAppend.hAppend 6 do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
   let some v₂ ← fromExpr? e.appArg! | return .continue
-  let v : Literal := { n := v₁.n + v₂.n, value := v₁.value ++ v₂.value }
-  return .done { expr := v.toExpr }
+  return .done { expr := toExpr (v₁.value ++ v₂.value) }
 
 /-- Simplification procedure for casting `BitVec`s along an equality of the size. -/
 builtin_simproc [simp, seval] reduceCast (cast _ _) := fun e => do
   unless e.isAppOfArity ``cast 4 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
   let some m ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
-  let v : Literal := { n := m, value := BitVec.ofNat m v.value.toNat }
-  return .done { expr := v.toExpr }
+  return .done { expr := toExpr (BitVec.ofNat m v.value.toNat) }
 
 /-- Simplification procedure for `BitVec.toNat`. -/
 builtin_simproc [simp, seval] reduceToNat (BitVec.toNat _) := fun e => do
@@ -215,15 +184,23 @@ builtin_simproc [simp, seval] reduceToNat (BitVec.toNat _) := fun e => do
 builtin_simproc [simp, seval] reduceToInt (BitVec.toInt _) := fun e => do
   unless e.isAppOfArity ``BitVec.toInt 2 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
-  return .done { expr := Int.toExpr v.value.toInt }
+  return .done { expr := toExpr v.value.toInt }
 
 /-- Simplification procedure for `BitVec.ofInt`. -/
 builtin_simproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
   unless e.isAppOfArity ``BitVec.ofInt 2 do return .continue
   let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
   let some i ← Int.fromExpr? e.appArg! | return .continue
-  let lit : Literal := { n, value := BitVec.ofInt n i }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (BitVec.ofInt n i) }
+
+/-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
+builtin_simproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
+  unless e.isAppOfArity ``BitVec.ofNat 2 do return .continue
+  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let some v ← Nat.fromExpr? e.appArg! | return .continue
+  let bv := BitVec.ofNat n v
+  if bv.toNat == v then return .continue -- already normalized
+  return .done { expr := toExpr (BitVec.ofNat n v) }
 
 /-- Simplification procedure for `<` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceLT (( _ : BitVec _) < _)  := reduceBinPred ``LT.lt 4 (· < ·)
@@ -253,8 +230,7 @@ builtin_simproc [simp, seval] reduceZeroExtend' (zeroExtend' _ _) := fun e => do
   let some v ← fromExpr? e.appArg! | return .continue
   let some w ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
   if h : v.n ≤ w then
-    let lit : Literal := { n := w, value := v.value.zeroExtend' h }
-    return .done { expr := lit.toExpr }
+    return .done { expr := toExpr (v.value.zeroExtend' h) }
   else
     return .continue
 
@@ -263,8 +239,7 @@ builtin_simproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ _
   unless e.isAppOfArity ``shiftLeftZeroExtend 3 do return .continue
   let some v ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← Nat.fromExpr? e.appArg! | return .continue
-  let lit : Literal := { n := v.n + m, value := v.value.shiftLeftZeroExtend m }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (v.value.shiftLeftZeroExtend m) }
 
 /-- Simplification procedure for `extractLsb'` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceExtracLsb' (extractLsb' _ _ _) := fun e => do
@@ -272,16 +247,14 @@ builtin_simproc [simp, seval] reduceExtracLsb' (extractLsb' _ _ _) := fun e => d
   let some v ← fromExpr? e.appArg! | return .continue
   let some start ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
   let some len ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let lit : Literal := { n := len, value := v.value.extractLsb' start len }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (v.value.extractLsb' start len) }
 
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
   unless e.isAppOfArity ``replicate 3 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
   let some w ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let lit : Literal := { n := v.n * w, value := v.value.replicate w }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (v.value.replicate w) }
 
 /-- Simplification procedure for `zeroExtend` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := reduceExtend ``zeroExtend zeroExtend
@@ -293,7 +266,6 @@ builtin_simproc [simp, seval] reduceSignExtend (signExtend _ _) := reduceExtend 
 builtin_simproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
   unless e.isAppOfArity ``allOnes 1 do return .continue
   let some n ← Nat.fromExpr? e.appArg! | return .continue
-  let lit : Literal := { n, value := allOnes n }
-  return .done { expr := lit.toExpr }
+  return .done { expr := toExpr (allOnes n) }
 
-end Std.BitVec
+end BitVec

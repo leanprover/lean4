@@ -1,6 +1,6 @@
-Inferred termination argument: 
+Inferred termination argument:
 termination_by (sizeOf y, 1, 0)
-Inferred termination argument: 
+Inferred termination argument:
 termination_by (sizeOf y, 0, 1)
-Inferred termination argument: 
+Inferred termination argument:
 termination_by (sizeOf y, 0, 0)

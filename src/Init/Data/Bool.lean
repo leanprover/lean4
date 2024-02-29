@@ -48,6 +48,11 @@ theorem ne_false_iff : {b : Bool} → b ≠ false ↔ b = true := by decide
 
 theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
+@[simp] theorem decide_eq_true {b : Bool} : decide (b = true) = b := by cases b <;> simp
+@[simp] theorem decide_eq_false {b : Bool} : decide (b = false) = !b := by cases b <;> simp
+@[simp] theorem decide_true_eq {b : Bool} : decide (true = b) = b := by cases b <;> simp
+@[simp] theorem decide_false_eq {b : Bool} : decide (false = b) = !b := by cases b <;> simp
+
 /-! ### and -/
 
 @[simp] theorem not_and_self : ∀ (x : Bool), (!x && x) = false := by decide
@@ -212,8 +217,18 @@ def toNat (b:Bool) : Nat := cond b 1 0
 
 @[simp] theorem toNat_true : true.toNat = 1 := rfl
 
-theorem toNat_le_one (c:Bool) : c.toNat ≤ 1 := by
+theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
+
+@[deprecated toNat_le] abbrev toNat_le_one := toNat_le
+
+theorem toNat_lt (b : Bool) : b.toNat < 2 :=
+  Nat.lt_succ_of_le (toNat_le _)
+
+@[simp] theorem toNat_eq_zero (b : Bool) : b.toNat = 0 ↔ b = false := by
+  cases b <;> simp
+@[simp] theorem toNat_eq_one (b : Bool) : b.toNat = 1 ↔ b = true := by
+  cases b <;> simp
 
 end Bool
 

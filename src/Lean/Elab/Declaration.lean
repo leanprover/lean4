@@ -347,7 +347,21 @@ def elabMutual : CommandElab := fun stx => do
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
   for ident in idents do withRef ident <| liftTermElabM do
-    let declName ← resolveGlobalConstNoOverloadWithInfo ident
+    /-
+    HACK to allow `attribute` command to disable builtin simprocs.
+    TODO: find a better solution. Example: have some "fake" declaration
+    for builtin simprocs.
+    -/
+    let declNames ←
+       try
+         resolveGlobalConst ident
+       catch _ =>
+         let name := ident.getId.eraseMacroScopes
+         if (← Simp.isBuiltinSimproc name) then
+           pure [name]
+         else
+           throwUnknownConstant name
+    let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName

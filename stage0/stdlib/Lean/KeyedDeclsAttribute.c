@@ -18,6 +18,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_737____closed__15;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_getEntries(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__28___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__1(lean_object*, lean_object*);
@@ -95,7 +96,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_init___
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_737____closed__13;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_KeyedDeclsAttribute_init___spec__1___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_Def_evalKey___default___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__20___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__5___rarg(lean_object*, lean_object*, lean_object*);
@@ -459,7 +459,7 @@ lean_object* x_20; lean_object* x_21;
 lean_free_object(x_13);
 x_20 = lean_box(0);
 lean_inc(x_8);
-x_21 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(x_6, x_8, x_20, x_2, x_3, x_16);
+x_21 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(x_6, x_8, x_20, x_2, x_3, x_16);
 lean_dec(x_3);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -557,7 +557,7 @@ else
 lean_object* x_37; lean_object* x_38; 
 x_37 = lean_box(0);
 lean_inc(x_8);
-x_38 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__13(x_6, x_8, x_37, x_2, x_3, x_31);
+x_38 = l_Lean_Elab_addConstInfo___at_Lean_registerInitAttrUnsafe___spec__15(x_6, x_8, x_37, x_2, x_3, x_31);
 lean_dec(x_3);
 if (lean_obj_tag(x_38) == 0)
 {

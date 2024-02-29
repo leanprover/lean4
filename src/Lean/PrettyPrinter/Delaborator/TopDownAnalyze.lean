@@ -6,6 +6,7 @@ Authors: Daniel Selsam
 prelude
 import Lean.Data.RBMap
 import Lean.Meta.SynthInstance
+import Lean.Meta.CtorRecognizer
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
@@ -152,7 +153,7 @@ def isIdLike (arg : Expr) : Bool :=
   | _ => false
 
 def isStructureInstance (e : Expr) : MetaM Bool := do
-  match e.isConstructorApp? (← getEnv) with
+  match (← isConstructorApp? e) with
   | some s => return isStructure (← getEnv) s.induct
   | none   => return false
 
@@ -288,7 +289,7 @@ where
 partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
   let opts ← getOptions
   return e.isFVar
-         || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
+         || e.isConst || e.isMVar || e.isRawNatLit || e.isStringLit || e.isSort
          || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity ``OfNat.ofNat 3)
          || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity ``OfScientific.ofScientific 5)
 

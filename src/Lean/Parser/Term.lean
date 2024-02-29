@@ -118,13 +118,17 @@ def example (a : Nat) : Nat → Nat → Nat :=
 termination_by b c => a - b
 ```
 
-If omitted, a termination argument will be inferred.
+If omitted, a termination argument will be inferred. If written as `termination_by?`,
+the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
-  ppDedent ppLine >>
   "termination_by " >>
   optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
   termParser
+
+@[inherit_doc terminationBy]
+def terminationBy? := leading_parser
+  "termination_by?"
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
@@ -139,7 +143,7 @@ def decreasingBy := leading_parser
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 def suffix := leading_parser
-  optional terminationBy >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
 
 end Termination
 
@@ -191,6 +195,13 @@ def optSemicolon (p : Parser) : Parser :=
 This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
+/--
+Denotes a term that was omitted by the pretty printer.
+This is only meant to be used for pretty printing, however for copy/paste friendliness it elaborates like `_` while logging a warning.
+The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+-/
+@[builtin_term_parser] def omission := leading_parser
+  "⋯"
 def binderIdent : Parser  := ident <|> hole
 /-- A temporary placeholder for a missing proof or value. -/
 @[builtin_term_parser] def «sorry» := leading_parser
@@ -805,6 +816,12 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent
+
+/--
+Implementation of the `show_term` term elaborator.
+-/
+@[builtin_term_parser] def showTermElabImpl :=
+  leading_parser:leadPrec "show_term_elab " >> termParser
 
 end Term
 

@@ -36,8 +36,6 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 
 @[ext] theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
 
-theorem val_inj {a b : Fin n} : a.1 = b.1 ↔ a = b := ⟨Fin.eq_of_val_eq, Fin.val_eq_of_eq⟩
-
 theorem ext_iff {a b : Fin n} : a = b ↔ a.1 = b.1 := val_inj.symm
 
 theorem val_ne_iff {a b : Fin n} : a.1 ≠ b.1 ↔ a ≠ b := not_congr val_inj
@@ -794,6 +792,12 @@ protected theorem mul_one (k : Fin (n + 1)) : k * 1 = k := by
 
 protected theorem mul_comm (a b : Fin n) : a * b = b * a :=
   ext <| by rw [mul_def, mul_def, Nat.mul_comm]
+
+protected theorem mul_assoc (a b c : Fin n) : a * b * c = a * (b * c) := by
+  apply eq_of_val_eq
+  simp only [val_mul]
+  rw [← Nat.mod_eq_of_lt a.isLt, ← Nat.mod_eq_of_lt b.isLt, ← Nat.mod_eq_of_lt c.isLt]
+  simp only [← Nat.mul_mod, Nat.mul_assoc]
 
 protected theorem one_mul (k : Fin (n + 1)) : (1 : Fin (n + 1)) * k = k := by
   rw [Fin.mul_comm, Fin.mul_one]

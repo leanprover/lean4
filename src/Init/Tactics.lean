@@ -584,6 +584,43 @@ def dsimpArg := simpErase.binary `orelse simpLemma
 /-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
 syntax dsimpArgs := " [" dsimpArg,* "]"
 
+/-- The common arguments of `simp?` and `simp?!`. -/
+syntax simpTraceArgsRest := (config)? (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
+
+/--
+`simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
+that would be sufficient to close the goal. This is useful for reducing the size of the simp
+set in a local invocation to speed up processing.
+```
+example (x : Nat) : (if True then x + 2 else 3) = x + 2 := by
+  simp? -- prints "Try this: simp only [ite_true]"
+```
+
+This command can also be used in `simp_all` and `dsimp`.
+-/
+syntax (name := simpTrace) "simp?" "!"? simpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp?!" rest:simpTraceArgsRest : tactic => `(tactic| simp?%$tk ! $rest)
+
+/-- The common arguments of `simp_all?` and `simp_all?!`. -/
+syntax simpAllTraceArgsRest := (config)? (discharger)? (&" only")? (dsimpArgs)?
+
+@[inherit_doc simpTrace]
+syntax (name := simpAllTrace) "simp_all?" "!"? simpAllTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp_all?!" rest:simpAllTraceArgsRest : tactic => `(tactic| simp_all?%$tk ! $rest)
+
+/-- The common arguments of `dsimp?` and `dsimp?!`. -/
+syntax dsimpTraceArgsRest := (config)? (&" only")? (dsimpArgs)? (ppSpace location)?
+
+@[inherit_doc simpTrace]
+syntax (name := dsimpTrace) "dsimp?" "!"? dsimpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"dsimp?!" rest:dsimpTraceArgsRest : tactic => `(tactic| dsimp?%$tk ! $rest)
+
 /-- The arguments to the `simpa` family tactics. -/
 syntax simpaArgsRest := (config)? (discharger)? &" only "? (simpArgs)? (" using " term)?
 
@@ -1051,6 +1088,13 @@ Currently, all of these are on by default.
 -/
 syntax (name := omega) "omega" (config)? : tactic
 
+/--
+`bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
+Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
+`bv_toNat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
+-/
+macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
+
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
 syntax (name := normCast0) "norm_cast0" (location)? : tactic
 
@@ -1118,6 +1162,169 @@ end
 -/
 syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+
+/--
+`norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
+-/
+syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+
+/--
+* `symm` applies to a goal whose target has the form `t ~ u` where `~` is a symmetric relation,
+  that is, a relation which has a symmetry lemma tagged with the attribute [symm].
+  It replaces the target with `u ~ t`.
+* `symm at h` will rewrite a hypothesis `h : t ~ u` to `h : u ~ t`.
+-/
+syntax (name := symm) "symm" (location)? : tactic
+
+/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
+add a hypothesis `h_symm : b ~ a`. -/
+syntax (name := symmSaturate) "symm_saturate" : tactic
+
+namespace SolveByElim
+
+/-- Syntax for omitting a local hypothesis in `solve_by_elim`. -/
+syntax erase := "-" term:max
+/-- Syntax for including all local hypotheses in `solve_by_elim`. -/
+syntax star := "*"
+/-- Syntax for adding or removing a term, or `*`, in `solve_by_elim`. -/
+syntax arg := star <|> erase <|> term
+/-- Syntax for adding and removing terms in `solve_by_elim`. -/
+syntax args := " [" SolveByElim.arg,* "]"
+/-- Syntax for using all lemmas labelled with an attribute in `solve_by_elim`. -/
+syntax using_ := " using " ident,*
+
+end SolveByElim
+
+section SolveByElim
+open SolveByElim (args using_)
+
+/--
+`solve_by_elim` calls `apply` on the main goal to find an assumption whose head matches
+and then repeatedly calls `apply` on the generated subgoals until no subgoals remain,
+performing at most `maxDepth` (defaults to 6) recursive steps.
+
+`solve_by_elim` discharges the current goal or fails.
+
+`solve_by_elim` performs backtracking if subgoals can not be solved.
+
+By default, the assumptions passed to `apply` are the local context, `rfl`, `trivial`,
+`congrFun` and `congrArg`.
+
+The assumptions can be modified with similar syntax as for `simp`:
+* `solve_by_elim [h₁, h₂, ..., hᵣ]` also applies the given expressions.
+* `solve_by_elim only [h₁, h₂, ..., hᵣ]` does not include the local context,
+  `rfl`, `trivial`, `congrFun`, or `congrArg` unless they are explicitly included.
+* `solve_by_elim [-h₁, ... -hₙ]` removes the given local hypotheses.
+* `solve_by_elim using [a₁, ...]` uses all lemmas which have been labelled
+  with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`solve_by_elim*` tries to solve all goals together, using backtracking if a solution for one goal
+makes other goals impossible.
+(Adding or removing local hypotheses may not be well-behaved when starting with multiple goals.)
+
+Optional arguments passed via a configuration argument as `solve_by_elim (config := { ... })`
+- `maxDepth`: number of attempts at discharging generated subgoals
+- `symm`: adds all hypotheses derived by `symm` (defaults to `true`).
+- `exfalso`: allow calling `exfalso` and trying again if `solve_by_elim` fails
+  (defaults to `true`).
+- `transparency`: change the transparency mode when calling `apply`. Defaults to `.default`,
+  but it is often useful to change to `.reducible`,
+  so semireducible definitions will not be unfolded when trying to apply a lemma.
+
+See also the doc-comment for `Std.Tactic.BacktrackConfig` for the options
+`proc`, `suspend`, and `discharge` which allow further customization of `solve_by_elim`.
+Both `apply_assumption` and `apply_rules` are implemented via these hooks.
+-/
+syntax (name := solveByElim)
+  "solve_by_elim" "*"? (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_assumption` looks for an assumption of the form `... → ∀ _, ... → head`
+where `head` matches the current goal.
+
+You can specify additional rules to apply using `apply_assumption [...]`.
+By default `apply_assumption` will also try `rfl`, `trivial`, `congrFun`, and `congrArg`.
+If you don't want these, or don't want to use all hypotheses, use `apply_assumption only [...]`.
+You can use `apply_assumption [-h]` to omit a local hypothesis.
+You can use `apply_assumption using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`apply_assumption` will use consequences of local hypotheses obtained via `symm`.
+
+If `apply_assumption` fails, it will call `exfalso` and try again.
+Thus if there is an assumption of the form `P → ¬ Q`, the new tactic state
+will have two goals, `P` and `Q`.
+
+You can pass a further configuration via the syntax `apply_rules (config := {...}) lemmas`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+-/
+syntax (name := applyAssumption)
+  "apply_assumption" (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_rules [l₁, l₂, ...]` tries to solve the main goal by iteratively
+applying the list of lemmas `[l₁, l₂, ...]` or by applying a local hypothesis.
+If `apply` generates new goals, `apply_rules` iteratively tries to solve those goals.
+You can use `apply_rules [-h]` to omit a local hypothesis.
+
+`apply_rules` will also use `rfl`, `trivial`, `congrFun` and `congrArg`.
+These can be disabled, as can local hypotheses, by using `apply_rules only [...]`.
+
+You can use `apply_rules using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+You can pass a further configuration via the syntax `apply_rules (config := {...})`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+
+`apply_rules` will try calling `symm` on hypotheses and `exfalso` on the goal as needed.
+This can be disabled with `apply_rules (config := {symm := false, exfalso := false})`.
+
+You can bound the iteration depth using the syntax `apply_rules (config := {maxDepth := n})`.
+
+Unlike `solve_by_elim`, `apply_rules` does not perform backtracking, and greedily applies
+a lemma from the list until it gets stuck.
+-/
+syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
+end SolveByElim
+
+/--
+Searches environment for definitions or theorems that can solve the goal using `exact`
+with conditions resolved by `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used by `exact?` when closing the goal.  This is most useful if there are multiple
+ways to resolve the goal, and one wants to guide which lemma is used.
+-/
+syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+
+/--
+Searches environment for definitions or theorems that can refine the goal using `apply`
+with conditions resolved when possible with `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used when closing the goal.
+-/
+syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+
+/--
+`show_term tac` runs `tac`, then prints the generated term in the form
+"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+
+(For some tactics, the printed term will not be human readable.)
+-/
+syntax (name := showTerm) "show_term " tacticSeq : tactic
+
+/--
+`show_term e` elaborates `e`, then prints the generated term.
+-/
+macro (name := showTermElab) tk:"show_term " t:term : term =>
+  `(term| no_implicit_lambda% (show_term_elab%$tk $t))
+
+/--
+The command `by?` will print a suggestion for replacing the proof block with a proof term
+using `show_term`.
+-/
+macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
 end Tactic
 
@@ -1238,13 +1445,14 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith`
+where `i < arr.size` is in the context) and `simp_arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
@@ -1255,6 +1463,24 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
+      /-
+      Recall that `macro_rules` are tried in reverse order.
+      We want `assumption` to be tried first.
+      This is important for theorems such as
+      ```
+      [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
+      a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
+      ```
+      There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
+      If `omega` is used to "fill" this proof, we will have a more complex proof term that
+      cannot be inferred by unification.
+      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      they add new `macro_rules` for `get_elem_tactic_trivial`.
+
+      TODO: Implement priorities for `macro_rules`.
+      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      -/
+    | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
@@ -1270,3 +1496,9 @@ macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 @[inherit_doc getElem]
 syntax term noWs "[" withoutPosition(term) "]'" term:max : term
 macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+
+/--
+Searches environment for definitions or theorems that can be substituted in
+for `exact?% to solve the goal.
+ -/
+syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term

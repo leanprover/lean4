@@ -127,14 +127,21 @@ def toSimprocEntry (e : SimprocOLeanEntry) : ImportM SimprocEntry := do
 def eraseSimprocAttr (ext : SimprocExtension) (declName : Name) : AttrM Unit := do
   let s := ext.getState (← getEnv)
   unless s.simprocNames.contains declName do
-    throwError "'{declName}' does not have [simproc] attribute"
+    throwError "'{declName}' does not have a simproc attribute"
   modifyEnv fun env => ext.modifyState env fun s => s.erase declName
 
-def addSimprocAttr (ext : SimprocExtension) (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
+def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
   let proc ← getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   ext.add { declName, post, keys, proc } kind
+
+def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Simproc) : Simprocs :=
+  let s := { s with simprocNames := s.simprocNames.insert declName, erased := s.erased.erase declName }
+  if post then
+    { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+  else
+    { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
 
 /--
 Implements attributes `builtin_simproc` and `builtin_sevalproc`.
@@ -142,10 +149,7 @@ Implements attributes `builtin_simproc` and `builtin_sevalproc`.
 def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Simproc) : IO Unit := do
   let some keys := (← builtinSimprocDeclsRef.get).keys.find? declName |
     throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
-  if post then
-    ref.modify fun s => { s with post := s.post.insertCore keys { declName, keys, post, proc } }
-  else
-    ref.modify fun s => { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+  ref.modify fun s => s.addCore keys declName post proc
 
 def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit :=
   addSimprocBuiltinAttrCore builtinSimprocsRef declName post proc
@@ -166,10 +170,7 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
         throw e
   let some keys ← getSimprocDeclKeys? declName |
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
-  if post then
-    return { s with post := s.post.insertCore keys { declName, keys, post, proc } }
-  else
-    return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+  return s.addCore keys declName post proc
 
 def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
   let mut extraArgs := #[]
@@ -255,6 +256,7 @@ def simprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM Step 
 
 register_builtin_option simprocs : Bool := {
   defValue := true
+  group    := "backward compatibility"
   descr    := "Enable/disable `simproc`s (simplification procedures)."
 }
 
@@ -276,12 +278,14 @@ def mkSimprocExt (name : Name := by exact decl_name%) (ref? : Option (IO.Ref Sim
         return {}
     ofOLeanEntry  := fun _ => toSimprocEntry
     toOLeanEntry  := fun e => e.toSimprocOLeanEntry
-    addEntry      := fun s e =>
-      if e.post then
-        { s with post := s.post.insertCore e.keys e }
-      else
-        { s with pre := s.pre.insertCore e.keys e }
+    addEntry      := fun s e => s.addCore e.keys e.declName e.post e.proc
   }
+
+def addSimprocAttr (ext : SimprocExtension) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+  let go : MetaM Unit := do
+    let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+    addSimprocAttrCore ext declName attrKind post
+  discard <| go.run {} {}
 
 def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension) (name : Name) : IO Unit := do
   registerBuiltinAttribute {
@@ -289,11 +293,7 @@ def mkSimprocAttr (attrName : Name) (attrDescr : String) (ext : SimprocExtension
     name  := attrName
     descr := attrDescr
     applicationTime := AttributeApplicationTime.afterCompilation
-    add   := fun declName stx attrKind =>
-      let go : MetaM Unit := do
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        addSimprocAttr ext declName attrKind post
-      discard <| go.run {} {}
+    add   := addSimprocAttr ext
     erase := eraseSimprocAttr ext
   }
 

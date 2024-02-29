@@ -32,7 +32,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
                 args ← args.modifyM i visit
             else
               args ← args.modifyM i visit
-          if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isNatLit then
+          if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isRawNatLit then
             return mkRawNatLit (args[0]!.natLit?.get! + 1)
           else
             return mkAppN f args

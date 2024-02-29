@@ -170,19 +170,6 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 
-/--
-Denotes a term that was omitted by the pretty printer.
-This is only used for pretty printing, and it cannot be elaborated.
-The presence of `⋯` is controlled by the `pp.deepTerms` and `pp.proofs` options.
--/
-syntax "⋯" : term
-
-macro_rules | `(⋯) => Macro.throwError "\
-  Error: The '⋯' token is used by the pretty printer to indicate omitted terms, \
-  and it cannot be elaborated.\
-  \n\nIts presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
-  These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
-
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
 
@@ -466,3 +453,19 @@ syntax "{" term,+ "}" : term
 macro_rules
   | `({$x:term}) => `(singleton $x)
   | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+namespace Lean
+
+/-- Unexpander for the `{ x }` notation. -/
+@[app_unexpander singleton]
+def singletonUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a) => `({ $a:term })
+  | _ => throw ()
+
+/-- Unexpander for the `{ x, y, ... }` notation. -/
+@[app_unexpander insert]
+def insertUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
+  | _ => throw ()
+
+end Lean

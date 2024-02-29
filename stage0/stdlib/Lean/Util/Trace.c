@@ -197,6 +197,7 @@ static lean_object* l_Lean_resetTraceState___rarg___closed__1;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_withTraceNode___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2607____closed__15;
 LEAN_EXPORT lean_object* l_Lean_setTraceState___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__3___rarg___lambda__3(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1(lean_object*, lean_object*, lean_object*);
@@ -341,6 +342,7 @@ static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__24;
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__4;
 LEAN_EXPORT lean_object* l_Lean_shouldEnableNestedTrace___rarg___lambda__1(lean_object*, uint8_t, double, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1330_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_printTraces___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -380,6 +382,7 @@ static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2607____closed__9;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__8___boxed(lean_object**);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___closed__15;
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6851,6 +6854,40 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_exceptOptionEmoji___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji___rarg(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; 
+x_2 = l_Lean_crossEmoji;
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = l_Lean_checkEmoji;
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_exceptEmoji___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_exceptEmoji___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_exceptEmoji___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

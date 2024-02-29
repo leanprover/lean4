@@ -3,6 +3,7 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
 import Lean.Elab.Tactic.Omega.Core
 import Lean.Elab.Tactic.FalseOrByContra
 import Lean.Meta.Tactic.Cases
@@ -23,6 +24,13 @@ Allow elaboration of `OmegaConfig` arguments to tactics.
 -/
 declare_config_elab elabOmegaConfig Lean.Meta.Omega.OmegaConfig
 
+/-- Match on the two defeq expressions for successor: `n+1`, `n.succ`. -/
+def succ? (e : Expr) : Option Expr :=
+  match e.getAppFnArgs with
+  | (``Nat.succ, #[n]) => some n
+  | (``HAdd.hAdd, #[_, _, _, _, a, b]) => do
+     if b == toExpr (1 : Nat) then some a else none
+  | _ => none
 
 /--
 A partially processed `omega` context.
@@ -60,7 +68,7 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 `e = (coordinate n).eval atoms`. -/
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
-    let atoms := (← getThe State).atoms
+    let atoms ← atoms
     let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
     mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
@@ -75,13 +83,6 @@ def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
 def mkAtomLinearCombo (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
   let (n, facts) ← lookup e
   return ⟨LinearCombo.coordinate n, mkCoordinateEvalAtomsEq e n, facts.getD ∅⟩
-
--- This has been PR'd as
--- https://github.com/leanprover/lean4/pull/2900
--- and can be removed when that is merged.
-@[inherit_doc mkAppN]
-local macro_rules
-  | `(mkAppN $f #[$xs,*]) => (xs.getElems.foldlM (fun x e => `(Expr.app $x $e)) f : MacroM Term)
 
 mutual
 
@@ -121,7 +122,7 @@ We also transform the expression as we descend into it:
 -/
 partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
   trace[omega] "processing {e}"
-  match e.int? with
+  match groundInt? e with
   | some i =>
     let lc := {const := i}
     return ⟨lc, mkEvalRflProof e lc, ∅⟩
@@ -184,17 +185,20 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | some r => pure r
     | none => mkAtomLinearCombo e
   | (``HMod.hMod, #[_, _, _, _, n, k]) =>
-    match natCast? k with
-    | some _ => rewrite e (mkApp2 (.const ``Int.emod_def []) n k)
+    match groundNat? k with
+    | some k' => do
+      let k' := toExpr (k' : Int)
+      rewrite (← mkAppM ``HMod.hMod #[n, k']) (mkApp2 (.const ``Int.emod_def []) n k')
     | none => mkAtomLinearCombo e
   | (``HDiv.hDiv, #[_, _, _, _, x, z]) =>
-    match intCast? z with
+    match groundInt? z with
     | some 0 => rewrite e (mkApp (.const ``Int.ediv_zero []) x)
-    | some i =>
+    | some i => do
+      let e' ← mkAppM ``HDiv.hDiv #[x, toExpr i]
       if i < 0 then
-        rewrite e (mkApp2 (.const ``Int.ediv_neg []) x (toExpr (-i)))
+        rewrite e' (mkApp2 (.const ``Int.ediv_neg []) x (toExpr (-i)))
       else
-        mkAtomLinearCombo e
+        mkAtomLinearCombo e'
     | _ => mkAtomLinearCombo e
   | (``Min.min, #[_, _, a, b]) =>
     if (← cfg).splitMinMax then
@@ -206,39 +210,15 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
       rewrite e (mkApp2 (.const ``Int.max_def []) a b)
     else
       mkAtomLinearCombo e
+  | (``HPow.hPow, #[_, _, _, _, b, k]) =>
+    match succ? k with /- match for `e+1` and `e.succ` -/
+    | none => mkAtomLinearCombo e
+    | some k' =>
+        match groundInt? b with
+        | some _ => rewrite e (mkApp2 (.const ``Int.pow_succ []) b k')
+        | none => mkAtomLinearCombo e
   | (``Nat.cast, #[.const ``Int [], i, n]) =>
-    match n with
-    | .fvar h =>
-      if let some v ← h.getValue? then
-        rewrite e (← mkEqReflWithExpectedType e
-          (mkApp3 (.const ``Nat.cast [0]) (.const ``Int []) i v))
-      else
-        mkAtomLinearCombo e
-    | _ => match n.getAppFnArgs with
-    | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
-    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
-    | (``HMul.hMul, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
-    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
-    | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
-    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
-    | (``HSub.hSub, #[_, _, _, _, mkAppN (.const ``HSub.hSub _) #[_, _, _, _, a, b], c]) =>
-      rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
-    | (``Prod.fst, #[_, β, p]) => match p with
-      | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>
-        rewrite e (mkApp3 (.const ``Int.ofNat_fst_mk [v]) β x y)
-      | _ => mkAtomLinearCombo e
-    | (``Prod.snd, #[α, _, p]) => match p with
-      | .app (.app (.app (.app (.const ``Prod.mk [u, 0]) _) _) x) y =>
-        rewrite e (mkApp3 (.const ``Int.ofNat_snd_mk [u]) α x y)
-      | _ => mkAtomLinearCombo e
-    | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
-    | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
-    | (``Int.natAbs, #[n]) =>
-      if (← cfg).splitNatAbs then
-        rewrite e (mkApp (.const ``Int.ofNat_natAbs []) n)
-      else
-        mkAtomLinearCombo e
-    | _ => mkAtomLinearCombo e
+      handleNatCast e i n
   | (``Prod.fst, #[α, β, p]) => match p with
     | .app (.app (.app (.app (.const ``Prod.mk [u, v]) _) _) x) y =>
       rewrite e (mkApp4 (.const ``Prod.fst_mk [u, v]) α x β y)
@@ -261,6 +241,78 @@ where
       let prf' : OmegaM Expr := do mkEqTrans rw (← prf)
       pure (lc, prf', facts)
     | none => panic! "Invalid rewrite rule in 'asLinearCombo'"
+  handleNatCast (e i n : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+    match n with
+    | .fvar h =>
+      if let some v ← h.getValue? then
+        rewrite e (← mkEqReflWithExpectedType e
+          (mkApp3 (.const ``Nat.cast [0]) (.const ``Int []) i v))
+      else
+        mkAtomLinearCombo e
+    | _ => match n.getAppFnArgs with
+    | (``Nat.succ, #[n]) => rewrite e (.app (.const ``Int.ofNat_succ []) n)
+    | (``HAdd.hAdd, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_add []) a b)
+    | (``HMul.hMul, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_mul []) a b)
+    | (``HDiv.hDiv, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_ediv []) a b)
+    | (``OfNat.ofNat, #[_, n, _]) => rewrite e (.app (.const ``Int.natCast_ofNat []) n)
+    | (``HMod.hMod, #[_, _, _, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_emod []) a b)
+    | (``HSub.hSub, #[_, _, _, _, mkApp6 (.const ``HSub.hSub _) _ _ _ _ a b, c]) =>
+      rewrite e (mkApp3 (.const ``Int.ofNat_sub_sub []) a b c)
+    | (``HPow.hPow, #[_, _, _, _, a, b]) =>
+      match groundNat? a with
+      | some _ => rewrite e (mkApp2 (.const ``Int.ofNat_pow []) a b)
+      | none => mkAtomLinearCombo e
+    | (``Prod.fst, #[_, β, p]) => match p with
+      | .app (.app (.app (.app (.const ``Prod.mk [0, v]) _) _) x) y =>
+        rewrite e (mkApp3 (.const ``Int.ofNat_fst_mk [v]) β x y)
+      | _ => mkAtomLinearCombo e
+    | (``Prod.snd, #[α, _, p]) => match p with
+      | .app (.app (.app (.app (.const ``Prod.mk [u, 0]) _) _) x) y =>
+        rewrite e (mkApp3 (.const ``Int.ofNat_snd_mk [u]) α x y)
+      | _ => mkAtomLinearCombo e
+    | (``Min.min, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_min []) a b)
+    | (``Max.max, #[_, _, a, b]) => rewrite e (mkApp2 (.const ``Int.ofNat_max []) a b)
+    | (``HShiftLeft.hShiftLeft, #[_, _, _, _, a, b]) =>
+      rewrite e (mkApp2 (.const ``Int.ofNat_shiftLeft_eq []) a b)
+    | (``HShiftRight.hShiftRight, #[_, _, _, _, a, b]) =>
+      rewrite e (mkApp2 (.const ``Int.ofNat_shiftRight_eq_div_pow []) a b)
+    | (``Int.natAbs, #[n]) =>
+      if (← cfg).splitNatAbs then
+        rewrite e (mkApp (.const ``Int.ofNat_natAbs []) n)
+      else
+        mkAtomLinearCombo e
+    | (``Fin.val, #[n, x]) =>
+      handleFinVal e i n x
+    | _ => mkAtomLinearCombo e
+  handleFinVal (e i n x : Expr) : OmegaM (LinearCombo × OmegaM Expr × HashSet Expr) := do
+    match x with
+    | .fvar h =>
+      if let some v ← h.getValue? then
+        rewrite e (← mkEqReflWithExpectedType e
+          (mkApp3 (.const ``Nat.cast [0]) (.const ``Int []) i (mkApp2 (.const ``Fin.val []) n v)))
+      else
+        mkAtomLinearCombo e
+    | _ => match x.getAppFnArgs, n.nat? with
+      | (``HAdd.hAdd, #[_, _, _, _, a, b]), _ =>
+        rewrite e (mkApp3 (.const ``Fin.ofNat_val_add []) n a b)
+      | (``HMul.hMul, #[_, _, _, _, a, b]), _ =>
+        rewrite e (mkApp3 (.const ``Fin.ofNat_val_mul []) n a b)
+      | (``HSub.hSub, #[_, _, _, _, a, b]), some _ =>
+        -- Only do this rewrite if `n` is a numeral.
+        rewrite e (mkApp3 (.const ``Fin.ofNat_val_sub []) n a b)
+      | (``OfNat.ofNat, #[_, y, _]), some m =>
+        -- Only do this rewrite if `n` is a nonzero numeral.
+        if m = 0 then
+          mkAtomLinearCombo e
+        else
+          match y with
+          | .lit (.natVal y) =>
+            rewrite e (mkApp4 (.const ``Fin.ofNat_val_natCast [])
+              (toExpr (m - 1)) (toExpr y) (.lit (.natVal (y % m))) (← mkEqRefl (toExpr (y % m))))
+          | _ =>
+            -- This shouldn't happen, we obtained `y` from `OfNat.ofNat`
+            mkAtomLinearCombo e
+      | _, _ => mkAtomLinearCombo e
 
 end
 namespace MetaProblem
@@ -323,11 +375,17 @@ def pushNot (h P : Expr) : MetaM (Option Expr) := do
       return some (mkApp3 (.const ``Nat.le_of_not_lt []) x y h)
     | (``LE.le, #[.const ``Nat [], _, x, y]) =>
       return some (mkApp3 (.const ``Nat.lt_of_not_le []) x y h)
+    | (``LT.lt, #[.app (.const ``Fin []) n, _, x, y]) =>
+      return some (mkApp4 (.const ``Fin.le_of_not_lt []) n x y h)
+    | (``LE.le, #[.app (.const ``Fin []) n, _, x, y]) =>
+      return some (mkApp4 (.const ``Fin.lt_of_not_le []) n x y h)
     | (``Eq, #[.const ``Nat [], x, y]) =>
       return some (mkApp3 (.const ``Nat.lt_or_gt_of_ne []) x y h)
     | (``Eq, #[.const ``Int [], x, y]) =>
       return some (mkApp3 (.const ``Int.lt_or_gt_of_ne []) x y h)
     | (``Prod.Lex, _) => return some (← mkAppM ``Prod.of_not_lex #[h])
+    | (``Eq, #[.app (.const ``Fin []) n, x, y]) =>
+      return some (mkApp4 (.const ``Fin.lt_or_gt_of_ne []) n x y h)
     | (``Dvd.dvd, #[.const ``Nat [], _, k, x]) =>
       return some (mkApp3 (.const ``Nat.emod_pos_of_not_dvd []) k x h)
     | (``Dvd.dvd, #[.const ``Int [], _, k, x]) =>
@@ -402,6 +460,16 @@ partial def addFact (p : MetaProblem) (h : Expr) : OmegaM (MetaProblem × Nat) :
         p.addFact (mkApp3 (.const ``Nat.mod_eq_zero_of_dvd []) k x h)
       | (``Dvd.dvd, #[.const ``Int [], _, k, x]) =>
         p.addFact (mkApp3 (.const ``Int.emod_eq_zero_of_dvd []) k x h)
+      | (``Eq, #[.app (.const ``Fin []) n, x, y]) =>
+        p.addFact (mkApp4 (.const ``Fin.val_congr []) n x y h)
+      | (``LE.le, #[.app (.const ``Fin []) n, _, x, y]) =>
+        p.addFact (mkApp4 (.const ``Fin.val_le_of_le []) n x y h)
+      | (``LT.lt, #[.app (.const ``Fin []) n, _, x, y]) =>
+        p.addFact (mkApp4 (.const ``Fin.val_add_one_le_of_lt []) n x y h)
+      | (``GE.ge, #[.app (.const ``Fin []) n, _, x, y]) =>
+        p.addFact (mkApp4 (.const ``Fin.val_le_of_ge []) n x y h)
+      | (``GT.gt, #[.app (.const ``Fin []) n, _, x, y]) =>
+        p.addFact (mkApp4 (.const ``Fin.val_add_one_le_of_gt []) n x y h)
       | (``And, #[t₁, t₂]) => do
           let (p₁, n₁) ← p.addFact (mkApp3 (.const ``And.left []) t₁ t₂ h)
           let (p₂, n₂) ← p₁.addFact (mkApp3 (.const ``And.right []) t₁ t₂ h)
@@ -505,7 +573,6 @@ partial def omegaImpl (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withCont
     trace[omega] "Justification:\n{p'.explanation?.get}"
     let prf ← instantiateMVars (← prf)
     trace[omega] "omega found a contradiction, proving {← inferType prf}"
-    trace[omega] "{prf}"
     g.assign prf
 
 end
@@ -531,7 +598,7 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
-the tactic call `aesop (add 50% tactic Std.Tactic.Omega.omegaDefault)`. -/
+the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]
@@ -540,3 +607,7 @@ def evalOmega : Tactic := fun
     let cfg ← elabOmegaConfig (mkOptionalNode cfg)
     omegaTactic cfg
   | _ => throwUnsupportedSyntax
+
+builtin_initialize bvOmegaSimpExtension : SimpExtension ←
+  registerSimpAttr `bv_toNat
+    "simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor"

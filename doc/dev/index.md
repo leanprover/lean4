@@ -74,3 +74,9 @@ Lean's build process uses [`ccache`](https://ccache.dev/) if it is
 installed to speed up recompilation of the generated C code. Without
 `ccache`, you'll likely spend more time than necessary waiting on
 rebuilds - it's a good idea to make sure it's installed.
+
+### `prelude`
+Unlike most Lean projects, all submodules of the `Lean` module begin with the
+`prelude` keyword. This disables the automated import of `Init`, meaning that
+developers need to figure out their own subset of `Init` to import. This is done
+such that changing files in `Init` doesn't force a full rebuild of `Lean`.

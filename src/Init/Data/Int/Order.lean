@@ -48,7 +48,7 @@ protected theorem le_total (a b : Int) : a ≤ b ∨ b ≤ a :=
   (nonneg_or_nonneg_neg (b - a)).imp_right fun H => by
     rwa [show -(b - a) = a - b by simp [Int.add_comm, Int.sub_eq_add_neg]] at H
 
-@[simp] theorem ofNat_le {m n : Nat} : (↑m : Int) ≤ ↑n ↔ m ≤ n :=
+@[simp, norm_cast] theorem ofNat_le {m n : Nat} : (↑m : Int) ≤ ↑n ↔ m ≤ n :=
   ⟨fun h =>
     let ⟨k, hk⟩ := le.dest h
     Nat.le.intro <| Int.ofNat.inj <| (Int.ofNat_add m k).trans hk,
@@ -74,10 +74,10 @@ theorem lt.intro {a b : Int} {n : Nat} (h : a + Nat.succ n = b) : a < b :=
 theorem lt.dest {a b : Int} (h : a < b) : ∃ n : Nat, a + Nat.succ n = b :=
   let ⟨n, h⟩ := le.dest h; ⟨n, by rwa [Int.add_comm, Int.add_left_comm] at h⟩
 
-@[simp] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
+@[simp, norm_cast] theorem ofNat_lt {n m : Nat} : (↑n : Int) < ↑m ↔ n < m := by
   rw [lt_iff_add_one_le, ← ofNat_succ, ofNat_le]; rfl
 
-@[simp] theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
+@[simp, norm_cast] theorem ofNat_pos {n : Nat} : 0 < (↑n : Int) ↔ 0 < n := ofNat_lt
 
 theorem ofNat_nonneg (n : Nat) : 0 ≤ (n : Int) := ⟨_⟩
 

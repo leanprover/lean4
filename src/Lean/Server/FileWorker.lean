@@ -234,6 +234,8 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
     return .error { diagnostics := .empty, success? := none }
 
   let imports := Elab.headerToImports stx
+  -- Prepare header-based caches that requests may use
+  --runHeaderCachingHandlers headerEnv
   let fileSetupResult ← setupFile meta imports fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩

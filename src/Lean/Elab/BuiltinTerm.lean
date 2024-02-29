@@ -99,6 +99,14 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 
+@[builtin_term_elab Lean.Parser.Term.omission] def elabOmission : TermElab := fun stx expectedType? => do
+  logWarning m!"\
+    The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. \
+    It logs this warning and then elaborates like `_`.\
+    \n\nThe presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
+    These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+  elabHole stx expectedType?
+
 @[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
@@ -158,7 +166,10 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
-@[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun _ _ =>
+@[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun stx expectedType? => do
+  if stx[0].getAtomVal == "." then
+    -- Users may input bad cdots because they are trying to auto-complete them using the expected type
+    addCompletionInfo <| CompletionInfo.dotId stx .anonymous (← getLCtx) expectedType?
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtin_term_elab str] def elabStrLit : TermElab := fun stx _ => do

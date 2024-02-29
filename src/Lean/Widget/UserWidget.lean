@@ -126,7 +126,6 @@ structure WidgetSource where
   deriving Inhabited, ToJson, FromJson
 
 open Server RequestM in
-@[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
   if let some (_, m) := (← builtinModulesRef.get).find? args.hash then
     return .pure { sourcetext := m.javascript }
@@ -142,6 +141,9 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
           return { sourcetext := (← evalModule e).javascript }
       else
         notFound
+
+builtin_initialize
+  Server.registerBuiltinRpcProcedure ``getWidgetSource _ _ getWidgetSource
 
 /-! ## Storage of panel widget instances -/
 
@@ -401,7 +403,6 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/
-@[server_rpc_method]
 def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
@@ -434,6 +435,9 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
             return uwd.name
         return { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
       return { widgets := ws' ++ ws }
+
+builtin_initialize
+  Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets
 
 attribute [deprecated Module] UserWidgetDefinition
 

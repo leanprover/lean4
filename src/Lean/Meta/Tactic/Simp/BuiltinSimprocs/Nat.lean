@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Simproc
+import Lean.Meta.LitValues
 import Lean.Meta.Offset
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
@@ -12,20 +13,19 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Util
 namespace Nat
 open Lean Meta Simp
 
-def fromExpr? (e : Expr) : SimpM (Option Nat) := do
-  let some n ← evalNat e |>.run | return none
-  return n
+def fromExpr? (e : Expr) : SimpM (Option Nat) :=
+  getNatValue? e
 
 @[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appArg! | return .continue
-  return .done { expr := mkNatLit (op n) }
+  return .done { expr := toExpr (op n) }
 
 @[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue
   let some m ← fromExpr? e.appArg! | return .continue
-  return .done { expr := mkNatLit (op n m) }
+  return .done { expr := toExpr (op n m) }
 
 @[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue

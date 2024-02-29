@@ -1,48 +1,172 @@
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
- [{"label": "getHygieneInfo",
+ [{"sortText": "0",
+   "label": "expandInterpolatedStr",
    "kind": 3,
-   "detail": "Lean.HygieneInfo → Lean.Name"},
-  {"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
-  {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
-  {"label": "expandInterpolatedStr",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}}}},
+  {"sortText": "1",
+   "label": "getChar",
    "kind": 3,
-   "detail":
-   "Lean.TSyntax Lean.interpolatedStrKind → Lean.Term → Lean.Term → Lean.MacroM Lean.Term"},
-  {"label": "getChar", "kind": 3, "detail": "Lean.CharLit → Char"},
-  {"label": "getNat", "kind": 3, "detail": "Lean.NumLit → Nat"},
-  {"label": "getScientific",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getChar"}}}},
+  {"sortText": "2",
+   "label": "getDocString",
    "kind": 3,
-   "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
-  {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
-  {"label": "raw",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getDocString"}}}},
+  {"sortText": "3",
+   "label": "getHygieneInfo",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}}}},
+  {"sortText": "4",
+   "label": "getId",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getId"}}}},
+  {"sortText": "5",
+   "label": "getName",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getName"}}}},
+  {"sortText": "6",
+   "label": "getNat",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getNat"}}}},
+  {"sortText": "7",
+   "label": "getScientific",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}}}},
+  {"sortText": "8",
+   "label": "getString",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.getString"}}}},
+  {"sortText": "9",
+   "label": "raw",
    "kind": 5,
    "documentation":
    {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
-   "detail": "Lean.TSyntax ks → Lean.Syntax"}],
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 0, "character": 51}},
+    "id": {"const": {"declName": "Lean.TSyntax.raw"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
- [{"label": "getHygieneInfo",
+ [{"sortText": "0",
+   "label": "expandInterpolatedStr",
    "kind": 3,
-   "detail": "Lean.HygieneInfo → Lean.Name"},
-  {"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
-  {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
-  {"label": "expandInterpolatedStr",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.expandInterpolatedStr"}}}},
+  {"sortText": "1",
+   "label": "getChar",
    "kind": 3,
-   "detail":
-   "Lean.TSyntax Lean.interpolatedStrKind → Lean.Term → Lean.Term → Lean.MacroM Lean.Term"},
-  {"label": "getChar", "kind": 3, "detail": "Lean.CharLit → Char"},
-  {"label": "getNat", "kind": 3, "detail": "Lean.NumLit → Nat"},
-  {"label": "getScientific",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getChar"}}}},
+  {"sortText": "2",
+   "label": "getDocString",
    "kind": 3,
-   "detail": "Lean.ScientificLit → Nat × Bool × Nat"},
-  {"label": "getString", "kind": 3, "detail": "Lean.StrLit → String"},
-  {"label": "raw",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getDocString"}}}},
+  {"sortText": "3",
+   "label": "getHygieneInfo",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getHygieneInfo"}}}},
+  {"sortText": "4",
+   "label": "getId",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getId"}}}},
+  {"sortText": "5",
+   "label": "getName",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getName"}}}},
+  {"sortText": "6",
+   "label": "getNat",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getNat"}}}},
+  {"sortText": "7",
+   "label": "getScientific",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getScientific"}}}},
+  {"sortText": "8",
+   "label": "getString",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.getString"}}}},
+  {"sortText": "9",
+   "label": "raw",
    "kind": 5,
    "documentation":
    {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
-   "detail": "Lean.TSyntax ks → Lean.Syntax"}],
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///1265.lean"},
+     "position": {"line": 2, "character": 53}},
+    "id": {"const": {"declName": "Lean.TSyntax.raw"}}}}],
  "isIncomplete": true}

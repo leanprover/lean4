@@ -1,15 +1,14 @@
-def gfabc (x : Nat) := x
-def gfacc (x : Nat) := x
-def gfadc (x : Nat) := x
-def gfbbc (x : Nat) := x
+def gfxabc (x : Nat) := x
+def gfxacc (x : Nat) := x
+def gfxadc (x : Nat) := x
+def gfxbbc (x : Nat) := x
+#check gfxabc
+         --^ textDocument/completion
 
-#check gfabc
-        --^ textDocument/completion
+def Boo.gfxabc (x : Nat) := x
+def Boo.gfxacc (x : Nat) := x
+def Boo.gfxadc (x : Nat) := x
+def Boo.gfxbbc (x : Nat) := x
 
-def Boo.gfabc (x : Nat) := x
-def Boo.gfacc (x : Nat) := x
-def Boo.gfadc (x : Nat) := x
-def Boo.gfbbc (x : Nat) := x
-
-#check Boo.gfabc
-            --^ textDocument/completion
+#check Boo.gfxabc
+             --^ textDocument/completion

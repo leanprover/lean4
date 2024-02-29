@@ -1,1 +1,1 @@
-id (M.run x 0) : IO Unit
+id (M.run x) : IO Unit

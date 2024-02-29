@@ -8,6 +8,7 @@ import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
 
@@ -133,7 +134,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   let env ← getEnv
   if !isStructureLike env inductName then
     return major
-  else if let some _ := major.isConstructorApp? env then
+  else if let some _ ← isConstructorApp? major then
     return major
   else
     let majorType ← inferType major
@@ -372,7 +373,9 @@ structure WhnfCoreConfig where
     match decl with
     | .cdecl .. => return e
     | .ldecl (value := v) .. =>
-      unless config.zetaDelta do return e
+      -- Let-declarations marked as implementation detail should always be unfolded
+      -- We initially added this feature for `simp`, and added it here for consistency.
+      unless config.zetaDelta || decl.isImplementationDetail do return e
       if (← getConfig).trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k config
@@ -448,6 +451,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
+       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
@@ -751,7 +755,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
+                if !(← isConstructorApp (← whnfMatcher recArg)) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

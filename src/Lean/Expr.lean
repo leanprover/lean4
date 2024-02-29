@@ -799,7 +799,7 @@ def isType0 : Expr → Bool
   | sort (.succ .zero) => true
   | _ => false
 
-/-- Return `true` if the given expression is a `.sort .zero` -/
+/-- Return `true` if the given expression is `.sort .zero` -/
 def isProp : Expr → Bool
   | sort (.zero ..) => true
   | _ => false
@@ -912,7 +912,7 @@ def litValue! : Expr → Literal
   | lit v => v
   | _     => panic! "literal expected"
 
-def isNatLit : Expr → Bool
+def isRawNatLit : Expr → Bool
   | lit (Literal.natVal _) => true
   | _                      => false
 
@@ -925,7 +925,7 @@ def isStringLit : Expr → Bool
   | _                      => false
 
 def isCharLit : Expr → Bool
-  | app (const c _) a => c == ``Char.ofNat && a.isNatLit
+  | app (const c _) a => c == ``Char.ofNat && a.isRawNatLit
   | _                 => false
 
 def constName! : Expr → Name
@@ -1035,6 +1035,14 @@ Otherwise return the input expression.
 -/
 def getAppFn : Expr → Expr
   | app f _ => getAppFn f
+  | e         => e
+
+/--
+Similar to `getAppFn`, but skips `mdata`
+-/
+def getAppFn' : Expr → Expr
+  | app f _   => getAppFn' f
+  | mdata _ a => getAppFn' a
   | e         => e
 
 /-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n`. -/
@@ -1207,9 +1215,20 @@ def getRevArg! : Expr → Nat → Expr
   | app f _, i+1 => getRevArg! f i
   | _,       _   => panic! "invalid index"
 
+/-- Similar to `getRevArg!` but skips `mdata` -/
+def getRevArg!' : Expr → Nat → Expr
+  | mdata _ a, i => getRevArg!' a i
+  | app _ a, 0   => a
+  | app f _, i+1 => getRevArg!' f i
+  | _,       _   => panic! "invalid index"
+
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
 @[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
   getRevArg! e (n - i - 1)
+
+/-- Similar to `getArg!`, but skips mdata -/
+@[inline] def getArg!' (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
+  getRevArg!' e (n - i - 1)
 
 /-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=

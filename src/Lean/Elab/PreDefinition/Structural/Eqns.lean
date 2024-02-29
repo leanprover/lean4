@@ -37,11 +37,11 @@ where
       return ()
     else if (← tryContradiction mvarId) then
       return ()
+    else if let some mvarId ← whnfReducibleLHS? mvarId then
+      go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
-      go mvarId
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
     else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()

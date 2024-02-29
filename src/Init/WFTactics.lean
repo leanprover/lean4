@@ -22,7 +22,8 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| linarith)
 -/
 syntax "decreasing_trivial" : tactic
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp (config := { arith := true, failIfUnchanged := false })); done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| (simp (config := { arith := true, failIfUnchanged := false })) <;> done)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| omega)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i

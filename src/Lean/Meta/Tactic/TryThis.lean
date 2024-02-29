@@ -7,11 +7,7 @@ prelude
 import Lean.Server.CodeActions
 import Lean.Widget.UserWidget
 import Lean.Data.Json.Elab
-
-/-- Gets the LSP range from a `String.Range`. -/
-def Lean.FileMap.utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
-  { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
-
+import Lean.Data.Lsp.Utf16
 
 /-!
 # "Try this" support
@@ -43,7 +39,7 @@ Try these:
 
 where `<replacement*>` is a link which will perform the replacement.
 -/
-@[widget_module] def tryThisWidget : Widget.Module where
+@[builtin_widget_module] def tryThisWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 import { EditorContext } from '@leanprover/infoview';
@@ -106,7 +102,7 @@ structure TryThisInfo : Type where
 This is a code action provider that looks for `TryThisInfo` nodes and supplies a code action to
 apply the replacement.
 -/
-@[code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
+@[builtin_code_action_provider] def tryThisProvider : CodeActionProvider := fun params snap => do
   let doc ← readDoc
   pure <| snap.infoTree.foldInfo (init := #[]) fun _ctx info result => Id.run do
     let .ofCustomInfo { stx, value } := info | result

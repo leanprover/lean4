@@ -3,6 +3,7 @@ Copyright (c) 2019 Paul-Nicolas Madelaine. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
+prelude
 import Lean.Meta.Tactic.NormCast
 import Lean.Elab.Tactic.Conv.Simp
 import Lean.Elab.ElabRules
@@ -261,5 +262,13 @@ def evalPushCast : Tactic := fun stx => do
   let ctx := { ctx with config := { ctx.config with failIfUnchanged := false } }
   dischargeWrapper.with fun discharge? =>
     discard <| simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
+
+open Command in
+@[builtin_command_elab Parser.Tactic.normCastAddElim] def elabAddElim : CommandElab := fun stx => do
+  match stx with
+  | `(norm_cast_add_elim $id:ident) =>
+    Elab.Command.liftCoreM do MetaM.run' do
+     addElim (← resolveGlobalConstNoOverload id)
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.NormCast

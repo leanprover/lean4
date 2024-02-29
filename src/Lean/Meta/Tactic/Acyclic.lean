@@ -14,7 +14,7 @@ private def isTarget (lhs rhs : Expr) : MetaM Bool := do
   if !lhs.isFVar || !lhs.occurs rhs then
     return false
   else
-    return (← whnf rhs).isConstructorApp (← getEnv)
+    isConstructorApp' rhs
 
 /--
   Close the given goal if `h` is a proof for an equality such as `as = a :: as`.

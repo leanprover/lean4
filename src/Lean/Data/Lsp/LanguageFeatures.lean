@@ -47,19 +47,19 @@ structure CompletionItem where
   documentation? : Option MarkupContent := none
   kind?          : Option CompletionItemKind := none
   textEdit?      : Option InsertReplaceEdit := none
+  sortText?      : Option String := none
+  data?          : Option Json := none
   /-
   tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
-  sortText? : string
   filterText? : string
   insertText? : string
   insertTextFormat? : InsertTextFormat
   insertTextMode? : InsertTextMode
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
-  command? : Command
-  data? : any -/
+  command? : Command -/
   deriving FromJson, ToJson, Inhabited
 
 structure CompletionList where
@@ -274,7 +274,7 @@ structure CallHierarchyItem where
   uri            : DocumentUri
   range          : Range
   selectionRange : Range
-  -- data? : Option unknown
+  data?          : Option Json := none
   deriving FromJson, ToJson, BEq, Hashable, Inhabited
 
 structure CallHierarchyIncomingCallsParams where

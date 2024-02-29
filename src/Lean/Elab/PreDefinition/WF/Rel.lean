@@ -68,7 +68,14 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
     for (d, mvarId) in subgoals, element in wf, preDef in preDefs do
       let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
       mvarId.withContext do
+        let errorMsgHeader? := if preDefs.size > 1 then
+          "The termination argument types differ for the different functions, or depend on the " ++
+          "function's varying parameters. Try using `sizeOf` explicitly:\nThe termination argument"
+        else
+          "The termination argument depends on the function's varying parameters. Try using " ++
+          "`sizeOf` explicitly:\nThe termination argument"
         let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
+            (errorMsgHeader? := errorMsgHeader?)
         mvarId.assign value
     let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
     wfRelMVarId.assign wfRelVal

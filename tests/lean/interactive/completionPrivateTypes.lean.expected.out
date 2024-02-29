@@ -1,0 +1,12 @@
+{"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
+ "position": {"line": 3, "character": 26}}
+{"items":
+ [{"sortText": "0",
+   "label": "x",
+   "kind": 5,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrivateTypes.lean"},
+     "position": {"line": 3, "character": 26}},
+    "id": {"const": {"declName": "_private.0.Foo.x"}}}}],
+ "isIncomplete": true}

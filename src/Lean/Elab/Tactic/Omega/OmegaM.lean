@@ -3,6 +3,11 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
+import Init.Omega.LinearCombo
+import Init.Omega.Int
+import Init.Omega.Logic
+import Init.Data.BitVec
 import Lean.Meta.AppBuilder
 
 /-!
@@ -46,7 +51,7 @@ structure Context where
 /-- The internal state for the `OmegaM` monad, recording previously encountered atoms. -/
 structure State where
   /-- The atoms up-to-defeq encountered so far. -/
-  atoms : Array Expr := #[]
+  atoms : HashMap Expr Nat := {}
 
 /-- An intermediate layer in the `OmegaM` monad. -/
 abbrev OmegaM' := StateRefT State (ReaderT Context MetaM)
@@ -71,10 +76,11 @@ def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
 
 /-- Retrieve the list of atoms. -/
-def atoms : OmegaM (List Expr) := return (← getThe State).atoms.toList
+def atoms : OmegaM (Array Expr) := do
+  return (← getThe State).atoms.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 /-- Return the `Expr` representing the list of atoms. -/
-def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms)
+def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms).toList
 
 /-- Return the `Expr` representing the list of atoms as a `Coeffs`. -/
 def atomsCoeffs : OmegaM Expr := do
@@ -108,6 +114,45 @@ def intCast? (n : Expr) : Option Int :=
   | (``Nat.cast, #[_, _, n]) => n.nat?
   | _ => n.int?
 
+/--
+If `groundNat? e = some n`, then `e` is definitionally equal to `OfNat.ofNat n`.
+-/
+-- We may want to replace this with an implementation using
+-- the internals of `simp (config := {ground := true})`
+partial def groundNat? (e : Expr) : Option Nat :=
+  match e.getAppFnArgs with
+  | (``Nat.cast, #[_, _, n]) => groundNat? n
+  | (``HAdd.hAdd, #[_, _, _, _, x, y]) => op (· + ·) x y
+  | (``HMul.hMul, #[_, _, _, _, x, y]) => op (· * ·) x y
+  | (``HSub.hSub, #[_, _, _, _, x, y]) => op (· - ·) x y
+  | (``HDiv.hDiv, #[_, _, _, _, x, y]) => op (· / ·) x y
+  | (``HPow.hPow, #[_, _, _, _, x, y]) => op (· ^ ·) x y
+  | _ => e.nat?
+where op (f : Nat → Nat → Nat) (x y : Expr) : Option Nat :=
+  match groundNat? x, groundNat? y with
+    | some x', some y' => some (f x' y')
+    | _, _ => none
+
+/--
+If `groundInt? e = some i`,
+then `e` is definitionally equal to the standard expression for `i`.
+-/
+partial def groundInt? (e : Expr) : Option Int :=
+  match e.getAppFnArgs with
+  | (``Nat.cast, #[_, _, n]) => groundNat? n
+  | (``HAdd.hAdd, #[_, _, _, _, x, y]) => op (· + ·) x y
+  | (``HMul.hMul, #[_, _, _, _, x, y]) => op (· * ·) x y
+  | (``HSub.hSub, #[_, _, _, _, x, y]) => op (· - ·) x y
+  | (``HDiv.hDiv, #[_, _, _, _, x, y]) => op (· / ·) x y
+  | (``HPow.hPow, #[_, _, _, _, x, y]) => match groundInt? x, groundNat? y with
+    | some x', some y' => some (x' ^ y')
+    | _, _ => none
+  | _ => e.int?
+where op (f : Int → Int → Int) (x y : Expr) : Option Int :=
+  match groundNat? x, groundNat? y with
+    | some x', some y' => some (f x' y')
+    | _, _ => none
+
 /-- Construct the term with type hint `(Eq.refl a : a = b)`-/
 def mkEqReflWithExpectedType (a b : Expr) : MetaM Expr := do
   mkExpectedTypeHint (← mkEqRefl a) (← mkEq a b)
@@ -130,6 +175,8 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
         r := r.insert (mkApp (.const ``Int.neg_le_natAbs []) x)
       | _, (``Fin.val, #[n, i]) =>
         r := r.insert (mkApp2 (.const ``Fin.isLt []) n i)
+      | _, (``BitVec.toNat, #[n, x]) =>
+        r := r.insert (mkApp2 (.const ``BitVec.toNat_lt []) n x)
       | _, _ => pure ()
     return r
   | (``HDiv.hDiv, #[_, _, _, _, x, k]) => match natCast? k with
@@ -197,15 +244,16 @@ Return its index, and, if it is new, a collection of interesting facts about the
 -/
 def lookup (e : Expr) : OmegaM (Nat × Option (HashSet Expr)) := do
   let c ← getThe State
-  for h : i in [:c.atoms.size] do
-    if ← isDefEq e c.atoms[i] then
-      return (i, none)
+  match c.atoms.find? e with
+  | some i => return (i, none)
+  | none =>
   trace[omega] "New atom: {e}"
   let facts ← analyzeAtom e
   if ← isTracingEnabledFor `omega then
     unless facts.isEmpty do
       trace[omega] "New facts: {← facts.toList.mapM fun e => inferType e}"
-  let i ← modifyGetThe State fun c => (c.atoms.size, { c with atoms := c.atoms.push e })
+  let i ← modifyGetThe State fun c =>
+    (c.atoms.size, { c with atoms := c.atoms.insert e c.atoms.size })
   return (i, some facts)
 
 end Omega

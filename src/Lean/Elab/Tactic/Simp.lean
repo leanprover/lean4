@@ -178,13 +178,24 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
-            let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
-            if (← Simp.isSimproc declName) then
-              simprocs := simprocs.erase declName
-            else if ctx.config.autoUnfold then
-              thms := thms.eraseCore (.decl declName)
+            let id := arg[1]
+            let declNames? ← try pure (some (← resolveGlobalConst id)) catch _ => pure none
+            if let some declNames := declNames? then
+              let declName ← ensureNonAmbiguous id declNames
+              if (← Simp.isSimproc declName) then
+                simprocs := simprocs.erase declName
+              else if ctx.config.autoUnfold then
+                thms := thms.eraseCore (.decl declName)
+              else
+                thms ← thms.erase (.decl declName)
             else
-              thms ← thms.erase (.decl declName)
+              -- If `id` could not be resolved, we should check whether it is a builtin simproc.
+              -- before returning error.
+              let name := id.getId.eraseMacroScopes
+              if (← Simp.isBuiltinSimproc name) then
+                simprocs := simprocs.erase name
+              else
+                throwUnknownConstant name
         else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then
@@ -342,14 +353,13 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
           | true  => `(Parser.Tactic.simpLemma| $decl:term)
           | false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
         args := args.push arg
-    | .fvar fvarId => -- local hypotheses in the context
-      -- `simp_all` always uses all propositional hypotheses (and it can't use
-      -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would
-      -- be redundant. It would also be confusing since it suggests that only
-      -- `h` is used.
-      if isSimpAll then
-        continue
+    | .fvar fvarId =>
+      -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
+        -- `simp_all` always uses all propositional hypotheses.
+        -- So `simp_all only [x]`, only makes sense if `ldecl` is a let-variable.
+        if isSimpAll && !ldecl.hasValue then
+          continue
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&
               (lctx.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then
@@ -448,3 +458,22 @@ where
   dsimpLocation ctx (expandOptLocation stx[5])
 
 end Lean.Elab.Tactic
+
+/-!
+The following parsers for `simp` arguments are not actually used at present in the
+implementation of `simp` above, but are useful for further tactics which need
+to parse `simp` arguments.
+-/
+namespace Lean.Parser.Tactic
+
+/-- Extract the arguments from a `simpArgs` syntax as an array of syntaxes -/
+def getSimpArgs? : Syntax → Option (Array Syntax)
+  | `(simpArgs| [$args,*]) => pure args.getElems
+  | _ => none
+
+/-- Extract the arguments from a `dsimpArgs` syntax as an array of syntaxes -/
+def getDSimpArgs? : Syntax → Option (Array Syntax)
+  | `(dsimpArgs| [$args,*]) => pure args.getElems
+  | _                       => none
+
+end Lean.Parser.Tactic

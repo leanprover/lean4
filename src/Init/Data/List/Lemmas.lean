@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
+import Init.Data.Nat.Lemmas
 import Init.PropLemmas
 import Init.Control.Lawful
 import Init.Hints
@@ -104,6 +105,11 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 
 @[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
+
+theorem get_append : ∀ {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length),
+    (l₁ ++ l₂).get ⟨n, length_append .. ▸ Nat.lt_add_right _ h⟩ = l₁.get ⟨n, h⟩
+| a :: l, _, 0, h => rfl
+| a :: l, _, n+1, h => by simp only [get, cons_append]; apply get_append
 
 /-! ### map -/
 
@@ -204,6 +210,12 @@ theorem get?_eq_some : l.get? n = some a ↔ ∃ h, get l ⟨n, h⟩ = a :=
   | _ :: _, 0 => rfl
   | _ :: l, n+1 => get?_map f l n
 
+theorem get?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
+  (l₁ ++ l₂).get? n = l₁.get? n := by
+  have hn' : n < (l₁ ++ l₂).length := Nat.lt_of_lt_of_le hn <|
+    length_append .. ▸ Nat.le_add_right ..
+  rw [get?_eq_get hn, get?_eq_get hn', get_append]
+
 @[simp] theorem get?_concat_length : ∀ (l : List α) (a : α), (l ++ [a]).get? l.length = some a
   | [], a => rfl
   | b :: l, a => by rw [cons_append, length_cons]; simp only [get?, get?_concat_length]
@@ -229,6 +241,31 @@ theorem getLast?_eq_get? : ∀ (l : List α), getLast? l = l.get? (l.length - 1)
 
 @[simp] theorem getLast?_concat (l : List α) : getLast? (l ++ [a]) = some a := by
   simp [getLast?_eq_get?, Nat.succ_sub_succ]
+
+theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a
+  | [], _, _ => rfl
+  | _a::_, 0, _ => rfl
+  | _::l, _+1, _ => getD_eq_get? (l := l) ..
+
+theorem get?_append_right : ∀ {l₁ l₂ : List α} {n : Nat}, l₁.length ≤ n →
+  (l₁ ++ l₂).get? n = l₂.get? (n - l₁.length)
+| [], _, n, _ => rfl
+| a :: l, _, n+1, h₁ => by rw [cons_append]; simp [get?_append_right (Nat.lt_succ.1 h₁)]
+
+theorem get?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
+    get? l.reverse i = get? l j
+  | [], _, _, _ => rfl
+  | a::l, i, 0, h => by simp at h; simp [h, get?_append_right]
+  | a::l, i, j+1, h => by
+    have := Nat.succ.inj h; simp at this ⊢
+    rw [get?_append, get?_reverse' _ j this]
+    rw [length_reverse, ← this]; apply Nat.lt_add_of_pos_right (Nat.succ_pos _)
+
+theorem get?_reverse {l : List α} (i) (h : i < length l) :
+    get? l.reverse i = get? l (l.length - 1 - i) :=
+  get?_reverse' _ _ <| by
+    rw [Nat.add_sub_of_le (Nat.le_sub_one_of_lt h),
+      Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) h)]
 
 /-! ### take and drop -/
 
@@ -628,3 +665,44 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     exact congrArg some <| anti.1
       ((le_minimum?_iff le_min_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
       (h₂ _ (minimum?_mem min_eq_or (xs := x::xs) rfl))
+
+@[simp] theorem get_cons_succ {as : List α} {h : i + 1 < (a :: as).length} :
+  (a :: as).get ⟨i+1, h⟩ = as.get ⟨i, Nat.lt_of_succ_lt_succ h⟩ := rfl
+
+@[simp] theorem get_cons_succ' {as : List α} {i : Fin as.length} :
+  (a :: as).get i.succ = as.get i := rfl
+
+@[simp] theorem set_nil (n : Nat) (a : α) : [].set n a = [] := rfl
+
+@[simp] theorem set_zero (x : α) (xs : List α) (a : α) :
+  (x :: xs).set 0 a = a :: xs := rfl
+
+@[simp] theorem set_succ (x : α) (xs : List α) (n : Nat) (a : α) :
+  (x :: xs).set n.succ a = x :: xs.set n a := rfl
+
+@[simp] theorem get_set_eq (l : List α) (i : Nat) (a : α) (h : i < (l.set i a).length) :
+    (l.set i a).get ⟨i, h⟩ = a :=
+  match l, i with
+  | [], _ => by
+    simp at h
+    contradiction
+  | _ :: _, 0 => by
+    simp
+  | _ :: l, i + 1 => by
+    simp [get_set_eq l]
+
+@[simp] theorem get_set_ne (l : List α) {i j : Nat} (h : i ≠ j) (a : α)
+    (hj : j < (l.set i a).length) :
+    (l.set i a).get ⟨j, hj⟩ = l.get ⟨j, by simp at hj; exact hj⟩ :=
+  match l, i, j with
+  | [], _, _ => by
+    simp
+  | _ :: _, 0, 0 => by
+    contradiction
+  | _ :: _, 0, _ + 1 => by
+    simp
+  | _ :: _, _ + 1, 0 => by
+    simp
+  | _ :: l, i + 1, j + 1 => by
+    have g : i ≠ j := h ∘ congrArg (· + 1)
+    simp [get_set_ne l g]

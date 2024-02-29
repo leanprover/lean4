@@ -3,16 +3,16 @@ Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ToExpr
+import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt
 
 namespace Char
 open Lean Meta Simp
 
-def fromExpr? (e : Expr) : SimpM (Option Char) := OptionT.run do
-  guard (e.isAppOfArity ``Char.ofNat 1)
-  let value ← Nat.fromExpr? e.appArg!
-  return Char.ofNat value
+def fromExpr? (e : Expr) : SimpM (Option Char) :=
+  getCharValue? e
 
 @[inline] def reduceUnary [ToExpr α] (declName : Name) (op : Char → α) (arity : Nat := 1) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
@@ -44,7 +44,7 @@ builtin_simproc [simp, seval] reduceToString (toString (_ : Char)) := reduceUnar
 builtin_simproc [simp, seval] reduceVal (Char.val _) := fun e => do
   unless e.isAppOfArity ``Char.val 1 do return .continue
   let some c ← fromExpr? e.appArg! | return .continue
-  return .done { expr := UInt32.toExprCore c.val }
+  return .done { expr := toExpr c.val }
 builtin_simproc [simp, seval] reduceEq  (( _ : Char) = _)  := reduceBinPred ``Eq 3 (. = .)
 builtin_simproc [simp, seval] reduceNe  (( _ : Char) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 builtin_simproc [simp, seval] reduceBEq  (( _ : Char) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)

@@ -1,0 +1,12 @@
+{"title": "Try this: termination_by (sizeOf n, sizeOf m)",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 5, "character": 0},
+       "end": {"line": 5, "character": 15}},
+      "newText": "termination_by (sizeOf n, sizeOf m)"}]}]}}

@@ -20,7 +20,7 @@ There is an equivalent file setting up `Coeffs` as a type synonym for `AssocList
 currently in a private branch.
 Not all the theorems about the algebraic operations on that representation have been proved yet.
 When they are ready, we can replace the implementation in `omega` simply by importing
-`Std.Tactic.Omega.Coeffs.IntDict` instead of `Std.Tactic.Omega.Coeffs.IntList`.
+`Init.Omega.IntDict` instead of `Init.Omega.IntList`.
 
 For small problems, the sparse representation is actually slightly slower,
 so it is not urgent to make this replacement.

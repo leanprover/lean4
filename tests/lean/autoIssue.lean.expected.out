@@ -5,15 +5,15 @@ this : z.x = 1
 z : A
 this : z.x = 1
 ⊢ z.x = 1
-A.rec.{u} {motive : A → Sort u} (mk : (x : Nat) → (a' : x = 1) → motive (A.mk x)) (t : A) : motive t
+A.rec.{u} {motive : A → Sort u} (mk : (x : Nat) → (a' : x = 1) → motive { x := x, a' := a' }) (t : A) : motive t
 z : A
 x : Nat
 a' : x = 1
-⊢ (A.mk x).x = 1
+⊢ { x := x, a' := a' }.x = 1
 case mk
 x : Nat
 a' : x = 1
-⊢ (A.mk x).x = 1
+⊢ { x := x, a' := a' }.x = 1
 case mk
 x y : Nat
 ⊢ { x := x, y := y } = { x := { x := x, y := y }.x, y := { x := x, y := y }.y }
@@ -21,11 +21,11 @@ a.1 = 1
 z : A
 x✝ : Nat
 h : x✝ = 1
-⊢ (A.mk x✝).x = 1
+⊢ { x := x✝, a' := h }.x = 1
 z : A
 x : Nat
 a' : x = 1
-⊢ (A.mk x).x = 1
+⊢ { x := x, a' := a' }.x = 1
 autoIssue.lean:60:18-60:19: error: don't know how to synthesize placeholder
 context:
 ⊢ 1 = 1

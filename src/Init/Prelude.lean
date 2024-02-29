@@ -947,7 +947,8 @@ return `t` or `e` depending on whether `c` is true or false. The explicit argume
 determines how to evaluate `c` to true or false. Write `if h : c then t else e`
 instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
 that `c` is true/false.
-
+-/
+/-
 Because Lean uses a strict (call-by-value) evaluation strategy, the signature of this
 function is problematic in that it would require `t` and `e` to be evaluated before
 calling the `ite` function, which would cause both sides of the `if` to be evaluated.
@@ -2380,6 +2381,9 @@ Codepoint positions (counting the Unicode codepoints rather than bytes)
 are represented by plain `Nat`s instead.
 Indexing a `String` by a byte position is constant-time, while codepoint
 positions need to be translated internally to byte positions in linear-time.
+
+A byte position `p` is *valid* for a string `s` if `0 ≤ p ≤ s.endPos` and `p`
+lies on a UTF8 byte boundary.
 -/
 structure String.Pos where
   /-- Get the underlying byte index of a `String.Pos` -/

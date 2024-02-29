@@ -1,6 +1,20 @@
 {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
  "position": {"line": 9, "character": 11}}
 {"items":
- [{"label": "bla", "kind": 3, "detail": "Nat → Nat"},
-  {"label": "foo", "kind": 3, "detail": "Nat → Nat"}],
+ [{"sortText": "0",
+   "label": "bla",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "Foo.bla"}}}},
+  {"sortText": "1",
+   "label": "foo",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///internalNamesIssue.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "Foo.foo"}}}}],
  "isIncomplete": true}

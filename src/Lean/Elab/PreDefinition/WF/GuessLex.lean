@@ -5,9 +5,10 @@ Authors: Joachim Breitner
 -/
 prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.Match.Match
+import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -702,17 +703,19 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
   let recCalls := filterSubsumed recCalls
-  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasing_by?)) ·)
+  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
     let wf ← buildTermWF originalVarNamess varNamess solution
 
-    if showInferredTerminationBy.get (← getOptions) then
-      let wf' := trimTermWF extraParamss wf
-      for preDef in preDefs, term in wf' do
-        logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
+    let wf' := trimTermWF extraParamss wf
+    for preDef in preDefs, term in wf' do
+      if showInferredTerminationBy.get (← getOptions) then
+        logInfoAt preDef.ref m!"Inferred termination argument:\n{← term.unexpand}"
+      if let some ref := preDef.termination.terminationBy?? then
+        Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
     return wf
   | .none =>

@@ -13,6 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_intMax___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_intMax(lean_object*);
+lean_object* lean_nat_pow(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_BitVec_intMax(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_unsigned_to_nat(2u);
+x_3 = lean_nat_pow(x_2, x_1);
+x_4 = lean_unsigned_to_nat(1u);
+x_5 = lean_nat_sub(x_3, x_4);
+lean_dec(x_3);
+x_6 = l_BitVec_ofNat(x_1, x_5);
+lean_dec(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_BitVec_intMax___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_BitVec_intMax(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_BitVec_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Lemmas(uint8_t builtin, lean_object*);

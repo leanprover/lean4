@@ -343,7 +343,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x, Expr.fvar h => return Pattern.as x p h
         | _,           _   => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
-      else if isMatchValue e then
+      else if (← isMatchValue e) then
         return Pattern.val e
       else if e.isFVar then
         return Pattern.var e.fvarId!

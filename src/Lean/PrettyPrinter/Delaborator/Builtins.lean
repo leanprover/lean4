@@ -16,12 +16,22 @@ open Lean.Parser.Term
 open SubExpr
 open TSyntax.Compat
 
-def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
-  if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else pure ident
+/--
+If `cond` is true, wraps the syntax produced by `d` in a type ascription.
+-/
+def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
+  let stx ← d
+  if cond then
+    let typeStx ← withType delab
+    `(($stx : $typeStx))
+  else
+    return stx
 
-def unfoldMDatas : Expr → Expr
-  | Expr.mdata _ e => unfoldMDatas e
-  | e              => e
+/--
+Wraps the identifier (or identifier with explicit universe levels) with `@` if `pp.analysis.blockImplicit` is set to true.
+-/
+def maybeAddBlockImplicit (identLike : Syntax) : DelabM Syntax := do
+  if ← getPPOption getPPAnalysisBlockImplicit then `(@$identLike) else pure identLike
 
 @[builtin_delab fvar]
 def delabFVar : Delab := do
@@ -59,8 +69,12 @@ def delabSort : Delab := do
     | some l' => `(Type $(Level.quote l' max_prec))
     | none    => `(Sort $(Level.quote l max_prec))
 
-
--- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
+/--
+Delaborator for `const` expressions.
+This is not registered as a delaborator, as `const` is not an expression kind
+(see [delab] description and `Lean.PrettyPrinter.Delaborator.getExprKind`).
+Rather, it is called through the `app` delaborator.
+-/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
   let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
@@ -78,11 +92,11 @@ def delabConst : Delab := do
   else
     `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  let mut stx ← maybeAddBlockImplicit stx
+  let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then
-    stx ← annotateCurPos stx
-    addTermInfo (← getPos) stx (← getExpr)
-  return stx
+    annotateTermInfo stx
+  else
+    return stx
 
 def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
   match ← getExpr with
@@ -99,12 +113,6 @@ def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
 partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
   if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
 
-def delabAppFn : Delab := do
-  if (← getExpr).consumeMData.isConst then
-    withMDatasOptions delabConst
-  else
-    delab
-
 /--
 A structure that records details of a function parameter.
 -/
@@ -117,6 +125,7 @@ structure ParamKind where
   defVal      : Option Expr := none
   /-- Whether the parameter is an autoparam (i.e., whether it uses a tactic for the default value). -/
   isAutoParam : Bool := false
+  deriving Inhabited
 
 /--
 Returns true if the parameter is an explicit parameter that has neither a default value nor a tactic.
@@ -128,7 +137,7 @@ def ParamKind.isRegularExplicit (param : ParamKind) : Bool :=
 Given a function `f` supplied with arguments `args`, returns an array whose n-th element
 is set to the kind of the n-th argument's associated parameter.
 We do not assume the expression `mkAppN f args` is sensical,
-and this function captures errors (except for panics) and returns the empty array.
+and this function captures errors (except for panics) and returns the empty array in that case.
 
 The returned array might be longer than the number of arguments.
 It gives parameter kinds for the fully-applied function.
@@ -141,25 +150,24 @@ argument when its arguments are specialized to function types, like in `id id 2`
 -/
 def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
   try
-    withTransparency TransparencyMode.all do
-      let mut result : Array ParamKind := Array.mkEmpty args.size
-      let mut fnType ← inferType f
-      let mut j := 0
-      for i in [0:args.size] do
-        unless fnType.isForall do
-          fnType ← whnf (fnType.instantiateRevRange j i args)
-          j := i
-        let .forallE n t b bi := fnType | failure
-        let defVal := t.getOptParamDefault? |>.map (·.instantiateRevRange j i args)
-        result := result.push { name := n, bInfo := bi, defVal, isAutoParam := t.isAutoParam }
-        fnType := b
-      fnType := fnType.instantiateRevRange j args.size args
-      -- We still want to consider parameters past the ones for the supplied arguments.
-      forallTelescopeReducing fnType fun xs _ => do
-        xs.foldlM (init := result) fun result x => do
-          let l ← x.fvarId!.getDecl
-          -- Warning: the defVal might refer to fvars that are only valid in this context
-          pure <| result.push { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
+    let mut result : Array ParamKind := Array.mkEmpty args.size
+    let mut fnType ← inferType f
+    let mut j := 0
+    for i in [0:args.size] do
+      unless fnType.isForall do
+        fnType ← withTransparency .all <| whnf (fnType.instantiateRevRange j i args)
+        j := i
+      let .forallE n t b bi := fnType | failure
+      let defVal := t.getOptParamDefault? |>.map (·.instantiateRevRange j i args)
+      result := result.push { name := n, bInfo := bi, defVal, isAutoParam := t.isAutoParam }
+      fnType := b
+    fnType := fnType.instantiateRevRange j args.size args
+    -- We still want to consider parameters past the ones for the supplied arguments for analysis.
+    forallTelescopeReducing fnType fun xs _ => do
+      xs.foldlM (init := result) fun result x => do
+        let l ← x.fvarId!.getDecl
+        -- Warning: the defVal might refer to fvars that are only valid in this context
+        pure <| result.push { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
   catch _ => pure #[] -- recall that expr may be nonsensical
 
 def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
@@ -167,46 +175,10 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   <||> (pure (getPPMotivesPi opts) <&&> returnsPi motive)
   <||> (pure (getPPMotivesNonConst opts) <&&> isNonConstFun motive)
 
-/--
-Returns true if an application should use explicit mode when delaborating.
--/
-def useAppExplicit (paramKinds : Array ParamKind) : DelabM Bool := do
-  if ← getPPOption getPPExplicit then
-    if paramKinds.any (fun param => !param.isRegularExplicit) then return true
-
-  -- If the expression has an implicit function type, fall back to delabAppExplicit.
-  -- This is e.g. necessary for `@Eq`.
-  let isImplicitApp ← try
-      let ty ← whnf (← inferType (← getExpr))
-      pure <| ty.isForall && (ty.binderInfo matches .implicit | .instImplicit)
-    catch _ => pure false
-  if isImplicitApp then return true
-
-  return false
-
-/--
-Returns true if the application is a candidate for unexpanders.
--/
-def isRegularApp (maxArgs : Nat) : DelabM Bool := do
-  let e ← getExpr
-  if not (unfoldMDatas (e.getBoundedAppFn maxArgs)).isConst then return false
-  withBoundedAppFnArgs maxArgs
-    (not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit))
-    (fun b => pure b <&&> not <$> getPPOption getPPAnalysisNamedArg)
-
-def unexpandRegularApp (stx : Syntax) : Delab := do
-  let Expr.const c .. := (unfoldMDatas (← getExpr).getAppFn) | unreachable!
-  let fs := appUnexpanderAttribute.getValues (← getEnv) c
-  let ref ← getRef
-  fs.firstM fun f =>
-    match f stx |>.run ref |>.run () with
-    | EStateM.Result.ok stx _ => pure stx
-    | _ => failure
-
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv
   let e ← getExpr
-  let some s ← pure $ e.isConstructorApp? env | failure
+  let some s ← isConstructorApp? e | failure
   guard $ isStructure env s.induct;
   /- If implicit arguments should be shown, and the structure has parameters, we should not
      pretty print using { ... }, because we will not be able to see the parameters. -/
@@ -228,96 +200,203 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   `({ $fields,* $[: $tyStx]? })
 
 /--
-Delaborates a function application in explicit mode, and ensures the resulting
-head syntax is wrapped with `@`.
+Given an application of `numArgs` arguments with the calculated `ParamKind`s,
+returns `true` if we should wrap the applied function with `@` when we are in explicit mode.
 -/
-def delabAppExplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
-  let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
+def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bool :=
+  if paramKinds.size == 0 && 0 < numArgs && f matches .const _ [] then
+    -- Error calculating ParamKinds,
+    -- but we presume that the universe list has been intentionally erased, for example by LCNF.
+    -- The arguments in this case are *only* the explicit arguments, so we don't want to prefix with `@`.
+    false
+  else
+    -- Error calculating ParamKinds, so return `true` to be safe
+    paramKinds.size < numArgs
+    -- One of the supplied parameters isn't explicit
+    || paramKinds[:numArgs].any (fun param => !param.bInfo.isExplicit)
+    -- The next parameter is implicit or inst implicit
+    || (numArgs < paramKinds.size && paramKinds[numArgs]!.bInfo matches .implicit | .instImplicit)
+    -- One of the parameters after the supplied parameters is explicit but not regular explicit.
+    || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
+
+/--
+Delaborates a function application in explicit mode, and ensures the resulting
+head syntax is wrapped with `@` if needed.
+-/
+def delabAppExplicitCore (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
+  let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do
-      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
-      let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
-      let stx ← if needsExplicit then `(@$stx) else pure stx
+      let stx ← delabHead
+      let insertExplicit := !stx.raw.isOfKind ``Lean.Parser.Term.explicit && needsExplicit (← getExpr) numArgs paramKinds
+      let stx ← if insertExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
-      let isInstImplicit := match paramKinds with
-                            | [] => false
-                            | param :: _ => param.bInfo == BinderInfo.instImplicit
+      let isInstImplicit := paramKinds.head? |>.map (·.bInfo == .instImplicit) |>.getD false
       let argStx ← if ← getPPOption getPPAnalysisHole then `(_)
                    else if isInstImplicit == true then
-                     let stx ← if ← getPPOption getPPInstances then delab else `(_)
-                     if ← getPPOption getPPInstanceTypes then
-                       let typeStx ← withType delab
-                       `(($stx : $typeStx))
-                     else pure stx
+                     withTypeAscription (cond := ← getPPOption getPPInstanceTypes) do
+                       if ← getPPOption getPPInstances then delab else `(_)
                    else delab
       pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
   return Syntax.mkApp fnStx argStxs
 
 /--
 Delaborates a function application in the standard mode, where implicit arguments are generally not
-included.
--/
-def delabAppImplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
-  -- TODO: always call the unexpanders, make them guard on the right # args?
-  let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
-    (do
-      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
-      return (stx, paramKinds.toList, #[]))
-    (fun (fnStx, paramKinds, argStxs) => do
-      let arg ← getExpr
-      let opts ← getOptions
-      let mkNamedArg (name : Name) (argStx : Syntax) : DelabM Syntax := do
-        `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx))
-      let argStx? : Option Syntax ←
-        if ← getPPOption getPPAnalysisSkip then pure none
-        else if ← getPPOption getPPAnalysisHole then `(_)
-        else
-          match paramKinds with
-          | [] => delab
-          | param :: rest =>
-            if param.defVal.isSome && rest.isEmpty then
-              let v := param.defVal.get!
-              if !v.hasLooseBVars && v == arg then pure none else delab
-            else if !param.isRegularExplicit && param.defVal.isNone then
-              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then some <$> mkNamedArg param.name (← delab) else pure none
-            else delab
-      let argStxs := match argStx? with
-        | none => argStxs
-        | some stx => argStxs.push stx
-      pure (fnStx, paramKinds.tailD [], argStxs))
-  let stx := Syntax.mkApp fnStx argStxs
+included, unless `pp.analysis.namedArg` is set at that argument.
 
-  if ← isRegularApp maxArgs then
-    (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
-    <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
-    <|> pure stx
-  else pure stx
+This delaborator is where `app_unexpander`s and the structure instance unexpander are applied.
+
+Assumes `numArgs ≤ paramKinds.size`.
+-/
+def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
+  let (shouldUnexpand, fnStx, _, _, argStxs, argData) ←
+    withBoundedAppFnArgs numArgs
+      (do
+        let head ← getExpr
+        let shouldUnexpand ← pure (unexpand && head.consumeMData.isConst)
+          <&&> not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)
+        return (shouldUnexpand, ← delabHead, numArgs, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (shouldUnexpand, 0)))
+      (fun (shouldUnexpand, fnStx, remainingArgs, paramKinds, argStxs, argData) => do
+        /-
+        - `argStxs` is the accumulated array of arguments that should be pretty printed
+        - `argData` is a list of `Bool × Nat` used to figure out:
+          1. whether an unexpander could be used for the prefix up to this argument and
+          2. how many arguments we need to include after this one when annotating the result of unexpansion.
+          Argument `argStxs[i]` corresponds to `argData[i+1]`, with `argData[0]` being for the head itself.
+        -/
+        let (argUnexpandable, stx?) ← mkArgStx (remainingArgs - 1) paramKinds
+        let shouldUnexpand := shouldUnexpand && argUnexpandable
+        let (argStxs, argData) :=
+          match stx?, argData.back with
+          -- By default, a pretty-printed argument accounts for just itself.
+          | some stx, _ => (argStxs.push stx, argData.push (shouldUnexpand, 1))
+          -- A non-pretty-printed argument is accounted for by the previous pretty printed one.
+          | none, (_, argCount) => (argStxs, argData.pop.push (shouldUnexpand, argCount + 1))
+        return (shouldUnexpand, fnStx, remainingArgs - 1, paramKinds.tailD [], argStxs, argData))
+  if ← pure (argData.any Prod.fst) <&&> getPPOption getPPNotation then
+    -- Try using an app unexpander for a prefix of the arguments.
+    if let some stx ← (some <$> tryAppUnexpanders fnStx argStxs argData) <|> pure none then
+      return stx
+  let stx := Syntax.mkApp fnStx argStxs
+  if ← pure shouldUnexpand <&&> getPPOption getPPStructureInstances then
+    -- Try using the structure instance unexpander.
+    -- It only makes sense applying this to the entire application, since structure instances cannot themselves be applied.
+    if let some stx ← (some <$> unexpandStructureInstance stx) <|> pure none then
+      return stx
+  return stx
+where
+  mkNamedArg (name : Name) (argStx : Syntax) : DelabM (Bool × Option Syntax) :=
+    return (false, ← `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx)))
+  /--
+  If the argument should be pretty printed then it returns the syntax for that argument.
+  The boolean is `false` if an unexpander should not be used for the application due to this argument.
+  The argumnet `remainingArgs` is the number of arguments in the application after this one.
+  -/
+  mkArgStx (remainingArgs : Nat) (paramKinds : List ParamKind) : DelabM (Bool × Option Syntax) := do
+    if ← getPPOption getPPAnalysisSkip then return (true, none)
+    else if ← getPPOption getPPAnalysisHole then return (true, ← `(_))
+    else
+      let arg ← getExpr
+      let param :: _ := paramKinds | unreachable!
+      if ← getPPOption getPPAnalysisNamedArg then
+        mkNamedArg param.name (← delab)
+      else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
+        -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
+        return (true, none)
+      else if param.bInfo.isExplicit then
+        return (true, ← delab)
+      else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
+        mkNamedArg param.name (← delab)
+      else
+        return (true, none)
+  /--
+  Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
+  -/
+  tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
+    let ref ← getRef
+    fs.firstM fun f =>
+      match f stx |>.run ref |>.run () with
+      | EStateM.Result.ok stx _ => return stx
+      | _ => failure
+  /--
+  If the expression is a candidate for app unexpanders,
+  try applying an app unexpander using some prefix of the arguments, longest prefix first.
+  This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
+  -/
+  tryAppUnexpanders (fnStx : Term) (argStxs : Array Syntax) (argData : Array (Bool × Nat)) : Delab := do
+    let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
+    let fs := appUnexpanderAttribute.getValues (← getEnv) c
+    if fs.isEmpty then failure
+    let rec go (prefixArgs : Nat) : DelabM Term := do
+      let (unexpand, argCount) := argData[prefixArgs]!
+      match prefixArgs with
+      | 0 =>
+        guard unexpand
+        let stx ← tryUnexpand fs fnStx
+        return Syntax.mkApp (← annotateTermInfo stx) argStxs
+      | prefixArgs' + 1 =>
+        (do guard unexpand
+            let stx ← tryUnexpand fs <| Syntax.mkApp fnStx (argStxs.extract 0 prefixArgs)
+            return Syntax.mkApp (← annotateTermInfo stx) (argStxs.extract prefixArgs argStxs.size))
+        <|> withBoundedAppFn argCount (go prefixArgs')
+    go argStxs.size
+
+/--
+Returns true if an application should use explicit mode when delaborating.
+-/
+def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool := do
+  -- If `pp.explicit` is set, then use explicit mode.
+  -- (Note that explicit mode can decide to omit `@` if the application has no implicit arguments.)
+  if ← getPPOption getPPExplicit then return true
+
+  -- If there was an error collecting ParamKinds, fall back to explicit mode.
+  if paramKinds.size < numArgs then return true
+
+  if numArgs < paramKinds.size then
+    let nextParam := paramKinds[numArgs]!
+
+    -- If the next parameter is implicit or inst implicit, fall back to explicit mode.
+    -- This is necessary for `@Eq` for example.
+    if nextParam.bInfo matches .implicit | .instImplicit then return true
+
+  -- If any of the next parameters is explicit but has an optional value or is an autoparam, fall back to explicit mode.
+  -- This is necessary since these are eagerly processed when elaborating.
+  if paramKinds[numArgs:].any fun param => param.bInfo.isExplicit && !param.isRegularExplicit then return true
+
+  return false
 
 /--
 Delaborates applications. Removes up to `maxArgs` arguments to form
 the "head" of the application and delaborates the head using `delabHead`.
-The remaining arguments are processed depending on whether heuristics indicate that the application
-should be delaborated using `@`.
+Then the application is then processed in explicit mode or implicit mode depending on which should be used.
 -/
-def delabAppCore (maxArgs : Nat) (delabHead : Delab) : Delab := do
-  let tagAppFn ← getPPOption getPPTagAppFns
+def delabAppCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) : Delab := do
   let e ← getExpr
-  let paramKinds ← getParamKinds (e.getBoundedAppFn maxArgs) (e.getBoundedAppArgs maxArgs)
+  let args := e.getBoundedAppArgs maxArgs
+  let paramKinds ← getParamKinds (e.getBoundedAppFn maxArgs) args
 
-  let useExplicit ← useAppExplicit paramKinds
+  let useExplicit ← useAppExplicit args.size paramKinds
 
   if useExplicit then
-    delabAppExplicitCore maxArgs delabHead paramKinds tagAppFn
+    delabAppExplicitCore args.size delabHead paramKinds
   else
-    delabAppImplicitCore maxArgs delabHead paramKinds tagAppFn
+    delabAppImplicitCore unexpand args.size delabHead paramKinds
 
 /--
 Default delaborator for applications.
 -/
 @[builtin_delab app]
 def delabApp : Delab := do
+  let tagAppFn ← getPPOption getPPTagAppFns
   let e ← getExpr
-  delabAppCore e.getAppNumArgs delabAppFn
+  delabAppCore true e.getAppNumArgs (delabAppFn tagAppFn)
+where
+  delabAppFn (tagAppFn : Bool) : Delab :=
+    withOptionAtCurrPos `pp.tagAppFns tagAppFn do
+      if (← getExpr).consumeMData.isConst then
+        withMDatasOptions delabConst
+      else
+        delab
 
 /--
 The `withOverApp` combinator allows delaborators to handle "over-application" by using the core
@@ -344,7 +423,7 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   if n == arity then
     x
   else
-    delabAppCore (n - arity) (withAnnotateTermInfo x)
+    delabAppCore false (n - arity) (withAnnotateTermInfo x)
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

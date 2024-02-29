@@ -169,4 +169,19 @@ inductive TacticResultCNM where
   | noChange
   | modified (mvarId : MVarId)
 
+
+/-- Check if a goal is of a subsingleton type. -/
+def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
+  try
+    discard <| synthInstance (← mkAppM ``Subsingleton #[← g.getType])
+    return true
+  catch _ =>
+    return false
+
+register_builtin_option tactic.skipAssignedInstances : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
+}
+
 end Lean.Meta

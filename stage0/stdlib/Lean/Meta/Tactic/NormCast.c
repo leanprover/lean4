@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.NormCast
-// Imports: Init Lean.Meta.CongrTheorems Lean.Meta.Tactic.Simp.SimpTheorems Lean.Meta.CoeAttr
+// Imports: Lean.Meta.CongrTheorems Lean.Meta.Tactic.Simp.Attr Lean.Meta.CoeAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -203,6 +203,7 @@ static lean_object* l___private_Lean_Meta_Tactic_NormCast_0__Lean_Meta_NormCast_
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__5;
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__3___closed__14;
 static lean_object* l_Lean_Meta_NormCast_Label_noConfusion___rarg___closed__1;
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__4(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addSimpTheorem(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1650____closed__1;
@@ -312,7 +313,6 @@ static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____closed__15;
 static lean_object* l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____closed__1;
 static lean_object* l_Lean_Meta_NormCast_instInhabitedNormCastExtension___closed__7;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_NormCast_Label_toCtorIdx(uint8_t x_1) {
 _start:
 {
@@ -2374,7 +2374,7 @@ x_37 = l_Lean_Meta_NormCast_classifyType___lambda__2___closed__4;
 x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
-x_39 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_38, x_5, x_6, x_7, x_8, x_19);
+x_39 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_38, x_5, x_6, x_7, x_8, x_19);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2509,7 +2509,7 @@ x_68 = l_Lean_Meta_NormCast_classifyType___lambda__2___closed__4;
 x_69 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
-x_70 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_69, x_5, x_6, x_7, x_8, x_49);
+x_70 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_69, x_5, x_6, x_7, x_8, x_49);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
@@ -2728,7 +2728,7 @@ x_22 = l_Lean_Meta_NormCast_classifyType___lambda__2___closed__4;
 x_23 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_23, x_3, x_4, x_5, x_6, x_14);
+x_24 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_23, x_3, x_4, x_5, x_6, x_14);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -4143,7 +4143,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__3;
 x_2 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__4;
-x_3 = lean_unsigned_to_nat(159u);
+x_3 = lean_unsigned_to_nat(161u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__5;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4410,7 +4410,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__3;
 x_2 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__4;
-x_3 = lean_unsigned_to_nat(152u);
+x_3 = lean_unsigned_to_nat(154u);
 x_4 = lean_unsigned_to_nat(71u);
 x_5 = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1997____lambda__1___closed__5;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5555,22 +5555,18 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_CongrTheorems(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Simp_SimpTheorems(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_CoeAttr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_NormCast(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_CongrTheorems(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_SimpTheorems(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Simp_Attr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_CoeAttr(builtin, lean_io_mk_world());
@@ -5677,12 +5673,12 @@ l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586____close
 lean_mark_persistent(l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586____closed__7);
 l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586____closed__8 = _init_l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586____closed__8();
 lean_mark_persistent(l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586____closed__8);
-res = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Meta_NormCast_initFn____x40_Lean_Meta_Tactic_NormCast___hyg_1586_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_NormCast_pushCastExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_NormCast_pushCastExt);
 lean_dec_ref(res);
-l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__1 = _init_l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__1();
+}l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__1 = _init_l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__1();
 l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__2 = _init_l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__1___closed__2);
 l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__3___closed__1 = _init_l_Lean_Meta_NormCast_instInhabitedNormCastExtension___lambda__3___closed__1();

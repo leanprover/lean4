@@ -44,3 +44,6 @@ import Lean.Meta.ExprLens
 import Lean.Meta.ExprTraverse
 import Lean.Meta.Eval
 import Lean.Meta.CoeAttr
+import Lean.Meta.Iterator
+import Lean.Meta.LazyDiscrTree
+import Lean.Meta.LitValues

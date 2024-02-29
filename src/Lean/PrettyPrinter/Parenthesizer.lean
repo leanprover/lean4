@@ -267,6 +267,12 @@ def visitToken : Parenthesizer := do
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
 
+@[combinator_parenthesizer recover]
+def recover.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
+@[combinator_parenthesizer recover']
+def recover'.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere

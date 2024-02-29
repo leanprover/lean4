@@ -26,15 +26,19 @@ LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
 LINK_OPTS =
 
+# more FS entries to build SRCS from, for parallel build of .oleans (but not .os)
+EXTRA_SRC_ROOTS =
+
 # ignore error messages from missing parts, e.g. Leanc/
-SRCS = $(shell find $(PKG) $(PKG).lean -name '*.lean' 2> /dev/null)
+SRCS = $(shell find $(PKG) $(PKG).lean $(EXTRA_SRC_ROOTS) -name '*.lean' 2> /dev/null)
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH += @LEAN_PATH_SEPARATOR@$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
 ifdef C_ONLY
+# There are no .lean files in stage0/src/
 REL_OS = $(patsubst %.c,%.o,$(shell cd $(C_OUT); find $(PKG) $(PKG).c -name '*.c' 2> /dev/null))
 else
-REL_OS = $(SRCS:.lean=.o)
+REL_OS = $(patsubst %.lean,%.o,$(shell find $(PKG) $(PKG).lean -name '*.lean' 2> /dev/null))
 endif
 
 SHELL = /usr/bin/env bash -euo pipefail
@@ -43,7 +47,7 @@ SHELL = /usr/bin/env bash -euo pipefail
 # Disable all default make rules
 .SUFFIXES:
 
-all: $(OBJS)
+objs: $(OBJS)
 
 bin: $(BIN_OUT)/$(BIN_NAME)
 
@@ -61,20 +65,19 @@ $(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 # convert path separators and newlines on Windows
 	deps=`$(LEAN) --deps $<` || (echo "$(LEAN) --deps $< failed ($$?): $$deps"; exit 1); \
   deps=`echo "$$deps" | tr '\\\\' / | tr -d '\\r'`; \
-  echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
+  echo $(OLEAN_OUT)/$*.olean: $$deps > $@
 
 $(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
-ifndef LLVM
-	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" $<
+	LEAN_OPTS="$(LEAN_OPTS)"; \
+	[[ -z "$(LLVM)" ]] || LEAN_OPTS+=" --bc=$(TEMP_OUT)/$*.bc.tmp"; \
+	$(LEAN) $$LEAN_OPTS -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" "$<"
 # create the .c file atomically
 	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
-else
-	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" --bc="$(TEMP_OUT)/$*.bc.tmp" $<
-	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
+ifdef LLVM
 	@mv "$(TEMP_OUT)/$*.bc.tmp" "$(BC_OUT)/$*.bc"
 endif
 

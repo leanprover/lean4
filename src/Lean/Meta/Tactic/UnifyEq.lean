@@ -70,8 +70,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else
             throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
         let rec injection (a b : Expr) := do
-          let env ← getEnv
-          if a.isConstructorApp env && b.isConstructorApp env then
+          if (← isConstructorApp a <&&> isConstructorApp b) then
             /- ctor_i ... = ctor_j ... -/
             match (← injectionCore mvarId eqFVarId) with
             | InjectionResultCore.solved                   => return none -- this alternative has been solved

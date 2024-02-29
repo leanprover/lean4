@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Ord
+import Init.Data.Nat.Linear
+
 namespace Lean
 universe u v w w'
 

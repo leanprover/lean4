@@ -395,6 +395,17 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
         result := result.append <| identRefs.map (·.location)
   return result
 
+/-- Used in `CallHierarchyItem.data?` to retain the full call hierarchy item name. -/
+structure CallHierarchyItemData where
+  name : Name
+  deriving FromJson, ToJson
+
+/--
+Extracts the CallHierarchyItemData from `item.data?` and returns `none` if this is not possible.
+-/
+def CallHierarchyItemData.fromItem? (item : CallHierarchyItem) : Option CallHierarchyItemData := do
+  fromJson? (← item.data?) |>.toOption
+
 private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     : IO (Option CallHierarchyItem) := do
   let some ⟨definitionLocation, parentDecl?⟩ ← refs.definitionOf? ident srcSearchPath
@@ -406,23 +417,31 @@ private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSear
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
     -- `inductive` constructor, this is the right thing to do and using the parent decl is
     -- the wrong thing to do.
+
+    -- Remove private header from name
+    let label := Lean.privateToUserName? definitionName |>.getD definitionName
     return some {
-      name           := definitionName.toString
+      name           := label.toString
       kind           := SymbolKind.constant
       uri            := definitionLocation.uri
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
+      data?          := toJson { name := definitionName : CallHierarchyItemData }
     }
   | _ =>
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
 
+    -- Remove private header from name
+    let label := Lean.privateToUserName? parentDeclName |>.getD parentDeclName
+
     return some {
-      name           := parentDeclName.toString
+      name           := label.toString
       kind           := SymbolKind.constant
       uri            := definitionLocation.uri
       range          := parentDeclRange,
       selectionRange := parentDeclSelectionRange
+      data?          := toJson { name := parentDeclName : CallHierarchyItemData }
     }
 
 def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
@@ -438,10 +457,13 @@ def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
   let idents := references.findAt module p.position (includeStop := true)
 
   let items ← idents.filterMapM fun ident => callHierarchyItemOf? references ident srcSearchPath
-  return items
+  return items.qsort (·.name < ·.name)
 
 def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
     : ServerM (Array CallHierarchyIncomingCall) := do
+  let some itemData := CallHierarchyItemData.fromItem? p.item
+    | return #[]
+
   let some path := fileUriToPath? p.item.uri
     | return #[]
 
@@ -450,24 +472,29 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
     | return #[]
 
   let references ← (← read).references.get
-  let identRefs ← references.referringTo module (.const p.item.name.toName) srcSearchPath false
+  let identRefs ← references.referringTo module (.const itemData.name) srcSearchPath false
 
   let incomingCalls := identRefs.filterMap fun ⟨location, parentDecl?⟩ => Id.run do
 
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
       | return none
+
+    -- Remove private header from name
+    let label := Lean.privateToUserName? parentDeclName |>.getD parentDeclName
+
     return some {
       «from» := {
-        name           := parentDeclName.toString
+        name           := label.toString
         kind           := SymbolKind.constant
         uri            := location.uri
         range          := parentDeclRange
         selectionRange := parentDeclSelectionRange
+        data?          := toJson { name := parentDeclName : CallHierarchyItemData }
       }
       fromRanges := #[location.range]
     }
 
-  return collapseSameIncomingCalls incomingCalls
+  return collapseSameIncomingCalls incomingCalls |>.qsort (·.«from».name < ·.«from».name)
 
 where
 
@@ -482,6 +509,9 @@ where
 
 def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
     : ServerM (Array CallHierarchyOutgoingCall) := do
+  let some itemData := CallHierarchyItemData.fromItem? p.item
+    | return #[]
+
   let some path := fileUriToPath? p.item.uri
     | return #[]
 
@@ -498,7 +528,7 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
     let outgoingUsages := info.usages.filter fun usage => Id.run do
       let some parentDecl := usage.parentDecl?
         | return false
-      return p.item.name.toName == parentDecl.name
+      return itemData.name == parentDecl.name
 
     let outgoingUsages := outgoingUsages.map (·.range)
     if outgoingUsages.isEmpty then
@@ -513,7 +543,7 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
 
     return some ⟨item, outgoingUsages⟩
 
-  return collapseSameOutgoingCalls items
+  return collapseSameOutgoingCalls items |>.qsort (·.to.name < ·.to.name)
 
 where
 
@@ -817,6 +847,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   -- refine
   completionProvider? := some {
     triggerCharacters? := some #["."]
+    resolveProvider := true
   }
   hoverProvider := true
   declarationProvider := true

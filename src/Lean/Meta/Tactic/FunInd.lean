@@ -400,6 +400,25 @@ def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) 
   let mvar ← instantiateMVars mvar
   pure mvar
 
+/-- Abstracts the given `discr` expressions, from right to left, using `kabstract`, in `e`,
+replacing them with the variables from `xs`. Also returns a mask which discrs were abstracted
+(`true` means was abstracted).
+-/
+def kabstractN (discrs : Array Expr) (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr) := do
+  unless discrs.size = xs.size do
+    throwError "abstractN: discrs and xs size mismatch"
+  let mut e := e
+  let mut discrs := discrs
+  let mut xs := xs
+  let mut mask := #[]
+  while ! discrs.isEmpty do
+    let eAbst ← kabstract e discrs.back
+    mask := mask.push eAbst.hasLooseBVars
+    e := eAbst.instantiate1 xs.back
+    discrs := discrs.pop
+    xs := xs.pop
+  return (mask.reverse, e)
+
 partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPreserve : Array FVarId)
     (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
 
@@ -433,12 +452,8 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
           -- Remove the old IH that was added in mkFix
           let eType ← newIH.getType
           let motiveBody ← mkArrow eType goal
-          -- TODO: Extract the following idiom
-          matcherApp.discrs.size.foldRevM (init := motiveBody) fun i motiveBodyAbst => do
-            let motiveArg := xs[i]!
-            let discr     := matcherApp.discrs[i]!
-            let motiveBodyAbst ← kabstract motiveBodyAbst discr
-            return motiveBodyAbst.instantiate1 motiveArg)
+          let (_mask, absMotiveBody) ← kabstractN matcherApp.discrs xs motiveBody
+          pure absMotiveBody)
         (onAlt := fun expAltType alt => do
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
@@ -453,7 +468,9 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     if matcherApp.remaining.isEmpty then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (onParams := foldCalls fn oldIH)
-        (onMotive := fun _xs _body => pure goal)
+        (onMotive := fun xs _body => do
+          let (_mask, absGoal) ← kabstractN matcherApp.discrs xs goal
+          pure absGoal)
         (onAlt := fun expAltType alt => do
           buildInductionBody motiveFVar fn toClear toPreserve expAltType oldIH newIH IHs alt)
       return matcherApp'.toExpr

@@ -42,8 +42,7 @@ the motive takes the same non-fixed parameters as the original function.
 
 For each branch of the original function, there is a case in the induction principle.
 Here "branch" roughly corresponds to tail-call positions: branches of top-level
-`if`-`then`-`else` and of `match` expressions that pattern-match on function arguments
-(but, for now, not those that match on more complicated terms).
+`if`-`then`-`else` and of `match` expressions.
 
 For every recursive call in that branch, an induction hypothesis asserting the
 motive for the arguments of the recursive call is provided.
@@ -90,8 +89,15 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
     ==> (match (motive := fun newIH => …) y with | … => fun newIH' => T[body]) newIH
    ```
 
-   Match statements that do *not* refine the IH in this way are left alone (for now); to split
-   them in a useful way requires to treat it as if every discriminant had a `h :` annotation.
+   In addition, the information gathered from the match is preserved, so that when performing the
+   proof by induction, the user can reliably enter the right case. To achieve this
+
+   * the matcher is replaced by its splitter, which brings extra assumptions into scope when
+     patterns are overlapping
+   * simple discriminants that are mentioned in the goal (i.e plain parameters) are instantiated
+     in the code.
+   * for discriminants that are not instantiated that way, equalities connecting the discriminant
+     to the instantiation are added (just as if the user wrote `match h : x with …`)
 
 4. When a tail position (no more branching) is found, function `buildInductionCase` assembles the
    type of the case: a fresh `MVar` asserts the current goal, unwanted values from the local context

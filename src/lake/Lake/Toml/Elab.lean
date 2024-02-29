@@ -208,7 +208,7 @@ def elabArray (x : TSyntax ``array) (elabVal : TSyntax ``val → CoreM α) : Cor
 def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → CoreM Value) : CoreM Table := do
   let `(val|{$kvs,*}) := x
     | throwErrorAt x "ill-formed inline table syntax"
-  let t : NameDict (Option Value) := {}  -- some: value value, none: partial table
+  let t : NameDict (Option Value) := {}  -- some: static value, none: partial table
   let t ← kvs.getElems.foldlM (init := t) fun t kv => do
     let `(keyval|$k = $v) := kv
       | throwErrorAt kv "ill-formed key-value pair syntax"
@@ -278,6 +278,9 @@ def KeyTy.isValidPrefix (ty : KeyTy) :=
 
 structure ElabState where
   keyTys : NameMap KeyTy := {}
+  arrKeyTys : NameMap (NameMap KeyTy) := {}
+  arrParents : NameMap Name := {}
+  currArrKey : Name := .anonymous
   rootTable : Table := {}
   currTable : Table := {}
   currKey : Name := .anonymous
@@ -286,22 +289,16 @@ structure ElabState where
 abbrev TomlElabM := StateT ElabState CoreM
 
 def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM (Name × Name) := do
-  let iniCurrKey := (← get).currKey
-  try
-    let subKey ← ks.foldlM (init := Name.anonymous) fun subKey kStx => do
-      let kPart ← elabSimpleKey kStx
-      let subKey := subKey.str kPart
-      let currKey := (← get).currKey.str kPart
-      if let some v := (← get).keyTys.find? currKey then
-        unless v matches .dottedPrefix do
-          throwErrorAt kStx "cannot redefine key '{currKey}'"
-        modify fun s => {s with currKey}
-      else
-        modify fun s => {s with currKey, keyTys := s.keyTys.insert currKey .dottedPrefix}
-      return subKey
-    return ((← get).currKey, subKey)
-  finally
-    modify fun s => {s with currKey := iniCurrKey}
+  ks.foldlM (init := ((← get).currKey, Name.anonymous)) fun (rootKey, subKey) kStx => do
+    let kPart ← elabSimpleKey kStx
+    let subKey := subKey.str kPart
+    let rootKey := rootKey.str kPart
+    if let some ty := (← get).keyTys.find? rootKey then
+      unless ty matches .dottedPrefix do
+        throwErrorAt kStx "cannot redefine {ty} key '{rootKey}'"
+    else
+      modify fun s => {s with keyTys := s.keyTys.insert rootKey .dottedPrefix}
+    return (rootKey, subKey)
 
 def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
   let `(keyval|$k = $v) := kv
@@ -313,8 +310,8 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
   let tailKey ← elabSimpleKey tailKeyStx
   let subKey := subKey.str tailKey
   let rootKey := rootKey.str tailKey
-  if (← get).keyTys.contains rootKey then
-    throwErrorAt tailKeyStx "cannot redefine key '{rootKey}'"
+  if let some ty := (← get).keyTys.find? rootKey then
+    throwErrorAt tailKeyStx "cannot redefine {ty} key '{rootKey}'"
   else
     let v ← elabVal v
     modify fun s => {
@@ -346,11 +343,24 @@ def saveCurrTable : TomlElabM Unit := do
       throw e
 
 def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
+  modify fun s =>
+    let arrKeyTys := s.arrKeyTys.insert s.currArrKey s.keyTys
+    {
+      s with
+      arrKeyTys
+      currArrKey := .anonymous
+      keyTys := arrKeyTys.find? .anonymous |>.getD {}
+    }
   ks.foldlM (init := Name.anonymous) fun k kStx => do
     let k ← k.str <$> elabSimpleKey kStx
-    if let some v := (← get).keyTys.find? k then
-      unless v.isValidPrefix do
-        throwErrorAt kStx m!"cannot redefine key '{k}'"
+    if let some ty := (← get).keyTys.find? k then
+      match ty with
+      | .array =>
+        let some keyTys := (← get).arrKeyTys.find? k
+          | throwError "(internal) bad array key '{k}'"
+        modify fun s => {s with keyTys, currArrKey := k}
+      | .stdTable | .headerPrefix | .dottedPrefix  => pure ()
+      | _ => throwErrorAt kStx m!"cannot redefine {ty} key '{k}'"
     else
       modify fun s => {s with keyTys := s.keyTys.insert k .headerPrefix}
     return k
@@ -364,9 +374,9 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
   let tailKey := ks.back
   let k ← elabHeaderKeys ks.pop
   let k ← k.str <$> elabSimpleKey tailKey
-  if let some v := (← get).keyTys.find? k then
-    unless v matches .headerPrefix do
-      throwErrorAt tailKey m!"cannot redefine key '{k}'"
+  if let some ty := (← get).keyTys.find? k then
+    unless ty matches .headerPrefix do
+      throwErrorAt tailKey m!"cannot redefine {ty} key '{k}'"
   modify fun s => {s with  currKey := k, keyTys := s.keyTys.insert k .stdTable}
 
 def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
@@ -375,15 +385,25 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
   let tailKey := ks.back
   let k ← elabHeaderKeys ks.pop
   let k := k.str (← elabSimpleKey tailKey)
-  if let some v := (← get).keyTys.find? k then
-    unless v matches .array do
-      throwErrorAt tailKey s!"cannot redefine key '{k}'"
+  if let some ty := (← get).keyTys.find? k then
+    if ty matches .array then
+      let s ← get
+      let some keyTys := s.arrParents.find? k >>= s.arrKeyTys.find?
+        | throwError "(internal) bad array key '{k}'"
+      modify fun s => {s with keyTys, currArrKey := k}
+    else
+      throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
   else
-    modify fun s => {
-      s with
-      keyTys := s.keyTys.insert k .array
-      rootTable := s.rootTable.insert k (.array #[])
-    }
+    modify fun s =>
+      let keyTys := s.keyTys.insert k .array
+      {
+        s with
+        keyTys
+        currArrKey := k
+        arrKeyTys := s.arrKeyTys.insert s.currArrKey keyTys
+        arrParents := s.arrParents.insert k s.currArrKey
+        rootTable := s.rootTable.insert k (.array #[])
+      }
   return k
 
 def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do

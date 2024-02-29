@@ -131,8 +131,8 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   getUnfoldEqnFnsRef.modify (f :: ·)
 
 /--
-  Return a "unfold" theorem for the given declaration.
-  By default, we not create unfold theorems for nonrecursive definitions.
+  Return an "unfold" theorem for the given declaration.
+  By default, we do not create unfold theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior.
 -/
 def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do

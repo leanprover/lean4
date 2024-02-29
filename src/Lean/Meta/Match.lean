@@ -8,6 +8,7 @@ import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.Match.CaseValues
 import Lean.Meta.Match.CaseArraySizes
+import Lean.Meta.Match.FinContra
 import Lean.Meta.Match.MatchEqs
 
 namespace Lean

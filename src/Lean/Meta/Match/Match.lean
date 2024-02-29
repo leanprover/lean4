@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
+import Lean.Meta.Match.FinContra
 import Lean.Meta.Match.MatcherApp.Basic
 
 namespace Lean.Meta.Match
@@ -139,14 +140,26 @@ private def isValueTransition (p : Problem) : Bool :=
      | .var _ :: _ => true
      | _           => false
 
-private def isFinValueTransition (p : Problem) : MetaM Bool := do
+/--
+Auxiliary function for `isValueOnlyTransition`.
+-/
+private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
   if hasVarPattern p then return false
   if !hasValPattern p then return false
   p.alts.allM fun alt => do
      match alt.patterns with
-     | .val v :: _   => return (← getFinValue? v).isSome
+     | .val v :: _   => isValue v
      | .ctor .. :: _ => return true
      | _             => return false
+
+/--
+Similar to `isValueTransition`, but does not have an `else`-case.
+We use it for the finite types: `Fin` and `BitVec`.
+-/
+private def isValueOnlyTransition (p : Problem) : MetaM Bool := do
+  isValueOnlyTransitionCore p fun e => do
+    if (← getFinValue? e).isSome then return true
+    return (← getBitVecValue? e).isSome
 
 private def isArrayLitTransition (p : Problem) : Bool :=
   hasArrayLitPattern p && hasVarPattern p
@@ -267,6 +280,11 @@ where
         trace[Meta.Match.match] "alt has unsolved cnstrs:\n{← alt.toMessageData}"
         return false
 
+ /- TODO: allow users to configure which tactic is used to close leaves. -/
+private def contra (mvarId : MVarId) : MetaM Bool := do
+  if (← mvarId.contradictionCore {}) then return true
+  FinContra.finContra mvarId
+
 /--
 Try to solve the problem by using the first alternative whose pending constraints can be resolved.
 -/
@@ -278,8 +296,7 @@ where
   go (alts : List Alt) : StateRefT State MetaM Unit := do
     match alts with
     | [] =>
-      /- TODO: allow users to configure which tactic is used to close leaves. -/
-      unless (← p.mvarId.contradictionCore {}) do
+      unless (← contra p.mvarId) do
         trace[Meta.Match.match] "missing alternative"
         p.mvarId.admit
         modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
@@ -645,19 +662,6 @@ private def expandIntValuePattern (p : Problem) : MetaM Problem := do
     | _ => return alt
   return { p with alts := alts }
 
-private def expandFinValuePattern (p : Problem) : MetaM Problem := do
-  let alts ← p.alts.mapM fun alt => do
-    match alt.patterns with
-    | .val n :: ps =>
-      match (← getFinValue? n) with
-      | some ⟨n, v⟩ =>
-        let p ← mkLt (toExpr v.val) (toExpr n)
-        let h ← mkDecideProof p
-        return { alt with patterns := .ctor ``Fin.mk [] [toExpr n] [.val (toExpr v.val), .inaccessible h] :: ps }
-      | _ => return alt
-    | _ => return alt
-  return { p with alts := alts }
-
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do
   trace[Meta.Match.match] "{msg} step"
 
@@ -707,9 +711,6 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if (← isIntValueTransition p) then
     traceStep ("int value to constructor")
     process (← expandIntValuePattern p)
-  else if (← isFinValueTransition p) then
-    traceStep ("fin value to constructor")
-    process (← expandFinValuePattern p)
   else if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p
@@ -722,6 +723,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     let p ← processVariable p
     process p
   else if isValueTransition p then
+    let ps ← processValue p
+    ps.forM process
+  else if (← isValueOnlyTransition p) then
     let ps ← processValue p
     ps.forM process
   else if isArrayLitTransition p then

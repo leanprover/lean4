@@ -92,6 +92,19 @@ v4.7.0 (development in progress)
 * Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
 
 * There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)
+* The Library search `exact?` and `apply?` tactics that were originally in
+  Mathlib are now available in Lean itself.  These use the implementation using
+  lazy discrimination trees from `Std`, and thus do not require a disk cache but
+  have a slightly longer startup time.  The order used for selection lemmas has
+  changed as well to favor goals purely based on how many terms in the head
+  pattern match the current goal.
+
+* The `solve_by_elim` tactic has been ported from `Std` to Lean so that library
+  search can use it.
+
+* New `#check_tactic` and `#check_simp` commands have been added.  These are
+  useful for checking tactics (particularly `simp`) behave as expected in test
+  suites.
 
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to

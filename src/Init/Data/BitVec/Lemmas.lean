@@ -154,7 +154,8 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
     simp [BitVec.msb, BitVec.getMsb] at p
   | n + 1 =>
     simp [BitVec.msb_eq_decide] at p
-    omega
+    simp only [Nat.add_sub_cancel]
+    exact p
 
 /-! ### cast -/
 

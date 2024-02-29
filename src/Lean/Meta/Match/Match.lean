@@ -139,14 +139,20 @@ private def isValueTransition (p : Problem) : Bool :=
      | .var _ :: _ => true
      | _           => false
 
-private def isFinValueTransition (p : Problem) : MetaM Bool := do
+private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
   if hasVarPattern p then return false
   if !hasValPattern p then return false
   p.alts.allM fun alt => do
      match alt.patterns with
-     | .val v :: _   => return (← getFinValue? v).isSome
+     | .val v :: _   => isValue v
      | .ctor .. :: _ => return true
      | _             => return false
+
+private def isFinValueTransition (p : Problem) : MetaM Bool :=
+  isValueOnlyTransitionCore p fun e => return (← getFinValue? e).isSome
+
+private def isBitVecValueTransition (p : Problem) : MetaM Bool :=
+  isValueOnlyTransitionCore p fun e => return (← getBitVecValue? e).isSome
 
 private def isArrayLitTransition (p : Problem) : Bool :=
   hasArrayLitPattern p && hasVarPattern p
@@ -647,15 +653,18 @@ private def expandIntValuePattern (p : Problem) : MetaM Problem := do
 
 private def expandFinValuePattern (p : Problem) : MetaM Problem := do
   let alts ← p.alts.mapM fun alt => do
-    match alt.patterns with
-    | .val n :: ps =>
-      match (← getFinValue? n) with
-      | some ⟨n, v⟩ =>
-        let p ← mkLt (toExpr v.val) (toExpr n)
-        let h ← mkDecideProof p
-        return { alt with patterns := .ctor ``Fin.mk [] [toExpr n] [.val (toExpr v.val), .inaccessible h] :: ps }
-      | _ => return alt
-    | _ => return alt
+    let .val n :: ps := alt.patterns | return alt
+    let some ⟨n, v⟩ ← getFinValue? n | return alt
+    let p ← mkLt (toExpr v.val) (toExpr n)
+    let h ← mkDecideProof p
+    return { alt with patterns := .ctor ``Fin.mk [] [toExpr n] [.val (toExpr v.val), .inaccessible h] :: ps }
+  return { p with alts := alts }
+
+private def expandBitVecValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    let .val n :: ps := alt.patterns | return alt
+    let some ⟨_, v⟩ ← getBitVecValue? n | return alt
+    return { alt with patterns := .ctor ``BitVec.ofFin [] [] [.val (toExpr v.toFin)] :: ps }
   return { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do
@@ -710,6 +719,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if (← isFinValueTransition p) then
     traceStep ("fin value to constructor")
     process (← expandFinValuePattern p)
+  else if (← isBitVecValueTransition p) then
+    traceStep ("bitvec value to constructor")
+    process (← expandBitVecValuePattern p)
   else if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p

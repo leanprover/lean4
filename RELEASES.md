@@ -91,6 +91,8 @@ v4.7.0 (development in progress)
 
 * Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
 
+* There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)
+
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration

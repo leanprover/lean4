@@ -392,7 +392,7 @@ def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   return mvarid
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
-def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
+def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
     (goal : Expr) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
   let IHs := IHs ++ (← collectIHs fn oldIH newIH e)
   let IHs ← deduplicateIHs IHs
@@ -404,7 +404,6 @@ def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) 
     mvarId ← mvarId.clear fvarId
   mvarId ← mvarId.cleanup (toPreserve := toPreserve)
   mvarId ← substVars mvarId
-  let (_, _mvarId) ← mvarId.revertAfter motiveFVar
   let mvar ← instantiateMVars mvar
   pure mvar
 
@@ -443,7 +442,7 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
-partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPreserve : Array FVarId)
+partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
     (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
 
   if e.isDIte then
@@ -453,11 +452,11 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     let h' ← foldCalls fn oldIH h
     let t' ← withLocalDecl `h .default c' fun h => do
       let t ← instantiateLambda t #[h]
-      let t' ← buildInductionBody motiveFVar fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
+      let t' ← buildInductionBody fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
       mkLambdaFVars #[h] t'
     let f' ← withLocalDecl `h .default (mkNot c') fun h => do
       let f ← instantiateLambda f #[h]
-      let f' ← buildInductionBody motiveFVar fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs f
+      let f' ← buildInductionBody fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs f
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
@@ -483,7 +482,7 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
-              let alt' ← buildInductionBody motiveFVar fn (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! IHs alt
+              let alt' ← buildInductionBody fn (toClear.push newIH'.fvarId!) toPreserve goal' oldIH' newIH'.fvarId! IHs alt
               mkLambdaFVars #[newIH'] alt')
         (onRemaining := fun _ => pure #[.fvar newIH])
       return matcherApp'.toExpr
@@ -499,7 +498,7 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
         (onParams := foldCalls fn oldIH)
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
-          buildInductionBody motiveFVar fn toClear toPreserve expAltType oldIH newIH IHs alt)
+          buildInductionBody fn toClear toPreserve expAltType oldIH newIH IHs alt)
       return matcherApp'.toExpr
 
   if let .letE n t v b _ := e then
@@ -507,7 +506,7 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     let t' ← foldCalls fn oldIH t
     let v' ← foldCalls fn oldIH v
     return ← withLetDecl n t' v' fun x => do
-      let b' ← buildInductionBody motiveFVar fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
+      let b' ← buildInductionBody fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
       mkLetFVars #[x] b'
 
   if let some (n, t, v, b) := e.letFun? then
@@ -515,10 +514,10 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     let t' ← foldCalls fn oldIH t
     let v' ← foldCalls fn oldIH v
     return ← withLocalDecl n .default t' fun x => do
-      let b' ← buildInductionBody motiveFVar fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
+      let b' ← buildInductionBody fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
       mkLetFun x v' b'
 
-  buildInductionCase motiveFVar fn oldIH newIH toClear toPreserve goal IHs e
+  buildInductionCase fn oldIH newIH toClear toPreserve goal IHs e
 
 partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   lambdaTelescope e fun params body => do
@@ -552,8 +551,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     unless ← isDefEq arg params.back do
       throwError "fixF application argument {arg} is not function argument "
     let [argLevel, _motiveLevel] := f.constLevels! | unreachable!
-    -- logInfo body
-    -- mkFresh
 
     let motiveType ← mkArrow argType (.sort levelZero)
     withLocalDecl `motive .default motiveType fun motive => do
@@ -565,7 +562,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       -- open body with the same arg
       let body ← instantiateLambda body #[param]
       removeLamda body fun oldIH body => do
-        let body' ← buildInductionBody motive.fvarId! fn #[genIH.fvarId!] #[] (.app motive param) oldIH genIH.fvarId! #[] body
+        let body' ← buildInductionBody fn #[genIH.fvarId!] #[] (.app motive param) oldIH genIH.fvarId! #[] body
         if body'.containsFVar oldIH then
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
         mkLambdaFVars #[param, genIH] body'
@@ -574,9 +571,18 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'
-    -- Using mkLambdaFVars on mvars directly does not reliably replace
-    -- the mvars with the parameter, in the presence of delayed assignemnts
-    -- But this code seems to work:
+    let mvars ← mvars.mapM fun mvar => do
+      let (_, mvar) ← mvar.revertAfter motive.fvarId!
+      pure mvar
+    -- Using `mkLambdaFVars` on mvars directly does not reliably replace
+    -- the mvars with the parameter, in the presence of delayed assignemnts.
+    -- Also `abstractMVars` does not handle delayed assignments correctly (as of now).
+    -- So instead we bring suitable fvars into scope and use `assign`; this handles
+    -- delayed assignemnts correctly.
+    -- NB: This idiom only works because
+    -- * we know that the `MVars` have the right local context (thanks to `mvarId.revertAfter`)
+    -- * the MVars are independent (so we don’t need to reorder them)
+    -- * we do no need the mvars in their unassigned form later
     let e' ← Meta.withLocalDecls
       (mvars.mapIdx (fun i mvar => (s!"case{i.val+1}", .default, (fun _ => mvar.getType))))
       fun xs => do

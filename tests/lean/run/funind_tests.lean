@@ -243,8 +243,8 @@ derive_functional_induction with_arg_refining_match1
 
 /--
 info: with_arg_refining_match1.induct (motive : Nat → Nat → Prop) (case1 : ∀ (fst : Nat), motive fst 0)
-  (case2 : ∀ (fst n : Nat), ¬fst = 0 → motive (fst - 1) n → motive fst (Nat.succ n))
-  (case3 : ∀ (n : Nat), motive 0 (Nat.succ n)) (x x : Nat) : motive x x
+  (case2 : ∀ (n : Nat), motive 0 (Nat.succ n))
+  (case3 : ∀ (fst n : Nat), ¬fst = 0 → motive (fst - 1) n → motive fst (Nat.succ n)) (x x : Nat) : motive x x
 -/
 #guard_msgs in
 #check with_arg_refining_match1.induct
@@ -257,9 +257,9 @@ termination_by i
 derive_functional_induction with_arg_refining_match2
 
 /--
-info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : ∀ (fst : Nat), ¬fst = 0 → motive fst 0)
-  (case2 : ∀ (fst : Nat), ¬fst = 0 → ∀ (n : Nat), motive (fst - 1) n → motive fst (Nat.succ n))
-  (case3 : ∀ (snd : Nat), motive 0 snd) (x x : Nat) : motive x x
+info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : ∀ (snd : Nat), motive 0 snd)
+  (case2 : ∀ (fst : Nat), ¬fst = 0 → motive fst 0)
+  (case3 : ∀ (fst : Nat), ¬fst = 0 → ∀ (n : Nat), motive (fst - 1) n → motive fst (Nat.succ n)) (x x : Nat) : motive x x
 -/
 #guard_msgs in
 #check with_arg_refining_match2.induct
@@ -621,17 +621,17 @@ end
 derive_functional_induction even
 
 /--
-info: EvenOdd.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0)
-  (case2 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case3 : motive2 0)
-  (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n)) (x : Nat) : motive1 x
+info: EvenOdd.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : motive2 0)
+  (case3 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n))
+  (x : Nat) : motive1 x
 -/
 #guard_msgs in
 #check even.induct
 
 /--
-info: EvenOdd.odd.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0)
-  (case2 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case3 : motive2 0)
-  (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n)) (x : Nat) : motive2 x
+info: EvenOdd.odd.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : motive2 0)
+  (case3 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n))
+  (x : Nat) : motive2 x
 -/
 #guard_msgs in
 #check odd.induct
@@ -763,7 +763,7 @@ derive_functional_induction even._mutual
 
 /--
 info: CommandIdempotence.even._mutual.induct (motive : Nat ⊕' Nat → Prop) (case1 : motive (PSum.inl 0))
-  (case2 : ∀ (n : Nat), motive (PSum.inr n) → motive (PSum.inl (Nat.succ n))) (case3 : motive (PSum.inr 0))
+  (case2 : motive (PSum.inr 0)) (case3 : ∀ (n : Nat), motive (PSum.inr n) → motive (PSum.inl (Nat.succ n)))
   (case4 : ∀ (n : Nat), motive (PSum.inl n) → motive (PSum.inr (Nat.succ n))) (x : Nat ⊕' Nat) : motive x
 -/
 #guard_msgs in
@@ -777,16 +777,16 @@ derive_functional_induction even
 
 /--
 info: CommandIdempotence.even._mutual.induct (motive : Nat ⊕' Nat → Prop) (case1 : motive (PSum.inl 0))
-  (case2 : ∀ (n : Nat), motive (PSum.inr n) → motive (PSum.inl (Nat.succ n))) (case3 : motive (PSum.inr 0))
+  (case2 : motive (PSum.inr 0)) (case3 : ∀ (n : Nat), motive (PSum.inr n) → motive (PSum.inl (Nat.succ n)))
   (case4 : ∀ (n : Nat), motive (PSum.inl n) → motive (PSum.inr (Nat.succ n))) (x : Nat ⊕' Nat) : motive x
 -/
 #guard_msgs in
 #check even._mutual.induct
 
 /--
-info: CommandIdempotence.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0)
-  (case2 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case3 : motive2 0)
-  (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n)) (x : Nat) : motive1 x
+info: CommandIdempotence.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : motive2 0)
+  (case3 : ∀ (n : Nat), motive2 n → motive1 (Nat.succ n)) (case4 : ∀ (n : Nat), motive1 n → motive2 (Nat.succ n))
+  (x : Nat) : motive1 x
 -/
 #guard_msgs in
 #check even.induct

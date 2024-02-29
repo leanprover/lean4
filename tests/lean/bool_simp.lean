@@ -1,15 +1,8 @@
-section simp
 variable (p q : Prop)
 variable (b c d : Bool)
 variable (u v w : Prop) [Decidable u] [Decidable v] [Decidable w]
 
--- FIXME.  Remove simp from Bool.or_eq_true_iff
-set_option trace.Meta.Tactic.simp.rewrite true
-
-set_option trace.Meta.Tactic.simp.rewrite false
-set_option trace.Meta.Tactic.simp false
-
--- Specific regressions
+-- Specific regressions found when introducing Boolean normalization
 #check_simp (b != !c) = false ~> b = !c
 #check_simp ¬(u → v ∨ w) ~> u ∧ ¬v ∧ ¬w
 #check_simp decide (u ∧ (v → False)) ~> decide u && !decide v
@@ -20,7 +13,7 @@ set_option trace.Meta.Tactic.simp false
 #check_simp (((!b) && c) ≠ false) ~> b = false ∧ c = true
 #check_simp (cond b false c ≠ false) ~> b = false ∧ c
 #check_simp (b && c) = false ~> b → c = false
-#check_simp (b && c) ≠ false ~> b ∧ c
+#check_simp (b && c) ≠   false ~> b ∧ c
 #check_simp decide (u → False) ~> !decide u
 #check_simp decide (¬u) ~> !decide u
 #check_simp (b = true) ≠ (c = false) ~> b = c
@@ -61,7 +54,11 @@ variable [Decidable u]
 #check_simp (¬false) ~> True
 #check_simp (!false) ~> true
 
--- Coercions and not
+/- # Coercions and not -/
+
+#check_simp ¬p !~>
+#check_simp !b !~>
+
 #check_simp (¬u : Prop) !~>
 #check_simp (¬u : Bool) ~> !u
 #check_simp (!u : Prop) ~> ¬u
@@ -134,8 +131,6 @@ variable [Decidable u]
 #check_simp (b && ¬b) ~> false
 #check_simp (¬b && b) ~> false
 
-#check_simp decide (u → ¬v)  ~> !u || !v
-
 -- Check we swap operators, but do apply deMorgan etc
 #check_simp ¬(u ∧ v)  ~> u → ¬v
 #check_simp decide (¬(u ∧ v))  ~> !u || !v
@@ -164,6 +159,8 @@ variable [Decidable u]
 /- # or -/
 
 -- Validate coercions
+#check_simp p ∨ q !~>
+#check_simp q ∨ p !~>
 #check_simp (u ∨ v : Prop) !~>
 #check_simp (u ∨ v : Bool)  ~> u || v
 #check_simp (u || v : Prop) ~> u ∨  v
@@ -217,8 +214,10 @@ variable [Decidable u]
 #check_simp (b || b) ~> b
 
 -- Complement
---#check_simp ( u ∨  ¬u)  ~> True
---#check_simp (¬u ∨   u)  ~> True
+-- Note. We may want to revisit this.
+--   Decidable excluded middle currently does not simplify.
+#check_simp ( u ∨  ¬u) !~>
+#check_simp (¬u ∨   u) !~>
 #check_simp ( b || ¬b)  ~> true
 #check_simp (¬b ||  b)  ~> true
 
@@ -251,6 +250,9 @@ variable [Decidable u]
 -- We don't currently do automatic simplification across and/or/not
 -- This tests for non-unexpected reductions.
 
+#check_simp p ∧ (p ∨ q) !~>
+#check_simp (p ∨ q) ∧ p !~>
+
 #check_simp u ∧ (v ∨ w) !~>
 #check_simp u ∨ (v ∧ w) !~>
 #check_simp (v ∨ w) ∧ u !~>
@@ -260,19 +262,14 @@ variable [Decidable u]
 #check_simp (c || d) && b !~>
 #check_simp (c && d) || b !~>
 
+/- # implication -/
+
+#check_simp (b → c) !~>
+#check_simp (u → v) !~>
+#check_simp p → q !~>
+#check_simp decide (u → ¬v)  ~> !u || !v
+
 /- # iff -/
-
--- Without decidable test cases
-#check_simp p = q ~> p ↔ q
-#check_simp p ↔ q !~>
-
---set_option trace.Meta.Tactic.simp.rewrite true
--- Bool.not_eq_true
-#check_simp ¬b ~> b = false
-
---#check_simp (false = b) ~> ¬b
---#check_simp (false = p : Prop) ~> not b
-
 
 #check_simp (u = v : Prop) ~> u ↔ v
 #check_simp (u = v : Bool) ~> u == v
@@ -286,8 +283,6 @@ variable [Decidable u]
 #check_simp (b ↔ c : Prop) ~> b = c
 #check_simp (b ↔ c : Bool) ~> decide (b = c)
 #check_simp (b == c : Prop) ~> b = c
--- N.B. Mathlib would rewrite this to `decide(b = c)` via [`beq_eq_decide_eq`][1]:
--- [1]: <https://github.com/leanprover-community/mathlib4/blob/450459a3bc55a75e540d139dbeec9c0a92acabb8/Mathlib/Data/Bool/Basic.lean#L87)>
 #check_simp (b == c : Bool) !~>
 
 -- Partial evaluation
@@ -297,7 +292,6 @@ variable [Decidable u]
 #check_simp (True ↔ v : Bool)  ~> (v : Bool)
 #check_simp (True == v : Prop) ~> v
 #check_simp (True == v : Bool) ~> (v : Bool)
- -- TODO: See if this can be further simplified
 #check_simp (true =  c : Prop) ~> c = true
 #check_simp (true =  c : Bool) ~> c
 #check_simp (true ↔  c : Prop) ~> c = true
@@ -324,7 +318,6 @@ variable [Decidable u]
 #check_simp (True ↔ v : Bool)  ~> (v : Bool)
 #check_simp (True == v : Prop) ~> v
 #check_simp (True == v : Bool) ~> (v : Bool)
- -- TODO: See if this can be further simplified
 #check_simp (true =  c : Prop) ~> c = true
 #check_simp (true =  c : Bool) ~> c
 #check_simp (true ↔  c : Prop) ~> c = true
@@ -351,7 +344,6 @@ variable [Decidable u]
 #check_simp (False ↔ v : Bool)  ~> !v
 #check_simp (False == v : Prop) ~> ¬v
 #check_simp (False == v : Bool) ~> !v
- -- TODO: See if this can be further simplified
 #check_simp (false =  c : Prop) ~> c = false
 #check_simp (false =  c : Bool) ~> !c
 #check_simp (false ↔  c : Prop) ~> c = false
@@ -364,12 +356,7 @@ variable [Decidable u]
 #check_simp (u == (v =  w)) ~> u == (v == w)
 #check_simp (u == (v == w)) !~>
 
-/- # xor -/
-
-#check_simp (u == (v ∨ w)) ~>  u == (v || w)
-#check_simp (u == (v || w)) !~>
-
-#check_simp ((u ∧ v) == w) ~> (u && v) == w
+/- # bne -/
 
 #check_simp p ≠ q ~> ¬(p ↔ q)
 #check_simp (b != c : Bool) !~>
@@ -384,34 +371,13 @@ variable [Decidable u]
 #check_simp ((u:Bool) != v : Bool) !~>
 #check_simp ((u:Bool) != v : Prop) ~> ¬(u ↔ v)
 
-#check_simp ¬p !~>
-#check_simp !b !~>
-#check_simp ¬b ~> b = false
-#check_simp ¬u !~>
-#check_simp ((!u) : Prop) ~> ¬u
+/- # equality and and/or interactions -/
 
+#check_simp (u == (v ∨ w)) ~>  u == (v || w)
+#check_simp (u == (v || w)) !~>
+#check_simp ((u ∧ v) == w) ~> (u && v) == w
 
-#check_simp b && (¬b) ~> false
-#check_simp ¬b && b ~> false
-#check_simp (u ∧ v) !~>
-#check_simp (u && v) !~>
-#check_simp (u && v : Prop) ~> u ∧ v
-
-#check_simp p ∨ q !~>
-#check_simp q ∨ p !~>
-#check_simp (b ∨ c) !~>
-#check_simp (b || c) !~>
-#check_simp (b || c : Prop) ~> b ∨ c
-#check_simp (u ∨ v) !~>
-#check_simp (u || v) !~>
-#check_simp (u || v : Prop) ~> u ∨ v
-
-#check_simp p ∧ (p ∨ q) !~>
-#check_simp (p ∨ q) ∧ p !~>
-
-#check_simp (b → c) !~>
-#check_simp (u → v) !~>
-#check_simp p → q !~>
+/- # ite/cond -/
 
 #check_simp if b then c else d !~>
 #check_simp if b then p else q !~>
@@ -421,5 +387,3 @@ variable [Decidable u]
 #check_simp if u then q else u ~> u ∧ q
 #check_simp if u then q else q  ~> q
 #check_simp cond b c d !~>
-
-end simp

@@ -3,37 +3,23 @@ import Lean.Elab.Command
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 
-
-
--- This file runs many tests on simp and other operations on
--- Boolean/Prop values.
---
--- It is intended to systematically evaluate simp strategies on
--- different operators.
-
--- Note. These tests use the simp tactic not because simp is the best
--- strategy for these particular examples, but rather simp may wind up
--- needing to discharge conditions during rewriting, and we need tests
--- showing that is has generally effective and predictable behavior.
-
 /-
+
+This file runs many tests on simp and other operations on Boolean/Prop
+values.
+
+It is intended to systematically evaluate simp strategies on different
+operators.
+
+Note. These tests use the simp tactic not necessarily because simp is
+the best strategy for these particular examples, but rather simp may
+wind up needing to discharge conditions during rewriting, and we need
+tests showing that is has generally effective and predictable --
+behavior.
+
 General goals for simp are that the normal forms are sensible to a wide
-range of users and that it performs well.
-
-Specific goals with Bool are
-1. Consistent behavior with equivalent Bool and Prop operators (e.g, &&
-   and ∧).
-2. Distributivity theorems exist between and, or and not but are not in
-   default simp set.
-3. Negation moves to outside of equality and inequality (xor), but will
-   preserve operator.
-
-The specific operations we want to test are:
-* Coercions between `Bool` and `Prop` (decide)
-* `not`, `and`, `or`, `beq` (for `Bool`), `bne` (for `Bool`), `cond`
-* `Not`, `And`, `Or`, `->` (for `Prop`), `Eq` (for `Prop`), `HEq`, `Iff`, `dite`, `ite`.
-* dec
-* `∀(b:Bool)`,  `∀(p:Prop)`, `∃(b:Bool)`, and `∃(p:Prop)`.
+range of users and that it performs well.  We also strive for Mathlib
+compatiblity.
 -/
 
 inductive BoolType where
@@ -107,7 +93,7 @@ inductive BoolVal where
     /--
     `(t : Prop)` when `t` is a `Bool`.
 
-    Equaivalent to `t = true`.
+    Equivalent to `t = true`.
     -/
   | boolToProp (t : BoolVal)
     /-- `decide t` is the same as `p : Bool` -/
@@ -219,7 +205,9 @@ instance : OrOp BoolVal where
 section
 
 /--
-Returns true if we have syntactic rules to
+Returns true if we should consider `x` a complement of `y`.
+
+Symmetric so also holds if `y` is a complement of `x`.
 -/
 def isComplement (x y : BoolVal) : Bool :=
   match x, y with
@@ -251,7 +239,6 @@ partial def simp (v : BoolVal) : BoolVal :=
       | .not x _   => simp <| ~(.decide x)
       | .and x y _ => simp <| (.decide x) &&& (.decide y)
       | .or x y _  => simp <| (.decide x) ||| (.decide y)
-        -- Leave implication alone for now
       | .implies p q => simp <| ~(.decide p) ||| (.decide q)
       | .eq x y .eqBool =>
         match y with
@@ -473,45 +460,57 @@ set_option profiler false
 
 end BoolVal
 
+-- | A `BoolOp` is a datatype capable of generating
 structure BoolOp where
-  apply : Array BoolVal → BoolVal
   args : Array BoolType
   result : BoolType
+  apply : Array BoolVal → BoolVal
 
 def boolOp
-      (apply : Array BoolVal → BoolVal)
       (args : Array BoolType)
-      (result : BoolType) : BoolOp :=
+      (result : BoolType)
+      (apply : Array BoolVal → BoolVal) : BoolOp :=
   { apply, args, result }
 
-def trueOp  (tp : BoolType) : BoolOp := boolOp (fun _ => .trueVal  tp) #[] tp
-def falseOp (tp : BoolType) : BoolOp := boolOp (fun _ => .falseVal tp) #[] tp
+def trueOp  (tp : BoolType) : BoolOp := boolOp #[] tp fun _ => .trueVal  tp
+def falseOp (tp : BoolType) : BoolOp := boolOp #[] tp fun _ => .falseVal tp
 def varOp (n : Nat) (v : TSyntax `ident) (tp : BoolType) : BoolOp :=
-  boolOp (fun _ => .var n v tp) #[] .prop
-def boolToPropOp : BoolOp := boolOp (fun a => .boolToProp (a[0]!)) #[.bool] .prop
-def propToBoolOp : BoolOp := boolOp (fun a => .decide (a[0]!)) #[.prop] .bool
+  boolOp  #[] .prop fun _ => .var n v tp
+def boolToPropOp : BoolOp := boolOp #[.bool] .prop fun a => .boolToProp (a[0]!)
+def propToBoolOp : BoolOp := boolOp #[.prop] .bool fun a => .decide (a[0]!)
 
-def notOp (tp : BoolType) := boolOp (fun a => .not (a[0]!) tp) #[tp] tp
-def andOp (tp : BoolType) := boolOp (fun a => .and (a[0]!) (a[1]!) tp) #[tp, tp] tp
-def orOp  (tp : BoolType) := boolOp (fun a => .or  (a[0]!) (a[1]!) tp) #[tp, tp] tp
-def impliesOp := boolOp (fun a => .implies  (a[0]!) (a[1]!)) #[.prop, .prop] .prop
+def notOp (tp : BoolType) := boolOp #[tp] tp fun a => .not (a[0]!) tp
+def andOp (tp : BoolType) := boolOp #[tp, tp] tp fun a => .and (a[0]!) (a[1]!) tp
+def orOp  (tp : BoolType) := boolOp #[tp, tp] tp fun a => .or  (a[0]!) (a[1]!) tp
+def impliesOp := boolOp #[.prop, .prop] .prop fun a => .implies  (a[0]!) (a[1]!)
 def eqOp  (op : EqOp)  :=
-  boolOp (fun a => .eq (a[0]!) (a[1]!) op) #[op.argType, op.argType] op.resultType
+  boolOp #[op.argType, op.argType] op.resultType fun a => .eq (a[0]!) (a[1]!) op
 def neOp  (op : NeOp)  :=
-  boolOp (fun a => .ne (a[0]!) (a[1]!) op) #[op.argType, op.argType] op.resultType
+  boolOp #[op.argType, op.argType] op.resultType fun a => .ne (a[0]!) (a[1]!) op
 def iteOp (op : IteOp) :=
   let rtp := op.resultType
-  boolOp (fun a => .ite (a[0]!) (a[1]!) (a[2]!) op) #[op.condType, rtp, rtp] rtp
+  boolOp #[op.condType, rtp, rtp] rtp fun a => .ite (a[0]!) (a[1]!) (a[2]!) op
 
 structure GenConfig where
   maxTermSize : Nat
   boolOps : List BoolOp
   propOps : List BoolOp
 
+/--
+State used when generating terms.
+
+Has control variables needed to know how large the remaining term can be.
+
+Variable identifiers are constructed up front for now.
+-/
 structure GenState where
-  termSize : Nat -- Size of term including empty slots that need to be populated.
+   -- Size of term including empty slots that need to be populated.
+  termSize : Nat
+  -- Remaining number of variables that can be generated
   remainingVars : Nat
+  -- Remaining propositional variables available for use in generation.
   propVars : Array (TSyntax `ident)
+  -- Remaining Boolean variables available for use in generation.
   boolVars : Array (TSyntax `ident)
 
 @[reducible] def GenM (α : Type) := StateT GenState CommandElabM α

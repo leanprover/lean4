@@ -68,7 +68,6 @@ theorem and_comm : ∀ (x y : Bool), (x && y) = (y && x) := by decide
 theorem and_left_comm : ∀ (x y z : Bool), (x && (y && z)) = (y && (x && z)) := by decide
 theorem and_right_comm : ∀ (x y z : Bool), ((x && y) && z) = ((x && z) && y) := by decide
 
-
 /-! ### or -/
 
 @[simp] theorem or_self_left : ∀(a b : Bool), (a || (a || b)) = (a || b) := by decide
@@ -174,12 +173,11 @@ in false_eq and true_eq.
 @[simp] theorem bne_left_inj  : ∀ (x y z : Bool), (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_right_inj : ∀ (x y z : Bool), (x != z) = (y != z) ↔ x = y := by decide
 
-/-! ### bool to prop normal forms: b = true, b = false -/
+/-! ### coercision related normal forms -/
 
 @[simp] theorem not_eq_not : ∀ {a b : Bool}, ¬a = !b ↔ a = b := by decide
 
 @[simp] theorem not_not_eq : ∀ {a b : Bool}, ¬(!a) = b ↔ a = b := by decide
-
 
 @[simp] theorem coe_iff_coe : ∀(a b : Bool), (a ↔ b) ↔ a = b := by decide
 
@@ -330,9 +328,9 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   cases h with | _ p => simp [p]
 
 /-
-`not_if_prop_coerce_true` and `not_if_prop_coerce_false` are added
-for non-confluence.  The motivating example for `not_if_prop_coerce_true`
-is `¬((if u then b else c) = true)`.
+`not_ite_eq_true_eq_true` and related theorems below are added for
+non-confluence.  A motivating example is
+`¬((if u then b else c) = true)`.
 
 This reduces to:
 1. `¬((if u then (b = true) else (c = true))` via `ite_eq_true_distrib`
@@ -364,16 +362,15 @@ theorem not_ite_eq_false_eq_true (p : Prop) [h : Decidable p] (b c : Bool) :
 
 /-! ### cond -/
 
-theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := by
-  cases b <;> simp
-
 theorem cond_eq_ite {α} (b : Bool) (t e : α) : cond b t e = if b then t else e := by
   cases b <;> simp
 
-@[simp] theorem cond_not {α : Type _} (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
+theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite b x y
+
+@[simp] theorem cond_not (b : Bool) (t e : α) : cond (!b) t e = cond b e t := by
   cases b <;> rfl
 
-@[simp] theorem cond_self {α} (c : Bool) (t : α) : cond c t t = t := by cases c <;> simp
+@[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
 
 /-
 This is a simp rule in Mathlib, but results in non-confluence that is

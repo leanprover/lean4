@@ -15,6 +15,7 @@ theorem of_eq_false (h : p = False) : ¬ p := fun hp => False.elim (h.mp hp)
 theorem eq_true (h : p) : p = True :=
   propext ⟨fun _ => trivial, fun _ => h⟩
 
+-- Adding this attribute needs `eq_true`.
 attribute [simp] cast_heq
 
 theorem eq_false (h : ¬ p) : p = False :=
@@ -201,9 +202,9 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
 @[simp] theorem Bool.not_true  : (!true) = false := by decide
 @[simp] theorem Bool.not_false : (!false) = true := by decide
-@[simp] theorem Bool.not_beq_true (b : Bool) : (!(b == true)) = (b == false) := by cases b <;> rfl
+@[simp] theorem Bool.not_beq_true  (b : Bool) : (!(b == true)) = (b == false) := by cases b <;> rfl
 @[simp] theorem Bool.not_beq_false (b : Bool) : (!(b == false)) = (b == true) := by cases b <;> rfl
-@[simp] theorem Bool.not_eq_true' (b : Bool) : ((!b) = true) = (b = false) := by cases b <;> simp
+@[simp] theorem Bool.not_eq_true'  (b : Bool) : ((!b) = true) = (b = false) := by cases b <;> simp
 @[simp] theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by cases b <;> simp
 
 @[simp] theorem Bool.beq_to_eq (a b : Bool) :
@@ -214,15 +215,15 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_eq_true (b : Bool) : (¬(b = true)) = (b = false) := by cases b <;> decide
 @[simp] theorem Bool.not_eq_false (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
 
-@[simp] theorem decide_eq_true_eq {_ : Decidable p} : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
-@[simp] theorem decide_not {g : Decidable p} {h : Decidable (Not p)}
+@[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
+@[simp] theorem decide_not [g : Decidable p] [h : Decidable (Not p)]
     : decide (Not p) = !(decide p) := by cases g <;> (simp [*]; rfl)
-theorem decide_not_inv {g : Decidable p} {h : Decidable (Not p)}
+theorem decide_not_inv [g : Decidable p] [h : Decidable (Not p)]
     : decide (Not p) = !(decide p) := by cases g <;> (simp [*]; rfl)
 
-@[simp] theorem not_decide_eq_true {h : Decidable p} : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
 
-@[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
+@[simp] theorem heq_eq_eq (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 
 @[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
@@ -234,7 +235,7 @@ theorem decide_not_inv {g : Decidable p} {h : Decidable (Not p)}
 @[simp] theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp [bne]
 
 @[simp] theorem decide_False : decide False = false := rfl
-@[simp] theorem decide_True : decide True = true := rfl
+@[simp] theorem decide_True  : decide True  = true := rfl
 
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] (a b : α) : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq a b]; simp [-beq_iff_eq]
@@ -248,14 +249,14 @@ theorem decide_not_inv {g : Decidable p} {h : Decidable (Not p)}
 Added for critical pair for `¬((a != b) = true)`
 
 1. `(a != b) = false` via `Bool.not_eq_true`
-2. `a ≠ b` via `bne_iff_ne`
+2. `¬(a ≠ b)` via `bne_iff_ne`
 
+These will both normalize to `a = b` with the first via `bne_eq_false_iff_eq`.
 -/
-@[simp] theorem bne_eq_false_iff_eq [BEq α] [LawfulBEq α]
-    (a b : α) : (a != b) = false ↔ a = b := by
+@[simp] theorem bne_eq_false_iff_eq [BEq α] [LawfulBEq α] (a b : α) :
+    (a != b) = false ↔ a = b := by
   rw [bne, ← beq_iff_eq a b]
   cases a == b <;> decide
-
 
 /-# Nat -/
 

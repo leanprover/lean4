@@ -133,19 +133,24 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   · simp [BitVec.eq_nil x]
   · simp
 
-@[bv_toNat] theorem getLsb_last (x : BitVec (w + 1)) :
-    x.getLsb w = decide (2 ^ w ≤ x.toNat) := by
-  simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
+@[bv_toNat] theorem getLsb_last (x : BitVec w) :
+    x.getLsb (w-1) = decide (2 ^ (w-1) ≤ x.toNat) := by
+  rcases w with rfl | w
+  · simp
+  · simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
     Nat.sub_zero, Nat.and_one_is_mod, Bool.true_and, Nat.shiftRight_eq_div_pow]
-  rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
-  · simp [Nat.div_eq_of_lt h, h]
-  · simp only [h]
-    rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
-    · decide
-    · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
-      omega
+    rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
+    · simp [Nat.div_eq_of_lt h, h]
+    · simp only [h]
+      rw [Nat.div_eq_sub_div (Nat.two_pow_pos w) h, Nat.div_eq_of_lt]
+      · decide
+      · have : BitVec.toNat x < 2^w + 2^w := by simpa [Nat.pow_succ, Nat.mul_two] using x.isLt
+        omega
 
-@[bv_toNat] theorem msb_eq_decide (x : BitVec (w + 1)) : BitVec.msb x = decide (2 ^ w ≤ x.toNat) := by
+@[bv_toNat] theorem getLsb_succ_last (x : BitVec (w + 1)) :
+    x.getLsb w = decide (2 ^ w ≤ x.toNat) := getLsb_last x
+
+@[bv_toNat] theorem msb_eq_decide (x : BitVec w) : BitVec.msb x = decide (2 ^ (w-1) ≤ x.toNat) := by
   simp [msb_eq_getLsb_last, getLsb_last]
 
 theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2^(n-1) := by

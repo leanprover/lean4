@@ -18,7 +18,7 @@ open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 
 /-
 General goals for simp are that the normal forms are sensible to a wide
-rnge of users and that it performs well.
+range of users and that it performs well.
 
 Specific goals with Bool are
 1. Consistent behavior with equivalent Bool and Prop operators (e.g, &&
@@ -29,7 +29,7 @@ Specific goals with Bool are
    preserve operator.
 
 The specific operations we want to test are:
-* Coercions between `Bool` and `Prop` (decie)
+* Coercions between `Bool` and `Prop` (decide)
 * `not`, `and`, `or`, `beq` (for `Bool`), `bne` (for `Bool`), `cond`
 * `Not`, `And`, `Or`, `->` (for `Prop`), `Eq` (for `Prop`), `HEq`, `Iff`, `dite`, `ite`.
 * dec

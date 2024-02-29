@@ -15,7 +15,6 @@ theorem of_eq_false (h : p = False) : ¬ p := fun hp => False.elim (h.mp hp)
 theorem eq_true (h : p) : p = True :=
   propext ⟨fun _ => trivial, fun _ => h⟩
 
-/- simp in Mathlib -/
 attribute [simp] cast_heq
 
 theorem eq_false (h : ¬ p) : p = False :=

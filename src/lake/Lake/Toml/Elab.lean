@@ -6,7 +6,6 @@ Authors: Mac Malone
 import Lean.CoreM
 import Lake.Toml.Value
 import Lake.Toml.Grammar
-import Lean.Elab.ElabRules
 
 /-!
 # TOML Elaboration
@@ -46,48 +45,48 @@ def decodeSign (s : String) : Bool × String :=
   else
     (false, s)
 
-def elabDecInt (x : TSyntax ``decInt) : CoreM Int := do
-  let spelling ← elabLit x "decimal integer"
-  let (sign, spelling) := decodeSign spelling
+def decodeDecInt (s : String) : Int :=
+  let (sign, s) := decodeSign s
   if sign then
-    return .negOfNat <| decodeDecNum <| spelling
+    .negOfNat <| decodeDecNum s
   else
-    return .ofNat <| decodeDecNum <| spelling
+    .ofNat <| decodeDecNum s
+
+def elabDecInt (x : TSyntax ``decInt) : CoreM Int := do
+  return decodeDecInt <| ← elabLit x "decimal integer"
+
+def decodeMantissa (s : String) : Nat × Nat :=
+  let (m,e) := s.foldl (init := (0,s.length)) fun (m,e) c =>
+    match c with
+    | '_' => (m,e)
+    | '.' => (m,0)
+    | c => (m*10 + (c.val - '0'.val).toNat, e+1)
+  (m, if e ≥ s.length then 0 else e)
+
+def decodeFrExp (s : String) : Nat × Int :=
+  match s.split (fun c => c == 'E' || c == 'e') with
+  | [m,exp] =>
+    let exp := decodeDecInt exp
+    let (m,dotExp) := decodeMantissa m
+    (m, Int.negOfNat dotExp + exp)
+  | [m] =>
+    let (m, e) := decodeMantissa m
+    (m, Int.negOfNat e)
+  | _ => (0,0)
+
+def decodeFloat (s : String) : Float :=
+  let (sign, s) := decodeSign s
+  if s.toLower = "inf" then
+    if sign then -1.0/0 else 1.0/0
+  else if s.toLower = "nan" then
+    if sign then -(0.0/0) else 0.0/0
+  else
+    let (m,e) := decodeFrExp s
+    let flt := Float.ofScientific m (e < 0) e.natAbs
+    if sign then -flt else flt
 
 def elabFloat (x : TSyntax ``float) : CoreM Float := do
-  let spelling ← elabLit x "float"
-  let (sign, spelling) := decodeSign spelling
-  if spelling == "inf" then
-    if sign then return -1.0/0 else return 1.0/0
-  else if spelling = "nan" then
-    if sign then return -(0.0/0) else return 0.0/0
-  else
-    let flt ← id do
-      match spelling.split (fun c => c == 'E' || c == 'e') with
-      | [m,exp] =>
-        let (m,e) ← decodeMantissa m
-        let (expSign, exp) := decodeSign exp
-        let exp := decodeDecNum exp
-        if expSign then
-          return Float.ofScientific m true (exp + e)
-        else if exp ≥ e then
-          return Float.ofScientific m false (exp - e)
-        else
-          return Float.ofScientific m false (e - exp)
-      | [m] =>
-        let (m,e) ← decodeMantissa m
-        return Float.ofScientific m true e
-      | _ => throwErrorAt x "invalid float"
-    return if sign then -flt else flt
-where
-  decodeMantissa m := do
-    match m.split (· == '.') with
-    | [s,m] =>
-      let sn := decodeDecNum s
-      let mn := decodeDecNum m
-      return (sn * (10 ^ s.length) + mn, m.length)
-    | [s] => return (decodeDecNum s, 0)
-    | _ => throwErrorAt x "invalid float"
+  return decodeFloat <| ← elabLit x "float"
 
 def elabBinNum (x : TSyntax ``binNum) : CoreM Nat := do
   let spelling ← elabLit x "binary number"
@@ -350,7 +349,12 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
   if let some ty := (← get).keyTys.find? k then
     unless ty matches .headerPrefix do
       throwErrorAt tailKey m!"cannot redefine {ty} key '{k}'"
-  modify fun s => {s with  currKey := k, keyTys := s.keyTys.insert k .stdTable}
+  modify fun s => {
+    s with
+    currKey := k
+    keyTys := s.keyTys.insert k .stdTable
+    items := s.items.push (k, {})
+  }
 
 def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
   let `(key|$[$ks:simpleKey].*) := x
@@ -396,7 +400,7 @@ def elabExpression (x : TSyntax ``expression) : TomlElabM Unit := do
   | `(expression|$x:arrayTable) => elabArrayTable x
   | _ => throwErrorAt x "ill-formed expression syntax"
 
-def mkSimpleTable (items : Array (Name × Value)) : Table :=
+partial def mkSimpleTable (items : Array (Name × Value)) : Table :=
   items.foldl (init := {}) fun t (k,v) =>
     match k.components with
     | .nil => t
@@ -404,18 +408,27 @@ def mkSimpleTable (items : Array (Name × Value)) : Table :=
 where
   insert (t : Table) k ks newV :=
     match ks with
-    | .nil => t.insertMap k fun v? =>
-      match v? with
-      | some (.array vs) => vs.push {}
-      | _ => newV
+    | .nil =>
+      match newV with
+      | .table newT =>
+        let newT := mkSimpleTable newT.items
+        t.insertMap k fun v? =>
+          match v? with
+          | some (.table vt) => vt ++ newT
+          | _ => newT
+      | _ =>
+        t.insertMap k fun v? =>
+          match v? with
+          | some (.array vs) => vs.push {}
+          | _ => newV
     | k' :: ks => t.insertMap k fun v? =>
       if let some v := v? then
         match v with
         | .array vs =>
           vs.modify (vs.size-1) fun
-          | .table t' => .table <| insert t' k' ks newV
+          | .table t' => insert t' k' ks newV
           | _ => {}
-        | .table t' => .table <| insert t' k' ks v
+        | .table t' => insert t' k' ks newV
         | _ => {}
       else
         insert {} k' ks newV

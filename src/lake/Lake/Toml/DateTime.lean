@@ -28,6 +28,9 @@ namespace Lake.Toml
 def lpad (s : String) (c : Char) (len : Nat) : String :=
   "".pushn c (len - s.length) ++ s
 
+def rpad (s : String) (c : Char) (len : Nat) : String :=
+  s.pushn c (len - s.length)
+
 def zpad (n : Nat) (len : Nat) : String :=
   lpad (toString n) '0' len
 
@@ -127,7 +130,7 @@ protected def toString (t : Time) : String :=
   if t.fracMantissa = 0 then
     s
   else
-    s!"{s}.{zpad t.fracMantissa t.fracExponent}"
+    s!"{s}.{rpad (zpad t.fracMantissa t.fracExponent) '0' 3}"
 
 instance : ToString Time := ⟨Time.toString⟩
 

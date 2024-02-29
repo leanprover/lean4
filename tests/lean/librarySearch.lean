@@ -1,5 +1,3 @@
-set_option autoImplicit true
-
 -- Enable this option for tracing:
 -- set_option trace.Tactic.stdLibrarySearch true
 -- And this option to trace all candidate lemmas before application.
@@ -249,3 +247,9 @@ example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by
 #guard_msgs in
 example (_h : List.range 10000 = List.range 10000) (n m : Nat) : n + m = m + n := by
   with_reducible exact?
+
+/--
+error: apply? didn't find any relevant lemmas
+-/
+#guard_msgs in
+example {α : Sort u} (x y : α) : Eq x y := by apply?

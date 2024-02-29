@@ -587,13 +587,9 @@ private def getMatchRoot (r : Lean.HashMap Key TrieIndex) (k : Key) (args : Arra
 /--
   Find values that match `e` in `root`.
 -/
-private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) (includeNonSpecific : Bool) :
+private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
-  let result ←
-    if includeNonSpecific then
-      getStarResult root
-    else
-      pure {}
+  let result ← getStarResult root
   let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (←read)
   match k with
   | .star  => return result
@@ -609,8 +605,8 @@ private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) (include
   The results are ordered so that the longest matches in terms of number of
   non-star keys are first with ties going to earlier operators first.
 -/
-def getMatch (d : LazyDiscrTree α) (e : Expr) (includeNonSpecific : Bool := false) : MetaM (Array α × LazyDiscrTree α) :=
-  withReducible <| runMatch d <| (·.toArray) <$> getMatchCore d.roots e includeNonSpecific
+def getMatch (d : LazyDiscrTree α) (e : Expr) : MetaM (Array α × LazyDiscrTree α) :=
+  withReducible <| runMatch d <| (·.toArray) <$> getMatchCore d.roots e
 
 /--
 Structure for quickly initializing a lazy discrimination tree with a large number

@@ -57,9 +57,6 @@ inductive DeclMod
   | /-- the backward direction of an `iff` -/ mpr
 deriving DecidableEq, Inhabited, Ord
 
-instance : ToString DeclMod where
-  toString m := match m with | .none => "" | .mp => "mp" | .mpr => "mpr"
-
 /--
 LibrarySearch has an extension mechanism for replacing the function used
 to find candidate lemmas.
@@ -285,6 +282,26 @@ def mkLibrarySearchLemma (lem : Name) (mod : DeclMod) : MetaM Expr := do
   | .mp => mapForallTelescope (fun e => mkAppM ``Iff.mp #[e]) lem
   | .mpr => mapForallTelescope (fun e => mkAppM ``Iff.mpr #[e]) lem
 
+private def isVar (e : Expr) : Bool :=
+  match e with
+  | .bvar _ => true
+  | .fvar _ => true
+  | .mvar _ => true
+  | _ => false
+
+private def isNonspecific (type : Expr) : MetaM Bool := do
+  forallTelescope type fun _ tp =>
+    match tp.getAppFn with
+    | .bvar _ => pure true
+    | .fvar _ => pure true
+    | .mvar _ => pure true
+    | .const nm _ =>
+      if nm = ``Eq then
+        pure (tp.getAppArgsN 3 |>.all isVar)
+      else
+        pure false
+    | _ => pure false
+
 /--
 Tries to apply the given lemma (with symmetry modifier) to the goal,
 then tries to close subsequent goals using `solveByElim`.
@@ -294,9 +311,14 @@ otherwise the full list of subgoals is returned.
 private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM (List MVarId))
     (allowFailure : MVarId → MetaM Bool) (cand : Candidate)  : MetaM (List MVarId) := do
   let ((goal, mctx), (name, mod)) := cand
-  withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name} with {mod} ") do
+  let ppMod (mod : DeclMod) : MessageData :=
+        match mod with | .none => "" | .mp => " with mp" | .mpr => " with mpr"
+  withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name}{ppMod mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
+    let lemType ← instantiateMVars (← inferType lem)
+    if ←isNonspecific lemType then
+      failure
     let newGoals ← goal.apply lem cfg
     try
       act newGoals

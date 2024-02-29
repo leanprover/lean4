@@ -83,6 +83,10 @@ v4.7.0 (development in progress)
 
 * Improved the error messages produced by the `decide` tactic. [#3422](https://github.com/leanprover/lean4/pull/3422)
 
+* Improved auto-completion performance. [#3460](https://github.com/leanprover/lean4/pull/3460)
+
+* Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
+
 Breaking changes:
 * `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration

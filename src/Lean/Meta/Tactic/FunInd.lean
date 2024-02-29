@@ -400,24 +400,40 @@ def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) 
   let mvar ← instantiateMVars mvar
   pure mvar
 
-/-- Abstracts the given `discr` expressions, from right to left, using `kabstract`, in `e`,
-replacing them with the variables from `xs`. Also returns a mask which discrs were abstracted
-(`true` means was abstracted).
+/--
+Like `mkLambdaFVars (usedOnly := true)`, but
+
+ * silently skips expression in `xs` that are not `.isFVar`
+ * returns a mask (same size as `xs`) indicating which variables have been abstracted
+   (`true` means was abstracted).
+
+The result `r` can be applied with `r.beta (maskArray mask args)`.
+
+We use this when generating the functional induction principle to refine the goal through a `match`,
+here `xs` are the discriminans of the `match`.
+We do not expect non-trivial discriminants to appear in the goal (and if they do, the user will
+get a helpful equality into the context).
 -/
-def kabstractN (discrs : Array Expr) (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr) := do
-  unless discrs.size = xs.size do
-    throwError "abstractN: discrs and xs size mismatch"
+def mkLambdaFVarsMasked (xs : Array Expr) (e : Expr) : MetaM (Array Bool × Expr) := do
   let mut e := e
-  let mut discrs := discrs
   let mut xs := xs
   let mut mask := #[]
-  while ! discrs.isEmpty do
-    let eAbst ← kabstract e discrs.back
-    mask := mask.push eAbst.hasLooseBVars
-    e := eAbst.instantiate1 xs.back
-    discrs := discrs.pop
+  while ! xs.isEmpty do
+    let discr := xs.back
+    if discr.isFVar && e.containsFVar discr.fvarId! then
+        e ← mkLambdaFVars #[discr] e
+        mask := mask.push true
+    else
+        mask := mask.push false
     xs := xs.pop
   return (mask.reverse, e)
+
+/-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
+def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+  let mut ys := #[]
+  for b in mask, x in xs do
+    if b then ys := ys.push x
+  return ys
 
 partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPreserve : Array FVarId)
     (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
@@ -443,17 +459,17 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
     let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs fn oldIH newIH))
 
+    -- Calculate motive
+    let eType ← newIH.getType
+    let motiveBody ← mkArrow eType goal
+    let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs motiveBody
+
     -- A match that refines the parameter has been modified by `Fix.lean` to refine the IH,
     -- so we need to replace that IH
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (onParams := foldCalls fn oldIH)
-        (onMotive := fun xs _body => do
-          -- Remove the old IH that was added in mkFix
-          let eType ← newIH.getType
-          let motiveBody ← mkArrow eType goal
-          let (_mask, absMotiveBody) ← kabstractN matcherApp.discrs xs motiveBody
-          pure absMotiveBody)
+        (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           removeLamda alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
@@ -466,11 +482,12 @@ partial def buildInductionBody (motiveFVar : FVarId) (fn : Expr) (toClear toPres
     -- A match that does not refine the parameter, but that we still want to split into separate
     -- cases
     if matcherApp.remaining.isEmpty then
+      -- Calculate motive
+      let (mask, absMotiveBody) ← mkLambdaFVarsMasked matcherApp.discrs goal
+
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (onParams := foldCalls fn oldIH)
-        (onMotive := fun xs _body => do
-          let (_mask, absGoal) ← kabstractN matcherApp.discrs xs goal
-          pure absGoal)
+        (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           buildInductionBody motiveFVar fn toClear toPreserve expAltType oldIH newIH IHs alt)
       return matcherApp'.toExpr

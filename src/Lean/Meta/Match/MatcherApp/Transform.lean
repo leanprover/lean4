@@ -189,10 +189,9 @@ Performs a possibly type-changing transformation to a `MatcherApp`.
 If `useSplitter` is true, the matcher is replaced with the splitter.
 NB: Not all operations on `MatcherApp` can handle one `matcherName` is a splitter.
 
-If `addEqualities` is true, then equalities connecting the discriminant to the parameters of the
-alternative (like in `match h : x with …`) are added for all discriminants where
- * there isn't already one on the `match` (TODO)
- * the discriminant does not appear in the motive (TODO)
+The array `addEqualities`, if provided, indicates for which of the discriminants an equality
+connecting the discriminant to the parameters of the alternative (like in `match h : x with …`)
+should be added (TODO: if it is isn't already there).
 
 This function works even if the the type of alternatives do *not* fit the inferred type. This
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
@@ -200,12 +199,15 @@ infer a type, given all the alternatives.
 -/
 def transform (matcherApp : MatcherApp)
     (useSplitter := false)
-    -- (addEqualities := false)
+    (addEqualities : Array Bool := mkArray matcherApp.discrs.size false)
     (onParams : Expr → MetaM Expr := pure)
     (onMotive : Array Expr → Expr → MetaM Expr := fun _ e => pure e)
     (onAlt : Expr → Expr → MetaM Expr := fun _ e => pure e)
     (onRemaining : Array Expr → MetaM (Array Expr) := pure) :
     MetaM MatcherApp := do
+
+  if addEqualities.size != matcherApp.discrs.size then
+    throwError "MatcherApp.transform: addEqualities has wrong size"
 
   -- We also handle CasesOn applications here, and need to treat them specially in a
   -- few places.
@@ -222,15 +224,29 @@ def transform (matcherApp : MatcherApp)
   let params' ← matcherApp.params.mapM onParams
   let discrs' ← matcherApp.discrs.mapM onParams
 
+
   let (motive', uElim) ← lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
     unless motiveArgs.size == matcherApp.discrs.size do
       throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
-    let motiveBody' ← onMotive motiveArgs motiveBody
+    let mut motiveBody' ← onMotive motiveArgs motiveBody
+
+    -- Prepend (x = e) → to the motive when an equality is requested
+    for arg in motiveArgs, discr in discrs', b in addEqualities do if b then
+      motiveBody' ← mkArrow (← mkEq discr arg) motiveBody'
+
     return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody')
 
   let matcherLevels ← match matcherApp.uElimPos? with
     | none     => pure matcherApp.matcherLevels
     | some pos => pure <| matcherApp.matcherLevels.set! pos uElim
+
+  -- We pass `Eq.refl`s for all the equations we added as extra arguments
+  -- (and count them along the way)
+  let mut remaining' := #[]
+  let mut extraEqualities : Nat := 0
+  for discr in discrs'.reverse, b in addEqualities.reverse do if b then
+    remaining' := remaining'.push (← mkEqRefl discr)
+    extraEqualities := extraEqualities + 1
 
   if useSplitter && !isCasesOn then
     -- We replace the matcher with the splitter
@@ -265,13 +281,14 @@ def transform (matcherApp : MatcherApp)
         -- the parameters for the numDiscrEqs
         forallBoundedTelescope altType (splitterNumParams - ys.size) fun ys2 altType => do
           forallBoundedTelescope altType numDiscrEqs fun ys3 altType => do
-          let alt ← try instantiateLambda alt (args ++ ys3)
-                    catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-          let alt' ← onAlt altType alt
-          mkLambdaFVars (ys ++ ys2 ++ ys3) alt'
+            forallBoundedTelescope altType extraEqualities fun ys4 altType => do
+              let alt ← try instantiateLambda alt (args ++ ys3)
+                        catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
+              let alt' ← onAlt altType alt
+              mkLambdaFVars (ys ++ ys2 ++ ys3 ++ ys4) alt'
       alts' := alts'.push alt'
 
-    let remaining' ← onRemaining matcherApp.remaining
+    remaining' := remaining' ++ (← onRemaining matcherApp.remaining)
 
     return { matcherApp with
       matcherName   := splitter
@@ -279,7 +296,7 @@ def transform (matcherApp : MatcherApp)
       params        := params'
       motive        := motive'
       discrs        := discrs'
-      altNumParams  := matchEqns.splitterAltNumParams
+      altNumParams  := matchEqns.splitterAltNumParams.map (· + extraEqualities)
       alts          := alts'
       remaining     := remaining'
     }
@@ -298,18 +315,20 @@ def transform (matcherApp : MatcherApp)
         numParams in matcherApp.altNumParams,
         altType in altTypes do
       let alt' ← forallBoundedTelescope altType numParams fun xs altType => do
-        let alt ← instantiateLambda alt xs
+        forallBoundedTelescope altType extraEqualities fun ys4 altType => do
+          let alt ← instantiateLambda alt xs
           let alt' ← onAlt altType alt
-          mkLambdaFVars xs alt'
+          mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
-    let remaining' ← onRemaining matcherApp.remaining
+    remaining' := remaining' ++ (← onRemaining matcherApp.remaining)
 
     return { matcherApp with
       matcherLevels := matcherLevels
       params        := params'
       motive        := motive'
       discrs        := discrs'
+      altNumParams  := matcherApp.altNumParams.map (· + extraEqualities)
       alts          := alts'
       remaining     := remaining'
     }

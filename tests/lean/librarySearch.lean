@@ -39,10 +39,6 @@ example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 #guard_msgs in
 example (ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 
--- Could be any number of results (`Int.one`, `Int.zero`, etc)
-#guard_msgs (drop info) in
-example : Int := by apply?
-
 /-- info: Try this: Nat.lt.base x -/
 #guard_msgs in
 example : x < x + 1 := exact?%

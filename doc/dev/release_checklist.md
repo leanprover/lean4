@@ -72,7 +72,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.
   You will want a few bullet points for main topics from the release notes.
-  If you are making a blog post, that should be coordinated with the announcement on Zulip and linked from there.
+  Link to the blog post from the Zulip announcement.
   Please also make sure that whoever is handling social media knows the release is out.
 
 ## Optimistic time estimates:

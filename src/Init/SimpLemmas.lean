@@ -240,6 +240,24 @@ theorem decide_not_inv {g : Decidable p} {h : Decidable (Not p)}
 @[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] (a b : α) : a != b ↔ a ≠ b := by
   simp [bne]; rw [← beq_iff_eq a b]; simp [-beq_iff_eq]
 
+@[simp] theorem beq_eq_false_iff_ne [BEq α] [LawfulBEq α]
+    (a b : α) : (a == b) = false ↔ a ≠ b := by
+  rw [ne_eq, ← beq_iff_eq a b]
+  cases a == b <;> decide
+
+/-
+Added for critical pair for `¬((a != b) = true)`
+
+1. `(a != b) = false` via `Bool.not_eq_true`
+2. `a ≠ b` via `bne_iff_ne`
+
+-/
+@[simp] theorem bne_eq_false_iff_eq [BEq α] [LawfulBEq α]
+    (a b : α) : (a != b) = false ↔ a = b := by
+  rw [bne, ← beq_iff_eq a b]
+  cases a == b <;> decide
+
+
 /-# Nat -/
 
 @[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=

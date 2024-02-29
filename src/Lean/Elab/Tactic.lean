@@ -37,3 +37,4 @@ import Lean.Elab.Tactic.NormCast
 import Lean.Elab.Tactic.Symm
 import Lean.Elab.Tactic.SolveByElim
 import Lean.Elab.Tactic.LibrarySearch
+import Lean.Elab.Tactic.ShowTerm

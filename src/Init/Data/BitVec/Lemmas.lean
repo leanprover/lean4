@@ -198,6 +198,24 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
   apply eq_of_toNat_eq
   simp
 
+/-- Moves one-sided left toNat equality to BitVec equality. -/
+theorem toNat_eq_nat (x : BitVec w) (y : Nat)
+  : (x.toNat = y) ↔ (y < 2^w ∧ (x = y#w)) := by
+  apply Iff.intro
+  · intro eq
+    simp at eq
+    have lt := x.isLt
+    simp [eq] at lt
+    simp [←eq, lt, x.isLt]
+  · intro eq
+    simp [Nat.mod_eq_of_lt, eq]
+
+/-- Moves one-sided right toNat equality to BitVec equality. -/
+theorem nat_eq_toNat (x : BitVec w) (y : Nat)
+  : (y = x.toNat) ↔ (y < 2^w ∧ (x = y#w)) := by
+  rw [@eq_comm _ _ x.toNat]
+  apply toNat_eq_nat
+
 @[simp] theorem getLsb_zeroExtend' (ge : m ≥ n) (x : BitVec n) (i : Nat) :
     getLsb (zeroExtend' ge x) i = getLsb x i := by
   simp [getLsb, toNat_zeroExtend']

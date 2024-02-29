@@ -57,19 +57,19 @@ info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), mot
       Expr.typeCheck b = Maybe.found Ty.nat h₂ →
         Expr.typeCheck a = Maybe.found Ty.nat h₁ → motive a → motive b → motive (Expr.plus a b))
   (case4 :
-    ∀ (a b : Expr) (x : {{ ty | HasType a ty }}) (x_1 : {{ ty | HasType b ty }}),
-      (∀ (h₁ : HasType a Ty.nat) (h₂ : HasType b Ty.nat),
-          x = Maybe.found Ty.nat h₁ → x_1 = Maybe.found Ty.nat h₂ → False) →
-        Expr.typeCheck b = x_1 → Expr.typeCheck a = x → motive a → motive b → motive (Expr.plus a b))
-  (case5 :
     ∀ (a b : Expr) (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
       Expr.typeCheck b = Maybe.found Ty.bool h₂ →
         Expr.typeCheck a = Maybe.found Ty.bool h₁ → motive a → motive b → motive (Expr.and a b))
+  (case5 :
+    ∀ (a b : Expr),
+      (∀ (h₁ : HasType a Ty.nat) (h₂ : HasType b Ty.nat),
+          Expr.typeCheck a = Maybe.found Ty.nat h₁ → Expr.typeCheck b = Maybe.found Ty.nat h₂ → False) →
+        motive a → motive b → motive (Expr.plus a b))
   (case6 :
-    ∀ (a b : Expr) (x : {{ ty | HasType a ty }}) (x_1 : {{ ty | HasType b ty }}),
+    ∀ (a b : Expr),
       (∀ (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
-          x = Maybe.found Ty.bool h₁ → x_1 = Maybe.found Ty.bool h₂ → False) →
-        Expr.typeCheck b = x_1 → Expr.typeCheck a = x → motive a → motive b → motive (Expr.and a b))
+          Expr.typeCheck a = Maybe.found Ty.bool h₁ → Expr.typeCheck b = Maybe.found Ty.bool h₂ → False) →
+        motive a → motive b → motive (Expr.and a b))
   (x : Expr) : motive x
 -/
 #guard_msgs in
@@ -94,7 +94,7 @@ theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasTy
 theorem Expr.typeCheck_complete' {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
   induction e using Expr.typeCheck.induct
   all_goals simp [typeCheck]
-  case case3 iha ihb | case4 iha ihb | case5 iha ihb | case6 iha ihb =>
-      split <;> simp [*]
-      intro ht; cases ht
-      next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))
+  case case3 | case4 => simp [*]
+  case case5 iha ihb | case6 iha ihb =>
+    intro ht; cases ht
+    next hnp h₁ h₂ => exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))

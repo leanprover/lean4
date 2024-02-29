@@ -9,6 +9,7 @@ import Lean.Meta.Basic
 import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Check
 import Lean.Meta.Tactic.Cleanup
+import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.PreDefinition.WF.PackMutual
@@ -402,6 +403,7 @@ def buildInductionCase (motiveFVar : FVarId) (fn : Expr) (oldIH newIH : FVarId) 
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
   mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  mvarId ← substVars mvarId
   let (_, _mvarId) ← mvarId.revertAfter motiveFVar
   let mvar ← instantiateMVars mvar
   pure mvar
@@ -572,9 +574,16 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'
-    for mvar in mvars, i in [:mvars.size] do
-      mvar.setUserName s!"case{i+1}"
-    let e' ← mkLambdaFVars (binderInfoForMVars := .default) (mvars.map .mvar) e'
+    -- Using mkLambdaFVars on mvars directly does not reliably replace
+    -- the mvars with the parameter, in the presence of delayed assignemnts
+    -- But this code seems to work:
+    let e' ← Meta.withLocalDecls
+      (mvars.mapIdx (fun i mvar => (s!"case{i.val+1}", .default, (fun _ => mvar.getType))))
+      fun xs => do
+        for mvar in mvars, x in xs do
+          mvar.assign x
+        let e' ← instantiateMVars e'
+        mkLambdaFVars xs e'
 
     -- We could pass (usedOnly := true) below, and get nicer induction principles that
     -- do do not mention odd unused parameters.
@@ -588,7 +597,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let eTyp ← inferType e'
     let eTyp ← elimOptParam eTyp
     -- logInfo m!"eTyp: {eTyp}"
-    -- logInfo m!"e has MVar: {e'.hasMVar}"
     unless (← isTypeCorrect e') do
       logError m!"failed to derive induction priciple:{indentExpr e'}"
       check e'

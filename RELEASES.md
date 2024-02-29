@@ -93,6 +93,7 @@ v4.7.0 (development in progress)
 
 * There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)
 * The Library search `exact?` and `apply?` tactics that were originally in
+* The library search tactics `exact?` and `apply?` that were originally in
   Mathlib are now available in Lean itself.  These use the implementation using
   lazy discrimination trees from `Std`, and thus do not require a disk cache but
   have a slightly longer startup time.  The order used for selection lemmas has

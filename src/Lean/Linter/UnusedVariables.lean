@@ -157,17 +157,6 @@ opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
 
 namespace UnusedVariables
 
-abbrev ObjectSet := IO.Ref (HashSet USize)
-
-unsafe def ObjectSet.insertImpl {α : Type} (s : ObjectSet) (a : α) : IO Bool := do
-  if (← s.get).contains (ptrAddrUnsafe a) then
-    return false
-  s.modify fun s => s.insert (ptrAddrUnsafe a)
-  return true
-
-@[implemented_by ObjectSet.insertImpl]
-opaque ObjectSet.insert {α : Type} (s : ObjectSet) (a : α) : IO Bool
-
 unsafe def insertObjImpl {α : Type} (set : IO.Ref (HashSet USize)) (a : α) : IO Bool := do
   if (← set.get).contains (ptrAddrUnsafe a) then
     return false

@@ -3,7 +3,6 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Data.Json
 
 /-!
 # TOML Date-Time
@@ -20,8 +19,6 @@ optionally left out, creating four distinct variants.
 [1]: https://toml.io/en/v1.0.0#offset-date-time
 [2]: https://datatracker.ietf.org/doc/html/rfc3339
 -/
-
-open Lean (ToJson)
 
 namespace Lake.Toml
 
@@ -183,6 +180,5 @@ protected def toString (dt : DateTime) : String :=
   | .localTime t => t.toString
 
 instance : ToString DateTime := ⟨DateTime.toString⟩
-instance : ToJson DateTime := ⟨fun dt => DateTime.toString dt⟩
 
 end DateTime

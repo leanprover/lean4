@@ -501,7 +501,7 @@ theorem eq_one_of_mul_eq_self_right {a b : Int} (Hpos : b ≠ 0) (H : b * a = b)
 
 /-! # pow -/
 
-theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
 
 protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by

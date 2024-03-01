@@ -239,7 +239,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     rw [Nat.sub_eq_zero_iff_le] at i_sub_j_eq
     exact Nat.not_le_of_gt j_lt_i i_sub_j_eq
   | d+1 =>
-    simp [pow_succ, Nat.mul_comm _ 2,  Nat.mul_add_mod]
+    simp [Nat.pow_succ, Nat.mul_comm _ 2,  Nat.mul_add_mod]
 
 @[simp] theorem testBit_mod_two_pow (x j i : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
@@ -287,7 +287,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     simp only [testBit_succ]
     match n with
     | 0 =>
-      simp only [pow_zero, succ_sub_succ_eq_sub, Nat.zero_sub, Nat.zero_div, zero_testBit]
+      simp only [Nat.pow_zero, succ_sub_succ_eq_sub, Nat.zero_sub, Nat.zero_div, zero_testBit]
       rw [decide_eq_false] <;> simp
     | n+1 =>
       rw [Nat.two_pow_succ_sub_succ_div_two, ih]
@@ -352,7 +352,7 @@ private theorem eq_0_of_lt (x : Nat) : x < 2^ 0 ↔ x = 0 := eq_0_of_lt_one x
 private theorem zero_lt_pow (n : Nat) : 0 < 2^n := by
   induction n
   case zero => simp [eq_0_of_lt]
-  case succ n hyp => simpa [pow_succ]
+  case succ n hyp => simpa [Nat.pow_succ]
 
 private theorem div_two_le_of_lt_two {m n : Nat} (p : m < 2 ^ succ n) : m / 2 < 2^n := by
   simp [div_lt_iff_lt_mul Nat.zero_lt_two]
@@ -377,7 +377,7 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
       simp only [x_zero, y_zero, if_neg]
       have hyp1 := hyp (div_two_le_of_lt_two left) (div_two_le_of_lt_two right)
       by_cases p : f (decide (x % 2 = 1)) (decide (y % 2 = 1)) = true <;>
-        simp [p, pow_succ, mul_succ, Nat.add_assoc]
+        simp [p, Nat.pow_succ, mul_succ, Nat.add_assoc]
       case pos =>
         apply lt_of_succ_le
         simp only [← Nat.succ_add]

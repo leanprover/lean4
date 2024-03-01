@@ -901,23 +901,33 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path
   return workerPath
 
-def loadReferences : IO References := do
-  let oleanSearchPath ← Lean.searchPathRef.get
-  let mut refs := References.empty
-  for path in ← oleanSearchPath.findAllWithExt "ilean" do
-    try
-      refs := refs.addIlean path (← Ilean.load path)
-    catch _ =>
-      -- could be a race with the build system, for example
-      -- ilean load errors should not be fatal, but we *should* log them
-      -- when we add logging to the server
-      pure ()
-  return refs
+/--
+Starts loading .ileans present in the search path asynchronously in an IO task.
+This ensures that server startup is not blocked by loading the .ileans.
+In return, while the .ileans are being loaded, users will omly get incomplete
+results in requests that need references.
+-/
+def startLoadingReferences (references : IO.Ref References) : IO Unit := do
+  -- Discard the task; there isn't much we can do about this failing,
+  -- but we should try to continue server operations regardless
+  let _ ← IO.asTask do
+    let oleanSearchPath ← Lean.searchPathRef.get
+    for path in ← oleanSearchPath.findAllWithExt "ilean" do
+      try
+        let ilean ← Ilean.load path
+        references.modify fun refs =>
+          refs.addIlean path ilean
+      catch _ =>
+        -- could be a race with the build system, for example
+        -- ilean load errors should not be fatal, but we *should* log them
+        -- when we add logging to the server
+        pure ()
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let srcSearchPath ← initSrcSearchPath
-  let references ← IO.mkRef (← loadReferences)
+  let references ← IO.mkRef .empty
+  startLoadingReferences references
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o

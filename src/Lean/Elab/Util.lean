@@ -23,6 +23,13 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
     else
       view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
 
+/--
+Two names are from the same lexical scope if their scoping information modulo `MacroScopesView.name`
+is equal.
+-/
+def MacroScopesView.equalScope (a b : MacroScopesView) : Bool :=
+  a.scopes == b.scopes && a.mainModule == b.mainModule && a.imported == b.imported
+
 namespace Elab
 
 def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=

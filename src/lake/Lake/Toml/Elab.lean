@@ -76,9 +76,9 @@ def decodeFrExp (s : String) : Nat × Int :=
 
 def decodeFloat (s : String) : Float :=
   let (sign, s) := decodeSign s
-  if s.toLower = "inf" then
+  if s = "inf" then
     if sign then -1.0/0 else 1.0/0
-  else if s.toLower = "nan" then
+  else if s = "nan" then
     if sign then -(0.0/0) else 0.0/0
   else
     let (m,e) := decodeFrExp s

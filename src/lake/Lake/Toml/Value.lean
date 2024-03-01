@@ -15,92 +15,88 @@ open Lean
 
 namespace Lake.Toml
 
-structure NameDict (α : Type u) where
-  items : Array (Name × α)
-  indices : NameMap Nat
+structure RBDict (α : Type u) (β : Type v) (cmp : α → α → Ordering)  where
+  items : Array (α × β)
+  indices : RBMap α Nat cmp
   deriving Inhabited
 
-namespace NameDict
+abbrev NameDict (α : Type u) := RBDict Name α Name.quickCmp
 
-def empty : NameDict α :=
+namespace RBDict
+
+def empty : RBDict α β cmp :=
   {items := #[], indices := {}}
 
-instance : EmptyCollection (NameDict α) := ⟨NameDict.empty⟩
+instance : EmptyCollection (RBDict α β cmp) := ⟨RBDict.empty⟩
 
-def mkEmpty (capacity : Nat) : NameDict α :=
+def mkEmpty (capacity : Nat) : RBDict α β cmp :=
   {items := .mkEmpty capacity, indices := {}}
 
-abbrev size (t : NameDict α) : Nat :=
+abbrev size (t : RBDict α β cmp) : Nat :=
   t.items.size
 
-abbrev isEmpty (t : NameDict α) : Bool :=
+abbrev isEmpty (t : RBDict α β cmp) : Bool :=
   t.items.isEmpty
 
-def ofArray (items : Array (Name × α)) : NameDict α := Id.run do
-  let mut indices := mkNameMap Nat
+def ofArray (items : Array (α × β)) : RBDict α β cmp := Id.run do
+  let mut indices := mkRBMap α Nat cmp
   for h : i in [0:items.size] do
     indices := indices.insert (items[i]'h.upper).1 i
   return {items, indices}
 
-def keys (t : NameDict α) : Array Name :=
+def keys (t : RBDict α β cmp) : Array α :=
   t.items.map (·.1)
 
-def values (t : NameDict α) : Array α :=
+def values (t : RBDict α β cmp) : Array β :=
   t.items.map (·.2)
 
-def contains (k : Name) (t : NameDict α) : Bool :=
+def contains (k : α) (t : RBDict α β cmp) : Bool :=
   t.indices.contains k
 
-def findIdx? (k : Name) (t : NameDict α) : Option (Fin t.size) := do
+def findIdx? (k : α) (t : RBDict α β cmp) : Option (Fin t.size) := do
   let i ← t.indices.find? k
   if h : i < t.items.size then some ⟨i, h⟩ else none
 
-def find? (k : Name) (t : NameDict α) : Option α := do
+def find? (k : α) (t : RBDict α β cmp) : Option β := do
   t.items[← t.findIdx? k].2
 
-def push (k : Name) (v : α) (t : NameDict α) : NameDict α :=
+def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   {items := t.items.push ⟨k,v⟩, indices := t.indices.insert k t.items.size}
 
-@[specialize] def insertMapM [Monad m] (k : Name) (f : Option α → m α) (t : NameDict α) : m (NameDict α) := do
+@[specialize] def insertMapM [Monad m] (k : α) (f : Option β → m β) (t : RBDict α β cmp) : m (RBDict α β cmp) := do
   if let some i := t.findIdx? k then
     return {t with items := ← t.items.modifyM i fun (k, v) => return (k, ← f (some v))}
   else
     return t.push k (← f none)
 
-@[inline] def insertMap (k : Name) (f : Option α → α) (t : NameDict α) : NameDict α :=
+@[inline] def insertMap (k : α) (f : Option β → β) (t : RBDict α β cmp) : RBDict α β cmp :=
   Id.run <| t.insertMapM k fun v? => pure <| f v?
 
-def insert (k : Name) (v : α) (t : NameDict α) : NameDict α :=
+def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   t.insertMap k fun _ => v
 
-def append (self other : NameDict α) : NameDict α :=
+def append (self other : RBDict α β cmp) : RBDict α β cmp :=
   other.items.foldl (fun t (k,v) => t.insert k v) self
 
-instance : Append (NameDict α) := ⟨NameDict.append⟩
+instance : Append (RBDict α β cmp) := ⟨RBDict.append⟩
 
-protected def beq [BEq α] (self other : NameDict α) : Bool :=
+protected def beq [BEq α] [BEq β] (self other : RBDict α β cmp) : Bool :=
   self.items == other.items
 
-instance [BEq α] : BEq (NameDict α) := ⟨NameDict.beq⟩
+instance [BEq α] [BEq β] : BEq (RBDict α β cmp) := ⟨RBDict.beq⟩
 
-protected def toJson [ToJson α] (t : NameDict α) : Json :=
-  .obj <| t.items.foldl (init := .leaf) fun m (k,v) =>
-    m.insert compare (k.toString (escape := false)) (toJson v)
-
-instance [ToJson α] : ToJson (NameDict α) := ⟨NameDict.toJson⟩
-
-def map (f : α → β) (t : NameDict α) : NameDict β :=
+def map (f : β → γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
   {t with items := t.items.map fun (k, v) => (k, f v)}
 
-def filter (p : α → Bool) (t : NameDict α) : NameDict α :=
+def filter (p : β → Bool) (t : RBDict α β cmp) : RBDict α β cmp :=
   t.items.foldl (init := {}) fun t (k, v) =>
     if p v then t.push k v else t
 
-def filterMap (f : α → Option β) (t : NameDict α) : NameDict β :=
+def filterMap (f : β → Option γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
   t.items.foldl (init := {}) fun t (k, v) =>
     if let some v := f v then t.push k v else t
 
-end NameDict
+end RBDict
 
 /-- A TOML value. -/
 inductive Value
@@ -110,10 +106,11 @@ inductive Value
 | boolean (b : Bool)
 | dateTime (dt : DateTime)
 | array (xs : Array Value)
-| table (xs : NameDict Value)
+| private table' (xs : RBDict Name Value Name.quickCmp)
 deriving Inhabited, BEq
 
 abbrev Table := NameDict Value
+@[match_pattern] abbrev Value.table (t : Table) := Value.table' t
 
 instance : OfNat Value n := ⟨.integer n⟩
 instance : EmptyCollection Value := ⟨.table {}⟩
@@ -128,19 +125,6 @@ instance : Coe Table Value := ⟨.table⟩
 --------------------------------------------------------------------------------
 /-! ## Pretty Printing -/
 --------------------------------------------------------------------------------
-
-protected partial def Value.toJson (v : Value) : Json :=
-  have : ToJson Value := ⟨Value.toJson⟩
-  match v with
-  | .string s => toJson s
-  | .integer n => toJson n
-  | .float n => toJson n
-  | .boolean b => toJson b
-  | .dateTime dt => toJson dt
-  | .array xs => toJson xs
-  | .table t => toJson t
-
-instance : ToJson Value := ⟨Value.toJson⟩
 
 def ppString (s : String) : String :=
   let s := s.foldl (init := "\"") fun s c =>

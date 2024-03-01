@@ -190,7 +190,7 @@ partial def mlLiteralStringAuxFn (startPos : String.Pos) (quoteDepth : Nat)  : P
       mlLiteralStringAuxFn startPos 0 c (s.next' input s.pos h)
     else if curr == '\r' then
       (crlfAuxFn >> mlLiteralStringAuxFn startPos 0) c (s.next' input s.pos h)
-    else if isControlChar curr && (curr != '\r') then
+    else if isControlChar curr then
       mkUnexpectedCharError s curr
     else
       mlLiteralStringAuxFn startPos 0 c (s.next' input s.pos h)

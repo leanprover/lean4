@@ -49,29 +49,25 @@ where
 @[inline] def Fin.all (n) (f : Fin n → Bool) : Bool :=
   Id.run <| allM n f
 
-@[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
-  loop 0
-where
-  loop (i : Nat) : m Unit := do
-    if h : i < n then let a ← f ⟨i, h⟩; loop (i+1) else pure ()
-  termination_by n - i
-
 def bytesBEq (a b : ByteArray) : Bool :=
   if h_size : a.size = b.size then
     Fin.all a.size fun i => a[i] = b[i]'(h_size ▸ i.isLt)
   else
     false
 
-def mkValidString (s : String) : String :=
-  s.foldl (init := "") fun s c => s.push c
+def String.fromUTF8 (bytes : ByteArray) : String :=
+  String.fromUTF8Unchecked bytes |>.map id
+
+@[inline] def String.fromUTF8? (bytes : ByteArray) : Option String :=
+  let s := String.fromUTF8 bytes
+  if bytesBEq s.toUTF8 bytes then some s else none
 
 def parseToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
   let fileName := tomlFile.fileName.getD tomlFile.toString
   let input ←
     match (← IO.FS.readBinFile tomlFile |>.toBaseIO) with
     | .ok bytes =>
-      let input := String.fromUTF8Unchecked bytes
-      if bytesBEq (mkValidString input).toUTF8 bytes then
+      if let some input := String.fromUTF8? bytes then
         pure input
       else
         return .fail <| MessageLog.empty.add
@@ -143,6 +139,14 @@ def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
   | .fail l => return .pass (← mkLogString l)
   | .error e => return .error (toString e)
 
+
+@[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
+  loop 0
+where
+  loop (i : Nat) : m Unit := do
+    if h : i < n then let a ← f ⟨i, h⟩; loop (i+1) else pure ()
+  termination_by n - i
+
 local instance [Monad m] : ForIn m (RBNode α β) ((a : α) × β a) where
   forIn t init f := t.forIn init (fun a b acc => f ⟨a, b⟩ acc)
 
@@ -174,9 +178,18 @@ partial def expectValue (actual : Value) (expected : Json) : Except String Unit 
     let expected ← expectPrimitive "float" expected
     if expected.toLower == "nan" then
       unless actN.isNaN do
-        throw s!"expected NaN, got '{actN}'"
+        throw s!"expected '{expected}', got '{actN}'"
     else
-      expectBEq actN <| decodeFloat expected
+      let (sign, e) := decodeSign expected
+      if e.toLower == "inf" then
+        unless actN.isInf && sign == (actN < 0) do
+          throw s!"expected '{e}', got '{actN}'"
+      else
+          let some flt :=
+            (Nat.toFloat <$> e.toNat?) <|>
+            (Syntax.decodeScientificLitVal? e |>.map fun (m,s,e) => .ofScientific m s e)
+            | throw s!"failed to parse expected float value: {e}"
+          expectBEq actN <| if sign then -flt else flt
   | .dateTime dt =>
     match dt with
     | .offsetDateTime _ _ _ => expectBEq (toString dt) (← expectPrimitive "datetime" expected)
@@ -198,7 +211,7 @@ partial def expectTable (actual : Table) (expected : Json) : Except String Unit 
   if actual.size != expected.size then
     throw s!"expected table of size {expected.size}, got {actual.size}:\n{ppTable actual}"
   for ⟨k,expV⟩ in expected do
-    let some actV := actual.find? k
+    let some actV := actual.find? (Name.mkSimple k)
       | throw s!"expected key '{k}'"
     try expectValue actV expV catch e => throw s!"{k}: {e}"
 

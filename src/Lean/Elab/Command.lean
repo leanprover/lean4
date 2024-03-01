@@ -141,7 +141,8 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
   let mut log := log
   let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap (.joinSep traceMsg.toList "\n") .information pos endPos
+    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
   return log
 
 private def addTraceAsMessages : CommandElabM Unit := do

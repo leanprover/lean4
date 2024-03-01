@@ -640,7 +640,6 @@ builtin_initialize
     CompletionParams
     CompletionList
     handleCompletion
-    Completion.fillEligibleHeaderDecls
   registerLspRequestHandler
     "completionItem/resolve"
     CompletionItem

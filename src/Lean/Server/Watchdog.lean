@@ -904,7 +904,7 @@ def findWorkerPath : IO System.FilePath := do
 /--
 Starts loading .ileans present in the search path asynchronously in an IO task.
 This ensures that server startup is not blocked by loading the .ileans.
-In return, while the .ileans are being loaded, users will omly get incomplete
+In return, while the .ileans are being loaded, users will only get incomplete
 results in requests that need references.
 -/
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do

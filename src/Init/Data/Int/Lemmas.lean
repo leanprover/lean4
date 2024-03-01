@@ -324,22 +324,22 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
 /- ## add/sub injectivity -/
 
 @[simp]
-theorem add_right_inj (i j k : Int) : (i + k = j + k) ↔ i = j := by
+protected theorem add_right_inj (i j k : Int) : (i + k = j + k) ↔ i = j := by
   apply Iff.intro
   · intro p
     rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
   · exact congrArg (· + k)
 
 @[simp]
-theorem add_left_inj (i j k : Int) : (k + i = k + j) ↔ i = j := by
+protected theorem add_left_inj (i j k : Int) : (k + i = k + j) ↔ i = j := by
   simp [Int.add_comm k]
 
 @[simp]
-theorem sub_left_inj (i j k : Int) : (k - i = k - j) ↔ i = j := by
+protected theorem sub_left_inj (i j k : Int) : (k - i = k - j) ↔ i = j := by
   simp [Int.sub_eq_add_neg, Int.neg_inj]
 
 @[simp]
-theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
+protected theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
   simp [Int.sub_eq_add_neg]
 
 /- ## Ring properties -/

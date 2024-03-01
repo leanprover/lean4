@@ -742,7 +742,7 @@ theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with
   | 0 => (Nat.mul_one _).symm
   | b+1 => (shiftLeft_eq _ b).trans <| by
-    simp [pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
 
 theorem one_shiftLeft (n : Nat) : 1 <<< n = 2 ^ n := by rw [shiftLeft_eq, Nat.one_mul]
 

@@ -503,10 +503,10 @@ theorem eq_of_mul_eq_mul_right {n m k : Nat} (hm : 0 < m) (h : n * m = k * m) : 
 
 /-! # power -/
 
-theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
+protected theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
   rfl
 
-theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
 theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _

@@ -12,11 +12,13 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - `set(LEAN_VERSION_MINOR 6)` (for whichever `6` is appropriate)
   - `set(LEAN_VERSION_IS_RELEASE 1)`
   - (both of these should already be in place from the release candidates)
-- Run `git diff master RELEASES.md`.
-  - You should expect to see changes in the `v4.7.0-rc1` section, which you may ignore.
+- It is possible that the `v4.6.0` section of `RELEASES.md` is out of sync between
+  `releases/v4.6.0` and `master`. This should be reconciled:
+  - Run `git diff master RELEASES.md`.
+  - You should expect to see changes in the `v4.7.0-rc1` section
     (i.e. the new release notes for the upcoming release candidate).
-  - But if there are discrepancies in the `v4.6.0` section, you should reconcile these, either by:
-    - Using `git cherry-pick` to pull the commits that modified the release notes on `master`
+  - Reconcile discrepancies in the `v4.6.0` section, either by:
+    - Using `git cherry-pick` to pull the commits that modified the release notes on `master`.
     - Simply pushing a new commit to `releases/v4.6.0`.
 - `git tag v4.6.0`
 - `git push origin v4.6.0`

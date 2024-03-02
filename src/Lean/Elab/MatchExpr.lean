@@ -52,23 +52,22 @@ Converts syntax representing a `match_expr` else-alternative into an `ElseAlt`.
 -/
 def toElseAlt? (stx : Syntax) : Option ElseAlt :=
   if !stx.isOfKind ``matchExprElseAlt then none else
-  some { rhs := stx.getArg 3 }
+  some { rhs := stx[3] }
 
 /--
 Converts syntax representing a `match_expr` alternative into an `Alt`.
 -/
 def toAlt? (stx : Syntax) : Option Alt :=
   if !stx.isOfKind ``matchExprAlt then none else
-  let var? : Option Ident :=
-    let optVar := stx.getArg 1
-    if optVar.isNone then none else some ⟨optVar.getArg 0⟩
-  let funName := ⟨stx.getArg 2⟩
-  let pvars := stx.getArg 3 |>.getArgs.toList.reverse.map fun arg =>
-    match arg with
-    | `(_) => none
-    | _ => some ⟨arg⟩
-  let rhs := stx.getArg 5
-  some { var?, funName, pvars, rhs }
+  match stx[1] with
+  | `(matchExprPat| $[$var? @]? $funName:ident $pvars*) =>
+    let pvars := pvars.toList.reverse.map fun arg =>
+      match arg.raw with
+      | `(_) => none
+      | _ => some ⟨arg⟩
+    let rhs := stx[3]
+    some { var?, funName, pvars, rhs }
+  | _ => none
 
 /--
 Returns the function names of alternatives that do not have any pattern variable left.
@@ -198,7 +197,7 @@ end MatchExpr
 @[builtin_macro Lean.Parser.Term.matchExpr] def expandMatchExpr : Macro := fun stx =>
   match stx with
   | `(match_expr $discr:term with $alts) =>
-    MatchExpr.main discr (alts.raw.getArg 0).getArgs (alts.raw.getArg 1)
+    MatchExpr.main discr alts.raw[0].getArgs alts.raw[1]
   | _ => Macro.throwUnsupported
 
 end Lean.Elab.Term

@@ -826,7 +826,8 @@ Implementation of the `show_term` term elaborator.
 `match_expr` support.
 -/
 
-def matchExprAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (optional (atomic (ident >> "@")) >> ident >> many binderIdent >> " => " >> rhsParser)
+def matchExprPat := leading_parser optional (atomic (ident >> "@")) >> ident >> many binderIdent
+def matchExprAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (matchExprPat >> " => " >> rhsParser)
 def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (hole >> " => " >> rhsParser)
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $

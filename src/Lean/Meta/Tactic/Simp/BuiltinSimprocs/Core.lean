@@ -10,33 +10,29 @@ import Lean.Meta.Tactic.Simp.Simproc
 open Lean Meta Simp
 
 builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
-  unless e.isAppOfArity ``ite 5 do return .continue
-  let c := e.getArg! 1
+  let_expr f@ite α c i tb eb ← e | return .continue
   let r ← simp c
   if r.expr.isTrue then
-    let eNew  := e.getArg! 3
-    let pr    := mkApp (mkAppN (mkConst ``ite_cond_eq_true e.getAppFn.constLevels!) e.getAppArgs) (← r.getProof)
-    return .visit { expr := eNew, proof? := pr }
+    let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_true f.constLevels!) α c i tb eb) (← r.getProof)
+    return .visit { expr := tb, proof? := pr }
   if r.expr.isFalse then
-    let eNew  := e.getArg! 4
-    let pr    := mkApp (mkAppN (mkConst ``ite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) (← r.getProof)
-    return .visit { expr := eNew, proof? := pr }
+    let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_false f.constLevels!) α c i tb eb) (← r.getProof)
+    return .visit { expr := eb, proof? := pr }
   return .continue
 
 builtin_simproc ↓ [simp, seval] reduceDite (dite _ _ _) := fun e => do
-  unless e.isAppOfArity ``dite 5 do return .continue
-  let c := e.getArg! 1
+  let_expr f@dite α c i tb eb ← e | return .continue
   let r ← simp c
   if r.expr.isTrue then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_true) c pr
-    let eNew  := mkApp (e.getArg! 3) h |>.headBeta
-    let prNew := mkApp (mkAppN (mkConst ``dite_cond_eq_true e.getAppFn.constLevels!) e.getAppArgs) pr
+    let eNew  := mkApp tb h |>.headBeta
+    let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_true f.constLevels!) α c i tb eb) pr
     return .visit { expr := eNew, proof? := prNew }
   if r.expr.isFalse then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_false) c pr
-    let eNew  := mkApp (e.getArg! 4) h |>.headBeta
-    let prNew := mkApp (mkAppN (mkConst ``dite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) pr
+    let eNew  := mkApp eb h |>.headBeta
+    let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_false f.constLevels!) α c i tb eb) pr
     return .visit { expr := eNew, proof? := prNew }
   return .continue

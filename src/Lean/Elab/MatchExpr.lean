@@ -200,4 +200,12 @@ end MatchExpr
     MatchExpr.main discr alts.raw[0].getArgs alts.raw[1]
   | _ => Macro.throwUnsupported
 
+@[builtin_macro Lean.Parser.Term.letExpr] def expandLetExpr : Macro := fun stx =>
+  match stx with
+  | `(let_expr $pat:matchExprPat := $discr:term | $elseBranch:term; $body:term) =>
+    `(match_expr $discr with
+      | $pat:matchExprPat => $body
+      | _ => $elseBranch)
+  | _ => Macro.throwUnsupported
+
 end Lean.Elab.Term

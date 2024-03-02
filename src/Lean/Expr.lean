@@ -904,6 +904,14 @@ def appArg!' : Expr → Expr
   | app _ a   => a
   | _         => panic! "application expected"
 
+def appArg (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app _ a, _ => a
+
+def appFn (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app f _, _ => f
+
 def sortLevel! : Expr → Level
   | sort u => u
   | _      => panic! "sort expected"
@@ -1615,6 +1623,14 @@ Examples:
 partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
+
+/--
+Similar to `appFn`, but also applies `cleanupAnnotations` to resulting function.
+This function is used compile the `match_expr` term.
+-/
+def appFnCleanup (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app f _, _ => f.cleanupAnnotations
 
 def isFalse (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``False

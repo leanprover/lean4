@@ -84,14 +84,14 @@ partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → 
       else insertAtCollisionNodeAux n (i+1) k v
     else
       ⟨Node.collision (keys.push k) (vals.push v) (size_push heq k v), IsCollisionNode.mk _ _ _⟩
-  | ⟨Node.entries _, h⟩, _, _, _ => False.elim (nomatch h)
+  | ⟨Node.entries _, h⟩, _, _, _ => nomatch h
 
 def insertAtCollisionNode [BEq α] : CollisionNode α β → α → β → CollisionNode α β :=
   fun n k v => insertAtCollisionNodeAux n 0 k v
 
 def getCollisionNodeSize : CollisionNode α β → Nat
   | ⟨Node.collision keys _ _, _⟩ => keys.size
-  | ⟨Node.entries _, h⟩          => False.elim (nomatch h)
+  | ⟨Node.entries _, h⟩          => nomatch h
 
 def mkCollisionNode (k₁ : α) (v₁ : β) (k₂ : α) (v₂ : β) : Node α β :=
   let ks : Array α := Array.mkEmpty maxCollisions
@@ -105,7 +105,7 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
     let newNode := insertAtCollisionNode ⟨Node.collision keys vals heq, IsCollisionNode.mk _ _ _⟩ k v
     if depth >= maxDepth || getCollisionNodeSize newNode < maxCollisions then newNode.val
     else match newNode with
-      | ⟨Node.entries _, h⟩ => False.elim (nomatch h)
+      | ⟨Node.entries _, h⟩ => nomatch h
       | ⟨Node.collision keys vals heq, _⟩ =>
         let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
           if h : i < keys.size then

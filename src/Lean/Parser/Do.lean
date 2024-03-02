@@ -160,7 +160,7 @@ def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 
 def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)
 def optMetaFalse :=
-  optional ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") ")
+  optional (atomic ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") "))
 @[builtin_doElem_parser] def doMatchExpr := leading_parser:leadPrec
   "match_expr " >> optMetaFalse >> termParser >> " with" >> doMatchExprAlts
 

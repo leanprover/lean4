@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.CongrTheorems
+import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.SimpCongrTheorems
@@ -256,7 +257,22 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
   savingCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
-def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
+def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+  /-
+  If `thmId` is an equational theorem (e.g., `foo._eq_1`), we shound record `foo` instead.
+  See issue #3547.
+  -/
+  let thmId ← match thmId with
+    | .decl declName post false =>
+      /-
+      Remark: if `inv := true`, then the user has manually provided the theorem and wants to
+      use it in the reverse direction. So, we only performs the substitution when `inv := false`
+      -/
+      if let some declName ← isEqnThm? declName then
+        pure (Origin.decl declName post false)
+      else
+        pure thmId
+    | _ => pure thmId
   modify fun s => if s.usedTheorems.contains thmId then s else
     let n := s.usedTheorems.size
     { s with usedTheorems := s.usedTheorems.insert thmId n }

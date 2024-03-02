@@ -51,7 +51,8 @@ private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
     return false
 
 structure EqnsExtState where
-  map : PHashMap Name (Array Name) := {}
+  map    : PHashMap Name (Array Name) := {}
+  mapInv : PHashMap Name Name := {}
   deriving Inhabited
 
 /- We generate the equations on demand, and do not save them on .olean files. -/
@@ -77,7 +78,22 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
     return none
 
 /--
-  Return equation theorems for the given declaration.
+Returns `some declName` if `thmName` is an equational theorem for `declName`.
+-/
+def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
+  return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
+
+/--
+Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
+-/
+private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do
+  modifyEnv fun env => eqnsExt.modifyState env fun s => { s with
+    map := s.map.insert declName eqThms
+    mapInv := eqThms.foldl (init := s.mapInv) fun mapInv eqThm => mapInv.insert eqThm declName
+  }
+
+/--
+  Returns equation theorems for the given declaration.
   By default, we do not create equation theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
 -/
@@ -87,12 +103,12 @@ def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)
   else if (← shouldGenerateEqnThms declName) then
     for f in (← getEqnsFnsRef.get) do
       if let some r ← f declName then
-        modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName r }
+        registerEqnThms declName r
         return some r
     if nonRec then
       let some eqThm ← mkSimpleEqThm declName | return none
       let r := #[eqThm]
-      modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName r }
+      registerEqnThms declName r
       return some r
   return none
 

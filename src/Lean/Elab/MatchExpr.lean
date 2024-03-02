@@ -112,7 +112,10 @@ Creates a fresh identifier for representing the continuation function used to
 execute the RHS of the given alternative, and stores it in the field `k`.
 -/
 def initK (alt : Alt) : MacroM Alt := withFreshMacroScope do
-  let k : Ident ← `(k)
+  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
+  -- We will remove this hack when we re-implement the compiler frontend in Lean.
+  let k : Ident ← `(__do_jp)
   return { alt with k }
 
 /--
@@ -153,8 +156,11 @@ alternatives `alts`, and else-alternative `elseAlt`.
 -/
 partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : MacroM Syntax := do
   let alts ← alts.mapM initK
-  let discr' ← `(discr)
-  let kElse ← `(ke)
+  let discr' ← `(__discr)
+  -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
+  -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
+  -- We will remove this hack when we re-implement the compiler frontend in Lean.
+  let kElse ← `(__do_jp)
   let rec loop (discr : Term) (alts : List Alt) : MacroM Term := withFreshMacroScope do
     let funNamesToMatch := getFunNamesToMatch alts
     let saveActual := shouldSaveActual alts
@@ -163,12 +169,12 @@ partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : Macr
     let body ← if altsNext.isEmpty then
       `($kElse ())
     else
-      let discr' ← `(discr)
+      let discr' ← `(__discr)
       let body ← loop discr' altsNext
       if saveActual then
-        `(if h : ($discr).isApp then let a := Expr.appArg $discr h; let discr := Expr.appFnCleanup $discr h; $body else $kElse ())
+        `(if h : ($discr).isApp then let a := Expr.appArg $discr h; let __discr := Expr.appFnCleanup $discr h; $body else $kElse ())
       else
-        `(if h : ($discr).isApp then let discr := Expr.appFnCleanup $discr h; $body else $kElse ())
+        `(if h : ($discr).isApp then let __discr := Expr.appFnCleanup $discr h; $body else $kElse ())
     let mut result := body
     for funName in funNamesToMatch do
       if let some alt := getAltFor? alts funName then
@@ -176,7 +182,7 @@ partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : Macr
         result ← `(if ($discr).isConstOf $(toDoubleQuotedName funName) then $alt.k $actuals* else $result)
     return result
   let body ← loop discr' alts
-  let mut result ← `(let_delayed ke := fun (_ : Unit) => $(⟨elseAlt.rhs⟩):term; let discr := Expr.cleanupAnnotations $discr:term; $body:term)
+  let mut result ← `(let_delayed __do_jp := fun (_ : Unit) => $(⟨elseAlt.rhs⟩):term; let __discr := Expr.cleanupAnnotations $discr:term; $body:term)
   for alt in alts do
     let params ← getParams alt
     result ← `(let_delayed $alt.k:ident := fun $params:term* => $(⟨alt.rhs⟩):term; $result:term)

@@ -63,9 +63,10 @@ def toAlt? (stx : Syntax) : Option Alt :=
     let optVar := stx.getArg 1
     if optVar.isNone then none else some ⟨optVar.getArg 0⟩
   let funName := ⟨stx.getArg 2⟩
-  let pvars := stx.getArg 3 |>.getArgs.toList.map fun
-    | `($arg:ident) => some arg
-    | _ => none
+  let pvars := stx.getArg 3 |>.getArgs.toList.reverse.map fun arg =>
+    match arg with
+    | `(_) => none
+    | _ => some ⟨arg⟩
   let rhs := stx.getArg 5
   some { var?, funName, pvars, rhs }
 

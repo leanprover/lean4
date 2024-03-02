@@ -1737,6 +1737,15 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 def etaExpand (e : Expr) : MetaM Expr :=
   withDefault do forallTelescopeReducing (← inferType e) fun xs _ => mkLambdaFVars xs (mkAppN e xs)
 
+/--
+If `e` is of the form `?m ...` instantiate metavars
+-/
+def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
+  if e.getAppFn.isMVar then
+    instantiateMVars e
+  else
+    return e
+
 end Meta
 
 builtin_initialize

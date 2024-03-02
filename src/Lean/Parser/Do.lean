@@ -60,6 +60,14 @@ def notFollowedByRedefinedTermToken :=
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
   checkColGt >> " | " >> doSeq
 
+@[builtin_doElem_parser] def doLetExpr  := leading_parser
+  "let_expr " >> matchExprPat >> " := " >> termParser >>
+  checkColGt >> " | " >> doSeq
+
+@[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
+  "let_expr " >> matchExprPat >> " ← " >> termParser >>
+  checkColGt >> " | " >> doSeq
+
 @[builtin_doElem_parser] def doLetRec   := leading_parser
   group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doIdDecl   := leading_parser
@@ -151,8 +159,10 @@ def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
 def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)
+def optMetaFalse :=
+  optional ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") ")
 @[builtin_doElem_parser] def doMatchExpr := leading_parser:leadPrec
-  "match_expr " >> optional ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") ") >> termParser >> " with" >> doMatchExprAlts
+  "match_expr " >> optMetaFalse >> termParser >> " with" >> doMatchExprAlts
 
 def doCatch      := leading_parser
   ppDedent ppLine >> atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq

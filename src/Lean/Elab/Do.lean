@@ -1146,7 +1146,8 @@ where
       for alt in alts do
         let rhs ← toTerm alt.rhs
         let optVar := if let some var := alt.var? then mkNullNode #[var, mkAtomFrom var "@"] else mkNullNode #[]
-        let termAlt := mkNode ``Parser.Term.matchExprAlt #[mkAtomFrom alt.ref "|", optVar, alt.funName, mkNullNode alt.pvars, mkAtomFrom alt.ref "=>", rhs]
+        let pat := mkNode ``Parser.Term.matchExprPat #[optVar, alt.funName, mkNullNode alt.pvars]
+        let termAlt := mkNode ``Parser.Term.matchExprAlt #[mkAtomFrom alt.ref "|", pat, mkAtomFrom alt.ref "=>", rhs]
         termAlts := termAlts.push termAlt
       let elseBranch := mkNode ``Parser.Term.matchExprElseAlt #[mkAtomFrom ref "|", mkHole ref, mkAtomFrom ref "=>", (← toTerm elseBranch)]
       let termMatchExprAlts := mkNode ``Parser.Term.matchExprAlts #[mkNullNode termAlts, elseBranch]
@@ -1614,10 +1615,11 @@ mutual
     let discr     := doMatchExpr[2]
     let alts      := doMatchExpr[4][0].getArgs -- Array of `doMatchExprAlt`
     let alts ← alts.mapM fun alt => do
-      let var? := if alt[1].isNone then none else some alt[1][0]
-      let funName  := alt[2]
-      let pvars    := alt[3].getArgs
-      let rhs      := alt[5]
+      let pat      := alt[1]
+      let var?     := if pat[0].isNone then none else some pat[0][0]
+      let funName  := pat[1]
+      let pvars    := pat[2].getArgs
+      let rhs      := alt[3]
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref, var?, funName, pvars, rhs }
     let elseBranch ← doSeqToCode (getDoSeqElems doMatchExpr[4][1][3])

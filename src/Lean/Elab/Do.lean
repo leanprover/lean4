@@ -1157,7 +1157,7 @@ where
       let d' ← `(discr)
       let mut termAlts := #[]
       for alt in alts do
-        let rhs ← toTerm alt.rhs
+        let rhs ← `(($(← toTerm alt.rhs) : $((← read).m) _))
         let optVar := if let some var := alt.var? then mkNullNode #[var, mkAtomFrom var "@"] else mkNullNode #[]
         let pat := mkNode ``Parser.Term.matchExprPat #[optVar, alt.funName, mkNullNode alt.pvars]
         let termAlt := mkNode ``Parser.Term.matchExprAlt #[mkAtomFrom alt.ref "|", pat, mkAtomFrom alt.ref "=>", rhs]

@@ -765,6 +765,19 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
     return some e
   | _ => pure none
 
+/--
+  If the given syntax is a `doLetExpr` or `doLetMetaExpr`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
+private def expandDoLetExpr? (stx : Syntax) (doElems : List Syntax) : MacroM (Option Syntax) := match stx with
+  | `(doElem| let_expr $pat:matchExprPat := $discr:term | $elseBranch:doSeq) =>
+    return some (← `(doElem| match_expr (meta := false) $discr:term with
+                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | _ => $elseBranch))
+  | `(doElem| let_expr $pat:matchExprPat ← $discr:term | $elseBranch:doSeq) =>
+    return some (← `(doElem| match_expr $discr:term with
+                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | _ => $elseBranch))
+  | _ => return none
+
 structure DoIfView where
   ref        : Syntax
   optIdent   : Syntax
@@ -1695,6 +1708,9 @@ mutual
       | none =>
       match (← liftMacroM <| expandDoIf? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
+      | none =>
+      match (← liftMacroM <| expandDoLetExpr? doElem doElems) with
+      | some doElem => doSeqToCode [doElem]
       | none =>
         let (liftedDoElems, doElem) ← expandLiftMethod doElem
         if !liftedDoElems.isEmpty then

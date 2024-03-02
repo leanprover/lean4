@@ -802,7 +802,6 @@ interpolated string literal) to stderr. It should only be used for debugging.
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
-
 def macroArg       := termParser maxPrec
 def macroDollarArg := leading_parser "$" >> termParser 10
 def macroLastArg   := macroDollarArg <|> macroArg
@@ -823,6 +822,19 @@ Implementation of the `show_term` term elaborator.
 @[builtin_term_parser] def showTermElabImpl :=
   leading_parser:leadPrec "show_term_elab " >> termParser
 
+/-!
+`match_expr` support.
+-/
+
+def matchExprAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (optional (atomic (ident >> "@")) >> ident >> many binderIdent >> " => " >> rhsParser)
+def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (hole >> " => " >> rhsParser)
+def matchExprAlts (rhsParser : Parser) :=
+  leading_parser withPosition $
+    many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
+    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+@[builtin_term_parser] def matchExpr := leading_parser:leadPrec
+  "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser
@@ -841,6 +853,7 @@ builtin_initialize
   register_parser_alias matchDiscr
   register_parser_alias bracketedBinder
   register_parser_alias attrKind
+  register_parser_alias optSemicolon
 
 end Parser
 end Lean

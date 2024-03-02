@@ -220,6 +220,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --deps             just print dependencies of a Lean input\n";
     std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
+    std::cout << "  --continue-on-error create olean file even if elaboration produces errors\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     std::cout << "  --stats            display environment statistics\n";
     DEBUG_CODE(
@@ -232,44 +233,45 @@ static int print_prefix = 0;
 static int print_libdir = 0;
 
 static struct option g_long_options[] = {
-    {"version",      no_argument,       0, 'v'},
-    {"help",         no_argument,       0, 'h'},
-    {"githash",      no_argument,       0, 'g'},
-    {"run",          no_argument,       0, 'r'},
-    {"o",            optional_argument, 0, 'o'},
-    {"i",            optional_argument, 0, 'i'},
-    {"stdin",        no_argument,       0, 'I'},
-    {"root",         required_argument, 0, 'R'},
-    {"memory",       required_argument, 0, 'M'},
-    {"trust",        required_argument, 0, 't'},
-    {"profile",      no_argument,       0, 'P'},
-    {"stats",        no_argument,       0, 'a'},
-    {"quiet",        no_argument,       0, 'q'},
-    {"deps",         no_argument,       0, 'd'},
-    {"deps-json",    no_argument,       0, 'J'},
-    {"timeout",      optional_argument, 0, 'T'},
-    {"c",            optional_argument, 0, 'c'},
-    {"bc",           optional_argument, 0, 'b'},
-    {"features",     optional_argument, 0, 'f'},
-    {"exitOnPanic",  no_argument,       0, 'e'},
+    {"version",           no_argument,       0, 'v'},
+    {"help",              no_argument,       0, 'h'},
+    {"githash",           no_argument,       0, 'g'},
+    {"run",               no_argument,       0, 'r'},
+    {"o",                 optional_argument, 0, 'o'},
+    {"i",                 optional_argument, 0, 'i'},
+    {"stdin",             no_argument,       0, 'I'},
+    {"root",              required_argument, 0, 'R'},
+    {"memory",            required_argument, 0, 'M'},
+    {"trust",             required_argument, 0, 't'},
+    {"profile",           no_argument,       0, 'P'},
+    {"stats",             no_argument,       0, 'a'},
+    {"quiet",             no_argument,       0, 'q'},
+    {"deps",              no_argument,       0, 'd'},
+    {"deps-json",         no_argument,       0, 'J'},
+    {"timeout",           optional_argument, 0, 'T'},
+    {"c",                 optional_argument, 0, 'c'},
+    {"bc",                optional_argument, 0, 'b'},
+    {"features",          optional_argument, 0, 'f'},
+    {"exitOnPanic",       no_argument,       0, 'e'},
+    {"continue-on-error", no_argument,       0, 'O'},
 #if defined(LEAN_MULTI_THREAD)
-    {"threads",      required_argument, 0, 'j'},
-    {"tstack",       required_argument, 0, 's'},
-    {"server",       no_argument,       0, 'S'},
-    {"worker",       no_argument,       0, 'W'},
+    {"threads",           required_argument, 0, 'j'},
+    {"tstack",            required_argument, 0, 's'},
+    {"server",            no_argument,       0, 'S'},
+    {"worker",            no_argument,       0, 'W'},
 #endif
-    {"plugin",       required_argument, 0, 'p'},
-    {"load-dynlib",  required_argument, 0, 'l'},
-    {"print-prefix", no_argument,       &print_prefix, 1},
-    {"print-libdir", no_argument,       &print_libdir, 1},
+    {"plugin",            required_argument, 0, 'p'},
+    {"load-dynlib",       required_argument, 0, 'l'},
+    {"print-prefix",      no_argument,       &print_prefix, 1},
+    {"print-libdir",      no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
-    {"debug",        required_argument, 0, 'B'},
+    {"debug",             required_argument, 0, 'B'},
 #endif
     {0, 0, 0, 0}
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:eO"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -466,6 +468,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     bool only_deps = false;
     bool deps_json = false;
     bool stats = false;
+    bool continue_on_error = false;
     // 0 = don't run server, 1 = watchdog, 2 = worker
     int run_server = 0;
     unsigned num_threads    = 0;
@@ -591,6 +594,9 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'P':
                 opts = opts.update("profiler", true);
+                break;
+            case 'O':
+                continue_on_error = true;
                 break;
 #if defined(LEAN_DEBUG)
             case 'B':
@@ -729,7 +735,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             // environment_free_regions(std::move(env));
             return ret;
         }
-        if (olean_fn && ok) {
+        if (olean_fn && (ok || continue_on_error)) {
             time_task t(".olean serialization", opts);
             write_module(env, *olean_fn);
         }

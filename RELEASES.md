@@ -89,6 +89,8 @@ v4.7.0 (development in progress)
 
 * Improved auto-completion performance. [#3460](https://github.com/leanprover/lean4/pull/3460)
 
+* Improved initial language server startup performance. [#3552](https://github.com/leanprover/lean4/pull/3552)
+
 * Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
 
 * There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)

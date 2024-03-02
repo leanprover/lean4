@@ -54,3 +54,21 @@ run_meta do
   discard <| isDefEq m e
   let m ← test2 m
   logInfo m
+
+def test3 (e : Expr) : Option Expr :=
+  let_expr c@Eq α a b := e | none
+  some (mkApp3 c α b a)
+
+def test4 (e : Expr) : Option Expr :=
+  let_expr Eq.refl _ α := e | none
+  some a
+
+def test5 (e : Expr) : MetaM Expr := do
+  let_expr HAdd.hAdd _ _ _ _ a b ← e
+    | return e
+  mkSub a b
+
+def test6 (e : Expr) : MetaM Expr := do
+  let_expr HAdd.hAdd _ _ _ _ a b := e
+    | return e
+  mkSub a b

@@ -836,6 +836,9 @@ def matchExprAlts (rhsParser : Parser) :=
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 
+@[builtin_term_parser] def letExpr := leading_parser:leadPrec
+  withPosition ("let_expr " >> matchExprPat >> " := " >> termParser >> checkColGt >> " | " >> termParser) >> optSemicolon termParser
+
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser

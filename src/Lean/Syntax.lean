@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
-import Init.Data.Range 
+import Init.Data.Range
 import Init.Data.Hashable
 import Lean.Data.Name
 import Lean.Data.Format
@@ -37,9 +37,9 @@ inductive IsNode : Syntax → Prop where
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }
 
-def unreachIsNodeMissing {β} (h : IsNode Syntax.missing) : β := False.elim (nomatch h)
-def unreachIsNodeAtom {β} {info val} (h : IsNode (Syntax.atom info val)) : β := False.elim (nomatch h)
-def unreachIsNodeIdent {β info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : β := False.elim (nomatch h)
+def unreachIsNodeMissing {β} : IsNode Syntax.missing → β := nofun
+def unreachIsNodeAtom {β} {info val} : IsNode (Syntax.atom info val) → β := nofun
+def unreachIsNodeIdent {β info rawVal val preresolved} : IsNode (Syntax.ident info rawVal val preresolved) → β := nofun
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
   k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind

@@ -23,26 +23,13 @@ namespace Nat
 private theorem one_div_two : 1/2 = 0 := by trivial
 
 private theorem two_pow_succ_sub_succ_div_two : (2 ^ (n+1) - (x + 1)) / 2 = 2^n - (x/2 + 1) := by
-  if h : x + 1 ≤ 2 ^ (n + 1) then
-    apply fun x => (Nat.sub_eq_of_eq_add x).symm
-    apply Eq.trans _
-    apply Nat.add_mul_div_left _ _ Nat.zero_lt_two
-    rw [← Nat.sub_add_comm h]
-    rw [Nat.add_sub_assoc (by omega)]
-    rw [Nat.pow_succ']
-    rw [Nat.mul_add_div Nat.zero_lt_two]
-    simp [show (2 * (x / 2 + 1) - (x + 1)) / 2 = 0 by omega]
-  else
-    rw [Nat.pow_succ'] at *
-    omega
+  omega
 
 private theorem two_pow_succ_sub_one_div_two : (2 ^ (n+1) - 1) / 2 = 2^n - 1 :=
   two_pow_succ_sub_succ_div_two
 
 private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 := by
-  match n with
-  | 0 => contradiction
-  | n + 1 => simp [Nat.mul_succ, Nat.mul_add_mod, mod_eq_of_lt]
+  omega
 
 /-! ### Preliminaries -/
 
@@ -280,8 +267,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     | n+1 =>
       -- just logic + omega:
       simp only [zero_lt_succ, decide_True, Bool.true_and]
-      rw [Nat.pow_succ', ← decide_not, decide_eq_decide]
-      rw [Nat.pow_succ'] at h₂
+      rw [← decide_not, decide_eq_decide]
       omega
   | succ i ih =>
     simp only [testBit_succ]
@@ -292,8 +278,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     | n+1 =>
       rw [Nat.two_pow_succ_sub_succ_div_two, ih]
       · simp [Nat.succ_lt_succ_iff]
-      · rw [Nat.pow_succ'] at h₂
-        omega
+      · omega
 
 @[simp] theorem testBit_two_pow_sub_one (n i : Nat) : testBit (2^n-1) i = decide (i < n) := by
   rw [testBit_two_pow_sub_succ]

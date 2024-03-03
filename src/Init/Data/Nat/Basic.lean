@@ -573,6 +573,8 @@ theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
 theorem succ_pred_eq_of_pos : ∀ {n}, 0 < n → succ (pred n) = n
   | _+1, _ => rfl
 
+theorem pred_eq_sub_one : pred n = n - 1 := rfl
+
 /-! # sub theorems -/
 
 theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by

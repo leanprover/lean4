@@ -50,6 +50,5 @@ example (h : x < 2 ^ (n + 1)) :
       (decide (0 < n + 1) && !decide (x % 2 = 1)) := by
   -- "just logic and omega":
   simp only [zero_lt_succ, decide_True, Bool.true_and]
-  rw [Nat.pow_succ', ← decide_not, decide_eq_decide]
-  rw [Nat.pow_succ'] at h
+  rw [← decide_not, decide_eq_decide]
   omega

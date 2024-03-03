@@ -447,12 +447,8 @@ theorem testBit_mul_pow_two_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
   cases Nat.lt_or_ge j i with
   | inl j_lt =>
     simp only [j_lt]
-    have i_ge := Nat.le_of_lt j_lt
-    have i_sub_j_nez : i-j ≠ 0 := Nat.sub_ne_zero_of_lt j_lt
-    have i_def : i = j + succ (pred (i-j)) :=
-          calc i = j + (i-j) := (Nat.add_sub_cancel' i_ge).symm
-               _ = j + succ (pred (i-j)) := by
-                 rw [← congrArg (j+·) (Nat.succ_pred i_sub_j_nez)]
+    have i_def : i = j + succ (pred (i-j)) := by
+      rw [succ_pred_eq_of_pos] <;> omega
     rw [i_def]
     simp only [testBit_to_div_mod, Nat.pow_add, Nat.mul_assoc]
     simp only [Nat.mul_add_div (Nat.two_pow_pos _), Nat.mul_add_mod]

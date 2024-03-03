@@ -148,8 +148,10 @@ theorem add_succ (n m : Nat) : n + succ m = succ (n + m) :=
 theorem add_one (n : Nat) : n + 1 = succ n :=
   rfl
 
-theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
+@[simp] theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
   rfl
+
+@[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
@@ -283,7 +285,7 @@ theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
 theorem sub_add_eq (a b c : Nat) : a - (b + c) = a - b - c := by
   induction c with
   | zero => simp
-  | succ c ih => simp [Nat.add_succ, Nat.sub_succ, ih]
+  | succ c ih => simp only [Nat.add_succ, Nat.sub_succ, ih]
 
 protected theorem lt_of_lt_of_le {n m k : Nat} : n < m → m ≤ k → n < k :=
   Nat.le_trans
@@ -742,6 +744,11 @@ theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
 theorem succ_pred_eq_of_pos : ∀ {n}, 0 < n → succ (pred n) = n
   | _+1, _ => rfl
 
+theorem sub_one_add_one_eq_of_pos : ∀ {n}, 0 < n → (n - 1) + 1 = n
+  | _+1, _ => rfl
+
+@[simp] theorem pred_eq_sub_one : pred n = n - 1 := rfl
+
 /-! # sub theorems -/
 
 theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
@@ -778,7 +785,7 @@ theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
 
 theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
   | 0, 0, h      => absurd h (Nat.lt_irrefl 0)
-  | 0, succ b, _ => by simp
+  | 0, succ b, _ => by simp only [Nat.sub_zero, ne_eq, not_false_eq_true]
   | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
   | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
 
@@ -796,7 +803,7 @@ theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
 protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
   induction k with
   | zero => simp
-  | succ k ih => simp [add_succ, add_succ, succ_sub_succ, ih]
+  | succ k ih => simp [← Nat.add_assoc, ih]
 
 protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
   rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]

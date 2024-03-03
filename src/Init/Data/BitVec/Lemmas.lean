@@ -70,7 +70,7 @@ theorem eq_of_getMsb_eq {x y : BitVec w}
   else
     have w_pos := Nat.pos_of_ne_zero w_zero
     have r : i ≤ w - 1 := by
-      simp [Nat.le_sub_iff_add_le w_pos, Nat.add_succ]
+      simp [Nat.le_sub_iff_add_le w_pos]
       exact i_lt
     have q_lt : w - 1 - i < w := by
       simp only [Nat.sub_sub]

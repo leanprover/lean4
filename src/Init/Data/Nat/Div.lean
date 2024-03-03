@@ -293,7 +293,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [add_one, Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by

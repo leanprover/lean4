@@ -94,7 +94,10 @@ private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext)
   | none   => s.pos
 
 def topLevelCommandParserFn : ParserFn :=
-  commandParser.fn
+  -- set position to enforce appropriate indentation of applications etc.; see
+  -- tests/lean/commandDedent.lean. We don't do it for nested commands such as in quotations where
+  -- formatting might be less rigid.
+  (withPosition commandParser).fn
 
 partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog := Id.run do
   let mut pos := mps.pos

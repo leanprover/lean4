@@ -11,9 +11,9 @@ theorem filter_cons (a : α) (as : List α) : filter p (a :: as) = if p a then a
 rfl
 
 theorem filter_cons_of_pos {a : α} (as : List α) (h : p a) : filter p (a :: as) = a :: filter p as := by
-rw [filter_cons];
-rw [if_pos h]
+  rw [filter_cons];
+  rw [if_pos h]
 
 theorem filter_cons_of_neg {a : α} (as : List α) (h : ¬ p a) : filter p (a :: as) = filter p as := by
-rw [filter_cons];
-rw [if_neg h]
+  rw [filter_cons];
+  rw [if_neg h]

@@ -1000,9 +1000,7 @@ def binary : Nat → Nat → Nat
   | n+2, acc => binary n (binary (n+1) acc)
 
 -- #print binary
-
 run_meta Lean.Tactic.FunInd.deriveInduction `binary
-
 #check binary.induct
 
 
@@ -1010,10 +1008,10 @@ def zip {α β} : List α → List β → List (α × β)
   | [], _ => []
   | _, [] => []
   | x::xs, y::ys => (x, y) :: zip xs ys
+termination_by xs => xs
 
--- #print zipWith
+#print zip
 run_meta Lean.Tactic.FunInd.deriveInduction `zip
-
 #check zip.induct
 
 theorem zip_length {α β} (xs : List α) (ys : List β) :
@@ -1039,3 +1037,16 @@ def Finn.min {n : Nat} : Finn n → Finn n → Finn n
   | fsucc i, fsucc j => fsucc (Finn.min i j)
 
 -- run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min
+
+
+-- TODO:
+-- Varying parameters before the decreasing argument
+-- cause parameters to be reordered in the motive
+
+def binary' : Bool → Nat → Bool
+  | acc, 0 | acc , 1 => not acc
+  | acc, n+2 => binary' (binary' acc (n+1)) n
+
+-- #print binary'
+run_meta Lean.Tactic.FunInd.deriveInduction `binary'
+#check binary'.induct

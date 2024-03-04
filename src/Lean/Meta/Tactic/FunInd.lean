@@ -282,7 +282,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
     let proof' ← foldCalls fn oldIH proof
     let ihs ← collectIHs fn oldIH newIH arg
 
-    return ihs.push (mkAppN (.fvar newIH) #[arg', proof'])
+    return ihs.push (mkApp2 (.fvar newIH) arg' proof')
 
   if let some (n, t, v, b) := e.letFun? then
     let ihs1 ← collectIHs fn oldIH newIH v
@@ -555,7 +555,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let motiveType ← mkArrow argType (.sort levelZero)
     withLocalDecl `motive .default motiveType fun motive => do
 
-    let e' := mkAppN (.const ``WellFounded.fixF [argLevel, levelZero]) #[argType, rel, motive]
+    let e' := mkApp3 (.const ``WellFounded.fixF [argLevel, levelZero]) argType rel motive
     let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
       let #[param, genIH] := xs | unreachable!
@@ -567,7 +567,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
         mkLambdaFVars #[param, genIH] body'
 
-    let e' := mkAppN e' #[body', arg, acc]
+    let e' := mkApp3 e' body' arg acc
 
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'

@@ -258,7 +258,7 @@ theorem testBit_one_zero : testBit 1 0 = true := by trivial
 
 theorem not_decide_mod_two_eq_one (x : Nat)
     : (!decide (x % 2 = 1)) = decide (x % 2 = 0) := by
-  cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p ; simp [p])
+  cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p; simp [p])
 
 theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     testBit (2^n - (x + 1)) i = (decide (i < n) && ! testBit x i) := by

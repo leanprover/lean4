@@ -50,10 +50,10 @@ theorem ne_false_iff : {b : Bool} → b ≠ false ↔ b = true := by decide
 
 theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
-@[simp] theorem decide_eq_true  {b : Bool} {h : Decidable (b = true)}  : @decide (b = true)  h =  b := by cases b <;> simp
-@[simp] theorem decide_eq_false {b : Bool} {h : Decidable (b = false)} : @decide (b = false) h = !b := by cases b <;> simp
-@[simp] theorem decide_true_eq  {b : Bool} {h : Decidable (true = b)}  : @decide (true  = b) h =  b := by cases b <;> simp
-@[simp] theorem decide_false_eq {b : Bool} {h : Decidable (false = b)} : @decide (false = b) h = !b := by cases b <;> simp
+@[simp] theorem decide_eq_true  {b : Bool} [Decidable (b = true)]  : decide (b = true)  =  b := by cases b <;> simp
+@[simp] theorem decide_eq_false {b : Bool} [Decidable (b = false)] : decide (b = false) = !b := by cases b <;> simp
+@[simp] theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
+@[simp] theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 
 /-! ### and -/
 
@@ -126,17 +126,11 @@ theorem or_right_comm : ∀ (x y z : Bool), ((x || y) || z) = ((x || z) || y) :=
 
 /-! ### distributivity -/
 
-theorem and_or_distrib_left : ∀ (x y z : Bool), (x && (y || z)) = ((x && y) || (x && z)) := by
-  decide
+theorem and_or_distrib_left  : ∀ (x y z : Bool), (x && (y || z)) = (x && y || x && z) := by decide
+theorem and_or_distrib_right : ∀ (x y z : Bool), ((x || y) && z) = (x && z || y && z) := by decide
 
-theorem and_or_distrib_right : ∀ (x y z : Bool), ((x || y) && z) = ((x && z) || (y && z)) := by
-  decide
-
-theorem or_and_distrib_left : ∀ (x y z : Bool), (x || (y && z)) = ((x || y) && (x || z)) := by
-  decide
-
-theorem or_and_distrib_right : ∀ (x y z : Bool), ((x && y) || z) = ((x || z) && (y || z)) := by
-  decide
+theorem or_and_distrib_left  : ∀ (x y z : Bool), (x || y && z) = ((x || y) && (x || z)) := by decide
+theorem or_and_distrib_right : ∀ (x y z : Bool), (x && y || z) = ((x || z) && (y || z)) := by decide
 
 /-- De Morgan's law for boolean and -/
 @[simp] theorem not_and : ∀ (x y : Bool), (!(x && y)) = (!x || !y) := by decide

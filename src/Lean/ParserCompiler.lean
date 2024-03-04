@@ -87,7 +87,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
       let c' := c ++ ctx.varName
       let cinfo ← getConstInfo c
       let resultTy ← forallTelescope cinfo.type fun _ b => pure b
-      if resultTy.isConstOf `Lean.Parser.TrailingParser || resultTy.isConstOf `Lean.Parser.Parser then do
+      if resultTy.isConstOf ``Lean.Parser.TrailingParser || resultTy.isConstOf ``Lean.Parser.Parser then do
         -- synthesize a new `[combinatorAttr c]`
         let some value ← pure cinfo.value?
           | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
@@ -146,7 +146,7 @@ unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
   Parser.registerParserAttributeHook {
     postAdd := fun catName constName builtin => do
       let info ← getConstInfo constName
-      if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
+      if info.type.isConstOf ``Lean.ParserDescr || info.type.isConstOf ``Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
           evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
         compileEmbeddedParsers ctx d (builtin := builtin) |>.run'

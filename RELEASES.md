@@ -8,6 +8,11 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
+v4.6.1
+---------
+* Backport of [#3552](https://github.com/leanprover/lean4/pull/3552) fixing a performance regression
+  in server startup.
+
 v4.6.0
 ---------
 

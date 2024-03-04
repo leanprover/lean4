@@ -350,10 +350,10 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 /-! ### ite -/
 
 @[simp] theorem if_true_left  (p : Prop) [h : Decidable p] (f : Bool) :
-    (ite p true f) = (p || f) := by cases h <;> simp [*]
+    (ite p true f) = (p || f) := by cases h with | _ p => simp [p]
 
 @[simp] theorem if_false_left  (p : Prop) [h : Decidable p] (f : Bool) :
-    (ite p false f) = (!p && f) := by cases h <;> simp [*]
+    (ite p false f) = (!p && f) := by cases h with | _ p => simp [p]
 
 @[simp] theorem if_true_right  (p : Prop) [h : Decidable p] (t : Bool) :
     (ite p t true) = (!(p : Bool) || t) := by cases h with | _ p => simp [p]

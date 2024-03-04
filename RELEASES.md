@@ -11,6 +11,12 @@ of each version.
 v4.7.0 (development in progress)
 ---------
 
+* `simp` and `rw` now use instance arguments found by unification,
+  rather than always resynthesizing. For backwards compatibility, the original behaviour is
+  available via `set_option tactic.skipAssignedInstances false`.
+  [#3507](https://github.com/leanprover/lean4/pull/3507) and
+  [#3509](https://github.com/leanprover/lean4/pull/3509).
+
 * When the `pp.proofs` is false, now omitted proofs use `⋯` rather than `_`,
   which gives a more helpful error message when copied from the Infoview.
   The `pp.proofs.threshold` option lets small proofs always be pretty printed.
@@ -94,7 +100,7 @@ v4.7.0 (development in progress)
 * Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
 
 * There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)
-* The Library search `exact?` and `apply?` tactics that were originally in
+
 * The library search tactics `exact?` and `apply?` that were originally in
   Mathlib are now available in Lean itself.  These use the implementation using
   lazy discrimination trees from `Std`, and thus do not require a disk cache but

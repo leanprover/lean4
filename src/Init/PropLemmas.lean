@@ -529,7 +529,7 @@ We introduce `decide_implies` below and then both normalize to
 @[simp]
 theorem decide_implies (u v : Prop)
     [duv : Decidable (u → v)] [du : Decidable u] {dv : u → Decidable v}
-  : decide (u → v) = ∀(h : u), @decide v (dv h) :=
+  : decide (u → v) = dite u (fun h => @decide v (dv h)) (fun _ => true) :=
   if h : u then by
     simp [h]
   else by

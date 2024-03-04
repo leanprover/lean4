@@ -1635,8 +1635,8 @@ instance : LT Nat where
   lt := Nat.lt
 
 theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
-  | 0,      h => nomatch h
-  | succ _, h => nomatch h
+  | 0      => nofun
+  | succ _ => nofun
 
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n

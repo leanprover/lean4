@@ -321,6 +321,27 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
   · exact (Nat.add_sub_cancel_left ..).symm
   · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
+/- ## add/sub injectivity -/
+
+@[simp]
+protected theorem add_right_inj (i j k : Int) : (i + k = j + k) ↔ i = j := by
+  apply Iff.intro
+  · intro p
+    rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
+  · exact congrArg (· + k)
+
+@[simp]
+protected theorem add_left_inj (i j k : Int) : (k + i = k + j) ↔ i = j := by
+  simp [Int.add_comm k]
+
+@[simp]
+protected theorem sub_left_inj (i j k : Int) : (k - i = k - j) ↔ i = j := by
+  simp [Int.sub_eq_add_neg, Int.neg_inj]
+
+@[simp]
+protected theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
+  simp [Int.sub_eq_add_neg]
+
 /- ## Ring properties -/
 
 @[simp] theorem ofNat_mul_negSucc (m n : Nat) : (m : Int) * -[n+1] = -↑(m * succ n) := rfl
@@ -478,9 +499,32 @@ theorem eq_one_of_mul_eq_self_left {a b : Int} (Hpos : a ≠ 0) (H : b * a = a) 
 theorem eq_one_of_mul_eq_self_right {a b : Int} (Hpos : b ≠ 0) (H : b * a = b) : a = 1 :=
   Int.eq_of_mul_eq_mul_left Hpos <| by rw [Int.mul_one, H]
 
+/-! # pow -/
+
+protected theorem pow_zero (b : Int) : b^0 = 1 := rfl
+
 protected theorem pow_succ (b : Int) (e : Nat) : b ^ (e+1) = (b ^ e) * b := rfl
 protected theorem pow_succ' (b : Int) (e : Nat) : b ^ (e+1) = b * (b ^ e) := by
   rw [Int.mul_comm, Int.pow_succ]
+
+theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
+  | 0      => Nat.le_refl _
+  | succ i => Nat.mul_le_mul (pow_le_pow_of_le_left h i) h
+
+theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j → n^i ≤ n^j
+  | 0,      h =>
+    have : i = 0 := eq_zero_of_le_zero h
+    this.symm ▸ Nat.le_refl _
+  | succ j, h =>
+    match le_or_eq_of_le_succ h with
+    | Or.inl h => show n^i ≤ n^j * n from
+      have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_of_le_right hx h) hx
+      Nat.mul_one (n^i) ▸ this
+    | Or.inr h =>
+      h.symm ▸ Nat.le_refl _
+
+theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
+  pow_le_pow_of_le_right h (Nat.zero_le _)
 
 /-! NatCast lemmas -/
 
@@ -500,5 +544,11 @@ theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
 @[simp] theorem natCast_mul (a b : Nat) : ((a * b : Nat) : Int) = (a : Int) * (b : Int) := by
   simp
+
+theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
+  match n with
+  | 0 => rfl
+  | n + 1 =>
+    simp only [Nat.pow_succ, Int.pow_succ, natCast_mul, natCast_pow _ n]
 
 end Int

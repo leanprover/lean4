@@ -42,8 +42,8 @@ builtin_simproc [simp, seval] reduceIsDigit (Char.isDigit _) := reduceUnary ``Ch
 builtin_simproc [simp, seval] reduceIsAlphaNum (Char.isAlphanum _) := reduceUnary ``Char.isAlphanum Char.isAlphanum
 builtin_simproc [simp, seval] reduceToString (toString (_ : Char)) := reduceUnary ``toString toString 3
 builtin_simproc [simp, seval] reduceVal (Char.val _) := fun e => do
-  unless e.isAppOfArity ``Char.val 1 do return .continue
-  let some c ← fromExpr? e.appArg! | return .continue
+  let_expr Char.val arg ← e | return .continue
+  let some c ← fromExpr? arg | return .continue
   return .done { expr := toExpr c.val }
 builtin_simproc [simp, seval] reduceEq  (( _ : Char) = _)  := reduceBinPred ``Eq 3 (. = .)
 builtin_simproc [simp, seval] reduceNe  (( _ : Char) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
@@ -60,12 +60,12 @@ builtin_simproc ↓ [simp, seval] isValue (Char.ofNat _ ) := fun e => do
   return .done { expr := e }
 
 builtin_simproc [simp, seval] reduceOfNatAux (Char.ofNatAux _ _) := fun e => do
-  unless e.isAppOfArity ``Char.ofNatAux 2 do return .continue
-  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let_expr Char.ofNatAux n _ ← e | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
   return .done { expr := toExpr (Char.ofNat n) }
 
 builtin_simproc [simp, seval] reduceDefault ((default : Char)) := fun e => do
-  unless e.isAppOfArity ``default 2 do return .continue
+  let_expr default _ _ ← e | return .continue
   return .done { expr := toExpr (default : Char) }
 
 end Char

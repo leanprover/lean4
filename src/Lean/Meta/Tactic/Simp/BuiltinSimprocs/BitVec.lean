@@ -162,42 +162,42 @@ builtin_simproc [simp, seval] reduceRotateRight (BitVec.rotateRight _ _) :=
 
 /-- Simplification procedure for append on `BitVec`. -/
 builtin_simproc [simp, seval] reduceAppend ((_ ++ _ : BitVec _)) := fun e => do
-  unless e.isAppOfArity ``HAppend.hAppend 6 do return .continue
-  let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
-  let some v₂ ← fromExpr? e.appArg! | return .continue
+  let_expr HAppend.hAppend _ _ _ _ a b ← e | return .continue
+  let some v₁ ← fromExpr? a | return .continue
+  let some v₂ ← fromExpr? b | return .continue
   return .done { expr := toExpr (v₁.value ++ v₂.value) }
 
 /-- Simplification procedure for casting `BitVec`s along an equality of the size. -/
 builtin_simproc [simp, seval] reduceCast (cast _ _) := fun e => do
-  unless e.isAppOfArity ``cast 4 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  let some m ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
+  let_expr cast _ m _ v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some m ← Nat.fromExpr? m | return .continue
   return .done { expr := toExpr (BitVec.ofNat m v.value.toNat) }
 
 /-- Simplification procedure for `BitVec.toNat`. -/
 builtin_simproc [simp, seval] reduceToNat (BitVec.toNat _) := fun e => do
-  unless e.isAppOfArity ``BitVec.toNat 2 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
+  let_expr BitVec.toNat _ v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
   return .done { expr := mkNatLit v.value.toNat }
 
 /-- Simplification procedure for `BitVec.toInt`. -/
 builtin_simproc [simp, seval] reduceToInt (BitVec.toInt _) := fun e => do
-  unless e.isAppOfArity ``BitVec.toInt 2 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
+  let_expr BitVec.toInt _ v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
   return .done { expr := toExpr v.value.toInt }
 
 /-- Simplification procedure for `BitVec.ofInt`. -/
 builtin_simproc [simp, seval] reduceOfInt (BitVec.ofInt _ _) := fun e => do
-  unless e.isAppOfArity ``BitVec.ofInt 2 do return .continue
-  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let some i ← Int.fromExpr? e.appArg! | return .continue
+  let_expr BitVec.ofInt n i ← e | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
+  let some i ← Int.fromExpr? i | return .continue
   return .done { expr := toExpr (BitVec.ofInt n i) }
 
 /-- Simplification procedure for ensuring `BitVec.ofNat` literals are normalized. -/
 builtin_simproc [simp, seval] reduceOfNat (BitVec.ofNat _ _) := fun e => do
-  unless e.isAppOfArity ``BitVec.ofNat 2 do return .continue
-  let some n ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  let some v ← Nat.fromExpr? e.appArg! | return .continue
+  let_expr BitVec.ofNat n v ← e | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
+  let some v ← Nat.fromExpr? v | return .continue
   let bv := BitVec.ofNat n v
   if bv.toNat == v then return .continue -- already normalized
   return .done { expr := toExpr (BitVec.ofNat n v) }
@@ -226,9 +226,9 @@ builtin_simproc [simp, seval] reduceSLE (BitVec.sle _ _) :=
 
 /-- Simplification procedure for `zeroExtend'` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceZeroExtend' (zeroExtend' _ _) := fun e => do
-  unless e.isAppOfArity ``zeroExtend' 4 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  let some w ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
+  let_expr zeroExtend' _ w _ v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some w ← Nat.fromExpr? w | return .continue
   if h : v.n ≤ w then
     return .done { expr := toExpr (v.value.zeroExtend' h) }
   else
@@ -236,25 +236,25 @@ builtin_simproc [simp, seval] reduceZeroExtend' (zeroExtend' _ _) := fun e => do
 
 /-- Simplification procedure for `shiftLeftZeroExtend` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceShiftLeftZeroExtend (shiftLeftZeroExtend _ _) := fun e => do
-  unless e.isAppOfArity ``shiftLeftZeroExtend 3 do return .continue
-  let some v ← fromExpr? e.appFn!.appArg! | return .continue
-  let some m ← Nat.fromExpr? e.appArg! | return .continue
+  let_expr shiftLeftZeroExtend _ v m ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some m ← Nat.fromExpr? m | return .continue
   return .done { expr := toExpr (v.value.shiftLeftZeroExtend m) }
 
 /-- Simplification procedure for `extractLsb'` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceExtracLsb' (extractLsb' _ _ _) := fun e => do
-  unless e.isAppOfArity ``extractLsb' 4 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  let some start ← Nat.fromExpr? e.appFn!.appFn!.appArg! | return .continue
-  let some len ← Nat.fromExpr? e.appFn!.appArg! | return .continue
+  let_expr extractLsb' _ start len v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some start ← Nat.fromExpr? start | return .continue
+  let some len ← Nat.fromExpr? len | return .continue
   return .done { expr := toExpr (v.value.extractLsb' start len) }
 
 /-- Simplification procedure for `replicate` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceReplicate (replicate _ _) := fun e => do
-  unless e.isAppOfArity ``replicate 3 do return .continue
-  let some v ← fromExpr? e.appArg! | return .continue
-  let some w ← Nat.fromExpr? e.appFn!.appArg! | return .continue
-  return .done { expr := toExpr (v.value.replicate w) }
+  let_expr replicate _ i v ← e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some i ← Nat.fromExpr? i | return .continue
+  return .done { expr := toExpr (v.value.replicate i) }
 
 /-- Simplification procedure for `zeroExtend` on `BitVec`s. -/
 builtin_simproc [simp, seval] reduceZeroExtend (zeroExtend _ _) := reduceExtend ``zeroExtend zeroExtend
@@ -264,8 +264,19 @@ builtin_simproc [simp, seval] reduceSignExtend (signExtend _ _) := reduceExtend 
 
 /-- Simplification procedure for `allOnes` -/
 builtin_simproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
-  unless e.isAppOfArity ``allOnes 1 do return .continue
-  let some n ← Nat.fromExpr? e.appArg! | return .continue
+  let_expr allOnes n ← e | return .continue
+  let some n ← Nat.fromExpr? n | return .continue
   return .done { expr := toExpr (allOnes n) }
+
+builtin_simproc [simp, seval] reduceBitVecOfFin (BitVec.ofFin _)  := fun e => do
+  let_expr BitVec.ofFin w v ← e | return .continue
+  let some w ← evalNat w |>.run | return .continue
+  let some ⟨_, v⟩ ← getFinValue? v | return .continue
+  return .done { expr := toExpr (BitVec.ofNat w v.val) }
+
+builtin_simproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => do
+  let_expr BitVec.toFin _ v ← e | return .continue
+  let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
+  return .done { expr := toExpr v.toFin }
 
 end BitVec

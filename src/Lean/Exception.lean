@@ -69,7 +69,7 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
-/-- Thrown an unknown constant error message. -/
+/-- Throw an unknown constant error message. -/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
   Lean.throwError m!"unknown constant '{mkConst constName}'"
 

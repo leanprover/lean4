@@ -57,7 +57,7 @@ builtin_simproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
 
 /-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
 builtin_simproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
+  let_expr OfNat.ofNat _ _ _ ← e | return .continue
   return .done { expr := e }
 
 builtin_simproc [simp, seval] reduceAdd ((_ + _ : Int)) := reduceBin ``HAdd.hAdd 6 (· + ·)
@@ -67,9 +67,9 @@ builtin_simproc [simp, seval] reduceDiv ((_ / _ : Int)) := reduceBin ``HDiv.hDiv
 builtin_simproc [simp, seval] reduceMod ((_ % _ : Int)) := reduceBin ``HMod.hMod 6 (· % ·)
 
 builtin_simproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
-  unless e.isAppOfArity ``HPow.hPow 6 do return .continue
-  let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
-  let some v₂ ← Nat.fromExpr? e.appArg! | return .continue
+  let_expr HPow.hPow _ _ _ _ a b ← e | return .continue
+  let some v₁ ← fromExpr? a | return .continue
+  let some v₂ ← Nat.fromExpr? b | return .continue
   return .done { expr := toExpr (v₁ ^ v₂) }
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)
@@ -88,5 +88,15 @@ builtin_simproc [simp, seval] reduceBNe  (( _ : Int) != _)  := reduceBoolPred ``
 
 builtin_simproc [simp, seval] reduceAbs (natAbs _) := reduceNatCore ``natAbs natAbs
 builtin_simproc [simp, seval] reduceToNat (Int.toNat _) := reduceNatCore ``Int.toNat Int.toNat
+
+builtin_simproc [simp, seval] reduceNegSucc (Int.negSucc _) := fun e => do
+  let_expr Int.negSucc a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  return .done { expr := toExpr (-(Int.ofNat a + 1)) }
+
+builtin_simproc [simp, seval] reduceOfNat (Int.ofNat _) := fun e => do
+  let_expr Int.ofNat a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  return .done { expr := toExpr (Int.ofNat a) }
 
 end Int

@@ -74,42 +74,31 @@ def addAsVar (e : Expr) : M LinearExpr := do
 
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
-  | Expr.lit (Literal.natVal n) => return num n
-  | Expr.mdata _ e              => toLinearExpr e
-  | Expr.const ``Nat.zero ..    => return num 0
-  | Expr.app ..                 => visit e
-  | Expr.mvar ..                => visit e
-  | _                           => addAsVar e
+  | .lit (.natVal n)      => return num n
+  | .mdata _ e            => toLinearExpr e
+  | .const ``Nat.zero ..  => return num 0
+  | .app ..               => visit e
+  | .mvar ..              => visit e
+  | _                     => addAsVar e
 where
   visit (e : Expr) : M LinearExpr := do
-    let f := e.getAppFn
-    match f with
-    | Expr.mvar .. =>
-      let eNew ← instantiateMVars e
-      if eNew != e then
-        toLinearExpr eNew
+    match_expr e with
+    | Nat.succ a => return inc (← toLinearExpr a)
+    | Nat.add a b => return add (← toLinearExpr a) (← toLinearExpr b)
+    | Nat.mul a b =>
+      match (← evalNat a |>.run) with
+      | some k => return mulL k (← toLinearExpr b)
+      | none => match (← evalNat b |>.run) with
+        | some k => return mulR (← toLinearExpr a) k
+        | none => addAsVar e
+    | _ =>
+      let e ← instantiateMVarsIfMVarApp e
+      let f := e.getAppFn
+      if f.isConst && isNatProjInst f.constName! e.getAppNumArgs then
+        let some e ← unfoldProjInst? e | addAsVar e
+        toLinearExpr e
       else
         addAsVar e
-    | Expr.const declName .. =>
-      let numArgs := e.getAppNumArgs
-      if declName == ``Nat.succ && numArgs == 1 then
-        return inc (← toLinearExpr e.appArg!)
-      else if declName == ``Nat.add && numArgs == 2 then
-        return add (← toLinearExpr (e.getArg! 0)) (← toLinearExpr (e.getArg! 1))
-      else if declName == ``Nat.mul && numArgs == 2 then
-        match (← evalNat (e.getArg! 0) |>.run) with
-        | some k => return mulL k (← toLinearExpr (e.getArg! 1))
-        | none => match (← evalNat (e.getArg! 1) |>.run) with
-          | some k => return mulR (← toLinearExpr (e.getArg! 0)) k
-          | none => addAsVar e
-      else if isNatProjInst declName numArgs then
-        if let some e ← unfoldProjInst? e then
-          toLinearExpr e
-        else
-          addAsVar e
-      else
-        addAsVar e
-    | _ => addAsVar e
 
 partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := do
   let f := e.getAppFn

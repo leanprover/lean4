@@ -727,9 +727,9 @@ inductive lt [LT α] : List α → List α → Prop where
 instance [LT α] : LT (List α) := ⟨List.lt⟩
 
 instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
-  | [],    []    => isFalse (fun h => nomatch h)
+  | [],    []    => isFalse nofun
   | [],    _::_  => isTrue (List.lt.nil _ _)
-  | _::_, []     => isFalse (fun h => nomatch h)
+  | _::_, []     => isFalse nofun
   | a::as, b::bs =>
     match h a b with
     | isTrue h₁  => isTrue (List.lt.head _ _ h₁)

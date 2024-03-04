@@ -27,11 +27,10 @@ def getRawNatValue? (e : Expr) : Option Nat :=
 
 /-- Return `some (n, type)` if `e` is an `OfNat.ofNat`-application encoding `n` for a type with name `typeDeclName`. -/
 def getOfNatValue? (e : Expr) (typeDeclName : Name) : MetaM (Option (Nat × Expr)) := OptionT.run do
-  let e := e.consumeMData
-  guard <| e.isAppOfArity' ``OfNat.ofNat 3
-  let type ← whnfD (e.getArg!' 0)
+  let_expr OfNat.ofNat type n _ ← e | failure
+  let type ← whnfD type
   guard <| type.getAppFn.isConstOf typeDeclName
-  let .lit (.natVal n) := (e.getArg!' 1).consumeMData | failure
+  let .lit (.natVal n) := n.consumeMData | failure
   return (n, type)
 
 /-- Return `some n` if `e` is a raw natural number or an `OfNat.ofNat`-application encoding `n`. -/
@@ -46,16 +45,15 @@ def getNatValue? (e : Expr) : MetaM (Option Nat) := do
 def getIntValue? (e : Expr) : MetaM (Option Int) := do
   if let some (n, _) ← getOfNatValue? e ``Int then
     return some n
-  if e.isAppOfArity' ``Neg.neg 3 then
-    let some (n, _) ← getOfNatValue? (e.getArg!' 2) ``Int | return none
-    return some (-n)
-  return none
+  let_expr Neg.neg _ _ a ← e | return none
+  let some (n, _) ← getOfNatValue? a ``Int | return none
+  return some (-↑n)
 
 /-- Return `some c` if `e` is a `Char.ofNat`-application encoding character `c`. -/
-def getCharValue? (e : Expr) : MetaM (Option Char) := OptionT.run do
-  guard <| e.isAppOfArity' ``Char.ofNat 1
-  let n ← getNatValue? (e.getArg!' 0)
-  return Char.ofNat n
+def getCharValue? (e : Expr) : MetaM (Option Char) := do
+  let_expr Char.ofNat n ← e | return none
+  let some n ← getNatValue? n | return none
+  return some (Char.ofNat n)
 
 /-- Return `some s` if `e` is of the form `.lit (.strVal s)`. -/
 def getStringValue? (e : Expr) : (Option String) :=

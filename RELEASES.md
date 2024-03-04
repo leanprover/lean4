@@ -11,6 +11,12 @@ of each version.
 v4.7.0 (development in progress)
 ---------
 
+* `simp` and `rw` now use instance arguments found by unification,
+  rather than always resynthesizing. For backwards compatibility, the original behaviour is
+  available via `set_option tactic.skipAssignedInstances false`.
+  [#3507](https://github.com/leanprover/lean4/pull/3507) and
+  [#3509](https://github.com/leanprover/lean4/pull/3509).
+
 * When the `pp.proofs` is false, now omitted proofs use `⋯` rather than `_`,
   which gives a more helpful error message when copied from the Infoview.
   The `pp.proofs.threshold` option lets small proofs always be pretty printed.

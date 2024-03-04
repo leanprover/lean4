@@ -195,6 +195,11 @@ Lake fixes:
 * Warn on fetch cloud release failure [#3401](https://github.com/leanprover/lean4/pull/3401)
 * Cloud release trace & `lake build :release` errors [#3248](https://github.com/leanprover/lean4/pull/3248)
 
+v4.6.1
+---------
+* Backport of [#3552](https://github.com/leanprover/lean4/pull/3552) fixing a performance regression
+  in server startup.
+
 v4.6.0
 ---------
 

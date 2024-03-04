@@ -208,7 +208,7 @@ def solveDecreasingGoals (decrTactics : Array (Option DecreasingBy)) (value : Ex
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)
     (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
-  let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
+  let (wfFix, varName) ← forallBoundedTelescope type (some 1) (cleanupAnnotations := true) fun x type => do
     let x := x[0]!
     let α ← inferType x
     let u ← getLevel α

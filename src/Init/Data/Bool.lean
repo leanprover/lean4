@@ -92,7 +92,7 @@ Needed for confluence of term `(a && b) ↔ a` which reduces to `(a && b) = a` v
 
 /-! ### or -/
 
-@[simp] theorem or_self_left : ∀(a b : Bool), (a || (a || b)) = (a || b) := by decide
+@[simp] theorem or_self_left  : ∀(a b : Bool), (a || (a || b)) = (a || b) := by decide
 @[simp] theorem or_self_right : ∀(a b : Bool), ((a || b) || b) = (a || b) := by decide
 
 @[simp] theorem not_or_self : ∀ (x : Bool), (!x || x) = true := by decide
@@ -203,10 +203,10 @@ due to `beq_iff_eq`.
 @[simp] theorem not_eq_self : ∀(b : Bool), ((!b) = b) ↔ False := by decide
 @[simp] theorem eq_not_self : ∀(b : Bool), (b = (!b)) ↔ False := by decide
 
-@[simp] theorem beq_self_left (a b : Bool) : (a == (a == b)) = b := by revert a b ; decide
-@[simp] theorem beq_self_right (a b : Bool) : ((a == b) == b) = a := by revert a b ; decide
-@[simp] theorem bne_self_left (a b : Bool) : (a != (a != b)) = b := by revert a b ; decide
-@[simp] theorem bne_self_right (a b : Bool) : ((a != b) != b) = a := by revert a b ; decide
+@[simp] theorem beq_self_left  : ∀(a b : Bool), (a == (a == b)) = b := by decide
+@[simp] theorem beq_self_right : ∀(a b : Bool), ((a == b) == b) = a := by decide
+@[simp] theorem bne_self_left  : ∀(a b : Bool), (a != (a != b)) = b := by decide
+@[simp] theorem bne_self_right : ∀(a b : Bool), ((a != b) != b) = a := by decide
 
 @[simp] theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by decide
 

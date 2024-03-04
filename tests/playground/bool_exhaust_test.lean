@@ -5,6 +5,8 @@ import Lean.Meta.CheckTactic
 import Lean.Parser.Term
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
+open Lean.Meta.CheckTactic
+
 
 -- | A `Op` is a first order operation for generating values with a given type.
 structure Op (tp : Type) (val : Type) where
@@ -133,18 +135,22 @@ def pushOp (p : PartialTerm term) (op : Op Nat term) : PartialTerm term :=
 
 end PartialTerm
 
-structure State (term : Type) where
+/--
+Term generator
+-/
+structure Gen (term : Type) where
   sofar : Array term := #[]
   pending : Array (PartialTerm term) := #[]
   deriving Inhabited
 
-namespace State
+namespace Gen
 
-def isEmpty (s: State term) : Bool := s.sofar.isEmpty && s.pending.isEmpty
+/-- Return true if generator will return no more terms. -/
+def isEmpty (s: Gen term) : Bool := s.sofar.isEmpty && s.pending.isEmpty
 
-def pop (s : State term) : State term ⊕ (Nat × PartialTerm term × State term) :=
+def pop (s : Gen term) : Option (Nat × PartialTerm term × Gen term) :=
   if s.pending.isEmpty then
-    .inl s
+    .none
   else
     let { sofar, pending } := s
     let next := pending.back
@@ -154,16 +160,16 @@ def pop (s : State term) : State term ⊕ (Nat × PartialTerm term × State term
       panic! "Term stack empty"
     | some app =>
       let tp := app.op.args[app.terms.size]!
-      .inr (tp, next, { sofar, pending })
+      some (tp, next, { sofar, pending })
 
 /- `push s next v` adds the result of `next.push v` to the state. -/
-def push (s : State term) (next : PartialTerm term) (v : term) : State term :=
+def push (s : Gen term) (next : PartialTerm term) (v : term) : Gen term :=
   let { sofar, pending } := s
   match next.push v with
   | .inl v => { sofar := sofar.push v, pending }
   | .inr next => { sofar, pending := pending.push next }
 
-def pushOp (s : State term) (ctx : GenCtx term) (next : PartialTerm term) (op : Op Nat term) :=
+def pushOp (s : Gen term) (ctx : GenCtx term) (next : PartialTerm term) (op : Op Nat term) :=
   if op.args.isEmpty then
     s.push next (op.apply #[])
   else if op.args.size ≤ next.remTermSize ∧ next.termStack.size + 1 < ctx.maxDepth then
@@ -171,21 +177,21 @@ def pushOp (s : State term) (ctx : GenCtx term) (next : PartialTerm term) (op : 
   else
     s
 
-def add (s : State term) (val : term ⊕ PartialTerm term) : State term :=
+def add (s : Gen term) (val : term ⊕ PartialTerm term) : Gen term :=
   let { sofar, pending } := s
   match val with
   | .inl v => { sofar := sofar.push v, pending }
   | .inr p => { sofar, pending := pending.push p }
 
 /-- Create state that will explore all terms in context -/
-def addOpInstances (s : State term) (ctx : GenCtx term) (op : Op Nat term) : State term :=
+def addOpInstances (s : Gen term) (ctx : GenCtx term) (op : Op Nat term) : Gen term :=
   s.add (PartialTerm.init ctx.maxTermSize ctx.maxDepth op)
 
 /-- Create state that will explore all terms in context -/
-def init (ctx : GenCtx term) : State term :=
+def init (ctx : GenCtx term) : Gen term :=
   ctx.topOps.foldl (init := {}) (·.addOpInstances ctx ·)
 
-end State
+end Gen
 
 /--
 Generate terms until we reach the limit.
@@ -193,16 +199,16 @@ Generate terms until we reach the limit.
 partial
 def generateTerms
     (ctx : GenCtx term)
-    (s : State term)
+    (s : Gen term)
     (limit : Nat := 0) :
-    Array term × State term :=
+    Array term × Gen term :=
   if limit > 0 ∧ s.sofar.size ≥ limit then
     (s.sofar, { s with sofar := #[] })
   else
     match s.pop with
-    | .inl s => (s.sofar, { s with sofar := #[] })
-    | .inr (tp, next, s) =>
-      let addVar (next : PartialTerm term) (i : Nat) (s : State term) : State term :=
+    | none => (s.sofar, { s with sofar := #[] })
+    | some (tp, next, s) =>
+      let addVar (next : PartialTerm term) (i : Nat) (s : Gen term) : Gen term :=
             if next.usedVars[i]! = tp then
               match ctx.var tp i with
               | some v => s.push next v
@@ -222,10 +228,6 @@ def generateTerms
 /-
 `addScopeVariables` extends the local context and instances with a copy of the
 variables in the scope (which must be non-empty).
-
-The first variable user name
-
- extends the local context
 -/
 def addScopeVariables (lctx : LocalContext) (linst : LocalInstances) (scope : Scope) (idx : Nat) :
     CoreM (LocalContext × LocalInstances × Ident) := do
@@ -316,67 +318,6 @@ def mkCtx [BEq tp] [Hashable tp]
   let maxVarCount : Nat := stats.maxVarCount
   pure { ops, topOps, maxTermSize, maxDepth, maxVarCount, lctx, linst, vars }
 
-def State.addOp (s : State val) (ctx : GenCtx val) (op : Op Nat val) : State val :=
-  let {sofar, pending} := s
-  match  PartialTerm.init ctx.maxTermSize ctx.maxDepth op with
-  | .inl v => { sofar := sofar.push v, pending }
-  | .inr gen => { sofar, pending := pending.push gen }
-
-namespace Test
-
-inductive TType where
-| nat
-| int
-deriving BEq, Hashable, Repr
-
-inductive Term where
-| var (v : VarDecl TType)
-| zero
-| succ (x : Term)
-| add (x y : Term)
-deriving Inhabited, Repr
-
-def Term.toString (t:Term) : String :=
-  match t with
-  | .var d => s!"v{d.idx}"
-  | .zero => s!"0"
-  | .succ x => s!"(suc {x.toString})"
-  | add x y => s!"(add {x.toString} {y.toString})"
-
-local syntax:lead (name := myTestElab) "#myTest" : command
-
-@[command_elab myTestElab]
-def elabIntTest : CommandElab := fun _stx => do
-  let types : Array TType := #[.nat, .int]
-  let zeroOp : Op TType Term := Op.mk #[] .nat (fun _ => .zero)
-  let succOp : Op TType Term := Op.mk #[.nat] .nat (fun a => .succ a[0]!)
-  let addOp : Op TType Term := Op.mk #[.nat, .nat] .nat (fun a => .add a[0]! a[1]!)
-  let ops : List (Op TType Term) := [zeroOp, succOp, addOp]
-  let varGen : List (TType × CoreM Command) := [Prod.mk .nat do `(variable (n:Nat))]
-  let stats : GenStats := { maxTermSize := 7, maxDepth := 4, maxVarCount := 3 }
-  let ctx ← mkCtx types ops varGen .var stats
-  let s : State Term := {}
-  let s := s.addOp ctx ctx.ops[0]![1]!
-  let (terms, _) := generateTerms ctx s
-  IO.println s!"Count: {terms.size}"
-  for i in [0:terms.size], t in terms do
-      IO.println s!"  {i}: {t.toString}"
-
-  pure ()
-
---#myTest
-
-
-end Test
-
-def genOpSubterms (ctx : GenCtx val) (op : Op Nat val) : Array val :=
-  let s : State val := {}
-  let s := s.addOp ctx op
-  let (terms, _) := generateTerms ctx s
-  terms
-
-open Lean.Meta.CheckTactic
-
 def runTests [BEq tp] [HasType val tp] [Value val] (stx : Syntax) (simp : val → val)(tac : Syntax.Tactic) (terms : Array val)
       : TermElabM Unit := do
   for tm in terms do
@@ -408,8 +349,6 @@ def runTests [BEq tp] [HasType val tp] [Value val] (stx : Syntax) (simp : val �
         logErrorAt stx
           m!"{tac} produced multiple goals, but is expected to reduce to {indentExpr expTerm}."
 
-open Command
-
 private def mkCoreContext (ctx : Command.Context) (options : Options) (maxRecDepth : Nat) (initHeartbeats : Nat) : Core.Context :=
   { fileName       := ctx.fileName
     fileMap        := ctx.fileMap
@@ -431,18 +370,17 @@ def runTermElabM (cctx : Core.Context) (cstate : Core.State) (mctx : Meta.Contex
     pure (.ok coreS.messages)
 
 partial
-def runGen [BEq tp] [Hashable tp] [HasType val tp] [Value val]
+def runGen [BEq tp] [Hashable tp] [HasType term tp] [Value term]
 
-      (stx : Syntax) (simp : val → val)
+      (stx : Syntax) (simp : term → term)
       (varGen : List (tp × CoreM Command))
-      (mkVar : VarDecl tp → val)
+      (mkVar : VarDecl tp → term)
       (stats : GenStats)
       (types : Array tp)
-      (ops : List (Op tp val))
+      (ops : List (Op tp term))
       (tac : Syntax.Tactic)
-      (topOps : List (Op tp val) := ops)
+      (topOps : List (Op tp term) := ops)
       (concurrent : Bool := true) : CommandElabM Unit := do
-
 
   let ctx ← mkCtx (types := types) (ops := ops) (topOps := topOps) (varGen := varGen) (mkVar := mkVar) (stats := stats)
 
@@ -459,10 +397,10 @@ def runGen [BEq tp] [Hashable tp] [HasType val tp] [Value val]
   let cctx := mkCoreContext cmdCtx options maxRecDepth heartbeats
   let cstate : Core.State := { env := env, ngen := ngen, infoState.enabled := false }
   let mctx : Meta.Context := { lctx := lctx, localInstances := linst }
-  let gen := State.init ctx
+  let gen := Gen.init ctx
   if concurrent then
     let limit := 400
-    let rec loop (gen : State val) (tasks : Array (Task (Except Exception MessageLog))) := do
+    let rec loop (gen : Gen term) (tasks : Array (Task (Except Exception MessageLog))) := do
       if gen.isEmpty then
         return tasks
       else
@@ -1158,9 +1096,4 @@ def elabGenTest : CommandElab := fun stx => do
   let tac : Syntax.Tactic ← `(tactic|try simp)
   runGen stx BoolVal.simp varGen BoolVal.var stats types ops (topOps := ops) tac
 
--- Currently 1.3s
-set_option maxHeartbeats 1000000000
-set_option profiler true
---set_option profiler.threshold 10
-#boolTest
-set_option profiler false
+--#boolTest

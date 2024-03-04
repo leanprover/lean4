@@ -7,8 +7,6 @@ prelude
 import Init.Data.Ord
 namespace Lean
 
-instance : Coe String Name := ⟨Name.mkSimple⟩
-
 namespace Name
 -- Remark: we export the `Name.hash` to make sure it matches the hash implemented in C++
 @[export lean_name_hash_exported] def hashEx : Name → UInt64 :=

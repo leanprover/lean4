@@ -11,8 +11,6 @@ import Lean.Data.SSet
 import Lean.Data.Name
 namespace Lean
 
-instance : Coe String Name := ⟨Name.mkSimple⟩
-
 def NameMap (α : Type) := RBMap Name α Name.quickCmp
 
 @[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickCmp

@@ -947,6 +947,11 @@ def _root_.Substring.toName (s : Substring) : Name :=
       else
         Name.mkStr n comp
 
+/--
+Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+
+`"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
+-/
 def _root_.String.toName (s : String) : Name :=
   s.toSubstring.toName
 

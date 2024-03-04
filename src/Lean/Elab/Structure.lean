@@ -302,7 +302,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let args := e.getAppArgs
           if let some major := args.get? numParams then
             if (← getNestedProjectionArg major) == parent then
-              if let some existingFieldInfo := findFieldInfo? infos subFieldName then
+              if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)

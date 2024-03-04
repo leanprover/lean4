@@ -58,7 +58,7 @@ def updateGitRepo (name : String) (repo : GitRepo)
     else
       logInfo s!"{name}: URL has changed; deleting '{repo.dir}' and cloning again"
       IO.FS.removeDirAll repo.dir
-      cloneGitPkg name repo url rev?
+      cloneGitPkg (.mkSimple name) repo url rev?
 
 /--
 Materialize the Git repository from `url` into `repo` at `rev?`.
@@ -69,7 +69,7 @@ def materializeGitRepo (name : String) (repo : GitRepo)
   if (← repo.dirExists) then
     updateGitRepo name repo url rev?
   else
-    cloneGitPkg name repo url rev?
+    cloneGitPkg (.mkSimple name) repo url rev?
 
 structure MaterializedDep where
   /-- Path to the materialized package relative to the workspace's root directory. -/
@@ -165,7 +165,7 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
         updateGitRepo sname repo url rev
     else
       let url := pkgUrlMap.find? name |>.getD url
-      cloneGitPkg sname repo url rev
+      cloneGitPkg (.mkSimple sname) repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {
       relPkgDir

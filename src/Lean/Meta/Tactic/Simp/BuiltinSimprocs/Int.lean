@@ -89,4 +89,14 @@ builtin_simproc [simp, seval] reduceBNe  (( _ : Int) != _)  := reduceBoolPred ``
 builtin_simproc [simp, seval] reduceAbs (natAbs _) := reduceNatCore ``natAbs natAbs
 builtin_simproc [simp, seval] reduceToNat (Int.toNat _) := reduceNatCore ``Int.toNat Int.toNat
 
+builtin_simproc [simp, seval] reduceNegSucc (Int.negSucc _) := fun e => do
+  let_expr Int.negSucc a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  return .done { expr := toExpr (-(Int.ofNat a + 1)) }
+
+builtin_simproc [simp, seval] reduceOfNat (Int.ofNat _) := fun e => do
+  let_expr Int.ofNat a ← e | return .continue
+  let some a ← getNatValue? a | return .continue
+  return .done { expr := toExpr (Int.ofNat a) }
+
 end Int

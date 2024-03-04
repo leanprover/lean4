@@ -268,4 +268,15 @@ builtin_simproc [simp, seval] reduceAllOnes (allOnes _) := fun e => do
   let some n ← Nat.fromExpr? n | return .continue
   return .done { expr := toExpr (allOnes n) }
 
+builtin_simproc [simp, seval] reduceBitVecOfFin (BitVec.ofFin _)  := fun e => do
+  let_expr BitVec.ofFin w v ← e | return .continue
+  let some w ← evalNat w |>.run | return .continue
+  let some ⟨_, v⟩ ← getFinValue? v | return .continue
+  return .done { expr := toExpr (BitVec.ofNat w v.val) }
+
+builtin_simproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => do
+  let_expr BitVec.toFin _ v ← e | return .continue
+  let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
+  return .done { expr := toExpr v.toFin }
+
 end BitVec

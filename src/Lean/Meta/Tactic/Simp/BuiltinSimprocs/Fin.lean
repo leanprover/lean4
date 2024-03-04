@@ -71,4 +71,13 @@ builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
     return .done { expr := e }
   return .done { expr := toExpr v }
 
+builtin_simproc [simp, seval] reduceFinMk (Fin.mk _ _)  := fun e => do
+  let_expr Fin.mk n v _ ← e | return .continue
+  let some n ← evalNat n |>.run | return .continue
+  let some v ← getNatValue? v | return .continue
+  if h : n > 0 then
+    return .done { expr := toExpr (Fin.ofNat' v h) }
+  else
+    return .continue
+
 end Fin

@@ -60,6 +60,12 @@ builtin_simproc [simp, seval] $(mkIdent `reduceOfNatCore):ident ($ofNatCore _ _)
   let value := $(mkIdent ofNat) value
   return .done { expr := toExpr value }
 
+builtin_simproc [simp, seval] $(mkIdent `reduceOfNat):ident ($(mkIdent ofNat) _) := fun e => do
+  unless e.isAppOfArity $(quote ofNat) 1 do return .continue
+  let some value ← Nat.fromExpr? e.appArg! | return .continue
+  let value := $(mkIdent ofNat) value
+  return .done { expr := toExpr value }
+
 builtin_simproc [simp, seval] $(mkIdent `reduceToNat):ident ($toNat _) := fun e => do
   unless e.isAppOfArity $(quote toNat.getId) 1 do return .continue
   let some v ← ($fromExpr e.appArg!) | return .continue

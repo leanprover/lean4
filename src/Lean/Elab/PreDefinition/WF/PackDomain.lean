@@ -77,7 +77,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   let mut arities := #[]
   let mut modified := false
   for preDef in preDefs do
-    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs _ => do
+    let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs _ => do
       if xs.size == fixedPrefix then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
       let arity := xs.size
@@ -108,7 +108,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   for i in [:preDefs.size] do
     let preDef := preDefs[i]!
     let preDefNew := preDefsNew[i]!
-    let valueNew ← lambdaTelescope preDef.value fun xs body => do
+    let valueNew ← lambdaTelescope preDef.value (cleanupAnnotations := true) fun xs body => do
       let ys : Array Expr := xs[:fixedPrefix]
       let xs : Array Expr := xs[fixedPrefix:]
       let type ← instantiateForall preDefNew.type ys

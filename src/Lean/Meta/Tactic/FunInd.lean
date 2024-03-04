@@ -520,7 +520,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
   buildInductionCase fn oldIH newIH toClear toPreserve goal IHs e
 
 partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  lambdaTelescope e fun params body => do
+  lambdaTelescope e (cleanupAnnotations := true) fun params body => do
     if body.isAppOf ``WellFounded.fixF then
       k params body
     else if body.isAppOf ``WellFounded.fix then

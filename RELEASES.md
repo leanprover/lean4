@@ -8,7 +8,7 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.7.0 (development in progress)
+v4.7.0
 ---------
 
 * `simp` and `rw` now use instance arguments found by unification,
@@ -126,7 +126,7 @@ v4.7.0 (development in progress)
   There is now kernel support for these functions.
   [#3376](https://github.com/leanprover/lean4/pull/3376).
 
-* `omega`, our integer linear arithmetic tactic, is now availabe in the core langauge.
+* `omega`, our integer linear arithmetic tactic, is now available in the core langauge.
   * It is supplemented by a preprocessing tactic `bv_omega` which can solve goals about `BitVec`
     which naturally translate into linear arithmetic problems.
     [#3435](https://github.com/leanprover/lean4/pull/3435).
@@ -172,23 +172,23 @@ Breaking changes:
 
 
 Other improvements:
-* several bug fixes for `simp`:
+* Several bug fixes for `simp`:
   * we should not crash when `simp` loops [#3269](https://github.com/leanprover/lean4/pull/3269)
   * `simp` gets stuck on `autoParam` [#3315](https://github.com/leanprover/lean4/pull/3315)
   * `simp` fails when custom discharger makes no progress [#3317](https://github.com/leanprover/lean4/pull/3317)
   * `simp` fails to discharge `autoParam` premises even when it can reduce them to `True` [#3314](https://github.com/leanprover/lean4/pull/3314)
   * `simp?` suggests generated equations lemma names, fixes [#3547](https://github.com/leanprover/lean4/pull/3547) [#3573](https://github.com/leanprover/lean4/pull/3573)
-* fixes for `match` expressions:
+* Fixes for `match` expressions:
   * fix regression with builtin literals [#3521](https://github.com/leanprover/lean4/pull/3521)
   * accept `match` when patterns cover all cases of a `BitVec` finite type [#3538](https://github.com/leanprover/lean4/pull/3538)
   * fix matching `Int` literals [#3504](https://github.com/leanprover/lean4/pull/3504)
   * patterns containing int values and constructors [#3496](https://github.com/leanprover/lean4/pull/3496)
-* improve `termination_by` error messages [#3255](https://github.com/leanprover/lean4/pull/3255)
-* fix `rename_i` in macros, fixes [#3553](https://github.com/leanprover/lean4/pull/3553) [#3581](https://github.com/leanprover/lean4/pull/3581)
-* fix excessive resource usage in `generalize`, fixes [#3524](https://github.com/leanprover/lean4/pull/3524) [#3575](https://github.com/leanprover/lean4/pull/3575)
-* an equation lemma with autoParam arguments fails to rewrite, fixing [#2243](https://github.com/leanprover/lean4/pull/2243) [#3316](https://github.com/leanprover/lean4/pull/3316)
+* Improve `termination_by` error messages [#3255](https://github.com/leanprover/lean4/pull/3255)
+* Fix `rename_i` in macros, fixes [#3553](https://github.com/leanprover/lean4/pull/3553) [#3581](https://github.com/leanprover/lean4/pull/3581)
+* Fix excessive resource usage in `generalize`, fixes [#3524](https://github.com/leanprover/lean4/pull/3524) [#3575](https://github.com/leanprover/lean4/pull/3575)
+* An equation lemma with autoParam arguments fails to rewrite, fixing [#2243](https://github.com/leanprover/lean4/pull/2243) [#3316](https://github.com/leanprover/lean4/pull/3316)
 * `add_decl_doc` should check that declarations are local [#3311](https://github.com/leanprover/lean4/pull/3311)
-* instantiate the types of inductives with the right parameters, closing [#3242](https://github.com/leanprover/lean4/pull/3242) [#3246](https://github.com/leanprover/lean4/pull/3246)
+* Instantiate the types of inductives with the right parameters, closing [#3242](https://github.com/leanprover/lean4/pull/3242) [#3246](https://github.com/leanprover/lean4/pull/3246)
 * New simprocs for many basic types. [#3407](https://github.com/leanprover/lean4/pull/3407)
 
 Lake fixes:

@@ -37,15 +37,6 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
     f (ite P x y) = ite P (f x) (f y) :=
   apply_dite f P (fun _ => x) (fun _ => y)
 
-/-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
-@[simp] theorem dite_not (P : Prop) {_ : Decidable P}  (x : ¬P → α) (y : ¬¬P → α) :
-    dite (¬P) x y = dite P (fun h => y (not_not_intro h)) x := by
-  by_cases h : P <;> simp [h]
-
-/-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
-@[simp] theorem ite_not (P : Prop) {_ : Decidable P} (x y : α) : ite (¬P) x y = ite P y x :=
-  dite_not P (fun _ => x) (fun _ => y)
-
 @[simp] theorem dite_eq_left_iff {P : Prop} [Decidable P] {B : ¬ P → α} :
     dite P (fun _ => a) B = a ↔ ∀ h, B h = a := by
   by_cases P <;> simp [*, forall_prop_of_true, forall_prop_of_false]

@@ -11,6 +11,18 @@ import Init.Core
 import Init.NotationExtra
 set_option linter.missingDocs true -- keep it documented
 
+/-! ## cast and equality -/
+
+@[simp] theorem eq_mp_eq_cast  (h : α = β) : Eq.mp  h = cast h := rfl
+@[simp] theorem eq_mpr_eq_cast (h : α = β) : Eq.mpr h = cast h.symm := rfl
+
+@[simp] theorem cast_cast : ∀ (ha : α = β) (hb : β = γ) (a : α),
+    cast hb (cast ha a) = cast (ha.trans hb) a
+  | rfl, rfl, _ => rfl
+
+@[simp] theorem eq_true_eq_id : Eq True = id := by
+  funext _; simp only [true_iff, id.def, eq_iff_iff]
+
 /-! ## not -/
 
 theorem not_not_em (a : Prop) : ¬¬(a ∨ ¬a) := fun h => h (.inr (h ∘ .inl))
@@ -104,9 +116,61 @@ theorem and_or_right : (a ∧ b) ∨ c ↔ (a ∨ c) ∧ (b ∨ c) := by rw [@or
 
 theorem or_imp : (a ∨ b → c) ↔ (a → c) ∧ (b → c) :=
   Iff.intro (fun h => ⟨h ∘ .inl, h ∘ .inr⟩) (fun ⟨ha, hb⟩ => Or.rec ha hb)
-theorem not_or : ¬(p ∨ q) ↔ ¬p ∧ ¬q := or_imp
+
+/-
+`not_or` is made simp for confluence with `¬((b || c) = true)`:
+
+Critical pair:
+1. `¬(b = true ∨ c = true)` via `Bool.or_eq_true`.
+2. `(b || c = false)` via `Bool.not_eq_true` which then
+   reduces to `b = false ∧ c = false` via Mathlib simp lemma
+   `Bool.or_eq_false_eq_eq_false_and_eq_false`.
+
+Both reduce to `b = false ∧ c = false` via `not_or`.
+-/
+@[simp] theorem not_or : ¬(p ∨ q) ↔ ¬p ∧ ¬q := or_imp
 
 theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.1)) (mt (·.2))
+
+
+/-! ## Ite -/
+
+@[simp]
+theorem if_false_left [h : Decidable p] :
+    ite p False q ↔ ¬p ∧ q := by cases h <;> (rename_i g; simp [g])
+
+@[simp]
+theorem if_false_right [h : Decidable p] :
+    ite p q False ↔ p ∧ q := by cases h <;> (rename_i g; simp [g])
+
+/-
+`if_true_left` and `if_true_right` are lower priority because
+they introduce disjunctions and we prefer `if_false_left` and
+`if_false_right` if they overlap.
+-/
+
+@[simp low]
+theorem if_true_left [h : Decidable p] :
+    ite p True q ↔ ¬p → q := by cases h <;> (rename_i g; simp [g])
+
+@[simp low]
+theorem if_true_right [h : Decidable p] :
+    ite p q True ↔ p → q := by cases h <;> (rename_i g; simp [g])
+
+/-- Negation of the condition `P : Prop` in a `dite` is the same as swapping the branches. -/
+@[simp] theorem dite_not [hn : Decidable (¬p)] [h : Decidable p]  (x : ¬p → α) (y : ¬¬p → α) :
+    dite (¬p) x y = dite p (fun h => y (not_not_intro h)) x := by
+  cases h <;> (rename_i g; simp [g])
+
+/-- Negation of the condition `P : Prop` in a `ite` is the same as swapping the branches. -/
+@[simp] theorem ite_not (p : Prop) [Decidable p] (x y : α) : ite (¬p) x y = ite p y x :=
+  dite_not (fun _ => x) (fun _ => y)
+
+@[simp] theorem ite_true_same (p q : Prop) [h : Decidable p] : (if p then p else q) = (¬p → q) := by
+  cases h <;> (rename_i g; simp [g])
+
+@[simp] theorem ite_false_same (p q : Prop) [h : Decidable p] : (if p then q else p) = (p ∧ q) := by
+  cases h <;> (rename_i g; simp [g])
 
 /-! ## exists and forall -/
 
@@ -268,7 +332,14 @@ end quantifiers
 
 /-! ## decidable -/
 
-theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
+@[simp] theorem Decidable.not_not [Decidable p] : ¬¬p ↔ p := ⟨of_not_not, not_not_intro⟩
+
+/-- Excluded middle.  Added as alias for Decidable.em -/
+abbrev Decidable.or_not_self := em
+
+/-- Excluded middle commuted.  Added as alias for Decidable.em -/
+theorem Decidable.not_or_self (p : Prop) [h : Decidable p] : ¬p ∨ p := by
+  cases h <;> simp [*]
 
 theorem Decidable.by_contra [Decidable p] : (¬p → False) → p := of_not_not
 
@@ -310,7 +381,7 @@ theorem Decidable.not_imp_symm [Decidable a] (h : ¬a → b) (hb : ¬b) : a :=
 theorem Decidable.not_imp_comm [Decidable a] [Decidable b] : (¬a → b) ↔ (¬b → a) :=
   ⟨not_imp_symm, not_imp_symm⟩
 
-theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
+@[simp] theorem Decidable.not_imp_self [Decidable a] : (¬a → a) ↔ a := by
   have := @imp_not_self (¬a); rwa [not_not] at this
 
 theorem Decidable.or_iff_not_imp_left [Decidable a] : a ∨ b ↔ (¬a → b) :=
@@ -389,8 +460,12 @@ theorem Decidable.and_iff_not_or_not [Decidable a] [Decidable b] : a ∧ b ↔ �
   rw [← not_and_iff_or_not_not, not_not]
 
 theorem Decidable.imp_iff_right_iff [Decidable a] : (a → b ↔ b) ↔ a ∨ b :=
-  ⟨fun H => (Decidable.em a).imp_right fun ha' => H.1 fun ha => (ha' ha).elim,
-   fun H => H.elim imp_iff_right fun hb => iff_of_true (fun _ => hb) hb⟩
+  Iff.intro
+    (fun h => (Decidable.em a).imp_right fun ha' => h.mp fun ha => (ha' ha).elim)
+    (fun ab => ab.elim imp_iff_right fun hb => iff_of_true (fun _ => hb) hb)
+
+theorem Decidable.imp_iff_left_iff  [Decidable a] : (b ↔ a → b) ↔ a ∨ b :=
+  propext (@Iff.comm (a → b) b) ▸ (@Decidable.imp_iff_right_iff a b _)
 
 theorem Decidable.and_or_imp [Decidable a] : a ∧ b ∨ (a → c) ↔ a → b ∨ c :=
   if ha : a then by simp only [ha, true_and, true_imp_iff]
@@ -435,3 +510,53 @@ protected theorem Decidable.not_forall_not {p : α → Prop} [Decidable (∃ x, 
 protected theorem Decidable.not_exists_not {p : α → Prop} [∀ x, Decidable (p x)] :
     (¬∃ x, ¬p x) ↔ ∀ x, p x := by
   simp only [not_exists, Decidable.not_not]
+
+export Decidable (not_imp_self)
+
+/-
+`decide_implies` simp justification.
+
+We have a critical pair from `decide (¬(p ∧ q))`:
+
+ 1. `decide (p → ¬q)` via `not_and`
+ 2. `!decide (p ∧ q)` via `decide_not` This further refines to
+    `!(decide p) || !(decide q)` via `Bool.decide_and` (in Mathlib) and
+    `Bool.not_and` (made simp in Mathlib).
+
+We introduce `decide_implies` below and then both normalize to
+`!(decide p) || !(decide q)`.
+-/
+@[simp]
+theorem decide_implies (u v : Prop)
+    [duv : Decidable (u → v)] [du : Decidable u] {dv : u → Decidable v}
+  : decide (u → v) = dite u (fun h => @decide v (dv h)) (fun _ => true) :=
+  if h : u then by
+    simp [h]
+  else by
+    simp [h]
+
+/-
+`decide_ite` is needed to resolve critical pair with
+
+We have a critical pair from `decide (ite p b c = true)`:
+
+ 1. `ite p b c` via `decide_coe`
+ 2. `decide (ite p (b = true) (c = true))` via `Bool.ite_eq_true_distrib`.
+
+We introduce `decide_ite` so both normalize to `ite p b c`.
+-/
+@[simp]
+theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
+      [dpq : Decidable (ite u p q)] [dp : Decidable p] [dq : Decidable q] :
+    decide (ite u p q) = ite u (decide p) (decide q) := by
+  cases du <;> simp [*]
+
+/- Confluence for `ite_true_same` and `decide_ite`. -/
+@[simp] theorem ite_true_decide_same (p : Prop) [h : Decidable p] (b : Bool) :
+  (if p then decide p else b) = (decide p || b) := by
+  cases h <;> (rename_i pt; simp [pt])
+
+/- Confluence for `ite_false_same` and `decide_ite`. -/
+@[simp] theorem ite_false_decide_same (p : Prop) [h : Decidable p] (b : Bool) :
+  (if p then b else decide p) = (decide p && b) := by
+  cases h <;> (rename_i pt; simp [pt])

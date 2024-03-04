@@ -227,6 +227,12 @@
       lake self-check
       "
 - attributes:
+    description: language server startup
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dlinter.all=false --run server_startup.lean
+- attributes:
     description: liasolver
     tags: [fast, suite]
   run_config:

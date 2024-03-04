@@ -184,7 +184,6 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
       pure b
   loop 0 b
 
-/-- Reference implementation for `forIn` -/
 @[implemented_by Array.forInUnsafe]
 protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -218,7 +217,6 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/-- Reference implementation for `foldlM` -/
 @[implemented_by foldlMUnsafe]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
@@ -255,7 +253,6 @@ unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
   else
     pure init
 
-/-- Reference implementation for `foldrM` -/
 @[implemented_by foldrMUnsafe]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
@@ -293,7 +290,6 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
      pure (unsafeCast r)
   unsafeCast <| map 0 (unsafeCast as)
 
-/-- Reference implementation for `mapM` -/
 @[implemented_by mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   -- Note: we cannot use `foldlM` here for the reference implementation because this calls

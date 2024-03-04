@@ -114,6 +114,11 @@ Breaking changes:
   fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration
   monads built on `EIO Exception` should be synthesized automatically.
 
+v4.6.1
+---------
+* Backport of [#3552](https://github.com/leanprover/lean4/pull/3552) fixing a performance regression
+  in server startup.
+
 v4.6.0
 ---------
 

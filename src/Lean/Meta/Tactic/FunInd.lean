@@ -267,6 +267,21 @@ def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
       value := mkProj ``And 0 value
   return value
 
+partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
+  if e.isAppOfArity ``PProd.fst 3 then
+    if let some e' ← isPProdProj oldIH newIH e.appArg! then
+      return some (← mkAppM ``PProd.fst #[e'])
+    else
+      return none
+  else if e.isAppOfArity ``PProd.snd 3 then
+    if let some e' ← isPProdProj oldIH newIH e.appArg! then
+      return some (← mkAppM ``PProd.snd #[e'])
+    else
+      return none
+  else if e.isFVarOf oldIH then
+    return some (mkFVar newIH)
+  else
+    return none
 
 -- Non-tail-positions: Collect induction hypotheses
 -- (TODO: Worth folding with `foldCalls`, like before?)
@@ -275,6 +290,13 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
   unless e.containsFVar oldIH do
     return #[]
 
+  if let some e' ← isPProdProj oldIH newIH e then
+    -- The inferred type that comes out of motive projections has beta redexes
+    let eTyp ← inferType e'
+    let eType' := eTyp.headBeta
+    return #[← mkExpectedTypeHint e' eType']
+
+  /-
   if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
     let #[arg, proof] := e.getAppArgs  | unreachable!
 
@@ -283,6 +305,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
     let ihs ← collectIHs fn oldIH newIH arg
 
     return ihs.push (mkAppN (.fvar newIH) #[arg', proof'])
+  -/
 
   if let some (n, t, v, b) := e.letFun? then
     let ihs1 ← collectIHs fn oldIH newIH v
@@ -322,6 +345,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
 
       return #[ matcherApp''.toExpr ]
 
+  /-
   if e.getAppArgs.any (·.isFVarOf oldIH) then
     -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
     -- So beta-reduce that definition.
@@ -334,6 +358,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
 
   if e.getAppArgs.any (·.isFVarOf oldIH) then
     throwError "collectIHs: could not collect recursive calls from call {indentExpr e}"
+  -/
 
   match e with
   | .letE n t v b _ =>
@@ -444,6 +469,7 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
 
 partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
     (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
+  -- logInfo m!"buildInductionBody {e}"
 
   if e.isDIte then
     let #[_α, c, h, t, f] := e.getAppArgs | unreachable!
@@ -523,6 +549,10 @@ partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → 
   lambdaTelescope e fun params body => do
     if body.isAppOf ``WellFounded.fixF then
       k params body
+    else if body.isAppOf ``Nat.brecOn then
+      k params body
+    else if body.isAppOf ``List.brecOn then
+      k params body
     else if body.isAppOf ``WellFounded.fix then
       findFixF name (← unfoldDefinition body) fun args e' => k (params ++ args) e'
     else
@@ -544,30 +574,61 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- logInfo f!"{fixArgs}"
     unless params.size > 0 do
       throwError "Value of {name} is not a lambda application"
-    unless f.isConstOf ``WellFounded.fixF do
-      throwError "Term isn’t application of {``WellFounded.fixF}, but of {f}"
-    let #[argType, rel, _motive, body, arg, acc] := fixArgs |
-      throwError "Application of WellFounded.fixF has wrong arity {fixArgs.size}"
-    unless ← isDefEq arg params.back do
-      throwError "fixF application argument {arg} is not function argument "
-    let [argLevel, _motiveLevel] := f.constLevels! | unreachable!
+    -- unless f.isConstOf ``WellFounded.fixF do
+    --   throwError "Term isn’t application of {``WellFounded.fixF}, but of {f}"
+    -- let #[argType, rel, _motive, body, arg, acc] := fixArgs |
+    --  throwError "Application of WellFounded.fixF has wrong arity {fixArgs.size}"
+    -- unless ← isDefEq arg params.back do
+    --   throwError "fixF application argument {arg} is not function argument "
+    -- let [argLevel, _motiveLevel] := f.constLevels! | unreachable!
+    let recParams ←
+      if f.isConstOf ``Nat.brecOn then pure 0
+      else if f.isConstOf ``List.brecOn then pure 1
+      else throwError "Term isn’t application of {``Nat.brecOn}, but of {f}"
+    let brec := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
+    if h : fixArgs.size < recParams + 3 then
+      throwError "Application of Nat.brecOn has wrong arity {fixArgs.size}" else do
+    let origMotive := fixArgs[recParams + 0]
+    let arg := fixArgs[recParams + 1]
+    let body := fixArgs[recParams + 2]
+    let extraArgs := fixArgs[recParams + 3:]
 
-    let motiveType ← mkArrow argType (.sort levelZero)
+    let motiveType ←
+      -- TODO: Should be exactly one lambda
+      lambdaTelescope origMotive fun xs origMotive => do
+        forallBoundedTelescope origMotive (some extraArgs.size) fun ys _ => do
+          mkForallFVars xs (← mkForallFVars ys (.sort levelZero))
+
     withLocalDecl `motive .default motiveType fun motive => do
 
-    let e' := mkAppN (.const ``WellFounded.fixF [argLevel, levelZero]) #[argType, rel, motive]
+    let brecMotive ←
+      lambdaTelescope origMotive fun xs origMotive => do
+        forallBoundedTelescope origMotive (some extraArgs.size) fun ys _ => do
+          mkLambdaFVars xs (← mkForallFVars ys (motive.beta (xs ++ ys)))
+
+    let e' := mkAppN brec (fixArgs[:recParams] ++ #[brecMotive, arg])
     let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
+    -- logInfo m!"e': {e'}"
+    check e'
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
-      let #[param, genIH] := xs | unreachable!
+      if h : xs.size < 2 + extraArgs.size then
+        throwError "brecOn argument takes too few arguments: {xs}" else
+      let param := xs[0]
+      let genIH := xs[1]
+      let extraParams := xs[2:]
       -- open body with the same arg
       let body ← instantiateLambda body #[param]
       removeLamda body fun oldIH body => do
-        let body' ← buildInductionBody fn #[genIH.fvarId!] #[] (.app motive param) oldIH genIH.fvarId! #[] body
+        let body ← instantiateLambda body extraParams
+        let goal := motive.beta (#[param] ++ extraParams)
+        let body' ← buildInductionBody fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
         if body'.containsFVar oldIH then
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-        mkLambdaFVars #[param, genIH] body'
+        mkLambdaFVars #[param, genIH] (← mkLambdaFVars extraParams body')
 
-    let e' := mkAppN e' #[body', arg, acc]
+    -- let e' := mkAppN e' #[body', arg, acc]
+    let e' := mkAppN e' #[body']
+    let e' := mkAppN e' extraArgs
 
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'
@@ -600,12 +661,13 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let e' ← mkLambdaFVars (binderInfoForMVars := .default) (params.pop ++ #[motive]) e'
     let e' ← instantiateMVars e'
 
-    let eTyp ← inferType e'
-    let eTyp ← elimOptParam eTyp
-    -- logInfo m!"eTyp: {eTyp}"
     unless (← isTypeCorrect e') do
       logError m!"failed to derive induction priciple:{indentExpr e'}"
       check e'
+
+    let eTyp ← inferType e'
+    let eTyp ← elimOptParam eTyp
+    -- logInfo m!"eTyp: {eTyp}"
 
     addDecl <| Declaration.thmDecl
       { name := inductName, levelParams := info.levelParams, type := eTyp, value := e' }
@@ -922,3 +984,58 @@ def elabDeriveInduction : Command.CommandElab := fun stx => Command.runTermElabM
   deriveInduction name
 
 end Lean.Tactic.FunInd
+
+
+def fib : Nat → Nat
+  | 0 | 1 => 0
+  | n+2 => fib n + fib (n+1)
+
+-- #print fib
+run_meta Lean.Tactic.FunInd.deriveInduction `fib
+#check fib.induct
+
+
+def binary : Nat → Nat → Nat
+  | 0, acc | 1, acc => 1 + acc
+  | n+2, acc => binary n (binary (n+1) acc)
+
+-- #print binary
+
+run_meta Lean.Tactic.FunInd.deriveInduction `binary
+
+#check binary.induct
+
+
+def zip {α β} : List α → List β → List (α × β)
+  | [], _ => []
+  | _, [] => []
+  | x::xs, y::ys => (x, y) :: zip xs ys
+
+-- #print zipWith
+run_meta Lean.Tactic.FunInd.deriveInduction `zip
+
+#check zip.induct
+
+theorem zip_length {α β} (xs : List α) (ys : List β) :
+    (zip xs ys).length = xs.length.min ys.length := by
+  induction xs, ys using zip.induct
+  case case1 => simp [zip]
+  case case2 => simp [zip]
+  case case3 =>
+    simp [zip, *]
+    simp [Nat.min_def]
+    split<;>split<;> omega
+
+-- The brecOn here has indices, not yet handled above. But hopefully
+-- just a generalization from motive parameter to many
+
+inductive Finn : Nat → Type where
+  | fzero : {n : Nat} → Finn n
+  | fsucc : {n : Nat} → Finn n → Finn (n+1)
+
+def Finn.min {n : Nat} : Finn n → Finn n → Finn n
+  | fzero, _ => fzero
+  | _, fzero => fzero
+  | fsucc i, fsucc j => fsucc (Finn.min i j)
+
+-- run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min

@@ -261,7 +261,7 @@ def transform (matcherApp : MatcherApp)
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
     unless (← isTypeCorrect aux1) do
-      logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux1}"
+      logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
       check aux1
     let origAltTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux1)
 
@@ -269,7 +269,7 @@ def transform (matcherApp : MatcherApp)
     let aux2 := mkApp aux2 motive'
     let aux2 := mkAppN aux2 discrs'
     unless (← isTypeCorrect aux2) do
-      logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux2}"
+      logError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}"
       check aux2
     let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux2)
 
@@ -309,7 +309,6 @@ def transform (matcherApp : MatcherApp)
     let aux := mkApp aux motive'
     let aux := mkAppN aux discrs'
     unless (← isTypeCorrect aux) do
-      -- check aux
       logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux}"
       check aux
     let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux)

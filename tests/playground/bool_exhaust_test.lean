@@ -1096,4 +1096,5 @@ def elabGenTest : CommandElab := fun stx => do
   let tac : Syntax.Tactic ← `(tactic|try simp)
   runGen stx BoolVal.simp varGen BoolVal.var stats types ops (topOps := ops) tac
 
+set_option maxHeartbeats 10000000
 #boolTest

@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 prelude
 import Init.SimpLemmas
 import Init.Meta
-import Init.Data.Ord
 
 open Function
 

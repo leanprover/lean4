@@ -86,6 +86,11 @@ theorem testBit_to_div_mod {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) :=
   | succ i hyp =>
     simp [hyp, Nat.div_div_eq_div_mul, Nat.pow_succ']
 
+theorem toNat_testBit (x i : Nat) :
+    (x.testBit i).toNat = x / 2 ^ i % 2 := by
+  rw [Nat.testBit_to_div_mod]
+  rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
+
 theorem ne_zero_implies_bit_true {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i := by
   induction x using div2Induction with
   | ind x hyp =>

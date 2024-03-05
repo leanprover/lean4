@@ -146,6 +146,18 @@ See `Step`.
 -/
 abbrev Simproc := Expr → SimpM Step
 
+/--
+Similar to `Simproc`, but resulting expression should be definitionally equal to the input one.
+-/
+abbrev DSimproc := Expr → SimpM TransformStep
+
+def _root_.Lean.TransformStep.toStep (s : TransformStep) : Step :=
+  match s with
+  | .done e            => .done { expr := e }
+  | .visit e           => .visit { expr := e }
+  | .continue (some e) => .continue (some { expr := e })
+  | .continue none     => .continue none
+
 def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
   match s with
   | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r.cache r')
@@ -189,7 +201,7 @@ structure SimprocEntry extends SimprocOLeanEntry where
   Recall that we cannot store `Simproc` into .olean files because it is a closure.
   Given `SimprocOLeanEntry.declName`, we convert it into a `Simproc` by using the unsafe function `evalConstCheck`.
   -/
-  proc : Simproc
+  proc : Sum Simproc DSimproc
 
 abbrev SimprocTree := DiscrTree SimprocEntry
 

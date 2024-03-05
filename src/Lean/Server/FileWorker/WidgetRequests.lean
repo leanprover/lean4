@@ -110,10 +110,17 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
   pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>
       snap.interactiveDiags.toArray.filter fun diag =>
+        let r := diag.fullRange
+        let diagStartLine := r.start.line
+        let diagEndLine   :=
+          if r.end.character == 0 then
+            r.end.line
+          else
+            r.end.line + 1
         params.lineRange?.all fun ⟨s, e⟩ =>
-          -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
-          s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
-          diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+          -- does [s,e) intersect [diagStartLine,diagEndLine)?
+          s ≤ diagStartLine ∧ diagStartLine < e ∨
+          diagStartLine ≤ s ∧ s < diagEndLine
     pure <| diags?.getD #[]
 
 builtin_initialize

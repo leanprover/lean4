@@ -31,9 +31,9 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_LinearCnstr_toArith(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__15;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__16;
-lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f___closed__1;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__1;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__19;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__2;
@@ -95,7 +95,6 @@ static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__17;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelOne;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__18;
-lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_Linear_Expr_toPoly(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__5;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__4;
@@ -106,6 +105,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 uint8_t l_Nat_Linear_PolyCnstr_isValid(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__8;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__16;
+lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__2;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__6;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstrPos_x3f___closed__12;
@@ -284,7 +284,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; 
 lean_inc(x_1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___boxed), 7, 1);
+x_7 = lean_alloc_closure((void*)(l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f), 7, 1);
 lean_closure_set(x_7, 0, x_1);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -2860,7 +2860,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f(lean_object* x_1, l
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_alloc_closure((void*)(l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr___boxed), 7, 1);
+x_7 = lean_alloc_closure((void*)(l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr), 7, 1);
 lean_closure_set(x_7, 0, x_1);
 lean_inc(x_5);
 lean_inc(x_4);

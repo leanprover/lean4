@@ -5,9 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
-import Init.Data.Array.Basic
-import Init.Data.List.Basic
-import Init.Util
 
 universe u
 

@@ -26,10 +26,11 @@ def elabSimprocKeys (stx : Syntax) : MetaM (Array Meta.SimpTheoremKey) := do
   let pattern ← elabSimprocPattern stx
   DiscrTree.mkPath pattern simpDtConfig
 
-def checkSimprocType (declName : Name) : CoreM Unit := do
+def checkSimprocType (declName : Name) : CoreM Bool := do
   let decl ← getConstInfo declName
   match decl.type with
-  | .const ``Simproc _ => pure ()
+  | .const ``Simproc _ => pure false
+  | .const ``DSimproc _ => pure true
   | _ => throwError "unexpected type at '{declName}', 'Simproc' expected"
 
 namespace Command
@@ -38,7 +39,7 @@ namespace Command
   let `(simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
   let declName ← resolveGlobalConstNoOverload declName
   liftTermElabM do
-    checkSimprocType declName
+    discard <| checkSimprocType declName
     let keys ← elabSimprocKeys pattern
     registerSimproc declName keys
 
@@ -46,9 +47,10 @@ namespace Command
   let `(builtin_simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
   let declName ← resolveGlobalConstNoOverload declName
   liftTermElabM do
-    checkSimprocType declName
+    let dsimp ← checkSimprocType declName
     let keys ← elabSimprocKeys pattern
-    let val := mkAppN (mkConst ``registerBuiltinSimproc) #[toExpr declName, toExpr keys, mkConst declName]
+    let registerProcName := if dsimp then ``registerBuiltinDSimproc else ``registerBuiltinSimproc
+    let val := mkAppN (mkConst registerProcName) #[toExpr declName, toExpr keys, mkConst declName]
     let initDeclName ← mkFreshUserName (declName ++ `declare)
     declareBuiltin initDeclName val
 

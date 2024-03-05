@@ -37,3 +37,4 @@ import Lean.Meta.Tactic.IndependentOf
 import Lean.Meta.Tactic.Symm
 import Lean.Meta.Tactic.Backtrack
 import Lean.Meta.Tactic.SolveByElim
+import Lean.Meta.Tactic.FunInd

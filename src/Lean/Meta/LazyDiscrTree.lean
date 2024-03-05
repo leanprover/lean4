@@ -700,35 +700,42 @@ private structure ImportFailure where
 
 /-- Information generation from imported modules. -/
 private structure ImportData where
-  cache : IO.Ref (Lean.Meta.Cache)
   errors : IO.Ref (Array ImportFailure)
 
 private def ImportData.new : BaseIO ImportData := do
-  let cache ← IO.mkRef {}
   let errors ← IO.mkRef #[]
-  pure { cache, errors }
+  pure { errors }
+
+structure Cache where
+  ngen : NameGenerator
+  core : Lean.Core.Cache
+  meta : Lean.Meta.Cache
+
+def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
 
 private def addConstImportData
     (env : Environment)
     (modName : Name)
     (d : ImportData)
+    (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
   if !allowCompletion env name then return tree
-  let mstate : Meta.State := { cache := ←d.cache.get }
-  d.cache.set {}
+  let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
+  let mstate : Meta.State := { cache := meta_cache }
+  cacheRef.set (Cache.empty ngen)
   let ctx : Meta.Context := { config := { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
   let cctx : Core.Context := {
     fileName := default,
     fileMap := default
   }
-  let cstate : Core.State := {env}
+  let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
-  | .ok ((a, ms), _) =>
-    d.cache.set ms.cache
+  | .ok ((a, ms), cs) =>
+    cacheRef.set { ngen := cs.ngen, core := cs.cache, meta := ms.cache }
     pure <| a.foldl (fun t e => t.push e.key e.entry) tree
   | .error e =>
     let i : ImportFailure := {
@@ -771,6 +778,7 @@ private def toFlat (d : ImportData) (tree : PreDiscrTree α) :
 private partial def loadImportedModule (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (d : ImportData)
+    (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
     (mname : Name)
     (mdata : ModuleData)
@@ -778,21 +786,22 @@ private partial def loadImportedModule (env : Environment)
   if h : i < mdata.constNames.size then
     let name := mdata.constNames[i]
     let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData env mname d tree act name constInfo
-    loadImportedModule env act d tree mname mdata (i+1)
+    let tree ← addConstImportData env mname d cacheRef tree act name constInfo
+    loadImportedModule env act d cacheRef tree mname mdata (i+1)
   else
     pure tree
 
 private def createImportedEnvironmentSeq (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (start stop : Nat) : BaseIO (InitResults α) :=
-      do go (← ImportData.new) {} start stop
-    where go d (tree : PreDiscrTree α) (start stop : Nat) : BaseIO _ := do
+    (start stop : Nat) : BaseIO (InitResults α) := do
+      let cacheRef ← IO.mkRef (Cache.empty {})
+      go (← ImportData.new) cacheRef {} start stop
+    where go d cacheRef (tree : PreDiscrTree α) (start stop : Nat) : BaseIO _ := do
             if start < stop then
               let mname := env.header.moduleNames[start]!
               let mdata := env.header.moduleData[start]!
-              let tree ← loadImportedModule env act d tree mname mdata
-              go d tree (start+1) stop
+              let tree ← loadImportedModule env act d cacheRef tree mname mdata
+              go d cacheRef tree (start+1) stop
             else
               toFlat d tree
     termination_by stop - start

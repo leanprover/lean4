@@ -682,8 +682,8 @@ termination_by n
 derive_functional_induction unary
 
 /--
-info: DefaultArgument.unary.induct (fixed : Bool) (motive : optParam Nat 0 → Prop) (case1 : motive)
-  (case2 : ∀ (n : optParam Nat 0), motive n → motive (Nat.succ n)) (x : Nat) : motive x
+info: DefaultArgument.unary.induct (fixed : Bool) (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n)) (x : Nat) : motive x
 -/
 #guard_msgs in
 #check unary.induct

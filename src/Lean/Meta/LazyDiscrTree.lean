@@ -698,15 +698,14 @@ private structure ImportFailure where
   /-- Exception that triggers error. -/
   exception : Exception
 
+#print Lean.Meta.Cache
 /-- Information generation from imported modules. -/
 private structure ImportData where
-  cache : IO.Ref (Lean.Meta.Cache)
   errors : IO.Ref (Array ImportFailure)
 
 private def ImportData.new : BaseIO ImportData := do
-  let cache ← IO.mkRef {}
   let errors ← IO.mkRef #[]
-  pure { cache, errors }
+  pure { errors }
 
 private def addConstImportData
     (env : Environment)
@@ -717,8 +716,7 @@ private def addConstImportData
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
   if !allowCompletion env name then return tree
-  let mstate : Meta.State := { cache := ←d.cache.get }
-  d.cache.set {}
+  let mstate : Meta.State := { cache := {} }
   let ctx : Meta.Context := { config := { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
   let cctx : Core.Context := {
@@ -727,8 +725,7 @@ private def addConstImportData
   }
   let cstate : Core.State := {env}
   match ←(cm.run cctx cstate).toBaseIO with
-  | .ok ((a, ms), _) =>
-    d.cache.set ms.cache
+  | .ok ((a, _), _) =>
     pure <| a.foldl (fun t e => t.push e.key e.entry) tree
   | .error e =>
     let i : ImportFailure := {

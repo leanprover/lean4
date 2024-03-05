@@ -9,11 +9,6 @@ A proper bitblaster is in the works.
 Nevertheless this is a simple test bed for BitVec lemmas.
 -/
 
-/-
-Here are two approaches to unrolling a `∀ (x : Fin n), ...`.
-The second is less direct, but avoids casts.
--/
-
 theorem Fin.forall_eq_forall_lt (p : Fin n → Prop) [DecidablePred p] :
     (∀ (x : Fin n), p x) ↔ (∀ (x : Fin n), x < n → p x) := by
   simp

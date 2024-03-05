@@ -20,66 +20,6 @@ and later these lemmas should be organised into other files more systematically.
 
 namespace Nat
 
-/-! ### le/lt -/
-
-protected theorem lt_asymm {a b : Nat} (h : a < b) : ¬ b < a := Nat.not_lt.2 (Nat.le_of_lt h)
-protected abbrev not_lt_of_gt := @Nat.lt_asymm
-protected abbrev not_lt_of_lt := @Nat.lt_asymm
-
-protected theorem lt_iff_le_not_le {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
-  ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
-protected abbrev lt_iff_le_and_not_ge := @Nat.lt_iff_le_not_le
-
-protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :=
-  ⟨fun h => ⟨Nat.le_of_lt h, Nat.ne_of_lt h⟩, fun h => Nat.lt_of_le_of_ne h.1 h.2⟩
-
-protected theorem ne_iff_lt_or_gt {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
-  ⟨Nat.lt_or_gt_of_ne, fun | .inl h => Nat.ne_of_lt h | .inr h => Nat.ne_of_gt h⟩
-protected abbrev lt_or_gt := @Nat.ne_iff_lt_or_gt
-
-protected abbrev le_or_ge := @Nat.le_total
-protected abbrev le_or_le := @Nat.le_total
-
-protected theorem eq_or_lt_of_not_lt {a b : Nat} (hnlt : ¬ a < b) : a = b ∨ b < a :=
-  (Nat.lt_trichotomy ..).resolve_left hnlt
-
-protected theorem lt_or_eq_of_le {n m : Nat} (h : n ≤ m) : n < m ∨ n = m :=
-  (Nat.lt_or_ge ..).imp_right (Nat.le_antisymm h)
-
-protected theorem le_iff_lt_or_eq {n m : Nat} : n ≤ m ↔ n < m ∨ n = m :=
-  ⟨Nat.lt_or_eq_of_le, fun | .inl h => Nat.le_of_lt h | .inr rfl => Nat.le_refl _⟩
-
-protected theorem lt_succ_iff : m < succ n ↔ m ≤ n := ⟨le_of_lt_succ, lt_succ_of_le⟩
-
-protected theorem lt_succ_iff_lt_or_eq : m < succ n ↔ m < n ∨ m = n :=
-  Nat.lt_succ_iff.trans Nat.le_iff_lt_or_eq
-
-protected theorem eq_of_lt_succ_of_not_lt (hmn : m < n + 1) (h : ¬ m < n) : m = n :=
-  (Nat.lt_succ_iff_lt_or_eq.1 hmn).resolve_left h
-
-protected theorem eq_of_le_of_lt_succ (h₁ : n ≤ m) (h₂ : m < n + 1) : m = n :=
-  Nat.le_antisymm (le_of_succ_le_succ h₂) h₁
-
-
-/-! ## zero/one/two -/
-
-theorem le_zero : i ≤ 0 ↔ i = 0 := ⟨Nat.eq_zero_of_le_zero, fun | rfl => Nat.le_refl _⟩
-
-protected abbrev one_pos := @Nat.zero_lt_one
-
-protected theorem two_pos : 0 < 2 := Nat.zero_lt_succ _
-
-theorem add_one_ne_zero (n) : n + 1 ≠ 0 := succ_ne_zero _
-
-protected theorem ne_zero_iff_zero_lt : n ≠ 0 ↔ 0 < n := Nat.pos_iff_ne_zero.symm
-
-protected theorem zero_lt_two : 0 < 2 := Nat.zero_lt_succ _
-
-protected theorem one_lt_two : 1 < 2 := Nat.succ_lt_succ Nat.zero_lt_one
-
-protected theorem eq_zero_of_not_pos (h : ¬0 < n) : n = 0 :=
-  Nat.eq_zero_of_le_zero (Nat.not_lt.1 h)
-
 /-! ## succ/pred -/
 
 attribute [simp] succ_ne_zero zero_lt_succ lt_succ_self Nat.pred_zero Nat.pred_succ Nat.pred_le
@@ -653,23 +593,6 @@ by rw [H2, Nat.mul_div_cancel _ H1]
 protected theorem div_eq_of_eq_mul_right (H1 : 0 < n) (H2 : m = n * k) : m / n = k :=
 by rw [H2, Nat.mul_div_cancel_left _ H1]
 
-protected theorem div_div_eq_div_mul (m n k : Nat) : m / n / k = m / (n * k) := by
-  cases eq_zero_or_pos k with
-  | inl k0 => rw [k0, Nat.mul_zero, Nat.div_zero, Nat.div_zero] | inr kpos => ?_
-  cases eq_zero_or_pos n with
-  | inl n0 => rw [n0, Nat.zero_mul, Nat.div_zero, Nat.zero_div] | inr npos => ?_
-  apply Nat.le_antisymm
-  · apply (le_div_iff_mul_le (Nat.mul_pos npos kpos)).2
-    rw [Nat.mul_comm n k, ← Nat.mul_assoc]
-    apply (le_div_iff_mul_le npos).1
-    apply (le_div_iff_mul_le kpos).1
-    (apply Nat.le_refl)
-  · apply (le_div_iff_mul_le kpos).2
-    apply (le_div_iff_mul_le npos).2
-    rw [Nat.mul_assoc, Nat.mul_comm n k]
-    apply (le_div_iff_mul_le (Nat.mul_pos kpos npos)).1
-    apply Nat.le_refl
-
 protected theorem mul_div_mul_left {m : Nat} (n k : Nat) (H : 0 < m) :
     m * n / (m * k) = n / k := by rw [← Nat.div_div_eq_div_mul, Nat.mul_div_cancel_left _ H]
 
@@ -737,12 +660,6 @@ theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
   rw [Nat.pow_succ, Nat.mul_comm]
 
 @[simp] theorem pow_eq {m n : Nat} : m.pow n = m ^ n := rfl
-
-theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
-  match b with
-  | 0 => (Nat.mul_one _).symm
-  | b+1 => (shiftLeft_eq _ b).trans <| by
-    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
 
 theorem one_shiftLeft (n : Nat) : 1 <<< n = 2 ^ n := by rw [shiftLeft_eq, Nat.one_mul]
 
@@ -983,10 +900,6 @@ theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-@[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
-
-theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := rfl
-
 /-- Shiftright on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | m, 0 => rfl
@@ -1002,19 +915,9 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
   | 0 => by simp [shiftRight]
   | n + 1 => by simp [shiftRight, zero_shiftRight n, shiftRight_succ]
 
-theorem shiftRight_add (m n : Nat) : ∀ k, m >>> (n + k) = (m >>> n) >>> k
-  | 0 => rfl
-  | k + 1 => by simp [add_succ, shiftRight_add, shiftRight_succ]
-
 theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
   | 0 => rfl
   | k + 1 => by simp [add_succ, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
-
-theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
-  | 0 => (Nat.div_one _).symm
-  | k + 1 => by
-    rw [shiftRight_add, shiftRight_eq_div_pow m k]
-    simp [Nat.div_div_eq_div_mul, ← Nat.pow_succ, shiftRight_succ]
 
 theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x + y / m := by
   match x with

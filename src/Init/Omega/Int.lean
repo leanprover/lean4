@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 prelude
-import Init.Data.Int.Order
 import Init.Data.Int.DivModLemmas
-import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Basic
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.

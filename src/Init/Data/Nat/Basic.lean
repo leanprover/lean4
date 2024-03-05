@@ -451,6 +451,72 @@ protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a �
 protected theorem add_le_add_iff_right {n : Nat} : m + n ≤ k + n ↔ m ≤ k :=
   ⟨Nat.le_of_add_le_add_right, fun h => Nat.add_le_add_right h _⟩
 
+/-! ### le/lt -/
+
+protected theorem lt_asymm {a b : Nat} (h : a < b) : ¬ b < a := Nat.not_lt.2 (Nat.le_of_lt h)
+/-- Alias for `Nat.lt_asymm`. -/
+protected abbrev not_lt_of_gt := @Nat.lt_asymm
+/-- Alias for `Nat.lt_asymm`. -/
+protected abbrev not_lt_of_lt := @Nat.lt_asymm
+
+protected theorem lt_iff_le_not_le {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
+  ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
+/-- Alias for `Nat.lt_iff_le_not_le`. -/
+protected abbrev lt_iff_le_and_not_ge := @Nat.lt_iff_le_not_le
+
+protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :=
+  ⟨fun h => ⟨Nat.le_of_lt h, Nat.ne_of_lt h⟩, fun h => Nat.lt_of_le_of_ne h.1 h.2⟩
+
+protected theorem ne_iff_lt_or_gt {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
+  ⟨Nat.lt_or_gt_of_ne, fun | .inl h => Nat.ne_of_lt h | .inr h => Nat.ne_of_gt h⟩
+/-- Alias for `Nat.ne_iff_lt_or_gt`. -/
+protected abbrev lt_or_gt := @Nat.ne_iff_lt_or_gt
+
+/-- Alias for `Nat.le_total`. -/
+protected abbrev le_or_ge := @Nat.le_total
+/-- Alias for `Nat.le_total`. -/
+protected abbrev le_or_le := @Nat.le_total
+
+protected theorem eq_or_lt_of_not_lt {a b : Nat} (hnlt : ¬ a < b) : a = b ∨ b < a :=
+  (Nat.lt_trichotomy ..).resolve_left hnlt
+
+protected theorem lt_or_eq_of_le {n m : Nat} (h : n ≤ m) : n < m ∨ n = m :=
+  (Nat.lt_or_ge ..).imp_right (Nat.le_antisymm h)
+
+protected theorem le_iff_lt_or_eq {n m : Nat} : n ≤ m ↔ n < m ∨ n = m :=
+  ⟨Nat.lt_or_eq_of_le, fun | .inl h => Nat.le_of_lt h | .inr rfl => Nat.le_refl _⟩
+
+protected theorem lt_succ_iff : m < succ n ↔ m ≤ n := ⟨le_of_lt_succ, lt_succ_of_le⟩
+
+protected theorem lt_succ_iff_lt_or_eq : m < succ n ↔ m < n ∨ m = n :=
+  Nat.lt_succ_iff.trans Nat.le_iff_lt_or_eq
+
+protected theorem eq_of_lt_succ_of_not_lt (hmn : m < n + 1) (h : ¬ m < n) : m = n :=
+  (Nat.lt_succ_iff_lt_or_eq.1 hmn).resolve_left h
+
+protected theorem eq_of_le_of_lt_succ (h₁ : n ≤ m) (h₂ : m < n + 1) : m = n :=
+  Nat.le_antisymm (le_of_succ_le_succ h₂) h₁
+
+
+/-! ## zero/one/two -/
+
+theorem le_zero : i ≤ 0 ↔ i = 0 := ⟨Nat.eq_zero_of_le_zero, fun | rfl => Nat.le_refl _⟩
+
+/-- Alias for `Nat.zero_lt_one`. -/
+protected abbrev one_pos := @Nat.zero_lt_one
+
+protected theorem two_pos : 0 < 2 := Nat.zero_lt_succ _
+
+protected theorem ne_zero_iff_zero_lt : n ≠ 0 ↔ 0 < n := Nat.pos_iff_ne_zero.symm
+
+protected theorem zero_lt_two : 0 < 2 := Nat.zero_lt_succ _
+
+protected theorem one_lt_two : 1 < 2 := Nat.succ_lt_succ Nat.zero_lt_one
+
+protected theorem eq_zero_of_not_pos (h : ¬0 < n) : n = 0 :=
+  Nat.eq_zero_of_le_zero (Nat.not_lt.1 h)
+
+
 /-! # Basic theorems for comparing numerals -/
 
 theorem ctor_eq_zero : Nat.zero = 0 :=
@@ -464,6 +530,8 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 
 theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
   fun h => Nat.noConfusion h
+
+theorem add_one_ne_zero (n) : n + 1 ≠ 0 := succ_ne_zero _
 
 /-! # mul + order -/
 

@@ -163,7 +163,35 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 TODO:
 * More documentation on ensuring the `bump/v4.7.0` branches are ready in time for the release candidate.
 
-TODO:
-* Time estimates
+## Time estimates:
+Slightly longer than the corresponding steps for a stable release.
+Similar process, but more things go wrong.
+In particular, updating the downstream repositories is significantly more work
+(because we need to merge existing `bump/v4.7.0` branches, not just update a toolchain).
 
+# Preparing `bump/v4.7.0` branches
 
+While not part of the release process per se,
+this is a brief summary of the work that goes into updating Std/Aesop/Mathlib to new versions.
+
+Please read https://leanprover-community.github.io/contribute/tags_and_branches.html
+
+* Each repo has an unreviewed `nightly-testing` branch that
+  receives commits automatically from `master`, and
+  has its toolchain updated automatically for every nightly.
+  (Note: the aesop branch is not automated, and is updated on an as needed basis.)
+  As a consequence this branch is often broken.
+  A bot posts in the (private!) "Mathlib reviewers" stream on Zulip about the status of these branches.
+* We fix the breakages by committing directly to `nightly-testing`: there is no PR process.
+  * This can either be done by the person managing this process directly,
+    or by soliciting assistance from authors of files, or generally helpful people on Zulip!
+* Each repo has a `bump/v4.7.0` which accumulates reviewed changes adapting to new versions.
+* Once `nightly-testing` is working on a given nightly, say `nightly-2024-02-15`, we:
+  * Make sure `bump/v4.7.0` is up to date with `master` (by merging `master`, no PR necessary)
+  * Create from `bump/v4.7.0` a `bump/nightly-2024-02-15` branch.
+  * In that branch, `git merge --squash nightly-testing` to bring across changes from `nightly-testing`.
+  * Sanity check changes, commit, and make a PR to `bump/v4.7.0` from the `bump/nightly-2024-02-15` branch.
+  * Solicit review, merge the PR into `bump/v4,7,0`.
+* It is always okay to merge in the following directions:
+  `master` -> `bump/v4.7.0` -> `bump/nightly-2024-02-15` -> `nightly-testing`.
+  Please remember to push any merges you make to intermediate steps!

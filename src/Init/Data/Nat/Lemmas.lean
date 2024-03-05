@@ -20,8 +20,6 @@ and later these lemmas should be organised into other files more systematically.
 
 namespace Nat
 
-attribute [simp] succ_ne_zero zero_lt_succ lt_succ_self Nat.pred_zero Nat.pred_succ
-
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by

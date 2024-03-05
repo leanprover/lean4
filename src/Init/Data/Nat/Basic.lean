@@ -603,7 +603,7 @@ protected theorem one_ne_zero : 1 ≠ (0 : Nat) :=
 protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
   fun h => Nat.noConfusion h
 
-theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
+@[simp] theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
   fun h => Nat.noConfusion h
 
 theorem add_one_ne_zero (n) : n + 1 ≠ 0 := succ_ne_zero _

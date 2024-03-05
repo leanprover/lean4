@@ -62,16 +62,14 @@ def computePartialImportCompletions
       -- `partialTrailingDotStx` ≙ `("." ident)?`
       let partialTrailingDotStx := importStx[3]
       if ! partialTrailingDotStx.hasArgs then
-        let some tailPos := importStx[2].getTailPos?
-          | none
+        let tailPos ← importStx[2].getTailPos?
         guard <| tailPos == completionPos
         let .str completePrefix incompleteSuffix := importStx[2].getId
           | none
         return (completePrefix, incompleteSuffix)
       else
         let trailingDot := partialTrailingDotStx[0]
-        let some tailPos := trailingDot.getTailPos?
-          | none
+        let tailPos ← trailingDot.getTailPos?
         guard <| tailPos == completionPos
         return (importStx[2].getId, "")
     | return #[]

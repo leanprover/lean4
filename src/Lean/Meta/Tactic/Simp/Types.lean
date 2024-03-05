@@ -146,10 +146,12 @@ See `Step`.
 -/
 abbrev Simproc := Expr → SimpM Step
 
+abbrev DStep := TransformStep
+
 /--
 Similar to `Simproc`, but resulting expression should be definitionally equal to the input one.
 -/
-abbrev DSimproc := Expr → SimpM TransformStep
+abbrev DSimproc := Expr → SimpM DStep
 
 def _root_.Lean.TransformStep.toStep (s : TransformStep) : Step :=
   match s with

@@ -164,11 +164,11 @@ def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : 
     throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
   ref.modify fun s => s.addCore keys declName post proc
 
-def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinSimprocsRef declName post (.inl proc)
+def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
+  addSimprocBuiltinAttrCore builtinSimprocsRef declName post proc
 
-def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post (.inl proc)
+def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
+  addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post proc
 
 def addSimprocBuiltinAttrNew (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
   addSimprocBuiltinAttrCore builtinSimprocsRef declName post proc
@@ -355,7 +355,7 @@ builtin_initialize
     descr           := "Builtin simplification procedure"
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
-    add             := fun declName stx _ => addBuiltin declName stx ``addSimprocBuiltinAttrNew
+    add             := fun declName stx _ => addBuiltin declName stx ``addSimprocBuiltinAttr
   }
 
 builtin_initialize
@@ -365,7 +365,7 @@ builtin_initialize
     descr           := "Builtin symbolic evaluation procedure"
     applicationTime := AttributeApplicationTime.afterCompilation
     erase           := fun _ => throwError "Not implemented yet, [-builtin_sevalproc]"
-    add             := fun declName stx _ => addBuiltin declName stx ``addSEvalprocBuiltinAttrNew
+    add             := fun declName stx _ => addBuiltin declName stx ``addSEvalprocBuiltinAttr
   }
 
 def getSimprocs : CoreM Simprocs :=

@@ -56,7 +56,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
         `git checkout toolchain/v4.6.0` to the appropriate tag,
         and then run `.github/workflows/mk_build_yml.sh`.
     - [REPL](https://github.com/leanprover-community/repl)
-      - Note that there are two copies of `lean-toolchain`/`lakefile.lean`: 
+      - Note that there are two copies of `lean-toolchain`/`lakefile.lean`:
         in the root, and in `test/Mathlib/`.
   - Note that there are dependencies between these packages:
     you should update the lakefile so that you are using the `v4.6.0` tag of upstream repositories
@@ -123,11 +123,41 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - Now wait, while CI runs.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`, looking for the `v4.7.0-rc1` tag.
   - This step can take up to an hour.
-
-TODO:
-* Downstream repositories: merging `bump/v4.7.0` branches to `master`/`main`
-* Announcements
-* Begin development cycle for next version
+- Once the release appears at https://github.com/leanprover/lean4/releases/
+  - Edit the release notes on Github to select the "Set as a pre-release box".
+  - Copy the section of `RELEASES.md` for this version into the Github release notes.
+- Next, we will move a curated list of downstream repos to the release candidate.
+  - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
+    containing the required adaptations (or no adaptations are required).
+    The preparation of this branch is beyond the scope of this document.
+  - For each of the target repositories:
+    - Checkout the `bump/v4.7.0` branch.
+    - Verify that the `lean-toolchain` is set to the nightly from which the release candidate was created.
+    - `git merge origin/master`
+    - Change the `lean-toolchain` to `leanprover/lean4:v4.7.0-rc1`
+    - In `lakefile.lean`, change any dependencies which were using `nightly-testing` or `bump/v4.7.0` branches
+      back to `master` or `main`, and run `lake update` for those dependencies.
+    - Run `lake build` to ensure that dependencies are found (but it's okay to stop it after a moment).
+    - `git commit`
+    - `git push`
+    - Open a PR from `bump/v4.7.0` to `master`, and either merge it yourself after CI, if appropriate,
+      or notify the maintainers that it is ready to go.
+    - Once this PR has been merged, tag `master` with `v4.7.0-rc1` and push this tag.
+  - We do this for the same list of repositories as for stable releases, see above.
+    As above, there are dependencies between these, and so the process above is iterative.
+    It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
+  - For Std/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
+    `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release
+    (create it if not), and then on the `nightly-testing` branch `git reset --hard master`, and force push.
+- Make an announcement!
+  This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.7.0-rc1`.
+  Please see previous announcements for suggested language.
+  You will want a few bullet points for main topics from the release notes.
+  Please also make sure that whoever is handling social media knows the release is out.
+- Begin the next development cycle (i.e. for `v4.8.0`) on the Lean repository, by making a PR that:
+  - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
+  - Removes `(in development)` from the section heading in `RELEASES.md` for `v4.7.0`,
+    and creates a new `v4.8.0 (in development)` section heading.
 
 TODO:
 * More documentation on ensuring the `bump/v4.7.0` branches are ready in time for the release candidate.

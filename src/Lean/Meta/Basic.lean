@@ -966,16 +966,14 @@ mutual
     when `fvars.size == max`
   -/
   private partial def forallTelescopeReducingAuxAux
-      (reducing          : Bool) (maxFVars? : Option Nat) (cleanupAnnotations : Bool)
+      (reducing          : Bool) (maxFVars? : Option Nat)
       (type              : Expr)
-      (k                 : Array Expr → Expr → MetaM α)
-      : MetaM α := do
+      (k                 : Array Expr → Expr → MetaM α) : MetaM α := do
     let rec process (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (type : Expr) : MetaM α := do
       match type with
       | .forallE n d b bi =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
           let d     := d.instantiateRevRange j fvars.size fvars
-          let d     := if cleanupAnnotations then d.cleanupAnnotations else d
           let fvarId ← mkFreshFVarId
           let lctx  := lctx.mkLocalDecl fvarId n d bi
           let fvar  := mkFVar fvarId
@@ -1000,14 +998,13 @@ mutual
               k fvars type
     process (← getLCtx) #[] 0 type
 
-  private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat)
-      (cleanupAnnotations : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+  private partial def forallTelescopeReducingAux (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α := do
     match maxFVars? with
     | some 0 => k #[] type
     | _ => do
       let newType ← whnf type
       if newType.isForall then
-        forallTelescopeReducingAuxAux true maxFVars? cleanupAnnotations newType k
+        forallTelescopeReducingAuxAux true maxFVars? newType k
       else
         k #[] type
 
@@ -1031,7 +1028,7 @@ mutual
 
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none false fun _ type => isClassApp? type
+      forallTelescopeReducingAux type none fun _ type => isClassApp? type
 
   private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with
@@ -1060,16 +1057,15 @@ private def withNewLocalInstancesImpAux (fvars : Array Expr) (j : Nat) : n α �
 partial def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α :=
   mapMetaM <| withNewLocalInstancesImpAux fvars j
 
-@[inline] private def forallTelescopeImp (type : Expr) (cleanupAnntations : Bool)
-    (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) cleanupAnntations type k
+@[inline] private def forallTelescopeImp (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+  forallTelescopeReducingAuxAux (reducing := false) (maxFVars? := none) type k
 
 /--
   Given `type` of the form `forall xs, A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
   execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallTelescopeImp type cleanupAnnotations k) k
+def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => forallTelescopeImp type k) k
 
 /--
 Given a monadic function `f` that takes a type and a term of that type and produces a new term,
@@ -1088,28 +1084,25 @@ and then builds the lambda telescope term for the new term.
 def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
   mapForallTelescope' (fun _ e => f e) forallTerm
 
-private def forallTelescopeReducingImp (type : Expr) (cleanupAnnotations : Bool)
-    (k : Array Expr → Expr → MetaM α) : MetaM α :=
-  forallTelescopeReducingAux type cleanupAnnotations (maxFVars? := none) k
+private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+  forallTelescopeReducingAux type (maxFVars? := none) k
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
   it reduces `A` and continues building the telescope if it is a `forall`. -/
-def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallTelescopeReducingImp type cleanupAnnotations k) k
+def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => forallTelescopeReducingImp type k) k
 
-private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (cleanupAnnotations : Bool)
-    (k : Array Expr → Expr → MetaM α) : MetaM α :=
-  forallTelescopeReducingAux type maxFVars? cleanupAnnotations k
+private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → MetaM α) : MetaM α :=
+  forallTelescopeReducingAux type maxFVars? k
 
 /--
   Similar to `forallTelescopeReducing`, stops constructing the telescope when
   it reaches size `maxFVars`. -/
-def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? cleanupAnnotations k) k
+def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (cleanupAnnotations : Bool)
-    (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
   process consumeLet (← getLCtx) #[] 0 e
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
@@ -1141,7 +1134,7 @@ Similar to `lambdaTelescope` but for lambda and let expressions.
 If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
 -/
 def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true cleanupAnnotations k ) k
+  map2MetaM (fun k => lambdaTelescopeImp e true k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.

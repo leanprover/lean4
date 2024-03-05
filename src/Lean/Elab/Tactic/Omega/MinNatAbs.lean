@@ -5,8 +5,8 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.BinderPredicates
-import Init.Data.List
-import Init.Data.Option
+import Init.Data.Option.Lemmas
+import Init.Data.Nat.Bitwise.Lemmas
 
 /-!
 # `List.nonzeroMinimum`, `List.minNatAbs`, `List.maxNatAbs`

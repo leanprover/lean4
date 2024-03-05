@@ -256,25 +256,24 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
 
 theorem testBit_one_zero : testBit 1 0 = true := by trivial
 
+theorem not_decide_mod_two_eq_one (x : Nat)
+    : (!decide (x % 2 = 1)) = decide (x % 2 = 0) := by
+  cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p; simp [p])
+
 theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     testBit (2^n - (x + 1)) i = (decide (i < n) && ! testBit x i) := by
   induction i generalizing n x with
   | zero =>
-    simp only [testBit_zero, zero_eq, Bool.and_eq_true, decide_eq_true_eq,
-      Bool.not_eq_true']
     match n with
     | 0 => simp
     | n+1 =>
-      -- just logic + omega:
-      simp only [zero_lt_succ, decide_True, Bool.true_and]
-      rw [← decide_not, decide_eq_decide]
+      simp [not_decide_mod_two_eq_one]
       omega
   | succ i ih =>
     simp only [testBit_succ]
     match n with
     | 0 =>
-      simp only [Nat.pow_zero, succ_sub_succ_eq_sub, Nat.zero_sub, Nat.zero_div, zero_testBit]
-      rw [decide_eq_false] <;> simp
+      simp [decide_eq_false]
     | n+1 =>
       rw [Nat.two_pow_succ_sub_succ_div_two, ih]
       · simp [Nat.succ_lt_succ_iff]

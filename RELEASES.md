@@ -8,7 +8,10 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.7.0 (development in progress)
+v4.8.0 (development in progress)
+---------
+
+v4.7.0
 ---------
 
 * `simp` and `rw` now use instance arguments found by unification,
@@ -194,6 +197,11 @@ Other improvements:
 Lake fixes:
 * Warn on fetch cloud release failure [#3401](https://github.com/leanprover/lean4/pull/3401)
 * Cloud release trace & `lake build :release` errors [#3248](https://github.com/leanprover/lean4/pull/3248)
+
+v4.6.1
+---------
+* Backport of [#3552](https://github.com/leanprover/lean4/pull/3552) fixing a performance regression
+  in server startup.
 
 v4.6.0
 ---------

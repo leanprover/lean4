@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Command
 import Lean.Elab.Tactic.Meta
+import Lean.Meta.CheckTactic
 
 /-!
 Commands to validate tactic results.
@@ -18,15 +19,6 @@ open Lean.Meta CheckTactic
 open Lean.Elab.Tactic
 open Lean.Elab.Command
 
-private def matchCheckGoalType (stx : Syntax) (goalType : Expr) : MetaM (Expr × Expr × Level) := do
-  let u ← mkFreshLevelMVar
-  let type ← mkFreshExprMVar (some (.sort u))
-  let val  ← mkFreshExprMVar (some type)
-  let extType := mkAppN (.const ``CheckGoalType [u]) #[type, val]
-  if !(← isDefEq goalType extType) then
-    throwErrorAt stx "Goal{indentExpr goalType}\nis expected to match {indentExpr extType}"
-  pure (val, type, u)
-
 @[builtin_command_elab Lean.Parser.checkTactic]
 def elabCheckTactic : CommandElab := fun stx => do
   let `(#check_tactic $t ~> $result by $tac) := stx | throwUnsupportedSyntax
@@ -34,11 +26,10 @@ def elabCheckTactic : CommandElab := fun stx => do
     runTermElabM $ fun _vars => do
       let u ← Lean.Elab.Term.elabTerm t none
       let type ← inferType u
-      let lvl ← mkFreshLevelMVar
-      let checkGoalType : Expr := mkApp2 (mkConst ``CheckGoalType [lvl]) type u
+      let checkGoalType ← mkCheckGoalType u type
       let mvar ← mkFreshExprMVar (.some checkGoalType)
-      let (goals, _) ← Lean.Elab.runTactic mvar.mvarId! tac.raw
       let expTerm ← Lean.Elab.Term.elabTerm result (.some type)
+      let (goals, _) ← Lean.Elab.runTactic mvar.mvarId! tac.raw
       match goals with
       | [] =>
         throwErrorAt stx
@@ -51,7 +42,6 @@ def elabCheckTactic : CommandElab := fun stx => do
       | _ => do
         throwErrorAt stx
           m!"{tac} produced multiple goals, but is expected to reduce to {indentExpr expTerm}."
-      pure ()
 
 @[builtin_command_elab Lean.Parser.checkTacticFailure]
 def elabCheckTacticFailure : CommandElab := fun stx => do
@@ -60,8 +50,7 @@ def elabCheckTacticFailure : CommandElab := fun stx => do
     runTermElabM $ fun _vars => do
       let val ← Lean.Elab.Term.elabTerm t none
       let type ← inferType val
-      let lvl ← mkFreshLevelMVar
-      let checkGoalType : Expr := mkApp2 (mkConst ``CheckGoalType [lvl]) type val
+      let checkGoalType ← mkCheckGoalType val type
       let mvar ← mkFreshExprMVar (.some checkGoalType)
       let act := Lean.Elab.runTactic mvar.mvarId! tactic.raw
       match ← try (Term.withoutErrToSorry (some <$> act)) catch _ => pure none with
@@ -73,12 +62,12 @@ def elabCheckTacticFailure : CommandElab := fun stx => do
                 pure m!"{indentExpr val}"
           let msg ←
             match gls with
-              | [] => pure m!"{tactic} expected to fail on {val}, but closed goal."
+              | [] => pure m!"{tactic} expected to fail on {t}, but closed goal."
               | [g] =>
-                pure <| m!"{tactic} expected to fail on {val}, but returned: {←ppGoal g}"
+                pure <| m!"{tactic} expected to fail on {t}, but returned: {←ppGoal g}"
               | gls =>
                 let app m g := do pure <| m ++ (←ppGoal g)
-                let init := m!"{tactic} expected to fail on {val}, but returned goals:"
+                let init := m!"{tactic} expected to fail on {t}, but returned goals:"
                 gls.foldlM (init := init) app
           throwErrorAt stx msg
 

@@ -687,7 +687,7 @@ decreasing_by decreasing_with
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction]; simp; rfl
+  rw [reverseInduction]; simp
 
 @[simp] theorem reverseInduction_castSucc {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ}
     (i : Fin n) : reverseInduction (motive := motive) zero succ (castSucc i) =

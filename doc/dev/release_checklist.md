@@ -16,11 +16,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
 - It is possible that the `v4.6.0` section of `RELEASES.md` is out of sync between
   `releases/v4.6.0` and `master`. This should be reconciled:
   - Run `git diff master RELEASES.md`.
-  - You should expect to see changes in the `v4.7.0-rc1` section
+  - You should expect to see additons on `master` in the `v4.7.0-rc1` section; ignore these.
     (i.e. the new release notes for the upcoming release candidate).
-  - Reconcile discrepancies in the `v4.6.0` section, either by:
-    - Using `git cherry-pick` to pull the commits that modified the release notes on `master`.
-    - Simply pushing a new commit to `releases/v4.6.0`.
+  - Reconcile discrepancies in the `v4.6.0` section,
+    usually via copy and paste and a commit to `releases/v4.6.0`.
 - `git tag v4.6.0`
 - `git push origin v4.6.0`
 - Now wait, while CI runs.
@@ -30,9 +29,9 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - If you are intending to cut the next release candidate on the same day,
     you may want to start on the release candidate checklist now.
 - Go to https://github.com/leanprover/lean4/releases and verify that the `v4.6.0` release appears.
-  - The automatically generated release notes there will not be useful!
-  - Copy and paste the `v4.6.0` section from `RELEASES.md` into the GitHub release notes.
-  - Use the title "Changes since v4.5.0 (from RELEASES.md)"
+  - Edit the release notes on Github to select the "Set as the latest release".
+  - Copy and paste the Github release notes from the previous releases candidate for this version
+    (e.g. `v4.6.0-rc1`), and quickly sanity check.
 - Next, we will move a curated list of downstream repos to the latest stable release.
   - For each of the repositories listed below:
     - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`.
@@ -78,11 +77,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
   Link to the blog post from the Zulip announcement.
   Please also make sure that whoever is handling social media knows the release is out.
 
-## Optimistic time estimates:
+## Optimistic(?) time estimates:
 - Initial checks and push the tag: 30 minutes.
 - Note that if `RELEASES.md` has discrepancies this could take longer!
 - Waiting for the release: 60 minutes.
-- Fixing release notes: 15 minutes.
+- Fixing release notes: 10 minutes.
 - Bumping toolchains in downstream repositories, up to creating the Mathlib PR: 30 minutes.
 - Waiting for Mathlib CI and bors: 120 minutes.
 - Finalizing Mathlib tags and stable branch, and updating REPL: 15 minutes.
@@ -99,7 +98,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - It is essential that Std and Mathlib already have reviewed branches compatible with this nightly.
   - Check that both Std and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
     in their `lean-toolchain`.
-  - The steps required to reach that state are beyond the scope of this checklist!
+  - The steps required to reach that state are beyond the scope of this checklist, but see below!
 - Create the release branch from this nightly tag:
     ```
     git remote add nightly https://github.com/leanprover/lean4-nightly.git
@@ -108,11 +107,11 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git checkout -b releases/v4.7.0
     ```
 - In `RELEASES.md` remove `(development in progress)` from the `v4.7.0` section header.
-- Unfortunately, we are not yet consistent about updating `RELEASES.md` as part of each feature PR, so there may be manual work at this stage updating it.
+- Our current goal is to have written release notes only about major language features or breaking changes,
+  and to rely on automatically generated release notes for bugfixes and minor changes.
   - Do not wait on `RELEASES.md` being perfect before creating the `release/v4.7.0` branch. It is essential to choose the nightly which will become the release candidate as early as possible, to avoid confusion.
-  - You may like to solicit updates to `RELEASES.md` from other developers. Ideally these will land on `master` before the nightly.
-  - I will usually go through the list of all PRs merged since the previous release branch `releases/v4.6.0`.
-  Many PRs do not warrant mention in `RELEASES.md`. For many medium scale PRs, it suffices to just copy and paste the title, along with a link. (See existing format in `RELEASES.md`.) If you find something major that has not been mentioned, it may require correspondence with the author of that PR to prepare a good paragraph.
+  - If there are major changes not reflected in `RELEASES.md` already, you may need to solicit help from the authors.
+  - Minor changes and bug fixes do not need to be documented in `RELEASES.md`: they will be added automatically on the Github release page.
   - Commit your changes to `RELEASES.md`, and push.
   - Remember that changes to `RELEASES.md` after you have branched `releases/v4.7.0` should also be cherry-picked back to `master`.
 - In `src/CMakeLists.txt`,
@@ -127,6 +126,14 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - Once the release appears at https://github.com/leanprover/lean4/releases/
   - Edit the release notes on Github to select the "Set as a pre-release box".
   - Copy the section of `RELEASES.md` for this version into the Github release notes.
+  - Use the title "Changes since v4.6.0 (from RELEASES.md)"
+  - Then in the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
+  - This will add a list of all the commits since the last stable version.
+    - Delete anything already mentioned in the hand-written release notes above.
+    - Delete "update stage0" commits, and anything with a completely inscrutable commit message.
+    - Briefly rearrange the remaining items by category (e.g. `simp`, `lake`, `bug fixes`),
+      but for minor items don't put any work in expanding on commit messages.
+  - (How we want to release notes to look is evolving: please update this section if it looks wrong!)
 - Next, we will move a curated list of downstream repos to the release candidate.
   - This assumes that there is already a *reviewed* branch `bump/v4.7.0` on each repository
     containing the required adaptations (or no adaptations are required).
@@ -159,9 +166,6 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - Updates `src/CMakeLists.txt` to say `set(LEAN_VERSION_MINOR 8)`
   - Removes `(in development)` from the section heading in `RELEASES.md` for `v4.7.0`,
     and creates a new `v4.8.0 (in development)` section heading.
-
-TODO:
-* More documentation on ensuring the `bump/v4.7.0` branches are ready in time for the release candidate.
 
 ## Time estimates:
 Slightly longer than the corresponding steps for a stable release.

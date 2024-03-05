@@ -185,6 +185,17 @@ def andThen (f g : Simproc) : Simproc := fun e => do
 instance : AndThen Simproc where
   andThen s₁ s₂ := andThen s₁ (s₂ ())
 
+@[always_inline]
+def dandThen (f g : DSimproc) : DSimproc := fun e => do
+  match (← f e) with
+  | .done eNew            => return .done eNew
+  | .continue none        => g e
+  | .continue (some eNew) => g eNew
+  | .visit eNew           => return .visit eNew
+
+instance : AndThen DSimproc where
+  andThen s₁ s₂ := dandThen s₁ (s₂ ())
+
 /--
 `Simproc` .olean entry.
 -/
@@ -217,6 +228,8 @@ structure Simprocs where
 structure Methods where
   pre        : Simproc                    := fun _ => return .continue
   post       : Simproc                    := fun e => return .done { expr := e }
+  dpre       : DSimproc                   := fun _ => return .continue
+  dpost      : DSimproc                   := fun e => return .done e
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   deriving Inhabited
 
@@ -542,6 +555,13 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
   | .done r => return .done (← r.addExtraArgs extraArgs)
   | .continue none => return .continue none
   | .continue (some r) => return .continue (← r.addExtraArgs extraArgs)
+
+def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
+  match s with
+  | .visit eNew => .visit (mkAppN eNew extraArgs)
+  | .done eNew => .done (mkAppN eNew extraArgs)
+  | .continue none => .continue none
+  | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
 
 end Simp
 

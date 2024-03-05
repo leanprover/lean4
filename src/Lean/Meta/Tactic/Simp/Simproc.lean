@@ -200,6 +200,18 @@ def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM 
     let s ← proc e
     s.toStep.addExtraArgs extraArgs
 
+/-- Similar to `try`, but only consider `DSimproc` case. That is, if `s.proc` is a `Simproc`, treat it as a `.continue`. -/
+def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM DStep := do
+  let mut extraArgs := #[]
+  let mut e := e
+  for _ in [:numExtraArgs] do
+    extraArgs := extraArgs.push e.appArg!
+    e := e.appFn!
+  extraArgs := extraArgs.reverse
+  match s.proc with
+  | .inl _ => return .continue
+  | .inr proc => return (← proc e).addExtraArgs extraArgs
+
 def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
@@ -234,6 +246,39 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
           pure ()
     if found then
       return .continue (some { expr := e, proof?, cache })
+    else
+      return .continue
+
+def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM DStep := do
+  let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+  if candidates.isEmpty then
+    let tag := if post then "post" else "pre"
+    trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
+    return .continue
+  else
+    let mut e  := e
+    let mut found := false
+    for (simprocEntry, numExtraArgs) in candidates do
+      unless erased.contains simprocEntry.declName do
+        let s ← simprocEntry.tryD numExtraArgs e
+        match s with
+        | .visit eNew =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
+          return .visit eNew
+        | .done eNew =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
+          return .done eNew
+        | .continue (some eNew) =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
+          e := eNew
+          found := true
+        | .continue none =>
+          pure ()
+    if found then
+      return .continue (some e)
     else
       return .continue
 
@@ -272,6 +317,22 @@ def simprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM Step 
   else
     return .continue
 
+def dsimprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM DStep := do
+  let mut found := false
+  let mut e  := e
+  for s in ss do
+    match (← dsimprocCore (post := post) (if post then s.post else s.pre) s.erased e) with
+    | .visit eNew => return .visit eNew
+    | .done eNew =>  return .done eNew
+    | .continue none => pure ()
+    | .continue (some eNew) =>
+      e := eNew
+      found := true
+  if found then
+    return .continue (some e)
+  else
+    return .continue
+
 register_builtin_option simprocs : Bool := {
   defValue := true
   group    := "backward compatibility"
@@ -285,6 +346,14 @@ def userPreSimprocs (s : SimprocsArray) : Simproc := fun e => do
 def userPostSimprocs (s : SimprocsArray) : Simproc := fun e => do
   unless simprocs.get (← getOptions) do return .continue
   simprocArrayCore (post := true) s e
+
+def userPreDSimprocs (s : SimprocsArray) : DSimproc := fun e => do
+  unless simprocs.get (← getOptions) do return .continue
+  dsimprocArrayCore (post := false) s e
+
+def userPostDSimprocs (s : SimprocsArray) : DSimproc := fun e => do
+  unless simprocs.get (← getOptions) do return .continue
+  dsimprocArrayCore (post := true) s e
 
 def mkSimprocExt (name : Name := by exact decl_name%) (ref? : Option (IO.Ref Simprocs)) : IO SimprocExtension :=
   registerScopedEnvExtension {

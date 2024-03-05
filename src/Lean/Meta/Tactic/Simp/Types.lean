@@ -40,10 +40,9 @@ def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
 
 /-- Flip the proof in a `Simp.Result`. -/
 def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
-  ({ expr := e, proof? := · }) <$>
   match r.proof? with
-  | none => pure none
-  | some p => some <$> Meta.mkEqSymm p
+  | none   => return { r with expr := e }
+  | some p => return { r with expr := e, proof? := some (← Meta.mkEqSymm p) }
 
 abbrev Cache := ExprMap Result
 

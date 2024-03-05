@@ -125,7 +125,9 @@ endif
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 	@rm -f $@
-	@$(LEAN_AR) rcs $@ $^
+	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
+	@$(LEAN_AR) rcs $@ @$@.in
+	@rm -f $@.in
 
 clean:
 	rm -rf $(OUT)

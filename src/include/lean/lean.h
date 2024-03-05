@@ -50,17 +50,14 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #endif
 #endif
 
+// We set `LEAN_EXPORTING` when compiling objects of libleanshared, but not when including this header in any other context.
+#ifdef LEAN_EXPORTING
 #ifdef _WIN32
 #define LEAN_EXPORT __declspec(dllexport)
 #else
 #define LEAN_EXPORT __attribute__((visibility("default")))
 #endif
-
-// We set `LEAN_EXPORTING` when compiling objects of libleanshared, but not when including this header in any other context.
-#if defined LEAN_EXPORTING
 #define LEAN_SHARED LEAN_EXPORT
-#else
-#define LEAN_SHARED
 #endif
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)

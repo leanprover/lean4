@@ -52,6 +52,7 @@ objs: $(OBJS)
 bin: $(BIN_OUT)/$(BIN_NAME)
 
 lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
+lib.export: $(LIB_OUT)/$(STATIC_LIB_NAME).export
 
 depends: $(DEPS)
 
@@ -93,6 +94,22 @@ $(BC_OUT)/%.bc: $(OLEAN_OUT)/%.olean
 endif
 
 ifdef LLVM
+$(TEMP_OUT)/%.o.export: $(BC_OUT)/%.bc
+else
+$(TEMP_OUT)/%.o.export: $(C_OUT)/%.c
+endif
+ifdef CMAKE_LIKE_OUTPUT
+	@echo "[    ] Building $<"
+endif
+	@mkdir -p "$(@D)"
+	$(LEANC) -c -o $@ $< $(LEANC_OPTS) -DLEAN_EXPORTING
+endif
+
+# On Windows, rebuild .o not intended for shared libraries
+# without dllexport because of symbol limit;
+# on other platforms, no point in bothering
+ifeq (CMAKE_SYSTEM_NAME, Windows)
+ifdef LLVM
 $(TEMP_OUT)/%.o: $(BC_OUT)/%.bc
 else
 $(TEMP_OUT)/%.o: $(C_OUT)/%.c
@@ -101,14 +118,13 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p "$(@D)"
-ifdef PROFILE
-ifdef LLVM
-	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "LLVM bitcode compilation %fs\n", $$1 + $$2 }' > /dev/stderr
-else
-	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
+	LEANC_OPTS=$(LEANC_OPTS);\
+	
+	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 endif
 else
-	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
+$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
+	ln -sf $@ $<
 endif
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)
@@ -126,6 +142,15 @@ endif
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 	@rm -f $@
 	@$(LEAN_AR) rcs $@ $^
+
+ifeq (CMAKE_SYSTEM_NAME, Windows)
+$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(addprefix $(TEMP_OUT)/,$(REL_OS).export) | $(LIB_OUT)
+	@rm -f $@
+	@$(LEAN_AR) rcs $@ $^
+else
+$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
+	ln -sf $@ $<
+endif
 
 clean:
 	rm -rf $(OUT)

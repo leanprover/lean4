@@ -393,6 +393,11 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem msb_or {x y : BitVec w} : (x ||| y).msb = (x.msb || y.msb) := by
   simp [BitVec.msb]
 
+@[simp] theorem truncate_or {x y : BitVec w} :
+    (x ||| y).truncate k = x.truncate k ||| y.truncate k := by
+  ext
+  simp
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
@@ -414,6 +419,11 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem msb_and {x y : BitVec w} : (x &&& y).msb = (x.msb && y.msb) := by
   simp [BitVec.msb]
 
+@[simp] theorem truncate_and {x y : BitVec w} :
+    (x &&& y).truncate k = x.truncate k &&& y.truncate k := by
+  ext
+  simp
+
 /-! ### xor -/
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
@@ -427,6 +437,11 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem getLsb_xor {x y : BitVec v} :
     (x ^^^ y).getLsb i = (xor (x.getLsb i) (y.getLsb i)) := by
   rw [← testBit_toNat, getLsb, getLsb]
+  simp
+
+@[simp] theorem truncate_xor {x y : BitVec w} :
+    (x ^^^ y).truncate k = x.truncate k ^^^ y.truncate k := by
+  ext
   simp
 
 /-! ### not -/
@@ -460,6 +475,12 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
 
 @[simp] theorem getLsb_not {x : BitVec v} : (~~~x).getLsb i = (decide (i < v) && ! x.getLsb i) := by
   by_cases h' : i < v <;> simp_all [not_def]
+
+@[simp] theorem truncate_not {x : BitVec w} (h : k ≤ w) :
+    (~~~x).truncate k = ~~~(x.truncate k) := by
+  ext
+  simp [h]
+  omega
 
 /-! ### shiftLeft -/
 

@@ -5,6 +5,7 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
+- One week before the planned release, ensure that someone has written the first draft of the release blog post
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
 - `git pull`

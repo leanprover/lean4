@@ -28,6 +28,9 @@ example {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
   -- We'll do cases on `Or`
   -- `Nat.ne_of_lt` and `Nat.ne_of_gt` would be `have` rules?
 
+example (b : List α) (p : α → Prop) (h₁ : ∀ a ∈ b, p a) (h₂ : ∃ a ∈ b, ¬p a) : False :=
+  by auto
+
 -- From `Nat.ne_zero_implies_bit_true`
 example {x : Nat}
     {hyp : x > 0 → x / 2 ≠ 0 → ∃ i, testBit (x / 2) i = true}

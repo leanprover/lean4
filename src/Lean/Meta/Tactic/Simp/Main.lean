@@ -159,6 +159,9 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return f.betaRev e.getAppRevArgs
   -- TODO: eta reduction
   if cfg.proj then
+    match (← reduceProj? e) with
+    | some e => return e
+    | none =>
     match (← reduceProjFn? e) with
     | some e => return e
     | none   => pure ()

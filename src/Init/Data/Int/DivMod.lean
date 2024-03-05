@@ -158,6 +158,8 @@ instance : Div Int where
 instance : Mod Int where
   mod := Int.emod
 
+@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+
 /-!
 # `bmod` ("balanced" mod)
 

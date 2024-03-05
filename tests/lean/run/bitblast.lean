@@ -9,26 +9,49 @@ A proper bitblaster is in the works.
 Nevertheless this is a simple test bed for BitVec lemmas.
 -/
 
-theorem Fin.forall_succ (p : Fin (n + 1) → Prop) [DecidablePred p] :
-    (∀ (x : Fin (n + 1)), p x) ↔ (p (Fin.last _) ∧ ∀ (x : Fin n), p (x.castAdd 1)) :=
-  ⟨fun w => ⟨w _, fun i => w _⟩, fun ⟨h, w⟩ x =>
-    if p : x = Fin.last _ then by
-      subst p; exact h
-    else by
-      -- This line is needed now that `omega` doesn't check defeq on atoms.
-      simp [last, ← Fin.val_ne_iff] at p
-      have t : x < n := by omega
-      rw [show x = castAdd 1 ⟨x, by omega⟩ by rfl]
-      apply w⟩
+/-
+Here are two approaches to unrolling a `∀ (x : Fin n), ...`.
+The second is less direct, but avoids casts.
+-/
 
-@[simp] theorem Fin.forall_zero (p : Fin 0 → Prop) [DecidablePred p] :
-    (∀ (x : Fin 0), p x) ↔ True :=
+theorem Fin.forall_eq_forall_lt (p : Fin n → Prop) [DecidablePred p] :
+    (∀ (x : Fin n), p x) ↔ (∀ (x : Fin n), x < n → p x) := by
+  simp
+
+theorem Fin.forall_lt_succ (p : Fin n → Prop) [DecidablePred p] (k : Nat) :
+    (∀ (x : Fin n), x < (k + 1) → p x) ↔
+      if h : k < n then
+        (p ⟨k, h⟩ ∧ ∀ (x : Fin n), x < k → p x)
+      else
+        ∀ (x : Fin n), x < k → p x := by
+  constructor
+  · intro w
+    split <;> rename_i h
+    · constructor
+      · exact w ⟨k, h⟩ (by dsimp; omega)
+      · intro x q
+        exact w x (by omega)
+    · intro x q
+      exact w _ (by omega)
+  · intro w x q
+    split at w <;> rename_i h
+    · by_cases r : x = k
+      · subst r
+        apply w.1
+      · apply w.2
+        omega
+    · exact w _ (by omega)
+
+theorem Fin.forall_lt_zero (p : Fin n → Prop) [DecidablePred p] :
+    (∀ (x : Fin n), x < (0 : Nat) → p x) ↔ True :=
   ⟨fun _ => trivial, nofun⟩
 
 macro "bitblast" : tactic => `(tactic|
-  (apply eq_of_getLsb_eq
-   simp only [Fin.forall_succ]
-   simp [getLsb_add', addOverflow, msb_eq_getLsb_last]))
+  ( apply eq_of_getLsb_eq
+    rw [Fin.forall_eq_forall_lt]
+    repeat rw [Fin.forall_lt_succ, dif_pos (by decide)]
+    rw [Fin.forall_lt_zero]
+    simp [getLsb_add', addOverflow, msb_eq_getLsb_last]))
 
 -- Examples not involving addition:
 example (x : BitVec 64) :
@@ -40,9 +63,9 @@ example (x : BitVec 64) : (x <<< 32) &&& (x >>> 32) = 0 := by
 
 -- Examples involving addition:
 -- (Notice here we are limited to small widths, because of the bad implementation.)
-example (x y : BitVec 16) : (x + y) <<< 1 = (x <<< 1) + (y <<< 1) := by
+example (x y : BitVec 32) : (x + y) <<< 1 = (x <<< 1) + (y <<< 1) := by
   bitblast
 
-example (x y : BitVec 16) :
-    (x + y) &&& 255#16 = (x.truncate 8 + y.truncate 8).zeroExtend 16 := by
+example (x y : BitVec 32) :
+    (x + y) &&& 255#32 = (x.truncate 8 + y.truncate 8).zeroExtend 32 := by
   bitblast

@@ -17,7 +17,7 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : IO BuildContext := 
     toBuildConfig := config,
     startedBuilds := ← IO.mkRef 0
     finishedBuilds := ← IO.mkRef 0,
-    leanTrace := Hash.ofString ws.lakeEnv.lean.githash
+    leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α

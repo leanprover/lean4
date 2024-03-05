@@ -156,7 +156,7 @@ Import the `.olean` for the configuration file if `reconfigure` is not set and
 an up-to-date one exists (i.e., one with matching configuration and on the same
 toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 -/
-def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
+def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
   let some configName := FilePath.mk <$> configFile.fileName
     | error "invalid configuration file name"
@@ -181,7 +181,6 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
   handle, and acquires an exclusive lock on the trace. It then releases its
   lock on the lock file. writes the new lock data.
   -/
-
   let acquireTrace h : IO IO.FS.Handle := id do
     let hLock ← IO.FS.Handle.mk lockFile .write
     /-
@@ -223,7 +222,7 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
     match (← IO.FS.removeFile olean |>.toBaseIO) with
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
-        {platform := System.Platform.target, leanHash := Lean.githash,
+        {platform := System.Platform.target, leanHash := lakeEnv.leanGithash,
           configHash, options := lakeOpts : ConfigTrace}
       h.truncate
       let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
@@ -245,7 +244,7 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
         | error "compiled configuration is invalid; run with '-R' to reconfigure"
       let upToDate :=
         (← olean.pathExists) ∧ trace.platform = System.Platform.target ∧
-        trace.leanHash = Lean.githash ∧ trace.configHash = configHash
+        trace.leanHash = lakeEnv.leanGithash ∧ trace.configHash = configHash
       if upToDate then
         let env ← importConfigFileCore olean leanOpts
         h.unlock

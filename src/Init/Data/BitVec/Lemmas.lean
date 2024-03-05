@@ -638,6 +638,21 @@ theorem getLsb_concat (x : BitVec w) (b : Bool) (i : Nat) :
 @[simp] theorem getLsb_concat_succ : (concat x b).getLsb (i + 1) = x.getLsb i := by
   simp [getLsb_concat]
 
+@[simp] theorem not_concat (x : BitVec w) (b : Bool) : ~~~(concat x b) = concat (~~~x) !b := by
+  ext i; cases i using Fin.succRecOn <;> simp [*, Nat.succ_lt_succ]
+
+@[simp] theorem concat_or_concat (x y : BitVec w) (a b : Bool) :
+    (concat x a) ||| (concat y b) = concat (x ||| y) (a || b) := by
+  ext i; cases i using Fin.succRecOn <;> simp
+
+@[simp] theorem concat_and_concat (x y : BitVec w) (a b : Bool) :
+    (concat x a) &&& (concat y b) = concat (x &&& y) (a && b) := by
+  ext i; cases i using Fin.succRecOn <;> simp
+
+@[simp] theorem concat_xor_concat (x y : BitVec w) (a b : Bool) :
+    (concat x a) ^^^ (concat y b) = concat (x ^^^ y) (xor a b) := by
+  ext i; cases i using Fin.succRecOn <;> simp
+
 /-! ### add -/
 
 theorem add_def {n} (x y : BitVec n) : x + y = .ofNat n (x.toNat + y.toNat) := rfl

@@ -23,6 +23,10 @@ theorem subNatNat_of_sub_eq_succ {m n k : Nat} (h : n - m = succ k) : subNatNat 
 @[simp] protected theorem neg_zero : -(0:Int) = 0 := rfl
 
 @[norm_cast] theorem ofNat_add (n m : Nat) : (↑(n + m) : Int) = n + m := rfl
+theorem add_ofNat_negSucc (m n : Nat)   : m + -[n+1] = subNatNat m (n + 1) := rfl
+theorem add_negSucc_ofNat (m n : Nat)   : -[m+1] + n = subNatNat n (m + 1) := rfl
+theorem add_negSucc_negSucc (m n : Nat) : -[m+1] + -[n+1] = -[m + n + 1 +1] := rfl
+
 @[norm_cast] theorem ofNat_mul (n m : Nat) : (↑(n * m) : Int) = n * m := rfl
 theorem ofNat_succ (n : Nat) : (succ n : Int) = n + 1 := rfl
 

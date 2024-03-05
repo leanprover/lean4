@@ -162,7 +162,7 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
   rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]
 
-theorem mod_one (x : Nat) : x % 1 = 0 := by
+@[simp] theorem mod_one (x : Nat) : x % 1 = 0 := by
   have h : x % 1 < 1 := mod_lt x (by decide)
   have : (y : Nat) → y < 1 → y = 0 := by
     intro y
@@ -280,20 +280,38 @@ Nat.le_antisymm
   (le_of_lt_succ ((Nat.div_lt_iff_lt_mul npos).2 hi))
   ((Nat.le_div_iff_mul_le npos).2 lo)
 
-theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
+protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k ≤ n
+  | 0, _ => by simp [Nat.div_zero, n.zero_le]
+  | succ k, h => by
+    suffices succ k * (m / succ k) ≤ succ k * n from
+      Nat.le_of_mul_le_mul_left this (zero_lt_succ _)
+    have h1 : succ k * (m / succ k) ≤ m % succ k + succ k * (m / succ k) := Nat.le_add_left _ _
+    have h2 : m % succ k + succ k * (m / succ k) = m := by rw [mod_add_div]
+    have h3 : m ≤ succ k * n := h
+    rw [← h2] at h3
+    exact Nat.le_trans h1 h3
+
+theorem sub_mul_div (x n p : Nat) : (x - n * p) / n = x / n - p :=
   match eq_zero_or_pos n with
-  | .inl h₀ => rw [h₀, Nat.div_zero, Nat.div_zero, Nat.zero_sub]
-  | .inr h₀ => induction p with
-    | zero => rw [Nat.mul_zero, Nat.sub_zero, Nat.sub_zero]
-    | succ p IH =>
-      have h₂ : n * p ≤ x := Nat.le_trans (Nat.mul_le_mul_left _ (le_succ _)) h₁
-      have h₃ : x - n * p ≥ n := by
-        apply Nat.le_of_add_le_add_right
-        rw [Nat.sub_add_cancel h₂, Nat.add_comm]
-        rw [mul_succ] at h₁
-        exact h₁
-      rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+  | .inl h₀ => by
+    rw [h₀, Nat.div_zero, Nat.div_zero, Nat.zero_sub]
+  | .inr h₀ =>
+    if h₁ : n * p ≤ x then by
+      induction p with
+      | zero => rw [Nat.mul_zero, Nat.sub_zero, Nat.sub_zero]
+      | succ p IH =>
+        have h₂ : n * p ≤ x := Nat.le_trans (Nat.mul_le_mul_left _ (le_succ _)) h₁
+        have h₃ : x - n * p ≥ n := by
+          apply Nat.le_of_add_le_add_right
+          rw [Nat.sub_add_cancel h₂, Nat.add_comm]
+          rw [mul_succ] at h₁
+          exact h₁
+        rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
+        simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
+    else by
+      replace q := Nat.le_of_not_le h₁
+      have r := Nat.div_le_of_le_mul q
+      simp [Nat.sub_eq_zero_of_le, q, r]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
@@ -334,29 +352,21 @@ theorem div_eq_of_lt (h₀ : a < b) : a / b = 0 := by
   intro h₁
   apply Nat.not_le_of_gt h₀ h₁.right
 
-protected theorem mul_div_cancel (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
+@[simp] protected theorem mul_div_cancel (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
   let t := add_mul_div_right 0 m H
   rwa [Nat.zero_add, Nat.zero_div, Nat.zero_add] at t
 
-protected theorem mul_div_cancel_left (m : Nat) {n : Nat} (H : 0 < n) : n * m / n = m := by
+@[simp] protected theorem mul_div_cancel_left (m : Nat) {n : Nat} (H : 0 < n) : n * m / n = m := by
   rw [Nat.mul_comm, Nat.mul_div_cancel _ H]
 
-protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k ≤ n
-  | 0, _ => by simp [Nat.div_zero, n.zero_le]
-  | succ k, h => by
-    suffices succ k * (m / succ k) ≤ succ k * n from
-      Nat.le_of_mul_le_mul_left this (zero_lt_succ _)
-    have h1 : succ k * (m / succ k) ≤ m % succ k + succ k * (m / succ k) := Nat.le_add_left _ _
-    have h2 : m % succ k + succ k * (m / succ k) = m := by rw [mod_add_div]
-    have h3 : m ≤ succ k * n := h
-    rw [← h2] at h3
-    exact Nat.le_trans h1 h3
 
-@[simp] theorem mul_div_right (n : Nat) {m : Nat} (H : 0 < m) : m * n / m = n := by
-  induction n <;> simp_all [mul_succ]
+@[deprecated Nat.mul_div_cancel_left]
+theorem mul_div_right (n : Nat) {m : Nat} (H : 0 < m) : m * n / m = n :=
+  Nat.mul_div_cancel_left n H
 
-@[simp] theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
-  rw [Nat.mul_comm, mul_div_right _ H]
+@[deprecated  Nat.mul_div_cancel]
+theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m :=
+  Nat.mul_div_cancel m H
 
 protected theorem div_self (H : 0 < n) : n / n = 1 := by
   let t := add_div_right 0 H
@@ -378,6 +388,5 @@ theorem mul_div_le (m n : Nat) : n * (m / n) ≤ m := by
   match n, Nat.eq_zero_or_pos n with
   | _, Or.inl rfl => rw [Nat.zero_mul]; exact m.zero_le
   | n, Or.inr h => rw [Nat.mul_comm, ← Nat.le_div_iff_mul_le h]; exact Nat.le_refl _
-
 
 end Nat

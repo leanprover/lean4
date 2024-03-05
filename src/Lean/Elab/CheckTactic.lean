@@ -32,16 +32,13 @@ def elabCheckTactic : CommandElab := fun stx => do
       let (goals, _) ← Lean.Elab.runTactic mvar.mvarId! tac.raw
       match goals with
       | [] =>
-        throwErrorAt stx
-          m!"{tac} closed goal, but is expected to reduce to {indentExpr expTerm}."
+        throwError m!"{tac} closed goal, but is expected to reduce to {indentExpr expTerm}."
       | [next] => do
-        let (val, _, _) ← matchCheckGoalType stx (←next.getType)
+        let (val, _, _) ← matchCheckGoalType (←next.getType)
         if !(← Meta.withReducible <| isDefEq val expTerm) then
-          throwErrorAt stx
-            m!"Term reduces to{indentExpr val}\nbut is expected to reduce to {indentExpr expTerm}"
+          throwError m!"Term reduces to{indentExpr val}\nbut is expected to reduce to {indentExpr expTerm}"
       | _ => do
-        throwErrorAt stx
-          m!"{tac} produced multiple goals, but is expected to reduce to {indentExpr expTerm}."
+        throwError m!"{tac} produced multiple goals, but is expected to reduce to {indentExpr expTerm}."
 
 @[builtin_command_elab Lean.Parser.checkTacticFailure]
 def elabCheckTacticFailure : CommandElab := fun stx => do
@@ -58,7 +55,7 @@ def elabCheckTacticFailure : CommandElab := fun stx => do
           pure ()
         | some (gls, _) =>
           let ppGoal (g : MVarId) := do
-                let (val, _type, _u) ← matchCheckGoalType stx (← g.getType)
+                let (val, _type, _u) ← matchCheckGoalType (← g.getType)
                 pure m!"{indentExpr val}"
           let msg ←
             match gls with
@@ -69,7 +66,7 @@ def elabCheckTacticFailure : CommandElab := fun stx => do
                 let app m g := do pure <| m ++ (←ppGoal g)
                 let init := m!"{tactic} expected to fail on {t}, but returned goals:"
                 gls.foldlM (init := init) app
-          throwErrorAt stx msg
+          throwError msg
 
 @[builtin_macro Lean.Parser.checkSimp]
 def expandCheckSimp : Macro := fun stx => do

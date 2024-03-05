@@ -750,15 +750,26 @@ theorem sub_one_add_one_eq_of_pos : ∀ {n}, 0 < n → (n - 1) + 1 = n
 
 /-! # sub theorems -/
 
-theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
-  induction a with
+protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
+  induction k with
   | zero => simp
-  | succ a ih =>
-    rw [Nat.succ_add, Nat.succ_sub_succ]
-    apply ih
+  | succ k ih => simp [← Nat.add_assoc, succ_sub_succ_eq_sub, ih]
 
-theorem add_sub_self_right (a b : Nat) : (a + b) - b = a := by
-  rw [Nat.add_comm]; apply add_sub_self_left
+protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
+  rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]
+
+@[simp] protected theorem add_sub_cancel (a b : Nat) : a + b - b = a :=
+  suffices a + b - (0 + b) = a by rw [Nat.zero_add] at this; assumption
+  by rw [Nat.add_sub_add_right, Nat.sub_zero]
+
+protected theorem add_sub_cancel_left (a b : Nat) : a + b - a = b := by
+  rw [Nat.add_comm]; apply Nat.add_sub_cancel
+
+@[deprecated Nat.add_sub_cancel]
+theorem add_sub_self_right : ∀(a b : Nat), (a + b) - b = a := Nat.add_sub_cancel
+
+@[deprecated Nat.add_sub_cancel_left]
+theorem add_sub_self_left : ∀(a b : Nat), (a + b) - a = b := Nat.add_sub_cancel_left
 
 theorem sub_le_succ_sub (a i : Nat) : a - i ≤ a.succ - i := by
   cases i with
@@ -770,7 +781,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
   | zero => contradiction
   | succ a ih =>
     match Nat.eq_or_lt_of_le h with
-    | Or.inl h => injection h with h; subst h; rw [Nat.add_sub_self_left]; decide
+    | Or.inl h => injection h with h; subst h; rw [Nat.add_sub_cancel_left]; decide
     | Or.inr h =>
       have : 0 < a - i := ih (Nat.lt_of_succ_lt_succ h)
       exact Nat.lt_of_lt_of_le this (Nat.sub_le_succ_sub _ _)
@@ -798,22 +809,6 @@ theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
 
 @[simp] protected theorem sub_add_cancel {n m : Nat} (h : m ≤ n) : n - m + m = n := by
   rw [Nat.add_comm, Nat.add_sub_of_le h]
-
-protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
-  induction k with
-  | zero => simp
-  | succ k ih => simp [← Nat.add_assoc, succ_sub_succ_eq_sub, ih]
-
-protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
-  rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]
-
-@[simp] protected theorem add_sub_cancel (n m : Nat) : n + m - m = n :=
-  suffices n + m - (0 + m) = n by rw [Nat.zero_add] at this; assumption
-  by rw [Nat.add_sub_add_right, Nat.sub_zero]
-
-protected theorem add_sub_cancel_left (n m : Nat) : n + m - n = m :=
-  show n + m - (n + 0) = m from
-  by rw [Nat.add_sub_add_left, Nat.sub_zero]
 
 protected theorem add_sub_assoc {m k : Nat} (h : k ≤ m) (n : Nat) : n + m - k = n + (m - k) := by
  cases Nat.le.dest h
@@ -1001,7 +996,7 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
   let rec go : ∀ m n, foldTR.loop f (m + n) m (fold f n init) = fold f (m + n) init
     | 0,      n => by simp [foldTR.loop]
-    | succ m, n => by rw [foldTR.loop, add_sub_self_left, succ_add]; exact go m (succ n)
+    | succ m, n => by rw [foldTR.loop, Nat.add_sub_cancel_left, succ_add]; exact go m (succ n)
   (go n 0).symm
 
 @[csimp] theorem any_eq_anyTR : @any = @anyTR :=
@@ -1009,7 +1004,7 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   let rec go : ∀ m n,  (any f n || anyTR.loop f (m + n) m) = any f (m + n)
     | 0,      n => by simp [anyTR.loop]
     | succ m, n => by
-      rw [anyTR.loop, add_sub_self_left, ← Bool.or_assoc, succ_add]
+      rw [anyTR.loop, Nat.add_sub_cancel_left, ← Bool.or_assoc, succ_add]
       exact go m (succ n)
   (go n 0).symm
 
@@ -1018,7 +1013,7 @@ theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   let rec go : ∀ m n,  (all f n && allTR.loop f (m + n) m) = all f (m + n)
     | 0,      n => by simp [allTR.loop]
     | succ m, n => by
-      rw [allTR.loop, add_sub_self_left, ← Bool.and_assoc, succ_add]
+      rw [allTR.loop, Nat.add_sub_cancel_left, ← Bool.and_assoc, succ_add]
       exact go m (succ n)
   (go n 0).symm
 

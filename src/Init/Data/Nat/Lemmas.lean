@@ -787,7 +787,7 @@ theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x 
   | 0 => simp
   | x + 1 =>
     rw [Nat.mul_succ, Nat.add_assoc _ m, mul_add_div m_pos x (m+y), div_eq]
-    simp_arith [m_pos]; rw [Nat.add_comm, Nat.add_sub_cancel]
+    simp_arith [m_pos]
 
 theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   match x with
@@ -830,3 +830,60 @@ instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
+
+theorem dvd_sub_iff {a b : Nat} (h : a ≥ b) : b ∣ (a - b) ↔ b ∣ a := by
+  apply Iff.intro
+  · intro ⟨c, p⟩
+    replace p := Nat.eq_add_of_sub_eq h p
+    apply Exists.intro (c+1)
+    simp [Nat.mul_add, p]
+  · intro ⟨c, p⟩
+    match c with
+    | 0 =>
+      simp_all
+    | c + 1 =>
+      apply Exists.intro c
+      simp [p, Nat.mul_add]
+
+theorem succ_div (a b : Nat) : (a + 1) / b = if b ∣ (a+1) then a / b + 1 else a / b := by
+  match b with
+  | 0 =>
+    simp
+  | b + 1 =>
+    match Nat.lt_trichotomy (a+1) (b+1) with
+    | Or.inl q =>
+      have p : a < b + 1 := Nat.le_succ_of_le (Nat.le_of_succ_le_succ q)
+      split
+      · rename_i dvd
+        replace dvd := Nat.mod_eq_zero_of_dvd dvd
+        simp only [Nat.mod_eq_of_lt q] at dvd
+      · rename_i dvd
+        simp only [Nat.div_eq_of_lt, p, q]
+    | Or.inr (Or.inl p) =>
+      simp [←p, Nat.div_self, Nat.div_eq_of_lt]
+    | Or.inr (Or.inr p) =>
+      replace p : a ≥ b + 1 := Nat.le_of_succ_le_succ p
+      have q : a + 1 ≥ b + 1 := Nat.le_succ_of_le p
+      have r := succ_div (a - (b + 1)) (b + 1)
+      simp only [←Nat.sub_add_comm p, Nat.dvd_sub_iff q] at r
+      have b_pos : 0 < b + 1 := Nat.succ_le_succ (Nat.zero_le b)
+      rw [Nat.div_eq_sub_div b_pos p, Nat.div_eq_sub_div b_pos q, r]
+      split <;> simp
+
+theorem succ_mod (a b : Nat) : (a + 1) % b = if a % b + 1 = b then 0 else (a % b) + 1 := by
+  match b with
+  | 0 =>
+    simp
+  | 1 =>
+    simp
+  | b + 2 =>
+    simp only [Nat.succ.injEq]
+    split <;> rename_i dp
+    · rw [Nat.add_mod a 1 _]
+      simp [dp]
+    · have one_lt : 1 < b + 2 := Nat.le_add_left ..
+      have q : a % (b + 2) ≤ b + 1 := Nat.le_of_succ_le_succ (Nat.mod_lt _ (by omega))
+      have a_lt : a % (b + 2) + 1 < b + 2 := Nat.succ_lt_succ (Nat.lt_of_le_of_ne q dp)
+      rw [Nat.add_mod a 1 _, Nat.mod_eq_of_lt one_lt, Nat.mod_eq_of_lt a_lt]
+
+end Nat

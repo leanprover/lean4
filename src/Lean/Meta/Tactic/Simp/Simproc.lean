@@ -170,12 +170,6 @@ def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DS
 def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
   addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post proc
 
-def addSimprocBuiltinAttrNew (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinSimprocsRef declName post proc
-
-def addSEvalprocBuiltinAttrNew (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : IO Unit :=
-  addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post proc
-
 def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
   let proc ←
     try

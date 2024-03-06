@@ -136,14 +136,20 @@ else
 endif
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
-	@rm -f $@
-	@$(LEAN_AR) rcs $@ $^
 
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
+$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 $(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(foreach o,$(REL_OS), $(TEMP_OUT)/$(o).export) | $(LIB_OUT)
 	@rm -f $@
-	@$(LEAN_AR) rcs $@ $^
+	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
+	@$(LEAN_AR) rcs $@ @$@.in
+	@rm -f $@.in
 else
+$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
+	@rm -f $@
+# no response file support on macOS, but also no need for them
+	@$(LEAN_AR) rcs $@ $^
+
 $(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
 	ln -f $< $@
 endif

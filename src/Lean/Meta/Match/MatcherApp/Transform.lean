@@ -179,7 +179,7 @@ def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
 /--
 Sets the user name of the FVars in the local context according to the given array of names.
 
-If they differe in size the shorter size wins.
+If they differ in size the shorter size wins.
 -/
 def withUserNames {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α ) : MetaM α := do
   let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>

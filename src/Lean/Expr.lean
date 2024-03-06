@@ -924,7 +924,7 @@ def isRawNatLit : Expr → Bool
   | lit (Literal.natVal _) => true
   | _                      => false
 
-def natLit? : Expr → Option Nat
+def rawNatLit? : Expr → Option Nat
   | lit (Literal.natVal v) => v
   | _                      => none
 

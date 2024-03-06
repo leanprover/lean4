@@ -345,6 +345,15 @@ section Initialization
       return chanOut
 end Initialization
 
+section ServerRequests
+  def sendServerRequest [ToJson α] (method : String) (param : α) : WorkerM Unit := do
+    let ctx ← read
+    let freshRequestID ← modifyGet fun st =>
+      (st.freshRequestID, { st with freshRequestID := st.freshRequestID + 1 })
+    let r : JsonRpc.Request α := ⟨freshRequestID, method, param⟩
+    ctx.chanOut.send r
+end ServerRequests
+
 section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
     modify fun st => { st with pendingRequests := map st.pendingRequests }
@@ -541,8 +550,8 @@ section MessageHandling
             ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
 
-  def handleResponse (_ : RequestID) (result : Json) : WorkerM Unit :=
-    throwServerError s!"Unknown response kind: {result}"
+  def handleResponse (_ : RequestID) (_ : Json) : WorkerM Unit :=
+    return -- The only response that we currently expect here is always empty
 
 end MessageHandling
 
@@ -605,7 +614,10 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let _ ← IO.setStderr e
   try
     let (ctx, st) ← initializeWorker meta o e initParams.param opts
-    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) (mainLoop i)
+    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) do
+      -- Tell the client that the old semantic tokens may be stale
+      sendServerRequest "workspace/semanticTokens/refresh" (none : Option Nat)
+      mainLoop i
     return (0 : UInt32)
   catch err =>
     IO.eprintln err

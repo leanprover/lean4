@@ -135,8 +135,6 @@ else
 	$(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS)
 endif
 
-$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
-
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 $(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(foreach o,$(REL_OS), $(TEMP_OUT)/$(o).export) | $(LIB_OUT)

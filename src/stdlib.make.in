@@ -41,6 +41,7 @@ Init:
 
 Lean: Init
 	+"${LEAN_BIN}/leanmake" lib lib.export PKG=Lean $(LEANMAKE_OPTS)
+	
 ${LIB}/temp/empty.c:
 	touch $@
 

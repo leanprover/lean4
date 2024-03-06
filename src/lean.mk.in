@@ -137,7 +137,11 @@ endif
 
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
-$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(foreach o,$(REL_OS), $(TEMP_OUT)/$(o).export) | $(LIB_OUT)
+	@rm -f $@
+	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
+	@$(LEAN_AR) rcs $@ @$@.in
+	@rm -f $@.in
+$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(foreach O,$(REL_OS), $(TEMP_OUT)/$(O).export) | $(LIB_OUT)
 	@rm -f $@
 	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
 	@$(LEAN_AR) rcs $@ @$@.in

@@ -791,10 +791,10 @@ private partial def loadImportedModule (env : Environment)
   else
     pure tree
 
-private def createImportedEnvironmentSeq (env : Environment)
+private def createImportedEnvironmentSeq (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (start stop : Nat) : BaseIO (InitResults α) := do
-      let cacheRef ← IO.mkRef (Cache.empty {})
+      let cacheRef ← IO.mkRef (Cache.empty ngen)
       go (← ImportData.new) cacheRef {} start stop
     where go d cacheRef (tree : PreDiscrTree α) (start stop : Nat) : BaseIO _ := do
             if start < stop then
@@ -811,29 +811,31 @@ private def combineGet [Append α] (z : α) (tasks : Array (Task α)) : α :=
   tasks.foldl (fun x t => x ++ t.get) (init := z)
 
 /-- Create an imported environment for tree. -/
-def createImportedEnvironment (env : Environment)
+def createImportedEnvironment (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (constantsPerTask : Nat := 1000) :
     EIO Exception (LazyDiscrTree α) := do
   let n := env.header.moduleData.size
   let rec
     /-- Allocate constants to tasks according to `constantsPerTask`. -/
-    go tasks start cnt idx := do
+    go ngen tasks start cnt idx := do
       if h : idx < env.header.moduleData.size then
         let mdata := env.header.moduleData[idx]
         let cnt := cnt + mdata.constants.size
         if cnt > constantsPerTask then
-          let t ← createImportedEnvironmentSeq env act start (idx+1) |>.asTask
-          go (tasks.push t) (idx+1) 0 (idx+1)
+          let (childNGen, ngen) := ngen.mkChild
+          let t ← createImportedEnvironmentSeq childNGen env act start (idx+1) |>.asTask
+          go ngen (tasks.push t) (idx+1) 0 (idx+1)
         else
-          go tasks start cnt (idx+1)
+          go ngen tasks start cnt (idx+1)
       else
         if start < n then
-          tasks.push <$> (createImportedEnvironmentSeq env act start n).asTask
+          let (childNGen, _) := ngen.mkChild
+          tasks.push <$> (createImportedEnvironmentSeq childNGen env act start n).asTask
         else
           pure tasks
     termination_by env.header.moduleData.size - idx
-  let tasks ← go #[] 0 0 0
+  let tasks ← go ngen #[] 0 0 0
   let r := combineGet default tasks
   if p : r.errors.size > 0 then
     throw r.errors[0].exception

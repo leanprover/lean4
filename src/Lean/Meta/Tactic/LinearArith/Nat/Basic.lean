@@ -44,15 +44,15 @@ def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
   match e with
   | num v    => return mkNatLit v
   | var i    => return ctx[i]!
-  | add a b  => mkAdd (← toArith ctx a) (← toArith ctx b)
-  | mulL k a => mkMul (mkNatLit k) (← toArith ctx a)
-  | mulR a k => mkMul (← toArith ctx a) (mkNatLit k)
+  | add a b  => return mkNatAdd (← toArith ctx a) (← toArith ctx b)
+  | mulL k a => return mkNatMul (mkNatLit k) (← toArith ctx a)
+  | mulR a k => return mkNatMul (← toArith ctx a) (mkNatLit k)
 
 def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
   if c.eq then
-    mkEq (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+    return mkNatEq (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
   else
-    return mkApp4 (mkConst ``LE.le [levelZero]) (mkConst ``Nat) (mkConst ``instLENat) (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+    return mkNatLE (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
 
 namespace ToLinear
 
@@ -83,57 +83,55 @@ partial def toLinearExpr (e : Expr) : M LinearExpr := do
   | _                     => addAsVar e
 where
   visit (e : Expr) : M LinearExpr := do
-    match_expr e with
-    | Nat.succ a => return inc (← toLinearExpr a)
-    | Nat.add a b => return add (← toLinearExpr a) (← toLinearExpr b)
-    | Nat.mul a b =>
+    let mul (a b : Expr) := do
       match (← evalNat a |>.run) with
       | some k => return mulL k (← toLinearExpr b)
       | none => match (← evalNat b |>.run) with
         | some k => return mulR (← toLinearExpr a) k
         | none => addAsVar e
-    | _ =>
-      let e ← instantiateMVarsIfMVarApp e
-      let f := e.getAppFn
-      if f.isConst && isNatProjInst f.constName! e.getAppNumArgs then
-        let some e ← unfoldProjInst? e | addAsVar e
-        toLinearExpr e
-      else
-        addAsVar e
+    match_expr e with
+    | OfNat.ofNat _ n i =>
+      if (← isInstOfNatNat i) then toLinearExpr n
+      else addAsVar e
+    | Nat.succ a => return inc (← toLinearExpr a)
+    | Nat.add a b => return add (← toLinearExpr a) (← toLinearExpr b)
+    | Add.add _ i a b =>
+      if (← isInstAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      else addAsVar e
+    | HAdd.hAdd _ _ _ i a b =>
+      if (← isInstHAddNat i) then return add (← toLinearExpr a) (← toLinearExpr b)
+      else addAsVar e
+    | Nat.mul a b => mul a b
+    | Mul.mul _ i a b =>
+      if (← isInstMulNat i) then mul a b
+      else addAsVar e
+    | HMul.hMul _ _ _ i a b =>
+      if (← isInstHMulNat i) then mul a b
+      else addAsVar e
+    | _ => addAsVar e
 
-partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := do
-  let f := e.getAppFn
-  match f with
-  | Expr.mvar .. =>
-    let eNew ← instantiateMVars e
-    if eNew != e then
-      toLinearCnstr? eNew
-    else
-      return none
-  | Expr.const declName .. =>
-    let numArgs := e.getAppNumArgs
-    if declName == ``Eq && numArgs == 3 then
-      return some { eq := true, lhs := (← toLinearExpr (e.getArg! 1)), rhs := (← toLinearExpr (e.getArg! 2)) }
-    else if declName == ``Nat.le && numArgs == 2 then
-      return some { eq := false, lhs := (← toLinearExpr (e.getArg! 0)), rhs := (← toLinearExpr (e.getArg! 1)) }
-    else if declName == ``Nat.lt && numArgs == 2 then
-      return some { eq := false, lhs := (← toLinearExpr (e.getArg! 0)).inc, rhs := (← toLinearExpr (e.getArg! 1)) }
-    else if numArgs == 4 && (declName == ``GE.ge || declName == ``GT.gt) then
-      if let some e ← unfoldDefinition? e then
-        toLinearCnstr? e
-      else
-        return none
-    else if numArgs == 4 && (declName == ``LE.le || declName == ``LT.lt) then
-      if (← isDefEq (e.getArg! 0) (mkConst ``Nat)) then
-        if let some e ← unfoldProjInst? e then
-          toLinearCnstr? e
-        else
-          return none
-      else
-        return none
-    else
-      return none
-  | _ => return none
+partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
+  match_expr e with
+  | Eq α a b =>
+    let_expr Nat ← α | failure
+    return { eq := true, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
+  | Nat.le a b =>
+    return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
+  | Nat.lt a b =>
+    return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
+  | LE.le _ i a b =>
+    guard (← isInstLENat i)
+    return { eq := false, lhs := (← toLinearExpr a), rhs := (← toLinearExpr b) }
+  | LT.lt _ i a b =>
+    guard (← isInstLTNat i)
+    return { eq := false, lhs := (← toLinearExpr a).inc, rhs := (← toLinearExpr b) }
+  | GE.ge _ i a b =>
+    guard (← isInstLENat i)
+    return { eq := false, lhs := (← toLinearExpr b), rhs := (← toLinearExpr a) }
+  | GT.gt _ i a b =>
+    guard (← isInstLTNat i)
+    return { eq := false, lhs := (← toLinearExpr b).inc, rhs := (← toLinearExpr a) }
+  | _ => failure
 
 def run (x : M α) : MetaM (α × Array Expr) := do
   let (a, s) ← x.run {}

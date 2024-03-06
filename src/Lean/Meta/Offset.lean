@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Data.LBool
 import Lean.Meta.InferType
+import Lean.Meta.NatInstTesters
 
 namespace Lean.Meta
 
@@ -15,55 +16,6 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
     failure
   else
     k eNew
-
-def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
-    (numArgs == 4 && (declName == ``Add.add || declName == ``Sub.sub || declName == ``Mul.mul || declName == ``Div.div || declName == ``Mod.mod || declName == ``NatPow.pow))
- || (numArgs == 5 && (declName == ``Pow.pow))
- || (numArgs == 6 && (declName == ``HAdd.hAdd || declName == ``HSub.hSub || declName == ``HMul.hMul || declName == ``HDiv.hDiv || declName == ``HMod.hMod || declName == ``HPow.hPow))
- || (numArgs == 3 && declName == ``OfNat.ofNat)
-
-def isInstOfNatNat (e : Expr) : MetaM Bool := do
-  let_expr instOfNatNat _ ← e | return false
-  return true
-def isInstAddNat (e : Expr) : MetaM Bool := do
-  let_expr instAddNat ← e | return false
-  return true
-def isInstSubNat (e : Expr) : MetaM Bool := do
-  let_expr instSubNat ← e | return false
-  return true
-def isInstMulNat (e : Expr) : MetaM Bool := do
-  let_expr instMulNat ← e | return false
-  return true
-def isInstDivNat (e : Expr) : MetaM Bool := do
-  let_expr Nat.instDivNat ← e | return false
-  return true
-def isInstModNat (e : Expr) : MetaM Bool := do
-  let_expr Nat.instModNat ← e | return false
-  return true
-def isInstNatPowNat (e : Expr) : MetaM Bool := do
-  let_expr instNatPowNat ← e | return false
-  return true
-def isInstPowNat (e : Expr) : MetaM Bool := do
-  let_expr instPowNat _ i ← e | return false
-  isInstNatPowNat i
-def isInstHAddNat (e : Expr) : MetaM Bool := do
-  let_expr instHAdd _ i ← e | return false
-  isInstAddNat i
-def isInstHSubNat (e : Expr) : MetaM Bool := do
-  let_expr instHSub _ i ← e | return false
-  isInstSubNat i
-def isInstHMulNat (e : Expr) : MetaM Bool := do
-  let_expr instHMul _ i ← e | return false
-  isInstMulNat i
-def isInstHDivNat (e : Expr) : MetaM Bool := do
-  let_expr instHDiv _ i ← e | return false
-  isInstDivNat i
-def isInstHModNat (e : Expr) : MetaM Bool := do
-  let_expr instHMod _ i ← e | return false
-  isInstModNat i
-def isInstHPowNat (e : Expr) : MetaM Bool := do
-  let_expr instHPow _ _ i ← e | return false
-  isInstPowNat i
 
 /--
   Evaluate simple `Nat` expressions.

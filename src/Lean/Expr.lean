@@ -2019,4 +2019,18 @@ def mkNatAdd (a b : Expr) : Expr :=
 def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
+private def natLEPred : Expr :=
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat)
+
+/-- Given `a b : Nat`, return `a ≤ b` -/
+def mkNatLE (a b : Expr) : Expr :=
+  mkApp2 natLEPred a b
+
+private def natEqPred : Expr :=
+  mkApp (mkConst ``Eq [1]) (mkConst ``Nat)
+
+/-- Given `a b : Nat`, return `a = b` -/
+def mkNatEq (a b : Expr) : Expr :=
+  mkApp2 natEqPred a b
+
 end Lean

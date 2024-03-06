@@ -164,7 +164,7 @@ where
       let more := chopUpChildren cls blockSize children[blockSize:]
       children[:blockSize].toArray.push <|
         .trace (collapsed := true) cls
-          f!"{dbgTraceVal <| children.size - blockSize} more entries..." more
+          f!"{children.size - blockSize} more entries..." more
     else children
 
 partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do

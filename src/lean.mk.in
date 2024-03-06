@@ -52,7 +52,7 @@ objs: $(OBJS)
 bin: $(BIN_OUT)/$(BIN_NAME)
 
 lib: $(LIB_OUT)/$(STATIC_LIB_NAME)
-lib.export: $(LIB_OUT)/$(STATIC_LIB_NAME).export
+lib.export: $(TEMP_OUT)/$(STATIC_LIB_NAME).export
 
 depends: $(DEPS)
 
@@ -120,7 +120,7 @@ endif
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 else
 $(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
-	ln -sf $@ $*.o.export
+	ln -f $< $@
 endif
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)
@@ -140,12 +140,12 @@ $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 	@$(LEAN_AR) rcs $@ $^
 
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
-$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
+$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(foreach o,$(REL_OS), $(TEMP_OUT)/$(o).export) | $(LIB_OUT)
 	@rm -f $@
 	@$(LEAN_AR) rcs $@ $^
 else
-$(LIB_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
-	ln -sf $@ $(STATIC_LIB_NAME)
+$(TEMP_OUT)/$(STATIC_LIB_NAME).export: $(LIB_OUT)/$(STATIC_LIB_NAME)
+	ln -f $< $@
 endif
 
 clean:

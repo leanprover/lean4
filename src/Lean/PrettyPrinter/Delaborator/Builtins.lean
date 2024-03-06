@@ -1108,7 +1108,14 @@ where
   -/
   delabParams (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
     let e ← getExpr
-    if e.isForall && !e.bindingName!.hasMacroScopes && !bindingNames.contains e.bindingName! then
+    if e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
+      -- Assumption: this instance can be found by instance search, so it does not need to be named.
+      -- The oversight here is that this inaccessible name can appear in the pretty printed expression.
+      -- We could check to see whether the instance appears in the type and avoid omitting the instance name,
+      -- but this would be the usual case.
+      let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
+      withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
+    else if e.isForall && !e.bindingName!.hasMacroScopes && !bindingNames.contains e.bindingName! then
       delabParamsAux bindingNames idStx groups #[]
     else
       let type ← delabTy
@@ -1132,7 +1139,7 @@ where
         match i with
         | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
         | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
-        | .instImplicit   => `(bracketedBinderF|[$curIds.back : $(← delabTy)])
+        | .instImplicit   => `(bracketedBinderF|[$stxN : $(← delabTy)])
         | _ =>
           if d.isOptParam then
             `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))

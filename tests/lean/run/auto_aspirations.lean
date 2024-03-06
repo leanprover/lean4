@@ -174,6 +174,9 @@ protected def vcomp (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
     -- (Mathlib gets around this with a `@[reassoc]` attribute,
     -- that automatically generates copies of lemmas that fold in associativity.
     -- It can only ever get you "one step", however.)
+    -- (Note that the ematching in Lean 3 couldn't quite do this one:
+    -- just because there was a bug when we have two typeclass instances with different parameters,
+    -- e.g. the two category instances here.)
 
 @[simp] theorem vcomp_app (α : NatTrans F G) (β : NatTrans G H) (X : C) :
     (α.vcomp β).app X = α.app X ≫ β.app X := rfl

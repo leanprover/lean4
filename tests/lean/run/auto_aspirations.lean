@@ -93,7 +93,7 @@ example : x ∈ filter p as ↔ x ∈ as ∧ p x := by
 -- From `List.append_inj'`
 example (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : s₁ = s₂ ∧ t₁ = t₂ := by
   -- It seems unreasonable for `append_inj` to be a global `apply` rule,
-  -- but it could be added local, or might be reasonable as a `have` rule.
+  -- but it could be added locally, or might be reasonable as a `have` rule.
   -- In either case, after using it,
   -- `auto` would need to deduce `s₁.length = s₂.length` from `hl`.
   -- If `auto` can apply `List.length` to `h`, then after simplifying this is just arithmetic.
@@ -141,6 +141,23 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
 
 attribute [simp] Functor.map_id Functor.map_comp
 
+variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E]
+variable {F G : Functor C D}
+
+namespace Functor
+
+def comp (F : Functor C D) (G : Functor D E) : Functor C E where
+  obj X := G.obj (F.obj X)
+  map f := G.map (F.map f)
+  -- Note `map_id` and `map_comp` are handled by `cat_tac`.
+
+variable {G : Functor D E}
+
+@[simp] theorem comp_obj : (F.comp G).obj X = G.obj (F.obj X) := rfl
+@[simp] theorem comp_map (f : X ⟶ Y) : (F.comp G).map f = G.map (F.map f) := rfl
+
+end Functor
+
 @[ext]
 structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Functor C D) : Type max u₁ v₂ where
   /-- The component of a natural transformation. -/
@@ -149,9 +166,6 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by cat_tac
 
 attribute [simp] NatTrans.naturality
-
-variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E]
-variable {F G : Functor C D}
 
 namespace NatTrans
 
@@ -207,5 +221,13 @@ theorem naturality_app {F G : Functor C (Functor D E)} (T : F ⟶ G) (Z : D) {X 
   rw [T.naturality f]
   rw [comp_app]
 
+open Category Functor NatTrans
+
+def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.comp I where
+  app := fun X : C => β.app (F.obj X) ≫ I.map (α.app X)
+  naturality X Y f := by
+    -- Is this in range for ematching?
+    rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
+      map_comp, assoc]
 
 end CategoryTheory

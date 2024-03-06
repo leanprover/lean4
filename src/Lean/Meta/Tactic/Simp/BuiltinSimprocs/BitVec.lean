@@ -45,7 +45,6 @@ Helper function for reducing homogenous binary bitvector operators.
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
   let some v₂ ← fromExpr? e.appArg! | return .continue
   if h : v₁.n = v₂.n then
-    trace[Meta.debug] "reduce [{declName}] {v₁.value}, {v₂.value}"
     return .done <| toExpr (op v₁.value (h ▸ v₂.value))
   else
     return .continue

@@ -2003,4 +2003,34 @@ def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
 /-- Return `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
+private def natAddFn : Expr :=
+  let nat := mkConst ``Nat
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHAdd [0]) nat (mkConst ``instAddNat))
+
+private def natMulFn : Expr :=
+  let nat := mkConst ``Nat
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHMul [0]) nat (mkConst ``instMulNat))
+
+/-- Given `a b : Nat`, returns `a + b` -/
+def mkNatAdd (a b : Expr) : Expr :=
+  mkApp2 natAddFn a b
+
+/-- Given `a b : Nat`, returns `a * b` -/
+def mkNatMul (a b : Expr) : Expr :=
+  mkApp2 natMulFn a b
+
+private def natLEPred : Expr :=
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat)
+
+/-- Given `a b : Nat`, return `a ≤ b` -/
+def mkNatLE (a b : Expr) : Expr :=
+  mkApp2 natLEPred a b
+
+private def natEqPred : Expr :=
+  mkApp (mkConst ``Eq [1]) (mkConst ``Nat)
+
+/-- Given `a b : Nat`, return `a = b` -/
+def mkNatEq (a b : Expr) : Expr :=
+  mkApp2 natEqPred a b
+
 end Lean

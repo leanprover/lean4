@@ -52,7 +52,7 @@ The interface is shared with the cmdline driver that is used for building Lean f
 How exactly incrementality is implemented is left completely to the processor; in a strictly ordered language like Lean, there may be a chain of snapshots for each top-level command, potentially with nested snapshots for increased granularity of incrementality.
 In languages with less strict ordering and less syntax extensibility, there may be a single snapshot for the full syntax tree of the file, and then nested snapshots for processing each declaration in it.
 In the simplest case, there may be a single snapshot after processing the full file, without any incrementality.
-All the worker needs to know is that `Language.process` returns a root snapshot of some type that can be transformed into an asynchronously constructed tree of the generic `Lean.Language.Snapshot` type via `Lean.Language.ToSnapshotTree`.
+All the worker needs to know is that `Lean.Language.Lean.process` returns a root snapshot of some type that can be transformed into an asynchronously constructed tree of the generic `Lean.Language.Snapshot` type via `Lean.Language.ToSnapshotTree`.
 We use a tree and not an asynchronous list (which would basically be a channel) in order to accommodate parallel processing where it's not clear a priori which of a number of child snapshots will be available first.
 After loading the file and after each edit, the server will obtain this tree from the processor given the new file content and asynchronously wait on all these nodes and report the processing status (diagnostics and progress information) stored therein to the client (`Lean.Server.FileWorker.reportSnapshots`).
 

@@ -208,12 +208,13 @@ instance : MonadLift ProcessingM (ProcessingT IO) where
   monadLift := fun act ctx => act ctx
 
 /--
-Creates snapshot message log from non-interactive message log, caching derived interactive
-diagnostics.
+Creates snapshot message log from non-interactive message log, also allocating a mutable cell
+that can be used by the server to cache interactive diagnostics derived from the log.
 -/
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
     ProcessingM Snapshot.Diagnostics := do
   return { msgLog, cacheRef? := some (← IO.mkRef none) }
+
 /-- Creates diagnostics from a single error message that should span the whole file. -/
 def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
   let msgLog := MessageLog.empty.add {

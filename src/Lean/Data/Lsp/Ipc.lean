@@ -89,7 +89,7 @@ Waits for the worker to emit all diagnostic notifications for the current docume
 returns the last notification, if any.
 
 We used to return all notifications but with debouncing in the server, this would not be
-deterministic anymore.
+deterministic anymore as what messages are dropped depends on wall-clock timing.
  -/
 partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri) (version : Nat)
 : IpcM (Option (Notification PublishDiagnosticsParams)) := do

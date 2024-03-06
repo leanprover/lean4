@@ -151,7 +151,7 @@ def runFrontend
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
   -- where we use the environment despite errors in the file is `--stats`
-  let env := Language.Lean.getFinalEnv? snap |>.getD (← mkEmptyEnvironment)
+  let env := Language.Lean.waitForFinalEnv? snap |>.getD (← mkEmptyEnvironment)
   pure (env, !hasErrors)
 
 

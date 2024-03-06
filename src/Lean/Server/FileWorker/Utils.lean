@@ -68,16 +68,13 @@ where go cmdParsed :=
         | some next => .delayed <| next.task.bind go
         | none => .nil)
 
-/-- A map from Diagnostics ID to resulting interactive objects. -/
-abbrev DiagnosticsCache := RBMap Nat (Array Widget.InteractiveDiagnostic) compare
-
 /--
 A document bundled with processing information. Turned into `EditableDocument` as soon as the
 reporter task has been started.
 -/
 structure EditableDocumentCore where
   /-- The document. -/
-  meta       : DocumentMeta
+  meta     : DocumentMeta
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/

@@ -66,12 +66,16 @@ structure WorkerContext where
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersionRef : IO.Ref Nat
+  maxDocVersionRef : IO.Ref Int
   hLog             : FS.Stream
   initParams       : InitializeParams
   processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
   clientHasWidgets : Bool
-  opts             : Options
+  /--
+  Options defined on the worker cmdline (i.e. not including options from `setup-file`), used for
+  context-free tasks such as editing delay.
+  -/
+  cmdlineOpts      : Options
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -107,7 +111,9 @@ section Elab
     defValue := 200
     group := "server"
     descr := "(server) time in milliseconds to wait before reporting progress and diagnostics on \
-      document edit in order to reduce flickering"
+      document edit in order to reduce flickering
+
+This option can only be set on the command line, not in the lakefile or via `set_option`."
   }
 
   /--
@@ -136,7 +142,7 @@ section Elab
   private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
       (cancelTk : CancelToken) : BaseIO (Task Unit) := do
     let t ← BaseIO.asTask do
-      IO.sleep (server.reportDelayMs.get ctx.opts).toUInt32
+      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32
     BaseIO.bindTask t fun _ => do
       BaseIO.bindTask (← go (toSnapshotTree doc.initSnap) {}) fun st => do
         if (← cancelTk.isSet) then
@@ -224,6 +230,10 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 private builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
 
 open Language Lean in
+/--
+Callback from Lean language processor after parsing imports that requests necessary information from
+Lake for processing imports.
+-/
 def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
     Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
@@ -291,7 +301,7 @@ section Initialization
       processor
       clientHasWidgets
       maxDocVersionRef
-      opts
+      cmdlineOpts := opts
     }
     let doc : EditableDocumentCore := {
       meta, initSnap
@@ -317,13 +327,14 @@ section Initialization
       let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
         -- always be silently discarded
-        let version? : Option Nat := do
-          let doc ← match msg with
-            | .notification "textDocument/publishDiagnostics" (some <| .obj params) => some params
-            | .notification "$/lean/fileProgress" (some <| .obj params) =>
-              params.find compare "textDocument" |>.bind (·.getObj?.toOption)
-            | _ => none
-          doc.find compare "version" |>.bind (·.getNat?.toOption)
+        let version? : Option Int := do match msg with
+          | .notification "textDocument/publishDiagnostics" (some params) =>
+            let params : PublishDiagnosticsParams ← fromJson? (toJson params) |>.toOption
+            params.version?
+          | .notification "$/lean/fileProgress" (some params) =>
+            let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
+            params.textDocument.version?
+          | _ => none
         if let some version := version? then
           if version < (← maxDocVersion.get) then
             return

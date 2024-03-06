@@ -94,6 +94,7 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
     | none      => hole id
     | some tree => substitute tree assignment
 
+/-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
 def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
   /-
     We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that

@@ -8,6 +8,7 @@ recompilation
 Authors: Sebastian Ullrich
 -/
 
+prelude
 import Lean.Language.Basic
 import Lean.Parser.Module
 import Lean.Elab.Command
@@ -322,7 +323,7 @@ where
         return { diagnostics, success? := none }
 
       let headerEnv := headerEnv.setMainModule ctx.mainModuleName
-      let cmdState := Elab.Command.mkState headerEnv msgLog ctx.opts
+      let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with infoState := {
         enabled := true
         trees := #[Elab.InfoTree.context (.commandCtx {
@@ -458,7 +459,7 @@ where
       }
 
 /-- Waits for and returns final environment, if importing was successful. -/
-partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
+partial def waitForFinalEnv? (snap : InitialSnapshot) : Option Environment := do
   let snap ← snap.success?
   let snap ← snap.processed.get.success?
   goCmd snap.next.get

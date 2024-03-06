@@ -167,10 +167,6 @@ structure Package where
   relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
-  /-- The elaboration environment of the package's configuration file. -/
-  configEnv : Environment
-  /-- The Lean `Options` the package configuration was elaborated with. -/
-  leanOpts : Options
   /-- The path to the package's configuration file. -/
   configFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
@@ -179,6 +175,8 @@ structure Package where
   remoteUrl? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
+  /-- Dependency configurations for the package. -/
+  depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : OrdNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/

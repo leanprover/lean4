@@ -431,12 +431,17 @@ theorem cond_eq_if : (bif b then x else y) = (if b then x else y) := cond_eq_ite
 @[simp] theorem cond_self (c : Bool) (t : α) : cond c t t = t := by cases c <;> rfl
 
 /-
-This is a simp rule in Mathlib, but results in non-confluence that is
-difficult to fix as decide distributes over propositions.
+This is a simp rule in Mathlib, but results in non-confluence that is difficult
+to fix as decide distributes over propositions. As an example, observe that
+`cond (decide (p ∧ q)) t f` could simplify to either:
 
-A possible fix would be to completely simplify away `cond`, but that
-is not taken since it could result in major rewriting of code that is
-otherwise purely about `Bool`.
+* `if p ∧ q then t else f` via `Bool.cond_decide` or
+* `cond (decide p && decide q) t f` via `Bool.decide_and`.
+
+A possible approach to improve normalization between `cond` and `ite` would be
+to completely simplify away `cond` by making `cond_eq_ite` a `simp` rule, but
+that has not been taken since it could surprise users to migrate pure `Bool`
+operations like `cond` to a mix of `Prop` and `Bool`.
 -/
 theorem cond_decide {α} (p : Prop) [Decidable p] (t e : α) :
     cond (decide p) t e = if p then t else e := by

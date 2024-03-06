@@ -1130,7 +1130,7 @@ where
   delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let bindingNames := bindingNames.insert n
-    let stxN ← annotateCurPos (mkIdent n)
+    let stxN := mkIdent n
     let curIds := curIds.push ⟨stxN⟩
     if shouldGroupWithNext bindingNames e e' then
       withBindingBody n <| delabParamsAux bindingNames idStx groups curIds

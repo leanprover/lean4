@@ -1,0 +1,138 @@
+/-
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
+-/
+prelude
+import Init.SimpLemmas
+import Init.Meta
+
+open Function
+
+@[simp] theorem monadLift_self [Monad m] (x : m α) : monadLift x = x :=
+  rfl
+
+class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
+  map_const          : (Functor.mapConst : α → f β → f α) = Functor.map ∘ const β
+  id_map   (x : f α) : id <$> x = x
+  comp_map (g : α → β) (h : β → γ) (x : f α) : (h ∘ g) <$> x = h <$> g <$> x
+
+export LawfulFunctor (map_const id_map comp_map)
+
+attribute [simp] id_map
+
+@[simp] theorem id_map' [Functor m] [LawfulFunctor m] (x : m α) : (fun a => a) <$> x = x :=
+  id_map x
+
+class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFunctor f : Prop where
+  seqLeft_eq  (x : f α) (y : f β)     : x <* y = const β <$> x <*> y
+  seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
+  pure_seq    (g : α → β) (x : f α)   : pure g <*> x = g <$> x
+  map_pure    (g : α → β) (x : α)     : g <$> (pure x : f α) = pure (g x)
+  seq_pure    {α β : Type u} (g : f (α → β)) (x : α) : g <*> pure x = (fun h => h x) <$> g
+  seq_assoc   {α β γ : Type u} (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = ((@comp α β γ) <$> h) <*> g <*> x
+  comp_map g h x := (by
+    repeat rw [← pure_seq]
+    simp [seq_assoc, map_pure, seq_pure])
+
+export LawfulApplicative (seqLeft_eq seqRight_eq pure_seq map_pure seq_pure seq_assoc)
+
+attribute [simp] map_pure seq_pure
+
+@[simp] theorem pure_id_seq [Applicative f] [LawfulApplicative f] (x : f α) : pure id <*> x = x := by
+  simp [pure_seq]
+
+class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
+  bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
+  bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
+  pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
+  bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
+  map_pure g x    := (by rw [← bind_pure_comp, pure_bind])
+  seq_pure g x    := (by rw [← bind_map]; simp [map_pure, bind_pure_comp])
+  seq_assoc x g h := (by simp [← bind_pure_comp, ← bind_map, bind_assoc, pure_bind])
+
+export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
+attribute [simp] pure_bind bind_assoc
+
+@[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
+  show x >>= (fun a => pure (id a)) = x
+  rw [bind_pure_comp, id_map]
+
+theorem map_eq_pure_bind [Monad m] [LawfulMonad m] (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
+  rw [← bind_pure_comp]
+
+theorem seq_eq_bind_map {α β : Type u} [Monad m] [LawfulMonad m] (f : m (α → β)) (x : m α) : f <*> x = f >>= (. <$> x) := by
+  rw [← bind_map]
+
+theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a) : x >>= f = x >>= g := by
+  simp [funext h]
+
+@[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
+  rw [bind_pure]
+
+theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
+  simp [funext h]
+
+theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → β)) (x : m α) : mf <*> x = mf >>= fun f => f <$> x := by
+  rw [bind_map]
+
+theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> y = x >>= fun _ => y := by
+  rw [seqRight_eq]
+  simp [map_eq_pure_bind, seq_eq_bind_map, const]
+
+theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
+  rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
+
+/--
+An alternative constructor for `LawfulMonad` which has more
+defaultable fields in the common case.
+-/
+theorem LawfulMonad.mk' (m : Type u → Type v) [Monad m]
+    (id_map : ∀ {α} (x : m α), id <$> x = x)
+    (pure_bind : ∀ {α β} (x : α) (f : α → m β), pure x >>= f = f x)
+    (bind_assoc : ∀ {α β γ} (x : m α) (f : α → m β) (g : β → m γ),
+      x >>= f >>= g = x >>= fun x => f x >>= g)
+    (map_const : ∀ {α β} (x : α) (y : m β),
+      Functor.mapConst x y = Function.const β x <$> y := by intros; rfl)
+    (seqLeft_eq : ∀ {α β} (x : m α) (y : m β),
+      x <* y = (x >>= fun a => y >>= fun _ => pure a) := by intros; rfl)
+    (seqRight_eq : ∀ {α β} (x : m α) (y : m β), x *> y = (x >>= fun _ => y) := by intros; rfl)
+    (bind_pure_comp : ∀ {α β} (f : α → β) (x : m α),
+      x >>= (fun y => pure (f y)) = f <$> x := by intros; rfl)
+    (bind_map : ∀ {α β} (f : m (α → β)) (x : m α), f >>= (. <$> x) = f <*> x := by intros; rfl)
+    : LawfulMonad m :=
+  have map_pure {α β} (g : α → β) (x : α) : g <$> (pure x : m α) = pure (g x) := by
+    rw [← bind_pure_comp]; simp [pure_bind]
+  { id_map, bind_pure_comp, bind_map, pure_bind, bind_assoc, map_pure,
+    comp_map := by simp [← bind_pure_comp, bind_assoc, pure_bind]
+    pure_seq := by intros; rw [← bind_map]; simp [pure_bind]
+    seq_pure := by intros; rw [← bind_map]; simp [map_pure, bind_pure_comp]
+    seq_assoc := by simp [← bind_pure_comp, ← bind_map, bind_assoc, pure_bind]
+    map_const := funext fun x => funext (map_const x)
+    seqLeft_eq := by simp [seqLeft_eq, ← bind_map, ← bind_pure_comp, pure_bind, bind_assoc]
+    seqRight_eq := fun x y => by
+      rw [seqRight_eq, ← bind_map, ← bind_pure_comp, bind_assoc]; simp [pure_bind, id_map] }
+
+/-! # Id -/
+
+namespace Id
+
+@[simp] theorem map_eq (x : Id α) (f : α → β) : f <$> x = f x := rfl
+@[simp] theorem bind_eq (x : Id α) (f : α → id β) : x >>= f = f x := rfl
+@[simp] theorem pure_eq (a : α) : (pure a : Id α) = a := rfl
+
+instance : LawfulMonad Id := by
+  refine' { .. } <;> intros <;> rfl
+
+end Id
+
+/-! # Option -/
+
+instance : LawfulMonad Option := LawfulMonad.mk'
+  (id_map := fun x => by cases x <;> rfl)
+  (pure_bind := fun x f => rfl)
+  (bind_assoc := fun x f g => by cases x <;> rfl)
+  (bind_pure_comp := fun f x => by cases x <;> rfl)
+
+instance : LawfulApplicative Option := inferInstance
+instance : LawfulFunctor Option := inferInstance

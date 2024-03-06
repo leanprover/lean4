@@ -11,6 +11,26 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
+* New command `derive_functinal_induction`:
+
+  Derived from the definition of a (possibly mutually) recursive function
+  defined by well-founded recursion, a **functional induction principle** is
+  tailored to proofs about that function. For example from:
+  ```
+  def ackermann : Nat → Nat → Nat
+    | 0, m => m + 1
+    | n+1, 0 => ackermann n 1
+    | n+1, m+1 => ackermann n (ackermann (n + 1) m)
+  derive_functional_induction ackermann
+  ```
+  we get
+  ```
+  ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
+    (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
+    (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
+    (x x : Nat) : motive x x
+  ```
+
 v4.7.0
 ---------
 

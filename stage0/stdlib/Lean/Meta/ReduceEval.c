@@ -684,6 +684,7 @@ lean_dec(x_7);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_inc(x_8);
 x_10 = l_Lean_Meta_evalNat(x_8, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_10) == 0)
@@ -1527,6 +1528,7 @@ lean_dec(x_13);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_inc(x_14);
 x_16 = l_Lean_Meta_evalNat(x_14, x_2, x_3, x_4, x_5, x_15);
 if (lean_obj_tag(x_16) == 0)
@@ -1675,6 +1677,7 @@ lean_dec(x_38);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_inc(x_39);
 x_41 = l_Lean_Meta_evalNat(x_39, x_2, x_3, x_4, x_5, x_40);
 if (lean_obj_tag(x_41) == 0)
@@ -1855,6 +1858,7 @@ lean_dec(x_78);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_inc(x_79);
 x_81 = l_Lean_Meta_evalNat(x_79, x_2, x_3, x_4, x_5, x_80);
 if (lean_obj_tag(x_81) == 0)
@@ -2017,6 +2021,7 @@ lean_dec(x_102);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_2);
 lean_inc(x_103);
 x_105 = l_Lean_Meta_evalNat(x_103, x_2, x_3, x_4, x_5, x_104);
 if (lean_obj_tag(x_105) == 0)
@@ -2227,6 +2232,7 @@ lean_dec(x_148);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_147);
 lean_inc(x_149);
 x_151 = l_Lean_Meta_evalNat(x_149, x_147, x_3, x_4, x_5, x_150);
 if (lean_obj_tag(x_151) == 0)
@@ -2399,6 +2405,7 @@ lean_dec(x_173);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
+lean_inc(x_172);
 lean_inc(x_174);
 x_176 = l_Lean_Meta_evalNat(x_174, x_172, x_3, x_4, x_5, x_175);
 if (lean_obj_tag(x_176) == 0)

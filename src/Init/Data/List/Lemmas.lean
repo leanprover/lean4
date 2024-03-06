@@ -6,9 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
-import Init.Data.Nat.Lemmas
 import Init.PropLemmas
-import Init.Control.Lawful
+import Init.Control.Lawful.Basic
 import Init.Hints
 
 namespace List

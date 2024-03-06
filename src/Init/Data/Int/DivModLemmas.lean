@@ -9,7 +9,6 @@ import Init.Data.Int.DivMod
 import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.RCases
-import Init.TacticsExtra
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.
@@ -21,8 +20,6 @@ open Nat (succ)
 namespace Int
 
 /-! ### `/`  -/
-
-@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp

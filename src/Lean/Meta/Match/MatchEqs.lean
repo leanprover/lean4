@@ -110,6 +110,8 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   - `type` is the resulting type for `altType`.
 
   We use the `mask` to build the splitter proof. See `mkSplitterProof`.
+
+  This can be used to use the alternative of a match expression in its splitter.
 -/
 partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
@@ -132,9 +134,11 @@ where
                let some k  := args.getIdx? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
-               let args    := args.push (← mkEqRefl rhs)
+               let arg     ← mkEqRefl rhs
                let typeNew := typeNew.replaceFVar lhs rhs
-               return (← go ys eqs args (mask.push false) (i+1) typeNew)
+               return ← withReplaceFVarId lhs.fvarId! rhs do
+                withReplaceFVarId y.fvarId! arg do
+                  go ys eqs (args.push arg) (mask.push false) (i+1) typeNew
           go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
         let arg ← if let some (_, _, rhs) ← matchEq? d then
@@ -152,7 +156,9 @@ where
          they are not eagerly evaluated. -/
       if ys.size == 1 then
         if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
-          return (← k #[] #[] #[mkConst ``Unit.unit] #[false] type)
+          let rhs := mkConst ``Unit.unit
+          return ← withReplaceFVarId ys[0]!.fvarId! rhs do
+          return (← k #[] #[] #[rhs] #[false] type)
       k ys eqs args mask type
 
   isNamedPatternProof (type : Expr) (h : Expr) : Bool :=

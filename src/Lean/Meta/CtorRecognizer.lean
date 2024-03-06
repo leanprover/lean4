@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.LitValues
+import Lean.Meta.Offset
 
 namespace Lean.Meta
 
@@ -64,9 +65,17 @@ def constructorApp? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) :
 
 /--
 Similar to `constructorApp?`, but on failure it puts `e` in WHNF and tries again.
+It also `isOffset?`
 -/
 def constructorApp'? (e : Expr) : MetaM (Option (ConstructorVal × Array Expr)) := do
-  if let some r ← constructorApp? e then
+  if let some (e, k) ← isOffset? e then
+    if k = 0 then
+      return none
+    else
+      let .ctorInfo val ← getConstInfo ``Nat.succ | return none
+      if k = 1 then return some (val, #[e])
+      else return some (val, #[mkNatAdd e (toExpr (k-1))])
+  else if let some r ← constructorApp? e then
     return some r
   else
     constructorApp? (← whnf e)

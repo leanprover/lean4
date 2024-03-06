@@ -122,15 +122,15 @@ def initK (alt : Alt) : MacroM Alt := withFreshMacroScope do
 Generates parameters for the continuation function used to execute
 the RHS of the given alternative.
 -/
-def getParams (alt : Alt) : MacroM (Array Term) := do
+def getParams (alt : Alt) : MacroM (Array (TSyntax ``bracketedBinder)) := do
   let mut params := #[]
   if let some var := alt.var? then
-    params := params.push (← `(($var : Expr)))
+    params := params.push (← `(bracketedBinderF| ($var : Expr)))
   params := params ++ (← alt.pvars.toArray.reverse.filterMapM fun
     | none => return none
-    | some arg => return some (← `(($arg : Expr))))
+    | some arg => return some (← `(bracketedBinderF| ($arg : Expr))))
   if params.isEmpty then
-    return #[(← `(_))]
+    return #[(← `(bracketedBinderF| (_ : Unit)))]
   return params
 
 /--
@@ -182,10 +182,10 @@ partial def generate (discr : Term) (alts : List Alt) (elseAlt : ElseAlt) : Macr
         result ← `(if ($discr).isConstOf $(toDoubleQuotedName funName) then $alt.k $actuals* else $result)
     return result
   let body ← loop discr' alts
-  let mut result ← `(let_delayed __do_jp := fun (_ : Unit) => $(⟨elseAlt.rhs⟩):term; let __discr := Expr.cleanupAnnotations $discr:term; $body:term)
+  let mut result ← `(let_delayed __do_jp (_ : Unit) := $(⟨elseAlt.rhs⟩):term; let __discr := Expr.cleanupAnnotations $discr:term; $body:term)
   for alt in alts do
     let params ← getParams alt
-    result ← `(let_delayed $alt.k:ident := fun $params:term* => $(⟨alt.rhs⟩):term; $result:term)
+    result ← `(let_delayed $alt.k:ident $params:bracketedBinder* := $(⟨alt.rhs⟩):term; $result:term)
   return result
 
 def main (discr : Term) (alts : Array Syntax) (elseAlt : Syntax) : MacroM Syntax := do

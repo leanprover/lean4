@@ -26,8 +26,10 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
 
 def elimOptParam (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
-    let_expr optParam _ a := e | return .continue
-    return TransformStep.visit a
+    if e.isAppOfArity ``optParam 2 then
+      return TransformStep.visit (e.getArg! 0)
+    else
+      return .continue
 
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam

@@ -159,6 +159,9 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return f.betaRev e.getAppRevArgs
   -- TODO: eta reduction
   if cfg.proj then
+    match (← reduceProj? e) with
+    | some e => return e
+    | none =>
     match (← reduceProjFn? e) with
     | some e => return e
     | none   => pure ()
@@ -397,24 +400,20 @@ def simpLet (e : Expr) : SimpM Result := do
           let h ← mkLambdaFVars #[x] h
           return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
 
+private def dsimpReduce : DSimproc := fun e => do
+  let mut eNew ← reduce e
+  if eNew.isFVar then
+    eNew ← reduceFVar (← getConfig) (← getSimpTheorems) eNew
+  if eNew != e then return .visit eNew else return .done e
+
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
-  let pre (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePre (rflOnly := true) e then
-      if r.expr != e then
-        return .visit r.expr
-    return .continue
-  let post (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePost (rflOnly := true) e then
-      if r.expr != e then
-        return .visit r.expr
-    let mut eNew ← reduce e
-    if eNew.isFVar then
-      eNew ← reduceFVar cfg (← getSimpTheorems) eNew
-    if eNew != e then return .visit eNew else return .done e
+  let m ← getMethods
+  let pre := m.dpre
+  let post := m.dpost >> dsimpReduce
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
@@ -646,9 +645,9 @@ def simp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (disc
   | none   => Simp.main e ctx usedSimps (methods := Simp.mkDefaultMethodsCore simprocs)
   | some d => Simp.main e ctx usedSimps (methods := Simp.mkMethods simprocs d)
 
-def dsimp (e : Expr) (ctx : Simp.Context)
+def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
     (usedSimps : UsedSimps := {}) : MetaM (Expr × UsedSimps) := do profileitM Exception "dsimp" (← getOptions) do
-  Simp.dsimpMain e ctx usedSimps (methods := Simp.mkDefaultMethodsCore {})
+  Simp.dsimpMain e ctx usedSimps (methods := Simp.mkDefaultMethodsCore simprocs )
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (discharge? : Option Simp.Discharge := none)
@@ -797,7 +796,7 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
     else
       return (TacticResultCNM.modified mvarId', usedSimps')
 
-def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
+def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
     (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
    mvarId.withContext do
     mvarId.checkNotAssigned `simp
@@ -805,7 +804,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
     let mut usedSimps : UsedSimps := usedSimps
     for fvarId in fvarIdsToSimp do
       let type ← instantiateMVars (← fvarId.getType)
-      let (typeNew, usedSimps') ← dsimp type ctx
+      let (typeNew, usedSimps') ← dsimp type ctx simprocs
       usedSimps := usedSimps'
       if typeNew.isFalse then
         mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkFVar fvarId))
@@ -814,7 +813,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
         mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId typeNew
     if simplifyTarget then
       let target ← mvarIdNew.getType
-      let (targetNew, usedSimps') ← dsimp target ctx usedSimps
+      let (targetNew, usedSimps') ← dsimp target ctx simprocs usedSimps
       usedSimps := usedSimps'
       if targetNew.isTrue then
         mvarIdNew.assign (mkConst ``True.intro)

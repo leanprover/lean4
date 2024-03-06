@@ -7,6 +7,7 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
+import Init.Data.Int.Bitwise
 
 /-!
 We define bitvectors. We choose the `Fin` representation over others for its relative efficiency

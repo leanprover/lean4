@@ -434,7 +434,7 @@ where
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx usedSimps
 
-def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
+def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Location) : TacticM Unit := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -446,7 +446,7 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, usedSimps) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
@@ -454,8 +454,8 @@ where
       mvarId.withContext <| traceSimpCall (← getRef) usedSimps
 
 @[builtin_tactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
-  let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
-  dsimpLocation ctx (expandOptLocation stx[5])
+  let { ctx, simprocs, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+  dsimpLocation ctx simprocs (expandOptLocation stx[5])
 
 end Lean.Elab.Tactic
 

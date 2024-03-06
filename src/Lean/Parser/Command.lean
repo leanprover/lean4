@@ -230,6 +230,8 @@ def «structure»          := leading_parser
   "#print " >> (ident <|> strLit)
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
+@[builtin_command_parser] def printEqns      := leading_parser
+  "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -278,6 +280,17 @@ def initializeKeyword := leading_parser
 
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident
+
+/--
+`derive_functional_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
+will define a theorem `foo.induct` which provides an induction principle that follows the branching
+and recursion pattern of `foo`.
+
+If `foo` is part of a mutual recursion group, this defines such `.induct`-theorems for all functions
+in the group.
+-/
+@[builtin_command_parser] def deriveInduction := leading_parser
+  "derive_functional_induction " >> Parser.ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

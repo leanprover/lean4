@@ -18,9 +18,10 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
     k eNew
 
 def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
-      (numArgs == 4 && (declName == ``Add.add || declName == ``Sub.sub || declName == ``Mul.mul))
-   || (numArgs == 6 && (declName == ``HAdd.hAdd || declName == ``HSub.hSub || declName == ``HMul.hMul))
-   || (numArgs == 3 && declName == ``OfNat.ofNat)
+    (numArgs == 4 && (declName == ``Add.add || declName == ``Sub.sub || declName == ``Mul.mul || declName == ``Div.div || declName == ``Mod.mod || declName == ``NatPow.pow))
+ || (numArgs == 5 && (declName == ``Pow.pow))
+ || (numArgs == 6 && (declName == ``HAdd.hAdd || declName == ``HSub.hSub || declName == ``HMul.hMul || declName == ``HDiv.hDiv || declName == ``HMod.hMod || declName == ``HPow.hPow))
+ || (numArgs == 3 && declName == ``OfNat.ofNat)
 
 /--
   Evaluate simple `Nat` expressions.
@@ -35,31 +36,21 @@ partial def evalNat (e : Expr) : OptionT MetaM Nat := do
   | _                    => failure
 where
   visit e := do
-    let f := e.getAppFn
-    match f with
-    | .mvar .. => withInstantiatedMVars e evalNat
-    | .const c _ =>
-      let nargs := e.getAppNumArgs
-      if c == ``Nat.succ && nargs == 1 then
-        let v ← evalNat (e.getArg! 0)
-        return v+1
-      else if c == ``Nat.add && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ + v₂
-      else if c == ``Nat.sub && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ - v₂
-      else if c == ``Nat.mul && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ * v₂
-      else if isNatProjInst c nargs then
+    match_expr e with
+    | Nat.succ a => return (← evalNat a) + 1
+    | Nat.add a b => return (← evalNat a) + (← evalNat b)
+    | Nat.sub a b => return (← evalNat a) - (← evalNat b)
+    | Nat.mul a b => return (← evalNat a) * (← evalNat b)
+    | Nat.div a b => return (← evalNat a) / (← evalNat b)
+    | Nat.mod a b => return (← evalNat a) % (← evalNat b)
+    | Nat.pow a b => return (← evalNat a) ^ (← evalNat b)
+    | _ =>
+      let e ← instantiateMVarsIfMVarApp e
+      let f := e.getAppFn
+      if f.isConst && isNatProjInst f.constName! e.getAppNumArgs then
         evalNat (← unfoldProjInst? e)
       else
         failure
-    | _ => failure
 
 mutual
 

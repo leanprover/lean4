@@ -23,26 +23,13 @@ namespace Nat
 private theorem one_div_two : 1/2 = 0 := by trivial
 
 private theorem two_pow_succ_sub_succ_div_two : (2 ^ (n+1) - (x + 1)) / 2 = 2^n - (x/2 + 1) := by
-  if h : x + 1 ≤ 2 ^ (n + 1) then
-    apply fun x => (Nat.sub_eq_of_eq_add x).symm
-    apply Eq.trans _
-    apply Nat.add_mul_div_left _ _ Nat.zero_lt_two
-    rw [← Nat.sub_add_comm h]
-    rw [Nat.add_sub_assoc (by omega)]
-    rw [Nat.pow_succ']
-    rw [Nat.mul_add_div Nat.zero_lt_two]
-    simp [show (2 * (x / 2 + 1) - (x + 1)) / 2 = 0 by omega]
-  else
-    rw [Nat.pow_succ'] at *
-    omega
+  omega
 
 private theorem two_pow_succ_sub_one_div_two : (2 ^ (n+1) - 1) / 2 = 2^n - 1 :=
   two_pow_succ_sub_succ_div_two
 
 private theorem two_mul_sub_one {n : Nat} (n_pos : n > 0) : (2*n - 1) % 2 = 1 := by
-  match n with
-  | 0 => contradiction
-  | n + 1 => simp [Nat.mul_succ, Nat.mul_add_mod, mod_eq_of_lt]
+  omega
 
 /-! ### Preliminaries -/
 
@@ -98,6 +85,11 @@ theorem testBit_to_div_mod {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) :=
     cases mod_two_eq_zero_or_one x with | _ xz => simp [xz]
   | succ i hyp =>
     simp [hyp, Nat.div_div_eq_div_mul, Nat.pow_succ']
+
+theorem toNat_testBit (x i : Nat) :
+    (x.testBit i).toNat = x / 2 ^ i % 2 := by
+  rw [Nat.testBit_to_div_mod]
+  rcases Nat.mod_two_eq_zero_or_one (x / 2^i) <;> simp_all
 
 theorem ne_zero_implies_bit_true {x : Nat} (xnz : x ≠ 0) : ∃ i, testBit x i := by
   induction x using div2Induction with
@@ -269,31 +261,28 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
 
 theorem testBit_one_zero : testBit 1 0 = true := by trivial
 
+theorem not_decide_mod_two_eq_one (x : Nat)
+    : (!decide (x % 2 = 1)) = decide (x % 2 = 0) := by
+  cases Nat.mod_two_eq_zero_or_one x <;> (rename_i p; simp [p])
+
 theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     testBit (2^n - (x + 1)) i = (decide (i < n) && ! testBit x i) := by
   induction i generalizing n x with
   | zero =>
-    simp only [testBit_zero, zero_eq, Bool.and_eq_true, decide_eq_true_eq,
-      Bool.not_eq_true']
     match n with
     | 0 => simp
     | n+1 =>
-      -- just logic + omega:
-      simp only [zero_lt_succ, decide_True, Bool.true_and]
-      rw [Nat.pow_succ', ← decide_not, decide_eq_decide]
-      rw [Nat.pow_succ'] at h₂
+      simp [not_decide_mod_two_eq_one]
       omega
   | succ i ih =>
     simp only [testBit_succ]
     match n with
     | 0 =>
-      simp only [Nat.pow_zero, succ_sub_succ_eq_sub, Nat.zero_sub, Nat.zero_div, zero_testBit]
-      rw [decide_eq_false] <;> simp
+      simp [decide_eq_false]
     | n+1 =>
       rw [Nat.two_pow_succ_sub_succ_div_two, ih]
       · simp [Nat.succ_lt_succ_iff]
-      · rw [Nat.pow_succ'] at h₂
-        omega
+      · omega
 
 @[simp] theorem testBit_two_pow_sub_one (n i : Nat) : testBit (2^n-1) i = decide (i < n) := by
   rw [testBit_two_pow_sub_succ]
@@ -344,7 +333,7 @@ private theorem eq_0_of_lt_one (x : Nat) : x < 1 ↔ x = 0 :=
       match x with
       | 0 => Eq.refl 0
       | _+1 => False.elim (not_lt_zero _ (Nat.lt_of_succ_lt_succ p)))
-    (fun p => by simp [p, Nat.zero_lt_succ])
+    (fun p => by simp [p])
 
 private theorem eq_0_of_lt (x : Nat) : x < 2^ 0 ↔ x = 0 := eq_0_of_lt_one x
 
@@ -447,12 +436,8 @@ theorem testBit_mul_pow_two_add (a : Nat) {b i : Nat} (b_lt : b < 2^i) (j : Nat)
   cases Nat.lt_or_ge j i with
   | inl j_lt =>
     simp only [j_lt]
-    have i_ge := Nat.le_of_lt j_lt
-    have i_sub_j_nez : i-j ≠ 0 := Nat.sub_ne_zero_of_lt j_lt
-    have i_def : i = j + succ (pred (i-j)) :=
-          calc i = j + (i-j) := (Nat.add_sub_cancel' i_ge).symm
-               _ = j + succ (pred (i-j)) := by
-                 rw [← congrArg (j+·) (Nat.succ_pred i_sub_j_nez)]
+    have i_def : i = j + succ (pred (i-j)) := by
+      rw [succ_pred_eq_of_pos] <;> omega
     rw [i_def]
     simp only [testBit_to_div_mod, Nat.pow_add, Nat.mul_assoc]
     simp only [Nat.mul_add_div (Nat.two_pow_pos _), Nat.mul_add_mod]

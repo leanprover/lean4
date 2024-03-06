@@ -150,9 +150,12 @@ Candidate-finding function that uses a strict discrimination tree for resolution
 def mkImportFinder : IO CandidateFinder := do
   let ref ← IO.mkRef none
   pure fun ty => do
+    let ngen ← getNGen
+    let (childNGen, ngen) := ngen.mkChild
+    setNGen ngen
     let importTree ← (←ref.get).getDM $ do
       profileitM Exception  "librarySearch launch" (←getOptions) $
-        createImportedEnvironment (←getEnv) (constantsPerTask := constantsPerTask) addImport
+        createImportedEnvironment childNGen (←getEnv) (constantsPerTask := constantsPerTask) addImport
     let (imports, importTree) ← importTree.getMatch ty
     ref.set importTree
     pure imports

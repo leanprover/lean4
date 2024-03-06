@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.FoldConsts
+import Lean.Meta.Eqns
 import Lean.Elab.Command
 
 namespace Lean.Elab.Command
@@ -127,5 +128,19 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
     let cs ← resolveGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
+
+private def printEqnsOf (constName : Name) : CommandElabM Unit := do
+  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName (nonRec := true) |
+    logInfo m!"'{constName}' does not have equations"
+  let mut m := m!"equations:"
+  for eq in eqns do
+    let cinfo ← getConstInfo eq
+    m := m ++ Format.line ++ (← mkHeader "theorem" eq cinfo.levelParams cinfo.type .safe)
+  logInfo m
+
+@[builtin_command_elab «printEqns»] def elabPrintEqns : CommandElab := fun stx => do
+  let id := stx[2]
+  let cs ← resolveGlobalConstWithInfos id
+  cs.forM printEqnsOf
 
 end Lean.Elab.Command

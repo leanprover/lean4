@@ -365,7 +365,6 @@ static lean_object* l_Lean_Meta_DiscrTree_empty___closed__2;
 static lean_object* l_List_mapTR_loop___at_Lean_Meta_DiscrTree_Trie_format___spec__1___rarg___closed__6;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_DiscrTree_getUnify___spec__18___rarg___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_Key_format___closed__6;
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getMatchLoop___spec__4(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___lambda__2___closed__2;
@@ -3659,28 +3658,27 @@ return x_3;
 }
 case 7:
 {
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_ctor_get(x_1, 2);
-x_5 = l_Lean_Expr_hasLooseBVars(x_4);
-return x_5;
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
 }
 case 9:
+{
+uint8_t x_5; 
+x_5 = 0;
+return x_5;
+}
+case 11:
 {
 uint8_t x_6; 
 x_6 = 0;
 return x_6;
 }
-case 11:
-{
-uint8_t x_7; 
-x_7 = 0;
-return x_7;
-}
 default: 
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
+uint8_t x_7; 
+x_7 = 1;
+return x_7;
 }
 }
 }
@@ -9339,7 +9337,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1;
 x_2 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(429u);
+x_3 = lean_unsigned_to_nat(443u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

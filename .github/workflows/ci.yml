@@ -144,7 +144,8 @@ jobs:
                 "CTEST_OPTIONS": "--repeat until-pass:2 -E 'leanbenchtest_liasolver.lean'",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd"
+                // TEMP while compiler tests are deactivated
+                "binary-check": "true"
               },
               {
                 "name": "Linux aarch64",

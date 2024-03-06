@@ -18,7 +18,7 @@ namespace Lake
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
 -/
-partial def LeanLib.recCollectLocalModules (self : LeanLib) : IndexBuildM (Array Module) := do
+private partial def LeanLib.recCollectLocalModules (self : LeanLib) : IndexBuildM (Array Module) := do
   let mut mods := #[]
   let mut modSet := ModuleSet.empty
   for mod in (← self.getModuleArray) do
@@ -38,20 +38,20 @@ where
     return (mods, modSet)
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
-def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
+private def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
   mkFacetConfig LeanLib.recCollectLocalModules
 
-protected def LeanLib.recBuildLean
+private def LeanLib.recBuildLean
 (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
   let mods ← self.modules.fetch
   mods.foldlM (init := BuildJob.nil) fun job mod => do
     job.mix <| ← mod.leanArts.fetch
 
 /-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
-def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
+private def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfigSmall LeanLib.recBuildLean
 
-protected def LeanLib.recBuildStatic
+private def LeanLib.recBuildStatic
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
@@ -59,12 +59,12 @@ protected def LeanLib.recBuildStatic
   buildStaticLib self.staticLibFile oJobs
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
-def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
+private def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
   mkFacetJobConfig LeanLib.recBuildStatic
 
 /-! ## Build Shared Lib -/
 
-protected def LeanLib.recBuildShared
+private def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
@@ -74,18 +74,18 @@ protected def LeanLib.recBuildShared
   buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
-def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
+private def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
   mkFacetJobConfig LeanLib.recBuildShared
 
 /-! ## Build `extraDepTargets` -/
 
 /-- Build the `extraDepTargets` for the library and its package. -/
-def LeanLib.recBuildExtraDepTargets (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
+private def LeanLib.recBuildExtraDepTargets (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
   self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
     job.mix <| ← self.pkg.fetchTargetJob target
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
-def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
+private def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfigSmall LeanLib.recBuildExtraDepTargets
 
 open LeanLib in

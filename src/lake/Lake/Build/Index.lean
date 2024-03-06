@@ -3,8 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Build.Common
 import Lake.Build.Targets
-import Lake.Build.Executable
 import Lake.Build.Topological
 
 /-!
@@ -23,18 +23,31 @@ namespace Lake
 Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
-@[macro_inline] def mkTargetFacetBuild (facet : Name) (build : IndexBuildM α)
-[h : FamilyOut TargetData facet α] : IndexBuildM (TargetData facet) :=
+@[macro_inline] private def runTargetFacetBuild
+  (facet : Name) (build : IndexBuildM α) [h : FamilyOut TargetData facet α]
+: IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
-def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+@[inline] private def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
   lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
-def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+@[inline] private def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
-def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
+@[inline] private def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
   computeDynlibOfShared (← lib.shared.fetch)
+
+/-- The build function definition for a Lean executable. -/
+private def LeanExe.recBuildExe
+(self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
+  let imports ← self.root.transImports.fetch
+  let mut linkJobs := #[← self.root.o.fetch]
+  for mod in imports do for facet in mod.nativeFacets do
+    linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
+  let deps := (← fetch <| self.pkg.facet `deps).push self.pkg
+  for dep in deps do for lib in dep.externLibs do
+    linkJobs := linkJobs.push <| ← lib.static.fetch
+  buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs
 
 /-!
 ## Topologically-based Recursive Build Using the Index
@@ -63,13 +76,13 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
   else
     error s!"do not know how to build library facet `{facet}`"
 | .leanExe exe =>
-  mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
+  runTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>
-  mkTargetFacetBuild ExternLib.staticFacet lib.recBuildStatic
+  runTargetFacetBuild ExternLib.staticFacet lib.recBuildStatic
 | .sharedExternLib lib =>
-  mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
+  runTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
 | .dynlibExternLib lib =>
-  mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
+  runTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
 
 /--
 Run the given recursive build using the Lake build index

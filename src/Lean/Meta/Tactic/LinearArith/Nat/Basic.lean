@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Check
 import Lean.Meta.Offset
+import Lean.Meta.AppBuilder
 import Lean.Meta.KExprMap
 
 namespace Lean.Meta.Linear.Nat

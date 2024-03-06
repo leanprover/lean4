@@ -1,0 +1,6 @@
+String.append : String → String → String
+List.length.{u_1} {α : Type u_1} : List α → Nat
+Nat.pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n ^ m
+Nat.pos_pow_of_pos' {n : Nat} (m : Nat) : 0 < n → 0 < n ^ m
+foo (n : Nat) : (n : Nat) → Fin (n + 1)
+foo' (n : Nat) : (n_1 : Nat) → Fin (n + 1) → Fin (n_1 + 1)

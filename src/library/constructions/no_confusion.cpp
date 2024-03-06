@@ -101,6 +101,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
                         expr rhs_type = lctx.get_type(rhs);
                         level l       = sort_level(type_checker(env, lctx).ensure_type(lhs_type));
                         expr h_type;
+                        // TODO: this should respect reducibility
                         if (type_checker(env, lctx).is_def_eq(lhs_type, rhs_type)) {
                             h_type = mk_app(mk_constant(get_eq_name(), levels(l)), lhs_type, lhs, rhs);
                         } else {

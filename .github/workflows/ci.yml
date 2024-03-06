@@ -140,12 +140,10 @@ jobs:
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
                 // for reasons unknown, interactivetests are flaky on Windows
-                // also, the liasolver test hits “too many exported symbols”
-                "CTEST_OPTIONS": "--repeat until-pass:2 -E 'leanbenchtest_liasolver.lean'",
+                "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                // TEMP while compiler tests are deactivated
-                "binary-check": "true"
+                "binary-check": "ldd"
               },
               {
                 "name": "Linux aarch64",

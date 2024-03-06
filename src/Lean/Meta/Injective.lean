@@ -133,7 +133,6 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
   let name := mkInjectiveTheoremNameFor ctorVal.name
-  trace[Meta.injective] "theorem {name} : {type} := {value}"
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams
@@ -165,7 +164,6 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     | return ()
   let value ← mkInjectiveEqTheoremValue ctorVal.name type
   let name := mkInjectiveEqTheoremNameFor ctorVal.name
-  trace[Meta.injective] "theorem {name} : {type} := {value}"
   addDecl <| Declaration.thmDecl {
     name
     levelParams := ctorVal.levelParams

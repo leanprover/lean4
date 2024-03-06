@@ -69,20 +69,35 @@ instance : LT Key := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
 def Key.format : Key → Format
-  | .star                   => "*"
-  | .other                  => "◾"
-  | .lit (Literal.natVal v) => Std.format v
-  | .lit (Literal.strVal v) => repr v
-  | .const k _              => Std.format k
-  | .proj s i _             => Std.format s ++ "." ++ Std.format i
-  | .fvar k _               => Std.format k.name
-  | .arrow                  => "→"
+  | .star            => "*"
+  | .other           => "◾"
+  | .lit (.natVal v) => Std.format v
+  | .lit (.strVal v) => repr v
+  | .const k _       => Std.format k
+  | .proj s i _      => Std.format s ++ "." ++ Std.format i
+  | .fvar k _        => Std.format k.name
+  | .arrow           => "→"
 
 instance : ToFormat Key := ⟨Key.format⟩
 
 def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
+  /-
+  Remark: `.arrow` used to have arity 2, and was used to encode non-dependent arrows.
+  However, this feature was a recurrent source of bugs. For example, a theorem about
+  a dependent arrow can be applied to a non-dependent one. The reverse direction may
+  also happen. See issue #2835.
+  ```
+  -- A theorem about the non-dependent arrow `a → a`
+  theorem imp_self' {a : Prop} : (a → a) ↔ True := ⟨fun _ => trivial, fun _ => id⟩
+
+  -- can be applied to the dependent one `(h : P a) → P (f h)`.
+  example {α : Prop} {P : α → Prop} {f : ∀ {a}, P a → α} {a : α} : (h : P a) → P (f h) := by
+    simp only [imp_self']
+  ```
+  Thus, we now index dependent and non-dependent arrows using the key `.arrow` with arity 0.
+  -/
   | .arrow      => 0
   | .proj _ _ a => 1 + a
   | _           => 0
@@ -270,12 +285,12 @@ partial def reduce (e : Expr) (config : WhnfCoreConfig) : MetaM Expr := do
 -/
 private def isBadKey (fn : Expr) : Bool :=
   match fn with
-  | .lit ..   => false
-  | .const .. => false
-  | .fvar ..  => false
-  | .proj ..  => false
-  | .forallE _ _ b _ => b.hasLooseBVars
-  | _ => true
+  | .lit ..     => false
+  | .const ..   => false
+  | .fvar ..    => false
+  | .proj ..    => false
+  | .forallE .. => false
+  | _           => true
 
 /--
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
@@ -298,7 +313,6 @@ def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
   if root then reduceUntilBadKey e config else reduce e config
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
-
 
 /--
 Append `n` wildcards to `todo`

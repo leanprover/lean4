@@ -83,7 +83,7 @@ instance : ToFormat Key := ⟨Key.format⟩
 def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
-  | .arrow      => 2
+  | .arrow      => 0
   | .proj _ _ a => 1 + a
   | _           => 0
 
@@ -278,33 +278,6 @@ private def isBadKey (fn : Expr) : Bool :=
   | _ => true
 
 /--
-  Try to eliminate loose bound variables by performing beta-reduction.
-  We use this method when processing terms in discrimination trees.
-  These trees distinguish dependent arrows from nondependent ones.
-  Recall that dependent arrows are indexed as `.other`, but nondependent arrows as `.arrow ..`.
-  Motivation: we want to "discriminate" implications and simple arrows in our index.
-
-  Now suppose we add the term `Foo (Nat → Nat)` to our index. The nested arrow appears as
-  `.arrow ..`. Then, suppose we want to check whether the index contains
-  `(x : Nat) → (fun _ => Nat) x`, but it will fail to retrieve `Foo (Nat → Nat)` because
-  it assumes the nested arrow is a dependent one and uses `.other`.
-
-  We use this method to address this issue by beta-reducing terms containing loose bound variables.
-  See issue #2232.
-
-  Remark: we expect the performance impact will be minimal.
--/
-private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
-  Core.transform e
-    (pre := fun e => do
-      if !e.hasLooseBVars then
-        return .done e
-      else if e.isHeadBetaTarget then
-        return .visit e.headBeta
-      else
-        return .continue)
-
-/--
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
   We use this method instead of `reduce` for root terms at `pushArgs`. -/
@@ -390,15 +363,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
         return (.other, todo)
       else
         return (.star, todo)
-    | .forallE _ d b _ =>
-      -- See comment at elimLooseBVarsByBeta
-      let b ← if b.hasLooseBVars then elimLooseBVarsByBeta b else pure b
-      if b.hasLooseBVars then
-        return (.other, todo)
-      else
-        return (.arrow, todo.push d |>.push b)
-    | _ =>
-      return (.other, todo)
+    | .forallE .. => return (.arrow, todo)
+    | _ => return (.other, todo)
 
 @[inherit_doc pushArgs]
 partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
@@ -556,15 +522,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
   | .proj s i a .. =>
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
-  | .forallE _ d b _ =>
-    -- See comment at elimLooseBVarsByBeta
-    let b ← if b.hasLooseBVars then elimLooseBVarsByBeta b else pure b
-    if b.hasLooseBVars then
-      return (.other, #[])
-    else
-      return (.arrow, #[d, b])
-  | _ =>
-    return (.other, #[])
+  | .forallE .. => return (.arrow, #[])
+  | _ => return (.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root) (config := config)
@@ -608,12 +567,6 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       let result ← visitStar result
       match k with
       | .star  => return result
-      /-
-        Note: dep-arrow vs arrow
-        Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
-        A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
-      -/
-      | .arrow => visitNonStar .other #[] (← visitNonStar k args result)
       | _      => visitNonStar k args result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) :=
@@ -627,8 +580,6 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig)
     let (k, args) ← getMatchKeyArgs e (root := true) config
     match k with
     | .star  => return (k, result)
-    /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
-    | .arrow => return (k, (← getMatchRoot d k args (← getMatchRoot d .other #[] result config) config))
     | _      => return (k, (← getMatchRoot d k args result config))
 
 /--
@@ -708,8 +659,6 @@ where
           | some c => process 0 (todo ++ args) c.2 result
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-        -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
         | _      => visitNonStar k args (← visitStar result)
 
 namespace Trie

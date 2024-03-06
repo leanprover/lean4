@@ -67,7 +67,7 @@ private partial def getOffset (e : Expr) : MetaM (Expr × Nat) :=
 /--
 Similar to `getOffset` but returns `none` if the expression is not syntactically an offset.
 -/
-private partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
+partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
   let add (a b : Expr) := do
     let v ← evalNat b
     let (s, k) ← getOffset a

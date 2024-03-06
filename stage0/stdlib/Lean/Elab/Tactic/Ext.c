@@ -413,6 +413,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_614____lambda__6___closed__5;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_evalExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_Ext_elabExtType___spec__3___closed__2;
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_614____lambda__8___closed__6;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -451,7 +452,6 @@ static lean_object* l_Lean_Elab_Tactic_Ext_elabExtIffType___closed__3;
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
-lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___at_Lean_Elab_Tactic_Ext_withExtN___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
@@ -2873,7 +2873,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____spec__1___closed__1;
 x_2 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(463u);
+x_3 = lean_unsigned_to_nat(429u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____spec__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11675,7 +11675,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
-x_48 = l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__1___rarg(x_46, x_47, x_10, x_11, x_12, x_13, x_14);
+x_48 = l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(x_46, x_47, x_10, x_11, x_12, x_13, x_14);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_49; lean_object* x_50; 

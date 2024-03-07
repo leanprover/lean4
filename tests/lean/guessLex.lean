@@ -87,12 +87,18 @@ def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
   | ⟨0,_⟩ => 0
   | ⟨.succ y,.succ n⟩ => confuseLex2 ⟨y,n⟩
 
+-- NB: uses sizeOf to make the termination argument non-dependent
 def dependent : (n : Nat) → (m : Fin n) → Nat
  | 0, i => Fin.elim0 i
  | .succ 0, 0 => 0
  | .succ (.succ n), 0 => dependent (.succ n) ⟨n, n.lt_succ_self⟩
  | .succ (.succ n), ⟨.succ m, h⟩ =>
   dependent (.succ (.succ n)) ⟨m, Nat.lt_of_le_of_lt (Nat.le_succ _) h⟩
+
+-- NB: does not use sizeOf, as parameters in the fixed prefix are fine.
+def dependentWithFixedPrefix (n : Nat) : (m : Fin n) → (acc : Nat) → Nat
+  | ⟨0, _⟩, acc => acc
+  | ⟨i+1, h⟩, acc => dependentWithFixedPrefix n ⟨i, Nat.lt_of_succ_lt h⟩ (acc + i)
 
 -- An example based on a real world problem, condensed by Leo
 inductive Expr where
@@ -127,24 +133,37 @@ def shadow2 (some_n : Nat) : Nat → Nat
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
+
+-- The following test whether `sizeOf` is properly printed, and possibly qualified
+-- For this we need a type that needs an explicit “sizeOf”.
+
+structure OddNat where nat : Nat
+instance : WellFoundedRelation OddNat := measure (fun ⟨n⟩ => n+1)
+
+-- Just to check that sizeOf is actually used
+def oddNat : OddNat → Nat
+  | ⟨0⟩ => 0
+  | ⟨.succ n⟩ => oddNat ⟨n⟩
+decreasing_by decreasing_tactic
+
 -- Shadowing `sizeOf`, as a varying paramter
-def shadowSizeOf1 (sizeOf : Nat) : Nat → Nat
-  | 0 => 0
-  | .succ n => shadowSizeOf1 (sizeOf + 1) n
+def shadowSizeOf1 (sizeOf : Nat) : OddNat → Nat
+  | ⟨0⟩ => 0
+  | ⟨.succ n⟩ => shadowSizeOf1 (sizeOf + 1) ⟨n⟩
 decreasing_by decreasing_tactic
 
 -- Shadowing `sizeOf`, as a fixed paramter
-def shadowSizeOf2 (sizeOf : Nat) : Nat → Nat → Nat
-  | 0, m => m
-  | .succ n, m => shadowSizeOf2 sizeOf n m
+def shadowSizeOf2 (sizeOf : Nat) : OddNat → Nat → Nat
+  | ⟨0⟩, m => m
+  | ⟨.succ n⟩, m => shadowSizeOf2 sizeOf ⟨n⟩ m
 decreasing_by decreasing_tactic
 
 -- Shadowing `sizeOf`, as something in the environment
 def sizeOf : Nat := 2
 
-def qualifiedSizeOf (m : Nat) : Nat → Nat
-  | 0 => 0
-  | .succ n => qualifiedSizeOf (m + 1) n
+def qualifiedSizeOf (m : Nat) : OddNat → Nat
+  | ⟨0⟩ => 0
+  | ⟨.succ n⟩ => qualifiedSizeOf (m + 1) ⟨n⟩
 decreasing_by decreasing_tactic
 
 end VarNames

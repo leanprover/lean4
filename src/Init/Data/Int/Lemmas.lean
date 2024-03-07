@@ -551,4 +551,10 @@ theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by
   | n + 1 =>
     simp only [Nat.pow_succ, Int.pow_succ, natCast_mul, natCast_pow _ n]
 
+/-! ### toNat -/
+
+theorem mem_toNat' : ∀ (a : Int) (n : Nat), toNat' a = some n ↔ a = n
+  | (m : Nat), n => by simp [toNat', Int.ofNat_inj]
+  | -[m+1], n => by constructor <;> nofun
+
 end Int

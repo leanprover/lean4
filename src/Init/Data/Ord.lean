@@ -88,11 +88,19 @@ def isGE : Ordering → Bool
 
 end Ordering
 
+/--
+Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
+`x = y` corresponds to `Ordering.eq`.
+-/
 @[inline] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt
 
+/--
+Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
+`x == y` corresponds to `Ordering.eq`.
+-/
 @[inline] def compareOfLessAndBEq {α} (x y : α) [LT α] [Decidable (x < y)] [BEq α] : Ordering :=
   if x < y then .lt
   else if x == y then .eq
@@ -223,6 +231,9 @@ returns 'equal', by `ord₂`.
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
 
+/--
+Creates an order which compares elements of an `Array` in lexicographic order.
+-/
 protected def arrayOrd [a : Ord α] : Ord (Array α) where
   compare x y :=
     let _ : LT α := a.toLT

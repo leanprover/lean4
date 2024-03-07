@@ -54,6 +54,7 @@ where
       | .trace .., _ => .text "(trace)"
     tt.stripTags
 
+/-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
 def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
   compareByUserVisible a.toDiagnostic b.toDiagnostic
 

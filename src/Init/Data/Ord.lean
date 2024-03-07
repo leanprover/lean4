@@ -5,7 +5,6 @@ Authors: Dany Fabian, Sebastian Ullrich
 -/
 
 prelude
-import Init.Data.Int
 import Init.Data.String
 
 inductive Ordering where

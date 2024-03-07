@@ -26,7 +26,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
 
 def elimOptParam (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
-    if e.isAppOfArity  ``optParam 2 then
+    if e.isAppOfArity ``optParam 2 then
       return TransformStep.visit (e.getArg! 0)
     else
       return .continue

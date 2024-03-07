@@ -8,6 +8,7 @@ import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
+import Lean.Meta.Offset
 import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
@@ -161,6 +162,22 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
 private def isWFRec (declName : Name) : Bool :=
   declName == ``Acc.rec || declName == ``WellFounded.rec
 
+/--
+Helper method for `reduceRec`.
+We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
+We we use the following trick, if `e` can be expressed as an offest `(a, k)` with `k > 0`,
+we create a new expression `Nat.succ e'` where `e'` is `a` for `k = 1`, or `a + (k-1)` for `k > 1`.
+See issue #3022
+-/
+private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
+  let some (e, k) ← isOffset? e | return e
+  if k = 0 then
+    return e
+  else if k = 1 then
+    return mkNatSucc e
+  else
+    return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -177,6 +194,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     if recVal.k then
       major ← toCtorWhenK recVal major
     major := major.toCtorIfLit
+    major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>

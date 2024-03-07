@@ -3404,13 +3404,11 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__71() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__1;
-x_2 = l_Lean_Elab_Tactic_Omega_atomsCoeffs___rarg___closed__2;
-x_3 = l_Lean_Elab_Tactic_Omega_atomsList___rarg___closed__1;
-x_4 = l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__37;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_Omega_atomsList___rarg___closed__1;
+x_2 = l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__37;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Tactic_Omega_analyzeAtom___closed__72() {

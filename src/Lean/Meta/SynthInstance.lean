@@ -10,7 +10,6 @@ import Init.Data.Array.InsertionSort
 import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars
-import Lean.Meta.WHNF
 import Lean.Meta.Check
 import Lean.Util.Profile
 

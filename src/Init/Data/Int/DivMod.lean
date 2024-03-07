@@ -158,4 +158,46 @@ instance : Div Int where
 instance : Mod Int where
   mod := Int.emod
 
+@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
+
+/-!
+# `bmod` ("balanced" mod)
+
+Balanced mod (and balanced div) are a division and modulus pair such
+that `b * (Int.bdiv a b) + Int.bmod a b = a` and `b/2 ≤ Int.bmod a b <
+b/2` for all `a : Int` and `b > 0`.
+
+This is used in Omega as well as signed bitvectors.
+-/
+
+/--
+Balanced modulus.  This version of Integer modulus uses the
+balanced rounding convention, which guarantees that
+`m/2 ≤ bmod x m < m/2` for `m ≠ 0` and `bmod x m` is congruent
+to `x` modulo `m`.
+
+If `m = 0`, then `bmod x m = x`.
+-/
+def bmod (x : Int) (m : Nat) : Int :=
+  let r := x % m
+  if r < (m + 1) / 2 then
+    r
+  else
+    r - m
+
+/--
+Balanced division.  This returns the unique integer so that
+`b * (Int.bdiv a b) + Int.bmod a b = a`.
+-/
+def bdiv (x : Int) (m : Nat) : Int :=
+  if m = 0 then
+    0
+  else
+    let q := x / m
+    let r := x % m
+    if r < (m + 1) / 2 then
+      q
+    else
+      q + 1
+
 end Int

@@ -445,10 +445,17 @@ section MessageHandling
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
     return diags.filter fun diag =>
+      let r := diag.fullRange
+      let diagStartLine := r.start.line
+      let diagEndLine   :=
+        if r.end.character == 0 then
+          r.end.line
+        else
+          r.end.line + 1
       params.lineRange?.all fun ⟨s, e⟩ =>
-        -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
-        s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
-        diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+        -- does [s,e) intersect [diagStartLine,diagEndLine)?
+        s ≤ diagStartLine ∧ diagStartLine < e ∨
+        diagStartLine ≤ s ∧ s < diagEndLine
 
   def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
       : WorkerM (Task (Except Error AvailableImportsCache)) := do

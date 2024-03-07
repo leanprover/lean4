@@ -673,12 +673,13 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-`have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term
-of type `t`.
-* If `t` is omitted, it will be inferred.
-* If `h` is omitted, the name `this` is used.
-* The variant `have pattern := e` is equivalent to `match e with | pattern => _`,
-  and it is convenient for types that have only one applicable constructor.
+The `have` tactic is for adding hypotheses to the local context of the main goal.
+* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
+* `have h := e` uses the type of `e` for `t`.
+* `have : t := e` and `have := e` use `this` for the name of the hypothesis.
+* `have pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
@@ -693,12 +694,15 @@ If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
 /--
-`let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
-If `t` is omitted, it will be inferred.
-The variant `let pattern := e` is equivalent to `match e with | pattern => _`,
-and it is convenient for types that have only applicable constructor.
-Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses
-`h₁ : p`, `h₂ : q`, and `h₃ : r`.
+The `let` tactic is for adding definitions to the local context of the main goal.
+* `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
+* `let x := e` uses the type of `e` for `t`.
+* `let : t := e` and `let := e` use `this` for the name of the hypothesis.
+* `let pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that let only one applicable constructor.
+  For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
+  local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--

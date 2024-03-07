@@ -1,3 +1,4 @@
+unfold1.lean:22:4-22:8: error: simp made no progress
 case succ
 x : Nat
 ih : isEven (2 * x) = true
@@ -8,4 +9,4 @@ ih : isEven (2 * x) = true
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ isEven (Nat.add (2 * x) 0) = true
+⊢ isEven (2 * x) = true

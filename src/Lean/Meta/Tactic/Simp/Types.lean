@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.CongrTheorems
+import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.SimpCongrTheorems
@@ -39,10 +40,9 @@ def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
 
 /-- Flip the proof in a `Simp.Result`. -/
 def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
-  ({ expr := e, proof? := · }) <$>
   match r.proof? with
-  | none => pure none
-  | some p => some <$> Meta.mkEqSymm p
+  | none   => return { r with expr := e }
+  | some p => return { r with expr := e, proof? := some (← Meta.mkEqSymm p) }
 
 abbrev Cache := ExprMap Result
 
@@ -146,6 +146,20 @@ See `Step`.
 -/
 abbrev Simproc := Expr → SimpM Step
 
+abbrev DStep := TransformStep
+
+/--
+Similar to `Simproc`, but resulting expression should be definitionally equal to the input one.
+-/
+abbrev DSimproc := Expr → SimpM DStep
+
+def _root_.Lean.TransformStep.toStep (s : TransformStep) : Step :=
+  match s with
+  | .done e            => .done { expr := e }
+  | .visit e           => .visit { expr := e }
+  | .continue (some e) => .continue (some { expr := e })
+  | .continue none     => .continue none
+
 def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
   match s with
   | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r.cache r')
@@ -171,6 +185,17 @@ def andThen (f g : Simproc) : Simproc := fun e => do
 instance : AndThen Simproc where
   andThen s₁ s₂ := andThen s₁ (s₂ ())
 
+@[always_inline]
+def dandThen (f g : DSimproc) : DSimproc := fun e => do
+  match (← f e) with
+  | .done eNew            => return .done eNew
+  | .continue none        => g e
+  | .continue (some eNew) => g eNew
+  | .visit eNew           => return .visit eNew
+
+instance : AndThen DSimproc where
+  andThen s₁ s₂ := dandThen s₁ (s₂ ())
+
 /--
 `Simproc` .olean entry.
 -/
@@ -189,7 +214,7 @@ structure SimprocEntry extends SimprocOLeanEntry where
   Recall that we cannot store `Simproc` into .olean files because it is a closure.
   Given `SimprocOLeanEntry.declName`, we convert it into a `Simproc` by using the unsafe function `evalConstCheck`.
   -/
-  proc : Simproc
+  proc : Sum Simproc DSimproc
 
 abbrev SimprocTree := DiscrTree SimprocEntry
 
@@ -203,6 +228,8 @@ structure Simprocs where
 structure Methods where
   pre        : Simproc                    := fun _ => return .continue
   post       : Simproc                    := fun e => return .done { expr := e }
+  dpre       : DSimproc                   := fun _ => return .continue
+  dpost      : DSimproc                   := fun e => return .done e
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   deriving Inhabited
 
@@ -256,7 +283,22 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
   savingCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
-def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
+def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+  /-
+  If `thmId` is an equational theorem (e.g., `foo._eq_1`), we should record `foo` instead.
+  See issue #3547.
+  -/
+  let thmId ← match thmId with
+    | .decl declName post false =>
+      /-
+      Remark: if `inv := true`, then the user has manually provided the theorem and wants to
+      use it in the reverse direction. So, we only performs the substitution when `inv := false`
+      -/
+      if let some declName ← isEqnThm? declName then
+        pure (Origin.decl declName post false)
+      else
+        pure thmId
+    | _ => pure thmId
   modify fun s => if s.usedTheorems.contains thmId then s else
     let n := s.usedTheorems.size
     { s with usedTheorems := s.usedTheorems.insert thmId n }
@@ -513,6 +555,13 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
   | .done r => return .done (← r.addExtraArgs extraArgs)
   | .continue none => return .continue none
   | .continue (some r) => return .continue (← r.addExtraArgs extraArgs)
+
+def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
+  match s with
+  | .visit eNew => .visit (mkAppN eNew extraArgs)
+  | .done eNew => .done (mkAppN eNew extraArgs)
+  | .continue none => .continue none
+  | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
 
 end Simp
 

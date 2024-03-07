@@ -9,7 +9,6 @@ import Init.Data.Int.DivMod
 import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
 import Init.RCases
-import Init.TacticsExtra
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.
@@ -21,8 +20,6 @@ open Nat (succ)
 namespace Int
 
 /-! ### `/`  -/
-
-@[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
 @[simp] theorem zero_ediv : ∀ b : Int, 0 / b = 0
   | ofNat _ => show ofNat _ = _ by simp
@@ -325,23 +322,78 @@ theorem sub_ediv_of_dvd (a : Int) {b c : Int}
   rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_ediv_of_dvd_right (Int.dvd_neg.2 hcb)]
   congr; exact Int.neg_ediv_of_dvd hcb
 
-/-!
-# `bmod` ("balanced" mod)
+@[simp] theorem ediv_one : ∀ a : Int, a / 1 = a
+  | (_:Nat) => congrArg Nat.cast (Nat.div_one _)
+  | -[_+1]  => congrArg negSucc (Nat.div_one _)
 
-We use balanced mod in the omega algorithm,
-to make ±1 coefficients appear in equations without them.
--/
+@[simp] theorem emod_one (a : Int) : a % 1 = 0 := by
+  simp [emod_def, Int.one_mul, Int.sub_self]
 
-/--
-Balanced mod, taking values in the range [- m/2, (m - 1)/2].
--/
-def bmod (x : Int) (m : Nat) : Int :=
-  let r := x % m
-  if r < (m + 1) / 2 then
-    r
+@[simp] protected theorem ediv_self {a : Int} (H : a ≠ 0) : a / a = 1 := by
+  have := Int.mul_ediv_cancel 1 H; rwa [Int.one_mul] at this
+
+@[simp]
+theorem Int.emod_sub_cancel (x y : Int): (x - y)%y = x%y := by
+  if h : y = 0 then
+    simp [h]
   else
-    r - m
+    simp only [Int.emod_def, Int.sub_ediv_of_dvd, Int.dvd_refl, Int.ediv_self h, Int.mul_sub]
+    simp [Int.mul_one, Int.sub_sub, Int.add_comm y]
+
+/-! bmod -/
 
 @[simp] theorem bmod_emod : bmod x m % m = x % m := by
   dsimp [bmod]
   split <;> simp [Int.sub_emod]
+
+@[simp]
+theorem emod_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n) n = Int.bmod x n := by
+  simp [bmod, Int.emod_emod]
+
+theorem bmod_def (x : Int) (m : Nat) : bmod x m =
+  if (x % m) < (m + 1) / 2 then
+    x % m
+  else
+    (x % m) - m :=
+  rfl
+
+theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % m := by
+  simp [bmod_def, p]
+
+theorem bmod_neg (x : Int) (m : Nat) (p : x % m ≥ (m + 1) / 2) : bmod x m = (x % m) - m := by
+  simp [bmod_def, Int.not_lt.mpr p]
+
+@[simp]
+theorem bmod_one_is_zero (x : Int) : Int.bmod x 1 = 0 := by
+  simp [Int.bmod]
+
+@[simp]
+theorem bmod_add_cancel (x : Int) (n : Nat) : Int.bmod (x + n) n = Int.bmod x n := by
+  simp [bmod_def]
+
+@[simp]
+theorem bmod_add_mul_cancel (x : Int) (n : Nat) (k : Int) : Int.bmod (x + n * k) n = Int.bmod x n := by
+  simp [bmod_def]
+
+@[simp]
+theorem bmod_sub_cancel (x : Int) (n : Nat) : Int.bmod (x - n) n = Int.bmod x n := by
+  simp [bmod_def]
+
+@[simp]
+theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmod (x + y) n := by
+  simp [Int.emod_def, Int.sub_eq_add_neg]
+  rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
+
+@[simp]
+theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
+  rw [bmod_def x n]
+  split
+  case inl p =>
+    simp
+  case inr p =>
+    rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
+    simp
+
+@[simp]
+theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
+  rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]

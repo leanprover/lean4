@@ -254,7 +254,7 @@ structure PostponedEntry where
   ref  : Syntax
   lhs  : Level
   rhs  : Level
-  /-- Context for the surrounding `isDefEq` call when entry was created. -/
+  /-- Context for the surrounding `isDefEq` call when the entry was created. -/
   ctx? : Option DefEqContext
   deriving Inhabited
 
@@ -264,7 +264,7 @@ structure PostponedEntry where
 structure State where
   mctx             : MetavarContext := {}
   cache            : Cache := {}
-  /-- When `trackZetaDelta == true`, then any let-decl free variable that is zetaDelta expansion performed by `MetaM` is stored in `zetaDeltaFVarIds`. -/
+  /-- When `trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
@@ -1348,6 +1348,16 @@ private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : 
     modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
+Removes `fvarId` from the local context, and replaces occurrences of it with `e`.
+It is the responsibility of the caller to ensure that `e` is well-typed in the context
+of any occurrence of `fvarId`.
+-/
+def withReplaceFVarId {α} (fvarId : FVarId) (e : Expr) : MetaM α → MetaM α :=
+  withReader fun ctx => { ctx with
+    lctx := ctx.lctx.replaceFVarId fvarId e
+    localInstances := ctx.localInstances.erase fvarId }
+
+/--
   `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
   where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
   If `allowLevelAssignments` is set to true, then the level metavariable depth
@@ -1736,6 +1746,15 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 -/
 def etaExpand (e : Expr) : MetaM Expr :=
   withDefault do forallTelescopeReducing (← inferType e) fun xs _ => mkLambdaFVars xs (mkAppN e xs)
+
+/--
+If `e` is of the form `?m ...` instantiate metavars
+-/
+def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
+  if e.getAppFn.isMVar then
+    instantiateMVars e
+  else
+    return e
 
 end Meta
 

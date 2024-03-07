@@ -210,4 +210,27 @@ theorem gcd_eq_iff (a b : Nat) :
       · exact gcd_dvd_right a b
     · exact Nat.dvd_gcd ha hb
 
+/-- Represent a divisor of `m * n` as a product of a divisor of `m` and a divisor of `n`. -/
+def prod_dvd_and_dvd_of_dvd_prod {k m n : Nat} (H : k ∣ m * n) :
+    {d : {m' // m' ∣ m} × {n' // n' ∣ n} // k = d.1.val * d.2.val} :=
+  if h0 : gcd k m = 0 then
+    ⟨⟨⟨0, eq_zero_of_gcd_eq_zero_right h0 ▸ Nat.dvd_refl 0⟩,
+      ⟨n, Nat.dvd_refl n⟩⟩,
+      eq_zero_of_gcd_eq_zero_left h0 ▸ (Nat.zero_mul n).symm⟩
+  else by
+    have hd : gcd k m * (k / gcd k m) = k := Nat.mul_div_cancel' (gcd_dvd_left k m)
+    refine ⟨⟨⟨gcd k m, gcd_dvd_right k m⟩, ⟨k / gcd k m, ?_⟩⟩, hd.symm⟩
+    apply Nat.dvd_of_mul_dvd_mul_left (Nat.pos_of_ne_zero h0)
+    rw [hd, ← gcd_mul_right]
+    exact Nat.dvd_gcd (Nat.dvd_mul_right _ _) H
+
+theorem gcd_mul_dvd_mul_gcd (k m n : Nat) : gcd k (m * n) ∣ gcd k m * gcd k n := by
+  let ⟨⟨⟨m', hm'⟩, ⟨n', hn'⟩⟩, (h : gcd k (m * n) = m' * n')⟩ :=
+    prod_dvd_and_dvd_of_dvd_prod <| gcd_dvd_right k (m * n)
+  rw [h]
+  have h' : m' * n' ∣ k := h ▸ gcd_dvd_left ..
+  exact Nat.mul_dvd_mul
+    (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_right m' n') h') hm')
+    (dvd_gcd (Nat.dvd_trans (Nat.dvd_mul_left n' m') h') hn')
+
 end Nat

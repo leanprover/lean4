@@ -9,7 +9,6 @@ import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
-import Lean.Language.Basic
 
 namespace Lean.Server.FileWorker
 
@@ -52,6 +51,17 @@ partial def runLakeSetupFile
   let stderr ← IO.ofExcept stderr.get
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩
+
+inductive FileSetupResultKind where
+  | success
+  | noLakefile
+  | importsOutOfDate
+  | error (msg : String)
+
+structure FileSetupResult where
+  kind          : FileSetupResultKind
+  srcSearchPath : SearchPath
+  fileOptions   : Options
 
 def FileSetupResult.ofSuccess (pkgSearchPath : SearchPath) (fileOptions : Options)
     : IO FileSetupResult := do return {

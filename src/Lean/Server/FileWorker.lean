@@ -103,8 +103,8 @@ section Elab
     allInfoTrees : Array Elab.InfoTree := #[]
     /-- New info trees encountered since we last sent a .ilean update notification. -/
     newInfoTrees : Array Elab.InfoTree := #[]
-    /-- Whether we should finish with a fatal progress notification. -/
-    isFatal := false
+    /-- Whether we encountered any snapshot with `Snapshot.isFatal`. -/
+    hasFatal := false
   deriving Inhabited
 
   register_builtin_option server.reportDelayMs : Nat := {
@@ -117,11 +117,11 @@ This option can only be set on the command line, not in the lakefile or via `set
   }
 
   /--
-  Type of cache stored in `Snapshot.Diagnostics.cacheRef?`.
+  Type of state stored in `Snapshot.Diagnostics.cacheRef?`.
 
   See also section "Communication" in Lean/Server/README.md.
   -/
-  structure CachedInteractiveDiagnostics where
+  structure MemorizedInteractiveDiagnostics where
     diags : Array Widget.InteractiveDiagnostic
   deriving TypeName
 
@@ -149,7 +149,7 @@ This option can only be set on the command line, not in the lakefile or via `set
           return .pure ()
 
         -- callback at the end of reporting
-        if st.isFatal then
+        if st.hasFatal then
           ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
         else
           ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
@@ -169,20 +169,20 @@ This option can only be set on the command line, not in the lakefile or via `set
 
       if !node.element.diagnostics.msgLog.isEmpty then
         let diags ←
-          if let some cached ← node.element.diagnostics.cacheRef?.bindM fun cacheRef => do
-              return (← cacheRef.get).bind (·.get? CachedInteractiveDiagnostics) then
-            pure cached.diags
+          if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
+              return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
+            pure memorized.diags
           else
             let diags ← node.element.diagnostics.msgLog.toList.toArray.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
-            if let some cacheRef := node.element.diagnostics.cacheRef? then
-              cacheRef.set <| some <| .mk { diags : CachedInteractiveDiagnostics }
+            if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
+              cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
             pure diags
         doc.diagnosticsRef.modify (· ++ diags)
         if st.hasBlocked then
           publishDiagnostics
 
-      let mut st := { st with isFatal := st.isFatal || node.element.isFatal }
+      let mut st := { st with hasFatal := st.hasFatal || node.element.isFatal }
 
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := st.newInfoTrees.push itree

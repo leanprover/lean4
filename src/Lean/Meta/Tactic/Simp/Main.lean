@@ -50,6 +50,10 @@ def foldRawNatLit (e : Expr) : SimpM Expr := do
       return toExpr n
   | none   => return e
 
+/-- Return true if `e` is of the form `ofScientific n b m` where `n` and `m` are kernel Nat literals. -/
+def isOfScientificLit (e : Expr) : Bool :=
+  e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 4).isRawNatLit && (e.getArg! 2).isRawNatLit
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -410,19 +414,27 @@ private def dsimpReduce : DSimproc := fun e => do
     eNew ← reduceFVar (← getConfig) (← getSimpTheorems) eNew
   if eNew != e then return .visit eNew else return .done e
 
-/--
-Auliliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
-This is the `dsimp` equivalent of the approach used at `visitApp`.
-Recall that we fold orphan raw Nat literals.
--/
-private def doNotVisitOfNat : DSimproc := fun e => do
-  if isOfNatNatLit e then
-    if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
+/-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
+private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
+  if pred e then
+    if (← readThe Simp.Context).isDeclToUnfold declName then
       return .continue e
     else
       return .done e
   else
     return .continue e
+
+/--
+Auliliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
+This is the `dsimp` equivalent of the approach used at `visitApp`.
+Recall that we fold orphan raw Nat literals.
+-/
+private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
+
+/--
+Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
+-/
+private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
@@ -430,7 +442,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific
   let post := m.dpost >> dsimpReduce
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
@@ -550,8 +562,8 @@ def congr (e : Expr) : SimpM Result := do
     congrDefault e
 
 def simpApp (e : Expr) : SimpM Result := do
-  if isOfNatNatLit e then
-    -- Recall that we expand "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
+  if isOfNatNatLit e || isOfScientificLit e then
+    -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else
     congr e

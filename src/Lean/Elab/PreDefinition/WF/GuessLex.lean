@@ -9,12 +9,12 @@ import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.TryThis
+import Lean.Meta.ArgsPacker
 import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
-import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
 
@@ -84,11 +84,11 @@ def originalVarNames (preDef : PreDefinition) : MetaM (Array Name) := do
   lambdaTelescope preDef.value fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
 /--
-Given the original paramter names from `originalVarNames`, remove the fixed prefix and find
+Given the original parameter names from `originalVarNames`, find
 good variable names to be used when talking about termination arguments:
 Use user-given parameter names if present; use x1...xn otherwise.
 
-The names ought to accessible (no macro scopes) and new names  fresh wrt to the current environment,
+The names ought to accessible (no macro scopes) and fresh wrt to the current environment,
 so that with `showInferredTerminationBy` we can print them to the user reliably.
 We do that by appending `'` as needed.
 
@@ -97,8 +97,7 @@ shadow each other, and the guessed relation refers to the wrong one. In that
 case, the user gets to keep both pieces (and may have to rename variables).
 -/
 partial
-def naryVarNames (fixedPrefixSize : Nat) (xs : Array Name) : MetaM (Array Name) := do
-  let xs := xs.extract fixedPrefixSize xs.size
+def naryVarNames (xs : Array Name) : MetaM (Array Name) := do
   let mut ns : Array Name := #[]
   for h : i in [:xs.size] do
     let n := xs[i]
@@ -264,8 +263,8 @@ def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext 
 /-- Traverse a unary PreDefinition, and returns a `WithRecCall` closure for each recursive
 call site.
 -/
-def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (arities : Array Nat)
-    : MetaM (Array RecCallWithContext) := withoutModifyingState do
+def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
+    (argsPacker : ArgsPacker) : MetaM (Array RecCallWithContext) := withoutModifyingState do
   addAsAxiom unaryPreDef
   lambdaTelescope unaryPreDef.value fun xs body => do
     unless xs.size == fixedPrefixSize + 1 do
@@ -277,8 +276,8 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
         throwError "Insufficient arguments in recursive call"
       let arg := args[fixedPrefixSize]!
       trace[Elab.definition.wf] "collectRecCalls: {unaryPreDef.declName} ({param}) → {unaryPreDef.declName} ({arg})"
-      let (caller, params) ← unpackArg arities param
-      let (callee, args) ← unpackArg arities arg
+      let (caller, params) ← argsPacker.unpack param
+      let (callee, args) ← argsPacker.unpack arg
       RecCallWithContext.create (← getRef) caller params callee args
 
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
@@ -681,13 +680,14 @@ Try to find a lexicographic ordering of the arguments for which the recursive de
 terminates. See the module doc string for a high-level overview.
 -/
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
-    (fixedPrefixSize : Nat) :
+    (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) :
     MetaM TerminationWF := do
   let extraParamss := preDefs.map (·.termination.extraParams)
+  let arities := argsPacker.varNamess.map (·.size)
+  let userVarNamess ← argsPacker.varNamess.mapM (naryVarNames ·)
+  -- with fixed prefix, used to qualify the  measure in buildTermWf.
   let originalVarNamess ← preDefs.mapM originalVarNames
-  let varNamess ← originalVarNamess.mapM (naryVarNames fixedPrefixSize ·)
-  let arities := varNamess.map (·.size)
-  trace[Elab.definition.wf] "varNames is: {varNamess}"
+  trace[Elab.definition.wf] "varNames is: {userVarNamess}"
 
   let forbiddenArgs ← preDefs.mapM fun preDef =>
     getForbiddenByTrivialSizeOf fixedPrefixSize preDef
@@ -698,17 +698,17 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF originalVarNamess varNamess #[solution]
+    return ← buildTermWF originalVarNamess userVarNamess #[solution]
 
   -- Collect all recursive calls and extract their context
-  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
   let recCalls := filterSubsumed recCalls
   let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF originalVarNamess varNamess solution
+    let wf ← buildTermWF originalVarNamess userVarNamess solution
 
     let wf' := trimTermWF extraParamss wf
     for preDef in preDefs, term in wf' do
@@ -719,7 +719,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
     return wf
   | .none =>
-    let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs
+    let explanation ← explainFailure (preDefs.map (·.declName)) userVarNamess rcs
     Lean.throwError <| "Could not find a decreasing measure.\n" ++
       explanation ++ "\n" ++
       "Please use `termination_by` to specify a decreasing measure."

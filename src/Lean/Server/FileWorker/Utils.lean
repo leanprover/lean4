@@ -34,17 +34,17 @@ end CancelToken
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList IO.Error Snapshot := Id.run do
-  let some headerParsed := initSnap.success? | return .nil
-  .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
-    let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
+  let some headerParsed := initSnap.result? | return .nil
+  .delayed <| headerParsed.processedSnap.task.bind fun headerProcessed => Id.run do
+    let some headerSuccess := headerProcessed.result? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-    } <| .delayed <| headerSuccess.next.task.bind go
+    } <| .delayed <| headerSuccess.firstCmdSnap.task.bind go
 where go cmdParsed :=
-  cmdParsed.data.sig.task.bind fun sig =>
-    sig.finished.task.map fun finished =>
+  cmdParsed.data.sigSnap.task.bind fun sig =>
+    sig.finishedSnap.task.map fun finished =>
       .ok <| .cons {
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState

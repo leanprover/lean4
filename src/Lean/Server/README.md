@@ -54,7 +54,7 @@ In languages with less strict ordering and less syntax extensibility, there may 
 In the simplest case, there may be a single snapshot after processing the full file, without any incrementality.
 All the worker needs to know is that `Lean.Language.Lean.process` returns a root snapshot of some type that can be transformed into an asynchronously constructed tree of the generic `Lean.Language.Snapshot` type via `Lean.Language.ToSnapshotTree`.
 We use a tree and not an asynchronous list (which would basically be a channel) in order to accommodate parallel processing where it's not clear a priori which of a number of child snapshots will be available first.
-After loading the file and after each edit, the server will obtain this tree from the processor given the new file content and asynchronously wait on all these nodes and report the processing status (diagnostics and progress information) stored therein to the client (`Lean.Server.FileWorker.reportSnapshots`).
+After loading the file and after each edit, the server will obtain this tree from the processor given the new file content and asynchronously wait on all its nodes and report the processing status (diagnostics and progress information) stored therein to the client incrementally (`Lean.Server.FileWorker.reportSnapshots`).
 
 (TODO: the remainder is currently hard-coded for the `Lean` language)
 

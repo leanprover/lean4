@@ -64,7 +64,7 @@ structure SnapshotTask (α : Type) where
   task : Task α
 deriving Nonempty
 
-/-- Creates a snapshot task from a range and a `BaseIO` action. -/
+/-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
 def SnapshotTask.ofIO (range : String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
   return {
     range

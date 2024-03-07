@@ -42,9 +42,9 @@ def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
   let refToRefInfoLocation (ref : Reference) : BaseIO RefInfo.Location := do
     let parentDeclName? := ref.ci.parentDecl?
     let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
-      let some parentDeclName := parentDeclName?
-        | return none
-      findDeclarationRanges? parentDeclName
+        let some parentDeclName := parentDeclName?
+          | return none
+        findDeclarationRanges? parentDeclName
       -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
       | unreachable!
     return {

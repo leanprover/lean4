@@ -114,6 +114,7 @@ def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentC
 def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
   changes.foldl applyDocumentChange oldText
 
+/-- Constructs a `textDocument/publishDiagnostics` notification. -/
 def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) :
     JsonRpc.Notification Lsp.PublishDiagnosticsParams where
   method := "textDocument/publishDiagnostics"
@@ -123,6 +124,7 @@ def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp
     diagnostics := diagnostics
   }
 
+/-- Constructs a `$/lean/fileProgress` notification. -/
 def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) :
     JsonRpc.Notification Lsp.LeanFileProgressParams where
   method := "$/lean/fileProgress"
@@ -131,11 +133,13 @@ def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFilePr
     processing
   }
 
+/-- Constructs a `$/lean/fileProgress` notification from the given position onwards. -/
 def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos)
   (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
     JsonRpc.Notification Lsp.LeanFileProgressParams :=
   mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
 
+/-- Constructs a `$/lean/fileProgress` notification marking processing as done. -/
 def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
   mkFileProgressNotification m #[]
 

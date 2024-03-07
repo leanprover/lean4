@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
+import Init.Data.Channel
 
 import Lean.Data.RBMap
 import Lean.Environment
@@ -192,6 +193,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
       goSeq st node.children.toList
+
     goSeq (st : ReportSnapshotsState) :
         List (SnapshotTask SnapshotTree) → BaseIO (Task ReportSnapshotsState)
       | [] => return .pure st
@@ -245,7 +247,7 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
     unless (← IO.checkCanceled) do
       IO.Process.exit 2  -- signal restart request to watchdog
     -- should not be visible to user as task is already canceled
-    return .error { diagnostics := .empty, success? := none }
+    return .error { diagnostics := .empty, result? := none }
 
   let imports := Elab.headerToImports stx
   let fileSetupResult ← setupFile meta imports fun stderrLine => do
@@ -265,12 +267,12 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
       diagnostics := (← Language.diagnosticsOfHeaderError
         "Imports are out of date and must be rebuilt; \
           use the \"Restart File\" command in your editor.")
-      success? := none
+      result? := none
     }
   | .error msg =>
     return .error {
       diagnostics := (← diagnosticsOfHeaderError msg)
-      success? := none
+      result? := none
     }
   | _ => pure ()
 
@@ -435,7 +437,13 @@ section MessageHandling
   def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
       WorkerM (Array InteractiveDiagnostic) := do
     let st ← get
+    -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
+    -- any race should be temporary as the client should re-request interactive diagnostics when
+    -- they receive the non-interactive diagnostics for the new document
     let diags ← st.doc.diagnosticsRef.get
+    -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
+    -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
+    -- request when the non-interactive diagnostics of this range have changed
     return diags.filter fun diag =>
       params.lineRange?.all fun ⟨s, e⟩ =>
         -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?

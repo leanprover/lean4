@@ -104,6 +104,72 @@ example (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : s�
 
 end List
 
+namespace Monoid
+
+class One (α : Type u) where
+  one : α
+
+instance (priority := 300) One.toOfNat1 {α} [One α] : OfNat α (nat_lit 1) where
+  ofNat := ‹One α›.1
+
+class Monoid (β : Type) extends One β, Mul β where
+  mul_one : ∀ x : β, x * 1 = x
+  one_mul : ∀ x : β, 1 * x = x
+  mul_assoc : ∀ x y z : β, (x * y) * z = x * (y * z)
+
+open Monoid
+
+variable (p r : α → α → Prop) (total : ∀ a b, r a b ∨ r b a) [Monoid β] (f : α → α → β)
+
+theorem multiplicative_of_symmetric_of_total
+    (hsymm : ∀ {a b}, p a b → p b a) (hf_swap : ∀ {a b}, p a b → f a b * f b a = 1)
+    (hmul : ∀ {a b c}, r a b → r b c → p a b → p b c → p a c → f a c = f a b * f b c)
+    {a b c : α} (pab : p a b) (pbc : p b c) (pac : p a c) : f a c = f a b * f b c := by
+  have hmul' : ∀ {b c}, r b c → p a b → p b c → p a c → f a c = f a b * f b c := by
+    intros b c rbc pab pbc pac
+    obtain rab | rba := total a b
+    · exact hmul rab rbc pab pbc pac
+    -- This one is "hard to see", because we need to expand `1`.
+    rw [← one_mul (f a c), ← hf_swap pab, mul_assoc]
+    obtain rac | rca := total a c
+    · -- However each of the remaining `rw` seems doable, with congruence closure?
+      auto
+      -- rw [hmul rba rac (hsymm pab) pac pbc]
+    · auto
+      -- rw [hmul rbc rca pbc (hsymm pac) (hsymm pab), mul_assoc, hf_swap (hsymm pac), mul_one]
+  obtain rbc | rcb := total b c
+  · exact hmul' rbc pab pbc pac
+  · auto
+    -- rw [hmul' rcb pac (hsymm pbc) pab, mul_assoc, hf_swap (hsymm pbc), mul_one]
+
+-- From `isPrimePow_iff_pow_succ`
+example {p k n : Nat} (h : 0 < k) (w : p ^ k = n) : ∃ l, p ^ (l + 1) = n := by
+  -- This feels too hard?
+  -- One could notice from `h` that `k = k - 1 + 1`,
+  -- and then with this `exact ⟨_, w⟩` gets you there.
+  -- Alternatively, one could `convert ⟨_, w⟩` and then have a linear arithmetic goal.
+  auto
+
+/- What about "arbitrary" algebraic manipulations? -/
+
+class Shelf (α : Type u) where
+  act : α → α → α
+  self_distrib : ∀ {x y z : α}, act x (act y z) = act (act x y) (act x z)
+
+class UnitalShelf (α : Type u) extends Shelf α, One α where
+  one_act : ∀ a : α, act 1 a = a
+  act_one : ∀ a : α, act a 1 = a
+
+infixr:65 " ◃ " => Shelf.act
+
+-- From UnitalShelf.act_act_self_eq
+example [UnitalShelf S] (x y : S) : (x ◃ y) ◃ x = x ◃ y := by
+  have h : (x ◃ y) ◃ x = (x ◃ y) ◃ (x ◃ 1) := by auto -- rw [UnitalShelf.act_one]
+  auto -- rw [h, ← Shelf.self_distrib, UnitalShelf.act_one]
+  -- Or even `auto [(x ◃ y) ◃ x = (x ◃ y) ◃ (x ◃ 1)]`, suggesting that `auto` proves something first, then uses it.
+
+end Monoid
+
 namespace CategoryTheory
 
 universe v u

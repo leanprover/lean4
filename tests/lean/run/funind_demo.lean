@@ -10,7 +10,7 @@ derive_functional_induction ackermann
 info: ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
   (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
   (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
-  (x x : Nat) : motive x x
+  (x : Nat) : ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check ackermann.induct

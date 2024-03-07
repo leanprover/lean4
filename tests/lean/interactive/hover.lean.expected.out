@@ -120,7 +120,7 @@
  {"start": {"line": 73, "character": 38}, "end": {"line": 73, "character": 45}},
  "contents":
  {"value":
-  "```lean\nNat.add (a✝a✝¹ : Nat) : Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.add : Nat → Nat → Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 77, "character": 10}}
@@ -620,7 +620,7 @@
   "end": {"line": 291, "character": 20}},
  "contents":
  {"value":
-  "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) (a✝ : List α) : List β\n```\n***\n`O(|l|)`. `map f l` applies `f` to each element of the list.\n* `map f [a, b, c] = [f a, f b, f c]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) : List α → List β\n```\n***\n`O(|l|)`. `map f l` applies `f` to each element of the list.\n* `map f [a, b, c] = [f a, f b, f c]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 294, "character": 26}}
@@ -629,7 +629,7 @@
   "end": {"line": 294, "character": 29}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} (a✝ : List α) (a✝¹ : List β) : List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 294, "character": 19}}
@@ -638,5 +638,5 @@
   "end": {"line": 294, "character": 22}},
  "contents":
  {"value":
-  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} (a✝ : List α) (a✝¹ : List β) : List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}

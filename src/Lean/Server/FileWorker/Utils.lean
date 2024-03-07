@@ -15,16 +15,6 @@ namespace Lean.Server.FileWorker
 open Snapshots
 open IO
 
-inductive ElabTaskError where
-  | aborted
-  | ioError (e : IO.Error)
-
-instance : Coe IO.Error ElabTaskError :=
-  ⟨ElabTaskError.ioError⟩
-
-instance : MonadLift IO (EIO ElabTaskError) where
-  monadLift act := act.toEIO (↑ ·)
-
 structure CancelToken where
   ref : IO.Ref Bool
 
@@ -32,11 +22,6 @@ namespace CancelToken
 
 def new : IO CancelToken :=
   CancelToken.mk <$> IO.mkRef false
-
-def check [MonadExceptOf ElabTaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
-  let c ← tk.ref.get
-  if c then
-    throw ElabTaskError.aborted
 
 def set (tk : CancelToken) : BaseIO Unit :=
   tk.ref.set true
@@ -48,7 +33,7 @@ end CancelToken
 
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
-    AsyncList ElabTaskError Snapshot := Id.run do
+    AsyncList IO.Error Snapshot := Id.run do
   let some headerParsed := initSnap.success? | return .nil
   .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
@@ -78,7 +63,7 @@ structure EditableDocumentCore where
   /-- Initial processing snapshot. -/
   initSnap : Language.Lean.InitialSnapshot
   /-- Old representation for backward compatibility. -/
-  cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
+  cmdSnaps : AsyncList IO.Error Snapshot := mkCmdSnaps initSnap
   /--
   Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
   `handleGetInteractiveDiagnosticsRequest`.

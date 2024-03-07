@@ -35,9 +35,9 @@ def handleCompletion (p : CompletionParams)
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
   -- command starts with a keyword that (currently?) does not participate in completion.
   withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX := pure { items := #[], isIncomplete := true })
-    (abortedX :=
+    (notFoundX :=
       -- work around https://github.com/microsoft/vscode/issues/155738
+      -- this is important when a snapshot cannot be found because it was aborted
       pure { items := #[{label := "-"}], isIncomplete := true })
     (x := fun snap => do
       if let some r ← Completion.find? p doc.meta.text pos snap.infoTree caps then
@@ -62,7 +62,6 @@ def handleCompletionItemResolve (item : CompletionItem)
   let pos := text.lspPosToUtf8Pos data.params.position
   withWaitFindSnap doc (·.endPos + ' ' >= pos)
     (notFoundX := pure item)
-    (abortedX := pure item)
     (x := fun snap => Completion.resolveCompletionItem? text pos snap.infoTree item id)
 
 open Elab in

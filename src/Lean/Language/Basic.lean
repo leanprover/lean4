@@ -8,6 +8,7 @@ driver. See the [server readme](../Server/README.md#worker-architecture) for an 
 Authors: Sebastian Ullrich
 -/
 
+prelude
 import Lean.Message
 import Lean.Parser.Types
 
@@ -32,7 +33,7 @@ deriving Inhabited
 /-- The empty set of diagnostics. -/
 def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   msgLog := .empty
-  -- nothing to cache
+  -- nothing to memorize
   interactiveDiagsRef? := none
 
 /--
@@ -183,7 +184,7 @@ instance : MonadLift ProcessingM (ProcessingT IO) where
 
 /--
 Creates snapshot message log from non-interactive message log, also allocating a mutable cell
-that can be used by the server to cache interactive diagnostics derived from the log.
+that can be used by the server to memorize interactive diagnostics derived from the log.
 -/
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
     ProcessingM Snapshot.Diagnostics := do

@@ -44,3 +44,7 @@ Inferred termination argument:
 termination_by x1 x2 => SizeOf.sizeOf x1
 Inferred termination argument:
 termination_by x2 => SizeOf.sizeOf x2
+Inferred termination argument:
+termination_by x1 => x1
+Inferred termination argument:
+termination_by x1 => sizeOf x1

@@ -116,6 +116,7 @@ def eval_add (a : Expr × Expr) : Nat :=
   | (x, y) => eval x + eval y
 end
 
+
 namespace VarNames
 
 /-! Test that varnames are inferred nicely. -/
@@ -167,3 +168,17 @@ def qualifiedSizeOf (m : Nat) : OddNat → Nat
 decreasing_by decreasing_tactic
 
 end VarNames
+
+-- A type that isn't Nat, checking that the inferred argument uses `sizeOf` so that
+-- the types of the termination argument aligns.
+structure OddNat2 where nat : Nat
+instance : SizeOf OddNat2 := ⟨fun n => n.nat⟩
+@[simp] theorem  OddNat2.sizeOf_eq (n : OddNat2) : sizeOf n = n.nat := rfl
+mutual
+def differentTypes1 : Nat → Nat
+  | 0 => 0
+  | n+1 => differentTypes2 ⟨n⟩
+def differentTypes2 : OddNat2 → Nat
+  | ⟨0⟩ => 0
+  | ⟨n+1⟩ => differentTypes1 n
+end

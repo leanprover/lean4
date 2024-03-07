@@ -635,8 +635,6 @@ protected theorem zero_ne_one : 0 ≠ (1 : Nat) :=
 @[simp] theorem succ_ne_zero (n : Nat) : succ n ≠ 0 :=
   fun h => Nat.noConfusion h
 
-theorem add_one_ne_zero (n) : n + 1 ≠ 0 := succ_ne_zero _
-
 /-! # mul + order -/
 
 theorem mul_le_mul_left {n m : Nat} (k : Nat) (h : n ≤ m) : k * n ≤ k * m :=

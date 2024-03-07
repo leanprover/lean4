@@ -8,6 +8,7 @@ import Init.Data.Nat.Dvd
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
+import Init.Omega
 
 /-! # Basic lemmas about natural numbers
 
@@ -334,6 +335,32 @@ protected theorem sub_min_sub_right : ∀ (a b c : Nat), min (a - c) (b - c) = m
 protected theorem sub_max_sub_right : ∀ (a b c : Nat), max (a - c) (b - c) = max a b - c
   | _, _, 0 => rfl
   | _, _, _+1 => Eq.trans (Nat.pred_max_pred ..) <| congrArg _ (Nat.sub_max_sub_right ..)
+
+protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max b c := by
+  omega
+
+protected theorem sub_max_sub_left (a b c : Nat) : max (a - b) (a - c) = a - min b c := by
+  omega
+
+protected theorem mul_max_mul_right (a b c : Nat) : max (a * c) (b * c) = max a b * c := by
+  induction a generalizing b with
+  | zero => simp
+  | succ i ind =>
+    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_max_add_right, ind]
+
+protected theorem mul_min_mul_right (a b c : Nat) : min (a * c) (b * c) = min a b * c := by
+  induction a generalizing b with
+  | zero => simp
+  | succ i ind =>
+    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_min_add_right, ind]
+
+protected theorem mul_max_mul_left (a b c : Nat) : max (a * b) (a * c) = a * max b c := by
+  repeat rw [Nat.mul_comm a]
+  exact Nat.mul_max_mul_right ..
+
+protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min b c := by
+  repeat rw [Nat.mul_comm a]
+  exact Nat.mul_min_mul_right ..
 
 -- protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max b c := by
 --   induction b, c using Nat.recDiagAux with

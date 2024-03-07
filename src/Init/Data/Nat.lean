@@ -17,3 +17,4 @@ import Init.Data.Nat.Linear
 import Init.Data.Nat.SOM
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
+import Init.Data.Nat.Lcm

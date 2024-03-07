@@ -6,6 +6,7 @@ Authors: Dany Fabian, Sebastian Ullrich
 
 prelude
 import Init.Data.String
+import Init.Data.Array.Basic
 
 inductive Ordering where
   | lt | eq | gt
@@ -92,6 +93,11 @@ end Ordering
   else if x = y then Ordering.eq
   else Ordering.gt
 
+@[inline] def compareOfLessAndBEq {α} (x y : α) [LT α] [Decidable (x < y)] [BEq α] : Ordering :=
+  if x < y then .lt
+  else if x == y then .eq
+  else .gt
+
 /--
 Compare `a` and `b` lexicographically by `cmp₁` and `cmp₂`. `a` and `b` are
 first compared by `cmp₁`. If this returns 'equal', `a` and `b` are compared
@@ -146,6 +152,13 @@ instance : Ord USize where
 
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
+
+instance [Ord α] : Ord (Option α) where
+  compare
+  | none,   none   => .eq
+  | none,   some _ => .lt
+  | some _, none   => .gt
+  | some x, some y => compare x y
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
@@ -209,5 +222,11 @@ returns 'equal', by `ord₂`.
 -/
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
+
+protected def arrayOrd [a : Ord α] : Ord (Array α) where
+  compare x y :=
+    let _ : LT α := a.toLT
+    let _ : BEq α := a.toBEq
+    compareOfLessAndBEq x.toList y.toList
 
 end Ord

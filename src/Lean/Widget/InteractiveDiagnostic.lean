@@ -54,6 +54,9 @@ where
       | .trace .., _ => .text "(trace)"
     tt.stripTags
 
+def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
+  compareByUserVisible a.toDiagnostic b.toDiagnostic
+
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {

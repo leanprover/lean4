@@ -59,6 +59,9 @@ open IO
 open Snapshots
 open JsonRpc
 
+open Widget in
+abbrev StickyDiagnostics := RBTree InteractiveDiagnostic InteractiveDiagnostic.compareAsDiagnostics
+
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
@@ -72,7 +75,7 @@ structure WorkerContext where
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
-  stickyDiagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
+  stickyDiagnosticsRef : IO.Ref StickyDiagnostics
   hLog                 : FS.Stream
   initParams           : InitializeParams
   processor            : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
@@ -147,7 +150,7 @@ This option can only be set on the command line, not in the lakefile or via `set
     let stickyInteractiveDiagnostics ← ctx.stickyDiagnosticsRef.get
     let docInteractiveDiagnostics ← doc.diagnosticsRef.get
     let diagnostics :=
-      stickyInteractiveDiagnostics ++ docInteractiveDiagnostics
+      stickyInteractiveDiagnostics.toArray ++ docInteractiveDiagnostics
       |>.map (·.toDiagnostic)
     let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
     ctx.chanOut.send notification
@@ -311,7 +314,7 @@ section Initialization
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef 0
-    let stickyDiagnosticsRef ← IO.mkRef #[]
+    let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
 
@@ -448,7 +451,7 @@ section NotificationHandling
           use the \"Restart File\" command in your editor."
         data?     := some staleDependencyName.toString
     }
-      ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.push diagnostic
+      ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
       publishDiagnostics ctx s.doc.toEditableDocumentCore
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do

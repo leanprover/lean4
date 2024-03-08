@@ -302,7 +302,11 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
   | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
-/-- Given an expression `e`, produce `sizeOf e` with a suitable instance. -/
+/--
+Given an expression `e`, produce `sizeOf e` with a suitable instance.
+NB: We must use the instance of the type of the function parameter!
+The concrete argument at hand may have a different (still def-eq) typ.
+-/
 def mkSizeOf (e : Expr) : MetaM Expr := do
   let ty ← inferType e
   let lvl ← getLevel ty
@@ -315,8 +319,8 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
-    MetaM GuessLexRel := do
+def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext)
+  (paramIdx argIdx : Nat) : MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
     let arg := rcc.args[argIdx]!
@@ -463,7 +467,7 @@ def getNatParams (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
     let mut result := #[]
     for x in xs, i in [:xs.size] do
       let t ← inferType x
-      if ← isDefEq t (.const `Nat []) then
+      if ← withReducible (isDefEq t (.const `Nat [])) then
         result := result.push i
     return result
 

@@ -169,16 +169,62 @@ decreasing_by decreasing_tactic
 
 end VarNames
 
+
+namespace MutualNotNat1
+
 -- A type that isn't Nat, checking that the inferred argument uses `sizeOf` so that
 -- the types of the termination argument aligns.
 structure OddNat2 where nat : Nat
 instance : SizeOf OddNat2 := ⟨fun n => n.nat⟩
 @[simp] theorem  OddNat2.sizeOf_eq (n : OddNat2) : sizeOf n = n.nat := rfl
 mutual
-def differentTypes1 : Nat → Nat
+def foo : Nat → Nat
   | 0 => 0
-  | n+1 => differentTypes2 ⟨n⟩
-def differentTypes2 : OddNat2 → Nat
+  | n+1 => bar ⟨n⟩
+def bar : OddNat2 → Nat
   | ⟨0⟩ => 0
-  | ⟨n+1⟩ => differentTypes1 n
+  | ⟨n+1⟩ => foo n
 end
+end MutualNotNat1
+
+namespace MutualNotNat2
+-- A type that is defeq to Nat, but with a different `sizeOf`, checking that the
+-- inferred argument uses `sizeOf` so that the types of the termination argument aligns.
+def OddNat3 := Nat
+instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
+@[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
+mutual
+def foo : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    if h : n < 42 then bar (42 - n) else 0
+  -- termination_by x1 => x1
+  decreasing_by simp_wf; simp [OddNat3]; omega
+def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) else 0
+  -- termination_by sizeOf o
+  decreasing_by simp_wf; simp [id] at *; omega
+end
+namespace MutualNotNat2
+
+namespace MutualNotNat3
+-- A varant of the above, but where the type of the parameter refined to `Nat`.
+-- This tests if `GuessLex` is inferring the `SizeOf` instance based on the type of the
+-- concrete parameter/argument (wrong, but status quo), or based on the types in the function
+-- signature (correct, todo)
+def OddNat3 := Nat
+instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
+@[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
+mutual
+def foo : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    if h : n < 42 then bar (42 - n) else 0
+  -- termination_by x1 => x1
+  decreasing_by simp_wf; simp [OddNat3]; omega
+def bar : OddNat3 → Nat
+  | Nat.zero => 0
+  | n+1 => if h : n < 41 then foo (40 - n) else 0
+  -- termination_by x1 => sizeOf x1
+  decreasing_by simp_wf; omega
+end
+namespace MutualNotNat3

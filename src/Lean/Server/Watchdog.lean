@@ -171,9 +171,11 @@ section ServerM
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
-    if let some path := fileUriToPath? uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs => refs.removeWorkerRefs module
+    let some path := fileUriToPath? uri
+      | return
+    let some module ← searchModuleNameOfFileName path s.srcSearchPath
+      | return
+    s.references.modify fun refs => refs.removeWorkerRefs module
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
@@ -182,17 +184,21 @@ section ServerM
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.updateWorkerRefs module params.version params.references
+    let some path := fileUriToPath? fw.doc.uri
+      | return
+    let some module ← searchModuleNameOfFileName path s.srcSearchPath
+      | return
+    s.references.modify fun refs =>
+      refs.updateWorkerRefs module params.version params.references
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.finalizeWorkerRefs module params.version params.references
+    let some path := fileUriToPath? fw.doc.uri
+      | return
+    let some module ← searchModuleNameOfFileName path s.srcSearchPath
+      | return
+    s.references.modify fun refs =>
+      refs.finalizeWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -373,26 +379,30 @@ section RequestHandling
 open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let some path := fileUriToPath? p.textDocument.uri
+    | return #[]
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← searchModuleNameOfFileName path srcSearchPath
+    | return #[]
+  let references ← (← read).references.get
   let mut definitions := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
-          definitions := definitions.push definitionLocation
+  for ident in references.findAt module p.position (includeStop := true) do
+    if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
+      definitions := definitions.push definitionLocation
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let some path := fileUriToPath? p.textDocument.uri
+    | return #[]
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← searchModuleNameOfFileName path srcSearchPath
+    | return #[]
+  let references ← (← read).references.get
   let mut result := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        let identRefs ← references.referringTo module ident srcSearchPath
-          p.context.includeDeclaration
-        result := result.append <| identRefs.map (·.location)
+  for ident in references.findAt module p.position (includeStop := true) do
+    let identRefs ← references.referringTo module ident srcSearchPath
+      p.context.includeDeclaration
+    result := result.append <| identRefs.map (·.location)
   return result
 
 /-- Used in `CallHierarchyItem.data?` to retain the full call hierarchy item name. -/

@@ -165,10 +165,12 @@ def identOf : Info → Option (RefIdent × Bool)
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do
   for tree in trees do
     tree.visitM' (postNode := fun ci info _ => do
-      if let some (ident, isBinder) := identOf info then
-        if let some range := info.range? then
-          if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
-            modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
+      let some (ident, isBinder) := identOf info
+        | return
+      let some range := info.range?
+        | return
+      if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
+        modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
   get
 
 /--
@@ -358,43 +360,51 @@ def referringTo (self : References) (identModule : Name) (ident : RefIdent) (src
       | some refs => [(identModule, refs)]
   let mut result := #[]
   for (module, refs) in refsToCheck do
-    if let some info := refs.find? ident then
-      if let some path ← srcSearchPath.findModuleWithExt "lean" module then
-        -- Resolve symlinks (such as `src` in the build dir) so that files are
-        -- opened in the right folder
-        let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-        if includeDefinition then
-          if let some ⟨range, parentDeclInfo?⟩ := info.definition? then
-            result := result.push ⟨⟨uri, range⟩, parentDeclInfo?⟩
-        for ⟨range, parentDeclInfo?⟩ in info.usages do
-          result := result.push ⟨⟨uri, range⟩, parentDeclInfo?⟩
+    let some info := refs.find? ident
+      | continue
+    let some path ← srcSearchPath.findModuleWithExt "lean" module
+      | continue
+    -- Resolve symlinks (such as `src` in the build dir) so that files are
+    -- opened in the right folder
+    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
+    if includeDefinition then
+      if let some ⟨range, parentDeclInfo?⟩ := info.definition? then
+        result := result.push ⟨⟨uri, range⟩, parentDeclInfo?⟩
+    for ⟨range, parentDeclInfo?⟩ in info.usages do
+      result := result.push ⟨⟨uri, range⟩, parentDeclInfo?⟩
   return result
 
 def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     : IO (Option DocumentRefInfo) := do
   for (module, refs) in self.allRefs.toList do
-    if let some info := refs.find? ident then
-      if let some ⟨definitionRange, definitionParentDeclInfo?⟩ := info.definition? then
-        if let some path ← srcSearchPath.findModuleWithExt "lean" module then
-          -- Resolve symlinks (such as `src` in the build dir) so that files are
-          -- opened in the right folder
-          let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-          return some ⟨⟨uri, definitionRange⟩, definitionParentDeclInfo?⟩
+    let some info := refs.find? ident
+      | continue
+    let some ⟨definitionRange, definitionParentDeclInfo?⟩ := info.definition?
+      | continue
+    let some path ← srcSearchPath.findModuleWithExt "lean" module
+      | continue
+    -- Resolve symlinks (such as `src` in the build dir) so that files are
+    -- opened in the right folder
+    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
+    return some ⟨⟨uri, definitionRange⟩, definitionParentDeclInfo?⟩
   return none
 
 def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
     (maxAmount? : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]
   for (module, refs) in self.allRefs.toList do
-    if let some path ← srcSearchPath.findModuleWithExt "lean" module then
-      let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-      for (ident, info) in refs.toList do
-        if let (RefIdent.const name, some ⟨definitionRange, _⟩) := (ident, info.definition?) then
-          if let some a := filter name then
-            result := result.push (a, ⟨uri, definitionRange⟩)
-            if let some maxAmount := maxAmount? then
-              if result.size >= maxAmount then
-                return result
+    let some path ← srcSearchPath.findModuleWithExt "lean" module
+      | continue
+    let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
+    for (ident, info) in refs.toList do
+      let (RefIdent.const name, some ⟨definitionRange, _⟩) := (ident, info.definition?)
+        | continue
+      let some a := filter name
+        | continue
+      result := result.push (a, ⟨uri, definitionRange⟩)
+      if let some maxAmount := maxAmount? then
+        if result.size >= maxAmount then
+          return result
   return result
 
 end References

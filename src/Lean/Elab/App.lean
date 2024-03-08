@@ -1035,7 +1035,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName _ _ =>
-      let fullName := `Function ++ .mkSimple fieldName
+      let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()

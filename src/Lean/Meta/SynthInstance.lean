@@ -323,7 +323,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
 
 /--
 Similar to `mkLambdaFVars`, but ensures result is eta-reduced.
-For example, support `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
+For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
 the result is `inst` instead of `fun x y => inst x y`.
 
 We added this auxiliary function because of aliases such as `DecidablePred`. For example,

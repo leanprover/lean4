@@ -964,6 +964,11 @@ theorem sign_eq_neg_one_iff_neg (a : Int) : sign a = -1 ↔ a < 0 :=
     exact Int.le_add_one (ofNat_nonneg _)
   | .negSucc _ => simp (config := { decide := true }) [sign]
 
+theorem mul_sign : ∀ i : Int, i * sign i = natAbs i
+  | succ _ => Int.mul_one _
+  | 0 => Int.mul_zero _
+  | -[_+1] => Int.mul_neg_one _
+
 /- ## natAbs -/
 
 theorem natAbs_ne_zero {a : Int} : a.natAbs ≠ 0 ↔ a ≠ 0 := not_congr Int.natAbs_eq_zero

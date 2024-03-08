@@ -968,7 +968,8 @@ theorem lt_fdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.fdiv b
 
 /-! ### fmod -/
 
-theorem ofNat_fmod (m n : Nat) : ↑(m % n) = fmod m n := by cases m <;> simp [fmod]
+theorem ofNat_fmod (m n : Nat) : ↑(m % n) = fmod m n := by
+  cases m <;> simp [fmod, Nat.succ_eq_add_one]
 
 @[simp] theorem fmod_one (a : Int) : a.fmod 1 = 0 := by
   simp [fmod_def, Int.one_mul, Int.sub_self]

@@ -1399,20 +1399,25 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
     Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
-    `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of `mvarIdPending`,
-    but not in the scope of `mvarId`. We can only perform the abstraction when `mvarIdPending` has been fully synthesized.
-    That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
-    Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where `as.size == fvars.size`,
-    we return `mvarIdPending bs`.
+    `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of
+    `mvarIdPending`, but not in the scope of `mvarId`. We can only perform the abstraction when
+    `mvarIdPending` has been fully synthesized. That is, `instantiateMVars (mkMVar mvarIdPending)`
+    does not contain any expression metavariables.
+
+    Here we just consume `fvar.size` arguments. That is, if `t` is of the form `mvarId as bs` where
+    `as.size == fvars.size`, we return `mvarIdPending bs`, as long as the context of
+    `mvarIdPending` is a subprefix of the local context. If the local context is a subprefix of
+    `mvarIdPending`'s  context, we attempt to clear the extra fvars from `mvarIdPending`'s context.
+    Otherwise, we fail.
 
     TODO: improve this transformation. Here is a possible improvement.
     Assume `t` is of the form `?m as` where `as` represent the arguments, and we are trying to solve
     `?m as =?= s[as]` where `s[as]` represents a term containing occurrences of `as`.
     We could try to compute the solution as usual `?m := fun ys => s[as/ys]`
-    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
-    and this delayed assignment is morally `?m := fun xs => ?n`.
-    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
-    This is more precise than simply dropping the arguments `as`.
+    We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of
+    `?n`, and this delayed assignment is morally `?m := fun xs => ?n`.
+    Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local
+    context. This is more precise than simply dropping the arguments `as`.
   -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
@@ -1429,6 +1434,13 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     mvarIdPending.assign newMVar
     return mkAppRange newMVar fvars.size tArgs.size tArgs
   else
+    /- We could handle the case where the contexts are "skew" by intersecting the two contexts,
+    checking if the type is well-formed in that context, and making a fresh mvar at that context.
+    (Note that we cannot simpy broaden the context of `mvarIdPending` to the current `lctx`, as
+    then we might eventually assign it to fvars which are unknown in the context that
+    `mvarIdPending` originally appeared.)
+
+    For now, we simply fail. See above TODO. -/
     return none
 
 private def isAssignable : Expr → MetaM Bool

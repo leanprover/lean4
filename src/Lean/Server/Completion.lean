@@ -92,26 +92,19 @@ Returns the declarations in the header for which `allowCompletion env decl` is t
 if not already cached.
 -/
 def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
-  if let some eligibleHeaderDecls ← eligibleHeaderDeclsRef.get then
-    return eligibleHeaderDecls
-
-  -- enter critical section to avoid running the computation multiple times
-  -- `take` safety: we call `set` in all branches, without a chance for exceptions in between
-  if let some eligibleHeaderDecls ← unsafe eligibleHeaderDeclsRef.take then
-    -- someone else was quicker!
-    eligibleHeaderDeclsRef.set eligibleHeaderDecls
-    return eligibleHeaderDecls
-  let (_, eligibleHeaderDecls) :=
-    StateT.run (m := Id) (s := {}) do
-      -- `map₁` are the header decls
-      env.constants.map₁.forM fun declName c => do
-        modify fun eligibleHeaderDecls =>
-          if allowCompletion env declName then
-            eligibleHeaderDecls.insert declName c
-          else
-            eligibleHeaderDecls
-  eligibleHeaderDeclsRef.set (some eligibleHeaderDecls)
-  return eligibleHeaderDecls
+  eligibleHeaderDeclsRef.modifyGet fun
+    | some eligibleHeaderDecls => (eligibleHeaderDecls, some eligibleHeaderDecls)
+    | none =>
+      let (_, eligibleHeaderDecls) :=
+        StateT.run (m := Id) (s := {}) do
+          -- `map₁` are the header decls
+          env.constants.map₁.forM fun declName c => do
+            modify fun eligibleHeaderDecls =>
+              if allowCompletion env declName then
+                eligibleHeaderDecls.insert declName c
+              else
+                eligibleHeaderDecls
+      (eligibleHeaderDecls, some eligibleHeaderDecls)
 
 /-- Iterate over all declarations that are allowed in completion results. -/
 private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]

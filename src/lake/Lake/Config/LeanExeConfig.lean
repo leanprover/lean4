@@ -44,13 +44,6 @@ structure LeanExeConfig extends LeanConfig where
   extraDepTargets : Array Name := #[]
 
   /--
-  An `Array` of module facets to build and combine into the executable.
-  Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from
-  the Lean source).
-  -/
-  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
-
-  /--
   Enables the executable to interpret Lean files (e.g., via
   `Lean.Elab.runFrontend`) by exposing symbols within the  executable
   to the Lean interpreter.
@@ -62,5 +55,15 @@ structure LeanExeConfig extends LeanConfig where
   Defaults to `false`.
   -/
   supportInterpreter : Bool := false
+
+  /--
+  An `Array` of module facets to build and combine into the executable.
+
+  Defaults to a singleton of either `Module.oFacet` or  `Module.oExportFacet`
+  (if `supportInterpreter := true`). That is, the  object file compiled from
+  the Lean source, potentially with exported Lean symbols.
+  -/
+  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) :=
+    #[if supportInterpreter then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited

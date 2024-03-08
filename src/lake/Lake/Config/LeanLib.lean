@@ -145,9 +145,7 @@ That is, the build type's `leancArgs`, the package's `moreLeancArgs`,
 and then the library's `moreLeancArgs`.
 -/
 @[inline] def leancArgs (self : LeanLib) : Array String :=
-  self.buildType.leancArgs ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs ++
-    -- TEMP
-    #["-DLEAN_EXPORTING"]
+  self.buildType.leancArgs ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
 
 /--
 The arguments to weakly pass to `leanc` when compiling the library's Lean-produced C files.

@@ -70,10 +70,10 @@ structure LeanLibConfig extends LeanConfig where
 
   /--
   An `Array` of module facets to build and combine into the library's static
-  and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
-  compiled from the Lean source).
+  and shared libraries. Defaults to ``#[Module.oExportFacet]`` (i.e., the
+  object file compiled from the Lean sources with exported symbols).
   -/
-  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
+  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oExportFacet]
 
 deriving Inhabited
 

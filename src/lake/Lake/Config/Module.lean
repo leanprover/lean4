@@ -89,11 +89,14 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
 
+@[inline] def coExportFile (self : Module) : FilePath :=
+  self.irPath "c.o.export"
+
+@[inline] def coNoExportFile (self : Module) : FilePath :=
+  self.irPath "c.o.noexport"
+
 @[inline] def bcFile (self : Module) : FilePath :=
   self.irPath "bc"
-
-@[inline] def coFile (self : Module) : FilePath :=
-  self.irPath "c.o"
 
 @[inline] def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"

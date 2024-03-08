@@ -211,8 +211,20 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 @[inherit_doc oFacet] abbrev o (self : Module) :=
   self.facet oFacet
 
+@[inherit_doc oExportFacet] abbrev oExport (self : Module) :=
+  self.facet oExportFacet
+
+@[inherit_doc oNoExportFacet] abbrev oNoExport (self : Module) :=
+  self.facet oNoExportFacet
+
 @[inherit_doc coFacet] abbrev co (self : Module) :=
   self.facet coFacet
+
+@[inherit_doc coExportFacet] abbrev coExport (self : Module) :=
+  self.facet coExportFacet
+
+@[inherit_doc coNoExportFacet] abbrev coNoExport (self : Module) :=
+  self.facet coNoExportFacet
 
 @[inherit_doc bcoFacet] abbrev bco (self : Module) :=
   self.facet bcoFacet

@@ -291,10 +291,12 @@ macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
     let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
       Macro.throwError "expected non-overloaded constant name"
-    let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
-    `(do Parser.registerAlias (.mkSimple $aliasName) ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
-         PrettyPrinter.Formatter.registerAlias (.mkSimple $aliasName) $(mkIdentFrom declName (declName.getId ++ `formatter))
-         PrettyPrinter.Parenthesizer.registerAlias (.mkSimple $aliasName) $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+    let aliasName := match aliasName? with
+      | some n => quote (Name.mkSimple n.getString)
+      | none => quote declName.getId
+    `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
+         PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
+         PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
   register_parser_alias patternIgnore { autoGroupArgs := false }

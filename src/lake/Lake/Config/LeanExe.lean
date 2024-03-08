@@ -72,15 +72,14 @@ The file name of binary executable
 The arguments to pass to `leanc` when linking the binary executable.
 By default, the package's plus the executable's `moreLinkArgs`.
 
-If `supportInterpreter := true`, Lake prepends arguments to link
-directly to the Lean shared libraries on Windows and adds `-rdynamic` on
+If `supportInterpreter := true`, Lake links directly to the Lean shared
+libraries on Windows by prepending `-leanshared` and adds `-rdynamic` on
 other systems.
 -/
-def linkArgs (self : LeanExe) (leanSysroot : FilePath) : Array String :=
+def linkArgs (self : LeanExe) : Array String :=
   if self.config.supportInterpreter then
     if Platform.isWindows then
-      let leanFlags := Lean.Compiler.FFI.getLinkerFlags leanSysroot false
-      leanFlags ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+      #["-leanshared"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
     else
       #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   else

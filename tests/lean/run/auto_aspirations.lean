@@ -129,13 +129,14 @@ theorem multiplicative_of_symmetric_of_total
     intros b c rbc pab pbc pac
     obtain rab | rba := total a b
     · exact hmul rab rbc pab pbc pac
-    -- This one is "hard to see", because we need to expand `1`.
-    rw [← one_mul (f a c), ← hf_swap pab, mul_assoc]
     obtain rac | rca := total a c
     · -- However each of the remaining `rw` seems doable, with congruence closure?
       auto
+      -- This one is "hard to see", because we need to expand `1`.
+      -- rw [← one_mul (f a c), ← hf_swap pab, mul_assoc]
       -- rw [hmul rba rac (hsymm pab) pac pbc]
     · auto
+      -- rw [← one_mul (f a c), ← hf_swap pab, mul_assoc]
       -- rw [hmul rbc rca pbc (hsymm pac) (hsymm pab), mul_assoc, hf_swap (hsymm pac), mul_one]
   obtain rbc | rcb := total b c
   · exact hmul' rbc pab pbc pac

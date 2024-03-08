@@ -8,6 +8,7 @@ import Init.Data.Nat.Dvd
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
+import Init.Omega
 
 /-! # Basic lemmas about natural numbers
 
@@ -335,6 +336,32 @@ protected theorem sub_max_sub_right : ∀ (a b c : Nat), max (a - c) (b - c) = m
   | _, _, 0 => rfl
   | _, _, _+1 => Eq.trans (Nat.pred_max_pred ..) <| congrArg _ (Nat.sub_max_sub_right ..)
 
+protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max b c := by
+  omega
+
+protected theorem sub_max_sub_left (a b c : Nat) : max (a - b) (a - c) = a - min b c := by
+  omega
+
+protected theorem mul_max_mul_right (a b c : Nat) : max (a * c) (b * c) = max a b * c := by
+  induction a generalizing b with
+  | zero => simp
+  | succ i ind =>
+    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_max_add_right, ind]
+
+protected theorem mul_min_mul_right (a b c : Nat) : min (a * c) (b * c) = min a b * c := by
+  induction a generalizing b with
+  | zero => simp
+  | succ i ind =>
+    cases b <;> simp [succ_eq_add_one, Nat.succ_mul, Nat.add_min_add_right, ind]
+
+protected theorem mul_max_mul_left (a b c : Nat) : max (a * b) (a * c) = a * max b c := by
+  repeat rw [Nat.mul_comm a]
+  exact Nat.mul_max_mul_right ..
+
+protected theorem mul_min_mul_left (a b c : Nat) : min (a * b) (a * c) = a * min b c := by
+  repeat rw [Nat.mul_comm a]
+  exact Nat.mul_min_mul_right ..
+
 -- protected theorem sub_min_sub_left (a b c : Nat) : min (a - b) (a - c) = a - max b c := by
 --   induction b, c using Nat.recDiagAux with
 --   | zero_left => rw [Nat.sub_zero, Nat.zero_max]; exact Nat.min_eq_right (Nat.sub_le ..)
@@ -483,51 +510,6 @@ protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
   ⟨Nat.pos_of_mul_pos_right, fun w => Nat.mul_pos w h⟩
 
 /-! ### div/mod -/
-
-protected theorem div_le_of_le_mul {m n : Nat} : ∀ {k}, m ≤ k * n → m / k ≤ n
-  | 0, _ => by simp [Nat.div_zero, n.zero_le]
-  | succ k, h => by
-    suffices succ k * (m / succ k) ≤ succ k * n from
-      Nat.le_of_mul_le_mul_left this (zero_lt_succ _)
-    have h1 : succ k * (m / succ k) ≤ m % succ k + succ k * (m / succ k) := Nat.le_add_left _ _
-    have h2 : m % succ k + succ k * (m / succ k) = m := by rw [mod_add_div]
-    have h3 : m ≤ succ k * n := h
-    rw [← h2] at h3
-    exact Nat.le_trans h1 h3
-
-@[simp] theorem mul_div_right (n : Nat) {m : Nat} (H : 0 < m) : m * n / m = n := by
-  induction n <;> simp_all [mul_succ]
-
-@[simp] theorem mul_div_left (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
-  rw [Nat.mul_comm, mul_div_right _ H]
-
-protected theorem div_self (H : 0 < n) : n / n = 1 := by
-  let t := add_div_right 0 H
-  rwa [Nat.zero_add, Nat.zero_div] at t
-
-protected theorem mul_div_cancel (m : Nat) {n : Nat} (H : 0 < n) : m * n / n = m := by
-  let t := add_mul_div_right 0 m H
-  rwa [Nat.zero_add, Nat.zero_div, Nat.zero_add] at t
-
-protected theorem mul_div_cancel_left (m : Nat) {n : Nat} (H : 0 < n) : n * m / n = m :=
-by rw [Nat.mul_comm, Nat.mul_div_cancel _ H]
-
-protected theorem div_eq_of_eq_mul_left (H1 : 0 < n) (H2 : m = k * n) : m / n = k :=
-by rw [H2, Nat.mul_div_cancel _ H1]
-
-protected theorem div_eq_of_eq_mul_right (H1 : 0 < n) (H2 : m = n * k) : m / n = k :=
-by rw [H2, Nat.mul_div_cancel_left _ H1]
-
-protected theorem mul_div_mul_left {m : Nat} (n k : Nat) (H : 0 < m) :
-    m * n / (m * k) = n / k := by rw [← Nat.div_div_eq_div_mul, Nat.mul_div_cancel_left _ H]
-
-protected theorem mul_div_mul_right {m : Nat} (n k : Nat) (H : 0 < m) :
-    n * m / (k * m) = n / k := by rw [Nat.mul_comm, Nat.mul_comm k, Nat.mul_div_mul_left _ _ H]
-
-theorem mul_div_le (m n : Nat) : n * (m / n) ≤ m := by
-  match n, Nat.eq_zero_or_pos n with
-  | _, Or.inl rfl => rw [Nat.zero_mul]; exact m.zero_le
-  | n, Or.inr h => rw [Nat.mul_comm, ← Nat.le_div_iff_mul_le h]; exact Nat.le_refl _
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
   match n % 2, @Nat.mod_lt n 2 (by decide) with
@@ -719,37 +701,17 @@ theorem lt_log2_self : n < 2 ^ (n.log2 + 1) :=
 
 /-! ### dvd -/
 
-theorem dvd_sub {k m n : Nat} (H : n ≤ m) (h₁ : k ∣ m) (h₂ : k ∣ n) : k ∣ m - n :=
-  (Nat.dvd_add_iff_left h₂).2 <| by rwa [Nat.sub_add_cancel H]
+protected theorem eq_mul_of_div_eq_right {a b c : Nat} (H1 : b ∣ a) (H2 : a / b = c) :
+    a = b * c := by
+  rw [← H2, Nat.mul_div_cancel' H1]
 
-protected theorem mul_dvd_mul {a b c d : Nat} : a ∣ b → c ∣ d → a * c ∣ b * d
-  | ⟨e, he⟩, ⟨f, hf⟩ =>
-    ⟨e * f, by simp [he, hf, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]⟩
+protected theorem div_eq_iff_eq_mul_right {a b c : Nat} (H : 0 < b) (H' : b ∣ a) :
+    a / b = c ↔ a = b * c :=
+  ⟨Nat.eq_mul_of_div_eq_right H', Nat.div_eq_of_eq_mul_right H⟩
 
-protected theorem mul_dvd_mul_left (a : Nat) (h : b ∣ c) : a * b ∣ a * c :=
-  Nat.mul_dvd_mul (Nat.dvd_refl a) h
-
-protected theorem mul_dvd_mul_right (h: a ∣ b) (c : Nat) : a * c ∣ b * c :=
-  Nat.mul_dvd_mul h (Nat.dvd_refl c)
-
-@[simp] theorem dvd_one {n : Nat} : n ∣ 1 ↔ n = 1 :=
-  ⟨eq_one_of_dvd_one, fun h => h.symm ▸ Nat.dvd_refl _⟩
-
-protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k) := by
-  match Nat.eq_zero_or_pos k with
-  | .inl h0 => rw [h0, Nat.div_zero, Nat.div_zero, Nat.mul_zero]
-  | .inr hpos =>
-    have h1 : m * n / k = m * (n / k * k) / k := by rw [Nat.div_mul_cancel H]
-    rw [h1, ← Nat.mul_assoc, Nat.mul_div_cancel _ hpos]
-
-protected theorem dvd_of_mul_dvd_mul_left
-    (kpos : 0 < k) (H : k * m ∣ k * n) : m ∣ n := by
-  let ⟨l, H⟩ := H
-  rw [Nat.mul_assoc] at H
-  exact ⟨_, Nat.eq_of_mul_eq_mul_left kpos H⟩
-
-protected theorem dvd_of_mul_dvd_mul_right (kpos : 0 < k) (H : m * k ∣ n * k) : m ∣ n := by
-  rw [Nat.mul_comm m k, Nat.mul_comm n k] at H; exact Nat.dvd_of_mul_dvd_mul_left kpos H
+protected theorem div_eq_iff_eq_mul_left {a b c : Nat} (H : 0 < b) (H' : b ∣ a) :
+    a / b = c ↔ a = c * b := by
+  rw [Nat.mul_comm]; exact Nat.div_eq_iff_eq_mul_right H H'
 
 theorem pow_dvd_pow_iff_pow_le_pow {k l : Nat} :
     ∀ {x : Nat}, 0 < x → (x ^ k ∣ x ^ l ↔ x ^ k ≤ x ^ l)
@@ -772,18 +734,6 @@ theorem pow_dvd_pow_iff_le_right {x k l : Nat} (w : 1 < x) : x ^ k ∣ x ^ l ↔
 
 theorem pow_dvd_pow_iff_le_right' {b k l : Nat} : (b + 2) ^ k ∣ (b + 2) ^ l ↔ k ≤ l :=
   pow_dvd_pow_iff_le_right (Nat.lt_of_sub_eq_succ rfl)
-
-protected theorem eq_mul_of_div_eq_right {a b c : Nat} (H1 : b ∣ a) (H2 : a / b = c) :
-    a = b * c := by
-  rw [← H2, Nat.mul_div_cancel' H1]
-
-protected theorem div_eq_iff_eq_mul_right {a b c : Nat} (H : 0 < b) (H' : b ∣ a) :
-    a / b = c ↔ a = b * c :=
-  ⟨Nat.eq_mul_of_div_eq_right H', Nat.div_eq_of_eq_mul_right H⟩
-
-protected theorem div_eq_iff_eq_mul_left {a b c : Nat} (H : 0 < b) (H' : b ∣ a) :
-    a / b = c ↔ a = c * b := by
-  rw [Nat.mul_comm]; exact Nat.div_eq_iff_eq_mul_right H H'
 
 protected theorem pow_dvd_pow {m n : Nat} (a : Nat) (h : m ≤ n) : a ^ m ∣ a ^ n := by
   cases Nat.exists_eq_add_of_le h

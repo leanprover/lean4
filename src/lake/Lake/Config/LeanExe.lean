@@ -68,6 +68,10 @@ The file name of binary executable
 @[inline] def file (self : LeanExe) : FilePath :=
   self.pkg.binDir / self.fileName
 
+/-- The executable's `supportInterpreter` configuration. -/
+@[inline] def supportInterpreter (self : LeanExe) : Bool :=
+  self.config.supportInterpreter
+
 /--
 The arguments to pass to `leanc` when linking the binary executable.
 By default, the package's plus the executable's `moreLinkArgs`.

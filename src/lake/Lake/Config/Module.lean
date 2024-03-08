@@ -144,8 +144,8 @@ def dynlibSuffix := "-1"
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
-@[inline] def nativeFacets (self : Module) : Array (ModuleFacet (BuildJob FilePath)) :=
-  self.lib.nativeFacets
+@[inline] def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  self.lib.nativeFacets shouldExport
 
 /-! ## Trace Helpers -/
 

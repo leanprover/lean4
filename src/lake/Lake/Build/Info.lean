@@ -266,6 +266,10 @@ abbrev LeanLib.leanArts (self : LeanLib) : BuildInfo :=
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
   self.facet staticFacet
 
+@[inherit_doc staticExportFacet]
+abbrev LeanLib.staticExport (self : LeanLib) : BuildInfo :=
+  self.facet staticExportFacet
+
 @[inherit_doc sharedFacet]
 abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
   self.facet sharedFacet

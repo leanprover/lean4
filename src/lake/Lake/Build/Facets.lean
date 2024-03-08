@@ -134,6 +134,10 @@ library_data leanArts : BuildJob Unit
 abbrev LeanLib.staticFacet := `static
 library_data static : BuildJob FilePath
 
+/-- A Lean library's static artifact (with exported symbols). -/
+abbrev LeanLib.staticExportFacet := `static.export
+library_data static.export : BuildJob FilePath
+
 /-- A Lean library's shared artifact. -/
 abbrev LeanLib.sharedFacet := `shared
 library_data shared : BuildJob FilePath

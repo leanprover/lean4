@@ -266,7 +266,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
   let pkgs := transImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, pkgLibDirs) ← recBuildExternDynlibs pkgs
-  let linkJobs ← mod.nativeFacets.mapM (fetch <| mod.facet ·.name)
+  let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
 
   -- Collect Jobs
   let linksJob ← BuildJob.collectArray linkJobs

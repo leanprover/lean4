@@ -57,13 +57,17 @@ structure LeanExeConfig extends LeanConfig where
   supportInterpreter : Bool := false
 
   /--
-  An `Array` of module facets to build and combine into the executable.
+  The module facets to build and combine into the executable.
+  If `shouldExport` is true, the module facets should export any symbols
+  a user may expect to lookup in the executable. For example, the Lean
+  interpreter will use exported symbols in the executable. Thus, `shouldExport`
+  will be `true` if `supportInterpreter := true`.
 
-  Defaults to a singleton of either `Module.oFacet` or  `Module.oExportFacet`
-  (if `supportInterpreter := true`). That is, the  object file compiled from
-  the Lean source, potentially with exported Lean symbols.
+  Defaults to a singleton of `Module.oExportFacet` (if `shouldExport`) or
+  `Module.oFacet`. That is, the  object file compiled from the Lean source,
+  potentially with exported Lean symbols.
   -/
-  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) :=
-    #[if supportInterpreter then Module.oExportFacet else Module.oFacet]
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+    #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited

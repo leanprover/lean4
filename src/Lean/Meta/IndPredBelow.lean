@@ -315,7 +315,7 @@ where
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]!
-  let name := .str indVal.name brecOnSuffix
+  let name := indVal.name ++ .mkSimple brecOnSuffix
   return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams

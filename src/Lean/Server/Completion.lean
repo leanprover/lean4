@@ -110,14 +110,14 @@ def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
 private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]
     [MonadLiftT IO m] (f : Name → ConstantInfo → m PUnit) : m PUnit := do
   let env ← getEnv
-  (← getEligibleHeaderDecls (← getEnv)).forM f
+  (← getEligibleHeaderDecls env).forM f
   -- map₂ are exactly the local decls
   env.constants.map₂.forM fun name c => do
     if allowCompletion env name then
       f name c
 
 /-- Checks whether this declaration can appear in completion results. -/
-private def allowCompletion (env : Environment) (eligibleHeaderDecls : EligibleHeaderDecls)
+private def allowCompletion (eligibleHeaderDecls : EligibleHeaderDecls) (env : Environment)
     (declName : Name) : Bool :=
   eligibleHeaderDecls.contains declName ||
     env.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName
@@ -382,13 +382,13 @@ private def idCompletionCore
   -- Auxiliary function for `alias`
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
-      if allowCompletion env eligibleHeaderDecls declName then
+      if allowCompletion eligibleHeaderDecls env declName then
         addUnresolvedCompletionItemForDecl alias.getString! declName score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
-      if allowCompletion env eligibleHeaderDecls resolvedId then
+      if allowCompletion eligibleHeaderDecls env resolvedId then
         if let some score := matchAtomic id openedId then
           addUnresolvedCompletionItemForDecl openedId.getString! resolvedId score
     | OpenDecl.simple ns _      =>

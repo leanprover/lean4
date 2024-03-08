@@ -165,16 +165,13 @@ This option can only be set on the command line, not in the lakefile or via `set
       ctx.chanOut.send <| mkPublishDiagnosticsNotification doc.meta <|
         (← doc.diagnosticsRef.get).map (·.toDiagnostic)
     go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
-      if (← IO.checkCanceled) then
-        return .pure st
-
       if !node.element.diagnostics.msgLog.isEmpty then
         let diags ←
           if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
             pure memorized.diags
           else
-            let diags ← node.element.diagnostics.msgLog.toList.toArray.mapM
+            let diags ← node.element.diagnostics.msgLog.toArray.mapM
               (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
             if let some cacheRef := node.element.diagnostics.interactiveDiagsRef? then
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }

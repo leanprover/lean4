@@ -29,8 +29,6 @@ theorem eq_of_toNat_eq {n} : ∀ {i j : BitVec n}, i.toNat = j.toNat → i = j
 @[bv_toNat] theorem toNat_ne (x y : BitVec n) : x ≠ y ↔ x.toNat ≠ y.toNat := by
   rw [Ne, toNat_eq]
 
-theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.toFin.2
-
 theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsb i := rfl
 
 @[simp] theorem getLsb_ofFin (x : Fin (2^n)) (i : Nat) :
@@ -458,12 +456,12 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   | y+1 =>
     rw [Nat.succ_eq_add_one] at h
     rw [← h]
-    rw [Nat.testBit_two_pow_sub_succ (toNat_lt _)]
+    rw [Nat.testBit_two_pow_sub_succ (isLt _)]
     · cases w : decide (i < v)
       · simp at w
         simp [w]
         rw [Nat.testBit_lt_two_pow]
-        calc BitVec.toNat x < 2 ^ v := toNat_lt _
+        calc BitVec.toNat x < 2 ^ v := isLt _
           _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
       · simp
 
@@ -520,7 +518,7 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
   · simp
     rw [Nat.mod_eq_of_lt]
     rw [Nat.shiftLeft_eq, Nat.pow_add]
-    exact Nat.mul_lt_mul_of_pos_right (BitVec.toNat_lt x) (Nat.two_pow_pos _)
+    exact Nat.mul_lt_mul_of_pos_right x.isLt (Nat.two_pow_pos _)
   · omega
 
 @[simp] theorem getLsb_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :

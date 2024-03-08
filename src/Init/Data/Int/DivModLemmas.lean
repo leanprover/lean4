@@ -8,7 +8,6 @@ prelude
 import Init.Data.Int.DivMod
 import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
-import Init.RCases
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.
@@ -54,12 +53,11 @@ theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c
   | ofNat m => congrArg ofNat <| Nat.add_mul_div_right _ _ k.succ_pos
   | -[m+1] => by
     show ((n * k.succ : Nat) - m.succ : Int).ediv k.succ = n - (m / k.succ + 1 : Nat)
-    if h : m < n * k.succ then
-      rw [← Int.ofNat_sub h, ← Int.ofNat_sub ((Nat.div_lt_iff_lt_mul k.succ_pos).2 h)]
+    by_cases h : m < n * k.succ
+    · rw [← Int.ofNat_sub h, ← Int.ofNat_sub ((Nat.div_lt_iff_lt_mul k.succ_pos).2 h)]
       apply congrArg ofNat
       rw [Nat.mul_comm, Nat.mul_sub_div]; rwa [Nat.mul_comm]
-    else
-      have h := Nat.not_lt.1 h
+    · have h := Nat.not_lt.1 h
       have H {a b : Nat} (h : a ≤ b) : (a : Int) + -((b : Int) + 1) = -[b - a +1] := by
         rw [negSucc_eq, Int.ofNat_sub h]
         simp only [Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, Int.add_left_comm, Int.add_assoc]
@@ -292,8 +290,9 @@ theorem dvd_iff_emod_eq_zero (a b : Int) : a ∣ b ↔ b % a = 0 :=
 
 theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a := by
   rw [dvd_iff_emod_eq_zero] at h
-  if w : a = 0 then simp_all
-  else exact Or.inr (Int.lt_iff_le_and_ne.mpr ⟨emod_nonneg b w, Ne.symm h⟩)
+  by_cases w : a = 0
+  · simp_all
+  · exact Or.inr (Int.lt_iff_le_and_ne.mpr ⟨emod_nonneg b w, Ne.symm h⟩)
 
 instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun _ _ =>
   decidable_of_decidable_of_iff (dvd_iff_emod_eq_zero ..).symm
@@ -314,8 +313,10 @@ protected theorem mul_ediv_assoc' (b : Int) {a c : Int}
   rw [Int.mul_comm, Int.mul_ediv_assoc _ h, Int.mul_comm]
 
 theorem neg_ediv_of_dvd : ∀ {a b : Int}, b ∣ a → (-a) / b = -(a / b)
-  | _, b, ⟨c, rfl⟩ => by if bz : b = 0 then simp [bz] else
-    rw [Int.neg_mul_eq_mul_neg, Int.mul_ediv_cancel_left _ bz, Int.mul_ediv_cancel_left _ bz]
+  | _, b, ⟨c, rfl⟩ => by
+    by_cases bz : b = 0
+    · simp [bz]
+    · rw [Int.neg_mul_eq_mul_neg, Int.mul_ediv_cancel_left _ bz, Int.mul_ediv_cancel_left _ bz]
 
 theorem sub_ediv_of_dvd (a : Int) {b c : Int}
     (hcb : c ∣ b) : (a - b) / c = a / c - b / c := by
@@ -334,10 +335,9 @@ theorem sub_ediv_of_dvd (a : Int) {b c : Int}
 
 @[simp]
 theorem Int.emod_sub_cancel (x y : Int): (x - y)%y = x%y := by
-  if h : y = 0 then
-    simp [h]
-  else
-    simp only [Int.emod_def, Int.sub_ediv_of_dvd, Int.dvd_refl, Int.ediv_self h, Int.mul_sub]
+  by_cases h : y = 0
+  · simp [h]
+  · simp only [Int.emod_def, Int.sub_ediv_of_dvd, Int.dvd_refl, Int.ediv_self h, Int.mul_sub]
     simp [Int.mul_one, Int.sub_sub, Int.add_comm y]
 
 /-! bmod -/

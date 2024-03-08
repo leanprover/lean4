@@ -500,6 +500,12 @@ theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toN
   | 0 => rfl
   | _+1 => rfl
 
+/-! ### toNat' -/
+
+theorem mem_toNat' : ∀ (a : Int) (n : Nat), toNat' a = some n ↔ a = n
+  | (m : Nat), n => by simp [toNat', Int.ofNat_inj]
+  | -[m+1], n => by constructor <;> nofun
+
 /-! ## Order properties of the integers -/
 
 protected theorem lt_of_not_ge {a b : Int} : ¬a ≤ b → b < a := Int.not_le.mp

@@ -76,9 +76,19 @@ opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
   let v ← Ref.take r
   Ref.set r (f v)
 
+@[inline] unsafe def Ref.modifyMUnsafe {σ α : Type} (r : Ref σ α) (f : α → ST σ α) : ST σ Unit := do
+  let v ← Ref.take r
+  Ref.set r (← f v)
+
 @[inline] unsafe def Ref.modifyGetUnsafe {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.take r
   let (b, a) := f v
+  Ref.set r a
+  pure b
+
+@[inline] unsafe def Ref.modifyGetMUnsafe {σ α β : Type} (r : Ref σ α) (f : α → ST σ (β × α)) : ST σ β := do
+  let v ← Ref.take r
+  let (b, a) ← f v
   Ref.set r a
   pure b
 
@@ -87,10 +97,22 @@ def Ref.modify {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.get r
   Ref.set r (f v)
 
+@[implemented_by Ref.modifyMUnsafe]
+def Ref.modifyM {σ α : Type} (r : Ref σ α) (f : α → ST σ α) : ST σ Unit := do
+  let v ← Ref.get r
+  Ref.set r (← f v)
+
 @[implemented_by Ref.modifyGetUnsafe]
 def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.get r
   let (b, a) := f v
+  Ref.set r a
+  pure b
+
+@[implemented_by Ref.modifyGetMUnsafe]
+def Ref.modifyGetM {σ α β : Type} (r : Ref σ α) (f : α → ST σ (β × α)) : ST σ β := do
+  let v ← Ref.get r
+  let (b, a) ← f v
   Ref.set r a
   pure b
 

@@ -1408,7 +1408,8 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     `as.size == fvars.size`, we return `mvarIdPending bs`, as long as the context of
     `mvarIdPending` is a subprefix of the local context. If the local context is a subprefix of
     `mvarIdPending`'s  context, we attempt to clear the extra fvars from `mvarIdPending`'s context.
-    Otherwise, we fail.
+    If the contexts are "skew", we intersect them and attempt to clear the excluded fvars from
+    `mvarIdPending`'s context.
 
     TODO: improve this transformation. Here is a possible improvement.
     Assume `t` is of the form `?m as` where `as` represent the arguments, and we are trying to solve
@@ -1434,14 +1435,14 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     mvarIdPending.assign newMVar
     return mkAppRange newMVar fvars.size tArgs.size tArgs
   else
-    /- We could handle the case where the contexts are "skew" by intersecting the two contexts,
-    checking if the type is well-formed in that context, and making a fresh mvar at that context.
-    (Note that we cannot simpy broaden the context of `mvarIdPending` to the current `lctx`, as
-    then we might eventually assign it to fvars which are unknown in the context that
-    `mvarIdPending` originally appeared.)
-
-    For now, we simply fail. See above TODO. -/
-    return none
+    let newLCtx := lctx.foldl (init := declPending.lctx) fun lctx decl =>
+      if lctx.contains decl.fvarId then lctx else lctx.erase decl.fvarId
+    let type ← instantiateMVars declPending.type
+    unless (← MetavarContext.isWellFormed newLCtx type) do return none
+    let newMVar ←
+      mkFreshExprMVarAt newLCtx (← getLocalInstances) type declPending.kind declPending.userName
+    mvarIdPending.assign newMVar
+    return mkAppRange newMVar fvars.size tArgs.size tArgs
 
 private def isAssignable : Expr → MetaM Bool
   | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)

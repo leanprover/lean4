@@ -8,9 +8,11 @@ def tst : MetaM Unit := do
     return (← mkLambdaFVars #[x] m, m)
   IO.println (← ppExpr e)
   lambdaTelescope e fun _ b => do
-    assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
     let m' := b.getAppFn
     assert! m'.isMVar
+    IO.println (← m'.mvarId!.isDelayedAssigned)
+    assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
+    IO.println (← m'.mvarId!.isDelayedAssigned)
     IO.println (← getExprMVarAssignment? m'.mvarId!)
     IO.println (← getExprMVarAssignment? m.mvarId!)
     IO.println (← ppExpr (← instantiateMVars b))

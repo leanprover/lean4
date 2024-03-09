@@ -14,9 +14,11 @@ def tst : MetaM Unit := do
       | IO.println f!"m' is not delayed-assigned"
     IO.println (mvarIdPending == m.mvarId!)
     IO.println (← mvarIdPending.isDelayedAssigned)
+    IO.println (← getExprMVarAssignment? m'.mvarId!)
     assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
     IO.println (← getExprMVarAssignment? m'.mvarId!)
     IO.println (← getExprMVarAssignment? m.mvarId!)
+    IO.println (← ppExpr (← instantiateMVars m'))
     IO.println (← ppExpr (← instantiateMVars b))
     IO.println (← ppExpr m)
     return ()

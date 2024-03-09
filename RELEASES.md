@@ -53,6 +53,8 @@ v4.8.0 (development in progress)
   ```
   is recognized without having to say `termination_by arr.size - i`.
 
+* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
+  rather than `{a := x, b := y, c := z}`.
 
 Breaking changes:
 

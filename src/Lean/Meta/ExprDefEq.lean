@@ -1435,12 +1435,16 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     mvarIdPending.assign newMVar
     return mkAppRange newMVar fvars.size tArgs.size tArgs
   else
-    let newLCtx := lctx.foldl (init := declPending.lctx) fun lctx decl =>
+    let newLCtx := declPending.lctx.foldl (init := lctx) fun lctx decl =>
       if lctx.contains decl.fvarId then lctx else lctx.erase decl.fvarId
     let type ← instantiateMVars declPending.type
     unless (← MetavarContext.isWellFormed newLCtx type) do return none
-    let newMVar ←
-      mkFreshExprMVarAt newLCtx (← getLocalInstances) type declPending.kind declPending.userName
+    let insts := declPending.localInstances
+    let mut newLInsts : LocalInstances := #[]
+    for i in (← getLocalInstances) do
+      if insts.contains i then newLInsts := newLInsts.push i
+    let newMVar ← withLCtx newLCtx newLInsts <|
+      mkFreshExprMVar type declPending.kind declPending.userName
     mvarIdPending.assign newMVar
     return mkAppRange newMVar fvars.size tArgs.size tArgs
 

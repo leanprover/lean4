@@ -452,18 +452,19 @@
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 235, "character": 4}}
 {"range":
- {"start": {"line": 235, "character": 4}, "end": {"line": 235, "character": 8}},
+ {"start": {"line": 235, "character": 2}, "end": {"line": 235, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 4}}
 {"range":
- {"start": {"line": 238, "character": 4}, "end": {"line": 238, "character": 8}},
+ {"start": {"line": 238, "character": 2},
+  "end": {"line": 238, "character": 10}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 9}}
@@ -485,10 +486,10 @@
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 246, "character": 4}}
 {"range":
- {"start": {"line": 246, "character": 4}, "end": {"line": 246, "character": 8}},
+ {"start": {"line": 246, "character": 2}, "end": {"line": 246, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 249, "character": 9}}
@@ -588,7 +589,7 @@
 {"range":
  {"start": {"line": 279, "character": 8},
   "end": {"line": 279, "character": 10}},
- "contents": {"value": "```lean\n_e : 1 = Nat.zero\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\n_e : 1 = 0\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 282, "character": 9}}
 {"range":

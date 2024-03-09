@@ -1,4 +1,4 @@
-@[eliminator] protected def Nat.recDiag {motive : Nat → Nat → Sort u}
+@[induction_eliminator] protected def Nat.recDiag {motive : Nat → Nat → Sort u}
     (zero_zero : motive 0 0)
     (succ_zero : (x : Nat) → motive x 0 → motive (x + 1) 0)
     (zero_succ : (y : Nat) → motive 0 y → motive 0 (y + 1))

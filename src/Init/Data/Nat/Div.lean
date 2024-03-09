@@ -198,11 +198,11 @@ theorem le_div_iff_mul_le (k0 : 0 < k) : x ≤ y / k ↔ x * k ≤ y := by
   induction y, k using mod.inductionOn generalizing x with
     (rw [div_eq]; simp [h]; cases x with | zero => simp [zero_le] | succ x => ?_)
   | base y k h =>
-    simp [not_succ_le_zero x, succ_mul, Nat.add_comm]
-    refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_right ..)
+    simp only [add_one, succ_mul, false_iff, Nat.not_le]
+    refine Nat.lt_of_lt_of_le ?_ (Nat.le_add_left ..)
     exact Nat.not_le.1 fun h' => h ⟨k0, h'⟩
   | ind y k h IH =>
-    rw [← add_one, Nat.add_le_add_iff_right, IH k0, succ_mul,
+    rw [Nat.add_le_add_iff_right, IH k0, succ_mul,
         ← Nat.add_sub_cancel (x*k) k, Nat.sub_le_sub_iff_right h.2, Nat.add_sub_cancel]
 
 protected theorem div_div_eq_div_mul (m n k : Nat) : m / n / k = m / (n * k) := by

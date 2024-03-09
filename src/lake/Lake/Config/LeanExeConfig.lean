@@ -48,9 +48,12 @@ structure LeanExeConfig extends LeanConfig where
   `Lean.Elab.runFrontend`) by exposing symbols within the  executable
   to the Lean interpreter.
 
-  Implementation-wise, this passes `-rdynamic` to the linker when building
-  on non-Windows systems. This increases the size of the binary on Linux, so
-  this feature should only be enabled when necessary.
+  Implementation-wise, on Windows, the Lean shared libraries are linked
+  to the executable and, on other systems, the executable is linked with
+  `-rdynamic`. This increases the size of the binary on Linux and, on Windows,
+  requires `libInit_shared.dll` and `libleanshared.dll` to  be co-located
+  with the executable or part of `PATH` (e.g., via `lake exe`). Thus, this
+  feature should only be enabled when necessary.
 
   Defaults to `false`.
   -/

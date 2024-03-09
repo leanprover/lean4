@@ -10,9 +10,11 @@ def tst : MetaM Unit := do
   lambdaTelescope e fun _ b => do
     let m' := b.getAppFn
     assert! m'.isMVar
-    IO.println (← m'.mvarId!.isDelayedAssigned)
+    let some { mvarIdPending .. } ← getDelayedMVarAssignment? m'.mvarId!
+      | IO.println f!"m' is not delayed-assigned"
+    IO.println (mvarIdPending == m.mvarId!)
+    IO.println (← mvarIdPending.isDelayedAssigned)
     assert! (← withAssignableSyntheticOpaque <| isDefEq b (mkNatLit 0))
-    IO.println (← m'.mvarId!.isDelayedAssigned)
     IO.println (← getExprMVarAssignment? m'.mvarId!)
     IO.println (← getExprMVarAssignment? m.mvarId!)
     IO.println (← ppExpr (← instantiateMVars b))

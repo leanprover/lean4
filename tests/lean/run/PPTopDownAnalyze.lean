@@ -196,7 +196,7 @@ set_option pp.analyze.trustSubst true in
 
 set_option pp.analyze.trustId true in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting { fst := _, snd := true }
+  expecting ⟨_, true⟩
 
 set_option pp.analyze.trustId false in
 #testDelab Sigma.mk (β := fun α => α) Bool true
@@ -330,7 +330,7 @@ set_option pp.analyze.explicitHoles false in
 
 set_option pp.analyze.trustSubtypeMk true in
 #testDelab fun (n : Nat) (val : List Nat) (property : List.length val = n) => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
-  expecting fun n val property => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
+  expecting fun n val property => List.length (⟨val, property⟩ : { x : List Nat // List.length x = n }).val = n
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below

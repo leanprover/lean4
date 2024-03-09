@@ -15,7 +15,7 @@ a b : Nat
 h : a > b
 ⊢ b < a
 let_fun n := 5;
-{ val := [], property := ⋯ } : { as // List.length as ≤ 5 }
+⟨[], ⋯⟩ : { as // List.length as ≤ 5 }
 rfl : (let_fun n := 5;
   n) =
   let_fun n := 5;

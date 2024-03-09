@@ -57,6 +57,10 @@ v4.8.0 (development in progress)
   rather than `{a := x, b := y, c := z}`.
   This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
 
+* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is a new suboption `pp.fieldNotation.generalized`
+  to enable pretty printing function applications using generalized field notation.
+  Field notation can now be disabled function-by-function using the `@[pp_nodot]` attribute.
+
 Breaking changes:
 
 * Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:

@@ -77,6 +77,7 @@ private def printStruct (id : Name) (levelParams : List Name) (numParams : Nat) 
   for field in fields do
     match getProjFnForField? (← getEnv) id field with
     | some proj =>
+      let field := if isPrivateName proj then "private " ++ toString field else toString field
       let cinfo ← getConstInfo proj
       m := m ++ Format.line ++ field ++ " : " ++ cinfo.type
     | none => panic! "missing structure field info"

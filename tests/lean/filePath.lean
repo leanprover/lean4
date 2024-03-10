@@ -15,6 +15,12 @@ def norm (f : FilePath) : String :=
 #eval norm <$> FilePath.parent "a/b/c"
 #eval norm <$> FilePath.parent "a"
 
+/-! Test File.parent with absolute paths -/
+#eval norm <$> FilePath.parent "/a/b/c"
+#eval norm <$> FilePath.parent "/a"
+#eval norm <$> FilePath.parent "/aaa"
+#eval norm <$> FilePath.parent "/"
+
 #eval FilePath.fileName "a/b"
 
 #eval FilePath.fileStem "a/b"

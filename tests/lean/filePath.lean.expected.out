@@ -6,6 +6,10 @@ false
 some "a"
 some "a/b"
 none
+some "/a/b"
+some "/"
+some "/"
+none
 some "b"
 some "b"
 some "b.tar"

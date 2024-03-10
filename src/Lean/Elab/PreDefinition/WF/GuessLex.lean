@@ -302,7 +302,11 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
   | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
-/-- Given an expression `e`, produce `sizeOf e` with a suitable instance. -/
+/--
+Given an expression `e`, produce `sizeOf e` with a suitable instance.
+NB: We must use the instance of the type of the function parameter!
+The concrete argument at hand may have a different (still def-eq) typ.
+-/
 def mkSizeOf (e : Expr) : MetaM Expr := do
   let ty ← inferType e
   let lvl ← getLevel ty
@@ -315,8 +319,8 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
-    MetaM GuessLexRel := do
+def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext)
+  (paramIdx argIdx : Nat) : MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
     let arg := rcc.args[argIdx]!
@@ -407,7 +411,7 @@ def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
       return .eq
 
 /--
-Given a predefinition with value `fun (x_₁ ... xₙ) (y_₁ : α₁)... (yₘ : αₘ) => ...`,
+Given a predefinition with value `fun (x₁ ... xₙ) (y₁ : α₁)... (yₘ : αₘ) => ...`,
 where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff `sizeOf yᵢ` reduces to a literal.
 This is the case for types such as `Prop`, `Type u`, etc.
 These arguments should not be considered when guessing a well-founded relation.
@@ -425,6 +429,47 @@ def getForbiddenByTrivialSizeOf (fixedPrefixSize : Nat) (preDef : PreDefinition)
         result := result.push i
     return result
 
+/--
+Given a predefinition with value `fun (x₁ ... xₙ) (y₁ : α₁)... (yₘ : αₘ) => ...`,
+where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff the
+`WellFoundedRelation` of `aᵢ` goes via `SizeOf`, and `aᵢ` does not depend on `y₁`….
+
+These are the parameters for which we omit an explicit call to `sizeOf` in the termination argument.
+
+We only use this in the non-mutual case; in the mutual case we would have to additional check
+if the parameters that line up in the actual `TerminationWF` have the same type.
+-/
+def getSizeOfParams (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Nat) :=
+  lambdaTelescope preDef.value fun xs _ => do
+    let xs  : Array Expr := xs[fixedPrefixSize:]
+    let mut result := #[]
+    for x in xs, i in [:xs.size] do
+      try
+        let t ← inferType x
+        if t.hasAnyFVar (fun fvar => xs.contains (.fvar fvar)) then continue
+        let u ← getLevel t
+        let wfi ← synthInstance (.app (.const ``WellFoundedRelation [u]) t)
+        let soi ← synthInstance (.app (.const ``SizeOf [u]) t)
+        if ← isDefEq wfi (mkApp2 (.const ``sizeOfWFRel [u]) t soi) then
+          result := result.push i
+      catch _ =>
+        pure ()
+    return result
+
+/--
+Given a predefinition with value `fun (x₁ ... xₙ) (y₁ : α₁)... (yₘ : αₘ) => ...`,
+where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff `aᵢ` is `Nat`.
+These are parameters where we can definitely omit the call to `sizeOf`.
+-/
+def getNatParams (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Nat) :=
+  lambdaTelescope preDef.value fun xs _ => do
+    let xs  : Array Expr := xs[fixedPrefixSize:]
+    let mut result := #[]
+    for x in xs, i in [:xs.size] do
+      let t ← inferType x
+      if ← withReducible (isDefEq t (.const `Nat [])) then
+        result := result.push i
+    return result
 
 /--
 Generate all combination of arguments, skipping those that are forbidden.
@@ -539,23 +584,26 @@ combination of these measures. The parameters are
 * `measures`: The measures to be used.
 -/
 def buildTermWF (originalVarNamess : Array (Array Name)) (varNamess : Array (Array Name))
-  (measures : Array MutualMeasure) : MetaM TerminationWF := do
+  (needsNoSizeOf : Array (Array Nat)) (measures : Array MutualMeasure) : MetaM TerminationWF := do
   varNamess.mapIdxM fun funIdx varNames => do
     let idents := varNames.map mkIdent
     let measureStxs ← measures.mapM fun
       | .args varIdxs => do
           let varIdx := varIdxs[funIdx]!
           let v := idents[varIdx]!
-          -- Print `sizeOf` as such, unless it is shadowed.
-          -- Shadowing by a `def` in the current namespace is handled by `unresolveNameGlobal`.
-          -- But it could also be shadowed by an earlier parameter (including the fixed prefix),
-          -- so look for unqualified (single tick) occurrences in `originalVarNames`
-          let sizeOfIdent :=
-            if originalVarNamess[funIdx]!.any (· = `sizeOf) then
-              mkIdent ``sizeOf -- fully qualified
-            else
-              mkIdent (← unresolveNameGlobal ``sizeOf)
-          `($sizeOfIdent $v)
+          if needsNoSizeOf[funIdx]!.contains varIdx then
+            `($v)
+          else
+            -- Print `sizeOf` as such, unless it is shadowed.
+            -- Shadowing by a `def` in the current namespace is handled by `unresolveNameGlobal`.
+            -- But it could also be shadowed by an earlier parameter (including the fixed prefix),
+            -- so look for unqualified (single tick) occurrences in `originalVarNames`
+            let sizeOfIdent :=
+              if originalVarNamess[funIdx]!.any (· = `sizeOf) then
+                mkIdent ``sizeOf -- fully qualified
+              else
+                mkIdent (← unresolveNameGlobal ``sizeOf)
+            `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
     let body ← mkTupleSyntax measureStxs
     return { ref := .missing, vars := idents, body, synthetic := true }
@@ -668,11 +716,20 @@ def explainFailure (declNames : Array Name) (varNamess : Array (Array Name))
     r := r ++ (← explainMutualFailure declNames varNamess rcs)
   return r
 
-end Lean.Elab.WF.GuessLex
+/--
+Shows the termination measure used to the user, and implements `termination_by?`
+-/
+def reportWF (preDefs : Array PreDefinition) (wf : TerminationWF) : MetaM Unit := do
+  let extraParamss := preDefs.map (·.termination.extraParams)
+  let wf' := trimTermWF extraParamss wf
+  for preDef in preDefs, term in wf' do
+    if showInferredTerminationBy.get (← getOptions) then
+      logInfoAt preDef.ref m!"Inferred termination argument:\n{← term.unexpand}"
+    if let some ref := preDef.termination.terminationBy?? then
+      Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
-namespace Lean.Elab.WF
-
-open Lean.Elab.WF.GuessLex
+end GuessLex
+open GuessLex
 
 /--
 Main entry point of this module:
@@ -683,14 +740,17 @@ terminates. See the module doc string for a high-level overview.
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) :
     MetaM TerminationWF := do
-  let extraParamss := preDefs.map (·.termination.extraParams)
   let originalVarNamess ← preDefs.mapM originalVarNames
   let varNamess ← originalVarNamess.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
   trace[Elab.definition.wf] "varNames is: {varNamess}"
 
-  let forbiddenArgs ← preDefs.mapM fun preDef =>
-    getForbiddenByTrivialSizeOf fixedPrefixSize preDef
+  let forbiddenArgs ← preDefs.mapM (getForbiddenByTrivialSizeOf fixedPrefixSize)
+  let needsNoSizeOf ←
+    if preDefs.size = 1 then
+      preDefs.mapM (getSizeOfParams fixedPrefixSize)
+    else
+      preDefs.mapM (getNatParams fixedPrefixSize)
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last
@@ -698,7 +758,9 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF originalVarNamess varNamess #[solution]
+    let wf ← buildTermWF originalVarNamess varNamess needsNoSizeOf #[solution]
+    reportWF preDefs wf
+    return wf
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -708,15 +770,8 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF originalVarNamess varNamess solution
-
-    let wf' := trimTermWF extraParamss wf
-    for preDef in preDefs, term in wf' do
-      if showInferredTerminationBy.get (← getOptions) then
-        logInfoAt preDef.ref m!"Inferred termination argument:\n{← term.unexpand}"
-      if let some ref := preDef.termination.terminationBy?? then
-        Tactic.TryThis.addSuggestion ref (← term.unexpand)
-
+    let wf ← buildTermWF originalVarNamess varNamess needsNoSizeOf solution
+    reportWF preDefs wf
     return wf
   | .none =>
     let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs

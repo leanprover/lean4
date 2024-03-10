@@ -1,0 +1,49 @@
+structure Prod.{u, v} : Type u → Type v → Type (max u v)
+number of parameters: 2
+constructor:
+Prod.mk : {α : Type u} → {β : Type v} → α → β → α × β
+class: false
+fields:
+fst : {α : Type u} → {β : Type v} → α × β → α
+snd : {α : Type u} → {β : Type v} → α × β → β
+structure Inhabited.{u} : Sort u → Sort (max 1 u)
+number of parameters: 1
+constructor:
+Inhabited.mk : {α : Sort u} → α → Inhabited α
+class: true
+fields:
+default : {α : Sort u} → [self : Inhabited α] → α
+structure Thunk.{u} : Type u → Type u
+number of parameters: 1
+constructor:
+Thunk.mk : {α : Type u} → (Unit → α) → Thunk α
+class: false
+fields:
+fn : {α : Type u} → Thunk α → Unit → α
+structure Alternative.{u, v} : (Type u → Type v) → Type (max (u + 1) v)
+number of parameters: 1
+constructor:
+Alternative.mk : {f : Type u → Type v} →
+  [toApplicative : Applicative f] → ({α : Type u} → f α) → ({α : Type u} → f α → (Unit → f α) → f α) → Alternative f
+class: true
+fields:
+toApplicative : {f : Type u → Type v} → [self : Alternative f] → Applicative f
+failure : {f : Type u → Type v} → [self : Alternative f] → {α : Type u} → f α
+orElse : {f : Type u → Type v} → [self : Alternative f] → {α : Type u} → f α → (Unit → f α) → f α
+structure Applicative.{u, v} : (Type u → Type v) → Type (max (u + 1) v)
+number of parameters: 1
+constructor:
+Applicative.mk : {f : Type u → Type v} →
+  [toFunctor : Functor f] →
+    [toPure : Pure f] → [toSeq : Seq f] → [toSeqLeft : SeqLeft f] → [toSeqRight : SeqRight f] → Applicative f
+class: true
+fields:
+toFunctor : {f : Type u → Type v} → [self : Applicative f] → Functor f
+toPure : {f : Type u → Type v} → [self : Applicative f] → Pure f
+toSeq : {f : Type u → Type v} → [self : Applicative f] → Seq f
+toSeqLeft : {f : Type u → Type v} → [self : Applicative f] → SeqLeft f
+toSeqRight : {f : Type u → Type v} → [self : Applicative f] → SeqRight f
+inductive Fake.{u_1} : Type u_1 → Type u_1
+number of parameters: 1
+constructors:
+Fake.mk : {α : Type u_1} → α → Fake α

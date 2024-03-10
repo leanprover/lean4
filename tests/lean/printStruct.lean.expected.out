@@ -19,7 +19,7 @@ constructor:
 Thunk.mk : {α : Type u} → (Unit → α) → Thunk α
 class: false
 fields:
-fn : {α : Type u} → Thunk α → Unit → α
+private fn : {α : Type u} → Thunk α → Unit → α
 structure Alternative.{u, v} : (Type u → Type v) → Type (max (u + 1) v)
 number of parameters: 1
 constructor:

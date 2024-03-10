@@ -75,8 +75,11 @@ private def printStruct (id : Name) (levelParams : List Name) (numParams : Nat) 
   m := m ++ Format.line ++ "class: " ++ toString isClass
   m := m ++ Format.line ++ "fields:"
   for field in fields do
-    let cinfo ← getConstInfo (id ++ field)
-    m := m ++ Format.line ++ field ++ " : " ++ cinfo.type
+    match getProjFnForField? (← getEnv) id field with
+    | some proj =>
+      let cinfo ← getConstInfo proj
+      m := m ++ Format.line ++ field ++ " : " ++ cinfo.type
+    | none => panic! "missing structure field info"
   logInfo m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
@@ -92,7 +95,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     match getStructureInfo? env id with
     | some { fieldNames, .. } =>
-      let [ctor] := ctors | panic! "structure expected"
+      let [ctor] := ctors | panic! "missing structure info"
       let fields := fieldNames.data
       let cl := isClass env id
       printStruct id us numParams t ctor fields u cl

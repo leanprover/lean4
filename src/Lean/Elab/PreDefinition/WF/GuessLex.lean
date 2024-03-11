@@ -743,11 +743,11 @@ def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Na
     (solution : Array MutualMeasure) : MetaM TerminationArguments := do
   preDefs.mapIdxM fun funIdx preDef => do
     lambdaTelescope preDef.value fun xs _ => do
-      let args := solution.map fun
+      let args ← solution.mapM fun
         | .args varIdxs =>
           let pickedArg := fixedPrefixSize + varIdxs[funIdx]!
-          xs[pickedArg]!
-        | .func funIdx' => mkNatLit <| if funIdx' == funIdx then 1 else 0
+          mkAppM ``sizeOf #[xs[pickedArg]!]
+        | .func funIdx' => pure <| mkNatLit <| if funIdx' == funIdx then 1 else 0
       let fn ← mkLambdaFVars xs (← mkProdElem args)
       return { fn : TerminationArgument }
 

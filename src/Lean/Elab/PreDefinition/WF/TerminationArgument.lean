@@ -46,7 +46,7 @@ Elaborates a `TerminationBy` to an `TerminationArgument`.
 * `hint : TerminationBy` is the syntactic `TerminationBy`.
 -/
 def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams : Nat)
-    (hint : TerminationBy) : TermElabM TerminationArgument := do
+    (hint : TerminationBy) : TermElabM TerminationArgument := withDeclName funName do
   assert! extraParams ≤ arity
 
   if hint.vars.size > extraParams then
@@ -58,17 +58,17 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
             "expects the function name here.)"
     throwErrorAt hint.ref msg
 
-  if hint.vars.size > extraParams then
-        throwError "termination argument binds too many variables, function value takes only {extraParams} parameters"
+  -- Bring parameters before the colon into scope
   let r ← forallBoundedTelescope type (arity - extraParams) fun ys type' => do
-    -- The fixed prefix is in scope
+    -- Bring the variables bound by `termination_by` into scope.
     elabFunBinders hint.vars (some type') fun xs type' => do
-      let type' := type'.get!
-      forallBoundedTelescope type' (extraParams - hint.vars.size) fun zs _ => do
-        let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
-        mkForallFVars (ys ++ xs ++ zs) body
+      -- Elaborate the body in this local environment
+      let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
+      -- Now abstract also over the remaining extra parameters
+      forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
+        mkLambdaFVars (ys ++ xs ++ zs) body
+  -- logInfo m!"elabTermValue: {r}"
   check r
-  logInfo m!"elabTermValue: {r}"
   pure { fn := r /- arity := arity - extraParams + hint.vars.size -/}
   where
     parameters : Nat → MessageData

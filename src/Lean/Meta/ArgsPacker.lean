@@ -332,6 +332,32 @@ def uncurryType (types : Array Expr) : MetaM Expr := do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
 
+
+/-
+Given types `(x : A) → R` and `(z : B) → R`, returns the type
+```
+(x : A ⊕' B) → R
+```
+-/
+def uncurryTypeND (types : Array Expr) : MetaM Expr := do
+  let types ← types.mapM whnfForall
+  let codomains := types.map (·.bindingBody!)
+  unless codomains.all (! ·.hasLooseBVars) do
+    throwError "Mutual.uncurryTypeND: Expected equal non-dependent codomains, got {codomains}"
+  let t' := codomains.back
+  codomains.pop.forM fun t =>
+    unless ← isDefEq t t' do
+      throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {codomains} and {t'}"
+  let codomain := codomains[0]!
+
+  let ds ← types.mapM fun type => do
+    let type ← whnfForall type
+    unless type.isForall do
+      throwError "Mutual.uncurryType: Expected forall type, got {type}"
+    pure type.bindingDomain!
+  let domain ← packType ds
+  mkArrow domain codomain
+
 /-
 Iterated `PSum.casesOn`:
 Given a value `(x : A ⊕ C)` (which must be a FVar) and functions
@@ -369,6 +395,21 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurry (es : Array Expr) : MetaM Expr := do
   let types ← es.mapM inferType
   let resultType ← uncurryType types
+  forallBoundedTelescope resultType (some 1) fun xs codomain => do
+    let #[x] := xs | unreachable!
+    let value ← casesOn x codomain es.toList
+    mkLambdaFVars #[x] value
+
+/--
+Given unary expressions `e₁`, `e₂` with types `(x : A) → R`
+and `(z : C) → R`, returns an expression of type
+```
+(x : A ⊕' C) → R
+```
+-/
+def uncurryND (es : Array Expr) : MetaM Expr := do
+  let types ← es.mapM inferType
+  let resultType ← uncurryTypeND types
   forallBoundedTelescope resultType (some 1) fun xs codomain => do
     let #[x] := xs | unreachable!
     let value ← casesOn x codomain es.toList
@@ -438,6 +479,17 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
   let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
   Mutual.uncurry unary
+
+/--
+Given expressions `e₁`, `e₂` with types `(x : A) → (y : B[x]) → R`
+and `(z : C) → R`, returns an expression of type
+```
+(x : (A ⊗ B) ⊕ C) → R
+```
+-/
+def uncurryND (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
+  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  Mutual.uncurryND unary
 
 /--
 Given expression `e` of type `(x : a₁ ⊗' b₁ ⊕' a₂ ⊗' d₂ …) → e[x]`, uncurries the expression and

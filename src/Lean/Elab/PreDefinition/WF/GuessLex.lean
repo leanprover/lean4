@@ -727,6 +727,30 @@ def reportWF (preDefs : Array PreDefinition) (wf : TerminationWF) : MetaM Unit :
     if let some ref := preDef.termination.terminationBy?? then
       Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
+
+/--
+For `#[x₁, .., xₙ]` create `(x₁, .., xₙ)`.
+-/
+def mkProdElem (xs : Array Expr) : MetaM Expr := do
+  match xs.size with
+  | 0 => return default
+  | 1 => return xs[0]!
+  | _ =>
+    let n := xs.size
+    xs[0:n-1].foldrM (init:=xs[n-1]!) fun x p => mkAppM ``Prod.mk #[x,p]
+
+def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
+    (solution : Array MutualMeasure) : MetaM TerminationArguments := do
+  preDefs.mapIdxM fun funIdx preDef => do
+    lambdaTelescope preDef.value fun xs _ => do
+      let args := solution.map fun
+        | .args varIdxs =>
+          let pickedArg := fixedPrefixSize + varIdxs[funIdx]!
+          xs[pickedArg]!
+        | .func funIdx' => mkNatLit <| if funIdx' == funIdx then 1 else 0
+      let fn ← mkLambdaFVars xs (← mkProdElem args)
+      return { fn : TerminationArgument }
+
 end GuessLex
 open GuessLex
 
@@ -742,11 +766,11 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let arities := argsPacker.varNamess.map (·.size)
   let userVarNamess ← argsPacker.varNamess.mapM (naryVarNames ·)
   -- with fixed prefix, used to qualify the  measure in buildTermWf.
-  let originalVarNamess ← preDefs.mapM (originalVarNames ·)
+  let _originalVarNamess ← preDefs.mapM (originalVarNames ·)
   trace[Elab.definition.wf] "varNames is: {userVarNamess}"
 
   let forbiddenArgs ← preDefs.mapM (getForbiddenByTrivialSizeOf fixedPrefixSize ·)
-  let needsNoSizeOf ←
+  let _needsNoSizeOf ←
     if preDefs.size = 1 then
       preDefs.mapM (getSizeOfParams fixedPrefixSize ·)
     else
@@ -758,12 +782,15 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
+    return ← toTerminationArguments preDefs fixedPrefixSize #[solution]
+    /-
     let wf ← buildTermWF originalVarNamess userVarNamess needsNoSizeOf #[solution]
     reportWF preDefs wf
     return ← (Array.zip preDefs wf).mapM fun (predef, wf) => do
       -- TODO: Produce Expr directly
       let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
       TerminationArgument.elab predef.declName predef.type arity predef.termination.extraParams wf
+    -/
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
@@ -773,12 +800,15 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
+    return ← toTerminationArguments preDefs fixedPrefixSize solution
+    /-
     let wf ← buildTermWF originalVarNamess userVarNamess needsNoSizeOf solution
     reportWF preDefs wf
     return ← (Array.zip preDefs wf).mapM fun (predef, wf) => do
       -- TODO: Produce Expr directly
       let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
       TerminationArgument.elab predef.declName predef.type arity predef.termination.extraParams wf
+    -/
   | .none =>
     let explanation ← explainFailure (preDefs.map (·.declName)) userVarNamess rcs
     Lean.throwError <| "Could not find a decreasing measure.\n" ++

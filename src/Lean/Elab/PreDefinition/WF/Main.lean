@@ -109,7 +109,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
         -- Clean up this part after #3621 is merged
         let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
         let hints := predef.termination
-        TerminationArgument.elab predef.type arity hints.extraParams hints.terminationBy?.get!
+        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
     else
       -- Some have, some do not, so report errors
       preDefsWithout.forM fun preDef => do
@@ -122,7 +122,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf fun wfRel => do
+    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef

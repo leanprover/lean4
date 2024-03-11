@@ -16,44 +16,6 @@ namespace Lean.Elab.WF
 open Meta
 open Term
 
-private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarId) (fvarId : FVarId) : TermElabM (Array (FVarId × MVarId)) := do
-  let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) (result : Array (FVarId × MVarId)) : TermElabM (Array (FVarId × MVarId)) := do
-    if i < preDefs.size - 1 then
-      let #[s₁, s₂] ←  mvarId.cases fvarId | unreachable!
-      go (i + 1) s₂.mvarId s₂.fields[0]!.fvarId! (result.push (s₁.fields[0]!.fvarId!, s₁.mvarId))
-    else
-      return result.push (fvarId, mvarId)
-  go 0 mvarId fvarId #[]
-
-private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId)
-    (fvarId : FVarId) (termarg : TerminationArgument) : TermElabM MVarId := do
-  -- If `synthetic := false`, then this is user-provided, and should be interpreted
-  -- as left to right. Else it is provided by GuessLex, and may rename non-extra paramters as well.
-  -- (Not pretty, but it works for now)
-  let implicit_underscores :=
-    if element.synthetic then 0 else preDef.termination.extraParams - element.vars.size
-  let varNames ← lambdaTelescope preDef.value fun xs _ => do
-    let mut varNames ← xs.mapM fun x => x.fvarId!.getUserName
-    for h : i in [:element.vars.size] do
-      let varStx := element.vars[i]
-      if let `($ident:ident) := varStx then
-        let j := varNames.size - implicit_underscores - element.vars.size + i
-        varNames := varNames.set! j ident.getId
-    return varNames
-  let mut mvarId := mvarId
-  for localDecl in (← Term.getMVarDecl mvarId).lctx, varName in varNames[:prefixSize] do
-    unless localDecl.userName == varName do
-      mvarId ← mvarId.rename localDecl.fvarId varName
-  let numPackedArgs := varNames.size - prefixSize
-  let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) : TermElabM MVarId := do
-    trace[Elab.definition.wf] "i: {i}, varNames: {varNames}, goal: {mvarId}"
-    if i < numPackedArgs - 1 then
-      let #[s] ← mvarId.cases fvarId #[{ varNames := [varNames[prefixSize + i]!] }] | unreachable!
-      go (i+1) s.mvarId s.fields[1]!.fvarId!
-    else
-      mvarId.rename fvarId varNames.back
-  go 0 mvarId fvarId
-
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixArgs : Array Expr)
     (argsPacker : ArgsPacker) (argType : Expr) (termArgs : TerminationArguments)
     (k : Expr → TermElabM α) : TermElabM α := do
@@ -64,12 +26,15 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixAr
   withDeclName unaryPreDefName do
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
-    let (d, fMVarId) ← fMVarId.intro1
-    let packedF ← argsPacker.uncurry (termArgs.map (·.fn.beta prefixArgs))
-    fMVarId.assign packedF
+    let packedF ← argsPacker.uncurryND (termArgs.map (·.fn.beta prefixArgs))
+    unless (←isDefEq (mkMVar fMVarId) packedF) do
+      let msg := m!"invalid termination argument, expected{indentExpr (←inferType (mkMVar fMVarId))}\ngot{indentExpr (← inferType packedF)}"
+      throwError msg
+    -- fMVarId.assign packedF
     /-
     TODO: Type checking
 
+    let (d, fMVarId) ← fMVarId.intro1
     let subgoals ← unpackMutual preDefs fMVarId d
     for (d, mvarId) in subgoals, termarg in termargs, preDef in preDefs do
       let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d termarg

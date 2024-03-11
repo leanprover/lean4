@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Rename
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.TerminationArgument
 
 namespace Lean.Elab.WF
 open Meta
@@ -25,8 +25,7 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
   go 0 mvarId fvarId #[]
 
 private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId)
-    (fvarId : FVarId) (element : TerminationBy) : TermElabM MVarId := do
-  element.checkVars preDef.declName preDef.termination.extraParams
+    (fvarId : FVarId) (termarg : TerminationArgument) : TermElabM MVarId := do
   -- If `synthetic := false`, then this is user-provided, and should be interpreted
   -- as left to right. Else it is provided by GuessLex, and may rename non-extra paramters as well.
   -- (Not pretty, but it works for now)
@@ -55,7 +54,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
   go 0 mvarId fvarId
 
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat)
-    (argType : Expr) (wf : TerminationWF) (k : Expr → TermElabM α) : TermElabM α := do
+    (argType : Expr) (termargs : TerminationArguments) (k : Expr → TermElabM α) : TermElabM α := do
   let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
@@ -65,8 +64,8 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
     let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← fMVarId.intro1
     let subgoals ← unpackMutual preDefs fMVarId d
-    for (d, mvarId) in subgoals, element in wf, preDef in preDefs do
-      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
+    for (d, mvarId) in subgoals, termarg in termargs, preDef in preDefs do
+      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d termarg
       mvarId.withContext do
         let errorMsgHeader? := if preDefs.size > 1 then
           "The termination argument types differ for the different functions, or depend on the " ++

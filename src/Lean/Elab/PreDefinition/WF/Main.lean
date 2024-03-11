@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
@@ -93,13 +93,17 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
 
-  let wf ← do
+  let wf : TerminationArguments ← do
     let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
     if preDefsWith.isEmpty then
       -- No termination_by anywhere, so guess one
       guessLex preDefs unaryPreDef fixedPrefixSize
     else if preDefsWithout.isEmpty then
-      pure <| preDefsWith.map (·.termination.terminationBy?.get!)
+      preDefsWith.mapM fun predef => do
+        -- Clean up this part after #3621 is merged
+        let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
+        let hints := predef.termination
+        TerminationArgument.elab predef.type arity hints.extraParams hints.terminationBy?.get!
     else
       -- Some have, some do not, so report errors
       preDefsWithout.forM fun preDef => do

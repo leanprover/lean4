@@ -13,7 +13,7 @@ import Lean.Elab.Quotation
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
@@ -682,9 +682,9 @@ terminates. See the module doc string for a high-level overview.
 -/
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) :
-    MetaM TerminationWF := do
+    TermElabM TerminationArguments := do -- todo: revert to MetaM
   let extraParamss := preDefs.map (·.termination.extraParams)
-  let originalVarNamess ← preDefs.mapM originalVarNames
+  let originalVarNamess ← preDefs.mapM (originalVarNames ·)
   let varNamess ← originalVarNamess.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
   trace[Elab.definition.wf] "varNames is: {varNamess}"
@@ -698,7 +698,11 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF originalVarNamess varNamess #[solution]
+    let wf ← buildTermWF originalVarNamess varNamess #[solution]
+    return ← (Array.zip preDefs wf).mapM fun (predef, wf) => do
+      -- Clean up this part after #3621 is merged
+      let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
+      TerminationArgument.elab predef.type arity predef.termination.extraParams wf
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -717,7 +721,10 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
       if let some ref := preDef.termination.terminationBy?? then
         Tactic.TryThis.addSuggestion ref (← term.unexpand)
 
-    return wf
+    return ← (Array.zip preDefs wf).mapM fun (predef, wf) => do
+      -- Clean up this part after #3621 is merged
+      let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
+      TerminationArgument.elab predef.type arity predef.termination.extraParams wf
   | .none =>
     let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs
     Lean.throwError <| "Could not find a decreasing measure.\n" ++

@@ -749,7 +749,7 @@ def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Na
           mkAppM ``sizeOf #[xs[pickedArg]!]
         | .func funIdx' => pure <| mkNatLit <| if funIdx' == funIdx then 1 else 0
       let fn ← mkLambdaFVars xs (← mkProdElem args)
-      return { fn : TerminationArgument }
+      return { ref := .missing, fn : TerminationArgument }
 
 end GuessLex
 open GuessLex

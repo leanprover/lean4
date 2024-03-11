@@ -29,9 +29,10 @@ The `fn` has the same (value) arity as the recursive functions, and maps its arg
 (including fixed prefix, in unpacked form) to the termionation argument.
 -/
 structure TerminationArgument where
+  ref : Syntax
   -- arity : Nat
   fn : Expr
-
+deriving Inhabited
 
 /-- A complete set of `TerminationArgument`s, as applicable to a single clique.  -/
 abbrev TerminationArguments := Array TerminationArgument
@@ -69,7 +70,7 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         mkLambdaFVars (ys ++ xs ++ zs) body
   -- logInfo m!"elabTermValue: {r}"
   check r
-  pure { fn := r /- arity := arity - extraParams + hint.vars.size -/}
+  pure { ref := hint.ref, fn := r /- arity := arity - extraParams + hint.vars.size -/}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"

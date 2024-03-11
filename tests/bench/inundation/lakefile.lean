@@ -9,7 +9,7 @@ package inundation where
 @[default_target]
 lean_lib Inundation where
   srcDir := "test"
-  roots := #[test]
+  roots := #[.mkSimple test]
 
 script nop :=
   return 0

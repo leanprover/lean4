@@ -1,4 +1,4 @@
-{"title": "Try this: termination_by (sizeOf n, sizeOf m)",
+{"title": "Try this: termination_by (n, m)",
  "kind": "quickfix",
  "isPreferred": true,
  "edit":
@@ -7,6 +7,30 @@
     {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 5, "character": 0},
-       "end": {"line": 5, "character": 15}},
-      "newText": "termination_by (sizeOf n, sizeOf m)"}]}]}}
+      {"start": {"line": 4, "character": 0},
+       "end": {"line": 4, "character": 15}},
+      "newText": "termination_by (n, m)"}]}]}}
+{"title": "Try this: termination_by n",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 11, "character": 0},
+       "end": {"line": 11, "character": 15}},
+      "newText": "termination_by n"}]}]}}
+{"title": "Try this: termination_by x1 => x1",
+ "kind": "quickfix",
+ "isPreferred": true,
+ "edit":
+ {"documentChanges":
+  [{"textDocument":
+    {"version": 1, "uri": "file:///terminationBySuggestion.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 17, "character": 0},
+       "end": {"line": 17, "character": 15}},
+      "newText": "termination_by x1 => x1"}]}]}}

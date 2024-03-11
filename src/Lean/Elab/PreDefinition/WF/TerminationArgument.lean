@@ -25,11 +25,11 @@ open Lean Meta Elab Term
 /--
 Elaborated form for a `termination_by` clause.
 
-The `fn` maps a prefix of length `arity` of the recursive function's parameter to
-the termination argument.
+The `fn` has the same (value) arity as the recursive functions, and maps its arguments
+(including fixed prefix, in unpacked form) to the termionation argument.
 -/
 structure TerminationArgument where
-  arity : Nat
+  -- arity : Nat
   fn : Expr
 
 
@@ -62,11 +62,14 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         throwError "termination argument binds too many variables, function value takes only {extraParams} parameters"
   let r ← forallBoundedTelescope type (arity - extraParams) fun ys type' => do
     -- The fixed prefix is in scope
-    elabFunBinders hint.vars type' fun xs _ => do
-      mkForallFVars (ys ++ xs) (← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none)
+    elabFunBinders hint.vars (some type') fun xs type' => do
+      let type' := type'.get!
+      forallBoundedTelescope type' (extraParams - hint.vars.size) fun zs _ => do
+        let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
+        mkForallFVars (ys ++ xs ++ zs) body
   check r
   logInfo m!"elabTermValue: {r}"
-  pure { fn := r, arity := arity - extraParams + hint.vars.size}
+  pure { fn := r /- arity := arity - extraParams + hint.vars.size -/}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"

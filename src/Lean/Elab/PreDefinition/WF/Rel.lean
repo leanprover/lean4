@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Rename
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.TerminationArgument
+import Lean.Meta.ArgsPacker
 
 namespace Lean.Elab.WF
 open Meta
@@ -53,8 +54,9 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
       mvarId.rename fvarId varNames.back
   go 0 mvarId fvarId
 
-def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat)
-    (argType : Expr) (termargs : TerminationArguments) (k : Expr → TermElabM α) : TermElabM α := do
+def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixArgs : Array Expr)
+    (argsPacker : ArgsPacker) (argType : Expr) (termArgs : TerminationArguments)
+    (k : Expr → TermElabM α) : TermElabM α := do
   let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
@@ -63,6 +65,11 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← fMVarId.intro1
+    let packedF ← argsPacker.uncurry (termArgs.map (·.fn.beta prefixArgs))
+    fMVarId.assign packedF
+    /-
+    TODO: Type checking
+
     let subgoals ← unpackMutual preDefs fMVarId d
     for (d, mvarId) in subgoals, termarg in termargs, preDef in preDefs do
       let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d termarg
@@ -76,6 +83,7 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
         let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
             (errorMsgHeader? := errorMsgHeader?)
         mvarId.assign value
+    -/
     let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
     wfRelMVarId.assign wfRelVal
     k (← instantiateMVars (mkMVar mainMVarId))

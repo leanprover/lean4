@@ -204,7 +204,7 @@ def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) e
   -- termination_by sizeOf o
   decreasing_by simp_wf; simp [id] at *; omega
 end
-namespace MutualNotNat2
+end MutualNotNat2
 
 namespace MutualNotNat3
 -- A varant of the above, but where the type of the parameter refined to `Nat`.
@@ -227,4 +227,4 @@ def bar : OddNat3 → Nat
   -- termination_by x1 => sizeOf x1
   decreasing_by simp_wf; omega
 end
-namespace MutualNotNat3
+end MutualNotNat3

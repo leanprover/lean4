@@ -168,8 +168,8 @@ instance : Repr Nat where
   reprPrec n _ := Nat.repr n
 
 protected def Int.repr : Int → String
-    | ofNat m   => Nat.repr m
-    | negSucc m => "-" ++ Nat.repr (succ m)
+  | ofNat m   => Nat.repr m
+  | negSucc m => "-" ++ Nat.repr (succ m)
 
 instance : Repr Int where
   reprPrec i _ := i.repr

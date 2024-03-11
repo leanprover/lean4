@@ -52,8 +52,8 @@ set_option trace.Elab.definition.structural true in
 set_option trace.Meta.IndPredBelow.match true in
 set_option pp.explicit true in
 theorem Power2.mul' : Power2 n → Power2 m → Power2 (n*m)
- | h1, base => by simp_all
- | h1, ind h2 => mul_left_comm .. ▸ ind (mul' h1 h2)
+  | h1, base => by simp_all
+  | h1, ind h2 => mul_left_comm .. ▸ ind (mul' h1 h2)
 
 inductive tm : Type :=
   | C : Nat → tm

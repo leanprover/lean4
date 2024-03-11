@@ -87,6 +87,7 @@ static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__3;
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__8;
 static lean_object* l_Lean_PPContext_runCoreM___rarg___closed__6;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppConst___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
@@ -141,7 +142,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppModule(lean_object*, lean_object
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__15;
 lean_object* l_Lean_PrettyPrinter_parenthesizeCategory(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppConst___lambda__1___closed__1;
-lean_object* l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_786____lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_838____closed__5;
 static lean_object* l_Lean_PrettyPrinter_registerParserCompilers___closed__3;
@@ -1618,9 +1618,12 @@ return x_14;
 static lean_object* _init_l_Lean_PrettyPrinter_ppSignature___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature), 7, 0);
-return x_1;
+uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 1;
+x_2 = lean_box(x_1);
+x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature___boxed), 8, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppSignature(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

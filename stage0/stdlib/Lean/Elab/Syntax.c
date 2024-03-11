@@ -53,6 +53,7 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_toParserDescr_pro
 static lean_object* l_panic___at_Lean_Elab_Term_toParserDescr_processAlias___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_elabSyntax___spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_toParserDescr_processAlias(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Command_runLinters___spec__12(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Term_withNotFirst(lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__39;
 static lean_object* l_Lean_Elab_Term_toParserDescr_process___closed__6;
@@ -542,7 +543,6 @@ uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processSepBy1___lambda__1___closed__3;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__47;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_inferMacroRulesAltKind___spec__1___rarg(lean_object*);
-lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Command_runLinters___spec__13(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabSyntaxAbbrev_declRange___closed__7;
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Elab_Syntax_0__Lean_Elab_Term_mkParserSeq___spec__1___closed__20;
 static lean_object* l_Lean_Elab_Command_elabSyntax___lambda__4___closed__11;
@@ -15036,7 +15036,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
 x_6 = l_Lean_Elab_Command_elabSyntax___lambda__3___closed__1;
-x_7 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Command_runLinters___spec__13(x_6, x_3, x_4, x_5);
+x_7 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Command_runLinters___spec__12(x_6, x_3, x_4, x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 x_9 = lean_unbox(x_8);

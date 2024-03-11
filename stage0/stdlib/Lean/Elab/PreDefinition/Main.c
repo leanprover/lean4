@@ -240,7 +240,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf__
 lean_object* l_Lean_Meta_mapErrorImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_Main___hyg_1992____closed__11;
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__13(size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__15___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_addPreDefinitions___spec__8(lean_object*, lean_object*);
@@ -256,6 +255,7 @@ static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinit
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__15(lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_addPreDefinitions___spec__12(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__12(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Core_transform_visit___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_betaReduceLetRecApps___spec__4___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__26(lean_object*, size_t, size_t, lean_object*);
@@ -11485,7 +11485,7 @@ x_43 = lean_array_get_size(x_18);
 x_44 = lean_usize_of_nat(x_43);
 lean_dec(x_43);
 lean_inc(x_18);
-x_45 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__13(x_44, x_4, x_18);
+x_45 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__12(x_44, x_4, x_18);
 x_46 = lean_array_to_list(lean_box(0), x_45);
 x_47 = lean_box(0);
 x_48 = l_List_mapTR_loop___at_Lean_Meta_substCore___spec__6(x_46, x_47);

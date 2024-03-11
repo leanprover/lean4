@@ -10,6 +10,13 @@ import Init.Data.Nat.Basic
 
 namespace Nat
 
+/--
+Divisibility of natural numbers. `a ∣ b` (typed as `\|`) says that
+there is some `c` such that `b = a * c`.
+-/
+instance : Dvd Nat where
+  dvd a b := Exists (fun c => b = a * c)
+
 theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 

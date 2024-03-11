@@ -548,6 +548,7 @@ def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 def attributes       := leading_parser
   "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "] "
 
+end Term
 namespace Termination
 
 /-
@@ -574,7 +575,7 @@ the inferrred termination argument will be suggested.
 -/
 def terminationBy := leading_parser
   "termination_by " >>
-  optional (atomic (many (ppSpace >> binderIdent) >> " => ")) >>
+  optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
   termParser
 
 @[inherit_doc terminationBy]
@@ -597,6 +598,7 @@ def suffix := leading_parser
   optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
 
 end Termination
+namespace Term
 
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/

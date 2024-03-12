@@ -573,10 +573,12 @@ def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)
   unless type.isForall do
     throwError "uncurryParam: expected forall, got {type}"
   let packedMotiveType := type.bindingDomain!
+  unless packedMotiveType.isArrow do
+    throwError "uncurryParam: unexpected packed motive {packedMotiveType}"
   -- Bring unpacked motives (motive1 : a → b → Prop and motive2 : c → d → Prop) into scope
   withCurriedDecl argsPacker type.bindingName! packedMotiveType fun motives => do
     -- Combine them into a packed motive (motive : a ⊗' b ⊕' c ⊗' d → Prop), and use that
-    let motive ← argsPacker.uncurry motives
+    let motive ← argsPacker.uncurryND motives
     let type ← instantiateForall type #[motive]
     let value := mkApp value motive
     k motives value type

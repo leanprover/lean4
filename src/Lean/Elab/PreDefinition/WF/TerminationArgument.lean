@@ -10,7 +10,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.WF.TerminationHint
-import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.PrettyPrinter.Delaborator
 
 /-!
 This module contains the data type `TerminationArgument`, the elaborated form of a `TerminationBy`
@@ -79,15 +79,27 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
     | 1 => "one parameter"
     | n => m!"{n} parameters"
 
-open Parser.Termination in
-open Parser.Term in
+open PrettyPrinter Delaborator SubExpr Parser.Termination Parser.Term in
 def TerminationArgument.delab (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
   lambdaTelescope termArg.fn fun ys e => do
     let e ← mkLambdaFVars ys[termArg.arity - termArg.extraParams:] e -- undo overshooting by lambdaTelescope
-    let stx ← PrettyPrinter.delab e -- this is a bit of a hack: We delaborate and then translate the syntax
-    match stx with
-    | `(fun $vars:funBinder* => $body) =>
-      -- TODO: Take prefix
-      let vars := vars.map (fun s => TSyntax.mk s)
-      `(terminationBy|termination_by $vars* => $body)
-    | _ => `(terminationBy|termination_by $stx)
+    pure (← delabCore e (delab := go termArg.extraParams #[])).1
+  where
+    go : Nat → TSyntaxArray [`ident, `Lean.Parser.Term.hole] → DelabM (TSyntax ``terminationBy)
+    | 0, vars => do
+      -- drop trailing underscores
+      let mut vars := vars
+      while ! vars.isEmpty && vars.back.raw.isOfKind ``hole do vars := vars.pop
+      if vars.isEmpty then
+        `(terminationBy|termination_by $(← Delaborator.delab))
+      else
+        `(terminationBy|termination_by $vars* => $(← Delaborator.delab))
+    | i+1, vars => do
+      let e ← getExpr
+      unless e.isLambda do return ← go 0 vars -- should not happen
+
+      -- Delaborate unused parameters with `_`
+      if e.bindingBody!.hasLooseBVar 0 then
+        withBindingBodyUnusedName fun n => go i (vars.push ⟨n⟩)
+      else
+        descend e.bindingBody! 1 (go i (vars.push (← `(hole|_))))

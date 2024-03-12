@@ -134,6 +134,11 @@ def shadow2 (some_n : Nat) : Nat → Nat
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
+-- Tests that the inferred termination argument is shown without extra underscores
+def foo : Nat → Nat → Nat → Nat
+  | _, 0, acc => acc
+  | k, n+1, acc => foo (k+1) n (acc + k)
+decreasing_by decreasing_tactic
 
 -- The following test whether `sizeOf` is properly printed, and possibly qualified
 -- For this we need a type that needs an explicit “sizeOf”.

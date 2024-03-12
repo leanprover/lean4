@@ -23,7 +23,7 @@ a mutual clique, they must be the same for all functions.
 This ensures the preconditions for `ArgsPacker.uncurryND`.
 -/
 def checkCodomains (names : Array Name) (prefixArgs : Array Expr) (arities : Array Nat)
-    (termArgs : TerminationArguments) : TermElabM Unit := do
+    (termArgs : TerminationArguments) : TermElabM Expr := do
   let mut codomains := #[]
   for name in names, arity in arities, termArg in termArgs do
     let type ← inferType (termArg.fn.beta prefixArgs)
@@ -44,44 +44,23 @@ def checkCodomains (names : Array Name) (prefixArgs : Array Expr) (arities : Arr
         m!"{indentExpr codomain0}\n" ++
         m!"while the termination argument of {names[i]!} has type{indentExpr codomains[i]}\n" ++
         "Try using `sizeOf` explicitly"
+  return codomain0
 
+/--
+If the `termArgs` map the packed argument `argType` to `β`, then this function passes to the
+continuation a value of type `WellFoundedRelation argType` that is derived from the instance
+for `WellFoundedRelation β` using `invImage`.
+-/
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixArgs : Array Expr)
     (argsPacker : ArgsPacker) (argType : Expr) (termArgs : TerminationArguments)
-    (k : Expr → TermElabM α) : TermElabM α := do
+    (k : Expr → TermElabM α) : TermElabM α := withDeclName unaryPreDefName do
   let α := argType
   let u ← getLevel α
-  let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
-  trace[Elab.definition.wf] "elabWFRel start: {(← mkFreshTypeMVar).mvarId!}"
-  withDeclName unaryPreDefName do
-    let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
-    let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
-    checkCodomains (preDefs.map (·.declName)) prefixArgs argsPacker.arities termArgs
-    let termArgs := termArgs.map (·.fn.beta prefixArgs)
-    let packedF ← argsPacker.uncurryND termArgs
-    unless (←isDefEq (mkMVar fMVarId) packedF) do
-      let msg := m!"invalid termination argument, expected{indentExpr (←inferType (mkMVar fMVarId))}\ngot{indentExpr (← inferType packedF)}"
-      throwError msg
-    -- fMVarId.assign packedF
-    /-
-    TODO: Type checking
-
-    let (d, fMVarId) ← fMVarId.intro1
-    let subgoals ← unpackMutual preDefs fMVarId d
-    for (d, mvarId) in subgoals, termarg in termargs, preDef in preDefs do
-      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d termarg
-      mvarId.withContext do
-        let errorMsgHeader? := if preDefs.size > 1 then
-          "The termination argument types differ for the different functions, or depend on the " ++
-          "function's varying parameters. Try using `sizeOf` explicitly:\nThe termination argument"
-        else
-          "The termination argument depends on the function's varying parameters. Try using " ++
-          "`sizeOf` explicitly:\nThe termination argument"
-        let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
-            (errorMsgHeader? := errorMsgHeader?)
-        mvarId.assign value
-    -/
-    let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
-    wfRelMVarId.assign wfRelVal
-    k (← instantiateMVars (mkMVar mainMVarId))
+  let β ← checkCodomains (preDefs.map (·.declName)) prefixArgs argsPacker.arities termArgs
+  let v ← getLevel β
+  let packedF ← argsPacker.uncurryND (termArgs.map (·.fn.beta prefixArgs))
+  let inst ← synthInstance (.app (.const ``WellFoundedRelation [v]) β)
+  let rel ← instantiateMVars (mkApp4 (.const ``invImage [u,v]) α β packedF inst)
+  k rel
 
 end Lean.Elab.WF

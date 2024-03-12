@@ -93,6 +93,11 @@ fact.def :
 ```
 
 * The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
+  for the `induction` and `cases` tactics, respectively (this splits the `@[eliminator]` attribute into two).
+  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
+  rather than `Nat.zero` and `Nat.succ n`.
+  Added option `tactic.customEliminators` to control whether to use custom eliminators.
 
 v4.7.0
 ---------

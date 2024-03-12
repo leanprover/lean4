@@ -98,6 +98,8 @@ fact.def :
   Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
   rather than `Nat.zero` and `Nat.succ n`.
   Added option `tactic.customEliminators` to control whether to use custom eliminators.
+  [#3629](https://github.com/leanprover/lean4/pull/3629) and
+  [#3655](https://github.com/leanprover/lean4/pull/3655).
 
 v4.7.0
 ---------

@@ -565,61 +565,6 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     return .none
 
 /--
-Create Tuple syntax (`()` if the array is empty, and just the value if its a singleton)
--/
-def mkTupleSyntax : Array Term → MetaM Term
-  | #[]  => `(())
-  | #[e] => return e
-  | es   => `(($(es[0]!), $(es[1:]),*))
-
-/--
-Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
-combination of these measures. The parameters are
-
-* `originalVarNamess`: For each function in the clique, the original parameter names, _including_
-  the fixed prefix.  Used to determine if we need to fully qualify `sizeOf`.
-* `varNamess`: For each function in the clique, the parameter names to be used in the
-  termination relation. Excludes the fixed prefix. Includes names like `x1` for unnamed parameters.
-* `measures`: The measures to be used.
--/
-def buildTermWF (originalVarNamess : Array (Array Name)) (varNamess : Array (Array Name))
-  (needsNoSizeOf : Array (Array Nat)) (measures : Array MutualMeasure) : MetaM TerminationWF := do
-  varNamess.mapIdxM fun funIdx varNames => do
-    let idents := varNames.map mkIdent
-    let measureStxs ← measures.mapM fun
-      | .args varIdxs => do
-          let varIdx := varIdxs[funIdx]!
-          let v := idents[varIdx]!
-          if needsNoSizeOf[funIdx]!.contains varIdx then
-            `($v)
-          else
-            -- Print `sizeOf` as such, unless it is shadowed.
-            -- Shadowing by a `def` in the current namespace is handled by `unresolveNameGlobal`.
-            -- But it could also be shadowed by an earlier parameter (including the fixed prefix),
-            -- so look for unqualified (single tick) occurrences in `originalVarNames`
-            let sizeOfIdent :=
-              if originalVarNamess[funIdx]!.any (· = `sizeOf) then
-                mkIdent ``sizeOf -- fully qualified
-              else
-                mkIdent (← unresolveNameGlobal ``sizeOf)
-            `($sizeOfIdent $v)
-      | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
-    let body ← mkTupleSyntax measureStxs
-    return { ref := .missing, vars := idents, body, synthetic := true }
-
-/--
-The TerminationWF produced by GuessLex may mention more variables than allowed in the surface
-syntax (in case of unnamed or shadowed parameters). So how to print this to the user? Invalid
-syntax with more information, or valid syntax with (possibly) unresolved variable names?
-The latter works fine in many cases, and is still useful to the user in the tricky corner cases, so
-we do that.
--/
-def trimTermWF (extraParams : Array Nat) (elems : TerminationWF) : TerminationWF :=
-  elems.mapIdx fun funIdx elem => { elem with
-    vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size]
-    synthetic := false }
-
-/--
 Given a matrix (row-major) of strings, arranges them in tabular form.
 First column is left-aligned, others right-aligned.
 Single space as column separator.
@@ -716,26 +661,6 @@ def explainFailure (declNames : Array Name) (varNamess : Array (Array Name))
   return r
 
 /--
-Shows the termination measure used to the user, and implements `termination_by?`
--/
-def reportWF (preDefs : Array PreDefinition) (wf : TerminationWF) : MetaM Unit := do
-  let extraParamss := preDefs.map (·.termination.extraParams)
-  let wf' := trimTermWF extraParamss wf
-  for preDef in preDefs, term in wf' do
-    if showInferredTerminationBy.get (← getOptions) then
-      logInfoAt preDef.ref m!"Inferred termination argument:\n{← term.unexpand}"
-    if let some ref := preDef.termination.terminationBy?? then
-      Tactic.TryThis.addSuggestion ref (← term.unexpand)
-
-def reportTermArgs (preDefs : Array PreDefinition) (termArgs : TerminationArguments) : MetaM Unit := do
-  for preDef in preDefs, termArg in termArgs do
-    if showInferredTerminationBy.get (← getOptions) then
-      logInfoAt preDef.ref m!"Inferred termination argument:\n{← termArg.delab}"
-    if let some ref := preDef.termination.terminationBy?? then
-      Tactic.TryThis.addSuggestion ref (← termArg.delab)
-
-
-/--
 For `#[x₁, .., xₙ]` create `(x₁, .., xₙ)`.
 -/
 def mkProdElem (xs : Array Expr) : MetaM Expr := do
@@ -768,6 +693,16 @@ def toTerminationArguments (preDefs : Array PreDefinition) (fixedPrefixSize : Na
         let fn ← mkLambdaFVars xs (← mkProdElem args)
         let extraParams := preDef.termination.extraParams
         return { ref := .missing, arity := xs.size, extraParams, fn}
+
+/--
+Shows the inferred termination argument to the user, and implements `termination_by?`
+-/
+def reportTermArgs (preDefs : Array PreDefinition) (termArgs : TerminationArguments) : MetaM Unit := do
+  for preDef in preDefs, termArg in termArgs do
+    if showInferredTerminationBy.get (← getOptions) then
+      logInfoAt preDef.ref m!"Inferred termination argument:\n{← termArg.delab}"
+    if let some ref := preDef.termination.terminationBy?? then
+      Tactic.TryThis.addSuggestion ref (← termArg.delab)
 
 end GuessLex
 open GuessLex

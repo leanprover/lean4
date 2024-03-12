@@ -275,17 +275,11 @@ def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
 /--
 Given unary types `(x : Aᵢ) → Rᵢ[x]`, and `(x : A₁ ⊕ A₂ …)`, calculate the packed codomain
 ```
-(match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
+match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
 ```
 This function assumes (and does not check) that `Rᵢ` all have the same level.
-
-If all codomains are equal and non-dependent, just returns that.
 -/
 def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
-  let types ← types.mapM whnfForall
-  if allEqual (types.map (·.bindingBody!)) then
-    return types[0]!.bindingBody!
-
   let u ← forallBoundedTelescope types[0]! (some 1) fun _ body => getLevel body
   let rec go (x : Expr) (i : Nat) : MetaM Expr := do
     if i < types.size - 1 then
@@ -305,9 +299,6 @@ def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
       return types[i]!.bindingBody!.instantiate1 x
     termination_by types.size - 1 - i
   go x 0
-  where
-    allEqual (codomains : Array Expr) : Bool :=
-      codomains.all (! ·.hasLooseBVars) && codomains.pop.all (· == codomains.back)
 
 /-
 Given types `(x : A) → R₁[x]` and `(z : B) → R₂[z]`, returns the type
@@ -322,16 +313,14 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
-  let ds ← types.mapM fun type => do
-    let type ← whnfForall type
+  let types ← types.mapM whnfForall
+  types.forM fun type => do
     unless type.isForall do
       throwError "Mutual.uncurryType: Expected forall type, got {type}"
-    pure type.bindingDomain!
-  let d ← packType ds
-  withLocalDeclD `x d fun x => do
+  let domain ← packType (types.map (·.bindingDomain!))
+  withLocalDeclD `x domain fun x => do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
-
 
 /-
 Given types `(x : A) → R` and `(z : B) → R`, returns the type
@@ -341,21 +330,16 @@ Given types `(x : A) → R` and `(z : B) → R`, returns the type
 -/
 def uncurryTypeND (types : Array Expr) : MetaM Expr := do
   let types ← types.mapM whnfForall
+  types.forM fun type =>
+    unless type.isArrow do
+      throwError "Mutual.uncurryTypeND: Expected non-dependent types, got {type}"
   let codomains := types.map (·.bindingBody!)
-  unless codomains.all (! ·.hasLooseBVars) do
-    throwError "Mutual.uncurryTypeND: Expected equal non-dependent codomains, got {codomains}"
   let t' := codomains.back
   codomains.pop.forM fun t =>
     unless ← isDefEq t t' do
-      throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {codomains} and {t'}"
+      throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {t} and {t'}"
   let codomain := codomains[0]!
-
-  let ds ← types.mapM fun type => do
-    let type ← whnfForall type
-    unless type.isForall do
-      throwError "Mutual.uncurryType: Expected forall type, got {type}"
-    pure type.bindingDomain!
-  let domain ← packType ds
+  let domain ← packType (types.map (·.bindingDomain!))
   mkArrow domain codomain
 
 /-

@@ -389,7 +389,7 @@ private def casesOn (x : Expr) (codomain : Expr) (alts : List Expr) : MetaM Expr
 Given unary expressions `e₁`, `e₂` with types `(x : A) → R₁[x]`
 and `(z : C) → R₂[z]`, returns an expression of type
 ```
-(x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z]
+(x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z])
 ```
 -/
 def uncurry (es : Array Expr) : MetaM Expr := do
@@ -416,7 +416,7 @@ def uncurryND (es : Array Expr) : MetaM Expr := do
     mkLambdaFVars #[x] value
 
 /-
-Given type `((A ⊕' C) → R)` (non-depenent), return types
+Given type `(A ⊕' C) → R` (non-depenent), return types
 ```
 #[A → R, B → R]
 ```

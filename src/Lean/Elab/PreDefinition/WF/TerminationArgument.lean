@@ -10,6 +10,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.PrettyPrinter.Delaborator.Basic
 
 /-!
 This module contains the data type `TerminationArgument`, the elaborated form of a `TerminationBy`
@@ -25,12 +26,14 @@ open Lean Meta Elab Term
 /--
 Elaborated form for a `termination_by` clause.
 
-The `fn` has the same (value) arity as the recursive functions, and maps its arguments
-(including fixed prefix, in unpacked form) to the termionation argument.
+The `fn` has the same (value) arity as the recursive functions (stored in
+`arity`), and maps its arguments (including fixed prefix, in unpacked form) to
+the termination argument.
 -/
 structure TerminationArgument where
   ref : Syntax
-  -- arity : Nat
+  arity : Nat
+  extraParams : Nat
   fn : Expr
 deriving Inhabited
 
@@ -70,8 +73,21 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         mkLambdaFVars (ys ++ xs ++ zs) body
   -- logInfo m!"elabTermValue: {r}"
   check r
-  pure { ref := hint.ref, fn := r /- arity := arity - extraParams + hint.vars.size -/}
+  pure { ref := hint.ref, arity, extraParams, fn := r}
   where
     parameters : Nat → MessageData
     | 1 => "one parameter"
     | n => m!"{n} parameters"
+
+open Parser.Termination in
+open Parser.Term in
+def TerminationArgument.delab (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
+  lambdaTelescope termArg.fn fun ys e => do
+    let e ← mkLambdaFVars ys[termArg.arity - termArg.extraParams:] e -- undo overshooting by lambdaTelescope
+    let stx ← PrettyPrinter.delab e -- this is a bit of a hack: We delaborate and then translate the syntax
+    match stx with
+    | `(fun $vars:funBinder* => $body) =>
+      -- TODO: Take prefix
+      let vars := vars.map (fun s => TSyntax.mk s)
+      `(terminationBy|termination_by $vars* => $body)
+    | _ => `(terminationBy|termination_by $stx)

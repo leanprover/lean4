@@ -55,10 +55,10 @@ termination_by sizeOf o
 guessLex.lean:217:0-229:3: error: Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from MutualNotNat2.MutualNotNat2.MutualNotNat3.foo to MutualNotNat2.MutualNotNat2.MutualNotNat3.bar at 221:23-35:
+Call from MutualNotNat3.foo to MutualNotNat3.bar at 221:23-35:
    x1
 x1  <
-Call from MutualNotNat2.MutualNotNat2.MutualNotNat3.bar to MutualNotNat2.MutualNotNat2.MutualNotNat3.foo at 226:30-42:
+Call from MutualNotNat3.bar to MutualNotNat3.foo at 226:30-42:
    x1
 x1  ?
 

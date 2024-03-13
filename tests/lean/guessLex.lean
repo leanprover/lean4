@@ -213,9 +213,9 @@ end MutualNotNat2
 
 namespace MutualNotNat3
 -- A varant of the above, but where the type of the parameter refined to `Nat`.
--- This tests if `GuessLex` is inferring the `SizeOf` instance based on the type of the
--- concrete parameter/argument (wrong, but status quo), or based on the types in the function
--- signature (correct, todo)
+-- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
+-- *concrete* parameter or argument, which was wrong.
+-- The inference needs to be based on the parameter type in the function's signature.
 def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl

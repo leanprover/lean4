@@ -173,6 +173,17 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
   loop (a.toBinaryHeap gt) #[]
 
 attribute [simp] Array.heapSort.loop
-#check Array.heapSort.loop._eq_1
+
+/--
+info: Array.heapSort.loop.eq_1.{u_1} {α : Type u_1} (lt : α → α → Bool) (a : BinaryHeap α fun y x => lt x y) (out : Array α) :
+  Array.heapSort.loop lt a out =
+    match e : BinaryHeap.max a with
+    | none => out
+    | some x =>
+      let_fun this := ⋯;
+      Array.heapSort.loop lt (BinaryHeap.popMax a) (Array.push out x)
+-/
+#guard_msgs in
+#check Array.heapSort.loop.eq_1
 
 attribute [simp] BinaryHeap.heapifyDown

@@ -31,6 +31,33 @@ v4.8.0 (development in progress)
     (x x : Nat) : motive x x
   ```
 
+Breaking changes:
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+```
+def fact : Nat → Nat
+  | 0 => 1
+  | n+1 => (n+1) * fact n
+
+theorem ex : fact 0 = 1 := by unfold fact; decide
+
+#check fact.eq_1
+-- fact.eq_1 : fact 0 = 1
+
+#check fact.eq_2
+-- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
+
+#check fact.def
+/-
+fact.def :
+  ∀ (x : Nat),
+    fact x =
+      match x with
+      | 0 => 1
+      | Nat.succ n => (n + 1) * fact n
+-/
+```
+
 v4.7.0
 ---------
 

@@ -230,6 +230,7 @@ inductive KernelException where
   | exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
   | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
   | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
+  | thmTypeIsNotProp (env : Environment) (name : Name) (type : Expr)
   | other            (msg : String)
   | deterministicTimeout
   | excessiveMemory

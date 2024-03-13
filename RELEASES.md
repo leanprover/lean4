@@ -11,6 +11,8 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
+* Lean now generates an error if the type of a theorem is **not** a proposition.
+
 * New command `derive_functinal_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function

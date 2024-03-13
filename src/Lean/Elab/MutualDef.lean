@@ -644,6 +644,9 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
+    if header.kind.isTheorem then
+      unless (← isProp type) do
+        throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
     return preDefs.push {
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind

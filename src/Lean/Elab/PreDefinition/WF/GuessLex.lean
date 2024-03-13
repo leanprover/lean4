@@ -353,6 +353,45 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
       let (callee, args) ← argsPacker.unpack arg
       RecCallWithContext.create (← getRef) caller (ys ++ params) callee (ys ++ args)
 
+/-- Is the expression a `<`-like comparison of `Nat` expressions -/
+def isNatCmp (e : Expr) : Option (Expr × Expr) :=
+  match_expr e with
+  | LT.lt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
+  | LE.le α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
+  | GT.gt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
+  | GE.ge α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
+  | _ => none
+
+def complexTerminationArgs (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
+    (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
+    MetaM (Array (Array TA)) := do
+  preDefs.mapIdxM fun funIdx preDef => do
+    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+    let mut tas := #[]
+    for rc in recCalls do
+      -- Only look at calls from the current function
+      unless rc.caller = funIdx do continue
+      -- Only look at calls where the parameters have not been refined
+      unless rc.params.all (·.isFVar) do continue
+      let xs := rc.params.map (·.fvarId!)
+      tas ← rc.ctxt.run do
+        withUserNames rc.params[fixedPrefixSize:] userVarNamess[funIdx]! do
+        trace[Elab.definition.wf] "rc: {rc.caller} ({rc.params}) → {rc.callee} ({rc.args})"
+        let mut tas := tas
+        for ldecl in ← getLCtx do
+          if let some (e₁, e₂) := isNatCmp ldecl.type then
+            -- We only want to consider these expressions if they depend only on the function's
+            -- immediate arguments, so check that
+            if e₁.hasAnyFVar (! xs.contains ·) then continue
+            if e₂.hasAnyFVar (! xs.contains ·) then continue
+            let fn ← mkLambdaFVars rc.params (mkNatSub e₂ e₁)
+            -- Avoid duplicates
+            unless ← tas.anyM (isDefEq ·.fn fn) do
+              let extraParams := preDef.termination.extraParams
+              tas := tas.push { ref := .missing, fn, natFn := fn, arity, extraParams }
+        return tas
+    return tas
+
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
 decreases strictly, non-strictly, is equal, or else.  -/
 inductive GuessLexRel | lt | eq | le | no_idea
@@ -603,21 +642,42 @@ def RecCallWithContext.posString (rcc : RecCallWithContext) : MetaM String := do
   return s!"{position.line}:{position.column}{endPosStr}"
 
 
+def headerOfTA (ta : TA) : StateT (Nat × String) MetaM String := do
+  let s ← ta.toString
+  if s.length > 5 then
+    let (i, footer) ← get
+    let i := i + 1
+    let footer := footer ++ s!"#{i}: {s}\n"
+    set (i, footer)
+    pure s!"#{i}"
+  else
+    pure s
+
+def collectHeaders {α} (a : StateT (Nat × String) MetaM α) : MetaM (α × String) := do
+  let (x, (_, footer)) ← a.run (0, "")
+  pure (x,footer)
+
+
 /-- Explain what we found out about the recursive calls (non-mutual case) -/
 def explainNonMutualFailure (tas : Array TA) (rcs : Array RecCallCache) : MetaM Format := do
-  let header ← tas.mapM TA.toString
+  let (header, footer) ← collectHeaders (tas.mapM headerOfTA)
   let mut table : Array (Array String) := #[#[""] ++ header]
   for i in [:rcs.size], rc in rcs do
     let mut row := #[s!"{i+1}) {← rc.rcc.posString}"]
     for argIdx in [:tas.size] do
       row := row.push (← rc.prettyEntry argIdx argIdx)
     table := table.push row
-
-  return formatTable table
+  let out := formatTable table
+  if footer.isEmpty then
+    return out
+  else
+    return out ++ "\n\n" ++ footer
 
 /-- Explain what we found out about the recursive calls (mutual case) -/
 def explainMutualFailure (declNames : Array Name) (tass : Array (Array TA))
     (rcs : Array RecCallCache) : MetaM Format := do
+  let (taHeaderss, footer) ← collectHeaders (tass.mapM (fun tas => tas.mapM headerOfTA))
+
   let mut r := Format.nil
 
   for rc in rcs do
@@ -626,8 +686,7 @@ def explainMutualFailure (declNames : Array Name) (tass : Array (Array TA))
     r := r ++ f!"Call from {declNames[caller]!} to {declNames[callee]!} " ++
       f!"at {← rc.rcc.posString}:\n"
 
-    let header ← tass[caller]!.mapM TA.toString
-    let mut table : Array (Array String) := #[#[""] ++ header]
+    let mut table : Array (Array String) := #[#[""] ++ taHeaderss[caller]!]
     if caller = callee then
       -- For self-calls, only the diagonal is interesting, so put it into one row
       let mut row := #[""]
@@ -637,11 +696,14 @@ def explainMutualFailure (declNames : Array Name) (tass : Array (Array TA))
     else
       for argIdx in [:tass[callee]!.size] do
         let mut row := #[]
-        row := row.push (← tass[callee]![argIdx]!.toString)
+        row := row.push taHeaderss[callee]![argIdx]!
         for paramIdx in [:tass[caller]!.size] do
           row := row.push (← rc.prettyEntry paramIdx argIdx)
         table := table.push row
     r := r ++ formatTable table ++ "\n"
+
+  unless footer.isEmpty do
+    r := r ++ "\n\n" ++ footer
 
   return r
 
@@ -705,9 +767,16 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let userVarNamess ← argsPacker.varNamess.mapM (naryVarNames ·)
   trace[Elab.definition.wf] "varNames is: {userVarNamess}"
 
+  -- Collect all recursive calls and extract their context
+  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
+  let recCalls := filterSubsumed recCalls
+
   -- For every function, the termination arguments we want to use
   -- (One for each non-forbiddend arg)
-  let tass ← simpleTerminationArgs preDefs fixedPrefixSize userVarNamess
+  let tass₁ ← simpleTerminationArgs preDefs fixedPrefixSize userVarNamess
+  let tass₂ ← complexTerminationArgs preDefs fixedPrefixSize userVarNamess recCalls
+  let tass := Array.zipWith tass₁ tass₂ (· ++ ·)
+
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last
@@ -719,9 +788,6 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     reportTermArgs preDefs termArgs
     return termArgs
 
-  -- Collect all recursive calls and extract their context
-  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
-  let recCalls := filterSubsumed recCalls
   let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) tass ·)
   let callMatrix := rcs.map (inspectCall ·)
 

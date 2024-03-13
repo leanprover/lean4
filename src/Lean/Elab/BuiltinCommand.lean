@@ -760,7 +760,7 @@ def elabRunMeta : CommandElab := fun stx =>
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
-    let declName ← resolveGlobalConstNoOverloadWithInfo id
+    let declName ← liftCoreM <| resolveGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
       throwError "invalid 'add_decl_doc', declaration is in an imported module"
     if let .none ← findDeclarationRangesCore? declName then

@@ -148,7 +148,8 @@ This syntax is used to construct named metavariables. -/
   "?" >> (ident <|> hole)
 /--
 Denotes a term that was omitted by the pretty printer.
-The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
+and these options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.
 
 The `⋯` term is only meant to be used for pretty printing.
 However, in case it is copied and pasted from the Infoview, `⋯` logs a warning and elaborates like `_`.

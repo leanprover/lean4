@@ -18,11 +18,20 @@ LEAN_EXPORT lean_object* l_Nat_modCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instModNat;
 LEAN_EXPORT lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instDvdNat;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l_Nat_instModNat___closed__1;
 static lean_object* l_Nat_instDivNat___closed__1;
 LEAN_EXPORT lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
+static lean_object* _init_l_Nat_instDvdNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_div___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -102,6 +111,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l_Nat_instDvdNat = _init_l_Nat_instDvdNat();
+lean_mark_persistent(l_Nat_instDvdNat);
 l_Nat_instDivNat___closed__1 = _init_l_Nat_instDivNat___closed__1();
 lean_mark_persistent(l_Nat_instDivNat___closed__1);
 l_Nat_instDivNat = _init_l_Nat_instDivNat();

@@ -565,6 +565,7 @@ static lean_object* l_Lean_Parser_Command_declModifiers_formatter___closed__10;
 static lean_object* l_Lean_Parser_Command_noncomputableSection_formatter___closed__7;
 static lean_object* l_Lean_Parser_Command_open___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_Command_noncomputableSection_formatter___closed__1;
+lean_object* l_instDecidableEqChar___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Command_structInstBinder_formatter___closed__1;
 static lean_object* l_Lean_Parser_Command_quot_parenthesizer___closed__6;
 static lean_object* l_Lean_Parser_Command_abbrev_formatter___closed__5;
@@ -2747,7 +2748,6 @@ static lean_object* l_Lean_Parser_Command_declId_formatter___closed__8;
 lean_object* l_Lean_Parser_Term_leftArrow_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_structExplicitBinder___closed__12;
 static lean_object* l_Lean_Parser_Command_inductive_parenthesizer___closed__1;
-lean_object* l_UInt32_decEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_optDeclSig_parenthesizer___closed__10;
 static lean_object* l___regBuiltin_Lean_Parser_Term_open_declRange___closed__7;
 static lean_object* l_Lean_Parser_Command_partial_parenthesizer___closed__1;
@@ -6903,7 +6903,7 @@ static lean_object* _init_l_Lean_Parser_Command_declId___lambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_UInt32_decEq___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqChar___boxed), 2, 0);
 return x_1;
 }
 }

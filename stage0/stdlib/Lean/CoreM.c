@@ -13880,7 +13880,7 @@ lean_object* x_12;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec(x_11);
-if (lean_obj_tag(x_12) == 11)
+if (lean_obj_tag(x_12) == 12)
 {
 lean_object* x_13; lean_object* x_14; 
 x_13 = lean_ctor_get(x_12, 0);
@@ -14097,7 +14097,7 @@ lean_object* x_12;
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec(x_11);
-if (lean_obj_tag(x_12) == 11)
+if (lean_obj_tag(x_12) == 12)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_12, 0);

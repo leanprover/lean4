@@ -148,8 +148,10 @@ This syntax is used to construct named metavariables. -/
   "?" >> (ident <|> hole)
 /--
 Denotes a term that was omitted by the pretty printer.
-This is only meant to be used for pretty printing, however for copy/paste friendliness it elaborates like `_` while logging a warning.
 The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+
+The `⋯` term is only meant to be used for pretty printing.
+However, in case it is copied and pasted from the Infoview, `⋯` logs a warning and elaborates like `_`.
 -/
 @[builtin_term_parser] def omission := leading_parser
   "⋯"

@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Meta.PPGoal
+import Lean.ReservedNameAction
 
 namespace Lean.Elab.CommandContextInfo
 
@@ -283,27 +284,24 @@ def addConstInfo [MonadEnv m] [MonadError m]
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
 over a name in the sourcefile you will see the fully resolved name in the hover info.-/
-def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m]
-    (id : Syntax) (expectedType? : Option Expr := none) : m Name := do
-  let n ← resolveGlobalConstNoOverload id
+def resolveGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
+  let n ← resolveGlobalConstNoOverload' id
   if (← getInfoState).enabled then
     -- we do not store a specific elaborator since identifiers are special-cased by the server anyway
     addConstInfo id n expectedType?
   return n
 
 /-- Similar to `resolveGlobalConstNoOverloadWithInfo`, except if there are multiple name resolutions then it returns them as a list. -/
-def resolveGlobalConstWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
-    (id : Syntax) (expectedType? : Option Expr := none) : m (List Name) := do
-  let ns ← resolveGlobalConst id
+def resolveGlobalConstWithInfos (id : Syntax) (expectedType? : Option Expr := none) : CoreM (List Name) := do
+  let ns ← resolveGlobalConst' id
   if (← getInfoState).enabled then
     for n in ns do
       addConstInfo id n expectedType?
   return ns
 
 /-- Similar to `resolveGlobalName`, but it also adds the resolved name to the info tree. -/
-def resolveGlobalNameWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
-    (ref : Syntax) (id : Name) : m (List (Name × List String)) := do
-  let ns ← resolveGlobalName id
+def resolveGlobalNameWithInfos (ref : Syntax) (id : Name) : CoreM (List (Name × List String)) := do
+  let ns ← resolveGlobalName' id
   if (← getInfoState).enabled then
     for (n, _) in ns do
       addConstInfo ref n

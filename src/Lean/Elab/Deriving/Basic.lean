@@ -100,10 +100,10 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
   | `(deriving instance $[$classes $[with $argss?]?],* for $[$declNames],*) => do
-     let declNames ← declNames.mapM resolveGlobalConstNoOverloadWithInfo
+     let declNames ← liftCoreM <| declNames.mapM resolveGlobalConstNoOverloadWithInfo
      for cls in classes, args? in argss? do
        try
-         let className ← resolveGlobalConstNoOverloadWithInfo cls
+         let className ← liftCoreM <| resolveGlobalConstNoOverloadWithInfo cls
          withRef cls do
            if declNames.size == 1 && args?.isNone then
              if (← tryApplyDefHandler className declNames[0]!) then
@@ -118,7 +118,7 @@ structure DerivingClassView where
   className : Name
   args? : Option (TSyntax ``Parser.Term.structInst)
 
-def getOptDerivingClasses [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadInfoTree m] (optDeriving : Syntax) : m (Array DerivingClassView) := do
+def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
   match optDeriving with
   | `(Parser.Command.optDeriving| deriving $[$classes $[with $argss?]?],*) =>
     let mut ret := #[]

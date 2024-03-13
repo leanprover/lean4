@@ -760,7 +760,7 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
 
 @[simp] protected theorem div_one : ∀ a : Int, a.div 1 = a
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
-  | -[n+1] => by simp [Int.div, neg_ofNat_succ]
+  | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl

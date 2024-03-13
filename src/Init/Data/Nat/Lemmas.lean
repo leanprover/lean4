@@ -19,7 +19,6 @@ and later these lemmas should be organised into other files more systematically.
 -/
 
 namespace Nat
-
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -781,7 +780,7 @@ theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 
 theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
   | 0 => rfl
-  | k + 1 => by simp [add_succ, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
+  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
 
 theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x + y / m := by
   match x with

@@ -142,6 +142,12 @@ def setInherited : PackageEntry → PackageEntry
 @[inline] protected def manifestFile? : PackageEntry →  Option FilePath
 | .path (manifestFile? := manifestFile?) .. | .git (manifestFile? := manifestFile?) .. => manifestFile?
 
+def setConfigFile (path : FilePath) : PackageEntry → PackageEntry
+| .path name inherited _ manifestFile? dir =>
+  .path name inherited path manifestFile? dir
+| .git name inherited _ manifestFile? url rev inputRev? subDir? =>
+  .git name inherited path manifestFile? url rev inputRev? subDir?
+
 def setManifestFile (path? : Option FilePath) : PackageEntry → PackageEntry
 | .path name inherited configFile _ dir =>
   .path name inherited configFile path? dir

@@ -159,7 +159,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
       pure (root, rootFile, ← rootFile.pathExists)
 
   -- write default configuration file
-  let configFile := dir / defaultConfigFile
+  let configFile := dir / defaultLeanConfigFile
   if (← configFile.pathExists) then
     error  "package already initialized"
   let rootNameStr := escapeName! root

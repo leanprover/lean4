@@ -16,8 +16,14 @@ def defaultLakeDir : FilePath := ".lake"
 /-- The default setting for a `WorkspaceConfig`'s `packagesDir` option. -/
 def defaultPackagesDir : FilePath := "packages"
 
-/-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
-def defaultConfigFile : FilePath := "lakefile.lean"
+/-- The default name of the Lake configuration file (i.e., `lakefile`). -/
+def defaultConfigFile : FilePath := "lakefile"
+
+/-- The default name of the Lean Lake configuration file (i.e., `lakefile.lean`). -/
+def defaultLeanConfigFile : FilePath := defaultConfigFile |>.addExtension "lean"
+
+/-- The default name of the TOML Lake configuration file (i.e., `lakefile.toml`). -/
+def defaultTomlConfigFile : FilePath := defaultConfigFile |>.addExtension "toml"
 
 /-- The default name of the Lake manifest file (i.e., `lake-manifest.json`). -/
 def defaultManifestFile : FilePath := "lake-manifest.json"

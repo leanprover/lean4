@@ -13,6 +13,7 @@ import Lake.Build.Library
 import Lake.Load.Materialize
 import Lake.Load.Package
 import Lake.Load.Elab
+import Lake.Load.Toml
 
 open System Lean
 
@@ -23,59 +24,99 @@ The main definitions for loading a workspace and resolving dependencies.
 namespace Lake
 
 /--
-Elaborate a dependency's configuration file into a `Package`.
+Elaborate a dependency's Lean configuration file into a `Package`.
 The resulting package does not yet include any dependencies.
+-/
+def loadLeanConfig (cfg : LoadConfig)
+: LogIO (Package × Environment) := do
+  let configEnv ← importConfigFile cfg
+  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv cfg.leanOpts
+  let pkg : Package := {
+    dir := cfg.pkgDir
+    relDir := cfg.relPkgDir
+    config := pkgConfig
+    relConfigFile := cfg.relConfigFile
+    remoteUrl? := cfg.remoteUrl?
+  }
+  return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)
+
+/--
+Return whether a configuration file with the given name
+and/or a supported extension exists.
+-/
+def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
+  if cfgFile.extension.isSome then
+    cfgFile.pathExists
+  else
+    let leanFile := cfgFile.addExtension "lean"
+    let tomlFile := cfgFile.addExtension "toml"
+    leanFile.pathExists <||> tomlFile.pathExists
+
+/-- Loads a Lake package configuration (either Lean or TOML). -/
+def loadPackage
+  (name : String) (cfg : LoadConfig)
+: LogIO (Package × Option Environment) := do
+  if let some ext := cfg.relConfigFile.extension then
+    unless (← cfg.configFile.pathExists) do
+      error s!"{name}: configuration file not found: {cfg.configFile}"
+    match ext with
+    | "lean" => (·.map id some) <$> loadLeanConfig cfg
+    | "toml" => ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir cfg.relConfigFile
+    | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
+  else
+    let relLeanFile := cfg.relConfigFile.addExtension "lean"
+    let leanFile := cfg.pkgDir / relLeanFile
+    if (← leanFile.pathExists) then
+      (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
+    else
+      let relTomlFile := cfg.relConfigFile.addExtension "toml"
+      let tomlFile := cfg.pkgDir / relTomlFile
+      if (← tomlFile.pathExists) then
+        ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir relTomlFile
+      else
+        error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
+
+/--
+Loads the package configuration of a materialized dependency.
 Adds the facets defined in the package to the `Workspace`.
 -/
-protected def Workspace.loadPackage
-  (ws : Workspace) (dep : MaterializedDep)
-  (leanOpts : Options) (reconfigure : Bool)
-: LogIO (Package × Workspace) := do
-  let dir := ws.dir / dep.relPkgDir
-  let lakeDir := dir / defaultLakeDir
-  let configEnv ← importConfigFile dir lakeDir ws.lakeEnv dep.configOpts leanOpts (dir / dep.configFile) reconfigure
-  let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
-  let pkg : Package := {
-    dir
-    relDir := dep.relPkgDir
-    config
-    configFile := dep.configFile
-    remoteUrl? := dep.remoteUrl?
-  }
-  return (
-    ← pkg.loadFromEnv configEnv leanOpts,
-    ← IO.ofExcept <| ws.addFacetsFromEnv configEnv leanOpts
-  )
-
-@[inherit_doc Workspace.loadPackage, inline] def loadPackage
+def loadDepPackage
   (dep : MaterializedDep) (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
-  ws.loadPackage dep leanOpts reconfigure
+  let name := dep.name.toString (escape := false)
+  let (pkg, env?) ← loadPackage name {
+    lakeEnv := ws.lakeEnv
+    wsDir := ws.dir
+    relPkgDir := dep.relPkgDir
+    relConfigFile := dep.configFile
+    lakeOpts := dep.configOpts
+    leanOpts
+    reconfigure
+    remoteUrl? := dep.remoteUrl?
+  }
+  if let some env := env? then
+    let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
+    return (pkg, ws)
+  else
+    return (pkg, ws)
 
 /--
 Load a `Workspace` for a Lake package by elaborating its configuration file.
 Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
-  Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← importConfigFile
-    config.rootDir (config.rootDir / defaultLakeDir) config.env
-    config.configOpts config.leanOpts config.configFile config.reconfigure
-  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
-  let root : Package := {
-    dir := config.rootDir
-    relDir := "."
-    config := pkgConfig
-    configFile := config.configFile
-  }
-  let root ← root.loadFromEnv configEnv config.leanOpts
+  Lean.searchPathRef.set config.lakeEnv.leanSearchPath
+  let (root, env?) ← loadPackage "[root]" config
   let ws : Workspace := {
-    root, lakeEnv := config.env
+    root, lakeEnv := config.lakeEnv
     moduleFacetConfigs := initModuleFacetConfigs
     packageFacetConfigs := initPackageFacetConfigs
     libraryFacetConfigs := initLibraryFacetConfigs
   }
-  IO.ofExcept <| ws.addFacetsFromEnv configEnv config.leanOpts
+  if let some env := env? then
+    IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
+  else
+    return ws
 
 /-- Recursively visits a package dependency graph, avoiding cycles. -/
 private def resolveDepsAcyclic
@@ -106,6 +147,7 @@ def Workspace.updateAndMaterialize
     StateT.run (s := ws) <| StateT.run (s := mkNameMap MaterializedDep) <|
     StateT.run' (s := mkNameMap PackageEntry) <| StateT.run' (s := mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
+    let rootName := ws.root.name.toString (escape := false)
     match (← Manifest.load ws.manifestFile |>.toBaseIO) with
     | .ok manifest =>
       unless toUpdate.isEmpty do
@@ -120,14 +162,14 @@ def Workspace.updateAndMaterialize
             IO.FS.rename oldPkgsDir ws.pkgsDir
           if let .error e ← doRename.toBaseIO then
             error <|
-              s!"{ws.root.name}: could not rename packages directory " ++
+              s!"{rootName}: could not rename packages directory " ++
               s!"({oldPkgsDir} -> {ws.pkgsDir}): {e}"
     | .error (.noFileOrDirectory ..) =>
-      logInfo s!"{ws.root.name}: no previous manifest, creating one from scratch"
+      logInfo s!"{rootName}: no previous manifest, creating one from scratch"
     | .error e =>
       unless toUpdate.isEmpty do
         liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
-      logWarning s!"{ws.root.name}: ignoring previous manifest because it failed to load: {e}"
+      logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
     resolveDepsAcyclic ws.root fun pkg resolve => do
       let inherited := pkg.name != ws.root.name
       -- Materialize this package's dependencies first
@@ -142,7 +184,7 @@ def Workspace.updateAndMaterialize
           return pkg
         else
           -- Load the package
-          let depPkg ← liftM <| loadPackage dep leanOpts reconfigure
+          let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
@@ -171,7 +213,7 @@ def Workspace.updateAndMaterialize
   let manifest := ws.packages.foldl (init := manifest) fun manifest pkg =>
     match deps.find? pkg.name with
     | some dep => manifest.addPackage <|
-      dep.manifestEntry.setManifestFile pkg.relManifestFile
+      dep.manifestEntry.setManifestFile pkg.relManifestFile |>.setConfigFile pkg.relConfigFile
     | none => manifest -- should only be the case for the root
   manifest.saveToFile ws.manifestFile
   LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
@@ -219,7 +261,7 @@ def Workspace.materializeDeps
         if let some entry := pkgEntries.find? dep.name then
           let ws ← getThe Workspace
           let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
-          liftM <| loadPackage result leanOpts reconfigure
+          liftM <| loadDepPackage result leanOpts reconfigure
         else if topLevel then
           error <|
             s!"dependency '{dep.name}' not in manifest; " ++

@@ -167,8 +167,8 @@ structure Package where
   relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
-  /-- The path to the package's configuration file. -/
-  configFile : FilePath
+  /-- The path to the package's configuration file (relative to `dir`). -/
+  relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The URL to this package's Git remote. -/
@@ -268,6 +268,10 @@ namespace Package
 /-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
+
+/-- The full path to the package's configuration file. -/
+@[inline] def configFile (self : Package) : FilePath :=
+  self.dir / self.relConfigFile
 
 /-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=

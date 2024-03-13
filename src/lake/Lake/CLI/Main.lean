@@ -64,10 +64,10 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
-    env := ← opts.computeEnv
-    rootDir := opts.rootDir
-    configFile := opts.rootDir / opts.configFile
-    configOpts := opts.configOpts
+    lakeEnv := ← opts.computeEnv
+    wsDir := opts.rootDir
+    relConfigFile := opts.configFile
+    lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
   }
@@ -353,10 +353,10 @@ protected def serve : CliM PUnit := do
 protected def env : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   let env ← do
-    if (← config.configFile.pathExists) then
+    if (← configFileExists config.configFile) then
       pure (← loadWorkspace config).augmentedEnvVars
     else
-      pure config.env.vars
+      pure config.lakeEnv.vars
   if let some cmd ← takeArg? then
     let child ← IO.Process.spawn {cmd, args := (← takeArgs).toArray, env}
     exit <| ← child.wait

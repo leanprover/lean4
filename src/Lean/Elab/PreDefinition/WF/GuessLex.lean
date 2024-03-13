@@ -60,6 +60,10 @@ The following optimizations are applied to make this feasible:
 The logic here is based on “Finding Lexicographic Orders for Termination Proofs in Isabelle/HOL”
 by Lukas Bulwahn, Alexander Krauss, and Tobias Nipkow, 10.1007/978-3-540-74591-4_5
 <https://www21.in.tum.de/~nipkow/pubs/tphols07.pdf>.
+
+We got the idea of considering the measure `e₂ - e₁` if we see `e₁ < e₂` from
+“Termination Analysis with Calling Context Graphs” by Panagiotis Manolios &
+Daron Vroon, https://doi.org/10.1007/11817963_36.
 -/
 
 set_option autoImplicit false

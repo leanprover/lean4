@@ -13,6 +13,8 @@ v4.8.0 (development in progress)
 
 * Lean now generates an error if the type of a theorem is **not** a proposition.
 
+* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+
 * New command `derive_functinal_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function

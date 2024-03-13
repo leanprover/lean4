@@ -174,6 +174,7 @@ lean_object* l_Lean_Syntax_getAtomVal(lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkElab___closed__2;
 static lean_object* l_Lean_Linter_MissingDocs_handleIn___rarg___closed__2;
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_Linter_MissingDocs_checkDecl___spec__9(lean_object*, lean_object*, lean_object*);
+lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkRegisterOption(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkElab(lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkMixfix(lean_object*);
@@ -369,7 +370,6 @@ static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingD
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Linter_MissingDocs_checkDecl___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
-lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_mkHandlerUnsafe(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -5603,7 +5603,7 @@ static lean_object* _init_l_Lean_Linter_MissingDocs_checkDecl___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_decEq___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqPos___boxed), 2, 0);
 return x_1;
 }
 }

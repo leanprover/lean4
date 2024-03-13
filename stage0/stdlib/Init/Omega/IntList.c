@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.IntList
-// Imports: Init.Data.List.Lemmas Init.Data.Int.DivModLemmas Init.Data.Int.Gcd
+// Imports: Init.Data.List.Lemmas Init.Data.Int.DivModLemmas Init.Data.Nat.Gcd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1209,7 +1209,7 @@ return x_9;
 }
 lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_DivModLemmas(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Gcd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Omega_IntList(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -1221,7 +1221,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Int_DivModLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Int_Gcd(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Nat_Gcd(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Omega_IntList_get___closed__1 = _init_l_Lean_Omega_IntList_get___closed__1();

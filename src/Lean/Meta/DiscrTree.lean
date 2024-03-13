@@ -198,30 +198,27 @@ private partial def isNumeral (e : Expr) : Bool :=
       else if fName == ``Nat.zero && e.getAppNumArgs == 0 then true
       else false
 
-private partial def toNatLit? (e : Expr) : Option Literal :=
-  if isNumeral e then
-    if let some n := loop e then
-      some (.natVal n)
-    else
-      none
+/-- Returns `some k` if `e` consists of `Nat.zero` followed by `k` applications of `Nat.succ`.-/
+private partial def natConst? (e : Expr) : Option Nat :=
+  match_expr e with
+  | Nat.zero => some 0
+  | Nat.succ e' => (· + 1) <$> natConst? e'
+  | _ => none
+
+/-- If `e` consists of `Nat.zero` followed by `k` applications of `Nat.succ`,
+  returns `OfNat.ofNat (nat_lit k)`. Otherwise, returns `e` unchanged.
+
+  Remark:
+    We need to ensure that `Nat.zero` and `0` (i.e. `OfNat.ofNat (nat_lit 0)`) are keyed the same way
+    because unification sometimes converts the former into the latter.
+
+    For example, the unification problem `Nat.zero =?= ?n + 0` is resolved by setting `?n := 0`,
+    *not* `?n := Nat.zero`-/
+private def normalizeNatConst (e : Expr) : Expr :=
+  if let some n := natConst? e then
+    mkNatLit n
   else
-    none
-where
-  loop (e : Expr) : OptionT Id Nat := do
-    let f := e.getAppFn
-    match f with
-    | .lit (.natVal n) => return n
-    | .const fName .. =>
-      if fName == ``Nat.succ && e.getAppNumArgs == 1 then
-        let r ← loop e.appArg!
-        return r+1
-      else if fName == ``OfNat.ofNat && e.getAppNumArgs == 3 then
-        loop (e.getArg! 1)
-      else if fName == ``Nat.zero && e.getAppNumArgs == 0 then
-        return 0
-      else
-        failure
-    | _ => failure
+    e
 
 private def isNatType (e : Expr) : MetaM Bool :=
   return (← whnf e).isConstOf ``Nat
@@ -310,7 +307,10 @@ where
 
 /-- whnf for the discrimination tree module -/
 def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
-  if root then reduceUntilBadKey e config else reduce e config
+  if root then
+    reduceUntilBadKey e config
+  else
+    normalizeNatConst <$> reduce e config
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
@@ -350,8 +350,6 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
       return (.lit v, todo)
     | .const c _ =>
       unless root do
-        if let some v := toNatLit? e then
-          return (.lit v, todo)
         if (← shouldAddAsStar c e) then
           return (.star, todo)
       let nargs := e.getAppNumArgs
@@ -468,10 +466,6 @@ def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : W
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   let e ← reduceDT e root config
-  unless root do
-    -- See pushArgs
-    if let some v := toNatLit? e then
-      return (.lit v, #[])
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>

@@ -267,14 +267,7 @@ public:
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 expr t = constructor_type(cnstr);
                 while (is_pi(t)) {
-                    if (find(binding_domain(t), [&](expr const & e, unsigned) {
-                                if (is_constant(e)) {
-                                    for (expr const & I : m_ind_cnsts)
-                                        if (const_name(I) == const_name(e))
-                                            return true;
-                                }
-                                return false;
-                            })) {
+                    if (has_ind_occ(binding_domain(t))) {
                         return true;
                     }
                     t = binding_body(t);
@@ -284,7 +277,7 @@ public:
         return false;
     }
 
-    /* Return true if the given declarataion is reflexive.
+    /* Return true if the given declaration is reflexive.
 
        Remark: We say an inductive type `T` is reflexive if it
        contains at least one constructor that takes as an argument a
@@ -299,8 +292,7 @@ public:
                     expr arg_type = binding_domain(t);
                     if (is_pi(arg_type) && has_ind_occ(arg_type))
                         return true;
-                    expr local = mk_local_decl_for(t);
-                    t = instantiate(binding_body(t), local);
+                    t = binding_body(t);
                 }
             }
         }

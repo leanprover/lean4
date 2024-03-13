@@ -275,17 +275,11 @@ def unpack (numFuncs : Nat) (expr : Expr) : MetaM (Nat × Expr) := do
 /--
 Given unary types `(x : Aᵢ) → Rᵢ[x]`, and `(x : A₁ ⊕ A₂ …)`, calculate the packed codomain
 ```
-(match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
+match x with | inl x₁ => R₁[x₁] | inr x₂ => R₂[x₂] | …
 ```
 This function assumes (and does not check) that `Rᵢ` all have the same level.
-
-If all codomains are equal and non-dependent, just returns that.
 -/
 def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
-  let types ← types.mapM whnfForall
-  if allEqual (types.map (·.bindingBody!)) then
-    return types[0]!.bindingBody!
-
   let u ← forallBoundedTelescope types[0]! (some 1) fun _ body => getLevel body
   let rec go (x : Expr) (i : Nat) : MetaM Expr := do
     if i < types.size - 1 then
@@ -305,9 +299,6 @@ def mkCodomain (types : Array Expr) (x : Expr) : MetaM Expr := do
       return types[i]!.bindingBody!.instantiate1 x
     termination_by types.size - 1 - i
   go x 0
-  where
-    allEqual (codomains : Array Expr) : Bool :=
-      codomains.all (! ·.hasLooseBVars) && codomains.pop.all (· == codomains.back)
 
 /-
 Given types `(x : A) → R₁[x]` and `(z : B) → R₂[z]`, returns the type
@@ -322,15 +313,34 @@ if they are all the same.
 
 -/
 def uncurryType (types : Array Expr) : MetaM Expr := do
-  let ds ← types.mapM fun type => do
-    let type ← whnfForall type
+  let types ← types.mapM whnfForall
+  types.forM fun type => do
     unless type.isForall do
       throwError "Mutual.uncurryType: Expected forall type, got {type}"
-    pure type.bindingDomain!
-  let d ← packType ds
-  withLocalDeclD `x d fun x => do
+  let domain ← packType (types.map (·.bindingDomain!))
+  withLocalDeclD `x domain fun x => do
     let codomain ← Mutual.mkCodomain types x
     mkForallFVars #[x] codomain
+
+/-
+Given types `(x : A) → R` and `(z : B) → R`, returns the type
+```
+(x : A ⊕' B) → R
+```
+-/
+def uncurryTypeND (types : Array Expr) : MetaM Expr := do
+  let types ← types.mapM whnfForall
+  types.forM fun type =>
+    unless type.isArrow do
+      throwError "Mutual.uncurryTypeND: Expected non-dependent types, got {type}"
+  let codomains := types.map (·.bindingBody!)
+  let t' := codomains.back
+  codomains.pop.forM fun t =>
+    unless ← isDefEq t t' do
+      throwError "Mutual.uncurryTypeND: Expected equal codomains, but got {t} and {t'}"
+  let codomain := codomains[0]!
+  let domain ← packType (types.map (·.bindingDomain!))
+  mkArrow domain codomain
 
 /-
 Iterated `PSum.casesOn`:
@@ -363,7 +373,7 @@ private def casesOn (x : Expr) (codomain : Expr) (alts : List Expr) : MetaM Expr
 Given unary expressions `e₁`, `e₂` with types `(x : A) → R₁[x]`
 and `(z : C) → R₂[z]`, returns an expression of type
 ```
-(x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z]
+(x : A ⊕' C) → (match x with | .inl x => R₁[x] | .inr R₂[z])
 ```
 -/
 def uncurry (es : Array Expr) : MetaM Expr := do
@@ -374,8 +384,23 @@ def uncurry (es : Array Expr) : MetaM Expr := do
     let value ← casesOn x codomain es.toList
     mkLambdaFVars #[x] value
 
+/--
+Given unary expressions `e₁`, `e₂` with types `(x : A) → R`
+and `(z : C) → R`, returns an expression of type
+```
+(x : A ⊕' C) → R
+```
+-/
+def uncurryND (es : Array Expr) : MetaM Expr := do
+  let types ← es.mapM inferType
+  let resultType ← uncurryTypeND types
+  forallBoundedTelescope resultType (some 1) fun xs codomain => do
+    let #[x] := xs | unreachable!
+    let value ← casesOn x codomain es.toList
+    mkLambdaFVars #[x] value
+
 /-
-Given type `((A ⊕' C) → R)` (non-depenent), return types
+Given type `(A ⊕' C) → R` (non-depenent), return types
 ```
 #[A → R, B → R]
 ```
@@ -438,6 +463,17 @@ and `(z : C) → R₂[z]`, returns an expression of type
 def uncurry (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
   let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
   Mutual.uncurry unary
+
+/--
+Given expressions `e₁`, `e₂` with types `(x : A) → (y : B[x]) → R`
+and `(z : C) → R`, returns an expression of type
+```
+(x : (A ⊗ B) ⊕ C) → R
+```
+-/
+def uncurryND (argsPacker : ArgsPacker) (es : Array Expr) : MetaM Expr := do
+  let unary ← (Array.zipWith argsPacker.varNamess es Unary.uncurry).mapM id
+  Mutual.uncurryND unary
 
 /--
 Given expression `e` of type `(x : a₁ ⊗' b₁ ⊕' a₂ ⊗' d₂ …) → e[x]`, uncurries the expression and
@@ -521,10 +557,12 @@ def curryParam {α} (argsPacker : ArgsPacker) (value : Expr) (type : Expr)
   unless type.isForall do
     throwError "uncurryParam: expected forall, got {type}"
   let packedMotiveType := type.bindingDomain!
+  unless packedMotiveType.isArrow do
+    throwError "uncurryParam: unexpected packed motive {packedMotiveType}"
   -- Bring unpacked motives (motive1 : a → b → Prop and motive2 : c → d → Prop) into scope
   withCurriedDecl argsPacker type.bindingName! packedMotiveType fun motives => do
     -- Combine them into a packed motive (motive : a ⊗' b ⊕' c ⊗' d → Prop), and use that
-    let motive ← argsPacker.uncurry motives
+    let motive ← argsPacker.uncurryND motives
     let type ← instantiateForall type #[motive]
     let value := mkApp value motive
     k motives value type

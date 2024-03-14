@@ -102,7 +102,7 @@ jobs:
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
                 "quick": false,
-                "continue-on-error": true,
+                "continue-on-error": "true",
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
                 // exclude seriously slow/problematic tests (laketests crash)

@@ -1,6 +1,6 @@
 f Nat 5 : Nat
 g 5 : Nat
-Ex1.f (α : Type) [inst✝ : Add α] (a : α) : α
+Ex1.f (α : Type) [Add α] (a : α) : α
 Ex1.g {α : Type} (b : α) : α
 f Nat 5 : Nat
 g 5 : Nat

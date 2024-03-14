@@ -45,7 +45,6 @@ extern lean_object* l_Lean_declRangeExt;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_erase___at_Lean_Server_combineIdents_useConstRepresentatives___spec__6___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_Server_combineIdents_useConstRepresentatives___spec__10(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_1464____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Server_dedupReferences___lambda__1(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Server_combineIdents___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences(lean_object*, uint8_t);
@@ -116,7 +115,6 @@ LEAN_EXPORT lean_object* l_List_elem___at_Lean_Server_combineIdents_useConstRepr
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_References_allRefs___spec__10___boxed(lean_object*, lean_object*);
 lean_object* l_System_Uri_pathToUri(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Server_combineIdents_useConstRepresentatives___spec__17(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_dedupReferences___spec__11(uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Server_References_allRefs___spec__3(lean_object*, lean_object*);
@@ -235,6 +233,7 @@ lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_
 LEAN_EXPORT lean_object* l_Lean_Server_References_removeWorkerRefs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___at_Lean_Server_References_removeIlean___spec__7(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instToJsonRefInfo___spec__2(size_t, size_t, lean_object*);
+lean_object* l_instDecidableEqBool___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_dedupReferences___closed__4;
 static lean_object* l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean____x40_Lean_Server_References___hyg_1325____closed__12;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Server_combineIdents_useConstRepresentatives___spec__23(lean_object*);
@@ -5547,7 +5546,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__1;
 x_2 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__2;
-x_3 = lean_unsigned_to_nat(184u);
+x_3 = lean_unsigned_to_nat(210u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9854,35 +9853,11 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Server_dedupReferences___lambda__1(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-else
-{
-return x_2;
-}
-}
-}
 static lean_object* _init_l_Lean_Server_dedupReferences___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_dedupReferences___lambda__1___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqBool___boxed), 2, 0);
 return x_1;
 }
 }
@@ -10130,19 +10105,6 @@ lean_dec(x_3);
 x_7 = l_Array_foldlMUnsafe_fold___at_Lean_Server_dedupReferences___spec__14(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_Server_dedupReferences___lambda__1(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_dedupReferences___boxed(lean_object* x_1, lean_object* x_2) {

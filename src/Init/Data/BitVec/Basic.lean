@@ -73,6 +73,9 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
+@[deprecated isLt]
+theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
+
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl

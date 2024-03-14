@@ -65,7 +65,7 @@ info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (x : Type) 
         (∀ (rest : List (Finite.asType (Finite.arr t1 t2) → α)),
             motive2 (Finite.asType (Finite.arr t1 t2) → α) t2 rest) →
           motive2 α (Finite.arr t1 t2) results)
-  (x : Type) (x : Finite) (x : List x) : motive2 x x x
+  (x : Type) : ∀ (x_1 : Finite) (x_2 : List x), motive2 x x_1 x_2
 -/
 #guard_msgs in
 #check Finite.functions.induct

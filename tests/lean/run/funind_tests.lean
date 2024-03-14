@@ -32,7 +32,7 @@ derive_functional_induction ackermann
 info: Binary.ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
   (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
   (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
-  (x x : Nat) : motive x x
+  (x : Nat) : ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check ackermann.induct
@@ -244,7 +244,7 @@ derive_functional_induction with_arg_refining_match1
 /--
 info: with_arg_refining_match1.induct (motive : Nat → Nat → Prop) (case1 : ∀ (i : Nat), motive i 0)
   (case2 : ∀ (n : Nat), motive 0 (Nat.succ n))
-  (case3 : ∀ (i n : Nat), ¬i = 0 → motive (i - 1) n → motive i (Nat.succ n)) (x x : Nat) : motive x x
+  (case3 : ∀ (i n : Nat), ¬i = 0 → motive (i - 1) n → motive i (Nat.succ n)) (x : Nat) : ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check with_arg_refining_match1.induct
@@ -259,7 +259,8 @@ derive_functional_induction with_arg_refining_match2
 /--
 info: with_arg_refining_match2.induct (motive : Nat → Nat → Prop) (case1 : ∀ (n : Nat), motive 0 n)
   (case2 : ∀ (i : Nat), ¬i = 0 → motive i 0)
-  (case3 : ∀ (i : Nat), ¬i = 0 → ∀ (n : Nat), motive (i - 1) n → motive i (Nat.succ n)) (x x : Nat) : motive x x
+  (case3 : ∀ (i : Nat), ¬i = 0 → ∀ (n : Nat), motive (i - 1) n → motive i (Nat.succ n)) (x : Nat) :
+  ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check with_arg_refining_match2.induct
@@ -293,7 +294,8 @@ derive_functional_induction with_mixed_match_tailrec
 
 /--
 info: with_mixed_match_tailrec.induct (motive : Nat → Nat → Nat → Nat → Prop) (case1 : ∀ (c d x : Nat), motive 0 x c d)
-  (case2 : ∀ (c d a x : Nat), motive a x (c % 2) (d % 2) → motive (Nat.succ a) x c d) (x x x x : Nat) : motive x x x x
+  (case2 : ∀ (c d a x : Nat), motive a x (c % 2) (d % 2) → motive (Nat.succ a) x c d) (x : Nat) :
+  ∀ (x_1 x_2 x_3 : Nat), motive x x_1 x_2 x_3
 -/
 #guard_msgs in
 #check with_mixed_match_tailrec.induct
@@ -312,8 +314,8 @@ derive_functional_induction with_mixed_match_tailrec2
 /--
 info: with_mixed_match_tailrec2.induct (motive : Nat → Nat → Nat → Nat → Nat → Prop)
   (case1 : ∀ (a b c d : Nat), motive 0 a b c d) (case2 : ∀ (c d n x : Nat), motive (Nat.succ n) 0 x c d)
-  (case3 : ∀ (c d n a x : Nat), motive n a x (c % 2) (d % 2) → motive (Nat.succ n) (Nat.succ a) x c d)
-  (x x x x x : Nat) : motive x x x x x
+  (case3 : ∀ (c d n a x : Nat), motive n a x (c % 2) (d % 2) → motive (Nat.succ n) (Nat.succ a) x c d) (x : Nat) :
+  ∀ (x_1 x_2 x_3 x_4 : Nat), motive x x_1 x_2 x_3 x_4
 -/
 #guard_msgs in
 #check with_mixed_match_tailrec2.induct
@@ -404,7 +406,7 @@ derive_functional_induction binary
 
 /--
 info: UnusedExtraParams.binary.induct (base : Nat) (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-  (case2 : ∀ (n m : Nat), motive n m → motive (Nat.succ n) m) (x x : Nat) : motive x x
+  (case2 : ∀ (n m : Nat), motive n m → motive (Nat.succ n) m) (x : Nat) : ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check binary.induct
@@ -543,7 +545,7 @@ termination_by xs => xs
 derive_functional_induction foo
 /--
 info: LetFun.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (x : List α) : motive x
+  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) : ∀ (x : List α), motive x
 -/
 #guard_msgs in
 #check foo.induct
@@ -559,7 +561,7 @@ termination_by xs => xs
 derive_functional_induction bar
 /--
 info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) (x : List α) : motive x
+  (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) : ∀ (x : List α), motive x
 -/
 #guard_msgs in
 #check bar.induct
@@ -694,7 +696,7 @@ derive_functional_induction foo
 
 /--
 info: DefaultArgument.foo.induct (fixed : Bool) (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-  (case2 : ∀ (m n : Nat), motive n m → motive (Nat.succ n) m) (x x : Nat) : motive x x
+  (case2 : ∀ (m n : Nat), motive n m → motive (Nat.succ n) m) (x : Nat) : ∀ (x_1 : Nat), motive x x_1
 -/
 #guard_msgs in
 #check foo.induct
@@ -721,7 +723,7 @@ info: Nary.foo.induct (motive : Nat → Nat → (x : Nat) → Fin x → Prop)
   (case5 :
     ∀ (n m k : Nat) (x : Fin (k + 2)),
       motive n m (k + 1) { val := 0, isLt := ⋯ } → motive (Nat.succ n) (Nat.succ m) (Nat.succ (Nat.succ k)) x)
-  (x x x : Nat) (x : Fin x) : motive x x x x
+  (x : Nat) : ∀ (x_1 x_2 : Nat) (x_3 : Fin x_2), motive x x_1 x_2 x_3
 -/
 #guard_msgs in
 #check foo.induct

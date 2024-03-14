@@ -1,5 +1,0 @@
-test1.{u_1, u_2} {α : Sort u_2} (a✝ : α) : Sort u_1
-levelNGen.lean:3:4-3:9: warning: declaration uses 'sorry'
-test2.{u_1, u_2} {α : Sort u_2} (a✝ : α) : Sort u_1
-levelNGen.lean:5:33-5:38: warning: declaration uses 'sorry'
-test3.{u_1, u_2} {α : Sort u_2} (a✝ : α) : Sort u_1

@@ -371,6 +371,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | appTypeMismatch  env lctx e fnType argType =>
     mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
+  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{constName}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"

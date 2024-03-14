@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
@@ -99,13 +99,16 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
-  let wf ← do
+  let wf : TerminationArguments ← do
     let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
     if preDefsWith.isEmpty then
       -- No termination_by anywhere, so guess one
       guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
     else if preDefsWithout.isEmpty then
-      pure <| preDefsWith.map (·.termination.terminationBy?.get!)
+      preDefsWith.mapIdxM fun funIdx predef => do
+        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
+        let hints := predef.termination
+        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
     else
       -- Some have, some do not, so report errors
       preDefsWithout.forM fun preDef => do
@@ -118,7 +121,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf fun wfRel => do
+    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef

@@ -63,14 +63,15 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
     throwErrorAt hint.ref msg
 
   -- Bring parameters before the colon into scope
-  let r ← forallBoundedTelescope type (arity - extraParams) fun ys type' => do
-    -- Bring the variables bound by `termination_by` into scope.
-    elabFunBinders hint.vars (some type') fun xs type' => do
-      -- Elaborate the body in this local environment
-      let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
-      -- Now abstract also over the remaining extra parameters
-      forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
-        mkLambdaFVars (ys ++ xs ++ zs) body
+  let r ← withoutErrToSorry <|
+    forallBoundedTelescope type (arity - extraParams) fun ys type' => do
+      -- Bring the variables bound by `termination_by` into scope.
+      elabFunBinders hint.vars (some type') fun xs type' => do
+        -- Elaborate the body in this local environment
+        let body ← Lean.Elab.Term.withSynthesize <| elabTermEnsuringType hint.body none
+        -- Now abstract also over the remaining extra parameters
+        forallBoundedTelescope type'.get! (extraParams - hint.vars.size) fun zs _ => do
+          mkLambdaFVars (ys ++ xs ++ zs) body
   -- logInfo m!"elabTermValue: {r}"
   check r
   pure { ref := hint.ref, arity, extraParams, fn := r}

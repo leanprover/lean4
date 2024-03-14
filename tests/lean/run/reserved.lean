@@ -86,3 +86,8 @@ example : fact' 0 + fact' 1 = 2 := by
   guard_target =
     (1 + fact.match_1 (fun _ => Nat) 0 (fun _ => 1) fun n => (n + 1) * fact' n) = 2
   simp
+
+theorem bla : 0 = 0 := rfl
+
+def bla.def := 1 -- should work since `bla` is a theorem
+def bla.eq_1 := 2 -- should work since `bla` is a theorem

@@ -14,38 +14,30 @@ namespace Lean
 Reserved names.
 
 We use reserved names for automatically generated theorems (e.g., equational theorems).
-Automation may register new reserved name predicate suffixes.
-In this module, we just check the registered predicate suffixes, but do not trigger actions associated with them.
-For example, give a definition `foo`, we flag `foo.def` as reserved symbol because the suffix `def` is reserved.
+Automation may register new reserved name predicates.
+In this module, we just check the registered predicates, but do not trigger actions associated with them.
+For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
-/-- Global reference containing all reserved name suffix predicates. -/
-builtin_initialize reservedNameSuffixPredicatesRef : IO.Ref (Array (String → Bool)) ← IO.mkRef #[]
+/-- Global reference containing all reserved name predicates. -/
+builtin_initialize reservedNamePredicatesRef : IO.Ref (Array (Environment → Name → Bool)) ← IO.mkRef #[]
 
 /--
-Registers a new reserved name suffix predicate.
+Registers a new reserved name predicate.
 -/
-def registerReservedNameSuffixPredicate (p : String → Bool) : IO Unit := do
+def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register reserved name suffix predicate, this operation can only be performed during initialization")
-  reservedNameSuffixPredicatesRef.modify fun ps => ps.push p
+  reservedNamePredicatesRef.modify fun ps => ps.push p
 
-builtin_initialize reservedNameSuffixPredicatesExt : EnvExtension (Array (String → Bool)) ←
-  registerEnvExtension reservedNameSuffixPredicatesRef.get
+builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
+  registerEnvExtension reservedNamePredicatesRef.get
 
 /--
 Returns `true` if `name` is a reserved name.
 -/
-def isReservedNameSuffix (env : Environment) (suffix : String) : Bool :=
-  reservedNameSuffixPredicatesExt.getState env |>.any (· suffix)
-
-/--
-Returns `true` if `id` is of the form `d.s` where name `d` is in `env`, and `s` is a reserved name suffix.
--/
-def isReservedName (env : Environment) (id : Name) : Bool :=
-  match id with
-  | .str p s => isReservedNameSuffix env s && env.contains p
-  | _ => false
+def isReservedName (env : Environment) (name : Name) : Bool :=
+  reservedNamePredicatesExt.getState env |>.any (· env name)
 
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.

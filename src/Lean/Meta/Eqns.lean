@@ -20,8 +20,10 @@ def isUnfoldReservedNameSuffix (s : String) : Bool :=
 /--
 Ensures that `f.def` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNameSuffixPredicate fun s =>
-  isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s
+builtin_initialize registerReservedNamePredicate fun env n =>
+  match n with
+  | .str p s => (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s) && env.isSafeDefinition p
+  | _ => false
 
 def GetEqnsFn := Name → MetaM (Option (Array Name))
 

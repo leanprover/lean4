@@ -3,6 +3,7 @@ Copyright (c) 2023 Kyle Miller. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
+prelude
 import Lean.Meta.CongrTheorems.Basic
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Cleanup

@@ -10,7 +10,7 @@ Inferred termination argument:
 termination_by (Array.size xs - i, i - j)
 Inferred termination argument:
 termination_by (Array.size xs - i, i)
-guessLexDiff.lean:85:4-85:16: error: fail to show termination for
+guessLexDiff.lean:85:26-85:38: error: fail to show termination for
   failure
 with errors
 argument #2 was not used for structural recursion
@@ -22,18 +22,22 @@ structural recursion cannot be used
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-            i #1 #2
-1) 85:4-16  =  =  =
-2) 85:36-54 ?  <  ≤
-3) 85:4-16  _  =  =
-4) 92:4-20  _  <  <
-5) 98:8-20  _  ?  ≤
+            i #1 #2 i i + i
+1) 85:26-38 =  =  = =     =
+2) 85:58-76 ?  <  _ _     _
+3) 85:26-38 =  =  = =     =
+4) 88:26-42 _  <  _ _     _
+5) 88:26-42 ?  ≤  ≤ ?     ?
+6) 88:26-42 _  <  _ _     _
+7) 88:26-42 _  <  _ _     _
+8) 88:26-42 _  <  _ _     _
+9) 97:8-20  _  <  _ _     _
 
 #1: Array.size xs - i
 #2: Array.size xs - (i + 1)
 
 Please use `termination_by` to specify a decreasing measure.
-guessLexDiff.lean:103:4-103:18: error: fail to show termination for
+guessLexDiff.lean:102:4-102:18: error: fail to show termination for
   mutual_failure
   mutual_failure2
 with errors
@@ -42,42 +46,42 @@ structural recursion does not handle mutually recursive functions
 Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from mutual_failure to mutual_failure2 at 105:4-24:
+Call from mutual_failure to mutual_failure2 at 104:4-24:
    i #1 #2
 i  =  ?  ?
 #3 ?  =  ?
-Call from mutual_failure to mutual_failure2 at 105:52-78:
+Call from mutual_failure to mutual_failure2 at 104:52-78:
    i #1 #2
 i  ?  _  _
 #3 _  <  _
-Call from mutual_failure to mutual_failure2 at 105:4-24:
+Call from mutual_failure to mutual_failure2 at 104:4-24:
    i #1 #2
 i  _  _  _
 #3 _  =  _
-Call from mutual_failure to mutual_failure2 at 112:4-28:
+Call from mutual_failure to mutual_failure2 at 111:4-28:
    i #1 #2
 i  _  _  _
 #3 _  <  _
-Call from mutual_failure to mutual_failure2 at 118:8-28:
+Call from mutual_failure to mutual_failure2 at 117:8-28:
    i #1 #2
 i  _  _  _
 #3 _  ?  _
-Call from mutual_failure2 to mutual_failure at 124:4-23:
+Call from mutual_failure2 to mutual_failure at 123:4-23:
    i #3
 i  _  _
 #1 _  _
 #2 _  _
-Call from mutual_failure2 to mutual_failure at 124:50-75:
+Call from mutual_failure2 to mutual_failure at 123:50-75:
    i #3
 i  _  _
 #1 _  _
 #2 _  _
-Call from mutual_failure2 to mutual_failure at 128:4-27:
+Call from mutual_failure2 to mutual_failure at 127:4-27:
    i #3
 i  _  _
 #1 _  _
 #2 _  _
-Call from mutual_failure2 to mutual_failure at 134:8-27:
+Call from mutual_failure2 to mutual_failure at 133:8-27:
    i #3
 i  _  _
 #1 _  _

@@ -78,19 +78,18 @@ decreasing_by all_goals simp_wf; omega
 This checks
 * the presentation of complex measures in the table
 * that multiple recursive calls do not lead to the same argument tried multiple times.
+* it uses `e` instead of `e - 0`
 * that we do not get measures from refined arguments
 -/
 def failure (xs : Array Nat) (i : Nat) : Bool :=
-  if h : i < xs.size then
-    failure xs i && failure xs i && failure xs (i + 1)
-  else
-  if h : i + 1 < xs.size then
-    failure xs i
-  else
+  if h : i < xs.size then failure xs i && failure xs i && failure xs (i + 1) else
+  if h : i + 1 < xs.size then failure xs i else
   let j := i
-  if h : j < xs.size then
-    failure xs (j+1)
-  else
+  if h : j < xs.size then failure xs (j+1) else
+  if h : 0 < i then failure xs (j+1) else
+  if h : 42 < i then failure xs (j+1) else
+  if h : xs.size < i then failure xs (j+1) else
+  if h : 42 < i + i then failure xs (j+1) else
   match i with
   | 0 => true
   | i+1 =>

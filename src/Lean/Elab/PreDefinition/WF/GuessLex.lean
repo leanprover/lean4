@@ -379,6 +379,7 @@ def complexTerminationArgs (preDefs : Array PreDefinition) (fixedPrefixSize : Na
       -- Only look at calls where the parameters have not been refined
       unless rc.params.all (·.isFVar) do continue
       let xs := rc.params.map (·.fvarId!)
+      let varyingParams : Array FVarId := xs[fixedPrefixSize:]
       measures ← rc.ctxt.run do
         withUserNames rc.params[fixedPrefixSize:] userVarNamess[funIdx]! do
         trace[Elab.definition.wf] "rc: {rc.caller} ({rc.params}) → {rc.callee} ({rc.args})"
@@ -389,7 +390,10 @@ def complexTerminationArgs (preDefs : Array PreDefinition) (fixedPrefixSize : Na
             -- immediate arguments, so check that
             if e₁.hasAnyFVar (! xs.contains ·) then continue
             if e₂.hasAnyFVar (! xs.contains ·) then continue
-            let fn ← mkLambdaFVars rc.params (mkNatSub e₂ e₁)
+            -- If e₁ does not depend on any varying parameters, simply ignore it
+            let e₁_is_const := ! e₁.hasAnyFVar (varyingParams.contains ·)
+            let fn ← mkLambdaFVars rc.params <|
+              if e₁_is_const then e₂ else mkNatSub e₂ e₁
             -- Avoid duplicates
             unless ← measures.anyM (isDefEq ·.fn fn) do
               let extraParams := preDef.termination.extraParams

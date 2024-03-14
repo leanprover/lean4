@@ -175,8 +175,9 @@ but it works for now.
 def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
   let mut r := mkArray numFuncs #[]
   for goal in goals do
-    let (.mdata _ (.app _ param)) ← goal.getType
-        | throwError "MVar does not look like like a recursive call"
+    let type ← goal.getType
+    let (.mdata _ (.app _ param)) := type
+        | throwError "MVar does not look like a recursive call:{indentExpr type}"
     let (funidx, _) ← argsPacker.unpack param
     r := r.modify funidx (·.push goal)
   return r
@@ -190,8 +191,9 @@ def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option 
     match decrTactic? with
     | none => do
       for goal in goals do
+        let type ← goal.getType
         let some ref := getRecAppSyntax? (← goal.getType)
-          | throwError "MVar does not look like like a recursive call"
+          | throwError "MVar not annotated as a recursive call:{indentExpr type}"
         withRef ref <| applyDefaultDecrTactic goal
     | some decrTactic => withRef decrTactic.ref do
       unless goals.isEmpty do -- unlikely to be empty

@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.System.IO
-import Init.Data.Int
 universe u
 
 /-!

@@ -101,12 +101,12 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedPosition;
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_FileMap_ofString___closed__3;
-lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__6;
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__1;
 static lean_object* l_Lean_Position_instToFormatPosition___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Position_lt(lean_object*, lean_object*);
+lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176_(lean_object*, lean_object*);
@@ -460,7 +460,7 @@ static lean_object* _init_l_Lean_Position_lt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Nat_decEq___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
 return x_1;
 }
 }

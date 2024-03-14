@@ -285,7 +285,7 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
   /-
-  If `thmId` is an equational theorem (e.g., `foo._eq_1`), we should record `foo` instead.
+  If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.
   -/
   let thmId ← match thmId with

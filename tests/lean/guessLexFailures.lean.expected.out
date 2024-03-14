@@ -145,4 +145,4 @@ guessLexFailures.lean:131:14-131:31: error: failed to prove termination, possibl
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
 m n✝ n : Nat
-⊢ n < Nat.succ n✝
+⊢ n < n✝ + 1

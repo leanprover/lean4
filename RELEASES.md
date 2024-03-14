@@ -11,6 +11,10 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
+* Lean now generates an error if the type of a theorem is **not** a proposition.
+
+* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+
 * New command `derive_functinal_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function
@@ -30,6 +34,33 @@ v4.8.0 (development in progress)
     (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
     (x x : Nat) : motive x x
   ```
+
+Breaking changes:
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+```
+def fact : Nat → Nat
+  | 0 => 1
+  | n+1 => (n+1) * fact n
+
+theorem ex : fact 0 = 1 := by unfold fact; decide
+
+#check fact.eq_1
+-- fact.eq_1 : fact 0 = 1
+
+#check fact.eq_2
+-- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
+
+#check fact.def
+/-
+fact.def :
+  ∀ (x : Nat),
+    fact x =
+      match x with
+      | 0 => 1
+      | Nat.succ n => (n + 1) * fact n
+-/
+```
 
 v4.7.0
 ---------

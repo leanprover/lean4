@@ -354,7 +354,7 @@ def elabMutual : CommandElab := fun stx => do
     -/
     let declNames ←
        try
-         resolveGlobalConst' ident
+         realizeGlobalConst ident
        catch _ =>
          let name := ident.getId.eraseMacroScopes
          if (← Simp.isBuiltinSimproc name) then

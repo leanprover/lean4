@@ -38,7 +38,7 @@ def executeReservedNameAction (name : Name) : CoreM Unit := do
 /--
 Similar to `resolveGlobalName`, but also executes reserved name actions.
 -/
-def resolveGlobalName' (id : Name) : CoreM (List (Name × List String)) := do
+def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
   let cs ← resolveGlobalName id
   cs.filterM fun (c, _) => do
     if (← getEnv).contains c then
@@ -54,26 +54,26 @@ def resolveGlobalName' (id : Name) : CoreM (List (Name × List String)) := do
 /--
 Similar to `resolveGlobalConstCore`, but also executes reserved name actions.
 -/
-def resolveGlobalConstCore' (n : Name) : CoreM (List Name) := do
-  let cs ← resolveGlobalName' n
+def realizeGlobalConstCore (n : Name) : CoreM (List Name) := do
+  let cs ← realizeGlobalName n
   filterFieldList n cs
 
 /--
-Similar to `resolveGlobalConstNoOverloadCore`, but also executes reserved name actions.
+Similar to `realizeGlobalConstNoOverloadCore`, but also executes reserved name actions.
 -/
-def resolveGlobalConstNoOverloadCore' (n : Name) : CoreM Name := do
-  ensureNoOverload n (← resolveGlobalConstCore' n)
+def realizeGlobalConstNoOverloadCore (n : Name) : CoreM Name := do
+  ensureNoOverload n (← realizeGlobalConstCore n)
 
 /--
 Similar to `resolveGlobalConst`, but also executes reserved name actions.
 -/
-def resolveGlobalConst' (stx : Syntax) : CoreM (List Name) :=
-  preprocessSyntaxAndResolve stx resolveGlobalConstCore'
+def realizeGlobalConst (stx : Syntax) : CoreM (List Name) :=
+  preprocessSyntaxAndResolve stx realizeGlobalConstCore
 
 /--
-Similar to `resolveGlobalConstNoOverload`, but also executes reserved name actions.
+Similar to `realizeGlobalConstNoOverload`, but also executes reserved name actions.
 -/
-def resolveGlobalConstNoOverload' (id : Syntax) : CoreM Name := do
-  ensureNonAmbiguous id (← resolveGlobalConst' id)
+def realizeGlobalConstNoOverload (id : Syntax) : CoreM Name := do
+  ensureNonAmbiguous id (← realizeGlobalConst id)
 
 end Lean

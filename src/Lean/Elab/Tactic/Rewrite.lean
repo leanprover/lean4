@@ -51,7 +51,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             x symm term
           else
             -- Try to get equation theorems for `id`.
-            let declName ← try resolveGlobalConstNoOverload' id catch _ => return (← x symm term)
+            let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
             let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'"

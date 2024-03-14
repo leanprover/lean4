@@ -282,28 +282,28 @@ def addConstInfo [MonadEnv m] [MonadError m]
     expectedType?
   }
 
-/-- This does the same job as `resolveGlobalConstNoOverload`; resolving an identifier
+/-- This does the same job as `realizeGlobalConstNoOverload`; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
 But also adds this resolved name to the infotree. This means that when you hover
 over a name in the sourcefile you will see the fully resolved name in the hover info.-/
-def resolveGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
-  let n ← resolveGlobalConstNoOverload' id
+def realizeGlobalConstNoOverloadWithInfo (id : Syntax) (expectedType? : Option Expr := none) : CoreM Name := do
+  let n ← realizeGlobalConstNoOverload id
   if (← getInfoState).enabled then
     -- we do not store a specific elaborator since identifiers are special-cased by the server anyway
     addConstInfo id n expectedType?
   return n
 
-/-- Similar to `resolveGlobalConstNoOverloadWithInfo`, except if there are multiple name resolutions then it returns them as a list. -/
-def resolveGlobalConstWithInfos (id : Syntax) (expectedType? : Option Expr := none) : CoreM (List Name) := do
-  let ns ← resolveGlobalConst' id
+/-- Similar to `realizeGlobalConstNoOverloadWithInfo`, except if there are multiple name resolutions then it returns them as a list. -/
+def realizeGlobalConstWithInfos (id : Syntax) (expectedType? : Option Expr := none) : CoreM (List Name) := do
+  let ns ← realizeGlobalConst id
   if (← getInfoState).enabled then
     for n in ns do
       addConstInfo id n expectedType?
   return ns
 
-/-- Similar to `resolveGlobalName`, but it also adds the resolved name to the info tree. -/
-def resolveGlobalNameWithInfos (ref : Syntax) (id : Name) : CoreM (List (Name × List String)) := do
-  let ns ← resolveGlobalName' id
+/-- Similar to `realizeGlobalName`, but it also adds the resolved name to the info tree. -/
+def realizeGlobalNameWithInfos (ref : Syntax) (id : Name) : CoreM (List (Name × List String)) := do
+  let ns ← realizeGlobalName id
   if (← getInfoState).enabled then
     for (n, _) in ns do
       addConstInfo ref n

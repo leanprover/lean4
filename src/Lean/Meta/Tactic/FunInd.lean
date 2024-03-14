@@ -725,7 +725,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
 @[builtin_command_elab Parser.Command.deriveInduction]
 def elabDeriveInduction : Command.CommandElab := fun stx => Command.runTermElabM fun _xs => do
   let ident := stx[1]
-  let name ← resolveGlobalConstNoOverloadWithInfo ident
+  let name ← realizeGlobalConstNoOverloadWithInfo ident
   deriveInduction name
 
 end Lean.Tactic.FunInd

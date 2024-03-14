@@ -39,7 +39,7 @@ namespace Command
 @[builtin_command_elab Lean.Parser.simprocPattern] def elabSimprocPattern : CommandElab := fun stx => do
   let `(simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
   liftTermElabM do
-    let declName ← resolveGlobalConstNoOverload' declName
+    let declName ← realizeGlobalConstNoOverload declName
     discard <| checkSimprocType declName
     let keys ← elabSimprocKeys pattern
     registerSimproc declName keys
@@ -47,7 +47,7 @@ namespace Command
 @[builtin_command_elab Lean.Parser.simprocPatternBuiltin] def elabSimprocPatternBuiltin : CommandElab := fun stx => do
   let `(builtin_simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
   liftTermElabM do
-    let declName ← resolveGlobalConstNoOverload' declName
+    let declName ← realizeGlobalConstNoOverload declName
     let dsimp ← checkSimprocType declName
     let keys ← elabSimprocKeys pattern
     let registerProcName := if dsimp then ``registerBuiltinDSimproc else ``registerBuiltinSimproc

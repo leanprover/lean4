@@ -1,3 +1,9 @@
+/--
+error: 'g.def' is a reserved name
+-/
+#guard_msgs (error) in
+theorem g.def : 1 + x = x + 1 := rfl
+
 def f (x : Nat) := x + 1
 
 /--

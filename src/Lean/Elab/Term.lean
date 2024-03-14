@@ -1654,7 +1654,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← resolveGlobalName' n)
+    process (← realizeGlobalName n)
   else
     process preresolved
 where

@@ -105,9 +105,8 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       -- No termination_by anywhere, so guess one
       guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
     else if preDefsWithout.isEmpty then
-      preDefsWith.mapM fun predef => do
-        -- Clean up this part after #3621 is merged
-        let arity ← lambdaTelescope predef.value fun xs _ => pure xs.size
+      preDefsWith.mapIdxM fun funIdx predef => do
+        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
         let hints := predef.termination
         TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
     else

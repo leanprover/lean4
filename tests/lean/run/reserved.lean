@@ -1,14 +1,11 @@
 -- `g.def` is not reserved yet
 theorem g.def : 1 + x = x + 1 := Nat.add_comm ..
 
--- TODO: should fail
-def g (x : Nat) := x + 1
-
 /--
-error: 'g.eq_1' is a reserved name
+error: failed to declare `g` because `g.def` has already been declared
 -/
 #guard_msgs (error) in
-theorem g.eq_1 : 1 + x = x + 1 := Nat.add_comm ..
+def g (x : Nat) := x + 1
 
 def f (x : Nat) := x + 1
 

@@ -18,6 +18,15 @@ def isUnfoldReservedNameSuffix (s : String) : Bool :=
   s == "def"
 
 /--
+Throw an error if names for equation theorems for `declName` are not available.
+-/
+def ensureEqnReservedNamesAvailable (declName : Name) : CoreM Unit := do
+  ensureReservedNameAvailable declName "def"
+  ensureReservedNameAvailable declName "eq_1"
+  -- TODO: `declName` may need to reserve multiple `eq_<idx>` names, but we check only the first one.
+  -- Possible improvement: try to efficiently compute the number of equation theorems at declaration time, and check all of them.
+
+/--
 Ensures that `f.def` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
 builtin_initialize registerReservedNamePredicate fun env n =>

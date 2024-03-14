@@ -19,6 +19,14 @@ In this module, we just check the registered predicates, but do not trigger acti
 For example, give a definition `foo`, we flag `foo.def` as reserved symbol.
 -/
 
+def throwReservedNameNotAvailable [Monad m] [MonadError m] (declName : Name) (reservedName : Name) : m Unit := do
+  throwError "failed to declare `{declName}` because `{reservedName}` has already been declared"
+
+def ensureReservedNameAvailable [Monad m] [MonadEnv m] [MonadError m] (declName : Name) (suffix : String) : m Unit := do
+  let reservedName := .str declName suffix
+  if (← getEnv).contains reservedName then
+    throwReservedNameNotAvailable declName reservedName
+
 /-- Global reference containing all reserved name predicates. -/
 builtin_initialize reservedNamePredicatesRef : IO.Ref (Array (Environment → Name → Bool)) ← IO.mkRef #[]
 

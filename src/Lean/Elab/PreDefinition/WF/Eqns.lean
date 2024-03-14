@@ -133,6 +133,7 @@ builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclara
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
     (argsPacker : ArgsPacker) : MetaM Unit := do
+  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
   Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare

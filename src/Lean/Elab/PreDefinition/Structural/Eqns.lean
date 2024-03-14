@@ -81,6 +81,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := do
+  ensureEqnReservedNamesAvailable preDef.declName
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

@@ -142,18 +142,49 @@ end FileWorker
 section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
 
+  structure RequestIDTranslation where
+    sourceUri : DocumentUri
+    localID   : RequestID
+
+  abbrev PendingServerRequestMap := RBMap RequestID RequestIDTranslation compare
+
+  structure ServerRequestData where
+    pendingServerRequests : PendingServerRequestMap
+    freshServerRequestID  : Nat
+
+  def ServerRequestData.trackOutboundRequest
+      (data      : ServerRequestData)
+      (sourceUri : DocumentUri)
+      (localID   : RequestID)
+      : RequestID × ServerRequestData :=
+    let globalID := data.freshServerRequestID
+    let data := {
+      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, localID⟩
+      freshServerRequestID  := globalID + 1
+    }
+    (globalID, data)
+
+  def ServerRequestData.translateInboundResponse
+      (data     : ServerRequestData)
+      (globalID : RequestID)
+      : Option RequestIDTranslation × ServerRequestData :=
+    let translation? := data.pendingServerRequests.find? globalID
+    let data := { data with pendingServerRequests := data.pendingServerRequests.erase globalID }
+    (translation?, data)
+
   structure ServerContext where
-    hIn            : FS.Stream
-    hOut           : FS.Stream
-    hLog           : FS.Stream
+    hIn               : FS.Stream
+    hOut              : FS.Stream
+    hLog              : FS.Stream
     /-- Command line arguments. -/
-    args           : List String
-    fileWorkersRef : IO.Ref FileWorkerMap
+    args              : List String
+    fileWorkersRef    : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
-    initParams     : InitializeParams
-    workerPath     : System.FilePath
-    srcSearchPath  : System.SearchPath
-    references     : IO.Ref References
+    initParams        : InitializeParams
+    workerPath        : System.FilePath
+    srcSearchPath     : System.SearchPath
+    references        : IO.Ref References
+    serverRequestData : IO.Ref ServerRequestData
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -210,6 +241,10 @@ section ServerM
           | Message.responseError id _ _ _ => do
             fw.erasePendingRequest id
             o.writeLspMessage msg
+          | Message.request id method params? =>
+            let globalID ← (←read).serverRequestData.modifyGet
+              (·.trackOutboundRequest fw.doc.uri id)
+            o.writeLspMessage (Message.request globalID method params?)
           | Message.notification "$/lean/ileanInfoUpdate" params =>
             if let some params := params then
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
@@ -235,7 +270,7 @@ section ServerM
             ++ " or the server is shutting down.")
           -- one last message to clear the diagnostics for this file so that stale errors
           -- do not remain in the editor forever.
-          publishDiagnostics fw.doc #[] o
+          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
           return WorkerEvent.terminated
         | 2 =>
           return .importsChanged
@@ -248,7 +283,7 @@ section ServerM
               (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
           fw.errorPendingRequests o errorCode
             s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
+          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -257,7 +292,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishProgressAtPos m 0 (← read).hOut
+    (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
     let st ← read
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
@@ -767,6 +802,21 @@ section MessageHandling
       -- implementation-dependent notifications can be safely ignored
       if !"$/".isPrefixOf method then
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
+
+  def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+      | return
+    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
+
+  def handleResponseError
+      (id      : RequestID)
+      (code    : ErrorCode)
+      (message : String)
+      (data?   : Option Json)
+      : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+      | return
+    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
 end MessageHandling
 
 section MainLoop
@@ -811,11 +861,12 @@ section MainLoop
       | Message.request id method (some params) =>
         handleRequest id method (toJson params)
         mainLoop (←runClientTask)
-      | Message.response .. =>
-        -- TODO: handle client responses
+      | Message.response id result =>
+        handleResponse id result
         mainLoop (←runClientTask)
-      | Message.responseError _ _ e .. =>
-        throwServerError s!"Unhandled response error: {e}"
+      | Message.responseError id code message data? =>
+        handleResponseError id code message data?
+        mainLoop (←runClientTask)
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
@@ -929,6 +980,10 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let references ← IO.mkRef .empty
   startLoadingReferences references
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
+  let serverRequestData ← IO.mkRef {
+    pendingServerRequests := RBMap.empty
+    freshServerRequestID  := 0
+  }
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
   let e ← maybeTee "wdErr.txt" true e
@@ -967,6 +1022,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     workerPath
     srcSearchPath
     references
+    serverRequestData
     : ServerContext
   }
 

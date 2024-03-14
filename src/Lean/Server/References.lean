@@ -38,13 +38,15 @@ def addRef : RefInfo → Reference → RefInfo
     { i with usages := usages.push ref }
   | i, _ => i
 
-def toLspRefInfo (i : RefInfo) : IO Lsp.RefInfo := do
-  let refToRefInfoLocation (ref : Reference) : IO RefInfo.Location := do
+def toLspRefInfo (i : RefInfo) : BaseIO Lsp.RefInfo := do
+  let refToRefInfoLocation (ref : Reference) : BaseIO RefInfo.Location := do
     let parentDeclName? := ref.ci.parentDecl?
-    let parentDeclRanges? ← ref.ci.runMetaM ref.info.lctx do
-      let some parentDeclName := parentDeclName?
-        | return none
-      findDeclarationRanges? parentDeclName
+    let .ok parentDeclRanges? ← EIO.toBaseIO <| ref.ci.runCoreM do
+        let some parentDeclName := parentDeclName?
+          | return none
+        findDeclarationRanges? parentDeclName
+      -- we only use `CoreM` to get access to a `MonadEnv`, but these are currently all `IO`
+      | unreachable!
     return {
       range := ref.range
       parentDecl? := do
@@ -70,7 +72,7 @@ def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
   let refInfo := self.findD ref.ident RefInfo.empty
   self.insert ref.ident (refInfo.addRef ref)
 
-def toLspModuleRefs (refs : ModuleRefs) : IO Lsp.ModuleRefs := do
+def toLspModuleRefs (refs : ModuleRefs) : BaseIO Lsp.ModuleRefs := do
   let refs ← refs.toList.mapM fun (k, v) => do
     return (k, ← v.toLspRefInfo)
   return HashMap.ofList refs

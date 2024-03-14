@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Omega.Int
-// Imports: Init.Data.Int.DivMod Init.Data.Int.Order Init.Data.Nat.Basic
+// Imports: Init.Data.Int.DivMod Init.Data.Int.Order
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -76,7 +76,6 @@ return x_4;
 }
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Omega_Int(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -86,9 +85,6 @@ res = initialize_Init_Data_Int_DivMod(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___closed__1 = _init_l___private_Init_Omega_Int_0__Int_neg_match__1_splitter___rarg___closed__1();

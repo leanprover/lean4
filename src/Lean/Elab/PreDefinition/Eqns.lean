@@ -380,7 +380,7 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := baseName ++ `_unfold
+      let name := baseName ++ `def
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

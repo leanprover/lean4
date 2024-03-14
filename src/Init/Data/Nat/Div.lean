@@ -35,7 +35,7 @@ theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
   rw [Nat.div]
   rfl
 
-theorem div.inductionOn.{u}
+def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
@@ -102,7 +102,7 @@ protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
 
-theorem mod.inductionOn.{u}
+def mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y  : Nat)
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)

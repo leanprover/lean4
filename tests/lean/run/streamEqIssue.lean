@@ -4,6 +4,6 @@
   | n + 1, some (_, s') => hasLength n s'
   | _, _ => false
 
-#check @Stream.hasLength._eq_1
-#check @Stream.hasLength._eq_2
-#check @Stream.hasLength._eq_3
+#check @Stream.hasLength.eq_1
+#check @Stream.hasLength.eq_2
+#check @Stream.hasLength.eq_3

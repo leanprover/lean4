@@ -10,4 +10,14 @@ theorem ex : foo 0 = 0 := by
   unfold foo
   sorry
 
-#check foo._unfold
+/--
+info: foo.def (n : Nat) :
+  foo n =
+    if n = 0 then 0
+    else
+      let x := n - 1;
+      let_fun this := foo.proof_4;
+      foo x
+-/
+#guard_msgs in
+#check foo.def

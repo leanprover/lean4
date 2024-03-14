@@ -737,9 +737,17 @@ def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
     a.pop
 termination_by a.size - i
 
+/-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
 def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   eraseIdxAux (i.val + 1) a
 
+/-- Remove the element at a given index from an array, or do nothing if the index is out of bounds.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
 def eraseIdx (a : Array α) (i : Nat) : Array α :=
   if i < a.size then eraseIdxAux (i+1) a else a
 

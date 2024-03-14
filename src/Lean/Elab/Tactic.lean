@@ -40,3 +40,4 @@ import Lean.Elab.Tactic.LibrarySearch
 import Lean.Elab.Tactic.ShowTerm
 import Lean.Elab.Tactic.Rfl
 import Lean.Elab.Tactic.Congr!
+import Lean.Elab.Tactic.Convert

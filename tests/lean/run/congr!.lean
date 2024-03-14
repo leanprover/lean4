@@ -1,5 +1,5 @@
 -- Everything should be built-in, but we still need this import in order to use `config`.
--- Moving `Lean.Meta.Tactic.Congr!` to `Init/MetaTypes.lean` and an update-stage0 should hopefully fix this?
+-- Moving `Lean.Meta.Tactic.Congr!.Config` to `Init/MetaTypes.lean` and an update-stage0 should hopefully fix this?
 import Lean.Meta.Tactic.Congr!
 
 private axiom test_sorry : ∀ {α}, α

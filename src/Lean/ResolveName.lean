@@ -14,31 +14,46 @@ namespace Lean
 Reserved names.
 
 We use reserved names for automatically generated theorems (e.g., equational theorems).
-Automation may register new reserved name predicates. In this model, we just check the
-registered predicates, but do not trigger actions associated with them. For example,
-give a definition `foo`, we have the reserved name `foo.def` associated with it, and
-an action for creating a theorem that states that `foo` is equal to its definition.
+Automation may register new reserved name predicate suffixes.
+In this module, we just check the registered predicate suffixes, but do not trigger actions associated with them.
+For example, give a definition `foo`, we flag `foo.def` as reserved symbol because the suffix `def` is reserved.
 -/
 
-/-- Global reference containing all reserved name predicates. -/
-builtin_initialize reservedNamePredicatesRef : IO.Ref (Array (Environment → Name → Bool)) ← IO.mkRef #[]
+/-- Global reference containing all reserved name suffix predicates. -/
+builtin_initialize reservedNameSuffixPredicatesRef : IO.Ref (Array (String → Bool)) ← IO.mkRef #[]
 
 /--
-Registers a new reserved name predicate.
+Registers a new reserved name suffix predicate.
 -/
-def registerReservedNamePredicate (p : Environment → Name → Bool) : IO Unit := do
+def registerReservedNameSuffixPredicate (p : String → Bool) : IO Unit := do
   unless (← initializing) do
-    throw (IO.userError "failed to reserved name predicate, this operation can only be performed during initialization")
-  reservedNamePredicatesRef.modify fun ps => ps.push p
+    throw (IO.userError "failed to register reserved name suffix predicate, this operation can only be performed during initialization")
+  reservedNameSuffixPredicatesRef.modify fun ps => ps.push p
 
-builtin_initialize reservedNamePredicatesExt : EnvExtension (Array (Environment → Name → Bool)) ←
-  registerEnvExtension reservedNamePredicatesRef.get
+builtin_initialize reservedNameSuffixPredicatesExt : EnvExtension (Array (String → Bool)) ←
+  registerEnvExtension reservedNameSuffixPredicatesRef.get
 
 /--
 Returns `true` if `name` is a reserved name.
 -/
-def isReservedName (env : Environment) (name : Name) : Bool :=
-  reservedNamePredicatesExt.getState env |>.any (· env name)
+def isReservedNameSuffix (env : Environment) (suffix : String) : Bool :=
+  reservedNameSuffixPredicatesExt.getState env |>.any (· suffix)
+
+/--
+Returns `true` if `id` is of the form `p.s` where `s` is a reserved name suffix.
+-/
+def isReservedName (env : Environment) (id : Name) : Bool :=
+  match id with
+  | .str p s => !p.isAnonymous && isReservedNameSuffix env s
+  | _ => false
+
+/--
+Returns `true` if `id` is of the form `d.s` where name `d` is in `env`, and `s` is a reserved name suffix.
+-/
+private def isReservedNameForExistingDecl (env : Environment) (id : Name) : Bool :=
+  match id with
+  | .str p s => isReservedNameSuffix env s && env.contains p
+  | _ => false
 
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.
@@ -164,9 +179,9 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
         match resolveExact env id with
         | some newId => [(newId, projs)]
         | none =>
-          let resolvedIds := if env.contains id || isReservedName env id then [id] else []
+          let resolvedIds := if env.contains id || isReservedNameForExistingDecl env id then [id] else []
           let idPrv       := mkPrivateName env id
-          let resolvedIds := if env.contains idPrv || isReservedName env idPrv then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := if env.contains idPrv || isReservedNameForExistingDecl env idPrv then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with

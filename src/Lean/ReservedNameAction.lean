@@ -28,28 +28,28 @@ def registerReservedNameAction (act : ReservedNameAction) : IO Unit := do
 
 /--
 Execute a registered reserved action for the given reserved name.
-The result is `true` if a handler for the given reserved name was found.
 Note that the handler can throw an exception.
 -/
-def executeReservedNameAction (name : Name) : CoreM Bool := do
+def executeReservedNameAction (name : Name) : CoreM Unit := do
   for act in (← reservedNameActionsRef.get) do
     if (← act name) then
-      return true
-  return false
+      return ()
 
 /--
 Similar to `resolveGlobalName`, but also executes reserved name actions.
 -/
 def resolveGlobalName' (id : Name) : CoreM (List (Name × List String)) := do
   let cs ← resolveGlobalName id
-  for (c, _) in cs do
-    unless (← getEnv).contains c do
-      if (← executeReservedNameAction c) then
-        unless (← getEnv).contains c do
-          throwError "'{id}' is a reserved name, but reserved name code generator failed"
-      else
-        throwError "'{id}' is a reserved name, but none of the installed reserved name code generators is applicable"
-  return cs
+  cs.filterM fun (c, _) => do
+    if (← getEnv).contains c then
+      return true
+    else
+      try
+        executeReservedNameAction c
+        return (← getEnv).contains c
+      catch _ =>
+        -- TODO: better error handling
+        return false
 
 /--
 Similar to `resolveGlobalConstCore`, but also executes reserved name actions.

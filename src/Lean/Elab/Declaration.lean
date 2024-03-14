@@ -43,7 +43,6 @@ private def isNamedDef (stx : Syntax) : Bool :=
     let k := decl.getKind
     k == ``Lean.Parser.Command.abbrev ||
     k == ``Lean.Parser.Command.definition ||
-    k == ``Lean.Parser.Command.def || -- TODO: delete
     k == ``Lean.Parser.Command.theorem ||
     k == ``Lean.Parser.Command.opaque ||
     k == ``Lean.Parser.Command.axiom ||

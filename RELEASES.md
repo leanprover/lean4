@@ -11,6 +11,12 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
+* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
+
+  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+
+  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+
 * Lean now generates an error if the type of a theorem is **not** a proposition.
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).

@@ -9,24 +9,23 @@ import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
-/--
-Returns `true` if  `name` is of the form `f.def` and `f.eq_<idx>` where `f` is a safe definition.
--/
-def isEqnReservedName (env : Environment) (name : Name) : Bool :=
+/-- Returns `true` if `name` is of the form `f.eq_<idx>` -/
+def isEqnReservedName (name : Name) : Bool :=
   match name with
-  | .str p s =>
-    if s == "def" then
-      env.isSafeDefinition p
-    else if "eq_".isPrefixOf s && (s.drop 3).isNat then
-      env.isSafeDefinition p
-    else
-      false
+  | .str p s => !p.isAnonymous && "eq_".isPrefixOf s && (s.drop 3).isNat
+  | _ => false
+
+/-- Returns `true` if `name` is of the form `f.def` -/
+def isUnfoldReservedName (name : Name) : Bool :=
+  match name with
+  | .str p "def" => !p.isAnonymous
   | _ => false
 
 /--
 Ensures that `f.def` and `f.eq_<idx>` are reserved names if `f` is a safe definition.
 -/
-builtin_initialize registerReservedNamePredicate isEqnReservedName
+builtin_initialize registerReservedNamePredicate fun _ name =>
+  isEqnReservedName name || isUnfoldReservedName name
 
 def GetEqnsFn := Name → MetaM (Option (Array Name))
 
@@ -208,8 +207,10 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    if isEqnReservedName (← getEnv) name then
-      throwError "Eqn action is WIP"
+    if isEqnReservedName name then
+      MetaM.run' do return (← getEqnsFor? name.getPrefix).isSome
+    else if isUnfoldReservedName name then
+      MetaM.run' do return (← getUnfoldEqnFor? name.getPrefix).isSome
     else
       return false
 

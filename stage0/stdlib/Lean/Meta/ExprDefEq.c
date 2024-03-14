@@ -577,7 +577,6 @@ LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_ExprDe
 static lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__5;
 lean_object* l_Lean_LocalContext_mkLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
 static lean_object* l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__3___closed__2;
-lean_object* l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_inheritedTraceOptions;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProjInst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -616,6 +615,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_c
 static lean_object* l_Lean_Meta_CheckAssignment_State_cache___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqBindingDomain_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_checkMVar___spec__38___boxed(lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_processPostponed___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Meta_CheckAssignment_checkMVar___spec__61___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_assignToConstFun___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -862,7 +862,6 @@ static lean_object* l_Lean_Meta_CheckAssignment_instMonadCacheExprCheckAssignmen
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__41(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__5(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNodeCore___at_Lean_Meta_processPostponed___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -918,6 +917,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_Ex
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEqCacheKind_toCtorIdx(uint8_t);
 lean_object* l_Lean_Meta_setPostponed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDeltaCandidate_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_ParamInfo_isExplicit(lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__12;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_checkMVar___spec__15___boxed(lean_object*, lean_object*);
@@ -11730,11 +11730,13 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___at___private_Lean_Meta_Exp
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = l___private_Lean_Util_Trace_0__Lean_addTraceNodeCore___at_Lean_Meta_processPostponed___spec__5(x_1, x_2, x_3, x_6, x_4, x_8, x_9, x_10, x_11, x_12);
+lean_inc(x_10);
+x_13 = l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_processPostponed___spec__4(x_1, x_2, x_3, x_6, x_4, x_8, x_9, x_10, x_11, x_12);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__6(x_5, x_8, x_9, x_10, x_11, x_14);
+x_15 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__5(x_5, x_8, x_9, x_10, x_11, x_14);
+lean_dec(x_10);
 return x_15;
 }
 }
@@ -11801,6 +11803,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___at___private_Lean_Meta_Exp
 _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
+lean_dec(x_10);
 x_16 = l_Lean_exceptBoolEmoji___rarg(x_1);
 x_17 = l_Lean_stringToMessageData(x_16);
 lean_dec(x_16);
@@ -12034,7 +12037,7 @@ x_49 = lean_st_ref_set(x_11, x_44, x_45);
 x_50 = lean_ctor_get(x_49, 1);
 lean_inc(x_50);
 lean_dec(x_49);
-x_51 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__6(x_40, x_8, x_9, x_10, x_11, x_50);
+x_51 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__5(x_40, x_8, x_9, x_10, x_11, x_50);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -12116,7 +12119,7 @@ x_69 = lean_st_ref_set(x_11, x_68, x_45);
 x_70 = lean_ctor_get(x_69, 1);
 lean_inc(x_70);
 lean_dec(x_69);
-x_71 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__6(x_40, x_8, x_9, x_10, x_11, x_70);
+x_71 = l_MonadExcept_ofExcept___at_Lean_Meta_processPostponed___spec__5(x_40, x_8, x_9, x_10, x_11, x_70);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -12180,7 +12183,6 @@ x_81 = lean_unbox_float(x_41);
 lean_dec(x_41);
 x_82 = l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__3(x_40, x_34, x_14, x_3, x_21, x_4, x_5, x_42, x_81, x_80, x_8, x_9, x_10, x_11, x_39);
 lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_8);
 return x_82;
 }
@@ -12193,7 +12195,6 @@ x_84 = lean_unbox_float(x_41);
 lean_dec(x_41);
 x_85 = l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__3(x_40, x_34, x_14, x_3, x_21, x_4, x_5, x_42, x_84, x_83, x_8, x_9, x_10, x_11, x_39);
 lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_8);
 return x_85;
 }
@@ -13128,7 +13129,6 @@ x_13 = lean_unbox(x_4);
 lean_dec(x_4);
 x_14 = l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__2(x_1, x_2, x_3, x_13, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
-lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -13148,9 +13148,7 @@ x_18 = lean_unbox_float(x_9);
 lean_dec(x_9);
 x_19 = l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_16, x_7, x_17, x_18, x_10, x_11, x_12, x_13, x_14, x_15);
 lean_dec(x_14);
-lean_dec(x_13);
 lean_dec(x_11);
-lean_dec(x_10);
 return x_19;
 }
 }

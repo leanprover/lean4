@@ -38,7 +38,7 @@ theorem ex3 (x : Nat) (y : Nat) (h : y = 5 → False) : ∃ z, f (x+1) y = 2 * z
   | x+1, y, z => 2 * f2 x y z
 
 
-#check f2._eq_4
+#check f2.eq_4
 
 theorem ex4 (x y z : Nat) (h : y = 5 → z = 6 → False) : ∃ w, f2 (x+1) y z = 2 * w := by
   simp [f2, h]
@@ -64,7 +64,7 @@ theorem ex6 (x y z : Nat) (h2 : z ≠ 6) : ∃ w, f2 (x+1) y z = 2 * w := by
   | x+1, 6, 4 => 3 * f3 x 0 1
   | x+1, y, z => 2 * f3 x y z
 
-#check f3._eq_5
+#check f3.eq_5
 
 theorem ex7 (x y z : Nat) (h2 : z ≠ 6) (h3 : y ≠ 6) : ∃ w, f3 (x+1) y z = 2 * w := by
   simp [f3, h2,  h3]

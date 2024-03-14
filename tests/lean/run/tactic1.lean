@@ -1,10 +1,10 @@
-theorem ex1 (x : Nat) (y : { v // v > x }) (z : Nat) : Nat :=
+def ex1 (x : Nat) (y : { v // v > x }) (z : Nat) : Nat :=
 by {
   clear y x;
   exact z
 }
 
-theorem ex2 (x : Nat) (y : { v // v > x }) (z : Nat) : Nat :=
+def ex2 (x : Nat) (y : { v // v > x }) (z : Nat) : Nat :=
 by {
   clear x y;
   exact z

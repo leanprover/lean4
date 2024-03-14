@@ -16,3 +16,5 @@ local macro "my_refl" : tactic =>
   `(tactic| rfl)
 
 def f (x y : Nat) (_h : x = y := by my_refl) := x
+
+theorem simple : 10 = 10 := by decide

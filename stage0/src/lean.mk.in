@@ -123,9 +123,18 @@ else
 	$(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS)
 endif
 
+ifeq (@CMAKE_SYSTEM_NAME@, Windows)
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 	@rm -f $@
+	$(file >$@.in) $(foreach O,$^,$(file >>$@.in,"$O"))
+	@$(LEAN_AR) rcs $@ @$@.in
+	@rm -f $@.in
+else
+$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
+	@rm -f $@
+# no response file support on macOS, but also no need for them
 	@$(LEAN_AR) rcs $@ $^
+endif
 
 clean:
 	rm -rf $(OUT)

@@ -129,19 +129,19 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
 
 end IncDiscrTreeFinder
 
-initialize registerTraceClass `Tactic.librarySearch
-initialize registerTraceClass `Tactic.librarySearch.lemmas
+builtin_initialize registerTraceClass `Tactic.librarySearch
+builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
 
 /-- State for resolving imports -/
 private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
 
-private initialize LibSearchState.default : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
+private builtin_initialize LibSearchState.default : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
   IO.mkRef .none
 
 private instance : Inhabited LibSearchState where
   default := LibSearchState.default
 
-private initialize ext : EnvExtension LibSearchState ←
+private builtin_initialize ext : EnvExtension LibSearchState ←
   registerEnvExtension (IO.mkRef .none)
 
 /--
@@ -188,7 +188,7 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
 An exception ID that indicates further speculation on candidate lemmas should stop
 and current results should be returned.
 -/
-private initialize abortSpeculationId : InternalExceptionId ←
+private builtin_initialize abortSpeculationId : InternalExceptionId ←
   registerInternalExceptionId `Std.Tactic.LibrarySearch.abortSpeculation
 
 /--

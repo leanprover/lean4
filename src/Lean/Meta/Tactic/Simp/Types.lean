@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AppBuilder
-import Lean.Meta.CongrTheorems
+import Lean.Meta.CongrTheorems.Basic
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Simp.SimpTheorems

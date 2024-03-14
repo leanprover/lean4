@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul-Nicolas Madelaine, Robert Y. Lewis, Mario Carneiro, Gabriel Ebner
 -/
 prelude
-import Lean.Meta.CongrTheorems
+import Lean.Meta.CongrTheorems.Basic
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.CoeAttr
 

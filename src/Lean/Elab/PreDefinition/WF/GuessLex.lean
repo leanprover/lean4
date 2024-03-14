@@ -392,12 +392,14 @@ def complexTerminationArgs (preDefs : Array PreDefinition) (fixedPrefixSize : Na
             if e₂.hasAnyFVar (! xs.contains ·) then continue
             -- If e₁ does not depend on any varying parameters, simply ignore it
             let e₁_is_const := ! e₁.hasAnyFVar (varyingParams.contains ·)
-            let fn ← mkLambdaFVars rc.params <|
-              if e₁_is_const then e₂ else mkNatSub e₂ e₁
-            -- Avoid duplicates
-            unless ← measures.anyM (isDefEq ·.fn fn) do
-              let extraParams := preDef.termination.extraParams
-              measures := measures.push { ref := .missing, fn, natFn := fn, arity, extraParams }
+            let body := if e₁_is_const then e₂ else mkNatSub e₂ e₁
+            -- Avoid adding simple measures
+            unless body.isFVar do
+              let fn ← mkLambdaFVars rc.params body
+              -- Avoid duplicates
+              unless ← measures.anyM (isDefEq ·.fn fn) do
+                let extraParams := preDef.termination.extraParams
+                measures := measures.push { ref := .missing, fn, natFn := fn, arity, extraParams }
         return measures
     return measures
 

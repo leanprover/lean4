@@ -8,12 +8,11 @@ Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
 Call from f.g to f at 9:9-12:
-      x1
-x      =
-x - 0  =
+  x1
+x  =
 Call from f to f.g at 3:4-7:
-   x x - 0
-x1 =     =
+   x
+x1 =
 
 Please use `termination_by` to specify a decreasing measure.
 f (x : Nat) : Nat

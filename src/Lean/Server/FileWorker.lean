@@ -377,9 +377,9 @@ section Initialization
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
-      let some snap := snap.success?
+      let some snap := snap.result?
         | return #[]
-      let some snap ← snap.processed.get.success?
+      let some snap ← snap.processedSnap.get.result?
         | return #[]
       let importClosure := snap.cmdState.env.allImportedModuleNames
       return importClosure

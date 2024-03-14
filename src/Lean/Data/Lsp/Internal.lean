@@ -84,6 +84,7 @@ structure RefInfo.Location where
   range       : Lsp.Range
   /-- Parent declaration of the reference. `none` if the reference is itself a declaration. -/
   parentDecl? : Option RefInfo.ParentDecl
+deriving Inhabited
 
 /-- Definition site and usage sites of a reference. Obtained from `Lean.Server.RefInfo`. -/
 structure RefInfo where

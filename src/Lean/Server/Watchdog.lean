@@ -202,9 +202,9 @@ section ServerM
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
     s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
-    if let some path := fileUriToPath? uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs => refs.removeWorkerRefs module
+    let some module ← s.srcSearchPath.searchModuleNameOfUri uri
+      | return
+    s.references.modify fun refs => refs.removeWorkerRefs module
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
@@ -213,17 +213,17 @@ section ServerM
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.updateWorkerRefs module params.version params.references
+    let some module ← s.srcSearchPath.searchModuleNameOfUri fw.doc.uri
+      | return
+    s.references.modify fun refs =>
+      refs.updateWorkerRefs module params.version params.references
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.finalizeWorkerRefs module params.version params.references
+    let some module ← s.srcSearchPath.searchModuleNameOfUri fw.doc.uri
+      | return
+    s.references.modify fun refs =>
+      refs.finalizeWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -408,31 +408,35 @@ section RequestHandling
 open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return #[]
+  let references ← (← read).references.get
   let mut definitions := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
-          definitions := definitions.push definitionLocation
+  for ident in references.findAt module p.position (includeStop := true) do
+    if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
+      definitions := definitions.push definitionLocation
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return #[]
+  let references ← (← read).references.get
   let mut result := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        let identRefs ← references.referringTo module ident srcSearchPath
-          p.context.includeDeclaration
-        result := result.append <| identRefs.map (·.location)
+  for ident in references.findAt module p.position (includeStop := true) do
+    let identRefs ← references.referringTo srcSearchPath ident
+      p.context.includeDeclaration
+    result := result.append <| identRefs.map (·.location)
   return result
 
-/-- Used in `CallHierarchyItem.data?` to retain the full call hierarchy item name. -/
+/--
+Used in `CallHierarchyItem.data?` to retain all the data needed to quickly re-identify the
+call hierarchy item.
+-/
 structure CallHierarchyItemData where
-  name : Name
+  module : Name
+  name   : Name
   deriving FromJson, ToJson
 
 /--
@@ -441,13 +445,16 @@ Extracts the CallHierarchyItemData from `item.data?` and returns `none` if this 
 def CallHierarchyItemData.fromItem? (item : CallHierarchyItem) : Option CallHierarchyItemData := do
   fromJson? (← item.data?) |>.toOption
 
-private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+private def callHierarchyItemOf?
+    (refs          : References)
+    (ident         : RefIdent)
+    (srcSearchPath : SearchPath)
     : IO (Option CallHierarchyItem) := do
   let some ⟨definitionLocation, parentDecl?⟩ ← refs.definitionOf? ident srcSearchPath
     | return none
 
   match ident with
-  | .const definitionName =>
+  | .const definitionModule definitionName =>
     -- If we have a constant with a proper name, use it.
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
     -- `inductive` constructor, this is the right thing to do and using the parent decl is
@@ -461,10 +468,17 @@ private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSear
       uri            := definitionLocation.uri
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
-      data?          := toJson { name := definitionName : CallHierarchyItemData }
+      data?          := toJson {
+        module := definitionModule
+        name   := definitionName
+        : CallHierarchyItemData
+      }
     }
   | _ =>
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+
+    let some definitionModule ← srcSearchPath.searchModuleNameOfUri definitionLocation.uri
       | return none
 
     -- Remove private header from name
@@ -476,22 +490,26 @@ private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSear
       uri            := definitionLocation.uri
       range          := parentDeclRange,
       selectionRange := parentDeclSelectionRange
-      data?          := toJson { name := parentDeclName : CallHierarchyItemData }
+      data?          := toJson {
+        -- Assumption: The parent declaration of a reference lives in the same module
+        -- as the reference.
+        module := definitionModule
+        name   := parentDeclName
+        : CallHierarchyItemData
+      }
     }
 
 def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
     : ServerM (Array CallHierarchyItem) := do
-  let some path := fileUriToPath? p.textDocument.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
     | return #[]
 
   let references ← (← read).references.get
   let idents := references.findAt module p.position (includeStop := true)
 
-  let items ← idents.filterMapM fun ident => callHierarchyItemOf? references ident srcSearchPath
+  let items ← idents.filterMapM fun ident =>
+    callHierarchyItemOf? references ident srcSearchPath
   return items.qsort (·.name < ·.name)
 
 def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
@@ -499,19 +517,17 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
-  let some path := fileUriToPath? p.item.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
-    | return #[]
 
   let references ← (← read).references.get
-  let identRefs ← references.referringTo module (.const itemData.name) srcSearchPath false
+  let identRefs ← references.referringTo srcSearchPath (.const itemData.module itemData.name) false
 
-  let incomingCalls := identRefs.filterMap fun ⟨location, parentDecl?⟩ => Id.run do
+  let incomingCalls ← identRefs.filterMapM fun ⟨location, parentDecl?⟩ => do
 
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+
+    let some refModule ← srcSearchPath.searchModuleNameOfUri location.uri
       | return none
 
     -- Remove private header from name
@@ -524,7 +540,11 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
         uri            := location.uri
         range          := parentDeclRange
         selectionRange := parentDeclSelectionRange
-        data?          := toJson { name := parentDeclName : CallHierarchyItemData }
+        data?          := toJson {
+          module := refModule
+          name   := parentDeclName
+          : CallHierarchyItemData
+        }
       }
       fromRanges := #[location.range]
     }
@@ -547,11 +567,9 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
-  let some path := fileUriToPath? p.item.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
+
+  let some module ← srcSearchPath.searchModuleNameOfUri p.item.uri
     | return #[]
 
   let references ← (← read).references.get
@@ -611,12 +629,11 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
 
 def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
-  if let some path := System.Uri.fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      return references.findRange? module p.position (includeStop := true)
-  return none
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return none
+  let references ← (← read).references.get
+  return references.findRange? module p.position (includeStop := true)
 
 def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then

@@ -14,17 +14,20 @@ import Lean.Server.InfoUtils
 
 namespace IO
 
+/-- Throws an `IO.userError`. -/
 def throwServerError (err : String) : IO α :=
   throw (userError err)
 
 namespace FS.Stream
 
-/-- Chains two streams by creating a new stream s.t. writing to it
+/--
+Chains two streams by creating a new stream s.t. writing to it
 just writes to `a` but reading from it also duplicates the read output
 into `b`, c.f. `a | tee b` on Unix.
 NB: if `a` is written to but this stream is never read from,
 the output will *not* be duplicated. Use this if you only care
-about the data that was actually read. -/
+about the data that was actually read.
+-/
 def chainRight (a : Stream) (b : Stream) (flushEagerly : Bool := false) : Stream :=
   { a with
     flush := a.flush *> b.flush
@@ -66,18 +69,30 @@ end IO
 
 namespace Lean.Server
 
+/-- Meta-Data of a document. -/
 structure DocumentMeta where
+  /-- URI where the document is located. -/
   uri                 : Lsp.DocumentUri
+  /-- Version number of the document. Incremented whenever the document is edited. -/
   version             : Nat
+  /-- Current text of the document. -/
   text                : FileMap
+  /--
+  Controls when dependencies of the document are built on `textDocument/didOpen` notifications.
+  -/
   dependencyBuildMode : Lsp.DependencyBuildMode
   deriving Inhabited
 
+/-- Extracts an `InputContext` from `doc`. -/
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
   fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
   fileMap  := doc.text
 
+/--
+Replaces the range `r` (using LSP UTF-16 positions) in `text` (using UTF-8 positions)
+with `newText`.
+-/
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
@@ -87,8 +102,10 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
 
 open IO
 
-/-- Duplicates an I/O stream to a log file `fName` in LEAN_SERVER_LOG_DIR
-if that envvar is set. -/
+/--
+Duplicates an I/O stream to a log file `fName` in LEAN_SERVER_LOG_DIR
+if that envvar is set.
+-/
 def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := do
   match (← IO.getEnv "LEAN_SERVER_LOG_DIR") with
   | none => pure h
@@ -150,5 +167,22 @@ def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
 
 end Lean.Server
 
+/--
+Converts an UTF-8-based `String.range` in `text` to an equivalent LSP UTF-16-based `Lsp.Range`
+in `text`.
+-/
 def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
   ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩
+
+open Lean in
+/--
+Attempts to find a module name in the roots denoted by `srcSearchPath` for `uri`.
+Fails if `uri` is not a `file://` uri or if the given `uri` cannot be found in `srcSearchPath`.
+-/
+def System.SearchPath.searchModuleNameOfUri
+    (srcSearchPath : SearchPath)
+    (uri           : Lsp.DocumentUri)
+    : IO (Option Name) := do
+  let some path := Uri.fileUriToPath? uri
+    | return none
+  searchModuleNameOfFileName path srcSearchPath

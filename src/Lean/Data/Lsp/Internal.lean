@@ -24,44 +24,50 @@ Identifier of a reference.
 -/
 inductive RefIdent where
   /-- Named identifier. These are used in all references that are globally available. -/
-  | const : Name → RefIdent
+  | const (moduleName : Name) (identName : Name) : RefIdent
   /-- Unnamed identifier. These are used for all local references. -/
-  | fvar  : FVarId → RefIdent
+  | fvar (moduleName : Name) (id : FVarId) : RefIdent
   deriving BEq, Hashable, Inhabited
 
 namespace RefIdent
 
-/-- Converts the reference identifier to a string by prefixing it with a symbol. -/
-def toString : RefIdent → String
-  | RefIdent.const n => s!"c:{n}"
-  | RefIdent.fvar id => s!"f:{id.name}"
+instance : ToJson FVarId where
+  toJson id := toJson id.name
 
-/--
-Converts the string representation of a reference identifier back to a reference identifier.
-The string representation must have been created by `RefIdent.toString`.
--/
-def fromString (s : String) : Except String RefIdent := do
-  let sPrefix := s.take 2
-  let sName := s.drop 2
-  -- See `FromJson Name`
-  let name ← match sName with
-    | "[anonymous]" => pure Name.anonymous
-    | _ =>
-      let n := sName.toName
-      if n.isAnonymous then throw s!"expected a Name, got {sName}"
-      else pure n
-  match sPrefix with
-    | "c:" => return RefIdent.const name
-    | "f:" => return RefIdent.fvar <| FVarId.mk name
-    | _ => throw "string must start with 'c:' or 'f:'"
+instance : FromJson FVarId where
+  fromJson? s := return ⟨← fromJson? s⟩
+
+/-- Shortened representation of `RefIdent` for more compact serialization. -/
+inductive RefIdentJsonRepr
+  /-- Shortened representation of `RefIdent.const` for more compact serialization. -/
+  | c (m n : Name)
+  /-- Shortened representation of `RefIdent.fvar` for more compact serialization. -/
+  | f (m : Name) (i : FVarId)
+  deriving FromJson, ToJson
+
+/-- Converts `id` to its compact serialization representation. -/
+def toJsonRepr : (id : RefIdent) → RefIdentJsonRepr
+  | const moduleName identName => .c moduleName identName
+  | fvar moduleName id => .f moduleName id
+
+/-- Converts `repr` to `RefIdent`. -/
+def fromJsonRepr : (repr : RefIdentJsonRepr) → RefIdent
+  | .c m n => const m n
+  | .f m i => fvar m i
+
+/-- Converts `RefIdent` from a JSON for `RefIdentJsonRepr`. -/
+def fromJson? (s : Json) : Except String RefIdent :=
+  return fromJsonRepr (← Lean.FromJson.fromJson? s)
+
+/-- Converts `RefIdent` to a JSON for `RefIdentJsonRepr`. -/
+def toJson (id : RefIdent) : Json :=
+  Lean.ToJson.toJson <| toJsonRepr id
 
 instance : FromJson RefIdent where
-  fromJson?
-    | (s : String) => fromString s
-    | j => Except.error s!"expected a String, got {j}"
+  fromJson? := fromJson?
 
 instance : ToJson RefIdent where
-  toJson ident := toString ident
+  toJson := toJson
 
 end RefIdent
 
@@ -147,13 +153,13 @@ instance : FromJson RefInfo where
 def ModuleRefs := HashMap RefIdent RefInfo
 
 instance : ToJson ModuleRefs where
-  toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toString, toJson info)
+  toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toJson.compress, toJson info)
 
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
     node.foldM (init := HashMap.empty) fun m k v =>
-      return m.insert (← RefIdent.fromString k) (← fromJson? v)
+      return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
 /-- `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog<-worker notifications.
 

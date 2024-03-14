@@ -94,16 +94,18 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
     | none      => hole id
     | some tree => substitute tree assignment
 
-def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
-  let x := x.run { lctx := lctx } { mctx := info.mctx }
+/-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
+def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
   /-
     We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that
     have been used in `lctx` and `info.mctx`.
   -/
-  let ((a, _), _) ←
+  (·.1) <$>
     x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls, fileName := "<InfoTree>", fileMap := default }
            { env := info.env, ngen := info.ngen }
-  return a
+
+def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
+  (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })
 
 def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPContext :=
   { env  := info.env, mctx := info.mctx, lctx := lctx,

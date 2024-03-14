@@ -143,7 +143,6 @@ def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind
   declKind == ``Parser.Command.abbrev ||
   declKind == ``Parser.Command.definition ||
-  declKind == ``Parser.Command.def || -- TODO: delete
   declKind == ``Parser.Command.theorem ||
   declKind == ``Parser.Command.opaque ||
   declKind == ``Parser.Command.instance ||
@@ -154,8 +153,6 @@ def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
   if declKind == ``Parser.Command.«abbrev» then
     return mkDefViewOfAbbrev modifiers stx
   else if declKind == ``Parser.Command.definition then
-    return mkDefViewOfDef modifiers stx
-  else if declKind == ``Parser.Command.def then -- TODO: delete
     return mkDefViewOfDef modifiers stx
   else if declKind == ``Parser.Command.theorem then
     return mkDefViewOfTheorem modifiers stx

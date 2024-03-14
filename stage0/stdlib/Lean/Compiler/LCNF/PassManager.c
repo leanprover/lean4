@@ -67,7 +67,6 @@ lean_object* l_Lean_Compiler_LCNF_PassManager_validate___boxed(lean_object*, lea
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__16;
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installBefore(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__22;
-static lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedPass;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__5;
@@ -81,9 +80,8 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__9;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1;
 uint8_t l_Lean_Compiler_LCNF_instDecidableLtPhaseInstLTPhase(uint8_t, uint8_t);
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__11;
 lean_object* l_Lean_Compiler_LCNF_Phase_toNat___boxed(lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__27;
@@ -105,7 +103,7 @@ static lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installBeforeEachOccurrence(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__13;
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__15;
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassInstaller_getPassInstallerUnsafe(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -156,7 +154,6 @@ uint8_t l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1___lambda__1
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130____closed__3;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_130_;
 lean_object* l_Lean_Compiler_LCNF_Pass_mkPerDeclaration___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -644,56 +641,24 @@ lean_dec(x_2);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1() {
+lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_5; 
+x_5 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_4);
+return x_5;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2() {
+lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg), 1, 0);
-return x_4;
-}
-}
-lean_object* l_Lean_Compiler_LCNF_instInhabitedPassInstaller___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Compiler_LCNF_instInhabitedPassInstaller(x_1, x_2, x_3);
+lean_object* x_5; 
+x_5 = l_Lean_Compiler_LCNF_instInhabitedPassInstaller(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_instInhabitedPassManager() {
@@ -2610,10 +2575,6 @@ l_Lean_Compiler_LCNF_instInhabitedPass___closed__2 = _init_l_Lean_Compiler_LCNF_
 lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPass___closed__2);
 l_Lean_Compiler_LCNF_instInhabitedPass = _init_l_Lean_Compiler_LCNF_instInhabitedPass();
 lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPass);
-l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1 = _init_l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__1);
-l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2 = _init_l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassInstaller___rarg___closed__2);
 l_Lean_Compiler_LCNF_instInhabitedPassManager = _init_l_Lean_Compiler_LCNF_instInhabitedPassManager();
 lean_mark_persistent(l_Lean_Compiler_LCNF_instInhabitedPassManager);
 l_Lean_Compiler_LCNF_instToStringPhase___closed__1 = _init_l_Lean_Compiler_LCNF_instToStringPhase___closed__1();

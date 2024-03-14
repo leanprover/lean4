@@ -114,36 +114,39 @@ def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentC
 def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
   changes.foldl applyDocumentChange oldText
 
-def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspNotification {
-    method := "textDocument/publishDiagnostics"
-    param  := {
-      uri         := m.uri
-      version?    := some m.version
-      diagnostics := diagnostics
-      : PublishDiagnosticsParams
-    }
+/-- Constructs a `textDocument/publishDiagnostics` notification. -/
+def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) :
+    JsonRpc.Notification Lsp.PublishDiagnosticsParams where
+  method := "textDocument/publishDiagnostics"
+  param  := {
+    uri         := m.uri
+    version?    := some m.version
+    diagnostics := diagnostics
   }
 
-def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspNotification {
-    method := "$/lean/fileProgress"
-    param := {
-      textDocument := { uri := m.uri, version? := m.version }
-      processing
-      : LeanFileProgressParams
-    }
+/-- Constructs a `$/lean/fileProgress` notification. -/
+def mkFileProgressNotification (m : DocumentMeta) (processing : Array LeanFileProgressProcessingInfo) :
+    JsonRpc.Notification Lsp.LeanFileProgressParams where
+  method := "$/lean/fileProgress"
+  param := {
+    textDocument := { uri := m.uri, version? := m.version }
+    processing
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }] hOut
+/-- Constructs a `$/lean/fileProgress` notification from the given position onwards. -/
+def mkFileProgressAtPosNotification (m : DocumentMeta) (pos : String.Pos)
+  (kind : LeanFileProgressKind := LeanFileProgressKind.processing) :
+    JsonRpc.Notification Lsp.LeanFileProgressParams :=
+  mkFileProgressNotification m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }]
 
-def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
-  publishProgress m #[] hOut
+/-- Constructs a `$/lean/fileProgress` notification marking processing as done. -/
+def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp.LeanFileProgressParams :=
+  mkFileProgressNotification m #[]
 
 -- TODO: should return a request ID (or task?) when we add response handling
-def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : IO Unit :=
-  hOut.writeLspRequest ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
+def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
+    JsonRpc.Request ApplyWorkspaceEditParams :=
+  ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
 
 end Lean.Server
 

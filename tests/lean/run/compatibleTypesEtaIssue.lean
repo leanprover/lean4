@@ -5,8 +5,6 @@ universe u v w
 inductive Id {A : Type u} : A → A → Type u
 | refl {a : A} : Id a a
 
-attribute [eliminator] Id.casesOn
-
 infix:50 (priority := high) " = " => Id
 
 def contr (A : Type u) := Σ (a : A), ∀ b, a = b

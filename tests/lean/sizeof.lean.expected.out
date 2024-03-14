@@ -7,5 +7,4 @@
 308
 310
 11
-InfTree.node.sizeOf_spec.{u} {α : Type u} [inst✝ : SizeOf α] (children : Nat → InfTree α) :
-  sizeOf (InfTree.node children) = 1
+InfTree.node.sizeOf_spec.{u} {α : Type u} [SizeOf α] (children : Nat → InfTree α) : sizeOf (InfTree.node children) = 1

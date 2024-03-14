@@ -534,9 +534,9 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
       return e
 
 -- `optElimId` is of the form `("using" term)?`
-private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
+private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do
   if optElimId.isNone then
-    if let some elimName ← getCustomEliminator? targets then
+    if let some elimName ← getCustomEliminator? targets induction then
       return ← getElimInfo elimName
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"

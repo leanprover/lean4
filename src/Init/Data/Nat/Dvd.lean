@@ -5,16 +5,9 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
 import Init.Data.Nat.Div
-import Init.TacticsExtra
+import Init.Meta
 
 namespace Nat
-
-/--
-Divisibility of natural numbers. `a ∣ b` (typed as `\|`) says that
-there is some `c` such that `b = a * c`.
--/
-instance : Dvd Nat where
-  dvd a b := Exists (fun c => b = a * c)
 
 protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 
@@ -103,5 +96,37 @@ protected theorem div_mul_cancel {n m : Nat} (H : n ∣ m) : m / n * n = m := by
   have ⟨x, h⟩ := h
   subst h
   rw [Nat.mul_assoc, add_mul_mod_self_left]
+
+protected theorem dvd_of_mul_dvd_mul_left
+    (kpos : 0 < k) (H : k * m ∣ k * n) : m ∣ n := by
+  let ⟨l, H⟩ := H
+  rw [Nat.mul_assoc] at H
+  exact ⟨_, Nat.eq_of_mul_eq_mul_left kpos H⟩
+
+protected theorem dvd_of_mul_dvd_mul_right (kpos : 0 < k) (H : m * k ∣ n * k) : m ∣ n := by
+  rw [Nat.mul_comm m k, Nat.mul_comm n k] at H; exact Nat.dvd_of_mul_dvd_mul_left kpos H
+
+theorem dvd_sub {k m n : Nat} (H : n ≤ m) (h₁ : k ∣ m) (h₂ : k ∣ n) : k ∣ m - n :=
+  (Nat.dvd_add_iff_left h₂).2 <| by rwa [Nat.sub_add_cancel H]
+
+protected theorem mul_dvd_mul {a b c d : Nat} : a ∣ b → c ∣ d → a * c ∣ b * d
+  | ⟨e, he⟩, ⟨f, hf⟩ =>
+    ⟨e * f, by simp [he, hf, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]⟩
+
+protected theorem mul_dvd_mul_left (a : Nat) (h : b ∣ c) : a * b ∣ a * c :=
+  Nat.mul_dvd_mul (Nat.dvd_refl a) h
+
+protected theorem mul_dvd_mul_right (h: a ∣ b) (c : Nat) : a * c ∣ b * c :=
+  Nat.mul_dvd_mul h (Nat.dvd_refl c)
+
+@[simp] theorem dvd_one {n : Nat} : n ∣ 1 ↔ n = 1 :=
+  ⟨eq_one_of_dvd_one, fun h => h.symm ▸ Nat.dvd_refl _⟩
+
+protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k) := by
+  match Nat.eq_zero_or_pos k with
+  | .inl h0 => rw [h0, Nat.div_zero, Nat.div_zero, Nat.mul_zero]
+  | .inr hpos =>
+    have h1 : m * n / k = m * (n / k * k) / k := by rw [Nat.div_mul_cancel H]
+    rw [h1, ← Nat.mul_assoc, Nat.mul_div_cancel _ hpos]
 
 end Nat

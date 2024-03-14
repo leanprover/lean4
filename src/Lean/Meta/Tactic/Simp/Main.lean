@@ -35,6 +35,25 @@ def Config.updateArith (c : Config) : CoreM Config := do
 def isOfNatNatLit (e : Expr) : Bool :=
   e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isRawNatLit
 
+/--
+If `e` is a raw Nat literal and `OfNat.ofNat` is not in the list of declarations to unfold,
+return an `OfNat.ofNat`-application.
+-/
+def foldRawNatLit (e : Expr) : SimpM Expr := do
+  match e.rawNatLit? with
+  | some n =>
+    /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
+        to avoid non-termination. See issue #788.  -/
+    if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
+      return e
+    else
+      return toExpr n
+  | none   => return e
+
+/-- Return true if `e` is of the form `ofScientific n b m` where `n` and `m` are kernel Nat literals. -/
+def isOfScientificLit (e : Expr) : Bool :=
+  e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 4).isRawNatLit && (e.getArg! 2).isRawNatLit
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -179,7 +198,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
     return e'
-  | none => return e
+  | none => foldRawNatLit e
 
 private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   let e' ← reduceStep e
@@ -232,17 +251,6 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
       f
   else
     f
-
-def simpLit (e : Expr) : SimpM Result := do
-  match e.natLit? with
-  | some n =>
-    /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
-        to avoid non-termination. See issue #788.  -/
-    if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
-      return { expr := e }
-    else
-      return { expr := (← mkNumeral (mkConst ``Nat) n) }
-  | none   => return { expr := e }
 
 def simpProj (e : Expr) : SimpM Result := do
   match (← reduceProj? e) with
@@ -406,13 +414,35 @@ private def dsimpReduce : DSimproc := fun e => do
     eNew ← reduceFVar (← getConfig) (← getSimpTheorems) eNew
   if eNew != e then return .visit eNew else return .done e
 
+/-- Helper `dsimproc` for `doNotVisitOfNat` and `doNotVisitOfScientific` -/
+private def doNotVisit (pred : Expr → Bool) (declName : Name) : DSimproc := fun e => do
+  if pred e then
+    if (← readThe Simp.Context).isDeclToUnfold declName then
+      return .continue e
+    else
+      return .done e
+  else
+    return .continue e
+
+/--
+Auliliary `dsimproc` for not visiting `OfNat.ofNat` application subterms.
+This is the `dsimp` equivalent of the approach used at `visitApp`.
+Recall that we fold orphan raw Nat literals.
+-/
+private def doNotVisitOfNat : DSimproc := doNotVisit isOfNatNatLit ``OfNat.ofNat
+
+/--
+Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application subterms.
+-/
+private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
+
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific
   let post := m.dpost >> dsimpReduce
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
@@ -532,8 +562,8 @@ def congr (e : Expr) : SimpM Result := do
     congrDefault e
 
 def simpApp (e : Expr) : SimpM Result := do
-  if isOfNatNatLit e then
-    -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
+  if isOfNatNatLit e || isOfScientificLit e then
+    -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else
     congr e
@@ -549,7 +579,7 @@ def simpStep (e : Expr) : SimpM Result := do
   | .const ..    => simpConst e
   | .bvar ..     => unreachable!
   | .sort ..     => return { expr := e }
-  | .lit ..      => simpLit e
+  | .lit ..      => return { expr := e }
   | .mvar ..     => return { expr := (← instantiateMVars e) }
   | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 

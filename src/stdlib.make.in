@@ -35,8 +35,8 @@ endif
 Init:
 	@mkdir -p "${LIB}/lean/Lean" "${LIB}/lean/Lake"
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
-# Build .oleans of downstream libraries as well for better parallelism
-	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) \
+# Build `.olean/.o`s of downstream libraries as well for better parallelism
+	+"${LEAN_BIN}/leanmake" objs lib lib.export PKG=Init $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING \
 	  EXTRA_SRC_ROOTS="Lean Lean.lean"
 
 Lean: Init

@@ -79,7 +79,6 @@ static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__52;
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__28;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Server_Watchdog_handlePrepareCallHierarchy___spec__3___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_erase___at_Lean_Server_Watchdog_handleCallHierarchyIncomingCalls_collapseSameIncomingCalls___spec__5___boxed(lean_object*, lean_object*);
-lean_object* l_String_decEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__16;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_erase___at_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_collapseSameOutgoingCalls___spec__5___boxed(lean_object*, lean_object*);
@@ -762,6 +761,7 @@ lean_object* l_Lean_SearchPath_findAllWithExt(lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_Server_Watchdog_handleRename___lambda__1___closed__1;
 static lean_object* l_Lean_Server_Watchdog_handleRename___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_initAndRunWatchdogAux___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonDidChangeWatchedFilesRegistrationOptions____x40_Lean_Data_Lsp_Workspace___hyg_421_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_Watchdog_handleNotification___spec__6(lean_object*);
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_fromJsonCallHierarchyItemData____x40_Lean_Server_Watchdog___hyg_3453____closed__13;
@@ -19241,7 +19241,7 @@ static lean_object* _init_l_Lean_Server_Watchdog_handleRename___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_decEq___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqString___boxed), 2, 0);
 return x_1;
 }
 }

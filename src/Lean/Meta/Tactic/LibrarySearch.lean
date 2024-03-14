@@ -88,35 +88,6 @@ private def updateTree (config : WhnfCoreConfig) (tree : DiscrTree (Name × Decl
     | _ =>
       return tree
 
-/--
-Constructs an discrimination tree from the current environment.
--/
-def buildImportCache (config : WhnfCoreConfig) : MetaM (DiscrTree (Name × DeclMod)) := do
-  let profilingName := "apply?: init cache"
-  -- Sort so lemmas with longest names come first.
-  let post (A : Array (Name × DeclMod)) :=
-        A.map (fun (n, m) => (n.toString.length, n, m)) |>.qsort (fun p q => p.1 > q.1) |>.map (·.2)
-  profileitM Exception profilingName (← getOptions) do
-    (·.mapArrays post) <$> (← getEnv).constants.map₁.foldM (init := {}) (updateTree config)
-
-/--
-Returns matches from local constants.
--/
-/-
-N.B. The efficiency of this could likely be considerably improved by caching in environment
-extension.
--/
-def localMatches (config : WhnfCoreConfig) (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  let locals ← (← getEnv).constants.map₂.foldlM (init := {}) (DiscrTreeFinder.updateTree config)
-  pure <| (← locals.getMatch  ty config).reverse
-
-/--
-Candidate-finding function that uses a strict discrimination tree for resolution.
--/
-def mkImportFinder (config : WhnfCoreConfig) (importTree : DiscrTree (Name × DeclMod))
-    (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  pure <| (← importTree.getMatch ty config).reverse
-
 end DiscrTreeFinder
 
 namespace IncDiscrTreeFinder
@@ -144,50 +115,34 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     else
       pure a
 
-/--
-Candidate-finding function that uses a strict discrimination tree for resolution.
--/
-def mkImportFinder : IO CandidateFinder := do
-  let ref ← IO.mkRef none
-  pure fun ty => do
-    let ngen ← getNGen
-    let (childNGen, ngen) := ngen.mkChild
-    setNGen ngen
-    let importTree ← (←ref.get).getDM $ do
-      profileitM Exception  "librarySearch launch" (←getOptions) $
-        createImportedEnvironment childNGen (←getEnv) (constantsPerTask := constantsPerTask) addImport
-    let (imports, importTree) ← importTree.getMatch ty
-    ref.set importTree
-    pure imports
+ def findCandidates (ref : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))))
+    (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
+  let ngen ← getNGen
+  let (childNGen, ngen) := ngen.mkChild
+  setNGen ngen
+  let importTree ← (←ref.get).getDM $ do
+    profileitM Exception  "librarySearch launch" (←getOptions) $
+      createImportedEnvironment childNGen (←getEnv) (constantsPerTask := constantsPerTask) addImport
+  let (imports, importTree) ← importTree.getMatch ty
+  ref.set importTree
+  pure imports
 
 end IncDiscrTreeFinder
 
-initialize registerTraceClass `Tactic.librarySearch
-initialize registerTraceClass `Tactic.librarySearch.lemmas
+builtin_initialize registerTraceClass `Tactic.librarySearch
+builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
 
 /-- State for resolving imports -/
-private def LibSearchState := IO.Ref (Option CandidateFinder)
+private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
 
-private initialize LibSearchState.default : IO.Ref (Option CandidateFinder) ← do
+private builtin_initialize LibSearchState.default : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
   IO.mkRef .none
 
 private instance : Inhabited LibSearchState where
   default := LibSearchState.default
 
-private initialize ext : EnvExtension LibSearchState ←
+private builtin_initialize ext : EnvExtension LibSearchState ←
   registerEnvExtension (IO.mkRef .none)
-
-/--
-The preferred candidate finding function.
--/
-initialize defaultCandidateFinder : IO.Ref CandidateFinder ← unsafe do
-  IO.mkRef (←IncDiscrTreeFinder.mkImportFinder)
-
-/--
-Update the candidate finder used by library search.
--/
-def setDefaultCandidateFinder (cf : CandidateFinder) : IO Unit :=
-  defaultCandidateFinder.set cf
 
 /--
 Return an action that returns true when  the remaining heartbeats is less
@@ -229,12 +184,11 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
           (y.extract n y.size).map g
   pure $ res ++ last
 
-
 /--
 An exception ID that indicates further speculation on candidate lemmas should stop
 and current results should be returned.
 -/
-private initialize abortSpeculationId : InternalExceptionId ←
+private builtin_initialize abortSpeculationId : InternalExceptionId ←
   registerInternalExceptionId `Std.Tactic.LibrarySearch.abortSpeculation
 
 /--
@@ -369,18 +323,11 @@ private def librarySearch' (goal : MVarId)
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-  let importFinder ← do
-        let r := ext.getState (←getEnv)
-        match ←r.get with
-        | .some f => pure f
-        | .none =>
-          let f ← defaultCandidateFinder.get
-          r.set (.some f)
-          pure f
+  let importTreeRef := ext.getState (←getEnv)
   let searchFn (ty : Expr) := do
       let localMap ← (← getEnv).constants.map₂.foldlM (init := {}) (DiscrTreeFinder.updateTree {})
       let locals := (← localMap.getMatch  ty {}).reverse
-      pure <| locals ++ (← importFinder ty)
+      pure <| locals ++ (← IncDiscrTreeFinder.findCandidates importTreeRef ty)
   -- Create predicate that returns true when running low on heartbeats.
   let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
   let candidates ← librarySearchSymm searchFn goal

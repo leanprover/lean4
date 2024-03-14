@@ -109,7 +109,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
-  let baseName := mkPrivateName (← getEnv) declName
+  let baseName := declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body

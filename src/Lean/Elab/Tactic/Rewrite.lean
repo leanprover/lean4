@@ -55,7 +55,9 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
-              | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
+              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
+              -- See test: `rwPrioritizesLCtxOverEnv.lean`
+              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
             go eqThms.toList
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with

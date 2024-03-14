@@ -52,23 +52,23 @@ private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
 
 structure EqnsExtState where
   map    : PHashMap Name (Array Name) := {}
-  mapInv : PHashMap Name Name := {}
+  mapInv : PHashMap Name Name := {} -- TODO: delete?
   deriving Inhabited
 
-/- We generate the equations on demand, and do not save them on .olean files. -/
+/- We generate the equations on demand. -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {})
 
 /--
-  Simple equation theorem for nonrecursive definitions.
+Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+private def mkSimpleEqThm (declName : Name) (suffix := `def) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
       let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-      let name := mkPrivateName (← getEnv) declName ++ `_eq_1
+      let name := declName ++ suffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
@@ -93,6 +93,25 @@ private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit
   }
 
 /--
+Equation theorems are generated on demand, check whether they were generated in an imported file.
+-/
+private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array Name)) := do
+  let env ← getEnv
+  let eq1 := declName ++ `eq_1
+  if env.contains eq1 then
+    let rec loop (idx : Nat) (eqs : Array Name) : MetaM (Array Name) := do
+      let nextEq := declName ++ (`eq).appendIndexAfter idx
+      if env.contains nextEq then
+        loop (idx+1) (eqs.push nextEq)
+      else
+        return eqs
+    let eqs ← loop 2 #[eq1]
+    registerEqnThms declName eqs
+    return some eqs
+  else
+    return none
+
+/--
   Returns equation theorems for the given declaration.
   By default, we do not create equation theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
@@ -100,13 +119,15 @@ private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit
 def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
     return some eqs
+  else if let some eqs ← alreadyGenerated? declName then
+    return some eqs
   else if (← shouldGenerateEqnThms declName) then
     for f in (← getEqnsFnsRef.get) do
       if let some r ← f declName then
         registerEqnThms declName r
         return some r
     if nonRec then
-      let some eqThm ← mkSimpleEqThm declName | return none
+      let some eqThm ← mkSimpleEqThm declName (suffix := `eq_1) | return none
       let r := #[eqThm]
       registerEqnThms declName r
       return some r
@@ -147,18 +168,23 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   getUnfoldEqnFnsRef.modify (f :: ·)
 
 /--
-  Return an "unfold" theorem for the given declaration.
-  By default, we do not create unfold theorems for nonrecursive definitions.
-  You can use `nonRec := true` to override this behavior.
+Returns an "unfold" theorem for the given declaration.
+By default, we do not create unfold theorems for nonrecursive definitions.
+You can use `nonRec := true` to override this behavior.
 -/
 def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) := withLCtx {} {} do
+  let env ← getEnv
+  let unfoldName := declName ++ `def
+  if env.contains unfoldName then
+    return some unfoldName
   if (← shouldGenerateEqnThms declName) then
     for f in (← getUnfoldEqnFnsRef.get) do
       if let some r ← f declName then
+        unless r == unfoldName do
+          throwError "invalid unfold theorem name `{r}` has been generated expected `{unfoldName}`"
         return some r
     if nonRec then
-      let some #[eqThm] ← getEqnsFor? declName (nonRec := true) | return none
-      return some eqThm
+      return (← mkSimpleEqThm declName)
    return none
 
 end Lean.Meta

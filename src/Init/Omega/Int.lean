@@ -6,7 +6,6 @@ Authors: Scott Morrison
 prelude
 import Init.Data.Int.DivMod
 import Init.Data.Int.Order
-import Init.Data.Nat.Basic
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.

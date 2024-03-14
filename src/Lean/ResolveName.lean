@@ -40,17 +40,9 @@ def isReservedNameSuffix (env : Environment) (suffix : String) : Bool :=
   reservedNameSuffixPredicatesExt.getState env |>.any (· suffix)
 
 /--
-Returns `true` if `id` is of the form `p.s` where `s` is a reserved name suffix.
--/
-def isReservedName (env : Environment) (id : Name) : Bool :=
-  match id with
-  | .str p s => !p.isAnonymous && isReservedNameSuffix env s
-  | _ => false
-
-/--
 Returns `true` if `id` is of the form `d.s` where name `d` is in `env`, and `s` is a reserved name suffix.
 -/
-private def isReservedNameForExistingDecl (env : Environment) (id : Name) : Bool :=
+def isReservedName (env : Environment) (id : Name) : Bool :=
   match id with
   | .str p s => isReservedNameSuffix env s && env.contains p
   | _ => false
@@ -179,9 +171,9 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
         match resolveExact env id with
         | some newId => [(newId, projs)]
         | none =>
-          let resolvedIds := if env.contains id || isReservedNameForExistingDecl env id then [id] else []
+          let resolvedIds := if env.contains id || isReservedName env id then [id] else []
           let idPrv       := mkPrivateName env id
-          let resolvedIds := if env.contains idPrv || isReservedNameForExistingDecl env idPrv then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := if env.contains idPrv || isReservedName env idPrv then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with

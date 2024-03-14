@@ -1,8 +1,14 @@
+-- `g.def` is not reserved yet
+theorem g.def : 1 + x = x + 1 := Nat.add_comm ..
+
+-- TODO: should fail
+def g (x : Nat) := x + 1
+
 /--
-error: 'g.def' is a reserved name
+error: 'g.eq_1' is a reserved name
 -/
 #guard_msgs (error) in
-theorem g.def : 1 + x = x + 1 := rfl
+theorem g.eq_1 : 1 + x = x + 1 := Nat.add_comm ..
 
 def f (x : Nat) := x + 1
 
@@ -78,5 +84,5 @@ example : fact' 0 + fact' 1 = 2 := by
   guard_target =ₛ 1 + fact' 0 = 2
   rw [fact'.def]
   guard_target =
-    (1 + fact.match_1 (fun x => Nat) 0 (fun _ => 1) fun n => (n + 1) * fact' n) = 2
+    (1 + fact.match_1 (fun _ => Nat) 0 (fun _ => 1) fun n => (n + 1) * fact' n) = 2
   simp

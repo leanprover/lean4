@@ -760,9 +760,6 @@ theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = 
 def eraseIdx (a : Array α) (i : Nat) : Array α :=
   if h : i < a.size then a.feraseIdx ⟨i, h⟩ else a
 
-def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
-  ⟨a.feraseIdx i, size_feraseIdx a i⟩
-
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
   | none   => as

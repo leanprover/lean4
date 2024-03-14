@@ -8,7 +8,7 @@ mutwftypemismatch.lean:5:10-5:15: error: failed to prove termination, possible s
   - Use `termination_by` to specify a different well-founded relation
   - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
 n : Nat
-⊢ sorryAx Nat true < Nat.succ n
+⊢ sorryAx Nat true < n + 1
 mutwftypemismatch.lean:18:4-18:7: warning: declaration uses 'sorry'
 mutwftypemismatch.lean:18:4-18:7: warning: declaration uses 'sorry'
 mutwftypemismatch.lean:18:4-18:7: warning: declaration uses 'sorry'

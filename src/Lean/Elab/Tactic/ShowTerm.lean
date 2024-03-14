@@ -7,7 +7,7 @@ prelude
 import Lean.Elab.ElabRules
 import Lean.Meta.Tactic.TryThis
 
-namespace Std.Tactic
+namespace Lean.Elab.Tactic.ShowTerm
 open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
 
 @[builtin_tactic showTerm] def evalShowTerm : Tactic := fun stx =>
@@ -26,3 +26,5 @@ open Lean Elab Term Tactic Meta.Tactic.TryThis Parser.Tactic
     addTermSuggestion tk (← instantiateMVars e).headBeta (origSpan? := ← getRef)
     pure e
   | _, _ => throwUnsupportedSyntax
+
+end Lean.Elab.Tactic.ShowTerm

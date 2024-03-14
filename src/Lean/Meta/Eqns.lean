@@ -81,13 +81,13 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 /--
 Simple equation theorem for nonrecursive definitions.
 -/
-private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
+private def mkSimpleEqThm (declName : Name) (suffix := `def) : MetaM (Option Name) := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
       let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-      let name := mkPrivateName (← getEnv) declName ++ `_eq_1
+      let name := declName ++ suffix
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

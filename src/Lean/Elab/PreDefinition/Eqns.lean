@@ -370,9 +370,8 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
-  let env ← getEnv
   withOptions (tactic.hygienic.set · false) do
-    let baseName := mkPrivateName env declName
+    let baseName := declName
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body

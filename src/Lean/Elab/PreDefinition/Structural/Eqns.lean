@@ -63,7 +63,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes #[info.declName] goal.mvarId!
-  let baseName := mkPrivateName (← getEnv) info.declName
+  let baseName := info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!

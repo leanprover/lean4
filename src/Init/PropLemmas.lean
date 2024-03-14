@@ -26,6 +26,17 @@ set_option linter.missingDocs true -- keep it documented
 theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : HEq hp hq := by
   cases propext (iff_of_true hp hq); rfl
 
+theorem hfunext {α α' : Sort u} {β : α → Sort v} {β' : α' → Sort v} {f : ∀a, β a} {f' : ∀a, β' a}
+    (hα : α = α') (h : ∀a a', HEq a a' → HEq (f a) (f' a')) : HEq f f' := by
+  subst hα
+  have : ∀a, HEq (f a) (f' a) := λ a => h a a (HEq.refl a)
+  have : β = β' := by funext a
+                      exact type_eq_of_heq (this a)
+  subst this
+  apply heq_of_eq
+  funext a
+  exact eq_of_heq (this a)
+
 /-! ## not -/
 
 theorem not_not_em (a : Prop) : ¬¬(a ∨ ¬a) := fun h => h (.inr (h ∘ .inl))

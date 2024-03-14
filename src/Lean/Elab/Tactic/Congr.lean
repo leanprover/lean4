@@ -9,7 +9,6 @@ import Lean.Elab.Tactic.Basic
 
 namespace Lean.Elab.Tactic
 
-namespace Lean.Elab.Tactic
 @[builtin_tactic Parser.Tactic.congr] def evalCongr : Tactic := fun stx =>
   match stx with
   | `(tactic| congr $[$n?]?) =>
@@ -19,5 +18,3 @@ namespace Lean.Elab.Tactic
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic
-
-

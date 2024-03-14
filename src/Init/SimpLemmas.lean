@@ -45,7 +45,7 @@ theorem implies_dep_congr_ctx {p₁ p₂ q₁ : Prop} (h₁ : p₁ = p₂) {q₂
 theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h₂ : p₂ → q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
   implies_dep_congr_ctx h₁ h₂
 
-theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, p a = q a) : (∀ a, p a) = (∀ a, q a) :=
+theorem forall_congr {α : Sort u} {p q : α → Sort v} (h : ∀ a, p a = q a) : (∀ a, p a) = (∀ a, q a) :=
   (funext h : p = q) ▸ rfl
 
 theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}

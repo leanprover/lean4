@@ -114,7 +114,9 @@ def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
-def «def»            := leading_parser
+def definition     := leading_parser
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
+def «def»     := leading_parser -- TODO: delete
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
@@ -198,7 +200,7 @@ def «structure»          := leading_parser
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
-  («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
+  («abbrev» <|> definition <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "

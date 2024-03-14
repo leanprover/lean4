@@ -123,7 +123,7 @@ def declModifiersPubNoDoc (mods : Syntax) : Bool :=
 
 def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   if k == ``«abbrev» then lintNamed id "public abbrev"
-  else if k == ``«def» then lintNamed id "public def"
+  else if k == ``definition then lintNamed id "public def"
   else if k == ``«opaque» then lintNamed id "public opaque"
   else if k == ``«axiom» then lintNamed id "public axiom"
   else if k == ``«inductive» then lintNamed id "public inductive"

@@ -47,8 +47,9 @@ def realizeGlobalName (id : Name) : CoreM (List (Name × List String)) := do
       try
         executeReservedNameAction c
         return (← getEnv).contains c
-      catch _ =>
-        -- TODO: better error handling
+      catch ex =>
+        -- We record the error produced by then reserved name action generator
+        logError ex.toMessageData
         return false
 
 /--
@@ -68,7 +69,7 @@ def realizeGlobalConstNoOverloadCore (n : Name) : CoreM Name := do
 Similar to `resolveGlobalConst`, but also executes reserved name actions.
 -/
 def realizeGlobalConst (stx : Syntax) : CoreM (List Name) :=
-  preprocessSyntaxAndResolve stx realizeGlobalConstCore
+  withRef stx do preprocessSyntaxAndResolve stx realizeGlobalConstCore
 
 /--
 Similar to `realizeGlobalConstNoOverload`, but also executes reserved name actions.

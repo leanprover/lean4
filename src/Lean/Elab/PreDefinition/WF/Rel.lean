@@ -30,7 +30,7 @@ def checkCodomains (names : Array Name) (prefixArgs : Array Expr) (arities : Arr
     let codomain ← forallBoundedTelescope type arity fun xs codomain => do
       let fvars := xs.map (·.fvarId!)
       if codomain.hasAnyFVar (fvars.contains ·) then
-        throwErrorAt termArg.ref  m!"The termination argument's type must not depend on the  " ++
+        throwErrorAt termArg.ref  m!"The termination argument's type must not depend on the " ++
           m!"function's varying parameters, but {name}'s termination argument does:{indentExpr type}\n" ++
           "Try using `sizeOf` explicitly"
       pure codomain

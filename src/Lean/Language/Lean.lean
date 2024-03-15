@@ -98,8 +98,11 @@ structure CommandParsedSnapshotData extends Snapshot where
   stx : Syntax
   /-- Resulting parser state. -/
   parserState : Parser.ModuleParserState
-  /-- Definition headers processing task. -/
-  headersSnap : SnapshotTask HeadersParsedSnapshot
+  /--
+  Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
+  elaborator.
+   -/
+  elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
 deriving Nonempty
@@ -121,7 +124,7 @@ abbrev CommandParsedSnapshot.next? : CommandParsedSnapshot →
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.data.toSnapshot,
-      #[s.data.headersSnap.map (sync := true) toSnapshotTree,
+      #[s.data.elabSnap.map (sync := true) toSnapshotTree,
         s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
         pushOpt (s.next?.map (·.map (sync := true) go))⟩
 
@@ -362,7 +365,7 @@ where
       -- is not `Inhabited`
       return .pure <| .mk (nextCmdSnap? := none) {
         diagnostics := .empty, stx := .missing, parserState
-        headersSnap := .pure { diagnostics := .empty, headers := #[] }
+        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
         finishedSnap := .pure { diagnostics := .empty, cmdState }
       }
 
@@ -404,7 +407,7 @@ where
       let headers ← IO.Promise.new
       let finishedSnap ←
         doElab stx cmdState msgLog.hasErrors beginPos
-          { old? := old?.map (·.data.headersSnap), new := headers } ctx
+          { old? := old?.map (·.data.elabSnap), new := headers } ctx
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
@@ -414,12 +417,12 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
-        headersSnap := { range? := none, task := headers.result }
+        elabSnap := { range? := none, task := headers.result }
         finishedSnap
       }
 
   doElab (stx : Syntax) (cmdState : Command.State) (hasParseError : Bool) (beginPos : String.Pos)
-      (snap : SnapshotBundle HeadersParsedSnapshot) :
+      (snap : SnapshotBundle DynamicSnapshot) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO (stx.getRange?.getD ⟨beginPos, beginPos⟩) do
@@ -457,7 +460,7 @@ where
       let cmdState := { cmdState with messages }
       -- only has an effect if actual `resolve` was skipped from fatal exception (caught by
       -- `catchExceptions` above) or it not being a mutual def
-      snap.new.resolve { headers := #[], diagnostics := .empty }
+      snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
       return {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
         infoTree? := some cmdState.infoState.trees[0]!

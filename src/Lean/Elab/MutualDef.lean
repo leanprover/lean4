@@ -20,8 +20,10 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab
 open Lean.Parser.Term
 
+open Language
+
 /-- `DefView` plus header elaboration data and snapshot. -/
-structure DefViewElabHeader extends DefView, Command.DefViewElabHeaderData where
+structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   /--
   Snapshot for incremental processing of top-level tactic block, if any.
 
@@ -35,7 +37,7 @@ structure DefViewElabHeader extends DefView, Command.DefViewElabHeaderData where
   Invariant: if the bundle's `old?` is set, then elaboration of the body is guaranteed to result in
   the same elaboration result and state, i.e. reuse is possible.
   -/
-  bodySnap? : Option (Language.SnapshotBundle (Option Command.BodyProcessedSnapshot))
+  bodySnap? : Option (Language.SnapshotBundle (Option BodyProcessedSnapshot))
   deriving Inhabited
 
 namespace Term
@@ -205,7 +207,7 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
               let pendingMVarIds ← getMVars type
               discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
                 getPendindMVarErrorMessage views
-            let newHeader : Command.DefViewElabHeaderData := {
+            let newHeader : DefViewElabHeaderData := {
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size
             }
@@ -239,8 +241,8 @@ where
     guard (stx.isOfKind ``Parser.Command.declValSimple) *> some stx[1]
 
   /-- Creates snapshot task with appropriate range from body syntax and promise. -/
-  mkBodyTask (body : Syntax) (new : IO.Promise (Option Command.BodyProcessedSnapshot)) :
-      Language.SnapshotTask (Option Command.BodyProcessedSnapshot) :=
+  mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
+      Language.SnapshotTask (Option BodyProcessedSnapshot) :=
     let rangeStx := getBodyTerm? body |>.getD body
     { range? := rangeStx.getRange?, task := new.result }
   /--
@@ -971,8 +973,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
             -- this header (which includes state from elaboration of previous headers!) should be
             -- unchanged.
             let old ← snap.old?
-            -- blocking wait, `HeadersParsedSnapshot` should be quick
-            let oldParsed ← old.get.headers[i]?
+            -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
+            let old ← old.get.toTyped? HeadersParsedSnapshot
+            let oldParsed ← old.headers[i]?
             guard <| (← headerSubstr?).sameAs (← oldParsed.headerSubstr?)
             oldParsed.processedSnap
           new
@@ -984,7 +987,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       viewsRef.modify (·.push view)
     if let some snap := snap? then
       -- no non-fatal diagnostics at this point
-      snap.new.resolve { headers := headerSnaps, diagnostics := .empty }
+      snap.new.resolve <|
+        .ofTyped { headers := headerSnaps, diagnostics := .empty : HeadersParsedSnapshot }
     let views ← viewsRef.get
     runTermElabM fun vars => Term.elabMutualDef vars views
   finally

@@ -204,6 +204,7 @@ partial def main (args : List String) : IO Unit := do
               assert! id == requestNo
               return r
             | Message.notification .. => readFirstResponse
+            | Message.request .. => readFirstResponse
             | msg => throw <| IO.userError s!"unexpected message {toJson msg}"
           let resp ← readFirstResponse
           IO.eprintln resp

@@ -13,7 +13,7 @@ import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
 
---set_option linter.missingDocs true
+set_option linter.missingDocs true
 
 namespace Lean.Language
 
@@ -186,16 +186,54 @@ instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
     | some a => toSnapshotTree a
     | none   => default
 
+/-- Snapshot type without child nodes. -/
+structure SnapshotLeaf extends Snapshot
+deriving Nonempty, TypeName
 
+instance : ToSnapshotTree SnapshotLeaf where
+  toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
+
+/-- Arbitrary snapshot type, used for extensibility. -/
+structure DynamicSnapshot where
+  /-- Concrete snapshot value as `Dynamic`. -/
+  val  : Dynamic
+  /-- Snapshot tree retrieved from `val` before erasure. -/
+  tree : SnapshotTree
+deriving Nonempty
+
+instance : ToSnapshotTree DynamicSnapshot where
+  toSnapshotTree s := s.tree
+
+/-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
+def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where
+  val := .mk val
+  tree := ToSnapshotTree.toSnapshotTree val
+
+/-- Returns the original snapshot value if it is of the given type. -/
+def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
+    Option α :=
+  snap.val.get? α
+
+/--
+Arbitrary value paired with a syntax that should be inspected when considering the value for reuse.
+-/
 structure SyntaxGuarded (α : Type) where
+  /-- Syntax to be inspected for reuse. -/
   stx : Syntax
+  /-- Potentially reusable value. -/
   val : α
 
-def SyntaxGuarded.get? (guarded : SyntaxGuarded α) (newStx : Syntax) : Option α :=
-  guard (newStx.structRangeEq guarded.stx) *> some guarded.val
-
+/-- `SnapshotBundle` with `SyntaxGuarded` old value. -/
 structure SyntaxGuardedSnapshotBundle (α : Type) where
+  /--
+  Snapshot task of corresponding elaboration in previous document version if any, paired with
+  its old syntax to be considered for reuse.
+  -/
   old? : Option (SyntaxGuarded <| SnapshotTask α)
+  /--
+  Promise of snapshot value for the current document. When resolved, the language server will
+  report its result even before the current elaborator invocation has finished.
+  -/
   new  : IO.Promise α
 
 /--

@@ -36,83 +36,6 @@ structure State where
   traceState     : TraceState := {}
   deriving Nonempty
 
-section Snapshots
-open Language
-
-/-- Header elaboration data of a `DefView`. -/
-structure DefViewElabHeaderData where
-  /--
-    Short name. Recall that all declarations in Lean 4 are potentially recursive. We use `shortDeclName` to refer
-    to them at `valueStx`, and other declarations in the same mutual block. -/
-  shortDeclName : Name
-  /-- Full name for this declaration. This is the name that will be added to the `Environment`. -/
-  declName      : Name
-  /-- Universe level parameter names explicitly provided by the user. -/
-  levelNames    : List Name
-  /-- Syntax objects for the binders occurring before `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
-  binderIds     : Array Syntax
-  /-- Number of parameters before `:`, it also includes auto-implicit parameters automatically added by Lean. -/
-  numParams     : Nat
-  /-- Type including parameters. -/
-  type          : Expr
-deriving Inhabited
-
-/-- Snapshot after processing of a definition body.  -/
-structure BodyProcessedSnapshot extends Language.Snapshot where
-  /-- State after elaboration. -/
-  state : Term.SavedState
-  /-- Elaboration result. -/
-  value : Expr
-deriving Nonempty
-instance : Language.ToSnapshotTree BodyProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
-
-/-- Snapshot after elaboration of a definition header. -/
-structure HeaderProcessedSnapshot extends Language.Snapshot where
-  /-- Elaboration results. -/
-  view : DefViewElabHeaderData
-  /-- Resulting elaboration state, including any environment additions. -/
-  state : Term.SavedState
-  tacStx? : Option Syntax
-  /-- Incremental execution of main tactic block, if any. -/
-  tacSnap? : Option (SnapshotTask Tactic.TacticParsedSnapshot)
-  /-- Syntax of definition body, for checking reuse of `body`. -/
-  bodyStx : Syntax
-  /-- Result of body elaboration. -/
-  bodySnap : SnapshotTask (Option BodyProcessedSnapshot)
-deriving Nonempty
-instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot,
-    (match s.tacSnap? with
-      | some tac => #[tac.map (sync := true) toSnapshotTree]
-      | none     => #[]) ++
-    #[s.bodySnap.map (sync := true) toSnapshotTree]⟩
-
-/-- State before elaboration of a definition header. -/
-structure HeaderParsed where
-  /--
-  Input substring uniquely identifying header elaboration result given the same `Environment`.
-  If missing, results should never be reused.
-  -/
-  headerSubstr? : Option Substring
-  /-- Elaboration result, unless fatal exception occurred. -/
-  processedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
-deriving Nonempty
-
-/-- Snapshot after syntax tree has been split into separate mutual def headers. -/
-structure HeadersParsedSnapshot extends Language.Snapshot where
-  /-- Definition headers of this mutual block. -/
-  headers : Array HeaderParsed
-deriving Nonempty
-instance : Language.ToSnapshotTree HeadersParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.headers.map (·.processedSnap.map (sync := true) toSnapshotTree)⟩
-
-/-- Initial snapshot for incremental reuse and reporting in command elaboration. -/
--- TODO: make inductive with `Dynamic` option
-abbrev InitSnapshot := HeadersParsedSnapshot
-
-end Snapshots
-
 structure Context where
   fileName       : String
   fileMap        : FileMap
@@ -123,14 +46,16 @@ structure Context where
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
-  Snapshot for incremental reuse and reporting of (mutual) def elaboration.
+  Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
+  (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
+  `HeadersParsedSnapshot`.
 
   Definitely resolved in `Language.Lean.process.doElab`.
 
   Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
   old elaboration are identical.
   -/
-  snap?          : Option (Language.SnapshotBundle HeadersParsedSnapshot)
+  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception

@@ -106,7 +106,7 @@ incrementality for them.
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean
-open Lean.Elab
+open Lean.Elab Command
 open Lean.Parser
 
 private def pushOpt (a? : Option α) (as : Array α) : Array α :=
@@ -132,9 +132,9 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
 /-- Snapshot after elaboration of the entire command. -/
 structure CommandFinishedSnapshot extends Language.Snapshot where
   /-- Resulting elaboration state. -/
-  cmdState : Command.State
+  cmdState : State
 deriving Nonempty
-instance : ToSnapshotTree CommandFinishedSnapshot where
+instance : Language.ToSnapshotTree CommandFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- State after a command has been parsed. -/
@@ -143,15 +143,10 @@ structure CommandParsedSnapshotData extends Snapshot where
   stx : Syntax
   /-- Resulting parser state. -/
   parserState : Parser.ModuleParserState
-  /--
-  Snapshot for incremental reporting and reuse during elaboration, type dependent on specific
-  elaborator.
-   -/
-  elabSnap : SnapshotTask DynamicSnapshot
+  /-- Definition headers processing task. -/
+  headersSnap : SnapshotTask HeadersParsedSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
-  /-- Cache for `save`; to be replaced with incrementality. -/
-  tacticCache : IO.Ref Tactic.Cache
 deriving Nonempty
 
 /-- State after a command has been parsed. -/
@@ -171,16 +166,16 @@ abbrev CommandParsedSnapshot.next? : CommandParsedSnapshot →
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.data.toSnapshot,
-      #[s.data.elabSnap.map (sync := true) toSnapshotTree,
+      #[s.data.headersSnap.map (sync := true) toSnapshotTree,
         s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
         pushOpt (s.next?.map (·.map (sync := true) go))⟩
 
 
 /-- Cancels all significant computations from this snapshot onwards. -/
 partial def CommandParsedSnapshot.cancel (snap : CommandParsedSnapshot) : BaseIO Unit := do
-  -- This is the only relevant computation right now, everything else is promises
-  -- TODO: cancel additional elaboration tasks (which will be tricky with `DynamicSnapshot`) if we
-  -- add them without switching to implicit cancellation
+  -- This is the only relevant computation right now
+  -- TODO: cancel additional elaboration tasks if we add them without switching to implicit
+  -- cancellation
   snap.data.finishedSnap.cancel
   if let some next := snap.next? then
     -- recurse on next command (which may have been spawned just before we cancelled above)
@@ -248,6 +243,16 @@ instance : MonadLift (ProcessingT m) (LeanProcessingT m) where
   monadLift := fun act ctx => act ctx.toProcessingContext
 
 /--
+Embeds a `LeanProcessingT` action into `ProcessingT`, optionally using the old input string to
+speed up reuse analysis.
+-/
+def LeanProcessingT.run [Monad m] (act : LeanProcessingT m α) (oldInputCtx? : Option InputContext) :
+    ProcessingT m α := do
+  -- compute position of syntactic change once
+  let firstDiffPos? := oldInputCtx?.map (·.input.firstDiffPos (← read).input)
+  ReaderT.adapt ({ · with firstDiffPos? }) act
+
+/--
 Returns true if there was a previous run and the given position is before any textual change
 compared to it.
 -/
@@ -280,10 +285,7 @@ partial def process
     (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot Options) :=
       fun _ => pure <| .ok {})
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
-  -- compute position of syntactic change once
-  let firstDiffPos? := old?.map (·.ictx.input.firstDiffPos (← read).input)
-  ReaderT.adapt ({ · with firstDiffPos? }) do
-    parseHeader old?
+  parseHeader old? |>.run (old?.map (·.ictx))
 where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
@@ -405,9 +407,8 @@ where
       -- is not `Inhabited`
       return .pure <| .mk (nextCmdSnap? := none) {
         diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+        headersSnap := .pure { diagnostics := .empty, headers := #[] }
         finishedSnap := .pure { diagnostics := .empty, cmdState }
-        tacticCache := (← IO.mkRef {})
       }
 
     let unchanged old : BaseIO CommandParsedSnapshot :=
@@ -415,10 +416,10 @@ where
       if let some oldNext := old.next? then
         return .mk (data := old.data)
           (nextCmdSnap? := (← old.data.finishedSnap.bindIO (sync := true) fun oldFinished =>
-              -- also wait on old command parse snapshot as parsing is cheap and may allow for
-              -- elaboration reuse
-              oldNext.bindIO (sync := true) fun oldNext => do
-                parseCmd oldNext old.data.parserState oldFinished.cmdState ctx))
+            -- also wait on old command parse snapshot as parsing is cheap and may allow for
+            -- elaboration reuse
+            oldNext.bindIO (sync := true) fun oldNext => do
+              parseCmd oldNext old.data.parserState oldFinished.cmdState ctx))
       else return old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot
@@ -444,14 +445,11 @@ where
         -- on first change, make sure to cancel all further old tasks
         old.cancel
 
-      -- definitely resolved in `doElab` task
-      let elabPromise ← IO.Promise.new
-      let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
+      -- definitely assigned in `doElab` task
+      let headers ← IO.Promise.new
       let finishedSnap ←
         doElab stx cmdState msgLog.hasErrors beginPos
-          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
-          tacticCache
-          ctx
+          { old? := old?.map (·.data.headersSnap), new := headers } ctx
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
@@ -461,31 +459,20 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
-        elabSnap := { range? := finishedSnap.range?, task := elabPromise.result }
+        headersSnap := { range? := none, task := headers.result }
         finishedSnap
-        tacticCache
       }
 
   doElab (stx : Syntax) (cmdState : Command.State) (hasParseError : Bool) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
+      (snap : SnapshotBundle HeadersParsedSnapshot) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
-
-    -- signature elaboration task; for now, does full elaboration
-    -- TODO: do tactic snapshots, reuse old state for them
     SnapshotTask.ofIO (stx.getRange?.getD ⟨beginPos, beginPos⟩) do
       let scope := cmdState.scopes.head!
       let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
-      /-
-      The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
-      has exclusive access to the cache, we create a fresh reference here. Before this change, the
-      following `tacticCache.modify` would reset the tactic post cache while another snapshot was
-      still using it.
-      -/
-      let tacticCacheNew ← IO.mkRef (← tacticCache.get)
       let cmdCtx : Elab.Command.Context := { ctx with
         cmdPos       := beginPos
-        tacticCache? := some tacticCacheNew
+        tacticCache? := none
         snap?        := some snap
       }
       let (output, _) ←
@@ -515,13 +502,29 @@ where
           data     := output
         }
       let cmdState := { cmdState with messages }
-      -- definitely resolve eventually
-      snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+      -- only has an effect if actual `resolve` was skipped from fatal exception (caught by
+      -- `catchExceptions` above) or it not being a mutual def
+      snap.new.resolve { headers := #[], diagnostics := .empty }
       return {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
         infoTree? := some cmdState.infoState.trees[0]!
         cmdState
       }
+
+/--
+Convenience function for tool uses of the language processor that skips header handling.
+-/
+def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState)
+    (commandState : Command.State)
+    (old? : Option (Parser.InputContext × CommandParsedSnapshot) := none) :
+    BaseIO (SnapshotTask CommandParsedSnapshot) := do
+  process.parseCmd (old?.map (·.2)) parserState commandState
+    |>.run (old?.map (·.1))
+    |>.run { inputCtx with
+      mainModuleName := commandState.env.mainModule
+      opts := commandState.scopes.head!.opts
+    }
+
 
 /-- Waits for and returns final environment, if importing was successful. -/
 partial def waitForFinalEnv? (snap : InitialSnapshot) : Option Environment := do

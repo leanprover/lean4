@@ -179,7 +179,7 @@ def restore (b : State) : CoreM Unit :=
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+betweeen elaboration runs, not for backtracking within a single run.
 -/
 def restoreFull (b : State) : CoreM Unit :=
   set b
@@ -252,12 +252,8 @@ def resetMessageLog : CoreM Unit :=
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
-/--
-Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
-for incremental reporting during elaboration of a single command.
--/
-def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun log => ({ log with msgs := {} }, log)
+def getResetMessageLog : CoreM MessageLog :=
+  getMessageLog <* resetMessageLog
 
 instance : MonadLog CoreM where
   getRef      := getRef

@@ -298,6 +298,14 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
+    withReader (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+        { tacSnap with old? := tacSnap.old?.bind fun old => match old.stx with
+          | `(by%$oldByTk $oldTacs:tacticSeq1Indented) => do
+            guard <| oldByTk.structRangeEq tacticCode[0]
+            return { old with stx := oldTacs.raw[0] }
+          | _ => none
+         }
+       }) do
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-

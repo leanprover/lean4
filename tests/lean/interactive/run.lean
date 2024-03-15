@@ -116,7 +116,7 @@ partial def main (args : List String) : IO Unit := do
             }
             contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
               start := pos
-              «end» := { pos with character := pos.character + params.endPos.byteIdx }
+              «end» := pos
             } params]
           }
           let params := toJson params

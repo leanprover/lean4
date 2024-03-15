@@ -373,7 +373,7 @@ def SavedState.restore (b : SavedState) : MetaM Unit := do
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+betweeen elaboration runs, not for backtracking within a single run.
 -/
 def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
   Core.restoreFull b.core

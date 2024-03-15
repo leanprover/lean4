@@ -34,10 +34,6 @@ structure Context where
   -/
   recover    : Bool := true
 
-structure SavedState where
-  term   : Term.SavedState
-  tactic : State
-
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -98,6 +94,14 @@ protected def saveState : TacticM SavedState :=
 
 def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit := do
   b.term.restore restoreInfo
+  set b.tactic
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+betweeen elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : TacticM Unit := do
+  b.term.restoreFull
   set b.tactic
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope

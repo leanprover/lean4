@@ -13,9 +13,14 @@ import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
 
-set_option linter.missingDocs true
+--set_option linter.missingDocs true
 
 namespace Lean.Language
+
+/-- Unique diagnostics ID type of `Snapshot.Diagnostics.id?`. -/
+structure Snapshot.Diagnostics.ID where
+  private id : Nat
+deriving Nonempty, BEq, Ord
 
 /-- `MessageLog` with interactive diagnostics. -/
 structure Snapshot.Diagnostics where
@@ -30,6 +35,15 @@ structure Snapshot.Diagnostics where
   -/
   interactiveDiagsRef? : Option (IO.Ref (Option Dynamic))
 deriving Inhabited
+
+/-- Next ID to be used for `Snapshot.Diagnostics.id?`. -/
+-- As the `Nat` value is not observable outside of this  module, using a global ref should be
+-- justified and simplifies reporting diagnostics from inside the elaborator
+private builtin_initialize nextDiagsIdRef : IO.Ref Nat ← IO.mkRef 0
+
+/-- Returns a new, unique diagnostics ID. -/
+def Snapshot.Diagnostics.ID.new : BaseIO ID :=
+  nextDiagsIdRef.modifyGet fun id => (⟨id⟩, id + 1)
 
 /-- The empty set of diagnostics. -/
 def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
@@ -118,15 +132,6 @@ def SnapshotTask.get? (t : SnapshotTask α) : BaseIO (Option α) :=
   return if (← IO.hasFinished t.task) then some t.task.get else none
 
 /--
-Arbitrary value paired with a syntax that should be inspected when considering the value for reuse.
--/
-structure SyntaxGuarded (α : Type) where
-  /-- Syntax to be inspected for reuse. -/
-  stx : Syntax
-  /-- Potentially reusable value. -/
-  val : α
-
-/--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
 checking if we can reuse `old?` if set or else redoing the corresponding elaboration step. In either
@@ -141,10 +146,10 @@ hashes but the promise will still need to be passed through the elaborator.
 -/
 structure SnapshotBundle (α : Type) where
   /--
-  Snapshot task of corresponding elaboration in previous document version if any, paired with its
-  old syntax to be considered for reuse. Should be set to `none` as soon as reuse can be ruled out.
+  Snapshot task of corresponding elaboration in previous document version if any.  Should be set to
+  `none` as soon as reuse can be ruled out.
   -/
-  old? : Option (SyntaxGuarded (SnapshotTask α))
+  old? : Option (SnapshotTask α)
   /--
   Promise of snapshot value for the current document. When resolved, the language server will
   report its result even before the current elaborator invocation has finished.
@@ -181,33 +186,17 @@ instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
     | some a => toSnapshotTree a
     | none   => default
 
-/-- Snapshot type without child nodes. -/
-structure SnapshotLeaf extends Snapshot
-deriving Nonempty, TypeName
 
-instance : ToSnapshotTree SnapshotLeaf where
-  toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
+structure SyntaxGuarded (α : Type) where
+  stx : Syntax
+  val : α
 
-/-- Arbitrary snapshot type, used for extensibility. -/
-structure DynamicSnapshot where
-  /-- Concrete snapshot value as `Dynamic`. -/
-  val  : Dynamic
-  /-- Snapshot tree retrieved from `val` before erasure. -/
-  tree : SnapshotTree
-deriving Nonempty
+def SyntaxGuarded.get? (guarded : SyntaxGuarded α) (newStx : Syntax) : Option α :=
+  guard (newStx.structRangeEq guarded.stx) *> some guarded.val
 
-instance : ToSnapshotTree DynamicSnapshot where
-  toSnapshotTree s := s.tree
-
-/-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
-def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where
-  val := .mk val
-  tree := ToSnapshotTree.toSnapshotTree val
-
-/-- Returns the original snapshot value if it is of the given type. -/
-def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
-    Option α :=
-  snap.val.get? α
+structure SyntaxGuardedSnapshotBundle (α : Type) where
+  old? : Option (SyntaxGuarded <| SnapshotTask α)
+  new  : IO.Promise α
 
 /--
   Option for printing end position of each message in addition to start position. Used for testing

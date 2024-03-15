@@ -1,0 +1,28 @@
+0
+1
+2
+{"textDocument": {"version": 2, "uri": "file:///incremental.lean"},
+ "contentChanges":
+ [{"text": ".5",
+   "range":
+   {"start": {"line": 7, "character": 14},
+    "end": {"line": 7, "character": 14}}}]}
+2.5
+{"version": 2,
+ "uri": "file:///incremental.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 16}, "end": {"line": 5, "character": 0}},
+   "message": "unsolved goals\n⊢ True",
+   "fullRange":
+   {"start": {"line": 4, "character": 16},
+    "end": {"line": 7, "character": 17}}},
+  {"source": "Lean 4",
+   "severity": 2,
+   "range":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 5}},
+   "message": "declaration uses 'sorry'",
+   "fullRange":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 5}}}]}

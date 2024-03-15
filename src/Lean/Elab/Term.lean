@@ -13,6 +13,7 @@ import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Language.Basic
 
 namespace Lean.Elab
 
@@ -112,6 +113,14 @@ structure State where
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
+/--
+  Backtrackable state for the `TermElabM` monad.
+-/
+structure SavedState where
+  meta   : Meta.SavedState
+  «elab» : State
+  deriving Nonempty
+
 end Term
 
 namespace Tactic
@@ -152,6 +161,37 @@ structure Cache where
    post : PHashMap CacheKey Snapshot := {}
    deriving Inhabited
 
+section Snapshot
+open Language
+
+structure SavedState where
+  term   : Term.SavedState
+  tactic : State
+
+structure TacticFinishedSnapshot extends Language.Snapshot where
+  state? : Option SavedState
+deriving Nonempty
+
+structure TacticParsedSnapshotData extends Language.Snapshot where
+  stx    : Syntax
+  finishedSnap : SnapshotTask TacticFinishedSnapshot
+deriving Nonempty
+
+/-- State after execution of a single synchronous tactic step. -/
+inductive TacticParsedSnapshot where
+  | mk (data : TacticParsedSnapshotData) (next : Array (SnapshotTask TacticParsedSnapshot))
+deriving Nonempty
+abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData
+  | .mk data _ => data
+/-- Potential, potentially parallel, follow-up tactic executions. -/
+-- In the first, non-parallel version, each task will depend on its predecessor
+abbrev TacticParsedSnapshot.next : TacticParsedSnapshot → Array (SnapshotTask TacticParsedSnapshot)
+  | .mk _ next => next
+partial instance : ToSnapshotTree TacticParsedSnapshot where
+  toSnapshotTree := go where
+    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map go)⟩
+
+end Snapshot
 end Tactic
 
 namespace Term
@@ -211,6 +251,13 @@ structure Context where
   /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
   /--
+  Snapshot for incremental processing of current tactic, if any.
+
+  Invariant: if the bundle's `old?` is set, then the state *up to the start* of the tactic is
+  unchanged, i.e. reuse is possible.
+  -/
+  tacSnap?         : Option (Language.SyntaxGuardedSnapshotBundle Tactic.TacticParsedSnapshot) := none
+  /--
   If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
   of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
   We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
@@ -241,14 +288,6 @@ open Meta
 instance : Inhabited (TermElabM α) where
   default := throw default
 
-/--
-  Backtrackable state for the `TermElabM` monad.
--/
-structure SavedState where
-  meta   : Meta.SavedState
-  «elab» : State
-  deriving Nonempty
-
 protected def saveState : TermElabM SavedState :=
   return { meta := (← Meta.saveState), «elab» := (← get) }
 
@@ -263,7 +302,7 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+betweeen elaboration runs, not for backtracking within a single run.
 -/
 def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
   s.meta.restoreFull

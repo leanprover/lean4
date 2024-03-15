@@ -16,6 +16,7 @@ structure State where
   parserState  : Parser.ModuleParserState
   cmdPos       : String.Pos
   commands     : Array Syntax := #[]
+deriving Nonempty
 
 structure Context where
   inputCtx : Parser.InputContext
@@ -91,6 +92,47 @@ open Frontend
 def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.ModuleParserState) (commandState : Command.State) : IO State := do
   let (_, s) ← (Frontend.processCommands.run { inputCtx := inputCtx }).run { commandState := commandState, parserState := parserState, cmdPos := parserState.pos }
   pure s
+
+structure IncrementalState extends State where
+  inputCtx    : Parser.InputContext
+  initialSnap : Language.Lean.CommandParsedSnapshot
+deriving Nonempty
+
+open Language in
+/--
+Variant of `IO.processCommands` that uses the new Lean language processor implementation for
+potential incremental reuse. Pass in result of a previous invocation done with the same state
+(but usually different input context) to allow for reuse.
+-/
+-- `IO.processCommands` can be reimplemented on top of this as soon as the additional tasks speed up
+-- things instead of slowing them down
+partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
+    (parserState : Parser.ModuleParserState) (commandState : Command.State)
+    (old? : Option IncrementalState) :
+    BaseIO IncrementalState := do
+  let task ← Language.Lean.processCommands inputCtx parserState commandState
+    (old?.map fun old => (old.inputCtx, old.initialSnap))
+  go task.get task #[]
+where
+  go initialSnap t commands :=
+    let snap := t.get
+    let commands := commands.push snap.data.stx
+    if let some next := snap.next? then
+      go initialSnap next commands
+    else
+      -- Opting into reuse also enables incremental reporting, so make sure to collect messages from
+      -- all snapshots
+      let messages := toSnapshotTree initialSnap
+        |>.getAll.map (·.diagnostics.msgLog)
+        |>.foldl (· ++ ·) {}
+      let trees := toSnapshotTree initialSnap
+        |>.getAll.map (·.infoTree?) |>.filterMap id |>.toPArray'
+      return {
+        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.data.parserState
+        cmdPos := snap.data.parserState.pos
+        inputCtx, initialSnap, commands
+      }
 
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
   let fileName   := fileName.getD "<input>"

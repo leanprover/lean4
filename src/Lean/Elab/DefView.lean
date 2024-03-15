@@ -36,6 +36,13 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  /--
+  Snapshot for incremental processing of this definition.
+
+  Invariant: If the bundle's `old?` is set, then elaboration of the header is guaranteed to result
+  in the same elaboration result and state, i.e. reuse is possible.
+  -/
+  headerSnap?   : Option (Language.SnapshotBundle (Option Command.HeaderProcessedSnapshot)) := none
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 

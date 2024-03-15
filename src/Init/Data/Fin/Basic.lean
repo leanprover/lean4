@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura, Robert Y. Lewis, Keeley Hoek, Mario Carneiro
 -/
 prelude
-import Init.Data.Nat.Div
 import Init.Data.Nat.Bitwise.Basic
-import Init.Coe
 
 open Nat
 
@@ -170,9 +168,3 @@ theorem val_add_one_le_of_lt {n : Nat} {a b : Fin n} (h : a < b) : (a : Nat) + 1
 theorem val_add_one_le_of_gt {n : Nat} {a b : Fin n} (h : a > b) : (b : Nat) + 1 ≤ (a : Nat) := h
 
 end Fin
-
-instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
-  getElem xs i h := getElem xs i.1 h
-
-macro_rules
-  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

@@ -45,11 +45,11 @@ class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : o
   -/
   getElem (xs : cont) (i : idx) (h : dom xs i) : elem
 
-  getElem! [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
-    if h : _ then getElem xs i h else outOfBounds
-
   getElem? (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
     if h : _ then some (getElem xs i h) else none
+
+  getElem! [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
+    match getElem? xs i h with | some e => e | none => outOfBounds
 
 export GetElem (getElem getElem! getElem?)
 

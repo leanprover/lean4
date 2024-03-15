@@ -87,17 +87,13 @@ FOREACH(T ${LEANDOCEXS})
 ENDFOREACH(T)
 
 # LEAN COMPILER TESTS
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  message(STATUS "Skipping compiler tests on Windows because of shared library limit on number of exported symbols")
-else()
-  file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
-  FOREACH(T ${LEANCOMPTESTS})
-    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leancomptest_${T_NAME}"
-             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
-  ENDFOREACH(T)
-endif()
+file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
+FOREACH(T ${LEANCOMPTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leancomptest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
+           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"

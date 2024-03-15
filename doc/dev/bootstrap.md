@@ -81,20 +81,8 @@ or using Github CLI with
 gh workflow run update-stage0.yml
 ```
 
-Leaving stage0 updates to the CI automation is preferrable, but should you need
-to do it locally, you can use `make update-stage0` in `build/release`, to
-update `stage0` from `stage1`, `make -C stageN update-stage0` to update from
-another stage, or `nix run .#update-stage0-commit` to update using nix.
-
-Updates to `stage0` should be their own commits in the Git history. So should
-you have to include the stage0 update in your PR (rather than using above
-automation after merging changes), commit your work before running `make
-update-stage0`, commit the updated `stage0` compiler code with the commit
-message:
-```
-chore: update stage0
-```
-and coordinate with the admins to not squash your PR.
+Leaving stage0 updates to the CI automation is preferable, but should you need to do it locally, you can use `make update-stage0-commit` in `build/release` to update `stage0` from `stage1` or `make -C stageN update-stage0-commit` to update from another stage.
+This command will automatically stage the updated files and introduce a commit, so make sure to commit your work before that. Then coordinate with the admins to not squash your PR so that stage 0 updates are preserved as separate commits.
 
 ## Further Bootstrapping Complications
 

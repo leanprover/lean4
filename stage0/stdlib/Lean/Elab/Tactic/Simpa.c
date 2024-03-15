@@ -71,7 +71,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__2(lean_object*, 
 static lean_object* l___regBuiltin_Std_Tactic_Simpa_evalSimpa___closed__6;
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Std_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_49____closed__17;
 static lean_object* l_Std_Tactic_Simpa_instReprUseImplicitLambdaResult___closed__1;
-lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Std_Tactic_Simpa_evalSimpa___spec__1___closed__2;
 static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__10___closed__5;
 static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__2___closed__9;
@@ -102,6 +101,7 @@ static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__15___closed__1;
 static lean_object* l___private_Lean_Elab_Tactic_Simpa_0__Std_Tactic_Simpa_reprUseImplicitLambdaResult____x40_Lean_Elab_Tactic_Simpa___hyg_49____closed__5;
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__2___closed__3;
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__7___closed__9;
 static lean_object* l_Std_Tactic_Simpa_evalSimpa___lambda__11___closed__2;
@@ -284,7 +284,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__3;
 x_3 = l_initFn____x40_Lean_Elab_Tactic_Simpa___hyg_5____closed__6;
-x_4 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_2, x_1);
+x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_2, x_1);
 return x_4;
 }
 }

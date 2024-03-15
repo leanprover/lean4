@@ -387,7 +387,6 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_591____closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_591____lambda__4___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_376____closed__3;
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4511_(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___elambda__1___spec__31___lambda__6___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Linter_unusedVariables___elambda__1___spec__31___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2559____lambda__1(lean_object*, lean_object*, lean_object*);
@@ -534,6 +533,7 @@ LEAN_EXPORT lean_object* l_Lean_HashSetImp_moveEntries___at_Lean_Linter_unusedVa
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_unusedVariables___elambda__1___spec__33___closed__2;
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___at_Lean_Linter_unusedVariables___elambda__1___spec__3(lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1293____spec__3___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4521_(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2708____lambda__1___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_995____lambda__1___closed__3;
@@ -6692,7 +6692,7 @@ if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; 
 x_44 = lean_ctor_get(x_2, 1);
-x_45 = lean_ctor_get(x_8, 0);
+x_45 = lean_ctor_get(x_8, 1);
 lean_inc(x_45);
 lean_dec(x_8);
 x_46 = l_Lean_HashMap_insert___at_Lean_Linter_unusedVariables___elambda__1___spec__8(x_44, x_45, x_42);
@@ -6708,7 +6708,7 @@ x_49 = lean_ctor_get(x_2, 1);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_2);
-x_50 = lean_ctor_get(x_8, 0);
+x_50 = lean_ctor_get(x_8, 1);
 lean_inc(x_50);
 lean_dec(x_8);
 x_51 = l_Lean_HashMap_insert___at_Lean_Linter_unusedVariables___elambda__1___spec__8(x_49, x_50, x_42);
@@ -9570,7 +9570,7 @@ goto _start;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = lean_ctor_get(x_6, 0);
+x_10 = lean_ctor_get(x_6, 1);
 lean_inc(x_10);
 lean_dec(x_6);
 lean_inc(x_1);
@@ -12089,7 +12089,7 @@ lean_dec(x_4);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4511_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4521_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -12723,7 +12723,7 @@ l_Lean_Linter_unusedVariables___closed__3 = _init_l_Lean_Linter_unusedVariables_
 lean_mark_persistent(l_Lean_Linter_unusedVariables___closed__3);
 l_Lean_Linter_unusedVariables = _init_l_Lean_Linter_unusedVariables();
 lean_mark_persistent(l_Lean_Linter_unusedVariables);
-if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4511_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_4521_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 }l_Lean_MessageData_isUnusedVariableWarning___closed__1 = _init_l_Lean_MessageData_isUnusedVariableWarning___closed__1();

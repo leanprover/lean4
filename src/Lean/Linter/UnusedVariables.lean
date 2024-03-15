@@ -49,7 +49,7 @@ def addBuiltinUnusedVariablesIgnoreFn (h : IgnoreFunction) : IO Unit :=
   builtinUnusedVariablesIgnoreFnsRef.modify (·.push h)
 
 builtin_initialize unusedVariablesIgnoreFnsExt :
-  PersistentEnvExtension Name (Name × IgnoreFunction) (List Name × Array IgnoreFunction) ←
+  PersistentEnvExtension (Array Name) (Name × IgnoreFunction) (List Name × Array IgnoreFunction) ←
   registerPersistentEnvExtension {
     mkInitial       := return ([], ← builtinUnusedVariablesIgnoreFnsRef.get)
     addImportedFn   := fun as => do

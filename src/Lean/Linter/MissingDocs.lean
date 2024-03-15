@@ -48,7 +48,7 @@ opaque mkHandler (constName : Name) : ImportM Handler
 builtin_initialize builtinHandlersRef : IO.Ref (NameMap Handler) ← IO.mkRef {}
 
 builtin_initialize missingDocsExt :
-  PersistentEnvExtension (Name × Name) (Name × Name × Handler) (List (Name × Name) × NameMap Handler) ←
+  PersistentEnvExtension (Array (Name × Name)) (Name × Name × Handler) (List (Name × Name) × NameMap Handler) ←
   registerPersistentEnvExtension {
     mkInitial       := return ([], ← builtinHandlersRef.get)
     addImportedFn   := fun as => do

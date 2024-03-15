@@ -44,7 +44,7 @@ structure SimprocDeclExtState where
 def SimprocDecl.lt (decl₁ decl₂ : SimprocDecl) : Bool :=
   Name.quickLt decl₁.declName decl₂.declName
 
-builtin_initialize simprocDeclExt : PersistentEnvExtension SimprocDecl SimprocDecl SimprocDeclExtState ←
+builtin_initialize simprocDeclExt : PersistentEnvExtension (Array SimprocDecl) SimprocDecl SimprocDeclExtState ←
   registerPersistentEnvExtension {
     mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get).keys }
     addImportedFn   := fun _ => return { builtin := (← builtinSimprocDeclsRef.get).keys }

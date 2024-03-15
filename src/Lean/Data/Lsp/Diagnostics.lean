@@ -129,15 +129,8 @@ private structure DiagnosticWith.UserVisible (α : Type) where
 
 /-- Extracts user-visible properties from the given `DiagnosticWith`. -/
 private def DiagnosticWith.UserVisible.ofDiagnostic (d : DiagnosticWith α)
-    : DiagnosticWith.UserVisible α where
-  range               := d.range
-  fullRange?          := d.fullRange?
-  severity?           := d.severity?
-  code?               := d.code?
-  source?             := d.source?
-  message             := d.message
-  tags?               := d.tags?
-  relatedInformation? := d.relatedInformation?
+    : DiagnosticWith.UserVisible α :=
+  { d with }
 
 /-- Compares `DiagnosticWith` instances modulo non-user-facing properties. -/
 def compareByUserVisible [Ord α] (a b : DiagnosticWith α) : Ordering :=

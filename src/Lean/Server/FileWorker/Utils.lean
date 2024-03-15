@@ -42,9 +42,9 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
     } <| .delayed <| headerSuccess.firstCmdSnap.task.bind go
-where go cmdParsed :=
-  cmdParsed.data.sigSnap.task.bind fun sig =>
-    sig.finishedSnap.task.map fun finished =>
+where
+  go cmdParsed :=
+    cmdParsed.data.finishedSnap.task.map fun finished =>
       .ok <| .cons {
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
@@ -52,6 +52,10 @@ where go cmdParsed :=
       } (match cmdParsed.next? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)
+
+/-- A map from Diagnostics ID to resulting interactive objects. -/
+abbrev DiagnosticsCache :=
+  RBMap Language.Snapshot.Diagnostics.ID (Array Widget.InteractiveDiagnostic) compare
 
 /--
 A document bundled with processing information. Turned into `EditableDocument` as soon as the

@@ -28,13 +28,84 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
-@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx => do
-  let args := stx[0].getArgs
-  for i in [:args.size] do
-    if i % 2 == 0 then
-      evalTactic args[i]!
-    else
-      saveTacticInfoForToken args[i]! -- add `TacticInfo` node for `;`
+/--
+Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
+children.
+ -/
+def evalSepTactics (stx : Syntax) : TacticM Unit := do
+  goEven stx.getArgs.toList
+where
+  goEven : _ → TacticM _
+    | [] => return
+    | tac :: stxs => do
+      if let some snap := (← readThe Term.Context).tacSnap? then
+        let mut reused := false
+        let mut oldInner? := none
+        let mut oldNext? := none
+        if let some old := snap.old? then
+          let oldEvaluated := old.val.get
+          oldInner? := oldEvaluated.next.get? 0 |>.map (⟨oldEvaluated.data.stx, ·⟩)
+          if tac.structRangeEq (old.stx.getArg 0) then
+            if let some state := oldEvaluated.data.finishedSnap.get.state? then
+              state.restoreFull
+              reused := true
+              oldNext? := oldEvaluated.next.get? 1 |>.map (⟨mkNullNode old.stx.getArgs[1:], ·⟩)
+
+        -- definitely resolved below
+        let next ← IO.Promise.new
+        let inner ← IO.Promise.new
+        let finished ← IO.Promise.new
+        let _ := MonadAlwaysExcept.except (m := TacticM)
+        try
+          snap.new.resolve <| .mk {
+            stx := tac
+            diagnostics := .empty
+            finishedSnap := { range? := tac.getRange?, task := finished.result }
+          } #[
+            {
+              range? := tac.getRange?
+              task := inner.result },
+            {
+              range? := mkNullNode stxs.toArray |>.getRange?
+              task := next.result }]
+          unless reused do
+            withTheReader Term.Context ({ · with
+                tacSnap? := if tac.isOfKind ``Lean.Parser.Tactic.case then
+                  some {
+                    old? := oldInner?
+                    new := inner
+                  } else none }) do
+              evalTactic tac
+          finished.resolve { diagnostics := .empty, state? := (← saveState) }
+          withTheReader Term.Context ({ · with tacSnap? := some {
+            new := next
+            old? := oldNext?
+          } }) do
+            goOdd stxs
+        finally
+          inner.resolve <| .mk {
+            stx := tac, diagnostics := .empty
+            finishedSnap := { range? := none, task := .pure { diagnostics := .empty, state? := none } } } #[]
+          finished.resolve { diagnostics := .empty, state? := none }
+          next.resolve <| .mk {
+            stx := .missing, diagnostics := .empty
+            finishedSnap := { range? := none, task := finished.result } } #[]
+      else
+        evalTactic tac
+        goOdd stxs
+  goOdd
+    | [] => return
+    | sep :: stxs => do
+      saveTacticInfoForToken sep -- add `TacticInfo` node for `;`
+      withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun snap =>
+        { snap with old? := do
+          let old ← snap.old?
+          guard <| sep.structRangeEq (old.stx.getArg 0)
+          some { old with stx := mkNullNode old.stx.getArgs[1:] } } }) do
+        goEven stxs
+
+@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
+  evalSepTactics stx[0]
 
 @[builtin_tactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
@@ -103,24 +174,15 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
-/-- Evaluate `sepByIndent tactic "; " -/
-def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
-  let stx ← addCheckpoints stx
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
-    if i % 2 == 0 then
-      evalTactic arg
-    else
-      saveTacticInfoForToken arg
-
 @[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalSepByIndentTactic stx[0]
+  evalSepTactics stx[0]
 
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    evalSepTactics stx[1]
 
 @[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
@@ -131,7 +193,7 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    evalSepTactics stx[1]
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -423,7 +485,15 @@ where
 
 
 @[builtin_tactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>
+  | stx@`(tactic| case%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
+    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+        { tacSnap with old? := tacSnap.old?.bind fun old => match old.stx with
+          | `(tactic| case%$oldCaseTk $_ =>%$oldArr $oldTacs:tacticSeq1Indented ) => do
+            guard <| (← mkNullNode #[oldCaseTk, oldArr] |>.getSubstring?).sameAs (← mkNullNode #[caseTk, arr] |>.getSubstring?)
+            return { old with stx := oldTacs.raw.getArg 0 }
+          | _ => none
+         }
+       }) do
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs

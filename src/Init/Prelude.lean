@@ -3680,6 +3680,16 @@ def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
   | synthetic (pos := pos) .., false => some pos
   | _,                         _     => none
 
+/--
+Gets the end position information from a `SourceInfo`, if available.
+If `originalOnly` is true, then `.synthetic` syntax will also return `none`.
+-/
+def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+  match info, canonicalOnly with
+  | original (endPos := endPos) ..,  _
+  | synthetic (endPos := endPos) (canonical := true) .., _
+  | synthetic (endPos := endPos) .., false => some endPos
+  | _,                               _     => none
 end SourceInfo
 
 /--
@@ -3987,9 +3997,26 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
 
 /-- Retrieve the left-most leaf's info in the Syntax tree, or `none` if there is no token. -/
 partial def getHeadInfo (stx : Syntax) : SourceInfo :=
-  match stx.getHeadInfo? with
-  | some info => info
-  | none      => SourceInfo.none
+  stx.getHeadInfo?.getD .none
+
+/-- Retrieves the right-most node or leaf's info in the Syntax tree. -/
+partial def getTailInfo? : Syntax → Option SourceInfo
+  | atom info _   => some info
+  | ident info .. => some info
+  | node SourceInfo.none _ args   =>
+    let rec loop (i : Nat) : Option SourceInfo :=
+      match decide (LT.lt i args.size) with
+      | true => match getTailInfo? (args.get! ((args.size.sub i).sub 1)) with
+         | some info => some info
+         | none      => loop (hAdd i 1)
+      | false => none
+    loop 0
+  | node info _ _ => some info
+  | _             => none
+
+/-- Retrieves the right-most leaf's info in the Syntax tree, or `none` if there is no token. -/
+partial def getTailInfo (stx : Syntax) : SourceInfo :=
+  stx.getTailInfo?.getD .none
 
 /--
 Get the starting position of the syntax, if possible.
@@ -3999,32 +4026,13 @@ position information.
 def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
   stx.getHeadInfo.getPos? canonicalOnly
 
-
 /--
 Get the ending position of the syntax, if possible.
 If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
-  match stx, canonicalOnly with
-  | atom (SourceInfo.original (endPos := pos) ..) .., _
-  | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
-  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false
-  | ident (SourceInfo.original (endPos := pos) ..) .., _
-  | ident (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
-  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false
-  | node (SourceInfo.original (endPos := pos) ..) .., _
-  | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
-  | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
-  | node _ _ args, _ =>
-    let rec loop (i : Nat) : Option String.Pos :=
-      match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
-         | some info => some info
-         | none      => loop (hAdd i 1)
-      | false => none
-    loop 0
-  | _, _ => none
+def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getTailInfo.getTailPos? canonicalOnly
 
 /--
 An array of syntax elements interspersed with separators. Can be coerced

@@ -177,6 +177,13 @@ instance : MonadTrace CoreM where
 def restore (b : State) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+betweeen elaboration runs, not for backtracking within a single run.
+-/
+def restoreFull (b : State) : CoreM Unit :=
+  set b
+
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
@@ -244,6 +251,9 @@ def resetMessageLog : CoreM Unit :=
 
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
+
+def getResetMessageLog : CoreM MessageLog :=
+  getMessageLog <* resetMessageLog
 
 instance : MonadLog CoreM where
   getRef      := getRef

@@ -448,9 +448,9 @@ jobs:
     name: Build matrix complete
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ always() }}
+    if: ${{ !cancelled() }}
     steps:
-    - if: contains(needs.*.result, 'failure') ||  contains(needs.*.result, 'cancelled')
+    - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |

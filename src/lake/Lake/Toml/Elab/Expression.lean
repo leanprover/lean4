@@ -121,7 +121,7 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
     s with
     currKey := k
     keyTys := s.keyTys.insert k .stdTable
-    items := s.items.push (k, {})
+    items := s.items.push (k, .table x {})
   }
 
 def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
@@ -138,7 +138,7 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
       modify fun s => {
         s with
         keyTys, currArrKey := k
-        items := s.items.push (k, .array #[{}])
+        items := s.items.push (k, .array x #[.table x {}])
       }
     else
       throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
@@ -151,7 +151,7 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
         currArrKey := k
         arrKeyTys := s.arrKeyTys.insert s.currArrKey keyTys
         arrParents := s.arrParents.insert k s.currArrKey
-        items := s.items.push (k, .array #[{}])
+        items := s.items.push (k, .array x #[.table x {}])
       }
   return k
 
@@ -178,25 +178,25 @@ where
     match ks with
     | .nil =>
       match newV with
-      | .table newT =>
+      | .table _ newT =>
         let newT := mkSimpleTable newT.items
         t.insertMap k fun v? =>
           match v? with
-          | some (.table vt) => vt ++ newT
+          | some (.table ref vt) => .table ref <| vt ++ newT
           | _ => newT
       | _ =>
         t.insertMap k fun v? =>
           match v? with
-          | some (.array vs) => vs.push {}
+          | some (.array _ vs) => vs.push {}
           | _ => newV
     | k' :: ks => t.insertMap k fun v? =>
       if let some v := v? then
         match v with
-        | .array vs =>
-          vs.modify (vs.size-1) fun
-          | .table t' => insert t' k' ks newV
+        | .array ref vs =>
+          .array ref <| vs.modify (vs.size-1) fun
+          | .table ref t' => .table ref <| insert t' k' ks newV
           | _ => {}
-        | .table t' => insert t' k' ks newV
+        | .table ref t' => .table ref <| insert t' k' ks newV
         | _ => {}
       else
         insert {} k' ks newV

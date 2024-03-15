@@ -14,31 +14,41 @@ open Lean
 
 namespace Lake.Toml
 
-/-- A TOML value. -/
+/-- A TOML value with optional source info. -/
 inductive Value
-| string (s : String)
-| integer (n : Int)
-| float (n : Float)
-| boolean (b : Bool)
-| dateTime (dt : DateTime)
-| array (xs : Array Value)
-| private table' (xs : RBDict Name Value Name.quickCmp)
+| string (ref : Syntax) (s : String)
+| integer (ref : Syntax) (n : Int)
+| float (ref : Syntax) (n : Float)
+| boolean (ref : Syntax) (b : Bool)
+| dateTime (ref : Syntax) (dt : DateTime)
+| array (ref : Syntax) (xs : Array Value)
+| private table' (ref : Syntax) (xs : RBDict Name Value Name.quickCmp)
 deriving Inhabited, BEq
 
 /-- A TOML table, an ordered key-value map of TOML values (`Lake.Toml.Value`). -/
 abbrev Table := NameDict Value
 
-@[match_pattern] abbrev Value.table (t : Table) := Value.table' t
+@[match_pattern] abbrev Value.table (ref : Syntax) (t : Table) :=
+  Value.table' ref t
 
-instance : OfNat Value n := ⟨.integer n⟩
-instance : EmptyCollection Value := ⟨.table {}⟩
-instance : Coe String Value := ⟨.string⟩
-instance : Coe Int Value := ⟨.integer⟩
-instance : Coe Float Value := ⟨.float⟩
-instance : Coe Bool Value := ⟨.boolean⟩
-instance : Coe DateTime Value := ⟨.dateTime⟩
-instance : Coe (Array Value) Value := ⟨.array⟩
-instance : Coe Table Value := ⟨.table⟩
+instance : OfNat Value n := ⟨.integer .missing n⟩
+instance : EmptyCollection Value := ⟨.table .missing {}⟩
+instance : Coe String Value := ⟨.string .missing⟩
+instance : Coe Int Value := ⟨.integer .missing⟩
+instance : Coe Float Value := ⟨.float .missing⟩
+instance : Coe Bool Value := ⟨.boolean .missing⟩
+instance : Coe DateTime Value := ⟨.dateTime .missing⟩
+instance : Coe (Array Value) Value := ⟨.array .missing⟩
+instance : Coe Table Value := ⟨.table .missing⟩
+
+@[inline] def Value.ref : Value → Syntax
+| .string (ref := ref) .. => ref
+| .integer (ref := ref) .. => ref
+| .float (ref := ref) .. => ref
+| .boolean (ref := ref) .. => ref
+| .dateTime (ref := ref) .. => ref
+| .array (ref := ref) .. => ref
+| .table (ref := ref) .. => ref
 
 --------------------------------------------------------------------------------
 /-! ## Pretty Printing -/
@@ -86,13 +96,13 @@ partial def ppInlineTable (t : Table) : String :=
 partial def Value.toString (v : Value) : String :=
   have : ToString Value := ⟨Value.toString⟩
   match v with
-  | .string s => ppString s
-  | .integer n => toString n
-  | .float n => toString n
-  | .boolean b => toString b
-  | .dateTime dt => toString dt
-  | .array xs => toString xs.toList
-  | .table t => ppInlineTable t
+  | .string _ s => ppString s
+  | .integer _ n => toString n
+  | .float _ n => toString n
+  | .boolean _ b => toString b
+  | .dateTime _ dt => toString dt
+  | .array _ xs => toString xs.toList
+  | .table _ t => ppInlineTable t
 
 end
 
@@ -101,13 +111,13 @@ instance : ToString Value := ⟨Value.toString⟩
 def ppTable (t : Table) : String :=
   String.trimLeft <| t.items.foldl (init := "") fun s (k,v) =>
     match v with
-    | .array xs => xs.foldl (init := s) fun s v =>
+    | .array _ xs => xs.foldl (init := s) fun s v =>
       match v with
-      | .table t =>
+      | .table _ t =>
         let s := s ++ s!"\n[[{ppKey k}]]\n"
         t.items.foldl (fun s (k,v) => appendKeyval s k v) s
       | _ => appendKeyval s k v
-    | .table t =>
+    | .table _ t =>
       let s := s ++ s!"\n[{ppKey k}]\n"
       t.items.foldl (fun s (k,v) => appendKeyval s k v) s
     | _ => appendKeyval s k v

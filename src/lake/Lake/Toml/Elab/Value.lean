@@ -230,14 +230,14 @@ def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → Cor
 
 partial def elabVal (x : TSyntax ``val) : CoreM Value := do
   match x with
-  | `(val|$x:float) => .float <$> elabFloat x
-  | `(val|$x:decInt) => .integer <$> elabDecInt x
-  | `(val|$x:binNum) => .integer <$> .ofNat <$> elabBinNum x
-  | `(val|$x:octNum) => .integer <$> .ofNat <$> elabOctNum x
-  | `(val|$x:hexNum) => .integer <$> .ofNat <$> elabHexNum x
-  | `(val|$x:dateTime) => .dateTime <$> elabDateTime x
-  | `(val|$x:string) => .string <$> elabString x
-  | `(val|$x:boolean) => .boolean <$> elabBoolean x
-  | `(val|$x:array) => .array <$> elabArray x elabVal
-  | `(val|$x:inlineTable) => .table <$> elabInlineTable x elabVal
+  | `(val|$x:float) => .float x <$> elabFloat x
+  | `(val|$x:decInt) => .integer x <$> elabDecInt x
+  | `(val|$x:binNum) => .integer x <$> .ofNat <$> elabBinNum x
+  | `(val|$x:octNum) => .integer x <$> .ofNat <$> elabOctNum x
+  | `(val|$x:hexNum) => .integer x <$> .ofNat <$> elabHexNum x
+  | `(val|$x:dateTime) => .dateTime x <$> elabDateTime x
+  | `(val|$x:string) => .string x <$> elabString x
+  | `(val|$x:boolean) => .boolean x <$> elabBoolean x
+  | `(val|$x:array) => .array x <$> elabArray x elabVal
+  | `(val|$x:inlineTable) => .table x <$> elabInlineTable x elabVal
   | _ => throwErrorAt x "ill-formed value syntax"

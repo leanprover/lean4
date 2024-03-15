@@ -1,9 +1,8 @@
 import Lake
 open Lake DSL
 
-package bar {
+package bar where
   precompileModules := false
-}
 
 require foo from "../foo"
 

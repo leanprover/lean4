@@ -139,7 +139,6 @@ def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
   | .fail l => return .pass (← mkLogString l)
   | .error e => return .error (toString e)
 
-
 @[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
   loop 0
 where
@@ -171,10 +170,10 @@ mutual
 
 partial def expectValue (actual : Value) (expected : Json) : Except String Unit := do
   match actual with
-  | .boolean b => expectBEq (toString b) (← expectPrimitive "bool" expected)
-  | .string s => expectBEq s (← expectPrimitive "string" expected)
-  | .integer n => expectBEq (toString n) (← expectPrimitive "integer" expected)
-  | .float actN =>
+  | .boolean _ b => expectBEq (toString b) (← expectPrimitive "bool" expected)
+  | .string _ s => expectBEq s (← expectPrimitive "string" expected)
+  | .integer _ n => expectBEq (toString n) (← expectPrimitive "integer" expected)
+  | .float _ actN =>
     let expected ← expectPrimitive "float" expected
     if expected.toLower == "nan" then
       unless actN.isNaN do
@@ -190,20 +189,20 @@ partial def expectValue (actual : Value) (expected : Json) : Except String Unit 
             (Syntax.decodeScientificLitVal? e |>.map fun (m,s,e) => .ofScientific m s e)
             | throw s!"failed to parse expected float value: {e}"
           expectBEq actN <| if sign then -flt else flt
-  | .dateTime dt =>
+  | .dateTime _ dt =>
     match dt with
     | .offsetDateTime _ _ _ => expectBEq (toString dt) (← expectPrimitive "datetime" expected)
     | .localDateTime .. =>  expectBEq (toString dt) (← expectPrimitive "datetime-local" expected)
     | .localDate d => expectBEq (toString d) (← expectPrimitive "date-local" expected)
     | .localTime t => expectBEq (toString t) (← expectPrimitive "time-local" expected)
-  | .array actVs =>
+  | .array _ actVs =>
     let .ok expVs := expected.getArr?
       | throw "expected non-array, got array"
     if h_size : actVs.size = expVs.size then
       Fin.forM actVs.size fun i => expectValue actVs[i] (expVs[i]'(h_size ▸ i.isLt))
     else
       throw s!"expected array of size {expVs.size}, got {actVs.size}:\n{actual}"
-  | .table t => expectTable t expected
+  | .table _ t => expectTable t expected
 
 partial def expectTable (actual : Table) (expected : Json) : Except String Unit := do
   let .ok expected := expected.getObj?

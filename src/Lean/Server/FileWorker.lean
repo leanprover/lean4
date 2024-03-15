@@ -62,21 +62,22 @@ open JsonRpc
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
-  chanOut          : IO.Channel JsonRpc.Message
+  chanOut           : IO.Channel JsonRpc.Message
   /--
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersionRef : IO.Ref Int
-  hLog             : FS.Stream
-  initParams       : InitializeParams
-  processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
-  clientHasWidgets : Bool
+  maxDocVersionRef  : IO.Ref Int
+  freshRequestIdRef : IO.Ref Int
+  hLog              : FS.Stream
+  initParams        : InitializeParams
+  processor         : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
+  clientHasWidgets  : Bool
   /--
   Options defined on the worker cmdline (i.e. not including options from `setup-file`), used for
   context-free tasks such as editing delay.
   -/
-  cmdlineOpts      : Options
+  cmdlineOpts       : Options
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -222,7 +223,6 @@ structure WorkerState where
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
   rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
-  freshRequestID     : Nat
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -288,6 +288,7 @@ section Initialization
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
+    let freshRequestIdRef ← IO.mkRef 0
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
 
@@ -301,6 +302,7 @@ section Initialization
       processor
       clientHasWidgets
       maxDocVersionRef
+      freshRequestIdRef
       cmdlineOpts := opts
     }
     let doc : EditableDocumentCore := {
@@ -316,7 +318,6 @@ section Initialization
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
-      freshRequestID     := 0
     })
   where
     /-- Creates an LSP message output channel along with a reader that sends out read messages on
@@ -344,6 +345,18 @@ section Initialization
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
       return chanOut
 end Initialization
+
+section ServerRequests
+  def sendServerRequest [ToJson α]
+      (ctx    : WorkerContext)
+      (method : String)
+      (param  : α)
+      : IO Unit := do
+    let freshRequestId ← ctx.freshRequestIdRef.modifyGet fun freshRequestId =>
+      (freshRequestId, freshRequestId + 1)
+    let r : JsonRpc.Request α := ⟨freshRequestId, method, param⟩
+    ctx.chanOut.send r
+end ServerRequests
 
 section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
@@ -541,8 +554,8 @@ section MessageHandling
             ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
 
-  def handleResponse (_ : RequestID) (result : Json) : WorkerM Unit :=
-    throwServerError s!"Unknown response kind: {result}"
+  def handleResponse (_ : RequestID) (_ : Json) : WorkerM Unit :=
+    return -- The only response that we currently expect here is always empty
 
 end MessageHandling
 
@@ -589,6 +602,13 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
+def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
+  let ctx ← read
+  IO.asTask do
+    while ! (←IO.checkCanceled) do
+      sendServerRequest ctx "workspace/semanticTokens/refresh" (none : Option Nat)
+      IO.sleep 2000
+
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
@@ -605,7 +625,11 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let _ ← IO.setStderr e
   try
     let (ctx, st) ← initializeWorker meta o e initParams.param opts
-    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) (mainLoop i)
+    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) do
+      let refreshTask ← runRefreshTask
+      let exitCode ← mainLoop i
+      IO.cancel refreshTask
+      pure exitCode
     return (0 : UInt32)
   catch err =>
     IO.eprintln err

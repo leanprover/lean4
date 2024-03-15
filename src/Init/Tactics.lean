@@ -1521,3 +1521,4 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
+for `exact?% to solve the goal.

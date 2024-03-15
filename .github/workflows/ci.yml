@@ -446,9 +446,10 @@ jobs:
     name: Build matrix complete
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ always() }}
+    # mark as merely cancelled not failed if builds are cancelled
+    if: ${{ !cancelled() }}
     steps:
-    - if: contains(needs.*.result, 'failure') ||  contains(needs.*.result, 'cancelled')
+    - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |

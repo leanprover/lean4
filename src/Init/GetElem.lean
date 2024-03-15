@@ -49,15 +49,9 @@ class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : o
     if h : _ then some (getElem xs i h) else none
 
   getElem! [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
-    match getElem? xs i h with | some e => e | none => outOfBounds
+    match getElem? xs i with | some e => e | none => outOfBounds
 
 export GetElem (getElem getElem! getElem?)
-
-/--
-Searches environment for definitions or theorems that can be substituted in
-for `exact?% to solve the goal.
- -/
-syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
 
 @[inherit_doc getElem]
 syntax:max term noWs "[" withoutPosition(term) "]" : term

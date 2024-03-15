@@ -79,10 +79,12 @@ instance [Repr α] : Repr (RBTree α cmp) where
   | []    => mkRBTree ..
   | x::xs => (ofList xs).insert x
 
-@[inline] def find? (t : RBTree α cmp) (a : α) : Option α :=
-  match RBMap.findCore? t a with
+@[inline] def get? (t : RBTree α cmp) (a : α) : Option α :=
+  match RBMap.getCore? t a with
   | some ⟨a, _⟩ => some a
   | none        => none
+
+@[deprecated get?] def find? (t : RBTree α cmp) (a : α) : Option α := get? t a
 
 @[inline] def contains (t : RBTree α cmp) (a : α) : Bool :=
   (t.find? a).isSome
@@ -100,7 +102,7 @@ def fromArray (l : Array α) (cmp : α → α → Ordering) : RBTree α cmp :=
   RBMap.any t (fun a _ => p a)
 
 def subset (t₁ t₂ : RBTree α cmp) : Bool :=
-  t₁.all fun a => (t₂.find? a).toBool
+  t₁.all fun a => (t₂.get? a).toBool
 
 def seteq (t₁ t₂ : RBTree α cmp) : Bool :=
   subset t₁ t₂ && subset t₂ t₁

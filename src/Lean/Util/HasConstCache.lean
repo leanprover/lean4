@@ -12,7 +12,7 @@ structure HasConstCache (declName : Name) where
   cache : HashMapImp Expr Bool := mkHashMapImp
 
 unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declName) Bool := do
-  if let some r := (← get).cache.find? (beq := ⟨ptrEq⟩) e then
+  if let some r := (← get).cache.get? (beq := ⟨ptrEq⟩) e then
     return r
   else
     match e with

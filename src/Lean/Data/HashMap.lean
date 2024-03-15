@@ -4,12 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
+import Init.Data.Array.Lemmas
 import Init.Data.Nat.Power2
 import Lean.Data.AssocList
+
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=
   { b : Array (AssocList α β) // b.size.isPowerOfTwo }
+
+@[inline] def HashMapBucket.mapVal (f : β → γ) (m : HashMapBucket α β) : HashMapBucket α γ :=
+  match m with
+  | ⟨a, p⟩ => ⟨a.map (fun l => l.mapVal f), by rw [Array.size_map]; exact p⟩
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
@@ -64,17 +70,20 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
 @[inline] def forM {m : Type w → Type w} [Monad m] (f : α → β → m PUnit) (h : HashMapImp α β) : m PUnit :=
   forBucketsM h.buckets f
 
-def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
+def getEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
-    buckets.val[i].findEntry? a
+    buckets.val[i].getEntry? a
 
-def find? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
+def get? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
-    buckets.val[i].find? a
+    buckets.val[i].get? a
+
+@[deprecated getEntry?] def findEntry? [BEq α] [Hashable α] : HashMapImp α β → α → Option (α × β) := getEntry?
+@[deprecated get?] def find? [BEq α] [Hashable α] : HashMapImp α β → α →  Option β := get?
 
 def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
   match m with
@@ -124,6 +133,9 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
 
+@[inline] def map (f : β → γ) (m : HashMapImp α β) : HashMapImp α γ :=
+  { size := m.size, buckets := m.buckets.mapVal f }
+
 inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
   | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
   | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b |>.1)
@@ -167,21 +179,26 @@ def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
   match m with
   | ⟨ m, hw ⟩ => ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
 
-@[inline] def findEntry? (m : HashMap α β) (a : α) : Option (α × β) :=
+@[inline] def getEntry? (m : HashMap α β) (a : α) : Option (α × β) :=
   match m with
-  | ⟨ m, _ ⟩ => m.findEntry? a
+  | ⟨ m, _ ⟩ => m.getEntry? a
 
-@[inline] def find? (m : HashMap α β) (a : α) : Option β :=
+@[inline] def get? (m : HashMap α β) (a : α) : Option β :=
   match m with
-  | ⟨ m, _ ⟩ => m.find? a
+  | ⟨ m, _ ⟩ => m.get? a
 
-@[inline] def findD (m : HashMap α β) (a : α) (b₀ : β) : β :=
-  (m.find? a).getD b₀
+@[inline] def getD (m : HashMap α β) (a : α) (b₀ : β) : β :=
+  (m.get? a).getD b₀
 
-@[inline] def find! [Inhabited β] (m : HashMap α β) (a : α) : β :=
-  match m.find? a with
+@[inline] def get! [Inhabited β] (m : HashMap α β) (a : α) : β :=
+  match m.get? a with
   | some b => b
   | none   => panic! "key is not in the map"
+
+@[deprecated getEntry?] def findEntry? : HashMap α β → α → Option (α × β) := getEntry?
+@[deprecated get?] def find? : HashMap α β → α → Option β := get?
+@[deprecated getD] def findD : HashMap α β →  α → β → β := getD
+@[deprecated get!] def find! [Inhabited β] : HashMap α β → α → β := get!
 
 instance : GetElem (HashMap α β) α (Option β) fun _ _ => True where
   getElem m k _ := m.find? k
@@ -231,6 +248,10 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
       match m.find? p.fst with
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
+
+instance [Repr α] [Repr β] : Repr (HashMap α β) where
+  reprPrec m prec := Repr.addAppParen ("Lean.HashMap.ofList " ++ repr m.toList) prec
+
 end Lean.HashMap
 
 /--

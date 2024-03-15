@@ -29,7 +29,16 @@ def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
-@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
+@[inline] def get? (m : NameMap α) (n : Name) : Option α := RBMap.get? m n
+@[inline] def getD (m : NameMap α) (n : Name) (v : α) : α := RBMap.getD m n v
+@[inline] def get! [Inhabited α] (m : NameMap α) (n : Name) : α := RBMap.get! m n
+
+@[deprecated get?] def find? (m : NameMap α) (n : Name) : Option α := get? m n
+
+protected def ofList (l : List (Name × α)) : NameMap α := RBMap.fromList l _
+
+instance [Repr α] : Repr (NameMap α) where
+  reprPrec m prec := Repr.addAppParen ("Lean.NameMap.ofList " ++ repr m.toList) prec
 
 instance : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (RBMap ..) ..)

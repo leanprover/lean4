@@ -130,20 +130,20 @@ jobs:
 
             if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
               echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              MESSAGE=""
+
+              STD_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover/std4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
+
+              if [[ -n "$STD_REMOTE_TAGS" ]]; then
+                echo "... and Std has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+                MESSAGE=""
+              else
+                echo "... but Std does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+                MESSAGE="- ❗ Std CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Std CI should run now."
+              fi
+    
             else
               echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
-            fi
-
-            STD_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover/std4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
-
-            if [[ -n "$STD_REMOTE_TAGS" ]]; then
-              echo "... and Std has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              MESSAGE=""
-            else
-              echo "... but Std does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              MESSAGE="- ❗ Std CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Std CI should run now."
             fi
 
           else

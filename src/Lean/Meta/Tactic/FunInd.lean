@@ -371,6 +371,22 @@ def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
     mvarid ← mvarid.assert s!"ih{i+1}" (← inferType v) v
   return mvarid
 
+
+/--
+Substitutes equations, but makes sure to only substitute variables introduced after the motive
+as the motive could depend on anything before, and `substVar` would happily drop equations
+about these fixed parameters.
+-/
+def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
+  mvarId.withContext do
+    let mut mvarId := mvarId
+    let index := (← x.getDecl).index
+    for localDecl in (← getLCtx) do
+      if localDecl.index > index then
+        mvarId ← trySubstVar mvarId localDecl.fvarId
+    return mvarId
+
+
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
     (goal : Expr) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
@@ -383,7 +399,6 @@ def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : 
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
   mvarId ← mvarId.cleanup (toPreserve := toPreserve)
-  mvarId ← substVars mvarId
   let mvar ← instantiateMVars mvar
   pure mvar
 
@@ -552,6 +567,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'
     let mvars ← mvars.mapM fun mvar => do
+      let mvar ← substVarAfter mvar motive.fvarId!
       let (_, mvar) ← mvar.revertAfter motive.fvarId!
       pure mvar
     -- Using `mkLambdaFVars` on mvars directly does not reliably replace

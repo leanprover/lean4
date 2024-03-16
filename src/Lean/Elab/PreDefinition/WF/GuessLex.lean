@@ -21,7 +21,8 @@ import Lean.Data.Array
 /-!
 This module finds lexicographic termination arguments for well-founded recursion.
 
-Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`) it tries all combinations
+Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), and complex measures
+(e.g. `e₂ - e₁` if `e₁ < e₂` is found in the context of a recursive call) it tries all combinations
 until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
 if given, or the default `decreasing_tactic`.
 
@@ -59,6 +60,10 @@ The following optimizations are applied to make this feasible:
 The logic here is based on “Finding Lexicographic Orders for Termination Proofs in Isabelle/HOL”
 by Lukas Bulwahn, Alexander Krauss, and Tobias Nipkow, 10.1007/978-3-540-74591-4_5
 <https://www21.in.tum.de/~nipkow/pubs/tphols07.pdf>.
+
+We got the idea of considering the measure `e₂ - e₁` if we see `e₁ < e₂` from
+“Termination Analysis with Calling Context Graphs” by Panagiotis Manolios &
+Daron Vroon, https://doi.org/10.1007/11817963_36.
 -/
 
 set_option autoImplicit false
@@ -353,6 +358,51 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat)
       let (callee, args) ← argsPacker.unpack arg
       RecCallWithContext.create (← getRef) caller (ys ++ params) callee (ys ++ args)
 
+/-- Is the expression a `<`-like comparison of `Nat` expressions -/
+def isNatCmp (e : Expr) : Option (Expr × Expr) :=
+  match_expr e with
+  | LT.lt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
+  | LE.le α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₁, e₂) else none
+  | GT.gt α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
+  | GE.ge α _ e₁ e₂ => if α.isConstOf ``Nat then some (e₂, e₁) else none
+  | _ => none
+
+def complexMeasures (preDefs : Array PreDefinition) (fixedPrefixSize : Nat)
+    (userVarNamess : Array (Array Name)) (recCalls : Array RecCallWithContext) :
+    MetaM (Array (Array Measure)) := do
+  preDefs.mapIdxM fun funIdx preDef => do
+    let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
+    let mut measures := #[]
+    for rc in recCalls do
+      -- Only look at calls from the current function
+      unless rc.caller = funIdx do continue
+      -- Only look at calls where the parameters have not been refined
+      unless rc.params.all (·.isFVar) do continue
+      let xs := rc.params.map (·.fvarId!)
+      let varyingParams : Array FVarId := xs[fixedPrefixSize:]
+      measures ← rc.ctxt.run do
+        withUserNames rc.params[fixedPrefixSize:] userVarNamess[funIdx]! do
+        trace[Elab.definition.wf] "rc: {rc.caller} ({rc.params}) → {rc.callee} ({rc.args})"
+        let mut measures := measures
+        for ldecl in ← getLCtx do
+          if let some (e₁, e₂) := isNatCmp ldecl.type then
+            -- We only want to consider these expressions if they depend only on the function's
+            -- immediate arguments, so check that
+            if e₁.hasAnyFVar (! xs.contains ·) then continue
+            if e₂.hasAnyFVar (! xs.contains ·) then continue
+            -- If e₁ does not depend on any varying parameters, simply ignore it
+            let e₁_is_const := ! e₁.hasAnyFVar (varyingParams.contains ·)
+            let body := if e₁_is_const then e₂ else mkNatSub e₂ e₁
+            -- Avoid adding simple measures
+            unless body.isFVar do
+              let fn ← mkLambdaFVars rc.params body
+              -- Avoid duplicates
+              unless ← measures.anyM (isDefEq ·.fn fn) do
+                let extraParams := preDef.termination.extraParams
+                measures := measures.push { ref := .missing, fn, natFn := fn, arity, extraParams }
+        return measures
+    return measures
+
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
 decreases strictly, non-strictly, is equal, or else.  -/
 inductive GuessLexRel | lt | eq | le | no_idea
@@ -603,21 +653,43 @@ def RecCallWithContext.posString (rcc : RecCallWithContext) : MetaM String := do
   return s!"{position.line}:{position.column}{endPosStr}"
 
 
+/-- How to present the measure in the table header, possibly abbreviated. -/
+def measureHeader (measure : Measure) : StateT (Nat × String) MetaM String := do
+  let s ← measure.toString
+  if s.length > 5 then
+    let (i, footer) ← get
+    let i := i + 1
+    let footer := footer ++ s!"#{i}: {s}\n"
+    set (i, footer)
+    pure s!"#{i}"
+  else
+    pure s
+
+def collectHeaders {α} (a : StateT (Nat × String) MetaM α) : MetaM (α × String) := do
+  let (x, (_, footer)) ← a.run (0, "")
+  pure (x,footer)
+
+
 /-- Explain what we found out about the recursive calls (non-mutual case) -/
 def explainNonMutualFailure (measures : Array Measure) (rcs : Array RecCallCache) : MetaM Format := do
-  let header ← measures.mapM Measure.toString
+  let (header, footer) ← collectHeaders (measures.mapM measureHeader)
   let mut table : Array (Array String) := #[#[""] ++ header]
   for i in [:rcs.size], rc in rcs do
     let mut row := #[s!"{i+1}) {← rc.rcc.posString}"]
     for argIdx in [:measures.size] do
       row := row.push (← rc.prettyEntry argIdx argIdx)
     table := table.push row
-
-  return formatTable table
+  let out := formatTable table
+  if footer.isEmpty then
+    return out
+  else
+    return out ++ "\n\n" ++ footer
 
 /-- Explain what we found out about the recursive calls (mutual case) -/
 def explainMutualFailure (declNames : Array Name) (measuress : Array (Array Measure))
     (rcs : Array RecCallCache) : MetaM Format := do
+  let (headerss, footer) ← collectHeaders (measuress.mapM (·.mapM measureHeader))
+
   let mut r := Format.nil
 
   for rc in rcs do
@@ -626,8 +698,7 @@ def explainMutualFailure (declNames : Array Name) (measuress : Array (Array Meas
     r := r ++ f!"Call from {declNames[caller]!} to {declNames[callee]!} " ++
       f!"at {← rc.rcc.posString}:\n"
 
-    let header ← measuress[caller]!.mapM Measure.toString
-    let mut table : Array (Array String) := #[#[""] ++ header]
+    let mut table : Array (Array String) := #[#[""] ++ headerss[caller]!]
     if caller = callee then
       -- For self-calls, only the diagonal is interesting, so put it into one row
       let mut row := #[""]
@@ -637,11 +708,14 @@ def explainMutualFailure (declNames : Array Name) (measuress : Array (Array Meas
     else
       for argIdx in [:measuress[callee]!.size] do
         let mut row := #[]
-        row := row.push (← measuress[callee]![argIdx]!.toString)
+        row := row.push headerss[callee]![argIdx]!
         for paramIdx in [:measuress[caller]!.size] do
           row := row.push (← rc.prettyEntry paramIdx argIdx)
         table := table.push row
     r := r ++ formatTable table ++ "\n"
+
+  unless footer.isEmpty do
+    r := r ++ "\n\n" ++ footer
 
   return r
 
@@ -705,9 +779,15 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   let userVarNamess ← argsPacker.varNamess.mapM (naryVarNames ·)
   trace[Elab.definition.wf] "varNames is: {userVarNamess}"
 
-  -- For every function, the meaures we want to use
+  -- Collect all recursive calls and extract their context
+  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
+  let recCalls := filterSubsumed recCalls
+
+  -- For every function, the measures we want to use
   -- (One for each non-forbiddend arg)
-  let measuress ← simpleMeasures preDefs fixedPrefixSize userVarNamess
+  let meassures₁ ← simpleMeasures preDefs fixedPrefixSize userVarNamess
+  let meassures₂ ← complexMeasures preDefs fixedPrefixSize userVarNamess recCalls
+  let measuress := Array.zipWith meassures₁ meassures₂ (· ++ ·)
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last
@@ -719,9 +799,6 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     reportTermArgs preDefs termArgs
     return termArgs
 
-  -- Collect all recursive calls and extract their context
-  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize argsPacker
-  let recCalls := filterSubsumed recCalls
   let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasingBy?)) measuress ·)
   let callMatrix := rcs.map (inspectCall ·)
 

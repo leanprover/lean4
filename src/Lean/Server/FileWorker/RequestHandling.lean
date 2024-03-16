@@ -430,10 +430,10 @@ def noHighlightKinds : Array SyntaxNodeKind := #[
   ``Lean.Parser.Command.moduleDoc]
 
 structure SemanticTokensContext where
-  beginPos  : String.Pos
-  endPos    : String.Pos
-  text      : FileMap
-  snap      : Snapshot
+  beginPos : String.Pos
+  endPos?  : Option String.Pos
+  text     : FileMap
+  snap     : Snapshot
 
 structure SemanticTokensState where
   data       : Array Nat
@@ -447,20 +447,29 @@ def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
     |>.insert "stop" .leanSorryLike
     |>.insert "#exit" .leanSorryLike
 
-partial def handleSemanticTokens (beginPos endPos : String.Pos)
+partial def handleSemanticTokens (beginPos : String.Pos) (endPos? : Option String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
-  let text := doc.meta.text
-  let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
-  mapTask t fun (snaps, _) =>
+  match endPos? with
+  | none =>
+    -- Only grabs the finished prefix so that we do not need to wait for elaboration to complete
+    -- for the full file before sending a response. This means that the response will be incomplete,
+    -- which we mitigate by regularly sending `workspace/semanticTokens/refresh` requests in the
+    -- `FileWorker` to tell the client to re-compute the semantic tokens.
+    let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
+    asTask <| run doc snaps
+  | some endPos =>
+    let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
+    mapTask t fun (snaps, _) => run doc snaps
+where
+  run doc snaps : RequestM SemanticTokens :=
     StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
         if s.endPos <= beginPos then
           continue
-        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s) <|
+        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos? doc.meta.text s) <|
           go s.stx
       return { data := (← get).data }
-where
   go (stx : Syntax) := do
     match stx with
     | `($e.$id:ident)    => go e; addToken id SemanticTokenType.property
@@ -506,9 +515,9 @@ where
          (val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha) then
         addToken stx (keywordSemanticTokenMap.findD val .keyword)
   addToken stx type := do
-    let ⟨beginPos, endPos, text, _⟩ ← read
+    let ⟨beginPos, endPos?, text, _⟩ ← read
     if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
-      if beginPos <= pos && pos < endPos then
+      if beginPos <= pos && endPos?.all (pos < ·) then
         let lspPos := (← get).lastLspPos
         let lspPos' := text.utf8PosToLspPos pos
         let deltaLine := lspPos'.line - lspPos.line
@@ -523,7 +532,7 @@ where
 
 def handleSemanticTokensFull (_ : SemanticTokensParams)
     : RequestM (RequestTask SemanticTokens) := do
-  handleSemanticTokens 0 ⟨1 <<< 31⟩
+  handleSemanticTokens 0 none
 
 def handleSemanticTokensRange (p : SemanticTokensRangeParams)
     : RequestM (RequestTask SemanticTokens) := do

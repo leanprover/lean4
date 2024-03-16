@@ -43,7 +43,6 @@ static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_47____cl
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__6___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__4___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_registerInitAttrUnsafe___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint32_t l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3___closed__1;
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_47____closed__16;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,6 +73,7 @@ static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___clo
 lean_object* l_Lean_RBNode_find___at___private_Lean_Hygiene_0__Lean_sanitizeSyntaxAux___spec__2(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_47____closed__17;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1(lean_object*);
+lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__3;
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__5;
@@ -914,7 +914,7 @@ lean_dec(x_12);
 x_15 = lean_box(0);
 lean_inc(x_6);
 lean_inc(x_5);
-x_16 = l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_registerInitAttrUnsafe___spec__4(x_13, x_15, x_5, x_6, x_14);
+x_16 = l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(x_13, x_15, x_5, x_6, x_14);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 

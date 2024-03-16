@@ -125,7 +125,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_ppExpr(lean_object*, lean_object*,
 static lean_object* l_Lean_PrettyPrinter_ppModule___closed__1;
 lean_object* l_Lean_sanitizeSyntax(lean_object*, lean_object*);
 extern lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute;
-lean_object* l_Lean_PrettyPrinter_delabCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__2;
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_786____closed__3;
@@ -181,6 +180,7 @@ lean_object* l_Lean_Parser_Module_module_parenthesizer(lean_object*, lean_object
 lean_object* l_Lean_Parser_Module_module_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_838____closed__14;
 static lean_object* l_Lean_PPContext_runMetaM___rarg___closed__10;
+lean_object* l_Lean_PrettyPrinter_delabCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_838____closed__3;
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_838____closed__1;
@@ -1030,7 +1030,7 @@ _start:
 lean_object* x_9; 
 lean_inc(x_7);
 lean_inc(x_6);
-x_9 = l_Lean_PrettyPrinter_delabCore(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_PrettyPrinter_delabCore___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1166,7 +1166,7 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_box(0);
 x_8 = l_Lean_PrettyPrinter_ppConst___lambda__1___closed__1;
-x_9 = l_Lean_PrettyPrinter_delabCore(x_1, x_7, x_8, x_2, x_3, x_4, x_5, x_6);
+x_9 = l_Lean_PrettyPrinter_delabCore___rarg(x_1, x_7, x_8, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -1649,7 +1649,7 @@ x_14 = lean_box(0);
 x_15 = l_Lean_PrettyPrinter_ppSignature___closed__1;
 lean_inc(x_5);
 lean_inc(x_4);
-x_16 = l_Lean_PrettyPrinter_delabCore(x_13, x_14, x_15, x_2, x_3, x_4, x_5, x_9);
+x_16 = l_Lean_PrettyPrinter_delabCore___rarg(x_13, x_14, x_15, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 

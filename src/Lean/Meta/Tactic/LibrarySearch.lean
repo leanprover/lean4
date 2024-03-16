@@ -28,6 +28,9 @@ example : Nat := by exact?
 
 namespace Lean.Meta.LibrarySearch
 
+builtin_initialize registerTraceClass `Tactic.librarySearch
+builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
+
 open SolveByElim
 
 /--
@@ -64,44 +67,7 @@ to find candidate lemmas.
 @[reducible]
 def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
-namespace DiscrTreeFinder
-
-/-- Adds a path to a discrimination tree. -/
-private def addPath [BEq α] (config : WhnfCoreConfig) (tree : DiscrTree α) (tp : Expr) (v : α) :
-    MetaM (DiscrTree α) := do
-  let k ← DiscrTree.mkPath tp config
-  pure <| tree.insertCore k v
-
-/-- Adds a constant with given name to tree. -/
-private def updateTree (config : WhnfCoreConfig) (tree : DiscrTree (Name × DeclMod))
-    (name : Name) (constInfo : ConstantInfo) : MetaM (DiscrTree (Name × DeclMod)) := do
-  if constInfo.isUnsafe then return tree
-  if !allowCompletion (←getEnv) name then return tree
-  withReducible do
-    let (_, _, type) ← forallMetaTelescope constInfo.type
-    let tree ← addPath config tree type (name, DeclMod.none)
-    match type.getAppFnArgs with
-    | (``Iff, #[lhs, rhs]) => do
-      let tree ← addPath config tree rhs (name, DeclMod.mp)
-      let tree ← addPath config tree lhs (name, DeclMod.mpr)
-      return tree
-    | _ =>
-      return tree
-
-end DiscrTreeFinder
-
-namespace IncDiscrTreeFinder
-
-open LazyDiscrTree (InitEntry createImportedEnvironment)
-
-/--
-The maximum number of constants an individual task may perform.
-
-The value was picked because it roughly correponded to 50ms of work on the machine this was
-developed on.  Smaller numbers did not seem to improve performance when importing Std and larger
-numbers (<10k) seemed to degrade initialization performance.
--/
-private def constantsPerTask : Nat := 6500
+open LazyDiscrTree (InitEntry findCandidates)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
@@ -115,37 +81,42 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     else
       pure a
 
- def findCandidates (ref : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))))
-    (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  let ngen ← getNGen
-  let (childNGen, ngen) := ngen.mkChild
-  setNGen ngen
-  let importTree ← (←ref.get).getDM $ do
-    profileitM Exception  "librarySearch launch" (←getOptions) $
-      createImportedEnvironment childNGen (←getEnv) (constantsPerTask := constantsPerTask) addImport
-  let (imports, importTree) ← importTree.getMatch ty
-  ref.set importTree
-  pure imports
-
-end IncDiscrTreeFinder
-
-builtin_initialize registerTraceClass `Tactic.librarySearch
-builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
-
-/-- State for resolving imports -/
+/-- Stores import discrimination tree. -/
 private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
 
-private builtin_initialize LibSearchState.default : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
+private builtin_initialize defaultLibSearchState : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
   IO.mkRef .none
 
 private instance : Inhabited LibSearchState where
-  default := LibSearchState.default
+  default := defaultLibSearchState
 
 private builtin_initialize ext : EnvExtension LibSearchState ←
   registerEnvExtension (IO.mkRef .none)
 
 /--
-Return an action that returns true when  the remaining heartbeats is less
+We drop `.star` and `Eq * * *` from the discriminator trees because
+they match too much.
+-/
+def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .star, .star, .star]]
+
+/--
+The maximum number of constants an individual task may perform.
+
+The value was picked because it roughly correponded to 50ms of work on the
+machine this was developed on.  Smaller numbers did not seem to improve
+performance when importing Std and larger numbers (<10k) seemed to degrade
+initialization performance.
+-/
+private def constantsPerImportTask : Nat := 6500
+
+/-- Create function for finding relevant declarations. -/
+def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
+  findCandidates ext addImport
+      (droppedKeys := droppedKeys)
+      (constantsPerTask := constantsPerImportTask)
+
+/--
+Return an action that returns true when the remaining heartbeats is less
 than the currently remaining heartbeats * leavePercent / 100.
 -/
 def mkHeartbeatCheck (leavePercent : Nat) : MetaM (MetaM Bool) := do
@@ -246,19 +217,6 @@ private def isVar (e : Expr) : Bool :=
   | .mvar _ => true
   | _ => false
 
-private def isNonspecific (type : Expr) : MetaM Bool := do
-  forallTelescope type fun _ tp =>
-    match tp.getAppFn with
-    | .bvar _ => pure true
-    | .fvar _ => pure true
-    | .mvar _ => pure true
-    | .const nm _ =>
-      if nm = ``Eq then
-        pure (tp.getAppArgsN 3 |>.all isVar)
-      else
-        pure false
-    | _ => pure false
-
 /--
 Tries to apply the given lemma (with symmetry modifier) to the goal,
 then tries to close subsequent goals using `solveByElim`.
@@ -273,9 +231,6 @@ private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM 
   withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name}{ppMod mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
-    let lemType ← instantiateMVars (← inferType lem)
-    if ← isNonspecific lemType then
-      failure
     let newGoals ← goal.apply lem cfg
     try
       act newGoals
@@ -323,15 +278,10 @@ private def librarySearch' (goal : MVarId)
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-  let importTreeRef := ext.getState (←getEnv)
-  let searchFn (ty : Expr) := do
-      let localMap ← (← getEnv).constants.map₂.foldlM (init := {}) (DiscrTreeFinder.updateTree {})
-      let locals := (← localMap.getMatch  ty {}).reverse
-      pure <| locals ++ (← IncDiscrTreeFinder.findCandidates importTreeRef ty)
   -- Create predicate that returns true when running low on heartbeats.
-  let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
-  let candidates ← librarySearchSymm searchFn goal
+  let candidates ← librarySearchSymm libSearchFindDecls goal
   let cfg : ApplyConfig := { allowSynthFailures := true }
+  let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
   let act := fun cand => do
       if ←shouldAbort then
         abortSpeculation

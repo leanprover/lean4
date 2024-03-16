@@ -1194,14 +1194,6 @@ instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
 
 end Lean.Syntax
 
-set_option linter.unusedVariables.funArgs false in
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the given tactic.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
-
 /-! # Helper functions for manipulating interpolated strings -/
 
 namespace Lean.Syntax

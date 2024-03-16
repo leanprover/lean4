@@ -1521,4 +1521,17 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]?` notation instead, result is an `Option` type
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
+
+/--
+Searches environment for definitions or theorems that can be substituted in
 for `exact?% to solve the goal.
+ -/
+syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
+
+set_option linter.unusedVariables.funArgs false in
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

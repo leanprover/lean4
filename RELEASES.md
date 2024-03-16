@@ -41,6 +41,19 @@ v4.8.0 (development in progress)
     (x x : Nat) : motive x x
   ```
 
+* The termination checker now recognizes more recursion patterns without an
+  explicit `terminatin_by`. In particular the idiom of counting up to an upper
+  bound, as in
+  ```
+  def countUp (n i acc : Nat) : Nat :=
+    if i < n then
+      countUp n (i+1) (acc + i)
+    else
+      acc
+  ```
+  is recognized.
+
+
 Breaking changes:
 
 * Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:

@@ -474,27 +474,27 @@ def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
 
 
 /--
-Generate all combination of arguments. Assumes we have numbered the arguments of each function,
-and their counts is in `numTermArgs`.
+Generate all combination of measures. Assumes we have numbered the measures of each function,
+and their counts is in `numMeasures`.
 
 This puts the uniform combinations ([0,0,0], [1,1,1]) to the front; they are commonly most useful to
 try first, when the mutually recursive functions have similar argument structures
 -/
-partial def generateCombinations? (numTermArgs : Array Nat)
-    (threshold : Nat := 32) : Option (Array (Array Nat)) :=
+partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
+    Option (Array (Array Nat)) :=
   (do goUniform 0; go 0 #[]) |>.run #[] |>.2
 where
   -- Enumerate all permissible uniform combinations
-  goUniform (argIdx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
-    if numTermArgs.all (argIdx < ·) then
-      modify (·.push (Array.mkArray numTermArgs.size argIdx))
-      goUniform (argIdx + 1)
+  goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
+    if numMeasures.all (idx < ·) then
+      modify (·.push (Array.mkArray numMeasures.size idx))
+      goUniform (idx + 1)
 
   -- Enumerate all other permissible combinations
   go (fidx : Nat) : OptionT (ReaderT (Array Nat) (StateM (Array (Array Nat)))) Unit := do
-    if h : fidx < numTermArgs.size then
-      let n := numTermArgs[fidx]
-      for argIdx in [:n] do withReader (·.push argIdx) (go (fidx + 1))
+    if h : fidx < numMeasures.size then
+      let n := numMeasures[fidx]
+      for idx in [:n] do withReader (·.push idx) (go (fidx + 1))
     else
       let comb ← read
       unless comb.all (· == comb[0]!) do

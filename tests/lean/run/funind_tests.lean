@@ -837,3 +837,30 @@ derive_functional_induction takeWhile -- Cryptic error message
 derive_functional_induction takeWhile.foo
 
 end Errors
+
+namespace PreserveParams
+
+/-
+Tests that cleaning up the goal state does not throw away useful equalties
+relating varying parameters to fixed ones.
+-/
+
+def foo (a : Nat) : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    if a = 23 then 23 else
+    if a = n then 42 else
+    foo a n
+termination_by n => n
+derive_functional_induction foo
+
+/--
+info: PreserveParams.foo.induct (a : Nat) (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), a = 23 → motive (Nat.succ n)) (case3 : ¬a = 23 → motive (Nat.succ a))
+  (case4 : ∀ (n : Nat), ¬a = 23 → ¬a = n → motive n → motive (Nat.succ n)) (x : Nat) : motive x
+-/
+#guard_msgs in
+#check foo.induct
+
+
+end PreserveParams

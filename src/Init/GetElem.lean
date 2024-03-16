@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Util
+import Init.Tactics
 
 @[never_extract]
 private def outOfBounds [Inhabited α] : α :=
@@ -64,11 +65,58 @@ macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
 macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
+class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
+   (dom : outParam (cont → idx → Prop)) [ge : GetElem cont idx elem dom] : Prop where
+
+  getElem?_def (c : cont) (i : idx) [Decidable (dom c i)] :
+    c[i]? = if h : dom c i then some (c[i]'h) else none := by intros; eq_refl
+  getElem!_def [Inhabited elem] (c : cont) (i : idx) [Decidable (dom c i)] :
+    c[i]! = match c[i]? with | some e => e | none => default := by intros; eq_refl
+
+export LawfulGetElem (getElem?_def getElem!_def)
+
+theorem getElem?_pos [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] : c[i]? = some (c[i]'h) := by
+  rw [getElem?_def]
+  exact dif_pos h
+
+theorem getElem?_neg [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]? = none := by
+  rw [getElem?_def]
+  exact dif_neg h
+
+theorem getElem!_pos [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    [Inhabited elem] (c : cont) (i : idx) (h : dom c i) [Decidable (dom c i)] :
+    c[i]! = c[i]'h := by
+  simp only [getElem!_def, getElem?_def, h]
+
+theorem getElem!_neg [GetElem cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    [Inhabited elem] (c : cont) (i : idx) (h : ¬dom c i) [Decidable (dom c i)] : c[i]! = default := by
+  simp only [getElem!_def, getElem?_def, h]
+
 namespace Fin
 
-instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
+instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
   getElem xs i h := getElem xs i.1 h
+  getElem? xs i := getElem? xs i.val
+  getElem! xs i := getElem! xs i.val
 
+instance [GetElem cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
+      LawfulGetElem cont (Fin n) elem fun xs i => dom xs i where
+
+  getElem?_def _c _i _d := h.getElem?_def ..
+  getElem!_def _c _i _d := h.getElem!_def ..
+
+@[simp] theorem getElem_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n) (h : Dom a i) :
+    a[i] = a[i.1] := rfl
+
+@[simp] theorem getElem?_fin [h : GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n)
+    [Decidable (Dom a i)] : a[i]? = a[i.1]? := by rfl
+
+@[simp] theorem getElem!_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n)
+    [Decidable (Dom a i)] [Inhabited Elem] : a[i]! = a[i.1]! := rfl
+
+--  getElem! xs i
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
 
@@ -78,6 +126,8 @@ namespace List
 
 instance : GetElem (List α) Nat α fun as i => i < as.length where
   getElem as i h := as.get ⟨i, h⟩
+
+instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
 
 @[simp] theorem cons_getElem_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
@@ -94,8 +144,10 @@ end List
 
 namespace Array
 
-instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
+instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+
+instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
 
 end Array
 
@@ -103,5 +155,7 @@ namespace Lean.Syntax
 
 instance : GetElem Syntax Nat Syntax fun _ _ => True where
   getElem stx i _ := stx.getArg i
+
+instance : LawfulGetElem Syntax Nat Syntax fun _ _ => True where
 
 end Lean.Syntax

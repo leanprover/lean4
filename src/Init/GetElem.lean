@@ -5,7 +5,6 @@ Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Util
-import Init.Tactics
 
 @[never_extract]
 private def outOfBounds [Inhabited α] : α :=
@@ -62,7 +61,16 @@ macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 syntax term noWs "[" withoutPosition(term) "]'" term:max : term
 macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
 
+/--
+The syntax `arr[i]?` gets the `i`'th element of the collection `arr` or
+returns `none` if `i` is out of bounds.
+-/
 macro:max x:term noWs "[" i:term "]" noWs "?" : term => `(getElem? $x $i)
+
+/--
+The syntax `arr[i]!` gets the `i`'th element of the collection `arr` and
+panics `i` is out of bounds.
+-/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
@@ -116,7 +124,6 @@ instance [GetElem cont Nat elem dom] [h : LawfulGetElem cont Nat elem dom] :
 @[simp] theorem getElem!_fin [GetElem Cont Nat Elem Dom] (a : Cont) (i : Fin n)
     [Decidable (Dom a i)] [Inhabited Elem] : a[i]! = a[i.1]! := rfl
 
---  getElem! xs i
 macro_rules
   | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)
 

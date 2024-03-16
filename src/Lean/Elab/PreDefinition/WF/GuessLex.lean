@@ -428,13 +428,13 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option DecreasingBy) (callerTAs calleeTAs : Array Measure)
-  (rcc : RecCallWithContext) (callerTAIdx calleeTAIdx : Nat) : MetaM GuessLexRel := do
+def evalRecCall (decrTactic? : Option DecreasingBy) (callerMeasures calleeMeasures : Array Measure)
+  (rcc : RecCallWithContext) (callerMeasureIdx calleeMeasureIdx : Nat) : MetaM GuessLexRel := do
   rcc.ctxt.run do
-    let callerTA := callerTAs[callerTAIdx]!
-    let calleeTA := calleeTAs[calleeTAIdx]!
-    let param := callerTA.natFn.beta rcc.params
-    let arg := calleeTA.natFn.beta rcc.args
+    let callerMeasure := callerMeasures[callerMeasureIdx]!
+    let calleeMeasure := calleeMeasures[calleeMeasureIdx]!
+    let param := callerMeasure.natFn.beta rcc.params
+    let arg := calleeMeasure.natFn.beta rcc.args
     trace[Elab.definition.wf] "inspectRecCall: {rcc.caller} ({param}) → {rcc.callee} ({arg})"
     for rel in [GuessLexRel.eq, .lt, .le] do
       let goalExpr := mkAppN rel.toNatRel #[arg, param]
@@ -468,8 +468,8 @@ def evalRecCall (decrTactic? : Option DecreasingBy) (callerTAs calleeTAs : Array
 /- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
   decrTactic? : Option DecreasingBy
-  callerTAs : Array Measure
-  calleeTAs : Array Measure
+  callerMeasures : Array Measure
+  calleeMeasures : Array Measure
   rcc : RecCallWithContext
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
@@ -478,25 +478,25 @@ def RecCallCache.mk (decrTactics : Array (Option DecreasingBy)) (measuress : Arr
     (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
   let decrTactic? := decrTactics[rcc.caller]!
-  let callerTAs := measuress[rcc.caller]!
-  let calleeTAs := measuress[rcc.callee]!
-  let cache ← IO.mkRef <| Array.mkArray callerTAs.size (Array.mkArray calleeTAs.size Option.none)
-  return { decrTactic?, callerTAs, calleeTAs, rcc, cache }
+  let callerMeasures := measuress[rcc.caller]!
+  let calleeMeasures := measuress[rcc.callee]!
+  let cache ← IO.mkRef <| Array.mkArray callerMeasures.size (Array.mkArray calleeMeasures.size Option.none)
+  return { decrTactic?, callerMeasures, calleeMeasures, rcc, cache }
 
 /-- Run `evalRecCall` and cache there result -/
-def RecCallCache.eval (rc: RecCallCache) (callerTAIdx calleeTAIdx : Nat) : MetaM GuessLexRel := do
+def RecCallCache.eval (rc: RecCallCache) (callerMeasureIdx calleeMeasureIdx : Nat) : MetaM GuessLexRel := do
   -- Check the cache first
-  if let Option.some res := (← rc.cache.get)[callerTAIdx]![calleeTAIdx]! then
+  if let Option.some res := (← rc.cache.get)[callerMeasureIdx]![calleeMeasureIdx]! then
     return res
   else
-    let res ← evalRecCall rc.decrTactic? rc.callerTAs rc.calleeTAs rc.rcc callerTAIdx calleeTAIdx
-    rc.cache.modify (·.modify callerTAIdx (·.set! calleeTAIdx res))
+    let res ← evalRecCall rc.decrTactic? rc.callerMeasures rc.calleeMeasures rc.rcc callerMeasureIdx calleeMeasureIdx
+    rc.cache.modify (·.modify callerMeasureIdx (·.set! calleeMeasureIdx res))
     return res
 
 /-- Print a single cache entry as a string, without forcing it -/
-def RecCallCache.prettyEntry (rcc : RecCallCache) (callerTAIdx calleeTAIdx : Nat) : MetaM String := do
+def RecCallCache.prettyEntry (rcc : RecCallCache) (callerMeasureIdx calleeMeasureIdx : Nat) : MetaM String := do
   let cachedEntries ← rcc.cache.get
-  return match cachedEntries[callerTAIdx]![calleeTAIdx]! with
+  return match cachedEntries[callerMeasureIdx]![calleeMeasureIdx]! with
   | .some rel => toString rel
   | .none => "_"
 
@@ -511,9 +511,9 @@ inductive MutualMeasure where
 /-- Evaluate a recursive call at a given `MutualMeasure` -/
 def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
   | .args taIdxs => do
-    let callerTAIdx := taIdxs[rc.rcc.caller]!
-    let calleeTAIdx := taIdxs[rc.rcc.callee]!
-    rc.eval callerTAIdx calleeTAIdx
+    let callerMeasureIdx := taIdxs[rc.rcc.caller]!
+    let calleeMeasureIdx := taIdxs[rc.rcc.callee]!
+    rc.eval callerMeasureIdx calleeMeasureIdx
   | .func funIdx => do
     if rc.rcc.caller == funIdx && rc.rcc.callee != funIdx then
       return .lt
@@ -524,27 +524,27 @@ def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
 
 
 /--
-Generate all combination of arguments. Assumes we have numbered the arguments of each function,
-and their counts is in `numTermArgs`.
+Generate all combination of measures. Assumes we have numbered the measures of each function,
+and their counts is in `numMeasures`.
 
 This puts the uniform combinations ([0,0,0], [1,1,1]) to the front; they are commonly most useful to
 try first, when the mutually recursive functions have similar argument structures
 -/
-partial def generateCombinations? (numTermArgs : Array Nat)
-    (threshold : Nat := 32) : Option (Array (Array Nat)) :=
+partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
+    Option (Array (Array Nat)) :=
   (do goUniform 0; go 0 #[]) |>.run #[] |>.2
 where
   -- Enumerate all permissible uniform combinations
-  goUniform (argIdx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
-    if numTermArgs.all (argIdx < ·) then
-      modify (·.push (Array.mkArray numTermArgs.size argIdx))
-      goUniform (argIdx + 1)
+  goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do
+    if numMeasures.all (idx < ·) then
+      modify (·.push (Array.mkArray numMeasures.size idx))
+      goUniform (idx + 1)
 
   -- Enumerate all other permissible combinations
   go (fidx : Nat) : OptionT (ReaderT (Array Nat) (StateM (Array (Array Nat)))) Unit := do
-    if h : fidx < numTermArgs.size then
-      let n := numTermArgs[fidx]
-      for argIdx in [:n] do withReader (·.push argIdx) (go (fidx + 1))
+    if h : fidx < numMeasures.size then
+      let n := numMeasures[fidx]
+      for idx in [:n] do withReader (·.push idx) (go (fidx + 1))
     else
       let comb ← read
       unless comb.all (· == comb[0]!) do

@@ -87,7 +87,7 @@ builtin_initialize
         throwError "invalid attribute '{name}', declaration is in an imported module"
       let decl ← getConstInfo declName
       let fnNameStx ← Attribute.Builtin.getIdent stx
-      let key ← Elab.resolveGlobalConstNoOverloadWithInfo fnNameStx
+      let key ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
       unless decl.levelParams.isEmpty && (decl.type == .const ``Handler [] || decl.type == .const ``SimpleHandler []) do
         throwError "unexpected missing docs handler at '{declName}', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected"
       if builtin then

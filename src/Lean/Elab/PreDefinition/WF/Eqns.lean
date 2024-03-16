@@ -109,7 +109,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
-  let baseName := mkPrivateName (← getEnv) declName
+  let baseName := declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -133,6 +133,7 @@ builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclara
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
     (argsPacker : ArgsPacker) : MetaM Unit := do
+  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
   Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare

@@ -60,6 +60,10 @@ The names of the library's root modules
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
   self.pkg.nativeLibDir / self.staticLibFileName
 
+/-- The path to the static library (with exported symbols) in the package's `libDir`. -/
+@[inline] def staticExportLibFile (self : LeanLib) : FilePath :=
+  self.pkg.nativeLibDir / self.staticLibFileName.addExtension "export"
+
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
   nameToSharedLib self.config.libName
@@ -92,8 +96,8 @@ Otherwise, falls back to the package's.
   self.config.defaultFacets
 
 /-- The library's `nativeFacets` configuration. -/
-@[inline] def nativeFacets (self : LeanLib) : Array (ModuleFacet (BuildJob FilePath)) :=
-  self.config.nativeFacets
+@[inline] def nativeFacets (self : LeanLib) (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  self.config.nativeFacets shouldExport
 
 /--
 The arguments to pass to `lean --server` when running the Lean language server.

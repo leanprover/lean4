@@ -176,7 +176,7 @@ with builtins; let
       # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
       ln -s ${drv.c}/${drv.cPath} src.c
       # on the other hand, a debug build is pretty fast anyway, so preserve the path for gdb
-      leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
+      leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG -DLEAN_EXPORTING"}
     '';
   };
   mkMod = mod: deps:

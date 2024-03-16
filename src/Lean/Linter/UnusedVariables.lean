@@ -188,9 +188,9 @@ def unusedVariables : Linter where
 
     for (ident, info) in refs.toList do
       match ident with
-      | .fvar id =>
+      | .fvar _ id =>
         vars := vars.insert id info
-      | .const _ =>
+      | .const .. =>
         if let some definition := info.definition then
           if let some range := definition.stx.getRange? then
             constDecls := constDecls.insert range
@@ -241,7 +241,7 @@ def unusedVariables : Linter where
         continue
 
       -- check if variable is used
-      if !uses.isEmpty || tacticFVarUses.contains id || decl.aliases.any (match · with | .fvar id => tacticFVarUses.contains id | _ => false) then
+      if !uses.isEmpty || tacticFVarUses.contains id || decl.aliases.any (match · with | .fvar _ id => tacticFVarUses.contains id | _ => false) then
           continue
 
       -- check linter options

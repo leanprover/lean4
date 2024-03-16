@@ -45,13 +45,13 @@ v4.8.0 (development in progress)
   explicit `terminatin_by`. In particular the idiom of counting up to an upper
   bound, as in
   ```
-  def countUp (n i acc : Nat) : Nat :=
-    if i < n then
-      countUp n (i+1) (acc + i)
+  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
+    if _ : i < arr.size then
+      Array.sum arr (i+1) (acc + arr[i])
     else
       acc
   ```
-  is recognized.
+  is recognized without having to say `termination_by arr.size - i`.
 
 
 Breaking changes:

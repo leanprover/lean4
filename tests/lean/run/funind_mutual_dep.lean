@@ -48,7 +48,7 @@ end
 derive_functional_induction Finite.functions
 
 /--
-info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (x : Type) → Finite → List x → Prop)
+info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (α : Type) → Finite → List α → Prop)
   (case1 : motive1 Finite.unit) (case2 : motive1 Finite.bool)
   (case3 : ∀ (t1 t2 : Finite), motive1 t1 → motive1 t2 → motive1 (Finite.pair t1 t2))
   (case4 :
@@ -65,7 +65,7 @@ info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (x : Type) 
         (∀ (rest : List (Finite.asType (Finite.arr t1 t2) → α)),
             motive2 (Finite.asType (Finite.arr t1 t2) → α) t2 rest) →
           motive2 α (Finite.arr t1 t2) results)
-  (x : Type) : ∀ (x_1 : Finite) (x_2 : List x), motive2 x x_1 x_2
+  (α : Type) (t : Finite) (results : List α) : motive2 α t results
 -/
 #guard_msgs in
 #check Finite.functions.induct

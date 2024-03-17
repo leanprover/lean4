@@ -15,7 +15,7 @@ protected def LeanExe.recBuildExe
 (self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
   let imports ← self.root.transImports.fetch
   let mut linkJobs := #[← self.root.o.fetch]
-  for mod in imports do for facet in mod.nativeFacets do
+  for mod in imports do for facet in mod.nativeFacets self.supportInterpreter do
     linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
   let deps := (← fetch <| self.pkg.facet `deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do

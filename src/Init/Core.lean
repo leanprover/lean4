@@ -19,7 +19,7 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
-theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,

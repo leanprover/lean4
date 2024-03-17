@@ -15,20 +15,20 @@ Please use `termination_by` to specify a decreasing measure.
 decreasing_by.lean:81:13-83:3: error: unexpected token 'end'; expected '{' or tactic
 decreasing_by.lean:81:0-81:13: error: unsolved goals
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelationProd).1
     { fst := n, snd := dec2 m } { fst := n, snd := m }
 
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
 decreasing_by.lean:91:0-91:22: error: unsolved goals
 case a
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelationProd).1
     { fst := n, snd := dec2 m } { fst := n, snd := m }
 
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
 decreasing_by.lean:99:0-100:22: error: Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
@@ -39,7 +39,7 @@ The arguments relate at each recursive call as follows:
 Please use `termination_by` to specify a decreasing measure.
 decreasing_by.lean:110:0-113:17: error: unsolved goals
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun x => PSigma.casesOn x fun n m => (n, m)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
 decreasing_by.lean:121:0-125:17: error: Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

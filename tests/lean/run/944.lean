@@ -11,10 +11,10 @@ open Lsp
 
 def identOf : Info → Option (RefIdent × Bool)
   | .ofTermInfo ti => match ti.expr with
-    | .const n .. => some (.const n, ti.isBinder)
-    | .fvar id .. => some (.fvar id, ti.isBinder)
+    | .const n .. => some (.const `anonymous n, ti.isBinder)
+    | .fvar id .. => some (.fvar `anonymous id, ti.isBinder)
     | _ => none
-  | .ofFieldInfo fi => some (.const fi.projName, false)
+  | .ofFieldInfo fi => some (.const `anonymous fi.projName, false)
   | _ => none
 
 def isConst (e : Expr) : Bool :=

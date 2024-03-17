@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Meta.ArgsPacker.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -17,6 +18,7 @@ structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedPrefixSize : Nat
+  argsPacker      : ArgsPacker
   deriving Inhabited
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
@@ -107,7 +109,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
-  let baseName := mkPrivateName (← getEnv) declName
+  let baseName := declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -129,7 +131,9 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
+    (argsPacker : ArgsPacker) : MetaM Unit := do
+  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
   Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare
@@ -140,7 +144,8 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       let declNames := preDefs.map (·.declName)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
-          eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec, fixedPrefixSize }
+          eqnInfoExt.insert env preDef.declName { preDef with
+            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

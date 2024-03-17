@@ -266,6 +266,23 @@ public:
             return e;
     }
 
+    unsigned get_constructor_non_prop_nfields(name ctor, unsigned nparams) {
+        local_ctx lctx;
+        expr type = env().get(ctor).get_type();
+        for (unsigned i = 0; i < nparams; i++) {
+            lean_assert(is_pi(type));
+            expr local = lctx.mk_local_decl(ngen(), binding_name(type), binding_domain(type), binding_info(type));
+            type = instantiate(binding_body(type), local);
+        }
+        unsigned nfields = 0;
+        while (is_pi(type)) {
+            if (!type_checker(m_st, lctx).is_prop(binding_domain(type))) nfields++;
+            expr local = lctx.mk_local_decl(ngen(), binding_name(type), binding_domain(type), binding_info(type));
+            type = instantiate(binding_body(type), local);
+        }
+        return nfields;
+    }
+
     expr visit_no_confusion(expr const & fn, buffer<expr> & args, bool root) {
         name const & no_confusion_name  = const_name(fn);
         name const & I_name             = no_confusion_name.get_prefix();
@@ -297,7 +314,7 @@ public:
             lean_assert(args.size() >= basic_arity + 1);
             unsigned major_idx = basic_arity;
             expr major         = args[major_idx];
-            unsigned nfields   = get_constructor_nfields(*lhs_constructor);
+            unsigned nfields   = get_constructor_non_prop_nfields(*lhs_constructor, nparams);
             while (nfields > 0) {
                 if (!is_lambda(major))
                     major = eta_expand(major, nfields);

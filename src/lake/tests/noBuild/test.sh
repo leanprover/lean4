@@ -17,8 +17,8 @@ test -f .lake/build/lib/Test.olean
 $LAKE setup-file ./Irrelevant.lean Test --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
-$LAKE build +Test:o --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
-test ! -f .lake/build/ir/Test.c.o
-$LAKE build +Test:o
-test -f .lake/build/ir/Test.c.o
-$LAKE build +Test:o --no-build
+$LAKE build +Test:c.o.export --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+test ! -f .lake/build/ir/Test.c.o.export
+$LAKE build +Test:c.o.export
+test -f .lake/build/ir/Test.c.o.export
+$LAKE build +Test:c.o.export --no-build

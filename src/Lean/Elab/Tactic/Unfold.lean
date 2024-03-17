@@ -24,7 +24,7 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := do
-    let declName ← resolveGlobalConstNoOverloadWithInfo declNameId
+    let declName ← realizeGlobalConstNoOverloadWithInfo declNameId
     withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
 
 end Lean.Elab.Tactic

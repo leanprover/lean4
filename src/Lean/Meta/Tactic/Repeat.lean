@@ -39,7 +39,7 @@ where
         match ← observing? (f g) with
         | some goals' => go n true goals' (goals::stk) acc
         | none => go n p goals stk (acc.push g)
-termination_by n p goals stk _ => (n, stk, goals)
+termination_by n _ goals stk => (n, stk, goals)
 
 /--
 `repeat' f` runs `f` on all of the goals to produce a new list of goals,

@@ -27,7 +27,7 @@
         src = inputs.mdBook;
         cargoDeps = drv.cargoDeps.overrideAttrs (_: {
           inherit src;
-          outputHash = "sha256-1YlPS6cqgxE4fjy9G8pWrpP27YrrbCDnfeyIsX81ZNw=";
+          outputHash = "sha256-mW1jCmQku+m9hwBtiOZNgExH8dFQh2LSEZMEq68o/Ww=";
         });
         doCheck = false;
       });

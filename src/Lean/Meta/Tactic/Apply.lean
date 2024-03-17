@@ -193,6 +193,11 @@ def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List M
 def _root_.Lean.MVarId.applyConst (mvar : MVarId) (c : Name) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   mvar.apply (← mkConstWithFreshMVarLevels c) cfg
 
+end Meta
+
+open Meta
+namespace MVarId
+
 partial def splitAndCore (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `splitAnd
@@ -219,14 +224,14 @@ partial def splitAndCore (mvarId : MVarId) : MetaM (List MVarId) :=
 /--
 Apply `And.intro` as much as possible to goal `mvarId`.
 -/
-abbrev _root_.Lean.MVarId.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
+abbrev splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   splitAndCore mvarId
 
-@[deprecated MVarId.splitAnd]
-def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
+@[deprecated splitAnd]
+def _root_.Lean.Meta.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.splitAnd
 
-def _root_.Lean.MVarId.exfalso (mvarId : MVarId) : MetaM MVarId :=
+def exfalso (mvarId : MVarId) : MetaM MVarId :=
   mvarId.withContext do
     mvarId.checkNotAssigned `exfalso
     let target ← instantiateMVars (← mvarId.getType)
@@ -240,7 +245,7 @@ Apply the `n`-th constructor of the target type,
 checking that it is an inductive type,
 and that there are the expected number of constructors.
 -/
-def _root_.Lean.MVarId.nthConstructor
+def nthConstructor
     (name : Name) (idx : Nat) (expected? : Option Nat := none) (goal : MVarId) :
     MetaM (List MVarId) := do
   goal.withContext do
@@ -256,4 +261,68 @@ def _root_.Lean.MVarId.nthConstructor
         else
           throwTacticEx name goal s!"index {idx} out of bounds, only {ival.ctors.length} constructors"
 
-end Lean.Meta
+/--
+Try to convert an `Iff` into an `Eq` by applying `iff_of_eq`.
+If successful, returns the new goal, and otherwise returns the original `MVarId`.
+
+This may be regarded as being a special case of `Lean.MVarId.liftReflToEq`, specifically for `Iff`.
+-/
+def iffOfEq (mvarId : MVarId) : MetaM MVarId := do
+  let res ← observing? do
+    let [mvarId] ← mvarId.apply (mkConst ``iff_of_eq []) | failure
+    return mvarId
+  return res.getD mvarId
+
+/--
+Try to convert an `Eq` into an `Iff` by applying `propext`.
+If successful, then returns then new goal, otherwise returns the original `MVarId`.
+-/
+def propext (mvarId : MVarId) : MetaM MVarId := do
+  let res ← observing? do
+    -- Avoid applying `propext` if the target is not an equality of `Prop`s.
+    -- We don't want a unification specializing `Sort*` to `Prop`.
+    let tgt ← withReducible mvarId.getType'
+    let some (_, x, _) := tgt.eq? | failure
+    guard <| ← Meta.isProp x
+    let [mvarId] ← mvarId.apply (mkConst ``propext []) | failure
+    return mvarId
+  return res.getD mvarId
+
+/--
+Try to close the goal using `proof_irrel_heq`. Returns whether or not it succeeds.
+
+We need to be somewhat careful not to assign metavariables while doing this, otherwise we might
+specialize `Sort _` to `Prop`.
+-/
+def proofIrrelHeq (mvarId : MVarId) : MetaM Bool :=
+  mvarId.withContext do
+    let res ← observing? do
+      mvarId.checkNotAssigned `proofIrrelHeq
+      let tgt ← withReducible mvarId.getType'
+      let some (_, lhs, _, rhs) := tgt.heq? | failure
+      -- Note: `mkAppM` uses `withNewMCtxDepth`, which prevents `Sort _` from specializing to `Prop`
+      let pf ← mkAppM ``proof_irrel_heq #[lhs, rhs]
+      mvarId.assign pf
+      return true
+    return res.getD false
+
+/--
+Try to close the goal using `Subsingleton.elim`. Returns whether or not it succeeds.
+
+We are careful to apply `Subsingleton.elim` in a way that does not assign any metavariables.
+This is to prevent the `Subsingleton Prop` instance from being used as justification to specialize
+`Sort _` to `Prop`.
+-/
+def subsingletonElim (mvarId : MVarId) : MetaM Bool :=
+  mvarId.withContext do
+    let res ← observing? do
+      mvarId.checkNotAssigned `subsingletonElim
+      let tgt ← withReducible mvarId.getType'
+      let some (_, lhs, rhs) := tgt.eq? | failure
+      -- Note: `mkAppM` uses `withNewMCtxDepth`, which prevents `Sort _` from specializing to `Prop`
+      let pf ← mkAppM ``Subsingleton.elim #[lhs, rhs]
+      mvarId.assign pf
+      return true
+    return res.getD false
+
+end Lean.MVarId

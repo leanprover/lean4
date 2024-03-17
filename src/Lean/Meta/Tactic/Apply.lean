@@ -282,8 +282,8 @@ def propext (mvarId : MVarId) : MetaM MVarId := do
     -- Avoid applying `propext` if the target is not an equality of `Prop`s.
     -- We don't want a unification specializing `Sort*` to `Prop`.
     let tgt ← withReducible mvarId.getType'
-    let some (ty, _, _) := tgt.eq? | failure
-    guard ty.isProp
+    let some (_, x, _) := tgt.eq? | failure
+    guard <| ← Meta.isProp x
     let [mvarId] ← mvarId.apply (mkConst ``propext []) | failure
     return mvarId
   return res.getD mvarId

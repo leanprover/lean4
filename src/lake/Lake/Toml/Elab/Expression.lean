@@ -187,7 +187,7 @@ where
       | _ =>
         t.insertMap k fun v? =>
           match v? with
-          | some (.array _ vs) => vs.push {}
+          | some (.array _ vs) => vs.push (.table newV.ref {})
           | _ => newV
     | k' :: ks => t.insertMap k fun v? =>
       if let some v := v? then
@@ -195,11 +195,11 @@ where
         | .array ref vs =>
           .array ref <| vs.modify (vs.size-1) fun
           | .table ref t' => .table ref <| insert t' k' ks newV
-          | _ => {}
+          | _ => .table newV.ref {}
         | .table ref t' => .table ref <| insert t' k' ks newV
-        | _ => {}
+        | _ => .table newV.ref {}
       else
-        insert {} k' ks newV
+        .table newV.ref <| insert {} k' ks newV
 
 nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
   let (_,s) ← x.run {}

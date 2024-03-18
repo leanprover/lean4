@@ -77,12 +77,27 @@ def tryDecode (x : StateM (Array ε) α) : Except (Array ε) α :=
 @[inline] def partialDecode [Inhabited α] (x : Except (Array ε) α) : StateM (Array ε) α :=
   partialDecodeD default x
 
+@[inline] def optDecodeD (default : β)  (a? : Option α)  (f : α → Except (Array ε) β) : StateM (Array ε) β :=
+  match a? with
+  | some a => partialDecodeD default (f a)
+  | none => pure default
+
+@[inline] def optDecode [Inhabited β] (a? : Option α)  (f : α → Except (Array ε) β) : StateM (Array ε) β :=
+  optDecodeD default a? f
+
+@[inline] def optDecode? (a? : Option α)  (f : α → Except (Array ε) β) : StateM (Array ε) (Option β) :=
+  optDecodeD none a? fun a  => some <$> f a
+
 def mergeErrors (x₁ : Except (Array ε) α) (x₂ : Except (Array ε) β) (f : α → β → γ) : Except (Array ε) γ :=
   match x₁, x₂ with
   | .ok a, .ok b => .ok (f a b)
   | .ok _, .error es => .error es
   | .error es, .ok _ => .error es
   | .error es', .error es => .error (es ++ es')
+
+def decodeArray [OfToml α] (vs : Array Value) : Except (Array DecodeError) (Array α) :=
+  vs.foldl (init := Except.ok (.mkEmpty vs.size)) fun vs v =>
+    mergeErrors vs (ofToml v) Array.push
 
 instance : OfToml Value := ⟨pure⟩
 
@@ -137,9 +152,7 @@ instance : OfToml DateTime := ⟨(·.getDateTime)⟩
 | x => .error (.mk x.ref "expected array")
 
 def getArray [OfToml α] (v : Value) : Except (Array DecodeError) (Array α) := do
-  let vs ← v.getValueArray
-  vs.foldl (init := Except.ok (.mkEmpty vs.size)) fun vs v =>
-    mergeErrors vs (ofToml v) Array.push
+  decodeArray (← v.getValueArray)
 
 instance [OfToml α] : OfToml (Array α) := ⟨getArray⟩
 
@@ -154,14 +167,10 @@ end Value
 namespace Table
 
 @[inline] def get? [OfToml α] (t : Table) (k : Name) : StateM (Array DecodeError) (Option α) :=
-  match t.find? k with
-  | some a => partialDecodeD none <| some <$> ofToml a
-  | none => pure none
+  optDecode? (t.find? k) ofToml
 
 @[inline] def getD [OfToml α] (k : Name) (default : α) (t : Table) : StateM (Array DecodeError) α :=
-  match t.find? k with
-  | some a => partialDecodeD default <| ofToml a
-  | none => pure default
+  optDecodeD default (t.find? k) ofToml
 
 def getValue (t : Table) (k : Name) (ref := Syntax.missing) : Except DecodeError Value := do
   let some a := t.find? k
@@ -188,13 +197,13 @@ end Toml
 
 open Toml
 
-def WorkspaceConfig.ofToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := tryDecode do
+protected def WorkspaceConfig.ofToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := tryDecode do
   let packagesDir ← t.getD `packagesDir (defaultLakeDir / defaultPackagesDir)
   return {packagesDir}
 
 instance : OfToml WorkspaceConfig := ⟨(do WorkspaceConfig.ofToml <| ← ·.getTable)⟩
 
-def LeanOptionValue.ofToml : Value → Except DecodeError LeanOptionValue
+protected def LeanOptionValue.ofToml : Value → Except DecodeError LeanOptionValue
 | .string _ v => return .ofString v
 | .boolean _ v => return .ofBool v
 | .integer _ (.ofNat v) => return .ofNat v
@@ -202,12 +211,23 @@ def LeanOptionValue.ofToml : Value → Except DecodeError LeanOptionValue
 
 instance : OfToml LeanOptionValue := ⟨(LeanOptionValue.ofToml ·)⟩
 
-def LeanOption.ofToml (t : Table) : Except (Array DecodeError) LeanOption := tryDecode do
-  let name ← t.getI `name
-  let value ← t.getI `value
-  return {name, value}
+protected def LeanOption.ofToml (v : Value) : Except (Array DecodeError) LeanOption := do
+  match v with
+  | .array ref vs =>
+    if h : vs.size = 2 then tryDecode do
+      let name : Name ← partialDecode <| ofToml vs[0]
+      let value ← partialDecode <| ofToml vs[1]
+      return {name, value}
+    else
+      throw #[.mk ref "expected array of size 2"]
+  | .table ref t => tryDecode do
+    let name ← t.getI `name ref
+    let value ← t.getI `value ref
+    return {name, value}
+  | v =>
+    throw #[.mk v.ref "expected array or table"]
 
-instance : OfToml LeanOption := ⟨(do LeanOption.ofToml <| ← ofToml ·)⟩
+instance : OfToml LeanOption := ⟨(LeanOption.ofToml ·)⟩
 
 def BuildType.ofString? (s : String) : Option BuildType :=
   match s with
@@ -217,17 +237,32 @@ def BuildType.ofString? (s : String) : Option BuildType :=
   | "release" => some .release
   | _ => none
 
-def BuildType.ofToml (v : Value) : Except DecodeError BuildType := do
+protected def BuildType.ofToml (v : Value) : Except DecodeError BuildType := do
   match inline <| BuildType.ofString? (← v.getString) with
   | some v => return v
   | none => throw <| .mk v.ref "expected one of 'debug' 'relWithDebInfo', 'minSizeRel', 'release'"
 
 instance : OfToml BuildType := ⟨(BuildType.ofToml ·)⟩
 
-def LeanConfig.ofToml (t : Table) : Except (Array DecodeError) LeanConfig := tryDecode do
+partial def decodeLeanOptionsAux
+  (v : Value) (k : Name) (vs : Except (Array DecodeError) (Array LeanOption))
+: Except (Array DecodeError) (Array LeanOption) :=
+  match v with
+  | .table _ t => t.items.foldl (init := vs) fun vs (k',v) =>
+    decodeLeanOptionsAux v (k ++ k') vs
+  | v => mergeErrors vs (ofToml v) fun vs v => vs.push ⟨k,v⟩
+
+def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption) :=
+  match v with
+  | .array _ vs => decodeArray vs
+  | .table _ t => t.items.foldl (init := .ok #[]) fun vs (k,v) => decodeLeanOptionsAux v k vs
+  | v =>
+    throw #[.mk v.ref "expected array or table"]
+
+protected def LeanConfig.ofToml (t : Table) : Except (Array DecodeError) LeanConfig := tryDecode do
   let buildType ← t.getD `buildType .release
   let platformIndependent ← t.get? `platformIndependent
-  let leanOptions ← t.getD `leanOptions #[]
+  let leanOptions ← optDecodeD #[] (t.find? `leanOptions) decodeLeanOptions
   let moreServerOptions ← t.getD `moreServerOptions #[]
   let moreLeanArgs ← t.getD `moreLeanArgs #[]
   let weakLeanArgs ← t.getD `weakLeanArgs #[]
@@ -242,8 +277,8 @@ def LeanConfig.ofToml (t : Table) : Except (Array DecodeError) LeanConfig := try
 
 instance : OfToml LeanConfig := ⟨(do LeanConfig.ofToml <| ← ·.getTable)⟩
 
-def PackageConfig.ofToml (t : Table) : Except (Array DecodeError) PackageConfig := tryDecode do
-  let name ← stringToLegalOrSimpleName <$> t.getI `name
+protected def PackageConfig.ofToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) PackageConfig := tryDecode do
+  let name ← stringToLegalOrSimpleName <$> t.getI `name ref
   let precompileModules ← t.getD `precompileModules false
   let moreGlobalServerArgs ← t.getD `moreGlobalServerArgs #[]
   let srcDir ← t.getD `srcDir "."
@@ -319,21 +354,21 @@ def Glob.ofString? (v : String) : Option Glob := do
   else
     return .one n
 
-def Glob.ofToml (v : Value) : Except DecodeError Glob := do
+protected def Glob.ofToml (v : Value) : Except DecodeError Glob := do
   match inline <| Glob.ofString? (← v.getString) with
   | some v => return v
   | none => throw <| .mk v.ref "expected glob"
 
 instance : OfToml Glob := ⟨(Glob.ofToml ·)⟩
 
-def LeanLibConfig.ofToml (t : Table) : Except (Array DecodeError) LeanLibConfig := tryDecode do
-  let name : Name ← t.getI `name
+protected def LeanLibConfig.ofToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) LeanLibConfig := tryDecode do
+  let name : Name ← t.getI `name ref
   let srcDir ← t.getD `srcDir "."
   let roots ← t.getD `roots #[name]
   let globs ← t.getD `globs (roots.map Glob.one)
   let libName ← t.getD `libName (name.toString (escape := false))
   let precompileModules ← t.getD `precompileModules false
-  let defaultFacets ← t.getD `defaultFacets #[]
+  let defaultFacets ← t.getD `defaultFacets #[LeanLib.leanArtsFacet]
   let toLeanConfig ← partialDecode <| LeanConfig.ofToml t
   return {
     name, srcDir, roots, globs, libName,
@@ -342,8 +377,8 @@ def LeanLibConfig.ofToml (t : Table) : Except (Array DecodeError) LeanLibConfig 
 
 instance : OfToml LeanLibConfig := ⟨(do LeanLibConfig.ofToml <| ← ·.getTable)⟩
 
-def LeanExeConfig.ofToml (t : Table) : Except (Array DecodeError) LeanExeConfig := tryDecode do
-  let name ← stringToLegalOrSimpleName <$> t.getI `name
+protected def LeanExeConfig.ofToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) LeanExeConfig := tryDecode do
+  let name ← stringToLegalOrSimpleName <$> t.getI `name ref
   let srcDir ← t.getD `srcDir "."
   let root ← t.getD `root name
   let exeName ← t.getD `exeName (name.toStringWithSep "-" (escape := false))
@@ -353,20 +388,20 @@ def LeanExeConfig.ofToml (t : Table) : Except (Array DecodeError) LeanExeConfig 
 
 instance : OfToml LeanExeConfig := ⟨(do LeanExeConfig.ofToml <| ← ·.getTable)⟩
 
-def Source.ofToml (t : Table) : Except (Array DecodeError) Source := do
+protected def Source.ofToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Source := do
   let typeVal ← t.getValue `type
   match (← typeVal.getString) with
   | "path" =>
     return Source.path (← t.get `dir)
   | "git" => tryDecode do
-    return Source.git (← t.getI `url) (← t.get? `rev) (← t.get? `subDir)
+    return Source.git (← t.getI `url ref) (← t.get? `rev) (← t.get? `subDir)
   | _ =>
     throw #[DecodeError.mk typeVal.ref "expected one of 'path' or 'git'"]
 
 instance : OfToml Source := ⟨(do Source.ofToml <| ← ·.getTable)⟩
 
-def Dependency.ofToml (t : Table) : Except (Array DecodeError) Dependency := tryDecode do
-  let name ← t.getI `name
+protected def Dependency.ofToml (t : Table) (ref := Syntax.missing) : Except (Array DecodeError) Dependency := tryDecode do
+  let name ← t.getI `name ref
   let src ← id do
     if let some dir ← t.get? `path then
       return Source.path dir
@@ -374,13 +409,13 @@ def Dependency.ofToml (t : Table) : Except (Array DecodeError) Dependency := try
       match g with
       | .string _ url =>
         return Source.git url (← t.get? `rev) (← t.get? `subDir)
-      | .table _ t =>
-        return Source.git (← t.getI `url) (← t.get? `rev) (← t.get? `subDir)
+      | .table ref t =>
+        return Source.git (← t.getI `url ref) (← t.get? `rev) (← t.get? `subDir)
       | _ =>
         modify (·.push <| .mk g.ref "expected string or table")
         return default
     else
-      t.getI `source
+      t.getI `source ref
   let opts ← t.getD `options {}
   return {name, src, opts}
 

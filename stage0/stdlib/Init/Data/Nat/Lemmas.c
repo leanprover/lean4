@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Lemmas
-// Imports: Init.Data.Nat.Dvd Init.Data.Nat.MinMax Init.Data.Nat.Log2 Init.Data.Nat.Power2
+// Imports: Init.Data.Nat.MinMax Init.Data.Nat.Log2 Init.Data.Nat.Power2 Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -269,18 +269,15 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Log2(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Power2(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Nat_Dvd(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Init_Data_Nat_MinMax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -288,6 +285,9 @@ res = initialize_Init_Data_Nat_Log2(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Power2(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Omega(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

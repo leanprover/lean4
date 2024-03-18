@@ -27,11 +27,10 @@ def getRawNatValue? (e : Expr) : Option Nat :=
 
 /-- Return `some (n, type)` if `e` is an `OfNat.ofNat`-application encoding `n` for a type with name `typeDeclName`. -/
 def getOfNatValue? (e : Expr) (typeDeclName : Name) : MetaM (Option (Nat × Expr)) := OptionT.run do
-  let e := e.consumeMData
-  guard <| e.isAppOfArity' ``OfNat.ofNat 3
-  let type ← whnfD (e.getArg!' 0)
+  let_expr OfNat.ofNat type n _ ← e | failure
+  let type ← whnfD type
   guard <| type.getAppFn.isConstOf typeDeclName
-  let .lit (.natVal n) := (e.getArg!' 1).consumeMData | failure
+  let .lit (.natVal n) := n.consumeMData | failure
   return (n, type)
 
 /-- Return `some n` if `e` is a raw natural number or an `OfNat.ofNat`-application encoding `n`. -/
@@ -46,16 +45,15 @@ def getNatValue? (e : Expr) : MetaM (Option Nat) := do
 def getIntValue? (e : Expr) : MetaM (Option Int) := do
   if let some (n, _) ← getOfNatValue? e ``Int then
     return some n
-  if e.isAppOfArity' ``Neg.neg 3 then
-    let some (n, _) ← getOfNatValue? (e.getArg!' 2) ``Int | return none
-    return some (-n)
-  return none
+  let_expr Neg.neg _ _ a ← e | return none
+  let some (n, _) ← getOfNatValue? a ``Int | return none
+  return some (-↑n)
 
 /-- Return `some c` if `e` is a `Char.ofNat`-application encoding character `c`. -/
-def getCharValue? (e : Expr) : MetaM (Option Char) := OptionT.run do
-  guard <| e.isAppOfArity' ``Char.ofNat 1
-  let n ← getNatValue? (e.getArg!' 0)
-  return Char.ofNat n
+def getCharValue? (e : Expr) : MetaM (Option Char) := do
+  let_expr Char.ofNat n ← e | return none
+  let some n ← getNatValue? n | return none
+  return some (Char.ofNat n)
 
 /-- Return `some s` if `e` is of the form `.lit (.strVal s)`. -/
 def getStringValue? (e : Expr) : (Option String) :=
@@ -78,7 +76,6 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let v ← getNatValue? (e.getArg!' 1)
     return ⟨n, BitVec.ofNat n v⟩
   let (v, type) ← getOfNatValue? e ``BitVec
-  IO.println v
   let n ← getNatValue? (← whnfD type.appArg!)
   return ⟨n, BitVec.ofNat n v⟩
 
@@ -103,7 +100,7 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   return UInt64.ofNat n
 
 /--
-If `e` is literal value, ensure it is encoded using the standard representation.
+If `e` is a literal value, ensure it is encoded using the standard representation.
 Otherwise, just return `e`.
 -/
 def normLitValue (e : Expr) : MetaM Expr := do
@@ -118,6 +115,34 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt16Value? e then return toExpr n
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
+  return e
+
+/--
+If `e` is a `Nat`, `Int`, or `Fin` literal value, converts it into a constructor application.
+Otherwise, just return `e`.
+-/
+-- TODO: support other builtin literals if needed
+def litToCtor (e : Expr) : MetaM Expr := do
+  let e ← instantiateMVars e
+  if let some n ← getNatValue? e then
+    if n = 0 then
+      return mkConst ``Nat.zero
+    else
+      return .app (mkConst ``Nat.succ) (toExpr (n-1))
+  if let some n ← getIntValue? e then
+    if n < 0 then
+      return .app (mkConst ``Int.negSucc) (toExpr (- (n+1)).toNat)
+    else
+      return .app (mkConst ``Int.ofNat) (toExpr n.toNat)
+  if let some ⟨n, v⟩ ← getFinValue? e then
+    let i := toExpr v.val
+    let n := toExpr n
+    -- Remark: we construct the proof manually here to avoid a cyclic dependency.
+    let p := mkApp4 (mkConst ``LT.lt [0]) (mkConst ``Nat) (mkConst ``instLTNat) i n
+    let h := mkApp3 (mkConst ``of_decide_eq_true) p
+      (mkApp2 (mkConst ``Nat.decLt) i n)
+      (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``true))
+    return mkApp3 (mkConst ``Fin.mk) n i h
   return e
 
 end Lean.Meta

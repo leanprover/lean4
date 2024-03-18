@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.BasicAux
-// Imports: Init.Data.Nat.Linear Init.Data.Array.Basic Init.Data.List.Basic Init.Util
+// Imports: Init.Data.Nat.Linear
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_List_getLast___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__58;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__14;
+LEAN_EXPORT lean_object* l_List_partitionMap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__15;
 LEAN_EXPORT lean_object* l_List_partitionM_go(lean_object*, lean_object*);
@@ -132,6 +133,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__1;
 LEAN_EXPORT lean_object* l_List_headD___rarg(lean_object*, lean_object*);
 lean_object* l_List_drop___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_partitionMap___rarg(lean_object*, lean_object*);
 static lean_object* l_List_tail_x21___rarg___closed__2;
 static lean_object* l_List_tacticSizeOf__list__dec___closed__5;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -174,11 +176,13 @@ LEAN_EXPORT lean_object* l_List_partitionM_go___rarg___lambda__1___boxed(lean_ob
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__19;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__2;
 static lean_object* l_List_head_x21___rarg___closed__2;
+LEAN_EXPORT lean_object* l_List_partitionMap_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLastD___rarg___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__45;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__56;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_partitionMap_go(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__33;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__34;
@@ -215,14 +219,13 @@ return x_1;
 static lean_object* _init_l_List_get_x21___rarg___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_get_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(21u);
-x_4 = lean_unsigned_to_nat(18u);
-x_5 = l_List_get_x21___rarg___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
+x_3 = lean_unsigned_to_nat(18u);
+x_4 = l_List_get_x21___rarg___closed__3;
+x_5 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_get_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -396,7 +399,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_head_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(32u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -569,7 +572,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_tail_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(47u);
+x_3 = lean_unsigned_to_nat(44u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -741,7 +744,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_getLast_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(64u);
+x_3 = lean_unsigned_to_nat(61u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2286,25 +2289,87 @@ x_3 = lean_alloc_closure((void*)(l_List_partitionM___rarg), 3, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_List_partitionMap_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_1);
+x_5 = lean_array_to_list(lean_box(0), x_3);
+x_6 = lean_array_to_list(lean_box(0), x_4);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_2, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_2, 1);
+lean_inc(x_9);
+lean_dec(x_2);
+lean_inc(x_1);
+x_10 = lean_apply_1(x_1, x_8);
+if (lean_obj_tag(x_10) == 0)
+{
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_array_push(x_3, x_11);
+x_2 = x_9;
+x_3 = x_12;
+goto _start;
+}
+else
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_10, 0);
+lean_inc(x_14);
+lean_dec(x_10);
+x_15 = lean_array_push(x_4, x_14);
+x_2 = x_9;
+x_4 = x_15;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_partitionMap_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_List_partitionMap_go___rarg), 4, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_partitionMap___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__48;
+x_4 = l_List_partitionMap_go___rarg(x_1, x_2, x_3, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_partitionMap(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_List_partitionMap___rarg), 2, 0);
+return x_4;
+}
+}
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Basic(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_get_x21___rarg___closed__1 = _init_l_List_get_x21___rarg___closed__1();

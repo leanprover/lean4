@@ -115,14 +115,18 @@ ENDFOREACH(T)
 
 # LEAN BENCHMARK TESTS
 # do not test all .lean files in bench/
-file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
-FOREACH(T_OUT ${LEANBENCHTESTS})
-  string(REPLACE ".expected.out" "" T ${T_OUT})
-  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-  add_test(NAME "leanbenchtest_${T_NAME}"
-           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
-ENDFOREACH(T_OUT)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  message(STATUS "Skipping compiler tests on Windows because of shared library limit on number of exported symbols")
+else()
+  file(GLOB LEANBENCHTESTS "${LEAN_SOURCE_DIR}/../tests/bench/*.lean.expected.out")
+  FOREACH(T_OUT ${LEANBENCHTESTS})
+    string(REPLACE ".expected.out" "" T ${T_OUT})
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanbenchtest_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  ENDFOREACH(T_OUT)
+endif()
 
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
 FOREACH(T ${LEANINTERPTESTS})
@@ -142,15 +146,19 @@ FOREACH(T ${LEANT0TESTS})
 ENDFOREACH(T)
 
 # LEAN PACKAGE TESTS
-file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
-FOREACH(T ${LEANPKGTESTS})
-  if(IS_DIRECTORY ${T})
-    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
-    add_test(NAME "leanpkgtest_${T_NAME}"
-            WORKING_DIRECTORY "${T}"
-            COMMAND bash -c "${TEST_VARS} ./test.sh")
-  endif()
-ENDFOREACH(T)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  message(STATUS "Skipping compiler tests on Windows because of shared library limit on number of exported symbols")
+else()
+  file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
+  FOREACH(T ${LEANPKGTESTS})
+    if(IS_DIRECTORY ${T})
+      GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+      add_test(NAME "leanpkgtest_${T_NAME}"
+              WORKING_DIRECTORY "${T}"
+              COMMAND bash -c "${TEST_VARS} ./test.sh")
+    endif()
+  ENDFOREACH(T)
+endif()
 
 # LEAN SERVER TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/server/*.lean")

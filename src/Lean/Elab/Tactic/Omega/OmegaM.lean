@@ -7,8 +7,9 @@ prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
 import Init.Omega.Logic
-import Init.Data.BitVec
+import Init.Data.BitVec.Basic
 import Lean.Meta.AppBuilder
+import Lean.Meta.Canonicalizer
 
 /-!
 # The `OmegaM` state monad.
@@ -51,10 +52,10 @@ structure Context where
 /-- The internal state for the `OmegaM` monad, recording previously encountered atoms. -/
 structure State where
   /-- The atoms up-to-defeq encountered so far. -/
-  atoms : Array Expr := #[]
+  atoms : HashMap Expr Nat := {}
 
 /-- An intermediate layer in the `OmegaM` monad. -/
-abbrev OmegaM' := StateRefT State (ReaderT Context MetaM)
+abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
 
 /--
 Cache of expressions that have been visited, and their reflection as a linear combination.
@@ -70,16 +71,17 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' HashMap.empty |>.run' {} { cfg }
+  m.run' HashMap.empty |>.run' {} { cfg } |>.run
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
 
 /-- Retrieve the list of atoms. -/
-def atoms : OmegaM (List Expr) := return (← getThe State).atoms.toList
+def atoms : OmegaM (Array Expr) := do
+  return (← getThe State).atoms.toArray.qsort (·.2 < ·.2) |>.map (·.1)
 
 /-- Return the `Expr` representing the list of atoms. -/
-def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms)
+def atomsList : OmegaM Expr := do mkListLit (.const ``Int []) (← atoms).toList
 
 /-- Return the `Expr` representing the list of atoms as a `Coeffs`. -/
 def atomsCoeffs : OmegaM Expr := do
@@ -175,7 +177,7 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
       | _, (``Fin.val, #[n, i]) =>
         r := r.insert (mkApp2 (.const ``Fin.isLt []) n i)
       | _, (``BitVec.toNat, #[n, x]) =>
-        r := r.insert (mkApp2 (.const ``BitVec.toNat_lt []) n x)
+        r := r.insert (mkApp2 (.const ``BitVec.isLt []) n x)
       | _, _ => pure ()
     return r
   | (``HDiv.hDiv, #[_, _, _, _, x, k]) => match natCast? k with
@@ -243,15 +245,17 @@ Return its index, and, if it is new, a collection of interesting facts about the
 -/
 def lookup (e : Expr) : OmegaM (Nat × Option (HashSet Expr)) := do
   let c ← getThe State
-  for h : i in [:c.atoms.size] do
-    if ← isDefEq e c.atoms[i] then
-      return (i, none)
+  let e ← canon e
+  match c.atoms.find? e with
+  | some i => return (i, none)
+  | none =>
   trace[omega] "New atom: {e}"
   let facts ← analyzeAtom e
   if ← isTracingEnabledFor `omega then
     unless facts.isEmpty do
       trace[omega] "New facts: {← facts.toList.mapM fun e => inferType e}"
-  let i ← modifyGetThe State fun c => (c.atoms.size, { c with atoms := c.atoms.push e })
+  let i ← modifyGetThe State fun c =>
+    (c.atoms.size, { c with atoms := c.atoms.insert e c.atoms.size })
   return (i, some facts)
 
 end Omega

@@ -32,7 +32,7 @@ end
 #print f
 #print g
 #print h
-#print f._unary._mutual
+#print f._mutual
 end Ex1
 
 namespace Ex2
@@ -53,7 +53,7 @@ mutual
   termination_by _ _ n => (n, 0)
 end
 
-#print f._unary._mutual
+#print f._mutual
 
 end Ex2
 
@@ -72,6 +72,6 @@ mutual
     | a, b, n+1 => f n a b
 end
 
-#print f._unary._mutual
+#print f._mutual
 
 end Ex3

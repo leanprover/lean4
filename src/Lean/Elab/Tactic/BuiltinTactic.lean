@@ -352,12 +352,21 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
     let mut info  := #[]
     let mut found : NameSet := {}
     let n := lctx.numIndices
+    -- hypotheses are inaccessible if their scopes are different from the caller's (we assume that
+    -- the scopes are the same for all the hypotheses in `hs`, which is reasonable to expect in
+    -- practice and otherwise the expected semantics of `rename_i` really are not clear)
+    let some callerScopes := hs.findSome? (fun
+        | `(binderIdent| $h:ident) => some <| extractMacroScopes h.getId
+        | _ => none)
+      | return mvarId
     for i in [:n] do
       let j := n - i - 1
       match lctx.getAt? j with
       | none => pure ()
       | some localDecl =>
-        if localDecl.userName.hasMacroScopes || found.contains localDecl.userName then
+        let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
+        let shadowed := found.contains localDecl.userName
+        if inaccessible || shadowed then
           if let `(binderIdent| $h:ident) := hs.back then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName

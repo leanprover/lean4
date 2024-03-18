@@ -1,15 +1,9 @@
-issue2260.lean:8:20-8:21: error: The termination argument depends on the function's varying parameters. Try using `sizeOf` explicitly:
-The termination argument has type
-  DNat i : Type
-but is expected to have type
-  ?β : Sort ?u
-issue2260.lean:15:20-15:21: error: The termination argument types differ for the different functions, or depend on the function's varying parameters. Try using `sizeOf` explicitly:
-The termination argument has type
-  DNat i : Type
-but is expected to have type
-  ?β : Sort ?u
-issue2260.lean:31:20-31:21: error: The termination argument types differ for the different functions, or depend on the function's varying parameters. Try using `sizeOf` explicitly:
-The termination argument has type
-  DNat i : Type
-but is expected to have type
-  Nat : Type
+issue2260.lean:8:0-8:21: error: The termination argument's type must not depend on the function's varying parameters, but foo's termination argument does:
+  {i : Nat} → DNat i → DNat i
+Try using `sizeOf` explicitly
+issue2260.lean:15:0-15:21: error: The termination argument's type must not depend on the function's varying parameters, but bar1's termination argument does:
+  {i : Nat} → DNat i → DNat i
+Try using `sizeOf` explicitly
+issue2260.lean:31:0-31:21: error: The termination argument's type must not depend on the function's varying parameters, but baz2's termination argument does:
+  {i : Nat} → DNat i → DNat i
+Try using `sizeOf` explicitly

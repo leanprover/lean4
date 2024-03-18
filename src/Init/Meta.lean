@@ -1362,6 +1362,19 @@ structure OmegaConfig where
 
 end Omega
 
+namespace CheckTactic
+
+/--
+Type used to lift an arbitrary value into a type parameter so it can
+appear in a proof goal.
+
+It is used by the #check_tactic command.
+-/
+inductive CheckGoalType {α : Sort u} : (val : α) → Prop where
+| intro : (val : α) → CheckGoalType val
+
+end CheckTactic
+
 end Meta
 
 namespace Parser

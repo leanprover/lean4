@@ -6,9 +6,8 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 prelude
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
-import Init.Data.Nat.Lemmas
 import Init.PropLemmas
-import Init.Control.Lawful
+import Init.Control.Lawful.Basic
 import Init.Hints
 
 namespace List
@@ -69,7 +68,7 @@ theorem mem_cons_self (a : α) (l : List α) : a ∈ a :: l := .head ..
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
-  cases l <;> simp
+  cases l <;> simp [-not_or]
 
 /-! ### append -/
 
@@ -451,9 +450,9 @@ theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
   induction as with
   | nil => simp [filter]
   | cons a as ih =>
-    by_cases h : p a <;> simp [*, or_and_right]
-    · exact or_congr_left (and_iff_left_of_imp fun | rfl => h).symm
-    · exact (or_iff_right fun ⟨rfl, h'⟩ => h h').symm
+    by_cases h : p a
+    · simp_all [or_and_left]
+    · simp_all [or_and_right]
 
 theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
@@ -665,3 +664,44 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
     exact congrArg some <| anti.1
       ((le_minimum?_iff le_min_iff (xs := x::xs) rfl _).1 (le_refl _) _ h₁)
       (h₂ _ (minimum?_mem min_eq_or (xs := x::xs) rfl))
+
+@[simp] theorem get_cons_succ {as : List α} {h : i + 1 < (a :: as).length} :
+  (a :: as).get ⟨i+1, h⟩ = as.get ⟨i, Nat.lt_of_succ_lt_succ h⟩ := rfl
+
+@[simp] theorem get_cons_succ' {as : List α} {i : Fin as.length} :
+  (a :: as).get i.succ = as.get i := rfl
+
+@[simp] theorem set_nil (n : Nat) (a : α) : [].set n a = [] := rfl
+
+@[simp] theorem set_zero (x : α) (xs : List α) (a : α) :
+  (x :: xs).set 0 a = a :: xs := rfl
+
+@[simp] theorem set_succ (x : α) (xs : List α) (n : Nat) (a : α) :
+  (x :: xs).set n.succ a = x :: xs.set n a := rfl
+
+@[simp] theorem get_set_eq (l : List α) (i : Nat) (a : α) (h : i < (l.set i a).length) :
+    (l.set i a).get ⟨i, h⟩ = a :=
+  match l, i with
+  | [], _ => by
+    simp at h
+    contradiction
+  | _ :: _, 0 => by
+    simp
+  | _ :: l, i + 1 => by
+    simp [get_set_eq l]
+
+@[simp] theorem get_set_ne (l : List α) {i j : Nat} (h : i ≠ j) (a : α)
+    (hj : j < (l.set i a).length) :
+    (l.set i a).get ⟨j, hj⟩ = l.get ⟨j, by simp at hj; exact hj⟩ :=
+  match l, i, j with
+  | [], _, _ => by
+    simp
+  | _ :: _, 0, 0 => by
+    contradiction
+  | _ :: _, 0, _ + 1 => by
+    simp
+  | _ :: _, _ + 1, 0 => by
+    simp
+  | _ :: l, i + 1, j + 1 => by
+    have g : i ≠ j := h ∘ congrArg (· + 1)
+    simp [get_set_ne l g]

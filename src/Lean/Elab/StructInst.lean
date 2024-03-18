@@ -802,10 +802,8 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
         let arg ← mkFreshExprMVar d
         mkDefaultValueAux? struct (b.instantiate1 arg)
   | e =>
-    if e.isAppOfArity ``id 2 then
-      return some e.appArg!
-    else
-      return some e
+    let_expr id _ a := e | return some e
+    return some a
 
 def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
   withRef struct.ref do

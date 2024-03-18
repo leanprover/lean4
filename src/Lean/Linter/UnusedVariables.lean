@@ -306,7 +306,7 @@ where
     if ← insertObj set e then
       ForEachExpr.visit (e := e) fun e => do
         match e with
-        | .fvar id => fvarUses.modify (·.insert id); return false
+        | .fvar _ id => fvarUses.modify (·.insert id); return false
         | _ => return e.hasFVar
 
 /-- Given `aliases` as a map from an alias to what it aliases, we get the original
@@ -368,7 +368,7 @@ def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Ra
             let some range := info.range? | return
             let .original .. := info.stx.getHeadInfo | return -- we are not interested in canonical syntax here
             modify fun s => { s with constDecls := s.constDecls.insert range }
-        | .fvar id .. =>
+        | .fvar _ id .. =>
           let some range := info.range? | return
           let .original .. := info.stx.getHeadInfo | return -- we are not interested in canonical syntax here
           if ti.isBinder then

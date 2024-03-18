@@ -458,7 +458,7 @@ contains the longest initial segment for which `p` returns true
 and the second part is everything else.
 
 * `span (· > 5) [6, 8, 9, 5, 2, 9] = ([6, 8, 9], [5, 2, 9])`
-* `span (· > 10) [6, 8, 9, 5, 2, 9] = ([6, 8, 9, 5, 2, 9], [])`
+* `span (· > 10) [6, 8, 9, 5, 2, 9] = ([], [6, 8, 9, 5, 2, 9])`
 -/
 @[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
   loop as []
@@ -727,9 +727,9 @@ inductive lt [LT α] : List α → List α → Prop where
 instance [LT α] : LT (List α) := ⟨List.lt⟩
 
 instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
-  | [],    []    => isFalse (fun h => nomatch h)
+  | [],    []    => isFalse nofun
   | [],    _::_  => isTrue (List.lt.nil _ _)
-  | _::_, []     => isFalse (fun h => nomatch h)
+  | _::_, []     => isFalse nofun
   | a::as, b::bs =>
     match h a b with
     | isTrue h₁  => isTrue (List.lt.head _ _ h₁)

@@ -39,10 +39,10 @@ test ! -f ./.lake/build/lib/Foo/Baz.olean
 $LAKE build +Foo.Baz
 test -f ./.lake/build/lib/Foo/Baz.olean
 
-# Test `.c.o` specifier
-test ! -f ./.lake/build/ir/Bar.c.o
-$LAKE build +Bar:c.o
-test -f ./.lake/build/ir/Bar.c.o
+# Test an object file specifier
+test ! -f ./.lake/build/ir/Bar.c.o.export
+$LAKE build +Bar:c.o.export
+test -f ./.lake/build/ir/Bar.c.o.export
 
 # Test default targets
 test ! -f ./.lake/build/bin/c

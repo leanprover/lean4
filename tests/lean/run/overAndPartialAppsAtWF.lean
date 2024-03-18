@@ -19,4 +19,4 @@ termination_by _ _ _ => a.size - i
     (· + y)
 termination_by x
 
-#check f._eq_1
+#check f.eq_1

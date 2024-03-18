@@ -121,7 +121,7 @@ builtin_initialize
       unless kind == AttributeKind.global do
         throwError "invalid attribute 'command_code_action', must be global"
       let `(attr| command_code_action $args*) := stx | return
-      let args ← args.mapM resolveGlobalConstNoOverloadWithInfo
+      let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       modifyEnv (cmdCodeActionExt.addEntry · (⟨decl, args⟩, ← mkCommandCodeAction decl))
   }
@@ -144,7 +144,7 @@ builtin_initialize
         throwError "invalid attribute 'command_code_action', must be global"
       let `(attr| builtin_command_code_action $args*) := stx |
         throwError "unexpected 'command_code_action' attribute syntax"
-      let args ← args.mapM resolveGlobalConstNoOverloadWithInfo
+      let args ← args.mapM realizeGlobalConstNoOverloadWithInfo
       if (IR.getSorryDep (← getEnv) decl).isSome then return -- ignore in progress definitions
       addBuiltin decl args
   }

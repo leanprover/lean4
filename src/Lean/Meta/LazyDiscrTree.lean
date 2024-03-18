@@ -25,13 +25,11 @@ elaborated additional parts of the tree.
 -/
 namespace Lean.Meta.LazyDiscrTree
 
--- This namespace contains definitions copied from Lean.Meta.DiscrTree.
-namespace MatchClone
 
 /--
 Discrimination tree key.
 -/
-private inductive Key where
+inductive Key where
   | const : Name → Nat → Key
   | fvar  : FVarId → Nat → Key
   | lit   : Literal → Key
@@ -56,6 +54,9 @@ protected def hash : Key → UInt64
 instance : Hashable Key := ⟨Key.hash⟩
 
 end Key
+
+-- This namespace contains definitions copied from Lean.Meta.DiscrTree.
+namespace MatchClone
 
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
@@ -265,8 +266,6 @@ private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig
 
 end MatchClone
 
-export MatchClone (Key Key.const)
-
 /--
 An unprocessed entry in the lazy discrimination tree.
 -/
@@ -290,7 +289,7 @@ private structure Trie (α : Type) where
     /-- Following matches based on key of trie. -/
     children : HashMap Key TrieIndex
     /-- Lazy entries at this trie that are not processed. -/
-    pending : Array (LazyEntry α)
+    pending : Array (LazyEntry α) := #[]
   deriving Inhabited
 
 instance : EmptyCollection (Trie α) := ⟨.node #[] 0 {} #[]⟩
@@ -484,14 +483,29 @@ private def evalNode (c : TrieIndex) :
     setTrie c <| .node vs star cs #[]
     pure (vs, star, cs)
 
-/--
-Return the information about the trie at the given idnex.
+def dropKeyAux (next : TrieIndex) (rest : List Key) :
+    MatchM α Unit :=
+  if next = 0 then
+    pure ()
+  else do
+    let (_, star, children) ← evalNode next
+    match rest with
+    | [] =>
+      modify (·.set! next {values := #[], star, children})
+    | k :: r => do
+      let next := if k == .star then star else children.findD k 0
+      dropKeyAux next r
 
-Used for internal debugging purposes.
+/--
+This drops a specific key from the lazy discrimination tree so that
+all the entries matching that key exactly are removed.
 -/
-private def getTrie (d : LazyDiscrTree α) (idx : TrieIndex) :
-    MetaM ((Array α × TrieIndex × HashMap Key TrieIndex) × LazyDiscrTree α) :=
-  runMatch d (evalNode idx)
+def dropKey (t : LazyDiscrTree α) (path : List LazyDiscrTree.Key) : MetaM (LazyDiscrTree α) :=
+  match path with
+  | [] => pure t
+  | rootKey :: rest => do
+    let idx := t.roots.findD rootKey 0
+    Prod.snd <$> runMatch t (dropKeyAux idx rest)
 
 /--
 A match result contains the terms formed from matching a term against
@@ -638,7 +652,9 @@ private def push (d : PreDiscrTree α) (k : Key) (e : LazyEntry α) : PreDiscrTr
 /-- Convert a pre-discrimination tree to a lazy discrimination tree. -/
 private def toLazy (d : PreDiscrTree α) (config : WhnfCoreConfig := {}) : LazyDiscrTree α :=
   let { roots, tries } := d
-  { config, roots, tries := tries.map (.node {} 0 {}) }
+  -- Adjust trie indices so the first value is reserved (so 0 is never a valid trie index)
+  let roots := roots.fold (init := roots) (fun m k n => m.insert k (n+1))
+  { config, roots, tries := #[default] ++ tries.map (.node {} 0 {}) }
 
 /-- Merge two discrimination trees. -/
 protected def append (x y : PreDiscrTree α) : PreDiscrTree α :=
@@ -700,35 +716,42 @@ private structure ImportFailure where
 
 /-- Information generation from imported modules. -/
 private structure ImportData where
-  cache : IO.Ref (Lean.Meta.Cache)
   errors : IO.Ref (Array ImportFailure)
 
 private def ImportData.new : BaseIO ImportData := do
-  let cache ← IO.mkRef {}
   let errors ← IO.mkRef #[]
-  pure { cache, errors }
+  pure { errors }
+
+structure Cache where
+  ngen : NameGenerator
+  core : Lean.Core.Cache
+  meta : Lean.Meta.Cache
+
+def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
 
 private def addConstImportData
     (env : Environment)
     (modName : Name)
     (d : ImportData)
+    (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
   if !allowCompletion env name then return tree
-  let mstate : Meta.State := { cache := ←d.cache.get }
-  d.cache.set {}
+  let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
+  let mstate : Meta.State := { cache := meta_cache }
+  cacheRef.set (Cache.empty ngen)
   let ctx : Meta.Context := { config := { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
   let cctx : Core.Context := {
     fileName := default,
     fileMap := default
   }
-  let cstate : Core.State := {env}
+  let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
-  | .ok ((a, ms), _) =>
-    d.cache.set ms.cache
+  | .ok ((a, ms), cs) =>
+    cacheRef.set { ngen := cs.ngen, core := cs.cache, meta := ms.cache }
     pure <| a.foldl (fun t e => t.push e.key e.entry) tree
   | .error e =>
     let i : ImportFailure := {
@@ -771,6 +794,7 @@ private def toFlat (d : ImportData) (tree : PreDiscrTree α) :
 private partial def loadImportedModule (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (d : ImportData)
+    (cacheRef : IO.Ref Cache)
     (tree : PreDiscrTree α)
     (mname : Name)
     (mdata : ModuleData)
@@ -778,21 +802,22 @@ private partial def loadImportedModule (env : Environment)
   if h : i < mdata.constNames.size then
     let name := mdata.constNames[i]
     let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData env mname d tree act name constInfo
-    loadImportedModule env act d tree mname mdata (i+1)
+    let tree ← addConstImportData env mname d cacheRef tree act name constInfo
+    loadImportedModule env act d cacheRef tree mname mdata (i+1)
   else
     pure tree
 
-private def createImportedEnvironmentSeq (env : Environment)
+private def createImportedEnvironmentSeq (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (start stop : Nat) : BaseIO (InitResults α) :=
-      do go (← ImportData.new) {} start stop
-    where go d (tree : PreDiscrTree α) (start stop : Nat) : BaseIO _ := do
+    (start stop : Nat) : BaseIO (InitResults α) := do
+      let cacheRef ← IO.mkRef (Cache.empty ngen)
+      go (← ImportData.new) cacheRef {} start stop
+    where go d cacheRef (tree : PreDiscrTree α) (start stop : Nat) : BaseIO _ := do
             if start < stop then
               let mname := env.header.moduleNames[start]!
               let mdata := env.header.moduleData[start]!
-              let tree ← loadImportedModule env act d tree mname mdata
-              go d tree (start+1) stop
+              let tree ← loadImportedModule env act d cacheRef tree mname mdata
+              go d cacheRef tree (start+1) stop
             else
               toFlat d tree
     termination_by stop - start
@@ -801,31 +826,101 @@ private def createImportedEnvironmentSeq (env : Environment)
 private def combineGet [Append α] (z : α) (tasks : Array (Task α)) : α :=
   tasks.foldl (fun x t => x ++ t.get) (init := z)
 
+def getChildNgen [Monad M] [MonadNameGenerator M] : M NameGenerator := do
+  let ngen ← getNGen
+  let (cngen, ngen) := ngen.mkChild
+  setNGen ngen
+  pure cngen
+
+def createLocalPreDiscrTree
+    (ngen : NameGenerator)
+    (env : Environment)
+    (d : ImportData)
+    (act : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
+    BaseIO (PreDiscrTree α) := do
+  let modName := env.header.mainModule
+  let cacheRef ← IO.mkRef (Cache.empty ngen)
+  let act (t : PreDiscrTree α) (n : Name) (c : ConstantInfo) : BaseIO (PreDiscrTree α) :=
+        addConstImportData env modName d cacheRef t act n c
+  let r ← (env.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
+  pure r
+
 /-- Create an imported environment for tree. -/
-def createImportedEnvironment (env : Environment)
+def createLocalEnvironment
+    (act : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
+    CoreM (LazyDiscrTree α) := do
+  let env ← getEnv
+  let ngen ← getChildNgen
+  let d ← ImportData.new
+  let t ← createLocalPreDiscrTree ngen env d act
+  let errors ← d.errors.get
+  if p : errors.size > 0 then
+    throw errors[0].exception
+  pure <| t.toLazy
+
+/-- Create an imported environment for tree. -/
+def createImportedEnvironment (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (constantsPerTask : Nat := 1000) :
     EIO Exception (LazyDiscrTree α) := do
   let n := env.header.moduleData.size
   let rec
     /-- Allocate constants to tasks according to `constantsPerTask`. -/
-    go tasks start cnt idx := do
+    go ngen tasks start cnt idx := do
       if h : idx < env.header.moduleData.size then
         let mdata := env.header.moduleData[idx]
         let cnt := cnt + mdata.constants.size
         if cnt > constantsPerTask then
-          let t ← createImportedEnvironmentSeq env act start (idx+1) |>.asTask
-          go (tasks.push t) (idx+1) 0 (idx+1)
+          let (childNGen, ngen) := ngen.mkChild
+          let t ← createImportedEnvironmentSeq childNGen env act start (idx+1) |>.asTask
+          go ngen (tasks.push t) (idx+1) 0 (idx+1)
         else
-          go tasks start cnt (idx+1)
+          go ngen tasks start cnt (idx+1)
       else
         if start < n then
-          tasks.push <$> (createImportedEnvironmentSeq env act start n).asTask
+          let (childNGen, _) := ngen.mkChild
+          tasks.push <$> (createImportedEnvironmentSeq childNGen env act start n).asTask
         else
           pure tasks
     termination_by env.header.moduleData.size - idx
-  let tasks ← go #[] 0 0 0
+  let tasks ← go ngen #[] 0 0 0
   let r := combineGet default tasks
   if p : r.errors.size > 0 then
     throw r.errors[0].exception
   pure <| r.tree.toLazy
+
+def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
+  keys.foldlM (init := t) (·.dropKey ·)
+
+/--
+`findCandidates` searches for entries in a lazily initialized discriminator tree.
+
+* `ext` should be an environment extension with an IO.Ref for caching the import lazy
+   discriminator tree.
+* `addEntry` is the function for creating discriminator tree entries from constants.
+* `droppedKeys` contains keys we do not want to consider when searching for matches.
+  It is used for dropping very general keys.
+-/
+def findCandidates (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (droppedKeys : List (List LazyDiscrTree.Key) := [])
+    (constantsPerTask : Nat := 1000)
+    (ty : Expr) : MetaM (Array α) := do
+  let ngen ← getNGen
+  let (cNGen, ngen) := ngen.mkChild
+  setNGen ngen
+  let dummy : IO.Ref (Option (LazyDiscrTree α)) ← IO.mkRef none
+  let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
+  let importTree ← (←ref.get).getDM $ do
+    profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
+      let t ← createImportedEnvironment cNGen (←getEnv) addEntry
+                (constantsPerTask := constantsPerTask)
+      dropKeys t droppedKeys
+  let (localCandidates, _) ←
+    profileitM Exception  "lazy discriminator local search" (←getOptions) $ do
+      let t ← createLocalEnvironment addEntry
+      let t ← dropKeys t droppedKeys
+      t.getMatch ty
+  let (importCandidates, importTree) ← importTree.getMatch ty
+  ref.set importTree
+  pure (localCandidates ++ importCandidates)

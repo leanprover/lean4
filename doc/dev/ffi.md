@@ -111,6 +111,15 @@ if (lean_io_result_is_ok(res)) {
 lean_io_mark_end_initialization();
 ```
 
+In addition, any other thread not spawned by the Lean runtime itself must be initialized for Lean use by calling
+```c
+void lean_initialize_thread();
+```
+and should be finalized in order to free all thread-local resources by calling
+```c
+void lean_finalize_thread();
+```
+
 ## `@[extern]` in the Interpreter
 
 The interpreter can run Lean declarations for which symbols are available in loaded shared libraries, which includes `@[extern]` declarations.

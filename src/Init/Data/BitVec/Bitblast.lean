@@ -5,6 +5,7 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix
 -/
 prelude
 import Init.Data.BitVec.Folds
+import Init.Data.Nat.Mod
 
 /-!
 # Bitblasting of bitvectors
@@ -70,24 +71,8 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
              _ ≤ x := testBit_implies_ge jp
 
 private theorem mod_two_pow_succ (x i : Nat) :
-  x % 2^(i+1) = 2^i*(x.testBit i).toNat + x % (2 ^ i):= by
-  apply Nat.eq_of_testBit_eq
-  intro j
-  simp only [Nat.mul_add_lt_is_or, testBit_or, testBit_mod_two_pow, testBit_shiftLeft,
-    Nat.testBit_bool_to_nat, Nat.sub_eq_zero_iff_le, Nat.mod_lt, Nat.two_pow_pos,
-    testBit_mul_pow_two]
-  rcases Nat.lt_trichotomy i j with i_lt_j | i_eq_j | j_lt_i
-  · have i_le_j : i ≤ j := Nat.le_of_lt i_lt_j
-    have not_j_le_i : ¬(j ≤ i) := Nat.not_le_of_lt i_lt_j
-    have not_j_lt_i : ¬(j < i) := Nat.not_lt_of_le i_le_j
-    have not_j_lt_i_succ : ¬(j < i + 1) :=
-          Nat.not_le_of_lt (Nat.succ_lt_succ i_lt_j)
-    simp [i_le_j, not_j_le_i, not_j_lt_i, not_j_lt_i_succ]
-  · simp [i_eq_j]
-  · have j_le_i : j ≤ i := Nat.le_of_lt j_lt_i
-    have j_le_i_succ : j < i + 1 := Nat.succ_le_succ j_le_i
-    have not_j_ge_i : ¬(j ≥ i) := Nat.not_le_of_lt j_lt_i
-    simp [j_lt_i, j_le_i, not_j_ge_i, j_le_i_succ]
+    x % 2^(i+1) = 2^i*(x.testBit i).toNat + x % (2 ^ i):= by
+  rw [Nat.mod_pow_succ, Nat.add_comm, Nat.toNat_testBit]
 
 private theorem mod_two_pow_add_mod_two_pow_add_bool_lt_two_pow_succ
      (x y i : Nat) (c : Bool) : x % 2^i + (y % 2^i + c.toNat) < 2^(i+1) := by

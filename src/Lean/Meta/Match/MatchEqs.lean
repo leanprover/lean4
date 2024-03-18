@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.Match
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Apply
@@ -109,6 +110,8 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   - `type` is the resulting type for `altType`.
 
   We use the `mask` to build the splitter proof. See `mkSplitterProof`.
+
+  This can be used to use the alternative of a match expression in its splitter.
 -/
 partial def forallAltTelescope (altType : Expr) (altNumParams numDiscrEqs : Nat)
     (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
@@ -131,9 +134,11 @@ where
                let some k  := args.getIdx? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
-               let args    := args.push (← mkEqRefl rhs)
+               let arg     ← mkEqRefl rhs
                let typeNew := typeNew.replaceFVar lhs rhs
-               return (← go ys eqs args (mask.push false) (i+1) typeNew)
+               return ← withReplaceFVarId lhs.fvarId! rhs do
+                withReplaceFVarId y.fvarId! arg do
+                  go ys eqs (args.push arg) (mask.push false) (i+1) typeNew
           go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
         let arg ← if let some (_, _, rhs) ← matchEq? d then
@@ -151,7 +156,9 @@ where
          they are not eagerly evaluated. -/
       if ys.size == 1 then
         if (← inferType ys[0]!).isConstOf ``Unit && !(← dependsOn type ys[0]!.fvarId!) then
-          return (← k #[] #[] #[mkConst ``Unit.unit] #[false] type)
+          let rhs := mkConst ``Unit.unit
+          return ← withReplaceFVarId ys[0]!.fvarId! rhs do
+          return (← k #[] #[] #[rhs] #[false] type)
       k ys eqs args mask type
 
   isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
@@ -250,7 +257,7 @@ private def processNextEq : M Bool := do
           return true
         -- If it is not possible, we try to show the hypothesis is redundant by substituting even variables that are not at `s.xs`, and then use contradiction.
         else
-          match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
+          match (← isConstructorApp? lhs), (← isConstructorApp? rhs) with
           | some lhsCtor, some rhsCtor =>
             if lhsCtor.name != rhsCtor.name then
               return false -- If the constructors are different, we can discard the hypothesis even if it a heterogeneous equality
@@ -378,7 +385,7 @@ private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr))
       return some (lhs, rhs)
   return none
 
-private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
+private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult := do
   mvarId.withContext do
     for localDecl in (← getLCtx) do
       if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then

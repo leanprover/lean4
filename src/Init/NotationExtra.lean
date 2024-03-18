@@ -9,6 +9,7 @@ prelude
 import Init.Meta
 import Init.Data.Array.Subarray
 import Init.Data.ToString
+import Init.Conv
 namespace Lean
 
 macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
@@ -123,7 +124,7 @@ calc abc
   _ = xyz := pwxyz
 ```
 
-`calc` has term mode and tactic mode variants. This is the term mode variant.
+`calc` works as a term, as a tactic or as a `conv` tactic.
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
@@ -131,57 +132,12 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calc) "calc" calcSteps : term
 
-/-- Step-wise reasoning over transitive relations.
-```
-calc
-  a = b := pab
-  b = c := pbc
-  ...
-  y = z := pyz
-```
-proves `a = z` from the given step-wise proofs. `=` can be replaced with any
-relation implementing the typeclass `Trans`. Instead of repeating the right-
-hand sides, subsequent left-hand sides can be replaced with `_`.
-```
-calc
-  a = b := pab
-  _ = c := pbc
-  ...
-  _ = z := pyz
-```
-It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols:
-```
-calc abc
-  _ = bce := pabce
-  _ = cef := pbcef
-  ...
-  _ = xyz := pwxyz
-```
-
-`calc` has term mode and tactic mode variants. This is the tactic mode variant,
-which supports an additional feature: it works even if the goal is `a = z'`
-for some other `z'`; in this case it will not close the goal but will instead
-leave a subgoal proving `z = z'`.
-
-See [Theorem Proving in Lean 4][tpil4] for more information.
-
-[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
--/
+@[inherit_doc «calc»]
 syntax (name := calcTactic) "calc" calcSteps : tactic
 
-/--
-Denotes a term that was omitted by the pretty printer.
-This is only used for pretty printing, and it cannot be elaborated.
-The presence of `⋯` is controlled by the `pp.deepTerms` and `pp.proofs` options.
--/
-syntax "⋯" : term
-
-macro_rules | `(⋯) => Macro.throwError "\
-  Error: The '⋯' token is used by the pretty printer to indicate omitted terms, \
-  and it cannot be elaborated.\
-  \n\nIts presence in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
-  These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+@[inherit_doc «calc»]
+macro tk:"calc" steps:calcSteps : conv =>
+  `(conv| tactic => calc%$tk $steps)
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

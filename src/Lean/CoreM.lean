@@ -289,6 +289,9 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
+/-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
+def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do

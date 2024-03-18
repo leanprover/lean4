@@ -33,7 +33,8 @@ Interesting options:
     | none   => #[("MACOSX_DEPLOYMENT_TARGET", "99.0")]
 
   -- let compileOnly := args.contains "-c"
-  let linkStatic := !args.contains "-shared"
+  let linkStatic := !(args.contains "-shared" || args.contains "-leanshared")
+  let args := args.erase "-leanshared"
 
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := getCFlags root

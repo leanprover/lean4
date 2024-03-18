@@ -19,7 +19,7 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
-theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -677,7 +677,7 @@ You can prove theorems about the resulting element by induction on `h`, since
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
-theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
+@[simp] theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
 /--
@@ -737,13 +737,16 @@ theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a ==
 section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
+/-- Non-dependent recursor for `HEq` -/
+noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
   h.rec m
 
-theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
   h.rec m
 
-theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
@@ -1403,9 +1406,9 @@ theorem false_imp_iff (a : Prop) : (False → a) ↔ True := iff_true_intro Fals
 
 theorem true_imp_iff (α : Prop) : (True → α) ↔ α := imp_iff_right True.intro
 
-@[simp] theorem imp_self : (a → a) ↔ True := iff_true_intro id
+@[simp high] theorem imp_self : (a → a) ↔ True := iff_true_intro id
 
-theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
+@[simp] theorem imp_false : (a → False) ↔ ¬a := Iff.rfl
 
 theorem imp.swap : (a → b → c) ↔ (b → a → c) := Iff.intro flip flip
 

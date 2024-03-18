@@ -370,6 +370,14 @@ macro "rfl" : tactic => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
+This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
+relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+-/
+syntax (name := applyRfl) "apply_rfl" : tactic
+
+macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
+
+/--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
 -/
@@ -673,12 +681,13 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-`have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term
-of type `t`.
-* If `t` is omitted, it will be inferred.
-* If `h` is omitted, the name `this` is used.
-* The variant `have pattern := e` is equivalent to `match e with | pattern => _`,
-  and it is convenient for types that have only one applicable constructor.
+The `have` tactic is for adding hypotheses to the local context of the main goal.
+* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
+* `have h := e` uses the type of `e` for `t`.
+* `have : t := e` and `have := e` use `this` for the name of the hypothesis.
+* `have pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
@@ -693,12 +702,15 @@ If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
 /--
-`let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
-If `t` is omitted, it will be inferred.
-The variant `let pattern := e` is equivalent to `match e with | pattern => _`,
-and it is convenient for types that have only applicable constructor.
-Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses
-`h₁ : p`, `h₂ : q`, and `h₃ : r`.
+The `let` tactic is for adding definitions to the local context of the main goal.
+* `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
+* `let x := e` uses the type of `e` for `t`.
+* `let : t := e` and `let := e` use `this` for the name of the hypothesis.
+* `let pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that let only one applicable constructor.
+  For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
+  local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--
@@ -1306,6 +1318,26 @@ used when closing the goal.
 -/
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 
+/--
+`show_term tac` runs `tac`, then prints the generated term in the form
+"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+
+(For some tactics, the printed term will not be human readable.)
+-/
+syntax (name := showTerm) "show_term " tacticSeq : tactic
+
+/--
+`show_term e` elaborates `e`, then prints the generated term.
+-/
+macro (name := showTermElab) tk:"show_term " t:term : term =>
+  `(term| no_implicit_lambda% (show_term_elab%$tk $t))
+
+/--
+The command `by?` will print a suggestion for replacing the proof block with a proof term
+using `show_term`.
+-/
+macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+
 end Tactic
 
 namespace Attr
@@ -1425,13 +1457,14 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith`
+where `i < arr.size` is in the context) and `simp_arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
@@ -1442,6 +1475,24 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
+      /-
+      Recall that `macro_rules` are tried in reverse order.
+      We want `assumption` to be tried first.
+      This is important for theorems such as
+      ```
+      [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
+      a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
+      ```
+      There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
+      If `omega` is used to "fill" this proof, we will have a more complex proof term that
+      cannot be inferred by unification.
+      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      they add new `macro_rules` for `get_elem_tactic_trivial`.
+
+      TODO: Implement priorities for `macro_rules`.
+      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      -/
+    | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid

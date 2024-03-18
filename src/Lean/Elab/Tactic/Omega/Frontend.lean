@@ -68,7 +68,7 @@ def mkEvalRflProof (e : Expr) (lc : LinearCombo) : OmegaM Expr := do
 `e = (coordinate n).eval atoms`. -/
 def mkCoordinateEvalAtomsEq (e : Expr) (n : Nat) : OmegaM Expr := do
   if n < 10 then
-    let atoms := (← getThe State).atoms
+    let atoms ← atoms
     let tail ← mkListLit (.const ``Int []) atoms[n+1:].toArray.toList
     let lem := .str ``LinearCombo s!"coordinate_eval_{n}"
     mkEqSymm (mkAppN (.const lem []) (atoms[:n+1].toArray.push tail))
@@ -358,6 +358,7 @@ def addIntInequality (p : MetaProblem) (h y : Expr) : OmegaM MetaProblem := do
 /-- Given a fact `h` with type `¬ P`, return a more useful fact obtained by pushing the negation. -/
 def pushNot (h P : Expr) : MetaM (Option Expr) := do
   let P ← whnfR P
+  trace[omega] "pushing negation: {P}"
   match P with
   | .forallE _ t b _ =>
     if (← isProp t) && (← isProp b) then
@@ -366,43 +367,42 @@ def pushNot (h P : Expr) : MetaM (Option Expr) := do
     else
       return none
   | .app _ _ =>
-    match P.getAppFnArgs with
-    | (``LT.lt, #[.const ``Int [], _, x, y]) =>
-      return some (mkApp3 (.const ``Int.le_of_not_lt []) x y h)
-    | (``LE.le, #[.const ``Int [], _, x, y]) =>
-      return some (mkApp3 (.const ``Int.lt_of_not_le []) x y h)
-    | (``LT.lt, #[.const ``Nat [], _, x, y]) =>
-      return some (mkApp3 (.const ``Nat.le_of_not_lt []) x y h)
-    | (``LE.le, #[.const ``Nat [], _, x, y]) =>
-      return some (mkApp3 (.const ``Nat.lt_of_not_le []) x y h)
-    | (``LT.lt, #[.app (.const ``Fin []) n, _, x, y]) =>
-      return some (mkApp4 (.const ``Fin.le_of_not_lt []) n x y h)
-    | (``LE.le, #[.app (.const ``Fin []) n, _, x, y]) =>
-      return some (mkApp4 (.const ``Fin.lt_of_not_le []) n x y h)
-    | (``Eq, #[.const ``Nat [], x, y]) =>
-      return some (mkApp3 (.const ``Nat.lt_or_gt_of_ne []) x y h)
-    | (``Eq, #[.const ``Int [], x, y]) =>
-      return some (mkApp3 (.const ``Int.lt_or_gt_of_ne []) x y h)
-    | (``Prod.Lex, _) => return some (← mkAppM ``Prod.of_not_lex #[h])
-    | (``Eq, #[.app (.const ``Fin []) n, x, y]) =>
-      return some (mkApp4 (.const ``Fin.lt_or_gt_of_ne []) n x y h)
-    | (``Dvd.dvd, #[.const ``Nat [], _, k, x]) =>
-      return some (mkApp3 (.const ``Nat.emod_pos_of_not_dvd []) k x h)
-    | (``Dvd.dvd, #[.const ``Int [], _, k, x]) =>
-      -- This introduces a disjunction that could be avoided by checking `k ≠ 0`.
-      return some (mkApp3 (.const ``Int.emod_pos_of_not_dvd []) k x h)
-    | (``Or, #[P₁, P₂]) => return some (mkApp3 (.const ``and_not_not_of_not_or []) P₁ P₂ h)
-    | (``And, #[P₁, P₂]) =>
-      return some (mkApp5 (.const ``Decidable.or_not_not_of_not_and []) P₁ P₂
-        (.app (.const ``Classical.propDecidable []) P₁)
-        (.app (.const ``Classical.propDecidable []) P₂) h)
-    | (``Not, #[P']) =>
-      return some (mkApp3 (.const ``Decidable.of_not_not []) P'
-        (.app (.const ``Classical.propDecidable []) P') h)
-    | (``Iff, #[P₁, P₂]) =>
-      return some (mkApp5 (.const ``Decidable.and_not_or_not_and_of_not_iff []) P₁ P₂
-        (.app (.const ``Classical.propDecidable []) P₁)
-        (.app (.const ``Classical.propDecidable []) P₂) h)
+    match_expr P with
+    | LT.lt α _ x y => match_expr α with
+      | Nat => return some (mkApp3 (.const ``Nat.le_of_not_lt []) x y h)
+      | Int => return some (mkApp3 (.const ``Int.le_of_not_lt []) x y h)
+      | Fin n => return some (mkApp4 (.const ``Fin.le_of_not_lt []) n x y h)
+      | _ => return none
+    | LE.le α _ x y => match_expr α with
+      | Nat => return some (mkApp3 (.const ``Nat.lt_of_not_le []) x y h)
+      | Int => return some (mkApp3 (.const ``Int.lt_of_not_le []) x y h)
+      | Fin n => return some (mkApp4 (.const ``Fin.lt_of_not_le []) n x y h)
+      | _ => return none
+    | Eq α x y => match_expr α with
+      | Nat => return some (mkApp3 (.const ``Nat.lt_or_gt_of_ne []) x y h)
+      | Int => return some (mkApp3 (.const ``Int.lt_or_gt_of_ne []) x y h)
+      | Fin n => return some (mkApp4 (.const ``Fin.lt_or_gt_of_ne []) n x y h)
+      | _ => return none
+    | Dvd.dvd α _ k x => match_expr α with
+      | Nat => return some (mkApp3 (.const ``Nat.emod_pos_of_not_dvd []) k x h)
+      | Int =>
+        -- This introduces a disjunction that could be avoided by checking `k ≠ 0`.
+        return some (mkApp3 (.const ``Int.emod_pos_of_not_dvd []) k x h)
+      | _ => return none
+    | Prod.Lex _ _ _ _ _ _ => return some (← mkAppM ``Prod.of_not_lex #[h])
+    | Not P =>
+      return some (mkApp3 (.const ``Decidable.of_not_not []) P
+        (.app (.const ``Classical.propDecidable []) P) h)
+    | And P Q =>
+      return some (mkApp5 (.const ``Decidable.or_not_not_of_not_and []) P Q
+        (.app (.const ``Classical.propDecidable []) P)
+        (.app (.const ``Classical.propDecidable []) Q) h)
+    | Or P Q =>
+      return some (mkApp3 (.const ``and_not_not_of_not_or []) P Q h)
+    | Iff P Q =>
+      return some (mkApp5 (.const ``Decidable.and_not_or_not_and_of_not_iff []) P Q
+        (.app (.const ``Classical.propDecidable []) P)
+        (.app (.const ``Classical.propDecidable []) Q) h)
     | _ => return none
   | _ => return none
 

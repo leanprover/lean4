@@ -179,7 +179,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let id := arg[1]
-            let declNames? ← try pure (some (← resolveGlobalConst id)) catch _ => pure none
+            let declNames? ← try pure (some (← realizeGlobalConst id)) catch _ => pure none
             if let some declNames := declNames? then
               let declName ← ensureNonAmbiguous id declNames
               if (← Simp.isSimproc declName) then
@@ -353,14 +353,13 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
           | true  => `(Parser.Tactic.simpLemma| $decl:term)
           | false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
         args := args.push arg
-    | .fvar fvarId => -- local hypotheses in the context
-      -- `simp_all` always uses all propositional hypotheses (and it can't use
-      -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would
-      -- be redundant. It would also be confusing since it suggests that only
-      -- `h` is used.
-      if isSimpAll then
-        continue
+    | .fvar fvarId =>
+      -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
+        -- `simp_all` always uses all propositional hypotheses.
+        -- So `simp_all only [x]`, only makes sense if `ldecl` is a let-variable.
+        if isSimpAll && !ldecl.hasValue then
+          continue
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&
               (lctx.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then
@@ -435,7 +434,7 @@ where
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx usedSimps
 
-def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
+def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Location) : TacticM Unit := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -447,7 +446,7 @@ def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, usedSimps) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
@@ -455,8 +454,8 @@ where
       mvarId.withContext <| traceSimpCall (← getRef) usedSimps
 
 @[builtin_tactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
-  let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
-  dsimpLocation ctx (expandOptLocation stx[5])
+  let { ctx, simprocs, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+  dsimpLocation ctx simprocs (expandOptLocation stx[5])
 
 end Lean.Elab.Tactic
 

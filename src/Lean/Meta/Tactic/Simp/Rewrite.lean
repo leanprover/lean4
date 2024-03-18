@@ -8,6 +8,7 @@ import Lean.Meta.ACLt
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
+import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
@@ -16,9 +17,54 @@ import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean.Meta.Simp
 
-def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
-  for x in xs do
+/--
+Helper type for implementing `discharge?'`
+-/
+inductive DischargeResult where
+  | proved
+  | notProved
+  | maxDepth
+  | failedAssign
+  deriving DecidableEq
+
+/--
+Wrapper for invoking `discharge?`. It checks for maximum discharge depth, create trace nodes, and ensure
+the generated proof was successfully assigned to `x`.
+-/
+def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
+  let r : DischargeResult ← withTraceNode `Meta.Tactic.simp.discharge (fun
+      | .ok .proved       => return m!"{← ppOrigin thmId} discharge {checkEmoji}{indentExpr type}"
+      | .ok .notProved    => return m!"{← ppOrigin thmId} discharge {crossEmoji}{indentExpr type}"
+      | .ok .maxDepth     => return m!"{← ppOrigin thmId} discharge {crossEmoji} max depth{indentExpr type}"
+      | .ok .failedAssign => return m!"{← ppOrigin thmId} discharge {crossEmoji} failed to assign proof{indentExpr type}"
+      | .error err        => return m!"{← ppOrigin thmId} discharge {crossEmoji}{indentExpr type}{indentD err.toMessageData}") do
+    let ctx ← getContext
+    if ctx.dischargeDepth >= ctx.maxDischargeDepth then
+      return .maxDepth
+    else withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+      -- We save the state, so that `UsedTheorems` does not accumulate
+      -- `simp` lemmas used during unsuccessful discharging.
+      let usedTheorems := (← get).usedTheorems
+      match (← discharge? type) with
+      | some proof =>
+        unless (← isDefEq x proof) do
+          modify fun s => { s with usedTheorems }
+          return .failedAssign
+        return .proved
+      | none =>
+        modify fun s => { s with usedTheorems }
+        return .notProved
+  return r = .proved
+
+def synthesizeArgs (thmId : Origin) (bis : Array BinderInfo) (xs : Array Expr) : SimpM Bool := do
+  let skipAssignedInstances := tactic.skipAssignedInstances.get (← getOptions)
+  for x in xs, bi in bis do
     let type ← inferType x
+    -- We use the flag `tactic.skipAssignedInstances` for backward compatibility.
+    -- See comment below.
+    if !skipAssignedInstances && bi.isInstImplicit then
+      unless (← synthesizeInstance x type) do
+        return false
     /-
     We used to invoke `synthesizeInstance` for every instance implicit argument,
     to ensure the synthesized instance was definitionally equal to the one in
@@ -45,18 +91,7 @@ def synthesizeArgs (thmId : Origin) (xs : Array Expr) : SimpM Bool := do
         if (← synthesizeInstance x type) then
           continue
       if (← isProp type) then
-        -- We save the state, so that `UsedTheorems` does not accumulate
-        -- `simp` lemmas used during unsuccessful discharging.
-        let usedTheorems := (← get).usedTheorems
-        match (← discharge? type) with
-        | some proof =>
-          unless (← isDefEq x proof) do
-            trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign proof{indentExpr type}"
-            modify fun s => { s with usedTheorems }
-            return false
-        | none =>
-          trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to discharge hypotheses{indentExpr type}"
-          modify fun s => { s with usedTheorems }
+        unless (← discharge?' thmId x type) do
           return false
   return true
 where
@@ -72,10 +107,10 @@ where
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
-private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
+private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs thm.origin xs) do
+      unless (← synthesizeArgs thm.origin bis xs) do
         return none
       let proof? ← if thm.rfl then
         pure none
@@ -126,25 +161,25 @@ def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, _, type) ← forallMetaTelescopeReducing type
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    tryTheoremCore lhs xs val type e thm numExtraArgs
+    tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
   withNewMCtxDepth do
     let val  ← thm.getValue
     let type ← inferType val
-    let (xs, _, type) ← forallMetaTelescopeReducing type
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    match (← tryTheoremCore lhs xs val type e thm 0) with
+    match (← tryTheoremCore lhs xs bis val type e thm 0) with
     | some result => return some result
     | none =>
       let lhsNumArgs := lhs.getAppNumArgs
       let eNumArgs   := e.getAppNumArgs
       if eNumArgs > lhsNumArgs then
-        tryTheoremCore lhs xs val type e thm (eNumArgs - lhsNumArgs)
+        tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
       else
         return none
 
@@ -168,22 +203,11 @@ where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 
--- TODO: workaround for `Expr.constructorApp?` limitations. We should handle `OfNat.ofNat` there
-private def reduceOfNatNat (e : Expr) : MetaM Expr := do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do
-    return e
-  unless (← whnfD (e.getArg! 0)).isConstOf ``Nat do
-    return e
-  return e.getArg! 1
-
 def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
   match e.eq? with
   | none => return .continue
   | some (_, lhs, rhs) =>
-    let lhs ← reduceOfNatNat (← whnf lhs)
-    let rhs ← reduceOfNatNat (← whnf rhs)
-    let env ← getEnv
-    match lhs.constructorApp? env, rhs.constructorApp? env with
+    match (← constructorApp'? lhs), (← constructorApp'? rhs) with
     | some (c₁, _), some (c₂, _) =>
       if c₁.name != c₂.name then
         withLocalDeclD `h e fun h =>
@@ -295,11 +319,30 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
       return .visit r
   return .continue
 
+def drewritePre : DSimproc := fun e => do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.pre thms.erased (tag := "pre") (rflOnly := true) then
+      return .visit r.expr
+  return .continue
+
+def drewritePost : DSimproc := fun e => do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.post thms.erased (tag := "post") (rflOnly := true) then
+      return .visit r.expr
+  return .continue
+
+def dpreDefault (s : SimprocsArray) : DSimproc :=
+  drewritePre >>
+  userPreDSimprocs s
+
+def dpostDefault (s : SimprocsArray) : DSimproc :=
+  drewritePost >>
+  userPostDSimprocs s
+
 /--
 Discharge procedure for the ground/symbolic evaluator.
 -/
 def dischargeGround (e : Expr) : SimpM (Option Expr) := do
-  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
   let r ← simp e
   if r.expr.isTrue then
     try
@@ -359,6 +402,8 @@ def mkSEvalMethods : CoreM Methods := do
   return {
     pre        := preSEval #[s]
     post       := postSEval #[s]
+    dpre       := dpreDefault #[s]
+    dpost      := dpostDefault #[s]
     discharge? := dischargeGround
   }
 
@@ -491,27 +536,19 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
       return some r
     if let some r ← dischargeEqnThmHypothesis? e then
       return some r
-  let ctx ← getContext
-  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
-  if ctx.dischargeDepth >= ctx.maxDischargeDepth then
-    trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
-    return none
+  let r ← simp e
+  if r.expr.isTrue then
+    return some (← mkOfEqTrue (← r.getProof))
   else
-    withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
-      let r ← simp e
-      if r.expr.isTrue then
-        try
-          return some (← mkOfEqTrue (← r.getProof))
-        catch _ =>
-          return none
-      else
-        return none
+    return none
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 
 def mkMethods (s : SimprocsArray) (discharge? : Discharge) : Methods := {
   pre        := preDefault s
   post       := postDefault s
+  dpre       := dpreDefault s
+  dpost      := dpostDefault s
   discharge? := discharge?
 }
 

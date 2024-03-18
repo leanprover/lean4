@@ -7,6 +7,7 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
+import Init.Data.Int.Bitwise
 
 /-!
 We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
@@ -72,6 +73,9 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
+@[deprecated isLt]
+theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
+
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
@@ -124,13 +128,20 @@ section Int
 
 /-- Interpret the bitvector as an integer stored in two's complement form. -/
 protected def toInt (a : BitVec n) : Int :=
-  if a.msb then Int.ofNat a.toNat - Int.ofNat (2^n) else a.toNat
+  if 2 * a.toNat < 2^n then
+    a.toNat
+  else
+    (a.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
-protected def ofInt (n : Nat) (i : Int) : BitVec n :=
-  match i with
-  | Int.ofNat x => .ofNat n x
-  | Int.negSucc x => BitVec.ofNatLt (2^n - x % 2^n - 1) (by omega)
+protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by
+  apply (Int.toNat_lt _).mpr
+  · apply Int.emod_lt_of_pos
+    exact Int.ofNat_pos.mpr (Nat.two_pow_pos _)
+  · apply Int.emod_nonneg
+    intro eq
+    apply Nat.ne_of_gt (Nat.two_pow_pos n)
+    exact Int.ofNat_inj.mp eq)
 
 instance : IntCast (BitVec w) := ⟨BitVec.ofInt w⟩
 

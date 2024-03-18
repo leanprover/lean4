@@ -16,12 +16,6 @@ provided the reflexivity lemma has been marked as `@[refl]`.
 
 namespace Lean.Elab.Tactic.Rfl
 
-@[builtin_tactic Lean.Parser.Tactic.rfl] def evalRfl : Tactic := fun stx =>
-  match stx with
-  | `(tactic| apply_rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl)
-  | _ => throwUnsupportedSyntax
-
--- Temporary until after stage0 update
 @[builtin_tactic Lean.Parser.Tactic.applyRfl] def evalApplyRfl : Tactic := fun stx =>
   match stx with
   | `(tactic| apply_rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl)

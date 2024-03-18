@@ -200,13 +200,28 @@ def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
     | none => throw <| CliError.unknownScript spec
   | _ => throw <| CliError.invalidScriptSpec spec
 
-def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
+def parseTemplateSpec (spec : String) : Except CliError InitTemplate := do
   if spec.isEmpty then
-    pure default
-  else if let some tmp := InitTemplate.parse? spec then
-    pure tmp
+    return default
+  else if let some tmp := InitTemplate.ofString? spec then
+    return tmp
   else
     throw <| CliError.unknownTemplate spec
+
+def parseLangSpec (spec : String) : Except CliError ConfigLang :=
+  if spec.isEmpty then
+    return default
+  else if let some lang := ConfigLang.ofString? spec then
+    return lang
+  else
+    throw <| CliError.unknownConfigLang spec
+
+def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × ConfigLang) := do
+  match spec.splitOn "." with
+  | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
+  | [tmp] => return (← parseTemplateSpec tmp, default)
+  | _ => return default
+
 
 /-! ## Commands -/
 
@@ -267,15 +282,15 @@ protected def new : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
-  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
+  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (new name tmp lang (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name := (← takeArg?).getD "."
-  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
+  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (init name tmp lang (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption

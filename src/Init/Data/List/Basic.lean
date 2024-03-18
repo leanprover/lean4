@@ -458,7 +458,7 @@ contains the longest initial segment for which `p` returns true
 and the second part is everything else.
 
 * `span (· > 5) [6, 8, 9, 5, 2, 9] = ([6, 8, 9], [5, 2, 9])`
-* `span (· > 10) [6, 8, 9, 5, 2, 9] = ([6, 8, 9, 5, 2, 9], [])`
+* `span (· > 10) [6, 8, 9, 5, 2, 9] = ([], [6, 8, 9, 5, 2, 9])`
 -/
 @[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
   loop as []

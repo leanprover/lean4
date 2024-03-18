@@ -21,6 +21,7 @@ static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind
 extern lean_object* l_Lean_declRangeExt;
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_DeclarationRange_toLspRange(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_57____lambda__1(lean_object*);
@@ -72,12 +73,14 @@ static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind__
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_57____lambda__2___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24_(uint8_t);
+lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_locationLinksFromDecl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___at_Lean_Server_locationLinksFromDecl___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_documentUriFromModule___closed__1;
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_57_(lean_object*);
 lean_object* l_Except_orElseLazy___rarg(lean_object*, lean_object*);
+lean_object* l_System_Uri_fileUriToPath_x3f(lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_57____closed__3;
 lean_object* l_Lean_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedDeclarationRanges;
@@ -88,6 +91,7 @@ static lean_object* l_Lean_Server_instFromJsonGoToKind___closed__1;
 static lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___lambda__1___closed__1;
 lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_toJsonGoToKind____x40_Lean_Server_GoTo___hyg_24____closed__6;
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_GoTo_0__Lean_Server_fromJsonGoToKind____x40_Lean_Server_GoTo___hyg_57____lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_Server_locationLinksFromDecl___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_GoToKind_noConfusion___rarg___lambda__1(lean_object*);
@@ -784,6 +788,40 @@ lean_ctor_set(x_43, 1, x_42);
 return x_43;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_System_Uri_fileUriToPath_x3f(x_2);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_box(0);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_5);
+lean_ctor_set(x_6, 1, x_3);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_ctor_get(x_4, 0);
+lean_inc(x_7);
+lean_dec(x_4);
+x_8 = l_Lean_searchModuleNameOfFileName(x_7, x_1, x_3);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_moduleFromDocumentUri___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Server_moduleFromDocumentUri(x_1, x_2, x_3);
+lean_dec(x_1);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_findDeclarationRangesCore_x3f___at_Lean_Server_locationLinksFromDecl___spec__2___closed__1() {

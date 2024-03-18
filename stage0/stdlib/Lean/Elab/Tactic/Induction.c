@@ -7961,6 +7961,7 @@ lean_inc(x_20);
 lean_dec(x_16);
 x_21 = lean_nat_dec_lt(x_20, x_14);
 lean_dec(x_14);
+lean_inc(x_20);
 lean_inc(x_10);
 x_22 = l_Array_eraseIdx___rarg(x_10, x_20);
 if (x_21 == 0)
@@ -8046,6 +8047,7 @@ lean_inc(x_47);
 lean_dec(x_42);
 x_48 = lean_nat_dec_lt(x_47, x_40);
 lean_dec(x_40);
+lean_inc(x_47);
 lean_inc(x_36);
 x_49 = l_Array_eraseIdx___rarg(x_36, x_47);
 if (x_48 == 0)
@@ -12126,6 +12128,7 @@ lean_object* x_110; uint8_t x_111; lean_object* x_112;
 x_110 = lean_ctor_get(x_47, 0);
 x_111 = lean_nat_dec_lt(x_110, x_45);
 lean_dec(x_45);
+lean_inc(x_110);
 lean_inc(x_37);
 x_112 = l_Array_eraseIdx___rarg(x_37, x_110);
 if (x_111 == 0)
@@ -12292,6 +12295,7 @@ lean_inc(x_134);
 lean_dec(x_47);
 x_135 = lean_nat_dec_lt(x_134, x_45);
 lean_dec(x_45);
+lean_inc(x_134);
 lean_inc(x_37);
 x_136 = l_Array_eraseIdx___rarg(x_37, x_134);
 if (x_135 == 0)

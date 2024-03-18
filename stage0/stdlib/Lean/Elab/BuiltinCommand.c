@@ -13367,7 +13367,6 @@ x_108 = lean_ctor_get(x_105, 0);
 lean_inc(x_108);
 lean_dec(x_105);
 x_109 = l_Array_eraseIdx___rarg(x_22, x_108);
-lean_dec(x_108);
 if (x_1 == 0)
 {
 uint8_t x_193; 

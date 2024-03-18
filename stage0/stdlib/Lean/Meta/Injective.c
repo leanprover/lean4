@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_L
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1818____closed__5;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_2157____closed__6;
+lean_object* l_Lean_MVarId_splitAndCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1818_(lean_object*);
@@ -159,7 +160,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lambda__2(lean_object*, lean
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_2157____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_2157_(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_mkInjectiveTheorems___spec__11___closed__2;
-lean_object* l_Lean_Meta_splitAndCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_elimOptParam___lambda__1___closed__1;
@@ -2607,7 +2607,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_17 = l_Lean_Meta_splitAndCore(x_16, x_4, x_5, x_6, x_7, x_15);
+x_17 = l_Lean_MVarId_splitAndCore(x_16, x_4, x_5, x_6, x_7, x_15);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 

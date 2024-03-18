@@ -34912,7 +34912,6 @@ x_87 = lean_ctor_get(x_45, 0);
 lean_inc(x_87);
 lean_dec(x_45);
 x_88 = l_Array_eraseIdx___rarg(x_36, x_87);
-lean_dec(x_87);
 if (lean_is_scalar(x_37)) {
  x_89 = lean_alloc_ctor(0, 2, 0);
 } else {

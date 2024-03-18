@@ -18,6 +18,9 @@ private def useKernel (lhs rhs : Expr) : MetaM Bool := do
 
 /--
 Close given goal using `Eq.refl`.
+
+See `Lean.MVarId.applyRfl` for the variant that also consults `@[refl]` lemmas, and which
+backs the `rfl` tactic.
 -/
 def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do

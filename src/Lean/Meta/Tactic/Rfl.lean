@@ -45,31 +45,51 @@ initialize registerBuiltinAttribute {
 
 open Elab Tactic
 
+private def useKernel (lhs rhs : Expr) : MetaM Bool := do
+  if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
+    return false
+  else
+    return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
+
 /-- `MetaM` version of the `rfl` tactic.
 
 This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+relation, that is, equality or another relation which has a reflexive lemma tagged with the
+attribute [refl].
 -/
-def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := do
-  let .app (.app rel _) _ ← whnfR <|← instantiateMVars <|← goal.getType
-    | throwError "reflexivity lemmas only apply to binary relations, not{
+def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext do
+  let .app (.app rel lhs) rhs ← goal.getType'
+    | throwError "rfl can only be used on binary relations, not{
         indentExpr (← goal.getType)}"
-  let s ← saveState
-  let mut ex? := none
-  for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
-    try
-      let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
-      if gs.isEmpty then return () else
-        logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
-          goalsToMessageData gs}"
-    catch e =>
-      ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
-    s.restore
-  if let some (sErr, e) := ex? then
-    sErr.restore
-    throw e
+  let success ← if (← useKernel lhs rhs) then
+    ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
   else
-    throwError "rfl failed, no lemma with @[refl] applies"
+    isDefEq lhs rhs
+  unless success do
+    throwTacticEx `rfl goal m!"The lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
+
+  if rel.isAppOfArity `Eq 1 then
+    -- The common case is equality: just use `Eq.refl`
+    let us := rel.appFn!.constLevels!
+    let α := rel.appArg!
+    goal.assign (mkApp2 (mkConst ``Eq.refl us) α lhs)
+  else
+    let s ← saveState
+    let mut ex? := none
+    for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
+      try
+        let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
+        if gs.isEmpty then return () else
+          logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+            goalsToMessageData gs}"
+      catch e =>
+        ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
+      s.restore
+    if let some (sErr, e) := ex? then
+      sErr.restore
+      throw e
+    else
+      throwError "rfl failed, no lemma with @[refl] applies"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
 private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}

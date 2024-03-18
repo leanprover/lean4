@@ -2,7 +2,7 @@ name = "bar"
 precompileModules = false
 defaultTargets = ["Bar"]
 
-[[requre]]
+[[require]]
 name = "foo"
 path = "../foo"
 

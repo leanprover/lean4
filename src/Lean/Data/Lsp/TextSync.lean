@@ -38,7 +38,7 @@ structure DidOpenTextDocumentParams where
 
 structure TextDocumentChangeRegistrationOptions where
   documentSelector? : Option DocumentSelector := none
-  syncKind : TextDocumentSyncKind
+  syncKind          : TextDocumentSyncKind
   deriving FromJson
 
 inductive TextDocumentContentChangeEvent where
@@ -61,13 +61,18 @@ instance TextDocumentContentChangeEvent.hasToJson : ToJson TextDocumentContentCh
     | TextDocumentContentChangeEvent.fullChange text => [⟨"text", toJson text⟩]⟩
 
 structure DidChangeTextDocumentParams where
-  textDocument : VersionedTextDocumentIdentifier
+  textDocument   : VersionedTextDocumentIdentifier
   contentChanges : Array TextDocumentContentChangeEvent
+  deriving ToJson, FromJson
+
+structure DidSaveTextDocumentParams where
+  textDocument : TextDocumentIdentifier
+  text?        : Option String
   deriving ToJson, FromJson
 
 -- TODO: missing:
 -- WillSaveTextDocumentParams, TextDocumentSaveReason,
--- TextDocumentSaveRegistrationOptions, DidSaveTextDocumentParams
+-- TextDocumentSaveRegistrationOptions
 
 structure SaveOptions where
   includeText : Bool
@@ -81,11 +86,11 @@ structure DidCloseTextDocumentParams where
 
 /-- NOTE: This is defined twice in the spec. The latter version has more fields. -/
 structure TextDocumentSyncOptions where
-  openClose : Bool
-  change : TextDocumentSyncKind
-  willSave : Bool
+  openClose         : Bool
+  change            : TextDocumentSyncKind
+  willSave          : Bool
   willSaveWaitUntil : Bool
-  save? : Option SaveOptions := none
+  save?             : Option SaveOptions
   deriving ToJson, FromJson
 
 end Lsp

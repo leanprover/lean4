@@ -354,28 +354,23 @@ macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
     with_annotate_state $tk skip
     all_goals $y:tactic)
 
-/-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
+/-- `eq_refl` is equivalent to `exact Eq.rfl`, but has a few optimizations. -/
 syntax (name := eqRefl) "eq_refl" : tactic
-
-/--
-`rfl` tries to close the current goal using reflexivity.
-This is supposed to be an extensible tactic and users can add their own support
-for new reflexive relations.
-
-Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
-reflexivity theorems (e.g., `Iff.rfl`).
--/
-macro "rfl" : tactic => `(tactic| eq_refl)
-
-macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
 This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
 relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+TODO: Call this rfl directly after another stage0 update
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
-macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
+/--
+`rfl` tries to close the current goal using reflexivity.
+
+It supports equality (`a = b`), and other reflexive relations (e.g., `a ↔ b`). A relation is
+supported when is reflexivity lemma is tagged with the `@[refl]` attribute.
+-/
+macro (name := rfl) "rfl" : tactic => `(tactic| apply_rfl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,

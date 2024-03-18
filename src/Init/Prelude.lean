@@ -278,6 +278,9 @@ inductive Eq : α → α → Prop where
   equality type. See also `rfl`, which is usually used instead. -/
   | refl (a : α) : Eq a a
 
+-- Remove after the stage0 update
+attribute [refl] Eq.refl
+
 /-- Non-dependent recursor for the equality type. -/
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   h.rec m
@@ -457,9 +460,11 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   /-- Reflexivity of heterogeneous equality. -/
   | refl (a : α) : HEq a a
 
+
 /-- A version of `HEq.refl` with an implicit argument. -/
 @[match_pattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
+
 
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=

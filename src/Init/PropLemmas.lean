@@ -24,7 +24,7 @@ set_option linter.missingDocs true -- keep it documented
   funext _; simp only [true_iff, id_def, eq_iff_iff]
 
 theorem proof_irrel_heq {p q : Prop} (hp : p) (hq : q) : HEq hp hq := by
-  cases propext (iff_of_true hp hq); rfl
+  cases propext (iff_of_true hp hq); exact HEq.rfl
 
 /-! ## not -/
 

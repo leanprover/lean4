@@ -153,7 +153,7 @@ elaborating to `x.1 = y.1 → x.2 = y.2 → x = y`, for example.
 @[builtin_term_elab extType] def elabExtType : TermElab := fun stx _ => do
   match stx with
   | `(ext_type%  $flat:term $struct:ident) => do
-    withExtHyps (← resolveGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
+    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
       let ty := hyps.foldr (init := ← mkEq x y) fun (f, h) ty =>
         mkForall f BinderInfo.default h ty
       mkForallFVars (params |>.push x |>.push y) ty
@@ -166,7 +166,7 @@ elaborating to `x = y ↔ x.1 = y.1 ∧ x.2 = y.2`, for example.
 @[builtin_term_elab extIffType] def elabExtIffType : TermElab := fun stx _ => do
   match stx with
   | `(ext_iff_type% $flat:term $struct:ident) => do
-    withExtHyps (← resolveGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
+    withExtHyps (← realizeGlobalConstNoOverloadWithInfo struct) flat fun params x y hyps => do
       mkForallFVars (params |>.push x |>.push y) <|
         mkIff (← mkEq x y) <| mkAndN (hyps.map (·.2)).toList
   | _ => throwUnsupportedSyntax

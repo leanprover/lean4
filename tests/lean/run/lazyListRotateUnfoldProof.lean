@@ -30,7 +30,7 @@ theorem rotate_inv {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.lengt
   | LazyList.cons Fh Ft => sorry
   | LazyList.delayed Ft => sorry
 
-theorem LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
+def LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
         (nil : motive LazyList.nil)
         (cons : (hd : α) → (tl : LazyList α) → motive tl → motive (LazyList.cons hd tl))
         (delayed : (t : Thunk (LazyList α)) → motive t.get → motive (LazyList.delayed t))

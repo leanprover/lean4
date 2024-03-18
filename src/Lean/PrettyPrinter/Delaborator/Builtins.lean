@@ -1083,41 +1083,85 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
 @[implemented_by evalSyntaxConstantUnsafe]
 private opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
-/-- Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`. -/
-partial def delabConstWithSignature : Delab := do
+/--
+Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`.
+
+If `universes` is `false`, then the universe level parameters are omitted.
+-/
+partial def delabConstWithSignature (universes : Bool := true) : Delab := do
   let e ← getExpr
   -- use virtual expression node of arity 2 to separate name and type info
   let idStx ← descend e 0 <|
-    withOptions (pp.universes.set · true |> (pp.fullNames.set · true)) <|
+    withOptions (pp.universes.set · universes |> (pp.fullNames.set · true)) <|
       delabConst
   descend (← inferType e) 1 <|
-    delabParams idStx #[] #[]
+    delabParams {} idStx #[]
 where
-  -- follows `delabBinders`, but does not uniquify binder names and accumulates all binder groups
-  delabParams (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
-    if let .forallE n d _ i ← getExpr then
-      let stxN ← annotateCurPos (mkIdent n)
-      let curIds := curIds.push ⟨stxN⟩
-      if ← shouldGroupWithNext then
-        withBindingBody n <| delabParams idStx groups curIds
-      else
-        let delabTy := withOptions (pp.piBinderTypes.set · true) delab
-        let group ← withBindingDomain do
-          match i with
-          | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
-          | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
-          | .instImplicit   => `(bracketedBinderF|[$curIds.back : $(← delabTy)])
-          | _ =>
-            if d.isOptParam then
-              `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
-            else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
-              let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
-              `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
-            else
-              `(bracketedBinderF|($curIds* : $(← delabTy)))
-        withBindingBody n <| delabParams idStx (groups.push group) #[]
+  /--
+  For types in the signature, we want to be sure pi binder types are pretty printed.
+  -/
+  delabTy : DelabM Term := withOptions (pp.piBinderTypes.set · true) delab
+  /-
+  Similar to `delabBinders`, but does not uniquify binder names (since for named arguments we want to know the name),
+  and it always merges binder groups when possible.
+  Once it reaches a binder with an inaccessible name, or a name that has already been used,
+  the remaining binders appear in pi types after the `:` of the declaration.
+  -/
+  delabParams (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) := do
+    let e ← getExpr
+    if e.isForall && e.binderInfo.isInstImplicit && e.bindingName!.hasMacroScopes then
+      -- Assumption: this instance can be found by instance search, so it does not need to be named.
+      -- The oversight here is that this inaccessible name can appear in the pretty printed expression.
+      -- We could check to see whether the instance appears in the type and avoid omitting the instance name,
+      -- but this would be the usual case.
+      let group ← withBindingDomain do `(bracketedBinderF|[$(← delabTy)])
+      withBindingBody e.bindingName! <| delabParams bindingNames idStx (groups.push group)
+    else if e.isForall && !e.bindingName!.hasMacroScopes && !bindingNames.contains e.bindingName! then
+      delabParamsAux bindingNames idStx groups #[]
     else
-      let type ← delab
+      let type ← delabTy
       `(declSigWithId| $idStx:ident $groups* : $type)
+  /--
+  Inner loop for `delabParams`, collecting binders.
+  Invariants:
+  - The current expression is a forall.
+  - It has a name that's not inaccessible.
+  - It has a name that hasn't been used yet.
+  -/
+  delabParamsAux (bindingNames : NameSet) (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
+    let e@(.forallE n d e' i) ← getExpr | unreachable!
+    let bindingNames := bindingNames.insert n
+    let stxN := mkIdent n
+    let curIds := curIds.push ⟨stxN⟩
+    if shouldGroupWithNext bindingNames e e' then
+      withBindingBody n <| delabParamsAux bindingNames idStx groups curIds
+    else
+      let group ← withBindingDomain do
+        match i with
+        | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
+        | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
+        | .instImplicit   => `(bracketedBinderF|[$stxN : $(← delabTy)])
+        | _ =>
+          if d.isOptParam then
+            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
+          else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+            let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
+            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
+          else
+            `(bracketedBinderF|($curIds* : $(← delabTy)))
+      withBindingBody n <| delabParams bindingNames idStx (groups.push group)
+  /-
+  Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
+  -/
+  shouldGroupWithNext (bindingNames : NameSet) (e e' : Expr) : Bool :=
+    e'.isForall &&
+    -- At the first sign of an inaccessible name, stop merging binders:
+    !e'.bindingName!.hasMacroScopes &&
+    -- If it's a name that has already been used, stop merging binders:
+    !bindingNames.contains e'.bindingName! &&
+    e.binderInfo == e'.binderInfo &&
+    e.bindingDomain! == e'.bindingDomain! &&
+    -- Inst implicits can't be grouped:
+    e'.binderInfo != BinderInfo.instImplicit
 
 end Lean.PrettyPrinter.Delaborator

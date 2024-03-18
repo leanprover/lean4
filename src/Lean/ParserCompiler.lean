@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import Lean.Meta.ReduceEval
+import Lean.Meta.WHNF
 import Lean.KeyedDeclsAttribute
 import Lean.ParserCompiler.Attribute
 import Lean.Parser.Extension

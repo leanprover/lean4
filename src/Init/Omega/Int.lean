@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
 prelude
+import Init.Data.Int.DivMod
 import Init.Data.Int.Order
-import Init.Data.Int.DivModLemmas
-import Init.Data.Nat.Lemmas
 
 /-!
 # Lemmas about `Nat`, `Int`, and `Fin` needed internally by `omega`.
@@ -49,7 +48,7 @@ theorem ofNat_shiftLeft_eq {x y : Nat} : (x <<< y : Int) = (x : Int) * (2 ^ y : 
   simp [Nat.shiftLeft_eq]
 
 theorem ofNat_shiftRight_eq_div_pow {x y : Nat} : (x >>> y : Int) = (x : Int) / (2 ^ y : Nat) := by
-  simp [Nat.shiftRight_eq_div_pow]
+  simp only [Nat.shiftRight_eq_div_pow, Int.ofNat_ediv]
 
 -- FIXME these are insane:
 theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h

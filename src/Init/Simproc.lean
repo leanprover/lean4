@@ -32,10 +32,21 @@ Simplification procedures can be also scoped or local.
 syntax (docComment)? attrKind "simproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
 
 /--
+Similar to `simproc`, but resulting expression must be definitionally equal to the input one.
+-/
+syntax (docComment)? attrKind "dsimproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
+
+/--
 A user-defined simplification procedure declaration. To activate this procedure in `simp` tactic,
 we must provide it as an argument, or use the command `attribute` to set its `[simproc]` attribute.
 -/
 syntax (docComment)? "simproc_decl " ident " (" term ")" " := " term : command
+
+/--
+A user-defined defeq simplification procedure declaration. To activate this procedure in `simp` tactic,
+we must provide it as an argument, or use the command `attribute` to set its `[simproc]` attribute.
+-/
+syntax (docComment)? "dsimproc_decl " ident " (" term ")" " := " term : command
 
 /--
 A builtin simplification procedure.
@@ -43,9 +54,19 @@ A builtin simplification procedure.
 syntax (docComment)? attrKind "builtin_simproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
 
 /--
+A builtin defeq simplification procedure.
+-/
+syntax (docComment)? attrKind "builtin_dsimproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
+
+/--
 A builtin simplification procedure declaration.
 -/
 syntax (docComment)? "builtin_simproc_decl " ident " (" term ")" " := " term : command
+
+/--
+A builtin defeq simplification procedure declaration.
+-/
+syntax (docComment)? "builtin_dsimproc_decl " ident " (" term ")" " := " term : command
 
 /--
 Auxiliary command for associating a pattern with a simplification procedure.
@@ -87,32 +108,59 @@ macro_rules
       simproc_pattern% $pattern => $n)
 
 macro_rules
+  | `($[$doc?:docComment]? dsimproc_decl $n:ident ($pattern:term) := $body) => do
+    let simprocType := `Lean.Meta.Simp.DSimproc
+    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+      simproc_pattern% $pattern => $n)
+
+macro_rules
   | `($[$doc?:docComment]? builtin_simproc_decl $n:ident ($pattern:term) := $body) => do
     let simprocType := `Lean.Meta.Simp.Simproc
     `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
       builtin_simproc_pattern% $pattern => $n)
 
 macro_rules
+  | `($[$doc?:docComment]? builtin_dsimproc_decl $n:ident ($pattern:term) := $body) => do
+    let simprocType := `Lean.Meta.Simp.DSimproc
+    `($[$doc?:docComment]? def $n:ident : $(mkIdent simprocType) := $body
+      builtin_simproc_pattern% $pattern => $n)
+
+private def mkAttributeCmds
+    (kind : TSyntax `Lean.Parser.Term.attrKind)
+    (pre? : Option (TSyntax [`Lean.Parser.Tactic.simpPre, `Lean.Parser.Tactic.simpPost]))
+    (ids? : Option (Syntax.TSepArray `ident ","))
+    (n : Ident) : MacroM (Array Syntax) := do
+  let mut cmds := #[]
+  let pushDefault (cmds : Array (TSyntax `command)) : MacroM (Array (TSyntax `command)) := do
+    return cmds.push (← `(attribute [$kind simproc $[$pre?]?] $n))
+  if let some ids := ids? then
+    for id in ids.getElems do
+      let idName := id.getId
+      let (attrName, attrKey) :=
+        if idName == `simp then
+          (`simprocAttr, "simproc")
+        else if idName == `seval then
+          (`sevalprocAttr, "sevalproc")
+        else
+          let idName := idName.appendAfter "_proc"
+          (`Parser.Attr ++ idName, idName.toString)
+      let attrStx : TSyntax `attr := ⟨mkNode attrName #[mkAtom attrKey, mkOptionalNode pre?]⟩
+      cmds := cmds.push (← `(attribute [$kind $attrStx] $n))
+  else
+    cmds ← pushDefault cmds
+  return cmds
+
+macro_rules
   | `($[$doc?:docComment]? $kind:attrKind simproc $[$pre?]? $[ [ $ids?:ident,* ] ]? $n:ident ($pattern:term) := $body) => do
-     let mut cmds := #[(← `($[$doc?:docComment]? simproc_decl $n ($pattern) := $body))]
-     let pushDefault (cmds : Array (TSyntax `command)) : MacroM (Array (TSyntax `command)) := do
-       return cmds.push (← `(attribute [$kind simproc $[$pre?]?] $n))
-     if let some ids := ids? then
-       for id in ids.getElems do
-         let idName := id.getId
-         let (attrName, attrKey) :=
-           if idName == `simp then
-             (`simprocAttr, "simproc")
-           else if idName == `seval then
-             (`sevalprocAttr, "sevalproc")
-           else
-             let idName := idName.appendAfter "_proc"
-             (`Parser.Attr ++ idName, idName.toString)
-         let attrStx : TSyntax `attr := ⟨mkNode attrName #[mkAtom attrKey, mkOptionalNode pre?]⟩
-         cmds := cmds.push (← `(attribute [$kind $attrStx] $n))
-     else
-       cmds ← pushDefault cmds
-     return mkNullNode cmds
+     return mkNullNode <|
+       #[(← `($[$doc?:docComment]? simproc_decl $n ($pattern) := $body))]
+       ++ (← mkAttributeCmds kind pre? ids? n)
+
+macro_rules
+  | `($[$doc?:docComment]? $kind:attrKind dsimproc $[$pre?]? $[ [ $ids?:ident,* ] ]? $n:ident ($pattern:term) := $body) => do
+     return mkNullNode <|
+       #[(← `($[$doc?:docComment]? dsimproc_decl $n ($pattern) := $body))]
+       ++ (← mkAttributeCmds kind pre? ids? n)
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
@@ -123,6 +171,18 @@ macro_rules
       attribute [$kind builtin_sevalproc $[$pre?]?] $n)
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [simp, seval] $n:ident ($pattern:term) := $body) => do
     `($[$doc?:docComment]? builtin_simproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_simproc $[$pre?]?] $n
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
+
+macro_rules
+  | `($[$doc?:docComment]? $kind:attrKind builtin_dsimproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
+    `($[$doc?:docComment]? builtin_dsimproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_simproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_dsimproc $[$pre?]? [seval] $n:ident ($pattern:term) := $body) => do
+    `($[$doc?:docComment]? builtin_dsimproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_dsimproc $[$pre?]? [simp, seval] $n:ident ($pattern:term) := $body) => do
+    `($[$doc?:docComment]? builtin_dsimproc_decl $n ($pattern) := $body
       attribute [$kind builtin_simproc $[$pre?]?] $n
       attribute [$kind builtin_sevalproc $[$pre?]?] $n)
 

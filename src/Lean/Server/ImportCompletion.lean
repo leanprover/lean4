@@ -58,26 +58,30 @@ def computePartialImportCompletions
     (completionPos : String.Pos)
     (availableImports : ImportTrie)
     : Array Name := Id.run do
-  let some importStxToComplete := headerStx[1].getArgs.find? fun importStx => Id.run do
+  let some (completePrefix, incompleteSuffix) := headerStx[1].getArgs.findSome? fun importStx => do
       -- `partialTrailingDotStx` ≙ `("." ident)?`
       let partialTrailingDotStx := importStx[3]
       if ! partialTrailingDotStx.hasArgs then
-        return false
-      let trailingDot := partialTrailingDotStx[0]
-      let some tailPos := trailingDot.getTailPos?
-        | return false
-      return tailPos == completionPos
+        let tailPos ← importStx[2].getTailPos?
+        guard <| tailPos == completionPos
+        let .str completePrefix incompleteSuffix := importStx[2].getId
+          | none
+        return (completePrefix, incompleteSuffix)
+      else
+        let trailingDot := partialTrailingDotStx[0]
+        let tailPos ← trailingDot.getTailPos?
+        guard <| tailPos == completionPos
+        return (importStx[2].getId, "")
     | return #[]
-  let importPrefixToComplete := importStxToComplete[2].getId
 
-  let completions : Array Name :=
-    availableImports.matchingToArray importPrefixToComplete
-      |>.map fun matchingAvailableImport =>
-        matchingAvailableImport.replacePrefix importPrefixToComplete Name.anonymous
+  let completions := availableImports.matchingToArray completePrefix
+    |>.map (·.replacePrefix completePrefix .anonymous)
+    |>.filter (·.toString.startsWith incompleteSuffix)
+    |>.filter (! ·.isAnonymous)
+    |>.qsort Name.quickLt
 
-  let nonEmptyCompletions := completions.filter fun completion => !completion.isAnonymous
+  return completions
 
-  return nonEmptyCompletions.insertionSort (Name.cmp · · == Ordering.lt)
 
 def isImportCompletionRequest (text : FileMap) (headerStx : Syntax) (params : CompletionParams) : Bool :=
   let completionPos := text.lspPosToUtf8Pos params.position

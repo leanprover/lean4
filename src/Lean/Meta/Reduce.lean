@@ -33,7 +33,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
             else
               args ← args.modifyM i visit
           if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isRawNatLit then
-            return mkRawNatLit (args[0]!.natLit?.get! + 1)
+            return mkRawNatLit (args[0]!.rawNatLit?.get! + 1)
           else
             return mkAppN f args
         | Expr.lam ..        => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)

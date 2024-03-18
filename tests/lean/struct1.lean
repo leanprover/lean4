@@ -31,13 +31,13 @@ structure S :=
 structure S extends A Nat :=
 (x : Nat) -- error
 
-structure S extends A Nat :=
+structure S' extends A Nat :=
 (x := true) -- error type mismatch
 
 structure S extends A Nat :=
 (x : Bool := true) -- error omit type
 
-structure S :=
+structure S'' :=
 (x : Nat := true) -- error type mismatch
 
 private structure S :=

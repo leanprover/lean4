@@ -26,18 +26,6 @@ structure TerminationBy where
   synthetic : Bool := false
   deriving Inhabited
 
-open Parser.Termination in
-def TerminationBy.unexpand (wf : TerminationBy) : MetaM (TSyntax ``terminationBy) := do
-  -- TODO: Why can I not just use $wf.vars in the quotation below?
-  let vars : TSyntaxArray `ident := wf.vars.map (⟨·.raw⟩)
-  if vars.isEmpty then
-    `(terminationBy|termination_by $wf.body)
-  else
-    `(terminationBy|termination_by $vars* => $wf.body)
-
-/-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
-abbrev TerminationWF := Array TerminationBy
-
 /-- A single `decreasing_by` clause -/
 structure DecreasingBy where
   ref       : Syntax

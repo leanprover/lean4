@@ -42,7 +42,7 @@ private def isNamedDef (stx : Syntax) : Bool :=
     let decl := stx[1]
     let k := decl.getKind
     k == ``Lean.Parser.Command.abbrev ||
-    k == ``Lean.Parser.Command.def ||
+    k == ``Lean.Parser.Command.definition ||
     k == ``Lean.Parser.Command.theorem ||
     k == ``Lean.Parser.Command.opaque ||
     k == ``Lean.Parser.Command.axiom ||
@@ -166,7 +166,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
-  let classes ← getOptDerivingClasses decl[6]
+  let classes ← liftCoreM <| getOptDerivingClasses decl[6]
   return {
     ref             := decl
     shortDeclName   := name
@@ -354,7 +354,7 @@ def elabMutual : CommandElab := fun stx => do
     -/
     let declNames ←
        try
-         resolveGlobalConst ident
+         realizeGlobalConst ident
        catch _ =>
          let name := ident.getId.eraseMacroScopes
          if (← Simp.isBuiltinSimproc name) then

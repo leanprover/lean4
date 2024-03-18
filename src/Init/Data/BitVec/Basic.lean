@@ -7,6 +7,7 @@ prelude
 import Init.Data.Fin.Basic
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Nat.Power2
+import Init.Data.Int.Bitwise
 
 /-!
 We define bitvectors. We choose the `Fin` representation over others for its relative efficiency
@@ -71,6 +72,9 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
+
+@[deprecated isLt]
+theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
 
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.

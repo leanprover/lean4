@@ -40,7 +40,8 @@
 	  buildInputs = with pkgs; [
 	    cmake gmp ccache
 	    pkgs.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
-	    pkgs.python3
+	    # TODO: only add when proven to not affect the flakification
+	    #pkgs.python3
 	  ];
 	  # https://github.com/NixOS/nixpkgs/issues/60919
 	  hardeningDisable = [ "all" ];

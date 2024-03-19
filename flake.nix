@@ -49,7 +49,27 @@
       };
       defaultPackage = lean-packages.lean-all;
 
-      inherit (lean-packages) devShell;
+      # The default development shell for working on lean itself
+      devShell = pkgs.mkShell.override {
+	stdenv = pkgs.overrideCC pkgs.stdenv pkgs.llvmPackages.clang;
+      } ({
+	buildInputs = with pkgs; [
+	  cmake gmp ccache
+	  pkgs.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+	  pkgs.python3
+	];
+	# https://github.com/NixOS/nixpkgs/issues/60919
+	hardeningDisable = [ "all" ];
+	# more convenient `ctest` output
+	CTEST_OUTPUT_ON_FAILURE = 1;
+      } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+	GMP = pkgs.gmp.override { withStatic = true; };
+	GLIBC = pkgs.glibc;
+	GLIBC_DEV = pkgs.glibc.dev;
+	GCC_LIB = pkgs.gcc.cc.lib;
+	ZLIB = pkgs.zlib;
+	GDB = pkgs.gdb;
+      });
 
       checks.lean = lean-packages.test;
     }) // rec {

@@ -238,28 +238,35 @@ end Message
 
 /-- A persistent array of messages. -/
 structure MessageLog where
+  /--
+  If true, there was an error in the log previously that has already been reported to the user and
+  removed from the log. Used in `MessageLog.hasErrors` accordingly.
+
+  We use this to incrementally report diagnostics during elaboration of a single command but still
+  keep track of whether there was an error at all in this command. We use a fresh message log for
+  the next command.
+  -/
+  hadErrors : Bool := false
   msgs : PersistentArray Message := {}
   deriving Inhabited
 
 namespace MessageLog
-def empty : MessageLog := ⟨{}⟩
+def empty : MessageLog := { msgs := {} }
 
 def isEmpty (log : MessageLog) : Bool :=
   log.msgs.isEmpty
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
-  ⟨log.msgs.push msg⟩
+  { log with msgs := log.msgs.push msg }
 
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-  ⟨l₁.msgs ++ l₂.msgs⟩
+  { hadErrors := l₁.hadErrors || l₂.hadErrors, msgs := l₁.msgs ++ l₂.msgs }
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-  log.msgs.any fun m => match m.severity with
-    | MessageSeverity.error => true
-    | _                     => false
+  log.hadErrors || log.msgs.any (·.severity matches .error)
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }

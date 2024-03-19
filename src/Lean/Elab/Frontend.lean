@@ -50,9 +50,10 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
         stx.hasMissing then
       -- discard elaboration errors, except for a few important and unlikely misleading ones, on
       -- parse error
-      msgs := ⟨msgs.msgs.filter fun msg =>
-        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-          tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
+      msgs := { msgs with
+        msgs := msgs.msgs.filter fun msg =>
+          msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
+            tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag) }
     modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do

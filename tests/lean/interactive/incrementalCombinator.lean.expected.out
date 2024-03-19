@@ -26,11 +26,4 @@
    "message": "unsolved goals\ncase inr\na b : Prop\nh✝ : b\n⊢ True",
    "fullRange":
    {"start": {"line": 2, "character": 31},
-    "end": {"line": 7, "character": 19}}},
-  {"source": "Lean 4",
-   "severity": 2,
-   "range":
-   {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 8}},
-   "message": "declaration uses 'sorry'",
-   "fullRange":
-   {"start": {"line": 2, "character": 4}, "end": {"line": 2, "character": 8}}}]}
+    "end": {"line": 7, "character": 19}}}]}

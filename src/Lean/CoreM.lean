@@ -252,8 +252,12 @@ def resetMessageLog : CoreM Unit :=
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
-def getResetMessageLog : CoreM MessageLog :=
-  getMessageLog <* resetMessageLog
+/--
+Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+for incremental reporting during elaboration of a single command.
+-/
+def getAndEmptyMessageLog : CoreM MessageLog :=
+  modifyGet fun log => ({ log with msgs := {} }, log)
 
 instance : MonadLog CoreM where
   getRef      := getRef

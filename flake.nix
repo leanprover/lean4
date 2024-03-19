@@ -35,11 +35,11 @@
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; inherit nix lean4-mode; };
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
-	  stdenv = pkgs.overrideCC pkgs.stdenv pkgs.llvmPackages.clang;
+	  stdenv = pkgs.overrideCC pkgs.stdenv lean-packages.llvmPackages.clang;
 	} ({
 	  buildInputs = with pkgs; [
 	    cmake gmp ccache
-	    pkgs.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+	    lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
 	    # TODO: only add when proven to not affect the flakification
 	    #pkgs.python3
 	  ];

@@ -27,11 +27,11 @@
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
-      pkgs-old = import nixpkgs-old {
-        inherit system;
-        # for `vscode-with-extensions`
-        config.allowUnfree = true;
-      };
+      # An old nixpkgs for creating releases with an old glibc
+      pkgsDist-old = import nixpkgs-old { inherit system; };
+      # An old nixpkgs for creating releases with an old glibc
+      pkgsDist-old-aarch = import nixpkgs-old { localSystem.config = "aarch64-unknown-linux-gnu"; };
+
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; inherit nix lean4-mode; };
 
       devShellWithDist = pkgsDist: pkgs.mkShell.override {
@@ -80,7 +80,8 @@
 
       # The default development shell for working on lean itself
       devShells.default = devShellWithDist pkgs;
-      devShells.oldGlibc = devShellWithDist pkgs-old;
+      devShells.oldGlibc = devShellWithDist pkgsDist-old;
+      devShells.oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
 
       checks.lean = lean-packages.test;
     }) // rec {

@@ -98,7 +98,8 @@ def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := goal.withContext
           throwError MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
             goalsToMessageData gs}"
       catch e =>
-        ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
+        unless ex2.isSome do
+          ex? := some (← saveState, e) -- stash the first failure of `apply`
       s.restore
     if let some (sErr, e) := ex? then
       sErr.restore

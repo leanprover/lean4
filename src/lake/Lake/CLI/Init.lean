@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Util.Sugar
+import Lake.Config.Lang
 import Lake.Config.Package
 import Lake.Config.Workspace
 import Lake.Load.Config
@@ -174,18 +175,6 @@ def escapeName! : Name → String
 | .str .anonymous s => escapeIdent s
 | .str n s          => escapeName! n ++ "." ++ escapeIdent s
 | _                 => unreachable!
-
-/-- Lake configuration language identifier. -/
-inductive ConfigLang
-| lean | toml
-deriving Repr, DecidableEq
-
-instance : Inhabited ConfigLang := ⟨.lean⟩
-
-def ConfigLang.ofString? : String → Option ConfigLang
-| "lean" => some .lean
-| "toml" => some .toml
-| _ => none
 
 def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (pkgName : Name) (root : Name) : String :=
   match tmp, lang with

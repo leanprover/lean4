@@ -35,6 +35,7 @@ instance : OfNat Value n := ⟨.integer .missing n⟩
 instance : EmptyCollection Value := ⟨.table .missing {}⟩
 instance : Coe String Value := ⟨.string .missing⟩
 instance : Coe Int Value := ⟨.integer .missing⟩
+instance : Coe Nat Value := ⟨fun n => .integer .missing (.ofNat n)⟩
 instance : Coe Float Value := ⟨.float .missing⟩
 instance : Coe Bool Value := ⟨.boolean .missing⟩
 instance : Coe DateTime Value := ⟨.dateTime .missing⟩
@@ -89,19 +90,21 @@ partial def ppKey (k : Name) : String :=
 mutual
 
 partial def ppInlineTable (t : Table) : String :=
-  have : ToString Value := ⟨Value.toString⟩
-  let xs := t.items.map fun (k,v) => s!"{ppKey k} = {v}"
+  let xs := t.items.map fun (k,v) => s!"{ppKey k} = {Value.toString v}"
   "{" ++ ", ".intercalate xs.toList ++ "}"
 
+partial def ppInlineArray (vs : Array Value) : String :=
+  let xs := vs.map Value.toString
+  "[" ++ ", ".intercalate xs.toList ++ "]"
+
 partial def Value.toString (v : Value) : String :=
-  have : ToString Value := ⟨Value.toString⟩
   match v with
   | .string _ s => ppString s
   | .integer _ n => toString n
   | .float _ n => toString n
   | .boolean _ b => toString b
   | .dateTime _ dt => toString dt
-  | .array _ xs => toString xs.toList
+  | .array _ vs => ppInlineArray vs
   | .table _ t => ppInlineTable t
 
 end
@@ -111,12 +114,16 @@ instance : ToString Value := ⟨Value.toString⟩
 def ppTable (t : Table) : String :=
   String.trimLeft <| t.items.foldl (init := "") fun s (k,v) =>
     match v with
-    | .array _ xs => xs.foldl (init := s) fun s v =>
-      match v with
-      | .table _ t =>
-        let s := s ++ s!"\n[[{ppKey k}]]\n"
-        t.items.foldl (fun s (k,v) => appendKeyval s k v) s
-      | _ => appendKeyval s k v
+    | .array _ vs =>
+      if vs.all (· matches .table ..) then
+        vs.foldl (init := s) fun s v =>
+          match v with
+          | .table _ t =>
+            let s := s ++ s!"\n[[{ppKey k}]]\n"
+            t.items.foldl (fun s (k,v) => appendKeyval s k v) s
+          | _ => unreachable!
+      else
+        s.append s!"{ppKey k} = {ppInlineArray vs}\n"
     | .table _ t =>
       let s := s ++ s!"\n[{ppKey k}]\n"
       t.items.foldl (fun s (k,v) => appendKeyval s k v) s

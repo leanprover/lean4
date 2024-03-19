@@ -14,7 +14,7 @@ Currently not configurable.
 def defaultLakeDir : FilePath := ".lake"
 
 /-- The default setting for a `WorkspaceConfig`'s `packagesDir` option. -/
-def defaultPackagesDir : FilePath := "packages"
+def defaultPackagesDir := defaultLakeDir / "packages"
 
 /-- The default name of the Lake configuration file (i.e., `lakefile`). -/
 def defaultConfigFile : FilePath := "lakefile"

@@ -32,10 +32,12 @@ inductive CliError
 | invalidFacet (target : Name) (facet : Name)
 /- Executable CLI Errors -/
 | unknownExe (spec : String)
-/- Script CLI Error -/
+/- Script CLI Error  -/
 | unknownScript (script : String)
 | missingScriptDoc (script : String)
 | invalidScriptSpec (spec : String)
+/-- Translate Errors -/
+| outputConfigExists (path : System.FilePath)
 /- Config Errors -/
 | unknownLeanInstall
 | unknownLakeInstall
@@ -69,6 +71,7 @@ def toString : CliError → String
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
 | invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"
+| outputConfigExists f    => s!"output configuration file already exists: {f}"
 | unknownLeanInstall      => "could not detect a Lean installation"
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"

@@ -19,7 +19,7 @@ inductive Glob
   | submodules : Name → Glob
   /-- Selects the specified module and all submodules. -/
   | andSubmodules : Name → Glob
-deriving Inhabited, Repr
+deriving Inhabited, Repr, DecidableEq
 
 instance : Coe Name Glob := ⟨Glob.one⟩
 instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩
@@ -33,6 +33,13 @@ scoped macro:max n:name noWs ".+" : term =>
   ``(Glob.submodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
 
 namespace Glob
+
+protected def toString : Glob → String
+| .one n => n.toString
+| .submodules n => n.toString ++ ".+"
+| .andSubmodules n => n.toString ++ ".*"
+
+instance : ToString Glob := ⟨Glob.toString⟩
 
 def «matches» (m : Name) : (self : Glob) → Bool
 | one n => n == m

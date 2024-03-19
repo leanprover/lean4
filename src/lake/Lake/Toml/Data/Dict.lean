@@ -73,6 +73,18 @@ def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
 def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   t.insertMap k fun _ => v
 
+/-- Inserts the value into the dictionary if `p` is `true`. -/
+@[macro_inline] def insertIf (p : Bool) (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
+  if p then t.insert k v else t
+
+/-- Inserts the value into the dictionary if `p` is `false`. -/
+@[macro_inline] def insertUnless (p : Bool) (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
+  if p then t else t.insert k v
+
+/-- Insert the value into the dictionary if it is not `none`. -/
+@[macro_inline] def insertSome (k : α) (v? : Option β) (t : RBDict α β cmp) : RBDict α β cmp :=
+  if let some v := v? then t.insert k v else t
+
 def append (self other : RBDict α β cmp) : RBDict α β cmp :=
   other.items.foldl (fun t (k,v) => t.insert k v) self
 

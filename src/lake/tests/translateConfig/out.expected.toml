@@ -1,0 +1,16 @@
+name = "test"
+defaultTargets = ["b"]
+
+[[require]]
+name = "foo"
+path = "-"
+
+[[require]]
+name = "bar"
+git = "https://example.com"
+
+[[lean_lib]]
+name = "A"
+
+[[lean_exe]]
+name = "b"

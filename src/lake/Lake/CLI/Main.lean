@@ -13,6 +13,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 import Lake.CLI.Error
 import Lake.CLI.Actions
+import Lake.CLI.Translate
 import Lake.CLI.Serve
 
 -- # CLI
@@ -203,7 +204,7 @@ def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
 def parseTemplateSpec (spec : String) : Except CliError InitTemplate := do
   if spec.isEmpty then
     return default
-  else if let some tmp := InitTemplate.ofString? spec then
+  else if let some tmp := InitTemplate.ofString? spec.toLower then
     return tmp
   else
     throw <| CliError.unknownTemplate spec
@@ -211,7 +212,7 @@ def parseTemplateSpec (spec : String) : Except CliError InitTemplate := do
 def parseLangSpec (spec : String) : Except CliError ConfigLang :=
   if spec.isEmpty then
     return default
-  else if let some lang := ConfigLang.ofString? spec then
+  else if let some lang := ConfigLang.ofString? spec.toLower then
     return lang
   else
     throw <| CliError.unknownConfigLang spec
@@ -390,6 +391,17 @@ protected def exe : CliM PUnit := do
   let exeFile ← ws.runBuild (exe.build >>= (·.await)) <| mkBuildConfig opts
   exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
+protected def translateConfig : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let lang ← parseLangSpec (← takeArg "configuration language")
+  let outFile := (← takeArg?).map FilePath.mk |>.getD <|
+    config.configFile.withExtension lang.fileExtension
+  if (← outFile.pathExists) then
+    throw <| .outputConfigExists outFile
+  noArgsRem (translateConfig config lang outFile)
+
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem do verifyInstall (← getThe LakeOptions)
@@ -414,6 +426,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "serve"               => lake.serve
 | "env"                 => lake.env
 | "exe" | "exec"        => lake.exe
+| "translate-config"    => lake.translateConfig
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

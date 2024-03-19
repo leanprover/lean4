@@ -202,7 +202,7 @@ end Toml
 open Toml
 
 protected def WorkspaceConfig.ofToml (t : Table) : Except (Array DecodeError) WorkspaceConfig := tryDecode do
-  let packagesDir ← t.getD `packagesDir (defaultLakeDir / defaultPackagesDir)
+  let packagesDir ← t.getD `packagesDir defaultPackagesDir
   return {packagesDir}
 
 instance : OfToml WorkspaceConfig := ⟨fun v => do WorkspaceConfig.ofToml (← v.getTable)⟩
@@ -233,20 +233,19 @@ protected def LeanOption.ofToml (v : Value) : Except (Array DecodeError) LeanOpt
 
 instance : OfToml LeanOption := ⟨LeanOption.ofToml⟩
 
-def BuildType.ofString? (s : String) : Option BuildType :=
-  match s with
-  | "debug" => some .debug
-  | "relWithDebInfo" => some .relWithDebInfo
-  | "minSizeRel" => some .minSizeRel
-  | "release" => some .release
-  | _ => none
-
 protected def BuildType.ofToml (v : Value) : Except DecodeError BuildType := do
   match inline <| BuildType.ofString? (← v.getString) with
   | some v => return v
-  | none => throw <| .mk v.ref "expected one of 'debug' 'relWithDebInfo', 'minSizeRel', 'release'"
+  | none => throw <| .mk v.ref "expected one of 'debug', 'relWithDebInfo', 'minSizeRel', 'release'"
 
 instance : OfToml BuildType := ⟨(BuildType.ofToml ·)⟩
+
+protected def Backend.ofToml (v : Value) : Except DecodeError Backend := do
+  match inline <| Backend.ofString? (← v.getString) with
+  | some v => return v
+  | none => throw <| .mk v.ref "expected one of 'c, 'llvm', or 'default'"
+
+instance : OfToml Backend := ⟨(Backend.ofToml ·)⟩
 
 partial def decodeLeanOptionsAux
   (v : Value) (k : Name) (vs : Except (Array DecodeError) (Array LeanOption))
@@ -265,9 +264,10 @@ def decodeLeanOptions (v : Value) : Except (Array DecodeError) (Array LeanOption
 
 protected def LeanConfig.ofToml (t : Table) : Except (Array DecodeError) LeanConfig := tryDecode do
   let buildType ← t.getD `buildType .release
+  let backend ← t.getD `backend .default
   let platformIndependent ← t.get? `platformIndependent
   let leanOptions ← optDecodeD #[] (t.find? `leanOptions) decodeLeanOptions
-  let moreServerOptions ← t.getD `moreServerOptions #[]
+  let moreServerOptions ← optDecodeD #[] (t.find? `moreServerOptions) decodeLeanOptions
   let moreLeanArgs ← t.getD `moreLeanArgs #[]
   let weakLeanArgs ← t.getD `weakLeanArgs #[]
   let moreLeancArgs ← t.getD `moreLeancArgs #[]
@@ -275,7 +275,7 @@ protected def LeanConfig.ofToml (t : Table) : Except (Array DecodeError) LeanCon
   let moreLinkArgs ← t.getD `moreLinkArgs #[]
   let weakLinkArgs ← t.getD `weakLinkArgs #[]
   return {
-    buildType, platformIndependent, leanOptions, moreServerOptions,
+    buildType, backend, platformIndependent, leanOptions, moreServerOptions,
     moreLeanArgs, weakLeanArgs, moreLeancArgs, weakLeancArgs, moreLinkArgs, weakLinkArgs
   }
 

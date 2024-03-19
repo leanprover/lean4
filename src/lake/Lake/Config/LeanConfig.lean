@@ -61,7 +61,24 @@ inductive Backend
   Use the default backend. Can be overridden by more specific configuration.
   -/
   | default
-deriving Inhabited, Repr, DecidableEq
+deriving Repr, DecidableEq
+
+instance : Inhabited Backend := ⟨.default⟩
+
+def Backend.ofString? (s : String) : Option Backend :=
+  match s with
+  | "c" => some .c
+  | "llvm" => some .llvm
+  | "default" => some .default
+  | _ => none
+
+protected def Backend.toString (bt : Backend) : String :=
+  match bt with
+  | .c => "c"
+  | .llvm => "llvm"
+  | .default => "default"
+
+instance : ToString Backend := ⟨Backend.toString⟩
 
 /--
 If the left backend is default, choose the right one.
@@ -81,6 +98,23 @@ def BuildType.leancArgs : BuildType → Array String
 | relWithDebInfo => #["-O3", "-g", "-DNDEBUG"]
 | minSizeRel => #["-Os", "-DNDEBUG"]
 | release => #["-O3", "-DNDEBUG"]
+
+def BuildType.ofString? (s : String) : Option BuildType :=
+  match s with
+  | "debug" => some .debug
+  | "relWithDebInfo" => some .relWithDebInfo
+  | "minSizeRel" => some .minSizeRel
+  | "release" => some .release
+  | _ => none
+
+protected def BuildType.toString (bt : BuildType) : String :=
+  match bt with
+  | .debug => "debug"
+  | .relWithDebInfo => "relWithDebInfo"
+  | .minSizeRel => "minSizeRel"
+  | .release => "release"
+
+instance : ToString BuildType := ⟨BuildType.toString⟩
 
 /-- Option that is used by Lean as if it was passed using `-D`. -/
 structure LeanOption where

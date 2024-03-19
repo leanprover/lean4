@@ -12,7 +12,7 @@ namespace Lake
 structure WorkspaceConfig where
   /--
   The directory to which Lake should download remote dependencies.
-  Defaults to `defaultLakeDir / defaultPackagesDir` (i.e., `.lake/packages`).
+  Defaults to `defaultPackagesDir` (i.e., `.lake/packages`).
   -/
-  packagesDir : FilePath := defaultLakeDir / defaultPackagesDir
+  packagesDir : FilePath := defaultPackagesDir
   deriving Inhabited, Repr

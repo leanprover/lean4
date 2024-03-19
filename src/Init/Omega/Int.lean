@@ -134,6 +134,7 @@ theorem add_le_iff_le_sub (a b c : Int) : a + b ≤ c ↔ a ≤ c - b := by
     lhs
     rw [← Int.add_zero c, ← Int.sub_self (-b), Int.sub_eq_add_neg, ← Int.add_assoc, Int.neg_neg,
       Int.add_le_add_iff_right]
+  -- rfl here works, so why does the rfl within `conv` no work?
 
 theorem le_add_iff_sub_le (a b c : Int) : a ≤ b + c ↔ a - c ≤ b := by
   conv =>

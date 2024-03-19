@@ -172,15 +172,53 @@ def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α :
   let b := b.instantiate1 (.fvar x)
   k x b
 
+-- partial def argOfProdProj (oldIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
+  -- if e.isAppOfArity ``PProd.fst 3 then
+  --   if let some e' ← isPProdProj oldIH newIH e.appArg! then
+  --     return some (← mkAppM ``PProd.fst #[e'])
+  --   else
+  --     return none
+  -- else if e.isAppOfArity ``PProd.snd 3 then
+  --   if let some e' ← isPProdProj oldIH newIH e.appArg! then
+  --     return some (← mkAppM ``PProd.snd #[e'])
+  --   else
+  --     return none
+  -- else if e.isFVarOf oldIH then
+  --   return some (mkFVar newIH)
+  -- else
+  --   return none
+
+def argOfPProdProjWithArgs (_oldIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
+  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
+    let arity := e.getAppNumArgs
+    unless 3 ≤ arity do return none
+    let args := e.getAppArgsN (arity - 3)
+    let e := e.stripArgsN (arity - 3)
+    -- The following match is fairly fragile, as it the function in this type
+    -- is a lambda expression. I don't see a better way to infer the argument n from
+    -- an expression of type `@below motive n`.
+    let .app _ arg ← inferType e |
+      throwError m!"Unxpected form of {←inferType e}"
+    return (arg, args)
+  return none
+
 /-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
 partial def foldCalls (fn : Expr) (oldIH : FVarId) (e : Expr) : MetaM Expr := do
   unless e.containsFVar oldIH do
     return e
 
+  if let some (arg, args) ← argOfPProdProjWithArgs oldIH e then
+    let args' ← args.mapM (foldCalls fn oldIH)
+    let e' := mkAppN (mkApp fn arg) args'
+    check e'
+    return e'
+
+  /-
   if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
     let #[arg, _proof] := e.getAppArgs | unreachable!
     let arg' ← foldCalls fn oldIH arg
     return .app fn arg'
+  -/
 
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
@@ -247,7 +285,6 @@ partial def foldCalls (fn : Expr) (oldIH : FVarId) (e : Expr) : MetaM Expr := do
   | .fvar .. =>
     throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
 
-
 partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
   if e.isAppOfArity ``PProd.fst 3 then
     if let some e' ← isPProdProj oldIH newIH e.appArg! then
@@ -264,6 +301,16 @@ partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) 
   else
     return none
 
+def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
+  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
+    let arity := e.getAppNumArgs
+    unless 3 ≤ arity do return none
+    let args := e.getAppArgsN (arity - 3)
+    if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
+      return some (e', args)
+  return none
+
+
 -- Non-tail-positions: Collect induction hypotheses
 -- (TODO: Worth folding with `foldCalls`, like before?)
 -- (TODO: Accumulated with a left fold)
@@ -271,11 +318,14 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
   unless e.containsFVar oldIH do
     return #[]
 
-  if let some e' ← isPProdProj oldIH newIH e then
+  if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
     -- The inferred type that comes out of motive projections has beta redexes
+    let args' ← args.mapM (foldCalls fn oldIH)
+    let ihs ← args.concatMapM (collectIHs fn oldIH newIH)
+    let e' := mkAppN e' args'
     let eTyp ← inferType e'
     let eType' := eTyp.headBeta
-    return #[← mkExpectedTypeHint e' eType']
+    return ihs.push (← mkExpectedTypeHint e' eType')
 
   /-
   if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
@@ -603,8 +653,8 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           mkLambdaFVars xs (← mkForallFVars ys (motive.beta (xs ++ ys)))
 
     let e' := mkAppN brec (fixArgs[:recParams] ++ #[brecMotive, arg])
-    let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
-    -- logInfo m!"e': {e'}"
+    let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params[:recParams]
+    logInfo m!"fn: {fn}"
     check e'
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
       if h : xs.size < 2 + extraArgs.size then
@@ -832,9 +882,9 @@ def zip {α β} : List α → List β → List (α × β)
   | [], _ => []
   | _, [] => []
   | x::xs, y::ys => (x, y) :: zip xs ys
-termination_by xs => xs
+-- termination_by xs => xs
 
-#print zip
+-- #print zip
 run_meta Lean.Tactic.FunInd.deriveInduction `zip
 #check zip.induct
 

@@ -304,7 +304,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
     let proof' ← foldCalls fn oldIH proof
     let ihs ← collectIHs fn oldIH newIH arg
 
-    return ihs.push (mkAppN (.fvar newIH) #[arg', proof'])
+    return ihs.push (mkApp2 (.fvar newIH) arg' proof')
   -/
 
   if let some (n, t, v, b) := e.letFun? then
@@ -626,9 +626,13 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
         mkLambdaFVars #[param, genIH] (← mkLambdaFVars extraParams body')
 
+<<<<<<< HEAD
     -- let e' := mkAppN e' #[body', arg, acc]
     let e' := mkAppN e' #[body']
     let e' := mkAppN e' extraArgs
+=======
+    let e' := mkApp3 e' body' arg acc
+>>>>>>> joachim/funind
 
     let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'

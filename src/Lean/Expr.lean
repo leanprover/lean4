@@ -801,7 +801,7 @@ def isType0 : Expr → Bool
 
 /-- Return `true` if the given expression is `.sort .zero` -/
 def isProp : Expr → Bool
-  | sort (.zero ..) => true
+  | sort .zero => true
   | _ => false
 
 /-- Return `true` if the given expression is a bound variable. -/
@@ -903,6 +903,14 @@ def appArg!' : Expr → Expr
   | mdata _ b => appArg!' b
   | app _ a   => a
   | _         => panic! "application expected"
+
+def appArg (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app _ a, _ => a
+
+def appFn (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app f _, _ => f
 
 def sortLevel! : Expr → Level
   | sort u => u
@@ -1066,33 +1074,6 @@ def isAppOfArity' : Expr → Name → Nat → Bool
   | const c _,  n, 0   => c == n
   | app f _,    n, a+1 => isAppOfArity' f n a
   | _,          _,  _   => false
-
-/--
-Checks if an expression is a "natural number numeral in normal form",
-i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
-where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
-and if so returns `n`.
--/
--- Note that `Expr.lit (.natVal n)` is not considered in normal form!
-def nat? (e : Expr) : Option Nat := do
-  guard <| e.isAppOfArity ``OfNat.ofNat 3
-  let lit (.natVal n) := e.appFn!.appArg! | none
-  n
-
-/--
-Checks if an expression is an "integer numeral in normal form",
-i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
-or the negation of a positive natural number numberal in normal form,
-and if so returns the integer.
--/
-def int? (e : Expr) : Option Int :=
-  if e.isAppOfArity ``Neg.neg 3 then
-    match e.appArg!.nat? with
-    | none => none
-    | some 0 => none
-    | some n => some (-n)
-  else
-    e.nat?
 
 private def getAppNumArgsAux : Expr → Nat → Nat
   | app f _, n => getAppNumArgsAux f (n+1)
@@ -1616,11 +1597,44 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
 
+/--
+Similar to `appFn`, but also applies `cleanupAnnotations` to resulting function.
+This function is used compile the `match_expr` term.
+-/
+def appFnCleanup (e : Expr) (h : e.isApp) : Expr :=
+  match e, h with
+  | .app f _, _ => f.cleanupAnnotations
+
 def isFalse (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``False
 
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
+
+/--
+Checks if an expression is a "natural number numeral in normal form",
+i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
+where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
+and if so returns `n`.
+-/
+-- Note that `Expr.lit (.natVal n)` is not considered in normal form!
+def nat? (e : Expr) : Option Nat := do
+  let_expr OfNat.ofNat _ n _ := e | failure
+  let lit (.natVal n) := n | failure
+  n
+
+/--
+Checks if an expression is an "integer numeral in normal form",
+i.e. of type `Nat` or `Int`, and either a natural number numeral in normal form (as specified by `nat?`),
+or the negation of a positive natural number numberal in normal form,
+and if so returns the integer.
+-/
+def int? (e : Expr) : Option Int :=
+  let_expr Neg.neg _ _ a := e | e.nat?
+  match a.nat? with
+  | none => none
+  | some 0 => none
+  | some n => some (-n)
 
 /-- Return true iff `e` contains a free variable which satisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=

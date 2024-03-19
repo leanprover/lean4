@@ -192,6 +192,11 @@ protected theorem min_le_right (a b : Int) : min a b ≤ b := by rw [Int.min_def
 
 protected theorem min_le_left (a b : Int) : min a b ≤ a := Int.min_comm .. ▸ Int.min_le_right ..
 
+protected theorem min_eq_left {a b : Int} (h : a ≤ b) : min a b = a := by simp [Int.min_def, h]
+
+protected theorem min_eq_right {a b : Int} (h : b ≤ a) : min a b = b := by
+  rw [Int.min_comm a b]; exact Int.min_eq_left h
+
 protected theorem le_min {a b c : Int} : a ≤ min b c ↔ a ≤ b ∧ a ≤ c :=
   ⟨fun h => ⟨Int.le_trans h (Int.min_le_left ..), Int.le_trans h (Int.min_le_right ..)⟩,
    fun ⟨h₁, h₂⟩ => by rw [Int.min_def]; split <;> assumption⟩
@@ -209,6 +214,12 @@ protected theorem le_max_right (a b : Int) : b ≤ max a b := Int.max_comm .. �
 protected theorem max_le {a b c : Int} : max a b ≤ c ↔ a ≤ c ∧ b ≤ c :=
   ⟨fun h => ⟨Int.le_trans (Int.le_max_left ..) h, Int.le_trans (Int.le_max_right ..) h⟩,
    fun ⟨h₁, h₂⟩ => by rw [Int.max_def]; split <;> assumption⟩
+
+protected theorem max_eq_right {a b : Int} (h : a ≤ b) : max a b = b := by
+  simp [Int.max_def, h, Int.not_lt.2 h]
+
+protected theorem max_eq_left {a b : Int} (h : b ≤ a) : max a b = a := by
+  rw [← Int.max_comm b a]; exact Int.max_eq_right h
 
 theorem eq_natAbs_of_zero_le {a : Int} (h : 0 ≤ a) : a = natAbs a := by
   let ⟨n, e⟩ := eq_ofNat_of_zero_le h
@@ -436,3 +447,54 @@ theorem natAbs_of_nonneg {a : Int} (H : 0 ≤ a) : (natAbs a : Int) = a :=
 
 theorem ofNat_natAbs_of_nonpos {a : Int} (H : a ≤ 0) : (natAbs a : Int) = -a := by
   rw [← natAbs_neg, natAbs_of_nonneg (Int.neg_nonneg_of_nonpos H)]
+
+/-! ### toNat -/
+
+theorem toNat_eq_max : ∀ a : Int, (toNat a : Int) = max a 0
+  | (n : Nat) => (Int.max_eq_left (ofNat_zero_le n)).symm
+  | -[n+1] => (Int.max_eq_right (Int.le_of_lt (negSucc_lt_zero n))).symm
+
+@[simp] theorem toNat_zero : (0 : Int).toNat = 0 := rfl
+
+@[simp] theorem toNat_one : (1 : Int).toNat = 1 := rfl
+
+@[simp] theorem toNat_of_nonneg {a : Int} (h : 0 ≤ a) : (toNat a : Int) = a := by
+  rw [toNat_eq_max, Int.max_eq_left h]
+
+@[simp] theorem toNat_ofNat (n : Nat) : toNat ↑n = n := rfl
+
+@[simp] theorem toNat_ofNat_add_one {n : Nat} : ((n : Int) + 1).toNat = n + 1 := rfl
+
+theorem self_le_toNat (a : Int) : a ≤ toNat a := by rw [toNat_eq_max]; apply Int.le_max_left
+
+@[simp] theorem le_toNat {n : Nat} {z : Int} (h : 0 ≤ z) : n ≤ z.toNat ↔ (n : Int) ≤ z := by
+  rw [← Int.ofNat_le, Int.toNat_of_nonneg h]
+
+@[simp] theorem toNat_lt {n : Nat} {z : Int} (h : 0 ≤ z) : z.toNat < n ↔ z < (n : Int) := by
+  rw [← Int.not_le, ← Nat.not_le, Int.le_toNat h]
+
+theorem toNat_add {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : (a + b).toNat = a.toNat + b.toNat :=
+  match a, b, eq_ofNat_of_zero_le ha, eq_ofNat_of_zero_le hb with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => rfl
+
+theorem toNat_add_nat {a : Int} (ha : 0 ≤ a) (n : Nat) : (a + n).toNat = a.toNat + n :=
+  match a, eq_ofNat_of_zero_le ha with | _, ⟨_, rfl⟩ => rfl
+
+@[simp] theorem pred_toNat : ∀ i : Int, (i - 1).toNat = i.toNat - 1
+  | 0 => rfl
+  | (n+1:Nat) => by simp [ofNat_add]
+  | -[n+1] => rfl
+
+@[simp] theorem toNat_sub_toNat_neg : ∀ n : Int, ↑n.toNat - ↑(-n).toNat = n
+  | 0 => rfl
+  | (_+1:Nat) => Int.sub_zero _
+  | -[_+1] => Int.zero_sub _
+
+@[simp] theorem toNat_add_toNat_neg_eq_natAbs : ∀ n : Int, n.toNat + (-n).toNat = n.natAbs
+  | 0 => rfl
+  | (_+1:Nat) => Nat.add_zero _
+  | -[_+1] => Nat.zero_add _
+
+@[simp] theorem toNat_neg_nat : ∀ n : Nat, (-(n : Int)).toNat = 0
+  | 0 => rfl
+  | _+1 => rfl

@@ -639,7 +639,6 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 x_22 = l_Lean_Meta_getCharValue_x3f(x_21, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_21);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; 

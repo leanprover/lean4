@@ -230,6 +230,8 @@ def «structure»          := leading_parser
   "#print " >> (ident <|> strLit)
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
+@[builtin_command_parser] def printEqns      := leading_parser
+  "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit

@@ -65,7 +65,7 @@ builtin_simproc [simp, seval] reduceBNe  (( _ : Nat) != _)  := reduceBoolPred ``
 
 /-- Return `.done` for Nat values. We don't want to unfold in the symbolic evaluator. -/
 builtin_simproc [seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
+  let_expr OfNat.ofNat _ _ _ ← e | return .continue
   return .done { expr := e }
 
 end Nat

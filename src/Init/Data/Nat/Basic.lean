@@ -189,7 +189,7 @@ protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
   Nat.mul_comm n 1 ▸ Nat.mul_one n
 
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
-  induction n generalizing m k with
+  induction n with
   | zero      => repeat rw [Nat.zero_mul]
   | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
 
@@ -503,10 +503,10 @@ theorem eq_of_mul_eq_mul_right {n m k : Nat} (hm : 0 < m) (h : n * m = k * m) : 
 
 /-! # power -/
 
-theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
+protected theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=
   rfl
 
-theorem pow_zero (n : Nat) : n^0 = 1 := rfl
+protected theorem pow_zero (n : Nat) : n^0 = 1 := rfl
 
 theorem pow_le_pow_of_le_left {n m : Nat} (h : n ≤ m) : ∀ (i : Nat), n^i ≤ m^i
   | 0      => Nat.le_refl _

@@ -19,7 +19,7 @@ structure CaseArraySizesSubgoal where
 def getArrayArgType (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let aType ← whnfD aType
-  unless aType.isAppOfArity `Array 1 do
+  unless aType.isAppOfArity ``Array 1 do
     throwError "array expected{indentExpr a}"
   pure aType.appArg!
 

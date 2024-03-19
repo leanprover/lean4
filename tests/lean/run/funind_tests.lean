@@ -674,6 +674,20 @@ namespace DefaultArgument
 
 -- Default arguments should not be copied over
 
+def unary (fixed : Bool := false) (n : Nat := 0)  : Nat :=
+  match n with
+  | 0 => 0
+  | n+1 => unary fixed n
+termination_by n
+derive_functional_induction unary
+
+/--
+info: DefaultArgument.unary.induct (fixed : Bool) (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), motive n → motive (Nat.succ n)) (x : Nat) : motive x
+-/
+#guard_msgs in
+#check unary.induct
+
 def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
   match n with
   | 0 => m

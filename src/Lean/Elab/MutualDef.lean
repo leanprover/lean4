@@ -219,7 +219,7 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
               let newBody ← IO.Promise.new
               snap.new.resolve <| some {
                 diagnostics :=
-                  (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getResetMessageLog))
+                  (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
                 view := newHeader.toDefViewElabHeaderData
                 state := (← saveState)
                 tacStx?
@@ -357,7 +357,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       if let some snap := header.bodySnap? then
         snap.new.resolve <| some {
           diagnostics :=
-            (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getResetMessageLog))
+            (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
           state := (← saveState)
           value := val
         }
@@ -747,6 +747,9 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
+    if header.kind.isTheorem then
+      unless (← isProp type) do
+        throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
     return preDefs.push {
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind
@@ -760,10 +763,14 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
   letRecClosures.foldlM (init := preDefs) fun preDefs c => do
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
-    -- Convert any proof let recs inside a `def` to `theorem` kind
     let kind ← if kind.isDefOrAbbrevOrOpaque then
-      withLCtx c.toLift.lctx c.toLift.localInstances do
+    -- Convert any proof let recs inside a `def` to `theorem` kind
+          withLCtx c.toLift.lctx c.toLift.localInstances do
         return if (← inferType c.toLift.type).isProp then .theorem else kind
+    else if kind.isTheorem then
+      -- Convert any non-proof let recs inside a `theorem` to `def` kind
+      withLCtx c.toLift.lctx c.toLift.localInstances do
+        return if (← inferType c.toLift.type).isProp then .theorem else .def
     else
       pure kind
     return preDefs.push {

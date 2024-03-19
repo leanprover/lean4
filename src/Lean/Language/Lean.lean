@@ -494,9 +494,10 @@ where
           stx.hasMissing then
         -- discard elaboration errors, except for a few important and unlikely misleading ones, on
         -- parse error
-        messages := ⟨messages.msgs.filter fun msg =>
-          msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-            tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
+        messages := { messages with
+          msgs := messages.msgs.filter fun msg =>
+            msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
+              tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag) }
       if !output.isEmpty then
         messages := messages.add {
           fileName := ctx.fileName

@@ -99,7 +99,7 @@ These classes should be implemented for coercions:
   (coercion-to-)function type, and this is triggered whenever an element
   `f : α` appears in an application like `f x` which would not make sense since
   `f` does not have a function type.
-  `CoeFun` instances apply to `CoeOut` as well.
+  `CoeFun` instances apply to `CoeOTC` as well.
 
 * `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
   triggered when `a : α` appears in a place where a type is expected, like

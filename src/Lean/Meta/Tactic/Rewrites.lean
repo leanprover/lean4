@@ -173,7 +173,8 @@ def solveByElim (goals : List MVarId) (depth : Nat := 6) : MetaM PUnit := do
   let [] ← SolveByElim.solveByElim cfg lemmas ctx goals
     | failure
 
-def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideConditions := .solveByElim) (lem : Expr ⊕ Name) (symm : Bool) (weight : Nat) : MetaM (Option RewriteResult) :=
+def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideConditions := .solveByElim) 
+    (lem : Expr ⊕ Name) (symm : Bool) (weight : Nat) : MetaM (Option RewriteResult) :=
   withMCtx ctx do
     let some expr ← (match lem with
     | .inl hyp => pure (some hyp)
@@ -242,12 +243,8 @@ partial def getSubexpressionMatches (op : Expr → MetaM (Array α)) (e : Expr) 
 /--
 Find lemmas which can rewrite the goal.
 
-This core function returns a monadic list, to allow the caller to decide how long to search.
 See also `rewrites` for a more convenient interface.
 -/
--- We need to supply the current `MetavarContext` (which will be reused for each lemma application)
--- because `MLList.squash` executes lazily,
--- so there is no opportunity for `← getMCtx` to record the context at the call site.
 def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
     (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat))
     (target : Expr)
@@ -277,7 +274,6 @@ def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
 
   trace[Tactic.rewrites.lemmas] m!"Candidate rewrite lemmas:\n{deduped}"
 
-  -- Lift to a monadic list, so the caller can decide how much of the computation to run.
   let hyps := hyps.map fun ⟨hyp, symm, weight⟩ => (Sum.inl hyp, symm, weight)
   let lemmas := deduped.map fun ⟨lem, symm, weight⟩ => (Sum.inr lem, symm, weight)
   pure <| hyps ++ lemmas

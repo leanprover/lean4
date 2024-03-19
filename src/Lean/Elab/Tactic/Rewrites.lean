@@ -51,8 +51,7 @@ def evalExact : Tactic := fun stx => do
         setMCtx r.mctx
         let replaceResult ← goal.replaceLocalDecl f r.result.eNew r.result.eqProof
         replaceMainGoal (replaceResult.mvarId :: r.result.mvarIds)
-    -- See https://github.com/leanprover/lean4/issues/2150
-    do withMainContext do
+    do
       let target ← instantiateMVars (← goal.getType)
       let hyps ← localHypotheses
       let results ← findRewrites hyps moduleRef goal target (stopAtRfl := true) forbidden

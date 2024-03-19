@@ -2,6 +2,9 @@
   description = "Lean interactive theorem prover";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  # old nixpkgs used for portable release with older glibc (2.27)
+  inputs.nixpkgs-old.url = "github:NixOS/nixpkgs/nixos-19.03";
+  inputs.nixpkgs-old.flake = false;
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nix.url = "github:NixOS/nix";
   inputs.lean4-mode = {
@@ -17,14 +20,40 @@
   #  inputs.lean4-mode.follows = "lean4-mode";
   #};
 
-  outputs = { self, nixpkgs, flake-utils, nix, lean4-mode, ... }@inputs: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, nixpkgs-old, flake-utils, nix, lean4-mode, ... }@inputs: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
+      pkgs-old = import nixpkgs-old {
+        inherit system;
+        # for `vscode-with-extensions`
+        config.allowUnfree = true;
+      };
       lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; inherit nix lean4-mode; };
+
+      devShellWithDist = pkgsDist: pkgs.mkShell.override {
+	  stdenv = pkgs.overrideCC pkgs.stdenv pkgs.llvmPackages.clang;
+	} ({
+	  buildInputs = with pkgs; [
+	    cmake gmp ccache
+	    pkgs.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
+	    pkgs.python3
+	  ];
+	  # https://github.com/NixOS/nixpkgs/issues/60919
+	  hardeningDisable = [ "all" ];
+	  # more convenient `ctest` output
+	  CTEST_OUTPUT_ON_FAILURE = 1;
+	} // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
+	  GMP = pkgsDist.gmp.override { withStatic = true; };
+	  GLIBC = pkgsDist.glibc;
+	  GLIBC_DEV = pkgsDist.glibc.dev;
+	  GCC_LIB = pkgsDist.gcc.cc.lib;
+	  ZLIB = pkgsDist.zlib;
+	  GDB = pkgsDist.gdb;
+	});
     in {
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };
@@ -50,26 +79,8 @@
       defaultPackage = lean-packages.lean-all;
 
       # The default development shell for working on lean itself
-      devShell = pkgs.mkShell.override {
-	stdenv = pkgs.overrideCC pkgs.stdenv pkgs.llvmPackages.clang;
-      } ({
-	buildInputs = with pkgs; [
-	  cmake gmp ccache
-	  pkgs.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
-	  pkgs.python3
-	];
-	# https://github.com/NixOS/nixpkgs/issues/60919
-	hardeningDisable = [ "all" ];
-	# more convenient `ctest` output
-	CTEST_OUTPUT_ON_FAILURE = 1;
-      } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
-	GMP = pkgs.gmp.override { withStatic = true; };
-	GLIBC = pkgs.glibc;
-	GLIBC_DEV = pkgs.glibc.dev;
-	GCC_LIB = pkgs.gcc.cc.lib;
-	ZLIB = pkgs.zlib;
-	GDB = pkgs.gdb;
-      });
+      devShells.default = devShellWithDist pkgs;
+      devShells.oldGlibc = devShellWithDist pkgs-old;
 
       checks.lean = lean-packages.test;
     }) // rec {

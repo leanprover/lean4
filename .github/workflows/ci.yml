@@ -383,7 +383,7 @@ jobs:
           cd build/stage1
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
-          ctest -j4 --progress ----output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Test Summary
         uses: test-summary/action@v2

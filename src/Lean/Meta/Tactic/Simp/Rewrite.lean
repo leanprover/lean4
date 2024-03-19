@@ -319,6 +319,26 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
       return .visit r
   return .continue
 
+def drewritePre : DSimproc := fun e => do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.pre thms.erased (tag := "pre") (rflOnly := true) then
+      return .visit r.expr
+  return .continue
+
+def drewritePost : DSimproc := fun e => do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.post thms.erased (tag := "post") (rflOnly := true) then
+      return .visit r.expr
+  return .continue
+
+def dpreDefault (s : SimprocsArray) : DSimproc :=
+  drewritePre >>
+  userPreDSimprocs s
+
+def dpostDefault (s : SimprocsArray) : DSimproc :=
+  drewritePost >>
+  userPostDSimprocs s
+
 /--
 Discharge procedure for the ground/symbolic evaluator.
 -/
@@ -382,6 +402,8 @@ def mkSEvalMethods : CoreM Methods := do
   return {
     pre        := preSEval #[s]
     post       := postSEval #[s]
+    dpre       := dpreDefault #[s]
+    dpost      := dpostDefault #[s]
     discharge? := dischargeGround
   }
 
@@ -525,6 +547,8 @@ abbrev Discharge := Expr → SimpM (Option Expr)
 def mkMethods (s : SimprocsArray) (discharge? : Discharge) : Methods := {
   pre        := preDefault s
   post       := postDefault s
+  dpre       := dpreDefault s
+  dpost      := dpostDefault s
   discharge? := discharge?
 }
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
+import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
@@ -793,10 +794,10 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
     | _            => throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
 
 /--
-  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions.
+If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
 
-  Argument `f?` is used only for generating error messages. -/
+Argument `f?` is used only for generating error messages when inserting coercions fails.
+-/
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
@@ -1432,9 +1433,22 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
   withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
 
+/--
+Similar to `Lean.Elab.Term.elabTerm`, but ensures that the type of the elaborated term is `expectedType?`
+by inserting coercions if necessary.
+
+If `errToSorry` is true, then if coercion insertion fails, this function returns `sorry` and logs the error.
+Otherwise, it throws the error.
+-/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
-  withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  try
+    withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  catch ex =>
+    if (← read).errToSorry && ex matches .error .. then
+      exceptionToSorry ex expectedType?
+    else
+      throw ex
 
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions were thrown. Otherwise, return `none`. -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
@@ -1640,7 +1654,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← resolveGlobalName n)
+    process (← realizeGlobalName n)
   else
     process preresolved
 where

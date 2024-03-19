@@ -140,16 +140,13 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
     let msg ← mkMsg
     addTrace cls msg
 
-private def addTraceNodeCore (oldTraces : PersistentArray TraceElem)
-    (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
-  modifyTraces fun newTraces =>
-    oldTraces.push { ref, msg := .trace cls msg (newTraces.toArray.map (·.msg)) collapsed }
-
 private def addTraceNode (oldTraces : PersistentArray TraceElem)
     (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
   withRef ref do
+  let msg := .trace cls msg ((← getTraces).toArray.map (·.msg)) collapsed
   let msg ← addMessageContext msg
-  addTraceNodeCore oldTraces cls ref msg collapsed
+  modifyTraces fun _ =>
+    oldTraces.push { ref, msg }
 
 def withSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float) := do
   let start ← IO.monoNanosNow
@@ -307,6 +304,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     return (← k)
   let oldTraces ← getResetTraces
   let ref ← getRef
+  -- make sure to preserve context *before* running `k`
   let msg ← withRef ref do addMessageContext (← msg)
   let (res, secs) ← withSeconds <| observing k
   let aboveThresh := trace.profiler.get opts && secs > trace.profiler.threshold.getSecs opts
@@ -316,7 +314,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
   if profiler.get opts || aboveThresh then
     msg := m!"[{secs}s] {msg}"
-  addTraceNodeCore oldTraces cls ref msg collapsed
+  addTraceNode oldTraces cls ref msg collapsed
   MonadExcept.ofExcept res
 
 end Lean

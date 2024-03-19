@@ -141,19 +141,94 @@ end FileWorker
 
 section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
+  abbrev ImportMap := RBMap DocumentUri (RBTree DocumentUri compare) compare
+
+  /-- Global import data for all open files managed by this watchdog. -/
+  structure ImportData where
+    /-- For every open file, the files that it imports. -/
+    imports    : ImportMap
+    /-- For every open file, the files that it is imported by. -/
+    importedBy : ImportMap
+
+  /-- Updates `d` with the new set of `imports` for the file `uri`. -/
+  def ImportData.update (d : ImportData) (uri : DocumentUri) (imports : RBTree DocumentUri compare)
+      : ImportData := Id.run do
+    let oldImports     := d.imports.findD uri ∅
+    let removedImports := oldImports.diff imports
+    let addedImports   := imports.diff oldImports
+    let mut importedBy := d.importedBy
+
+    for removedImport in removedImports do
+      let importedByRemovedImport' := importedBy.find! removedImport |>.erase uri
+      if importedByRemovedImport'.isEmpty then
+        importedBy := importedBy.erase removedImport
+      else
+        importedBy := importedBy.insert removedImport importedByRemovedImport'
+
+    for addedImport in addedImports do
+      importedBy :=
+        importedBy.findD addedImport ∅
+          |>.insert uri
+          |> importedBy.insert addedImport
+
+    let imports :=
+      if imports.isEmpty then
+        d.imports.erase uri
+      else
+        d.imports.insert uri imports
+
+    return { imports, importedBy }
+
+  /--
+  Sets the imports of `uri` in `d` to the empty set.
+  -/
+  def ImportData.eraseImportsOf (d : ImportData) (uri : DocumentUri) : ImportData :=
+    d.update uri ∅
+
+  structure RequestIDTranslation where
+    sourceUri : DocumentUri
+    localID   : RequestID
+
+  abbrev PendingServerRequestMap := RBMap RequestID RequestIDTranslation compare
+
+  structure ServerRequestData where
+    pendingServerRequests : PendingServerRequestMap
+    freshServerRequestID  : Nat
+
+  def ServerRequestData.trackOutboundRequest
+      (data      : ServerRequestData)
+      (sourceUri : DocumentUri)
+      (localID   : RequestID)
+      : RequestID × ServerRequestData :=
+    let globalID := data.freshServerRequestID
+    let data := {
+      pendingServerRequests := data.pendingServerRequests.insert globalID ⟨sourceUri, localID⟩
+      freshServerRequestID  := globalID + 1
+    }
+    (globalID, data)
+
+  def ServerRequestData.translateInboundResponse
+      (data     : ServerRequestData)
+      (globalID : RequestID)
+      : Option RequestIDTranslation × ServerRequestData :=
+    let translation? := data.pendingServerRequests.find? globalID
+    let data := { data with pendingServerRequests := data.pendingServerRequests.erase globalID }
+    (translation?, data)
 
   structure ServerContext where
-    hIn            : FS.Stream
-    hOut           : FS.Stream
-    hLog           : FS.Stream
+    hIn                 : FS.Stream
+    hOut                : FS.Stream
+    hLog                : FS.Stream
     /-- Command line arguments. -/
-    args           : List String
-    fileWorkersRef : IO.Ref FileWorkerMap
+    args                : List String
+    fileWorkersRef      : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
-    initParams     : InitializeParams
-    workerPath     : System.FilePath
-    srcSearchPath  : System.SearchPath
-    references     : IO.Ref References
+    initParams          : InitializeParams
+    workerPath          : System.FilePath
+    srcSearchPath       : System.SearchPath
+    references          : IO.Ref References
+    serverRequestData   : IO.Ref ServerRequestData
+    importData          : IO.Ref ImportData
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -170,10 +245,11 @@ section ServerM
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
     let s ← read
+    s.importData.modify (·.eraseImportsOf uri)
     s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
-    if let some path := fileUriToPath? uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs => refs.removeWorkerRefs module
+    let some module ← s.srcSearchPath.searchModuleNameOfUri uri
+      | return
+    s.references.modify fun refs => refs.removeWorkerRefs module
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
@@ -182,17 +258,26 @@ section ServerM
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.updateWorkerRefs module params.version params.references
+    let some module ← s.srcSearchPath.searchModuleNameOfUri fw.doc.uri
+      | return
+    s.references.modify fun refs =>
+      refs.updateWorkerRefs module params.version params.references
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.uri then
-      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs =>
-          refs.finalizeWorkerRefs module params.version params.references
+    let some module ← s.srcSearchPath.searchModuleNameOfUri fw.doc.uri
+      | return
+    s.references.modify fun refs =>
+      refs.finalizeWorkerRefs module params.version params.references
+
+  /--
+  Updates the global import data with the import closure provided by the file worker after it
+  successfully processed its header.
+  -/
+  def handleImportClosure (fw : FileWorker) (params : LeanImportClosureParams) : ServerM Unit := do
+    let s ← read
+    s.importData.modify fun importData =>
+      importData.update fw.doc.uri (.ofList params.importClosure.toList)
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -210,6 +295,10 @@ section ServerM
           | Message.responseError id _ _ _ => do
             fw.erasePendingRequest id
             o.writeLspMessage msg
+          | Message.request id method params? =>
+            let globalID ← (←read).serverRequestData.modifyGet
+              (·.trackOutboundRequest fw.doc.uri id)
+            o.writeLspMessage (Message.request globalID method params?)
           | Message.notification "$/lean/ileanInfoUpdate" params =>
             if let some params := params then
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
@@ -218,6 +307,10 @@ section ServerM
             if let some params := params then
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
                 handleIleanInfoFinal fw params
+          | Message.notification "$/lean/importClosure" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleImportClosure fw params
           | _ => o.writeLspMessage msg
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
@@ -235,7 +328,7 @@ section ServerM
             ++ " or the server is shutting down.")
           -- one last message to clear the diagnostics for this file so that stale errors
           -- do not remain in the editor forever.
-          publishDiagnostics fw.doc #[] o
+          o.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
           return WorkerEvent.terminated
         | 2 =>
           return .importsChanged
@@ -248,7 +341,7 @@ section ServerM
               (ErrorCode.workerCrashed, "likely due to a stack overflow or a bug")
           fw.errorPendingRequests o errorCode
             s!"Server process for {fw.doc.uri} crashed, {errorCausePointer}."
-          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
+          o.writeLspMessage <| mkFileProgressAtPosNotification fw.doc 0 (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -257,7 +350,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishProgressAtPos m 0 (← read).hOut
+    (← read).hOut.writeLspMessage <| mkFileProgressAtPosNotification m 0
     let st ← read
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
@@ -366,6 +459,18 @@ section ServerM
         fw.stdin.writeLspMessage msg
       catch _ =>
         handleCrash uri initialQueuedMsgs
+
+  /--
+  Sends a notification to the file worker identified by `uri` that its dependency `staleDependency`
+  is out-of-date.
+  -/
+  def notifyAboutStaleDependency (uri : DocumentUri) (staleDependency : DocumentUri)
+      : ServerM Unit :=
+    let notification := Notification.mk "$/lean/staleDependency" {
+      staleDependency := staleDependency
+      : LeanStaleDependencyParams
+    }
+    tryWriteMessage uri notification (queueFailedMessage := false)
 end ServerM
 
 section RequestHandling
@@ -373,31 +478,35 @@ section RequestHandling
 open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return #[]
+  let references ← (← read).references.get
   let mut definitions := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
-          definitions := definitions.push definitionLocation
+  for ident in references.findAt module p.position (includeStop := true) do
+    if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
+      definitions := definitions.push definitionLocation
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return #[]
+  let references ← (← read).references.get
   let mut result := #[]
-  if let some path := fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      for ident in references.findAt module p.position (includeStop := true) do
-        let identRefs ← references.referringTo module ident srcSearchPath
-          p.context.includeDeclaration
-        result := result.append <| identRefs.map (·.location)
+  for ident in references.findAt module p.position (includeStop := true) do
+    let identRefs ← references.referringTo srcSearchPath ident
+      p.context.includeDeclaration
+    result := result.append <| identRefs.map (·.location)
   return result
 
-/-- Used in `CallHierarchyItem.data?` to retain the full call hierarchy item name. -/
+/--
+Used in `CallHierarchyItem.data?` to retain all the data needed to quickly re-identify the
+call hierarchy item.
+-/
 structure CallHierarchyItemData where
-  name : Name
+  module : Name
+  name   : Name
   deriving FromJson, ToJson
 
 /--
@@ -406,13 +515,16 @@ Extracts the CallHierarchyItemData from `item.data?` and returns `none` if this 
 def CallHierarchyItemData.fromItem? (item : CallHierarchyItem) : Option CallHierarchyItemData := do
   fromJson? (← item.data?) |>.toOption
 
-private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+private def callHierarchyItemOf?
+    (refs          : References)
+    (ident         : RefIdent)
+    (srcSearchPath : SearchPath)
     : IO (Option CallHierarchyItem) := do
   let some ⟨definitionLocation, parentDecl?⟩ ← refs.definitionOf? ident srcSearchPath
     | return none
 
   match ident with
-  | .const definitionName =>
+  | .const definitionModule definitionName =>
     -- If we have a constant with a proper name, use it.
     -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
     -- `inductive` constructor, this is the right thing to do and using the parent decl is
@@ -426,10 +538,17 @@ private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSear
       uri            := definitionLocation.uri
       range          := definitionLocation.range,
       selectionRange := definitionLocation.range
-      data?          := toJson { name := definitionName : CallHierarchyItemData }
+      data?          := toJson {
+        module := definitionModule
+        name   := definitionName
+        : CallHierarchyItemData
+      }
     }
   | _ =>
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+
+    let some definitionModule ← srcSearchPath.searchModuleNameOfUri definitionLocation.uri
       | return none
 
     -- Remove private header from name
@@ -441,22 +560,26 @@ private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSear
       uri            := definitionLocation.uri
       range          := parentDeclRange,
       selectionRange := parentDeclSelectionRange
-      data?          := toJson { name := parentDeclName : CallHierarchyItemData }
+      data?          := toJson {
+        -- Assumption: The parent declaration of a reference lives in the same module
+        -- as the reference.
+        module := definitionModule
+        name   := parentDeclName
+        : CallHierarchyItemData
+      }
     }
 
 def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
     : ServerM (Array CallHierarchyItem) := do
-  let some path := fileUriToPath? p.textDocument.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
     | return #[]
 
   let references ← (← read).references.get
   let idents := references.findAt module p.position (includeStop := true)
 
-  let items ← idents.filterMapM fun ident => callHierarchyItemOf? references ident srcSearchPath
+  let items ← idents.filterMapM fun ident =>
+    callHierarchyItemOf? references ident srcSearchPath
   return items.qsort (·.name < ·.name)
 
 def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
@@ -464,19 +587,17 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
-  let some path := fileUriToPath? p.item.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
-    | return #[]
 
   let references ← (← read).references.get
-  let identRefs ← references.referringTo module (.const itemData.name) srcSearchPath false
+  let identRefs ← references.referringTo srcSearchPath (.const itemData.module itemData.name) false
 
-  let incomingCalls := identRefs.filterMap fun ⟨location, parentDecl?⟩ => Id.run do
+  let incomingCalls ← identRefs.filterMapM fun ⟨location, parentDecl?⟩ => do
 
     let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+
+    let some refModule ← srcSearchPath.searchModuleNameOfUri location.uri
       | return none
 
     -- Remove private header from name
@@ -489,7 +610,11 @@ def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
         uri            := location.uri
         range          := parentDeclRange
         selectionRange := parentDeclSelectionRange
-        data?          := toJson { name := parentDeclName : CallHierarchyItemData }
+        data?          := toJson {
+          module := refModule
+          name   := parentDeclName
+          : CallHierarchyItemData
+        }
       }
       fromRanges := #[location.range]
     }
@@ -512,11 +637,9 @@ def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
   let some itemData := CallHierarchyItemData.fromItem? p.item
     | return #[]
 
-  let some path := fileUriToPath? p.item.uri
-    | return #[]
-
   let srcSearchPath := (← read).srcSearchPath
-  let some module ← searchModuleNameOfFileName path srcSearchPath
+
+  let some module ← srcSearchPath.searchModuleNameOfUri p.item.uri
     | return #[]
 
   let references ← (← read).references.get
@@ -576,12 +699,11 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
 
 def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
-  if let some path := System.Uri.fileUriToPath? p.textDocument.uri then
-    let srcSearchPath := (← read).srcSearchPath
-    if let some module ← searchModuleNameOfFileName path srcSearchPath then
-      let references ← (← read).references.get
-      return references.findRange? module p.position (includeStop := true)
-  return none
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← srcSearchPath.searchModuleNameOfUri p.textDocument.uri
+    | return none
+  let references ← (← read).references.get
+  return references.findRange? module p.position (includeStop := true)
 
 def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
   if (String.toName p.newName).isAnonymous then
@@ -627,28 +749,53 @@ section NotificationHandling
     let notification := Notification.mk "textDocument/didChange" p
     tryWriteMessage doc.uri notification (restartCrashedWorker := true)
 
+  /--
+  When a file is saved, notifies all file workers for files that depend on this file that this
+  specific import is now stale so that the file worker can issue a diagnostic asking users to
+  restart the file.
+  -/
+  def handleDidSave (p : DidSaveTextDocumentParams) : ServerM Unit := do
+    let s ← read
+    let fileWorkers ← s.fileWorkersRef.get
+    let importData  ← s.importData.get
+    let dependents := importData.importedBy.findD p.textDocument.uri ∅
+
+    for ⟨uri, _⟩ in fileWorkers do
+      if ! dependents.contains uri then
+        continue
+      notifyAboutStaleDependency uri p.textDocument.uri
+
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
+    let importData ← (← read).importData.get
     let references := (← read).references
     let oleanSearchPath ← Lean.searchPathRef.get
     let ileans ← oleanSearchPath.findAllWithExt "ilean"
     for change in p.changes do
-      if let some path := fileUriToPath? change.uri then
-      if let FileChangeType.Deleted := change.type then
-        references.modify (fun r => r.removeIlean path)
-      else if ileans.contains path then
-        try
-          let ilean ← Ilean.load path
-          if let FileChangeType.Changed := change.type then
-            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-          else
-            references.modify (fun r => r.addIlean path ilean)
-        catch
-          -- ilean vanished, ignore error
-          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
-          | e => throw e
+      let some path := fileUriToPath? change.uri
+        | continue
+      match path.extension with
+      | "lean" =>
+        let dependents := importData.importedBy.findD change.uri ∅
+        for dependent in dependents do
+          notifyAboutStaleDependency dependent change.uri
+      | "ilean" =>
+        if let FileChangeType.Deleted := change.type then
+          references.modify (fun r => r.removeIlean path)
+        else if ileans.contains path then
+          try
+            let ilean ← Ilean.load path
+            if let FileChangeType.Changed := change.type then
+              references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+            else
+              references.modify (fun r => r.addIlean path ilean)
+          catch
+            -- ilean vanished, ignore error
+            | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+            | e => throw e
+      | _ => continue
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
@@ -753,6 +900,8 @@ section MessageHandling
       handle DidChangeTextDocumentParams handleDidChange
     | "textDocument/didClose" =>
       handle DidCloseTextDocumentParams handleDidClose
+    | "textDocument/didSave" =>
+      handle DidSaveTextDocumentParams handleDidSave
     | "workspace/didChangeWatchedFiles" =>
       handle DidChangeWatchedFilesParams handleDidChangeWatchedFiles
     | "$/cancelRequest" =>
@@ -767,6 +916,21 @@ section MessageHandling
       -- implementation-dependent notifications can be safely ignored
       if !"$/".isPrefixOf method then
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
+
+  def handleResponse (id : RequestID) (result : Json) : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+      | return
+    tryWriteMessage translation.sourceUri (Response.mk translation.localID result)
+
+  def handleResponseError
+      (id      : RequestID)
+      (code    : ErrorCode)
+      (message : String)
+      (data?   : Option Json)
+      : ServerM Unit := do
+    let some translation ← (← read).serverRequestData.modifyGet (·.translateInboundResponse id)
+      | return
+    tryWriteMessage translation.sourceUri (ResponseError.mk translation.localID code message data?)
 end MessageHandling
 
 section MainLoop
@@ -811,11 +975,12 @@ section MainLoop
       | Message.request id method (some params) =>
         handleRequest id method (toJson params)
         mainLoop (←runClientTask)
-      | Message.response .. =>
-        -- TODO: handle client responses
+      | Message.response id result =>
+        handleResponse id result
         mainLoop (←runClientTask)
-      | Message.responseError _ _ e .. =>
-        throwServerError s!"Unhandled response error: {e}"
+      | Message.responseError id code message data? =>
+        handleResponseError id code message data?
+        mainLoop (←runClientTask)
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
@@ -842,7 +1007,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     change            := TextDocumentSyncKind.incremental
     willSave          := false
     willSaveWaitUntil := false
-    save?             := none
+    save?             := some { includeText := true }
   }
   -- refine
   completionProvider? := some {
@@ -929,6 +1094,11 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let references ← IO.mkRef .empty
   startLoadingReferences references
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
+  let serverRequestData ← IO.mkRef {
+    pendingServerRequests := RBMap.empty
+    freshServerRequestID  := 0
+  }
+  let importData ← IO.mkRef ⟨RBMap.empty, RBMap.empty⟩
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
   let e ← maybeTee "wdErr.txt" true e
@@ -945,28 +1115,30 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     }
   }
   o.writeLspRequest {
-    id := RequestID.str "register_ilean_watcher"
+    id := RequestID.str "register_lean_watcher"
     method := "client/registerCapability"
     param := some {
       registrations := #[ {
-        id := "ilean_watcher"
+        id := "lean_watcher"
         method := "workspace/didChangeWatchedFiles"
         registerOptions := some <| toJson {
-          watchers := #[ { globPattern := "**/*.ilean" } ]
+          watchers := #[ { globPattern := "**/*.lean" }, { globPattern := "**/*.ilean" } ]
         : DidChangeWatchedFilesRegistrationOptions }
       } ]
     : RegistrationParams }
   }
   ReaderT.run initAndRunWatchdogAux {
-    hIn            := i
-    hOut           := o
-    hLog           := e
-    args           := args
-    fileWorkersRef := fileWorkersRef
-    initParams     := initRequest.param
+    hIn              := i
+    hOut             := o
+    hLog             := e
+    args             := args
+    fileWorkersRef   := fileWorkersRef
+    initParams       := initRequest.param
     workerPath
     srcSearchPath
     references
+    serverRequestData
+    importData
     : ServerContext
   }
 

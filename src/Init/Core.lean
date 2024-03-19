@@ -19,7 +19,7 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
-theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -737,13 +737,16 @@ theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a ==
 section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
+/-- Non-dependent recursor for `HEq` -/
+noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
   h.rec m
 
-theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
   h.rec m
 
-theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=

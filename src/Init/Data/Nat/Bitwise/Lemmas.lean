@@ -6,6 +6,7 @@ Authors: Joe Hendrix
 
 prelude
 import Init.Data.Bool
+import Init.Data.Int.Pow
 import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.TacticsExtra
@@ -333,7 +334,7 @@ private theorem eq_0_of_lt_one (x : Nat) : x < 1 ↔ x = 0 :=
       match x with
       | 0 => Eq.refl 0
       | _+1 => False.elim (not_lt_zero _ (Nat.lt_of_succ_lt_succ p)))
-    (fun p => by simp [p, Nat.zero_lt_succ])
+    (fun p => by simp [p])
 
 private theorem eq_0_of_lt (x : Nat) : x < 2^ 0 ↔ x = 0 := eq_0_of_lt_one x
 

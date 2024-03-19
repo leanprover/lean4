@@ -25,7 +25,9 @@ structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
-  /-- A name-to-URL mapping of URL overwrites for the named packages. -/
+  /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
+  githashOverride : String
+  /-- A name-to-URL mapping of URL overrides for the named packages. -/
   pkgUrlMap : NameMap String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
@@ -46,6 +48,7 @@ def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstal
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
+    githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
     initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
@@ -58,6 +61,17 @@ where
     match Json.parse urlMapStr |>.bind fromJson? with
     | .ok urlMap => return urlMap
     | .error e => throw s!"'LAKE_PKG_URL_MAP' has invalid JSON: {e}"
+
+/--
+The string Lake uses to identify Lean in traces.
+Either the environment-specified `LEAN_GITHASH` or the detected Lean's githash.
+
+The override allows one to replace the Lean version used by a library
+(e.g., Mathlib) without completely rebuilding it, which is useful for testing
+custom builds of Lean.
+-/
+def leanGithash (env : Env) : String :=
+  if env.githashOverride.isEmpty then env.lean.githash else env.githashOverride
 
 /--
 The preferred toolchain of the environment. May be empty.
@@ -113,6 +127,7 @@ def baseVars (env : Env) : Array (String × Option String)  :=
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),
     ("LEAN_CC", env.lean.leanCc?)

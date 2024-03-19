@@ -7294,7 +7294,6 @@ x_31 = lean_ctor_get(x_19, 0);
 lean_inc(x_31);
 lean_dec(x_19);
 x_32 = l_Array_eraseIdx___rarg(x_14, x_31);
-lean_dec(x_31);
 x_33 = 2;
 x_34 = l_Lean_Meta_mkFreshExprMVarAt(x_12, x_32, x_3, x_33, x_4, x_18, x_7, x_8, x_9, x_10, x_15);
 x_35 = lean_ctor_get(x_34, 0);

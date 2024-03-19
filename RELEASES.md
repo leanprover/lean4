@@ -11,6 +11,16 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
+* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
+
+  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+
+  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+
+* Lean now generates an error if the type of a theorem is **not** a proposition.
+
+* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+
 * New command `derive_functinal_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function
@@ -30,6 +40,46 @@ v4.8.0 (development in progress)
     (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
     (x x : Nat) : motive x x
   ```
+
+* The termination checker now recognizes more recursion patterns without an
+  explicit `terminatin_by`. In particular the idiom of counting up to an upper
+  bound, as in
+  ```
+  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
+    if _ : i < arr.size then
+      Array.sum arr (i+1) (acc + arr[i])
+    else
+      acc
+  ```
+  is recognized without having to say `termination_by arr.size - i`.
+
+
+Breaking changes:
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+```
+def fact : Nat → Nat
+  | 0 => 1
+  | n+1 => (n+1) * fact n
+
+theorem ex : fact 0 = 1 := by unfold fact; decide
+
+#check fact.eq_1
+-- fact.eq_1 : fact 0 = 1
+
+#check fact.eq_2
+-- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
+
+#check fact.def
+/-
+fact.def :
+  ∀ (x : Nat),
+    fact x =
+      match x with
+      | 0 => 1
+      | Nat.succ n => (n + 1) * fact n
+-/
+```
 
 v4.7.0
 ---------

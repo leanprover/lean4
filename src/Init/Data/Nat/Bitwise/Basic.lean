@@ -51,6 +51,26 @@ instance : Xor Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
 
+theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
+  match b with
+  | 0 => (Nat.mul_one _).symm
+  | b+1 => (shiftLeft_eq _ b).trans <| by
+    simp [Nat.pow_succ, Nat.mul_assoc, Nat.mul_left_comm, Nat.mul_comm]
+
+@[simp] theorem shiftRight_zero : n >>> 0 = n := rfl
+
+theorem shiftRight_succ (m n) : m >>> (n + 1) = (m >>> n) / 2 := rfl
+
+theorem shiftRight_add (m n : Nat) : ∀ k, m >>> (n + k) = (m >>> n) >>> k
+  | 0 => rfl
+  | k + 1 => by simp [← Nat.add_assoc, shiftRight_add _ _ k, shiftRight_succ]
+
+theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
+  | 0 => (Nat.div_one _).symm
+  | k + 1 => by
+    rw [shiftRight_add, shiftRight_eq_div_pow m k]
+    simp [Nat.div_div_eq_div_mul, ← Nat.pow_succ, shiftRight_succ]
+
 /-!
 ### testBit
 We define an operation for testing individual bits in the binary representation

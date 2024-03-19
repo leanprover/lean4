@@ -3,7 +3,7 @@ theorem n_minus_one_le_n {n : Nat} : n > 0 → n - 1 < n := by
   | zero => simp []
   | succ n =>
   intros
-  rw [Nat.succ_eq_add_one, Nat.add_sub_cancel]
+  rw [Nat.add_sub_cancel]
   apply Nat.le.refl
 
 partial def foo : Array Int → Int

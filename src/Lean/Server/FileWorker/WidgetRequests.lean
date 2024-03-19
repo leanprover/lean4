@@ -101,28 +101,6 @@ structure GetInteractiveDiagnosticsParams where
   lineRange? : Option Lsp.LineRange
   deriving Inhabited, FromJson, ToJson
 
-open RequestM in
-def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
-  let doc ← readDoc
-  let rangeEnd := params.lineRange?.map fun range =>
-    doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
-  let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
-  pure <| t.map fun (snaps, _) =>
-    let diags? := snaps.getLast?.map fun snap =>
-      snap.interactiveDiags.toArray.filter fun diag =>
-        params.lineRange?.all fun ⟨s, e⟩ =>
-          -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
-          s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
-          diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
-    pure <| diags?.getD #[]
-
-builtin_initialize
-  registerBuiltinRpcProcedure
-    `Lean.Widget.getInteractiveDiagnostics
-    GetInteractiveDiagnosticsParams
-    (Array InteractiveDiagnostic)
-    getInteractiveDiagnostics
-
 structure GetGoToLocationParams where
   kind : GoToKind
   info : WithRpcRef InfoWithCtx

@@ -31,10 +31,10 @@ Elaborate a dependency's configuration file into a `Package`.
 The resulting package does not yet include any dependencies.
 -/
 def MaterializedDep.loadPackage (dep : MaterializedDep)
-(wsDir : FilePath) (leanOpts : Options) (reconfigure : Bool) : LogIO Package := do
+(wsDir : FilePath) (lakeEnv : Lake.Env) (leanOpts : Options) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
   let lakeDir := dir / defaultLakeDir
-  let configEnv ← importConfigFile dir lakeDir dep.configOpts leanOpts (dir / dep.configFile) reconfigure
+  let configEnv ← importConfigFile dir lakeDir lakeEnv dep.configOpts leanOpts (dir / dep.configFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir
@@ -51,7 +51,7 @@ Does not resolve dependencies.
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
   let configEnv ← importConfigFile
-    config.rootDir (config.rootDir / defaultLakeDir)
+    config.rootDir (config.rootDir / defaultLakeDir) config.env
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let root := {
@@ -145,7 +145,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
           return pkg
         else
           -- Load the package
-          let depPkg ← dep.loadPackage ws.dir pkg.leanOpts reconfigure
+          let depPkg ← dep.loadPackage ws.dir ws.lakeEnv pkg.leanOpts reconfigure
           if depPkg.name ≠ dep.name then
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
@@ -220,7 +220,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
       let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then
           let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
-          result.loadPackage ws.dir pkg.leanOpts reconfigure
+          result.loadPackage ws.dir ws.lakeEnv pkg.leanOpts reconfigure
         else if topLevel then
           error <|
             s!"dependency '{dep.name}' not in manifest; " ++

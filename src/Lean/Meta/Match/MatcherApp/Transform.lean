@@ -177,6 +177,17 @@ def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
   return ts
 
 /--
+Sets the user name of the FVars in the local context according to the given array of names.
+
+If they differ in size the shorter size wins.
+-/
+def withUserNames {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α ) : MetaM α := do
+  let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
+    lctx.setUserName fvar.fvarId! name
+  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+
+
+/--
 Performs a possibly type-changing transformation to a `MatcherApp`.
 
 * `onParams` is run on each parameter and discriminant
@@ -319,9 +330,12 @@ def transform (matcherApp : MatcherApp)
         altType in altTypes do
       let alt' ← forallBoundedTelescope altType numParams fun xs altType => do
         forallBoundedTelescope altType extraEqualities fun ys4 altType => do
-          let alt ← instantiateLambda alt xs
-          let alt' ← onAlt altType alt
-          mkLambdaFVars (xs ++ ys4) alt'
+          -- we should try to preserve the variable names in the alternative
+          let names ← lambdaTelescope alt fun xs _ => xs.mapM (·.fvarId!.getUserName)
+          withUserNames xs names do
+            let alt ← instantiateLambda alt xs
+            let alt' ← onAlt altType alt
+            mkLambdaFVars (xs ++ ys4) alt'
       alts' := alts'.push alt'
 
     remaining' := remaining' ++ (← onRemaining matcherApp.remaining)

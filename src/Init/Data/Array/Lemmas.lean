@@ -8,6 +8,7 @@ import Init.Data.Nat.MinMax
 import Init.Data.List.Lemmas
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
+import Init.TacticsExtra
 
 /-!
 ## Bootstrapping theorems about arrays

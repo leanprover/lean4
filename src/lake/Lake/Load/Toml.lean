@@ -287,7 +287,7 @@ protected def PackageConfig.ofToml (t : Table) (ref := Syntax.missing) : Except 
   let moreGlobalServerArgs ← t.getD `moreGlobalServerArgs #[]
   let srcDir ← t.getD `srcDir "."
   let buildDir ← t.getD `buildDir defaultBuildDir
-  let leanLibDir ← t.getD `buildDir defaultLeanLibDir
+  let leanLibDir ← t.getD `leanLibDir defaultLeanLibDir
   let nativeLibDir ← t.getD `nativeLibDir defaultNativeLibDir
   let binDir ← t.getD `binDir defaultBinDir
   let irDir ← t.getD `irDir defaultIrDir

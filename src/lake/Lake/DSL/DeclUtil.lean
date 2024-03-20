@@ -26,7 +26,7 @@ def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
     #[]
 
 syntax declField :=
-  ident ":=" term
+  ident " := " term
 
 syntax structVal :=
   "{" manyIndent(group(declField ", "?)) "}"

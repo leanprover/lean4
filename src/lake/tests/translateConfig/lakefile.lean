@@ -31,6 +31,9 @@ package test where
   packagesDir := defaultPackagesDir
   toLeanConfig := testLeanConfig
 
+require foo from "-"
+require bar from git "https://example.com"
+
 lean_lib A where
   srcDir := "."
   roots := #[`A]
@@ -50,6 +53,3 @@ lean_exe b where
   supportInterpreter := false
   nativeFacets := fun _ => #[]
   toLeanConfig := testLeanConfig
-
-require foo from "-"
-require bar from git "https://example.com"

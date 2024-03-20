@@ -258,8 +258,7 @@ the configuration file with the new language's extension. If the output file
 already exists, Lake will error.
 
 Translation is lossy. It does not preserve comments or formatting and
-non-declarative / unsupported configuration will be dropped when translating
-from Lean to TOML."
+non-declarative configuration will be discarded."
 
 def helpScript : (cmd : String) → String
 | "list"                => helpScriptList

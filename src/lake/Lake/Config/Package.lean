@@ -27,6 +27,11 @@ Currently used for package and target names taken from the CLI.
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
+
+/-- The default `buildArchive` configuration for a package with `name`. -/
+@[inline] def defaultBuildArchive (name : Name) : String :=
+  s!"{name.toString false}-{System.Platform.target}.tar.gz"
+
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
 --------------------------------------------------------------------------------
@@ -141,8 +146,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
   buildArchive : String :=
-    if let some name := buildArchive? then name else
-    s!"{name.toString false}-{System.Platform.target}.tar.gz"
+    if let some name := buildArchive? then name else defaultBuildArchive name
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than

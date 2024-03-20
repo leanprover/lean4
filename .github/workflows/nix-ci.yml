@@ -83,7 +83,7 @@ jobs:
         with:
           paths: |
             result/test-results.xml
-            /tmp/**/test-results.xml
+            /tmp/nix-build-*/test-results.xml
         if: always()
       - name: Build manual
         run: |

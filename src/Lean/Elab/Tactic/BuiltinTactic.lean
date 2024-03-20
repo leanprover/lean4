@@ -55,7 +55,6 @@ where
         let next ← IO.Promise.new
         let inner ← IO.Promise.new
         let finished ← IO.Promise.new
-        let _ := MonadAlwaysExcept.except (m := TacticM)
         try
           snap.new.resolve <| .mk {
             stx := tac

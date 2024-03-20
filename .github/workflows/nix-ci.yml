@@ -81,7 +81,9 @@ jobs:
       - name: Test Summary
         uses: test-summary/action@v2
         with:
-          paths: "**/test-results.xml"
+          paths: |
+            result/test-results.xml
+            /tmp/**/test-results.xml
         if: always()
       - name: Build manual
         run: |

@@ -231,9 +231,12 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
                 tacSnap? := newTac?.map ({ old? := none, new := · })
                 bodySnap? := some { old? := none, new := newBody }
               }
-            check (← headersRef.get) newHeader
+            let oldHeaders ← headersRef.get
+            -- make sure to add *before* calling potentially-throwing `check` so promises never
+            -- become unreachable
+            headersRef.modify (·.push newHeader)
+            check oldHeaders newHeader
             return newHeader
-      headersRef.modify (·.push newHeader)
 where
   getBodyTerm? (stx : Syntax) : Option Syntax :=
     -- TODO: does not work with partial syntax
@@ -902,7 +905,6 @@ where
   go := do
     let scopeLevelNames ← getLevelNames
     let headersRef ← IO.mkRef #[]
-    let _ := MonadAlwaysExcept.except (m := TermElabM)
     try
       elabHeaders views headersRef
       let headers ← levelMVarToParamHeaders views (← headersRef.get)

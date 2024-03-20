@@ -154,7 +154,7 @@ def runFrontend
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
-  if /- Lean #lang? -/ true then
+  if /- Lean #lang? -/ false then
     -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
     -- overhead of passing the environment between snapshots until we actually make good use of it
     -- outside the server

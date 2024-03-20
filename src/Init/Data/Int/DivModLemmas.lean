@@ -369,10 +369,14 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
     rw [cz, Int.mul_zero, Int.add_zero]
   else by
     rw [Int.emod_def, Int.emod_def, Int.add_mul_ediv_right _ _ cz, Int.add_comm _ b,
-      Int.mul_add, Int.mul_comm, ← Int.sub_sub, Int.add_sub_cancel]
+        Int.mul_add, Int.mul_comm, ← Int.sub_sub, Int.add_sub_cancel]
 
 @[simp] theorem add_mul_emod_self_left (a b c : Int) : (a + b * c) % b = a % b := by
   rw [Int.mul_comm, Int.add_mul_emod_self]
+
+theorem add_emod_of_dvd (a b c : Int) (p : c ∣ b) : (a + b) % c = a % c := by
+  let ⟨d, eq⟩ := p
+  simp only [eq,  Int.add_mul_emod_self_left]
 
 @[simp] theorem add_emod_self {a b : Int} : (a + b) % b = a % b := by
   have := add_mul_emod_self_left a b 1; rwa [Int.mul_one] at this

@@ -170,11 +170,10 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+          mkdir $out
+          ctest --output-junit $out/test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
         '';
-        installPhase = ''
-          touch $out
-        '';
+        dontInstall = true;
       };
       update-stage0 =
         let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree ]; }; in

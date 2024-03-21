@@ -398,7 +398,7 @@ def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : 
   mvarId ← assertIHs IHs mvarId
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
-  mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  _ ← mvarId.cleanup (toPreserve := toPreserve)
   let mvar ← instantiateMVars mvar
   pure mvar
 

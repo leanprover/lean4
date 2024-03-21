@@ -15,6 +15,9 @@
 		"files.trimTrailingWhitespace": true,
 		"cmake.buildDirectory": "${workspaceFolder}/build/release",
 		"cmake.generator": "Unix Makefiles",
+		"cmake.environment": {
+			"CMAKE_EXPORT_COMPILE_COMMANDS": "1"
+		},
 		"[markdown]": {
 			"rewrap.wrappingColumn": 70
 		},

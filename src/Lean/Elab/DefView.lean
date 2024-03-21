@@ -28,9 +28,6 @@ def DefKind.isExample : DefKind → Bool
   | .example => true
   | _        => false
 
-section Snapshots
-open Language
-
 /-- Header elaboration data of a `DefView`. -/
 structure DefViewElabHeaderData where
   /--
@@ -49,6 +46,9 @@ structure DefViewElabHeaderData where
   type          : Expr
 deriving Inhabited
 
+section Snapshots
+open Language
+
 /-- Snapshot after processing of a definition body.  -/
 structure BodyProcessedSnapshot extends Language.Snapshot where
   /-- State after elaboration. -/
@@ -65,10 +65,11 @@ structure HeaderProcessedSnapshot extends Language.Snapshot where
   view : DefViewElabHeaderData
   /-- Resulting elaboration state, including any environment additions. -/
   state : Term.SavedState
+  /-- Syntax of top-level tactic block if any, for checking reuse of `tacnSnap?`. -/
   tacStx? : Option Syntax
   /-- Incremental execution of main tactic block, if any. -/
   tacSnap? : Option (SnapshotTask Tactic.TacticParsedSnapshot)
-  /-- Syntax of definition body, for checking reuse of `body`. -/
+  /-- Syntax of definition body, for checking reuse of `bodySnap`. -/
   bodyStx : Syntax
   /-- Result of body elaboration. -/
   bodySnap : SnapshotTask (Option BodyProcessedSnapshot)
@@ -80,24 +81,25 @@ instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
       | none     => #[]) ++
     #[s.bodySnap.map (sync := true) toSnapshotTree]⟩
 
-/-- State before elaboration of a definition header. -/
-structure HeaderParsed where
+/-- State before elaboration of a mutual definition. -/
+structure DefParsed where
   /--
   Input substring uniquely identifying header elaboration result given the same `Environment`.
   If missing, results should never be reused.
   -/
   headerSubstr? : Option Substring
   /-- Elaboration result, unless fatal exception occurred. -/
-  processedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
+  headerProcessedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
 deriving Nonempty
 
 /-- Snapshot after syntax tree has been split into separate mutual def headers. -/
-structure HeadersParsedSnapshot extends Language.Snapshot where
-  /-- Definition headers of this mutual block. -/
-  headers : Array HeaderParsed
+structure DefsParsedSnapshot extends Language.Snapshot where
+  /-- Definitions of this mutual block. -/
+  defs : Array DefParsed
 deriving Nonempty, TypeName
-instance : Language.ToSnapshotTree HeadersParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, s.headers.map (·.processedSnap.map (sync := true) toSnapshotTree)⟩
+instance : Language.ToSnapshotTree DefsParsedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot,
+    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
 
 end Snapshots
 

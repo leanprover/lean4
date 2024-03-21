@@ -172,119 +172,6 @@ def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α :
   let b := b.instantiate1 (.fvar x)
   k x b
 
--- partial def argOfProdProj (oldIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
-  -- if e.isAppOfArity ``PProd.fst 3 then
-  --   if let some e' ← isPProdProj oldIH newIH e.appArg! then
-  --     return some (← mkAppM ``PProd.fst #[e'])
-  --   else
-  --     return none
-  -- else if e.isAppOfArity ``PProd.snd 3 then
-  --   if let some e' ← isPProdProj oldIH newIH e.appArg! then
-  --     return some (← mkAppM ``PProd.snd #[e'])
-  --   else
-  --     return none
-  -- else if e.isFVarOf oldIH then
-  --   return some (mkFVar newIH)
-  -- else
-  --   return none
-
-def argOfPProdProjWithArgs (_oldIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-  if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
-    let arity := e.getAppNumArgs
-    unless 3 ≤ arity do return none
-    let args := e.getAppArgsN (arity - 3)
-    let e := e.stripArgsN (arity - 3)
-    -- The following match is fairly fragile, as it the function in this type
-    -- is a lambda expression. I don't see a better way to infer the argument n from
-    -- an expression of type `@below motive n`.
-    let .app _ arg ← inferType e |
-      throwError m!"Unxpected form of {←inferType e}"
-    return (arg, args)
-  return none
-
-/-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
-partial def foldCalls (fn : Expr) (oldIH : FVarId) (e : Expr) : MetaM Expr := do
-  unless e.containsFVar oldIH do
-    return e
-
-  if let some (arg, args) ← argOfPProdProjWithArgs oldIH e then
-    let args' ← args.mapM (foldCalls fn oldIH)
-    let e' := mkAppN (mkApp fn arg) args'
-    check e'
-    return e'
-
-  /-
-  if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
-    let #[arg, _proof] := e.getAppArgs | unreachable!
-    let arg' ← foldCalls fn oldIH arg
-    return .app fn arg'
-  -/
-
-  if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
-    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
-      let matcherApp' ← matcherApp.transform
-        (onParams := foldCalls fn oldIH)
-        (onMotive := fun _motiveArgs motiveBody => do
-          let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
-          foldCalls fn oldIH body)
-        (onAlt := fun _altType alt => do
-          removeLamda alt fun oldIH alt => do
-            foldCalls fn oldIH alt)
-        (onRemaining := fun _ => pure #[])
-      return matcherApp'.toExpr
-
-  if e.getAppArgs.any (·.isFVarOf oldIH) then
-    -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
-    -- So beta-reduce that definition.
-
-    -- Need to look through theorems here!
-    let e' ← withTransparency .all do whnf e
-    if e == e' then
-      throwError "foldCalls: cannot reduce application of {e.getAppFn} in {indentExpr e} "
-    return ← foldCalls fn oldIH e'
-
-  if let some (n, t, v, b) := e.letFun? then
-    let t' ← foldCalls fn oldIH t
-    let v' ← foldCalls fn oldIH v
-    return ← withLocalDecl n .default t' fun x => do
-      let b' ← foldCalls fn oldIH (b.instantiate1 x)
-      mkLetFun x v' b'
-
-  match e with
-  | .app e1 e2 =>
-    return .app (← foldCalls fn oldIH e1) (← foldCalls fn oldIH e2)
-
-  | .lam n t body bi =>
-    let t' ← foldCalls fn oldIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let body' ← foldCalls fn oldIH (body.instantiate1 x)
-      mkLambdaFVars #[x] body'
-
-  | .forallE n t body bi =>
-    let t' ← foldCalls fn oldIH t
-    return ← withLocalDecl n bi t' fun x => do
-      let body' ← foldCalls fn oldIH (body.instantiate1 x)
-      mkForallFVars #[x] body'
-
-  | .letE n t v b _ =>
-    let t' ← foldCalls fn oldIH t
-    let v' ← foldCalls fn oldIH v
-    return ← withLetDecl n t' v' fun x => do
-      let b' ← foldCalls fn oldIH (b.instantiate1 x)
-      mkLetFVars  #[x] b'
-
-  | .mdata m b =>
-    return .mdata m (← foldCalls fn oldIH b)
-
-  | .proj t i e =>
-    return .proj t i (← foldCalls fn oldIH e)
-
-  | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
-    unreachable! -- cannot contain free variables, so early exit above kicks in
-
-  | .fvar .. =>
-    throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
-
 partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
   if e.isAppOfArity ``PProd.fst 3 then
     if let some e' ← isPProdProj oldIH newIH e.appArg! then
@@ -310,6 +197,105 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
       return some (e', args)
   return none
 
+def argOfPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
+  if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
+    let t ← whnf (← inferType e')
+    forallTelescopeReducing t fun xs t' => do
+      logInfo m!"xs: {xs} t': {t'}"
+      unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
+        throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
+      if t'.getAppNumArgs < 1 then
+        return none
+      else
+        return (t'.getAppArgs[0]!, args)
+  else
+    return none
+
+/-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
+partial def foldCalls (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM Expr := do
+  unless e.containsFVar oldIH do
+    return e
+
+  if let some (arg, args) ← argOfPProdProjWithArgs oldIH newIH e then
+    logInfo m!"arg: {arg}"
+    let args' ← args.mapM (foldCalls fn oldIH newIH)
+    let e' := fn.beta (#[arg] ++ args')
+    unless ← isTypeCorrect e' do
+      throwError m!"foldCalls: type incorrect after replacing recursive call:{indentExpr e'}"
+    return e'
+
+  /-
+  if e.getAppNumArgs = 2 && e.getAppFn.isFVarOf oldIH then
+    let #[arg, _proof] := e.getAppArgs | unreachable!
+    let arg' ← foldCalls fn oldIH arg
+    return .app fn arg'
+  -/
+
+  if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
+    if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
+      let matcherApp' ← matcherApp.transform
+        (onParams := foldCalls fn oldIH newIH)
+        (onMotive := fun _motiveArgs motiveBody => do
+          let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
+          foldCalls fn oldIH newIH body)
+        (onAlt := fun _altType alt => do
+          removeLamda alt fun oldIH alt => do
+            foldCalls fn oldIH newIH alt)
+        (onRemaining := fun _ => pure #[])
+      return matcherApp'.toExpr
+
+  if e.getAppArgs.any (·.isFVarOf oldIH) then
+    -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
+    -- So beta-reduce that definition.
+
+    -- Need to look through theorems here!
+    let e' ← withTransparency .all do whnf e
+    if e == e' then
+      throwError "foldCalls: cannot reduce application of {e.getAppFn} in {indentExpr e} "
+    return ← foldCalls fn oldIH newIH e'
+
+  if let some (n, t, v, b) := e.letFun? then
+    let t' ← foldCalls fn oldIH newIH t
+    let v' ← foldCalls fn oldIH newIH v
+    return ← withLocalDecl n .default t' fun x => do
+      let b' ← foldCalls fn oldIH newIH (b.instantiate1 x)
+      mkLetFun x v' b'
+
+  match e with
+  | .app e1 e2 =>
+    return .app (← foldCalls fn oldIH newIH e1) (← foldCalls fn oldIH newIH e2)
+
+  | .lam n t body bi =>
+    let t' ← foldCalls fn oldIH newIH t
+    return ← withLocalDecl n bi t' fun x => do
+      let body' ← foldCalls fn oldIH newIH (body.instantiate1 x)
+      mkLambdaFVars #[x] body'
+
+  | .forallE n t body bi =>
+    let t' ← foldCalls fn oldIH newIH t
+    return ← withLocalDecl n bi t' fun x => do
+      let body' ← foldCalls fn oldIH newIH (body.instantiate1 x)
+      mkForallFVars #[x] body'
+
+  | .letE n t v b _ =>
+    let t' ← foldCalls fn oldIH newIH t
+    let v' ← foldCalls fn oldIH newIH v
+    return ← withLetDecl n t' v' fun x => do
+      let b' ← foldCalls fn oldIH newIH (b.instantiate1 x)
+      mkLetFVars  #[x] b'
+
+  | .mdata m b =>
+    return .mdata m (← foldCalls fn oldIH newIH b)
+
+  | .proj t i e =>
+    return .proj t i (← foldCalls fn oldIH newIH e)
+
+  | .sort .. | .lit .. | .const .. | .mvar .. | .bvar .. =>
+    unreachable! -- cannot contain free variables, so early exit above kicks in
+
+  | .fvar .. =>
+    throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
+
 
 -- Non-tail-positions: Collect induction hypotheses
 -- (TODO: Worth folding with `foldCalls`, like before?)
@@ -320,7 +306,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
 
   if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
     -- The inferred type that comes out of motive projections has beta redexes
-    let args' ← args.mapM (foldCalls fn oldIH)
+    let args' ← args.mapM (foldCalls fn oldIH newIH)
     let ihs ← args.concatMapM (collectIHs fn oldIH newIH)
     let e' := mkAppN e' args'
     let eTyp ← inferType e'
@@ -340,7 +326,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
 
   if let some (n, t, v, b) := e.letFun? then
     let ihs1 ← collectIHs fn oldIH newIH v
-    let v' ← foldCalls fn oldIH v
+    let v' ← foldCalls fn oldIH newIH v
     return ← withLetDecl n t v' fun x => do
       let ihs2 ← collectIHs fn oldIH newIH (b.instantiate1 x)
       let ihs2 ← ihs2.mapM (mkLetFVars (usedLetOnly := true) #[x] ·)
@@ -350,7 +336,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
 
       let matcherApp' ← matcherApp.transform
-        (onParams := foldCalls fn oldIH)
+        (onParams := foldCalls fn oldIH newIH)
         (onMotive := fun xs _body => do
           -- Remove the old IH that was added in mkFix
           let eType ← newIH.getType
@@ -394,7 +380,7 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
   match e with
   | .letE n t v b _ =>
     let ihs1 ← collectIHs fn oldIH newIH v
-    let v' ← foldCalls fn oldIH v
+    let v' ← foldCalls fn oldIH newIH v
     return ← withLetDecl n t v' fun x => do
       let ihs2 ← collectIHs fn oldIH newIH (b.instantiate1 x)
       let ihs2 ← ihs2.mapM (mkLetFVars (usedLetOnly := true) #[x] ·)
@@ -407,13 +393,13 @@ partial def collectIHs (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Ar
     return ← collectIHs fn oldIH newIH e
 
   | .forallE n t body bi =>
-    let t' ← foldCalls fn oldIH t
+    let t' ← foldCalls fn oldIH newIH t
     return ← withLocalDecl n bi t' fun x => do
       let ihs ← collectIHs fn oldIH newIH (body.instantiate1 x)
       ihs.mapM (mkLambdaFVars (usedOnly := true) #[x])
 
   | .lam n t body bi =>
-    let t' ← foldCalls fn oldIH t
+    let t' ← foldCalls fn oldIH newIH t
     return ← withLocalDecl n bi t' fun x => do
       let ihs ← collectIHs fn oldIH newIH (body.instantiate1 x)
       ihs.mapM (mkLambdaFVars (usedOnly := true) #[x])
@@ -520,8 +506,8 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
   if e.isDIte then
     let #[_α, c, h, t, f] := e.getAppArgs | unreachable!
     let IHs := IHs ++ (← collectIHs fn oldIH newIH c)
-    let c' ← foldCalls fn oldIH c
-    let h' ← foldCalls fn oldIH h
+    let c' ← foldCalls fn oldIH newIH c
+    let h' ← foldCalls fn oldIH newIH h
     let t' ← withLocalDecl `h .default c' fun h => do
       let t ← instantiateLambda t #[h]
       let t' ← buildInductionBody fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
@@ -548,7 +534,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls fn oldIH)
+        (onParams := foldCalls fn oldIH newIH)
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           removeLamda alt fun oldIH' alt => do
@@ -567,7 +553,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls fn oldIH)
+        (onParams := foldCalls fn oldIH newIH)
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           buildInductionBody fn toClear toPreserve expAltType oldIH newIH IHs alt)
@@ -575,16 +561,16 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
 
   if let .letE n t v b _ := e then
     let IHs := IHs ++ (← collectIHs fn oldIH newIH v)
-    let t' ← foldCalls fn oldIH t
-    let v' ← foldCalls fn oldIH v
+    let t' ← foldCalls fn oldIH newIH t
+    let v' ← foldCalls fn oldIH newIH v
     return ← withLetDecl n t' v' fun x => do
       let b' ← buildInductionBody fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
       mkLetFVars #[x] b'
 
   if let some (n, t, v, b) := e.letFun? then
     let IHs := IHs ++ (← collectIHs fn oldIH newIH v)
-    let t' ← foldCalls fn oldIH t
-    let v' ← foldCalls fn oldIH v
+    let t' ← foldCalls fn oldIH newIH t
+    let v' ← foldCalls fn oldIH newIH v
     return ← withLocalDecl n .default t' fun x => do
       let b' ← buildInductionBody fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
       mkLetFun x v' b'
@@ -634,39 +620,42 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let brec := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
     if h : fixArgs.size < recParams + 3 then
       throwError "Application of Nat.brecOn has wrong arity {fixArgs.size}" else do
-    let origMotive := fixArgs[recParams + 0]
+    let _origMotive := fixArgs[recParams + 0]
     let arg := fixArgs[recParams + 1]
     let body := fixArgs[recParams + 2]
-    let extraArgs := fixArgs[recParams + 3:]
+    let extraArgs : Array Expr := fixArgs[recParams + 3:]
+
+    let varyingParams := params.filter fun x => x == arg || extraArgs.contains x
 
     let motiveType ←
-      -- TODO: Should be exactly one lambda
-      lambdaTelescope origMotive fun xs origMotive => do
-        forallBoundedTelescope origMotive (some extraArgs.size) fun ys _ => do
-          mkForallFVars xs (← mkForallFVars ys (.sort levelZero))
+      mkForallFVars varyingParams (.sort levelZero)
+    logInfo m!"motiveType: {motiveType}"
 
     withLocalDecl `motive .default motiveType fun motive => do
 
-    let brecMotive ←
-      lambdaTelescope origMotive fun xs origMotive => do
-        forallBoundedTelescope origMotive (some extraArgs.size) fun ys _ => do
-          mkLambdaFVars xs (← mkForallFVars ys (motive.beta (xs ++ ys)))
+    let brecMotive ← mkLambdaFVars #[arg]
+      (← mkForallFVars extraArgs (mkAppN motive varyingParams))
+    logInfo m!"brecMotive: {brecMotive}"
+    check brecMotive
 
     let e' := mkAppN brec (fixArgs[:recParams] ++ #[brecMotive, arg])
-    let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params[:recParams]
+    -- When unfolding recursive calls, we may have to permute the arguments
+    let fn ← mkLambdaFVars (#[arg] ++ extraArgs) <|
+        mkAppN (.const name (info.levelParams.map mkLevelParam)) params
     logInfo m!"fn: {fn}"
     check e'
-    let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
+    let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
       if h : xs.size < 2 + extraArgs.size then
         throwError "brecOn argument takes too few arguments: {xs}" else
       let param := xs[0]
       let genIH := xs[1]
       let extraParams := xs[2:]
       -- open body with the same arg
+      logInfo m!"goal : {goal}"
       let body ← instantiateLambda body #[param]
       removeLamda body fun oldIH body => do
         let body ← instantiateLambda body extraParams
-        let goal := motive.beta (#[param] ++ extraParams)
+        -- let goal := motive.beta (#[param] ++ extraParams)
         let body' ← buildInductionBody fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
         if body'.containsFVar oldIH then
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"

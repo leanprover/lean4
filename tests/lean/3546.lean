@@ -11,7 +11,8 @@ When hex-dumped, traces of the rest of the file (e.g., the 'b' in "bar"; or corr
 def test : IO Unit := do
   let tmpFile := "3546.tmp"
   let s := "foo\u0000bar"
-  IO.FS.writeFile tmpFile s
+  let s' := List.toByteArray $ List.map (λ x => UInt8.ofNat $ x.val.val) s.data
+  IO.FS.writeBinFile tmpFile s'
   let b := ← IO.FS.readBinFile tmpFile
   IO.println s!"s.length == {s.length}; b.size == {b.size}"
   let u := ← IO.FS.readFile tmpFile

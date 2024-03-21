@@ -1,5 +1,7 @@
 /-! Incremental reuse in combinator -/
 
+set_option trace.Elab.reuse true
+
 def case (h : a ∨ b) : True := by
   cases h
   case inl =>

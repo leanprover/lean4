@@ -32,24 +32,27 @@ open Parser.Tactic
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
  -/
-def evalSepTactics (stx : Syntax) : TacticM Unit := do
-  goEven stx.getArgs.toList
+partial def evalSepTactics : Tactic := goEven
 where
-  goEven : _ → TacticM _
-    | [] => return
-    | tac :: stxs => do
+  goEven stx := do
+    if stx.getNumArgs == 0 then
+      return
+    let tac := stx[0]
+    let mut oldInner? := none
+    if let some snap := (← readThe Term.Context).tacSnap? then
+      if let some old := snap.old? then
+        let oldEvaluated := old.val.get
+        oldInner? := oldEvaluated.next.get? 0 |>.map (⟨oldEvaluated.data.stx, ·⟩)
+    Term.withNarrowedTacticReuseRaw (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       if let some snap := (← readThe Term.Context).tacSnap? then
         let mut reused := false
-        let mut oldInner? := none
         let mut oldNext? := none
         if let some old := snap.old? then
           let oldEvaluated := old.val.get
-          oldInner? := oldEvaluated.next.get? 0 |>.map (⟨oldEvaluated.data.stx, ·⟩)
-          if tac.structRangeEq (old.stx.getArg 0) then
-            if let some state := oldEvaluated.data.finishedSnap.get.state? then
-              state.restoreFull
-              reused := true
-              oldNext? := oldEvaluated.next.get? 1 |>.map (⟨mkNullNode old.stx.getArgs[1:], ·⟩)
+          if let some state := oldEvaluated.data.finishedSnap.get.state? then
+            state.restoreFull
+            reused := true
+            oldNext? := oldEvaluated.next.get? 1 |>.map (⟨old.stx, ·⟩)
 
         -- definitely resolved below
         let next ← IO.Promise.new
@@ -65,7 +68,7 @@ where
               range? := tac.getRange?
               task := inner.result },
             {
-              range? := mkNullNode stxs.toArray |>.getRange?
+              range? := stxs |>.getRange?
               task := next.result }]
           unless reused do
             withTheReader Term.Context ({ · with
@@ -92,16 +95,11 @@ where
       else
         evalTactic tac
         goOdd stxs
-  goOdd
-    | [] => return
-    | sep :: stxs => do
-      saveTacticInfoForToken sep -- add `TacticInfo` node for `;`
-      withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun snap =>
-        { snap with old? := do
-          let old ← snap.old?
-          guard <| sep.structRangeEq (old.stx.getArg 0)
-          some { old with stx := mkNullNode old.stx.getArgs[1:] } } }) do
-        goEven stxs
+  goOdd stx := do
+    if stx.getNumArgs == 0 then
+      return
+    saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
+    Term.withNarrowedTacticReuseRaw (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
 
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
   evalSepTactics stx[0]
@@ -173,8 +171,8 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
-@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalSepTactics stx[0]
+@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
+  Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[0])) evalSepTactics
 
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
@@ -261,8 +259,8 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
-@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
-  evalTactic stx[0]
+@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
+  Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[0])) evalTactic
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
@@ -482,24 +480,19 @@ where
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
 
-
 @[builtin_tactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case%$caseTk $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
-    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
-        { tacSnap with old? := tacSnap.old?.bind fun old => match old.stx with
-          | `(tactic| case%$oldCaseTk $_ =>%$oldArr $oldTacs:tacticSeq1Indented ) => do
-            guard <| (← mkNullNode #[oldCaseTk, oldArr] |>.getSubstring?).sameAs (← mkNullNode #[caseTk, arr] |>.getSubstring?)
-            return { old with stx := oldTacs.raw.getArg 0 }
-          | _ => none
-         }
-       }) do
+  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs
       setGoals [g]
       g.setTag Name.anonymous
-      withCaseRef arr tac do
-        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
+      withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+        Term.withNarrowedTacticReuse (fun
+          | `(tactic| case%$caseTk $arg =>%$arr $tac:tacticSeq1Indented) =>
+            some (mkNullNode #[caseTk, arg, arr], tac)
+          | _ => none
+        ) (evalTactic ·) stx
       setGoals gs
   | _ => throwUnsupportedSyntax
 

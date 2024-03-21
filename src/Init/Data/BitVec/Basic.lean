@@ -618,4 +618,14 @@ section normalization_eqs
 @[simp] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
 end normalization_eqs
 
+/-- Converts a list of `Bool`s to a big-endian `BitVec`. -/
+def ofBoolListBE : (bs : List Bool) → BitVec bs.length
+| [] => 0#0
+| b :: bs => cons b (ofBoolListBE bs)
+
+/-- Converts a list of `Bool`s to a little-endian `BitVec`. -/
+def ofBoolListLE : (bs : List Bool) → BitVec bs.length
+| [] => 0#0
+| b :: bs => concat (ofBoolListLE bs) b
+
 end BitVec

@@ -6382,7 +6382,6 @@ lean_inc(x_51);
 lean_dec(x_41);
 lean_inc(x_3);
 x_52 = l_Array_eraseIdx___rarg(x_3, x_51);
-lean_dec(x_51);
 lean_inc(x_27);
 x_53 = l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1(x_4, x_27);
 if (lean_obj_tag(x_53) == 0)

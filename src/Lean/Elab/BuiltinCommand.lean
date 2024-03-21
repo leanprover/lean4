@@ -536,7 +536,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
     -- show signature for `#check id`/`#check @id`
     if let `($id:ident) := term then
       try
-        for c in (← resolveGlobalConstWithInfos term) do
+        for c in (← realizeGlobalConstWithInfos term) do
           addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
           logInfoAt tk <| .ofPPFormat { pp := fun
             | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
@@ -760,7 +760,7 @@ def elabRunMeta : CommandElab := fun stx =>
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
-    let declName ← resolveGlobalConstNoOverloadWithInfo id
+    let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
       throwError "invalid 'add_decl_doc', declaration is in an imported module"
     if let .none ← findDeclarationRangesCore? declName then

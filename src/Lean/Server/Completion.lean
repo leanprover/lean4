@@ -81,39 +81,46 @@ open Elab
 open Meta
 open FuzzyMatching
 
-/-- Cached header declarations for which `allowCompletion headerEnv decl` is true. -/
-builtin_initialize eligibleHeaderDeclsRef : IO.Ref (HashMap Name ConstantInfo) ← IO.mkRef {}
+abbrev EligibleHeaderDecls := HashMap Name ConstantInfo
 
-/-- Caches the declarations in the header for which `allowCompletion headerEnv decl` is true. -/
-def fillEligibleHeaderDecls (headerEnv : Environment) : IO Unit := do
-  eligibleHeaderDeclsRef.modify fun startEligibleHeaderDecls =>
-    (·.2) <| StateT.run (m := Id) (s := startEligibleHeaderDecls) do
-      headerEnv.constants.forM fun declName c => do
-        modify fun eligibleHeaderDecls =>
-          if allowCompletion headerEnv declName then
-            eligibleHeaderDecls.insert declName c
-          else
-            eligibleHeaderDecls
+/-- Cached header declarations for which `allowCompletion headerEnv decl` is true. -/
+builtin_initialize eligibleHeaderDeclsRef : IO.Ref (Option EligibleHeaderDecls) ←
+  IO.mkRef none
+
+/--
+Returns the declarations in the header for which `allowCompletion env decl` is true, caching them
+if not already cached.
+-/
+def getEligibleHeaderDecls (env : Environment) : IO EligibleHeaderDecls := do
+  eligibleHeaderDeclsRef.modifyGet fun
+    | some eligibleHeaderDecls => (eligibleHeaderDecls, some eligibleHeaderDecls)
+    | none =>
+      let (_, eligibleHeaderDecls) :=
+        StateT.run (m := Id) (s := {}) do
+          -- `map₁` are the header decls
+          env.constants.map₁.forM fun declName c => do
+            modify fun eligibleHeaderDecls =>
+              if allowCompletion env declName then
+                eligibleHeaderDecls.insert declName c
+              else
+                eligibleHeaderDecls
+      (eligibleHeaderDecls, some eligibleHeaderDecls)
 
 /-- Iterate over all declarations that are allowed in completion results. -/
 private def forEligibleDeclsM [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]
-    (f : Name → ConstantInfo → m PUnit) : m PUnit := do
+    [MonadLiftT IO m] (f : Name → ConstantInfo → m PUnit) : m PUnit := do
   let env ← getEnv
-  (← eligibleHeaderDeclsRef.get).forM f
+  (← getEligibleHeaderDecls env).forM f
   -- map₂ are exactly the local decls
   env.constants.map₂.forM fun name c => do
     if allowCompletion env name then
       f name c
 
 /-- Checks whether this declaration can appear in completion results. -/
-private def allowCompletion [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m]
-    (declName : Name) : m Bool := do
-  let env ← getEnv
-  if (← eligibleHeaderDeclsRef.get).contains declName then
-    return true
-  if env.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName then
-    return true
-  return false
+private def allowCompletion (eligibleHeaderDecls : EligibleHeaderDecls) (env : Environment)
+    (declName : Name) : Bool :=
+  eligibleHeaderDecls.contains declName ||
+    env.constants.map₂.contains declName && Lean.Meta.allowCompletion env declName
 
 /--
 Sorts `items` descendingly according to their score and ascendingly according to their label
@@ -371,16 +378,17 @@ private def idCompletionCore
       matchAtomic id (alias.replacePrefix ns Name.anonymous)
     else
       none
+  let eligibleHeaderDecls ← getEligibleHeaderDecls env
   -- Auxiliary function for `alias`
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
-      if ← allowCompletion declName then
+      if allowCompletion eligibleHeaderDecls env declName then
         addUnresolvedCompletionItemForDecl alias.getString! declName score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
-      if ← allowCompletion resolvedId then
+      if allowCompletion eligibleHeaderDecls env resolvedId then
         if let some score := matchAtomic id openedId then
           addUnresolvedCompletionItemForDecl openedId.getString! resolvedId score
     | OpenDecl.simple ns _      =>

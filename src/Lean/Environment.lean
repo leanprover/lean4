@@ -209,8 +209,13 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | ConstantInfo.ctorInfo _ => true
-  | _                       => false
+  | some (.ctorInfo _) => true
+  | _                  => false
+
+def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
+  | some (.defnInfo { safety := .safe, .. }) => true
+  | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)

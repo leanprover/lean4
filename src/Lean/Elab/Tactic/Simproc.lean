@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Simproc
+import Lean.ReservedNameAction
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
@@ -37,16 +38,16 @@ namespace Command
 
 @[builtin_command_elab Lean.Parser.simprocPattern] def elabSimprocPattern : CommandElab := fun stx => do
   let `(simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
-  let declName ← resolveGlobalConstNoOverload declName
   liftTermElabM do
+    let declName ← realizeGlobalConstNoOverload declName
     discard <| checkSimprocType declName
     let keys ← elabSimprocKeys pattern
     registerSimproc declName keys
 
 @[builtin_command_elab Lean.Parser.simprocPatternBuiltin] def elabSimprocPatternBuiltin : CommandElab := fun stx => do
   let `(builtin_simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
-  let declName ← resolveGlobalConstNoOverload declName
   liftTermElabM do
+    let declName ← realizeGlobalConstNoOverload declName
     let dsimp ← checkSimprocType declName
     let keys ← elabSimprocKeys pattern
     let registerProcName := if dsimp then ``registerBuiltinDSimproc else ``registerBuiltinSimproc

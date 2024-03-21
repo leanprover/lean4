@@ -65,7 +65,7 @@ rec {
     installPhase = ''
       mkdir -p $out/bin $out/lib/lean
       mv bin/lean $out/bin/
-      mv lib/lean/*.so $out/lib/lean
+      mv lib/lean/*.{so,dylib} $out/lib/lean
     '';
     meta.mainProgram = "lean";
   });

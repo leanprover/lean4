@@ -2007,6 +2007,10 @@ private def natAddFn : Expr :=
   let nat := mkConst ``Nat
   mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHAdd [0]) nat (mkConst ``instAddNat))
 
+private def natSubFn : Expr :=
+  let nat := mkConst ``Nat
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHSub [0]) nat (mkConst ``instSubNat))
+
 private def natMulFn : Expr :=
   let nat := mkConst ``Nat
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHMul [0]) nat (mkConst ``instMulNat))
@@ -2018,6 +2022,10 @@ def mkNatSucc (a : Expr) : Expr :=
 /-- Given `a b : Nat`, returns `a + b` -/
 def mkNatAdd (a b : Expr) : Expr :=
   mkApp2 natAddFn a b
+
+/-- Given `a b : Nat`, returns `a - b` -/
+def mkNatSub (a b : Expr) : Expr :=
+  mkApp2 natSubFn a b
 
 /-- Given `a b : Nat`, returns `a * b` -/
 def mkNatMul (a b : Expr) : Expr :=

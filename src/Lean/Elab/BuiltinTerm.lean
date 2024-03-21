@@ -223,7 +223,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none     => throwIllFormedSyntax
 
 @[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
-  return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
+  return toExpr (← realizeGlobalConstNoOverloadWithInfo stx[2])
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?

@@ -54,6 +54,10 @@ where
       | .trace .., _ => .text "(trace)"
     tt.stripTags
 
+/-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
+def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
+  compareByUserVisible a.toDiagnostic b.toDiagnostic
+
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
@@ -190,7 +194,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   fmtToTT fmt indent
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do
+def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) :
+    BaseIO InteractiveDiagnostic := do
   let low : Lsp.Position := text.leanPosToLspPos m.pos
   let fullHigh := text.leanPosToLspPos <| m.endPos.getD m.pos
   let high : Lsp.Position := match m.endPos with
@@ -212,10 +217,9 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     if m.data.isDeprecationWarning then some #[.deprecated]
     else if m.data.isUnusedVariableWarning then some #[.unnecessary]
     else none
-  let message ← try
-      msgToInteractive m.data hasWidgets
-    catch ex =>
-      pure <| TaggedText.text s!"[error when printing message: {ex.toString}]"
+  let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
+    | .ok msg => msg
+    | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
   pure { range, fullRange? := some fullRange, severity?, source?, message, tags? }
 
 end Lean.Widget

@@ -134,6 +134,11 @@ def shadow2 (some_n : Nat) : Nat → Nat
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
+-- Tests that the inferred termination argument is shown without extra underscores
+def foo : Nat → Nat → Nat → Nat
+  | _, 0, acc => acc
+  | k, n+1, acc => foo (k+1) n (acc + k)
+decreasing_by decreasing_tactic
 
 -- The following test whether `sizeOf` is properly printed, and possibly qualified
 -- For this we need a type that needs an explicit “sizeOf”.
@@ -204,13 +209,13 @@ def bar (o : OddNat3) : Nat := if h : @id Nat o < 41 then foo (41 - @id Nat o) e
   -- termination_by sizeOf o
   decreasing_by simp_wf; simp [id] at *; omega
 end
-namespace MutualNotNat2
+end MutualNotNat2
 
 namespace MutualNotNat3
 -- A varant of the above, but where the type of the parameter refined to `Nat`.
--- This tests if `GuessLex` is inferring the `SizeOf` instance based on the type of the
--- concrete parameter/argument (wrong, but status quo), or based on the types in the function
--- signature (correct, todo)
+-- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
+-- *concrete* parameter or argument, which was wrong.
+-- The inference needs to be based on the parameter type in the function's signature.
 def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
@@ -227,4 +232,4 @@ def bar : OddNat3 → Nat
   -- termination_by x1 => sizeOf x1
   decreasing_by simp_wf; omega
 end
-namespace MutualNotNat3
+end MutualNotNat3

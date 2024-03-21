@@ -270,8 +270,13 @@ def getInfoMessages (log : MessageLog) : MessageLog :=
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.msgs.forM f
 
+/-- Converts the log to a list, oldest message first. -/
 def toList (log : MessageLog) : List Message :=
-  (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+  log.msgs.toList
+
+/-- Converts the log to an array, oldest message first. -/
+def toArray (log : MessageLog) : Array Message :=
+  log.msgs.toArray
 
 end MessageLog
 

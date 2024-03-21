@@ -31,7 +31,7 @@ info: Term.replaceConst.induct (a b : String) (motive1 : Term → Prop) (motive2
   (case2 : ∀ (a_1 : String), (a == a_1) = true → motive1 (const a_1))
   (case3 : ∀ (a_1 : String), ¬(a == a_1) = true → motive1 (const a_1))
   (case4 : ∀ (a : String) (cs : List Term), motive2 cs → motive1 (app a cs))
-  (case5 : ∀ (c : Term) (cs : List Term), motive1 c → motive2 cs → motive2 (c :: cs)) (x : Term) : motive1 x
+  (case5 : ∀ (c : Term) (cs : List Term), motive1 c → motive2 cs → motive2 (c :: cs)) : ∀ (a : Term), motive1 a
 -/
 #guard_msgs in
 #check replaceConst.induct

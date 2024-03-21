@@ -141,7 +141,8 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
   let mut log := log
   let traces' := traces.toArray.qsort fun ((a, _), _) ((b, _), _) => a < b
   for ((pos, endPos), traceMsg) in traces' do
-    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap (.joinSep traceMsg.toList "\n") .information pos endPos
+    let data := .tagged `_traceMsg <| .joinSep traceMsg.toList "\n"
+    log := log.add <| mkMessageCore ctx.fileName ctx.fileMap data .information pos endPos
   return log
 
 private def addTraceAsMessages : CommandElabM Unit := do
@@ -268,11 +269,6 @@ instance : MonadRecDepth CommandElabM where
   getRecDepth      := return (← read).currRecDepth
   getMaxRecDepth   := return (← get).maxRecDepth
 
-register_builtin_option showPartialSyntaxErrors : Bool := {
-  defValue := false
-  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
-}
-
 builtin_initialize registerTraceClass `Elab.command
 
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
@@ -321,11 +317,6 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     -- note the order: first process current messages & info trees, then add back old messages & trees,
     -- then convert new traces to messages
     let mut msgs := (← get).messages
-    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
-    if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
-      -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
-      msgs := ⟨msgs.msgs.filter fun msg =>
-        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
     modify fun st => { st with

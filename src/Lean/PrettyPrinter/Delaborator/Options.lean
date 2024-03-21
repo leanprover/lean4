@@ -87,9 +87,8 @@ register_builtin_option pp.beta : Bool := {
 register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
-  -- TODO: implement second part
-  descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation " ++
-              "or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute"
+  descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation, \
+              or using '⟨fieldValue, ... ⟩' if structure is tagged with the '@[pp_using_anonymous_constructor]' attribute"
 }
 register_builtin_option pp.structureProjections : Bool := {
   defValue := true

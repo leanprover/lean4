@@ -614,12 +614,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_alloc_closure((void*)(l_IO_Channel_send___rarg___lambda__2), 4, 1);
-lean_closure_set(x_4, 0, x_1);
+lean_closure_set(x_4, 0, x_2);
 x_5 = lean_alloc_closure((void*)(l_StateRefT_x27_get___at_IO_Channel_send___spec__1___rarg___boxed), 2, 0);
 x_6 = lean_alloc_closure((void*)(l_ReaderT_bind___at_IO_Channel_send___spec__2___rarg), 4, 2);
 lean_closure_set(x_6, 0, x_5);
 lean_closure_set(x_6, 1, x_4);
-x_7 = l_IO_Mutex_atomically___at_IO_Channel_send___spec__3___rarg(x_2, x_6, x_3);
+x_7 = l_IO_Mutex_atomically___at_IO_Channel_send___spec__3___rarg(x_1, x_6, x_3);
 return x_7;
 }
 }

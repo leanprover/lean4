@@ -18,7 +18,7 @@ register_option linter.unnecessarySimpa : Bool := {
   descr := "enable the 'unnecessary simpa' linter"
 }
 
-namespace Std.Tactic.Simpa
+namespace Lean.Elab.Tactic.Simpa
 
 open Lean Parser.Tactic Elab Meta Term Tactic Simp Linter
 
@@ -86,3 +86,5 @@ deriving instance Repr for UseImplicitLambdaResult
           | _ => unreachable!
         TryThis.addSuggestion tk stx (origSpan? := ← getRef)
     | _ => throwUnsupportedSyntax
+
+end Lean.Elab.Tactic.Simpa

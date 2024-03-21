@@ -105,6 +105,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       See issue #2321
       -/
       let preDef ← eraseRecAppSyntax preDefs[0]!
+      ensureEqnReservedNamesAvailable preDef.declName
       if preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else

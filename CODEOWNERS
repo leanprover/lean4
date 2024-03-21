@@ -13,6 +13,7 @@
 /src/Lean/Data/Lsp/ @mhuisi
 /src/Lean/Elab/Deriving/ @semorrison
 /src/Lean/Elab/Tactic/ @semorrison
+/src/Lean/Language/ @Kha
 /src/Lean/Meta/Tactic/ @leodemoura
 /src/Lean/Parser/ @Kha
 /src/Lean/PrettyPrinter/ @Kha

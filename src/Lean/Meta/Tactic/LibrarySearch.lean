@@ -28,6 +28,9 @@ example : Nat := by exact?
 
 namespace Lean.Meta.LibrarySearch
 
+builtin_initialize registerTraceClass `Tactic.librarySearch
+builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
+
 open SolveByElim
 
 /--
@@ -64,73 +67,7 @@ to find candidate lemmas.
 @[reducible]
 def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
-namespace DiscrTreeFinder
-
-/-- Adds a path to a discrimination tree. -/
-private def addPath [BEq α] (config : WhnfCoreConfig) (tree : DiscrTree α) (tp : Expr) (v : α) :
-    MetaM (DiscrTree α) := do
-  let k ← DiscrTree.mkPath tp config
-  pure <| tree.insertCore k v
-
-/-- Adds a constant with given name to tree. -/
-private def updateTree (config : WhnfCoreConfig) (tree : DiscrTree (Name × DeclMod))
-    (name : Name) (constInfo : ConstantInfo) : MetaM (DiscrTree (Name × DeclMod)) := do
-  if constInfo.isUnsafe then return tree
-  if !allowCompletion (←getEnv) name then return tree
-  withReducible do
-    let (_, _, type) ← forallMetaTelescope constInfo.type
-    let tree ← addPath config tree type (name, DeclMod.none)
-    match type.getAppFnArgs with
-    | (``Iff, #[lhs, rhs]) => do
-      let tree ← addPath config tree rhs (name, DeclMod.mp)
-      let tree ← addPath config tree lhs (name, DeclMod.mpr)
-      return tree
-    | _ =>
-      return tree
-
-/--
-Constructs an discrimination tree from the current environment.
--/
-def buildImportCache (config : WhnfCoreConfig) : MetaM (DiscrTree (Name × DeclMod)) := do
-  let profilingName := "apply?: init cache"
-  -- Sort so lemmas with longest names come first.
-  let post (A : Array (Name × DeclMod)) :=
-        A.map (fun (n, m) => (n.toString.length, n, m)) |>.qsort (fun p q => p.1 > q.1) |>.map (·.2)
-  profileitM Exception profilingName (← getOptions) do
-    (·.mapArrays post) <$> (← getEnv).constants.map₁.foldM (init := {}) (updateTree config)
-
-/--
-Returns matches from local constants.
--/
-/-
-N.B. The efficiency of this could likely be considerably improved by caching in environment
-extension.
--/
-def localMatches (config : WhnfCoreConfig) (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  let locals ← (← getEnv).constants.map₂.foldlM (init := {}) (DiscrTreeFinder.updateTree config)
-  pure <| (← locals.getMatch  ty config).reverse
-
-/--
-Candidate-finding function that uses a strict discrimination tree for resolution.
--/
-def mkImportFinder (config : WhnfCoreConfig) (importTree : DiscrTree (Name × DeclMod))
-    (ty : Expr) : MetaM (Array (Name × DeclMod)) := do
-  pure <| (← importTree.getMatch ty config).reverse
-
-end DiscrTreeFinder
-
-namespace IncDiscrTreeFinder
-
-open LazyDiscrTree (InitEntry createImportedEnvironment)
-
-/--
-The maximum number of constants an individual task may perform.
-
-The value was picked because it roughly correponded to 50ms of work on the machine this was
-developed on.  Smaller numbers did not seem to improve performance when importing Std and larger
-numbers (<10k) seemed to degrade initialization performance.
--/
-private def constantsPerTask : Nat := 6500
+open LazyDiscrTree (InitEntry findCandidates)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
@@ -144,53 +81,42 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
     else
       pure a
 
-/--
-Candidate-finding function that uses a strict discrimination tree for resolution.
--/
-def mkImportFinder : IO CandidateFinder := do
-  let ref ← IO.mkRef none
-  pure fun ty => do
-    let ngen ← getNGen
-    let (childNGen, ngen) := ngen.mkChild
-    setNGen ngen
-    let importTree ← (←ref.get).getDM $ do
-      profileitM Exception  "librarySearch launch" (←getOptions) $
-        createImportedEnvironment childNGen (←getEnv) (constantsPerTask := constantsPerTask) addImport
-    let (imports, importTree) ← importTree.getMatch ty
-    ref.set importTree
-    pure imports
+/-- Stores import discrimination tree. -/
+private def LibSearchState := IO.Ref (Option (LazyDiscrTree (Name × DeclMod)))
 
-end IncDiscrTreeFinder
-
-initialize registerTraceClass `Tactic.librarySearch
-initialize registerTraceClass `Tactic.librarySearch.lemmas
-
-/-- State for resolving imports -/
-private def LibSearchState := IO.Ref (Option CandidateFinder)
-
-private initialize LibSearchState.default : IO.Ref (Option CandidateFinder) ← do
+private builtin_initialize defaultLibSearchState : IO.Ref (Option (LazyDiscrTree (Name × DeclMod))) ← do
   IO.mkRef .none
 
 private instance : Inhabited LibSearchState where
-  default := LibSearchState.default
+  default := defaultLibSearchState
 
-private initialize ext : EnvExtension LibSearchState ←
+private builtin_initialize ext : EnvExtension LibSearchState ←
   registerEnvExtension (IO.mkRef .none)
 
 /--
-The preferred candidate finding function.
+We drop `.star` and `Eq * * *` from the discriminator trees because
+they match too much.
 -/
-initialize defaultCandidateFinder : IO.Ref CandidateFinder ← unsafe do
-  IO.mkRef (←IncDiscrTreeFinder.mkImportFinder)
+def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .star, .star, .star]]
 
 /--
-Update the candidate finder used by library search.
+The maximum number of constants an individual task may perform.
+
+The value was picked because it roughly correponded to 50ms of work on the
+machine this was developed on.  Smaller numbers did not seem to improve
+performance when importing Std and larger numbers (<10k) seemed to degrade
+initialization performance.
 -/
-def setDefaultCandidateFinder (cf : CandidateFinder) : IO Unit :=
-  defaultCandidateFinder.set cf
+private def constantsPerImportTask : Nat := 6500
+
+/-- Create function for finding relevant declarations. -/
+def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
+  findCandidates ext addImport
+      (droppedKeys := droppedKeys)
+      (constantsPerTask := constantsPerImportTask)
 
 /--
-Return an action that returns true when  the remaining heartbeats is less
+Return an action that returns true when the remaining heartbeats is less
 than the currently remaining heartbeats * leavePercent / 100.
 -/
 def mkHeartbeatCheck (leavePercent : Nat) : MetaM (MetaM Bool) := do
@@ -229,12 +155,11 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
           (y.extract n y.size).map g
   pure $ res ++ last
 
-
 /--
 An exception ID that indicates further speculation on candidate lemmas should stop
 and current results should be returned.
 -/
-private initialize abortSpeculationId : InternalExceptionId ←
+private builtin_initialize abortSpeculationId : InternalExceptionId ←
   registerInternalExceptionId `Std.Tactic.LibrarySearch.abortSpeculation
 
 /--
@@ -292,19 +217,6 @@ private def isVar (e : Expr) : Bool :=
   | .mvar _ => true
   | _ => false
 
-private def isNonspecific (type : Expr) : MetaM Bool := do
-  forallTelescope type fun _ tp =>
-    match tp.getAppFn with
-    | .bvar _ => pure true
-    | .fvar _ => pure true
-    | .mvar _ => pure true
-    | .const nm _ =>
-      if nm = ``Eq then
-        pure (tp.getAppArgsN 3 |>.all isVar)
-      else
-        pure false
-    | _ => pure false
-
 /--
 Tries to apply the given lemma (with symmetry modifier) to the goal,
 then tries to close subsequent goals using `solveByElim`.
@@ -319,9 +231,6 @@ private def librarySearchLemma (cfg : ApplyConfig) (act : List MVarId → MetaM 
   withTraceNode `Tactic.librarySearch (return m!"{emoji ·} trying {name}{ppMod mod} ") do
     setMCtx mctx
     let lem ← mkLibrarySearchLemma name mod
-    let lemType ← instantiateMVars (← inferType lem)
-    if ← isNonspecific lemType then
-      failure
     let newGoals ← goal.apply lem cfg
     try
       act newGoals
@@ -369,22 +278,10 @@ private def librarySearch' (goal : MVarId)
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-  let importFinder ← do
-        let r := ext.getState (←getEnv)
-        match ←r.get with
-        | .some f => pure f
-        | .none =>
-          let f ← defaultCandidateFinder.get
-          r.set (.some f)
-          pure f
-  let searchFn (ty : Expr) := do
-      let localMap ← (← getEnv).constants.map₂.foldlM (init := {}) (DiscrTreeFinder.updateTree {})
-      let locals := (← localMap.getMatch  ty {}).reverse
-      pure <| locals ++ (← importFinder ty)
   -- Create predicate that returns true when running low on heartbeats.
-  let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
-  let candidates ← librarySearchSymm searchFn goal
+  let candidates ← librarySearchSymm libSearchFindDecls goal
   let cfg : ApplyConfig := { allowSynthFailures := true }
+  let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
   let act := fun cand => do
       if ←shouldAbort then
         abortSpeculation

@@ -370,6 +370,14 @@ macro "rfl" : tactic => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
+This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
+relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+-/
+syntax (name := applyRfl) "apply_rfl" : tactic
+
+macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
+
+/--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
 -/

@@ -25,9 +25,9 @@ termination_by x1 x2 x3 x4 x5 x6 x7 x8 => (x8, x7, x6, x5, x4, x3, x2, x1)
 Inferred termination argument:
 termination_by x1 => sizeOf x1
 Inferred termination argument:
-termination_by x1 x2 => (x1, sizeOf x2)
+termination_by n m => (n, sizeOf m)
 Inferred termination argument:
-termination_by x1 x2 => x1
+termination_by m => m
 Inferred termination argument:
 termination_by (sizeOf a, 1)
 Inferred termination argument:
@@ -37,11 +37,13 @@ termination_by x2' => x2'
 Inferred termination argument:
 termination_by x2 => x2
 Inferred termination argument:
+termination_by _ x2 => x2
+Inferred termination argument:
 termination_by x1 => sizeOf x1
 Inferred termination argument:
 termination_by x2 => SizeOf.sizeOf x2
 Inferred termination argument:
-termination_by x1 x2 => SizeOf.sizeOf x1
+termination_by x1 => SizeOf.sizeOf x1
 Inferred termination argument:
 termination_by x2 => SizeOf.sizeOf x2
 Inferred termination argument:
@@ -52,14 +54,7 @@ Inferred termination argument:
 termination_by x1 => x1
 Inferred termination argument:
 termination_by sizeOf o
-guessLex.lean:217:0-229:3: error: Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
-(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from MutualNotNat2.MutualNotNat2.MutualNotNat3.foo to MutualNotNat2.MutualNotNat2.MutualNotNat3.bar at 221:23-35:
-   x1
-x1  <
-Call from MutualNotNat2.MutualNotNat2.MutualNotNat3.bar to MutualNotNat2.MutualNotNat2.MutualNotNat3.foo at 226:30-42:
-   x1
-x1  ?
-
-Please use `termination_by` to specify a decreasing measure.
+Inferred termination argument:
+termination_by x1 => x1
+Inferred termination argument:
+termination_by x1 => sizeOf x1

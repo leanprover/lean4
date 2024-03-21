@@ -69,11 +69,17 @@ structure LeanLibConfig extends LeanConfig where
   defaultFacets : Array Name := #[LeanLib.leanArtsFacet]
 
   /--
-  An `Array` of module facets to build and combine into the library's static
-  and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
-  compiled from the Lean source).
+  The module facets to build and combine into the library's static
+  and shared libraries. If `shouldExport` is true, the module facets should
+  export any symbols a user may expect to lookup in the library. For example,
+  the Lean interpreter will use exported symbols in linked libraries.
+
+  Defaults to a singleton of `Module.oExportFacet` (if `shouldExport`) or
+  `Module.oFacet`. That is, the  object files compiled from the Lean sources,
+  potentially with exported Lean symbols.
   -/
-  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+    #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited
 

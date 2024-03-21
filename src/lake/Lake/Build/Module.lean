@@ -196,31 +196,65 @@ def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
       -- do content-aware hashing so that we avoid recompiling unchanged bitcode files
       return (mod.bcFile, ← fetchFileTrace mod.bcFile)
 
-/-- Recursively build the module's object file from its C file produced by `lean`. -/
-def Module.recBuildLeanCToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+/--
+Recursively build the module's object file from its C file produced by `lean`
+with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
+-/
+def Module.recBuildLeanCToOExport (self : Module) : IndexBuildM (BuildJob FilePath) := do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.name.toString self.coFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+  let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
+  buildLeanO self.name.toString self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
+
+/-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
+def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
+  mkFacetJobConfig Module.recBuildLeanCToOExport
+
+/--
+Recursively build the module's object file from its C file produced by `lean`.
+This version does not export any Lean symbols.
+-/
+def Module.recBuildLeanCToONoExport (self : Module) : IndexBuildM (BuildJob FilePath) := do
+  -- TODO: add option to pass a target triplet for cross compilation
+  buildLeanO self.name.toString self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+
+/-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
+def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
+  mkFacetJobConfig Module.recBuildLeanCToONoExport
+
+/-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
+def Module.coFacetConfig : ModuleFacetConfig coFacet :=
+  mkFacetJobConfigSmall fun mod =>
+    if Platform.isWindows then mod.coNoExport.fetch else mod.coExport.fetch
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.name.toString self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
-/-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
-def Module.coFacetConfig : ModuleFacetConfig coFacet :=
-  mkFacetJobConfig Module.recBuildLeanCToO
-
 /-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
 def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
   mkFacetJobConfig Module.recBuildLeanBcToO
 
-/-- The `ModuleFacetConfig` for the builtin `OFacet`. -/
+/-- The `ModuleFacetConfig` for the builtin `oExportFacet`. -/
+def Module.oExportFacetConfig : ModuleFacetConfig oExportFacet :=
+  mkFacetJobConfigSmall fun mod =>
+    match mod.backend with
+    | .default | .c => mod.coExport.fetch
+    | .llvm => mod.bco.fetch
+
+/-- The `ModuleFacetConfig` for the builtin `oNoExportFacet`. -/
+def Module.oNoExportFacetConfig : ModuleFacetConfig oNoExportFacet :=
+  mkFacetJobConfigSmall fun mod =>
+    match mod.backend with
+    | .default | .c => mod.coNoExport.fetch
+    | .llvm => error "the LLVM backend only supports exporting Lean symbols"
+
+/-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
   mkFacetJobConfigSmall fun mod =>
     match mod.backend with
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
-
 
 -- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
@@ -232,7 +266,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
   let pkgs := transImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, pkgLibDirs) ← recBuildExternDynlibs pkgs
-  let linkJobs ← mod.nativeFacets.mapM (fetch <| mod.facet ·.name)
+  let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
 
   -- Collect Jobs
   let linksJob ← BuildJob.collectArray linkJobs
@@ -279,6 +313,10 @@ def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert cFacet cFacetConfig
   |>.insert bcFacet bcFacetConfig
   |>.insert coFacet coFacetConfig
+  |>.insert coExportFacet coExportFacetConfig
+  |>.insert coNoExportFacet coNoExportFacetConfig
   |>.insert bcoFacet bcoFacetConfig
   |>.insert oFacet oFacetConfig
+  |>.insert oExportFacet oExportFacetConfig
+  |>.insert oNoExportFacet oNoExportFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig

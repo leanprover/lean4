@@ -312,6 +312,31 @@ instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
 
+def withNarrowedTacticReuseRaw [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] (parse : Syntax → Option (Syntax × Syntax)) (act : Syntax → m α)
+    (stx : Syntax) : m α := do
+    let some (outer, inner) := parse stx
+      | throwUnsupportedSyntax
+    let opts ← getOptions
+    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+      { tacSnap with old? := tacSnap.old?.bind fun old => do
+        let some (oldOuter, oldInner) := parse old.stx
+          | dbg_trace "reuse stopped: failed to parse old syntax {old.stx}" none
+        if outer.structRangeEq oldOuter then
+          return { old with stx := oldInner }
+        else
+          if opts.getBool `trace.Elab.reuse then
+            dbg_trace "reuse stopped: {outer} != {oldOuter}"
+          failure
+      }
+    }) (act inner)
+
+def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] (parse : Syntax → Option (Syntax × TSyntax inner))
+    (act : TSyntax inner → m α) (stx : Syntax) : m α :=
+  withNarrowedTacticReuseRaw (fun stx => parse stx |>.map (fun (o, i) => (o, i))) (act ∘ TSyntax.mk)
+    stx
+
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
 /--

@@ -65,7 +65,7 @@ structure HeaderProcessedSnapshot extends Language.Snapshot where
   view : DefViewElabHeaderData
   /-- Resulting elaboration state, including any environment additions. -/
   state : Term.SavedState
-  /-- Syntax of top-level tactic block if any, for checking reuse of `tacnSnap?`. -/
+  /-- Syntax of top-level tactic block if any, for checking reuse of `tacSnap?`. -/
   tacStx? : Option Syntax
   /-- Incremental execution of main tactic block, if any. -/
   tacSnap? : Option (SnapshotTask Tactic.TacticParsedSnapshot)

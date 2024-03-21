@@ -961,7 +961,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let snap? := (← read).snap?
   -- NOTE: currently must be an IO.Ref as `mut` backtracks on `finally`
   let viewsRef ← IO.mkRef #[]
-  let mut headerSnaps := #[]
+  let mut defs := #[]
   try
     for h : i in [0:ds.size] do
       let d := ds[i]
@@ -983,21 +983,20 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
             -- unchanged.
             let old ← snap.old?
             -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
-            let old ← old.get.toTyped? HeadersParsedSnapshot
-            let oldParsed ← old.headers[i]?
+            let old ← old.get.toTyped? DefsParsedSnapshot
+            let oldParsed ← old.defs[i]?
             guard <| (← headerSubstr?).sameAs (← oldParsed.headerSubstr?)
-            oldParsed.processedSnap
+            oldParsed.headerProcessedSnap
           new
         } }
-        headerSnaps := headerSnaps.push {
+        defs := defs.push {
           headerSubstr?
-          processedSnap := { range? := d.getRange?, task := new.result }
+          headerProcessedSnap := { range? := d.getRange?, task := new.result }
         }
       viewsRef.modify (·.push view)
     if let some snap := snap? then
       -- no non-fatal diagnostics at this point
-      snap.new.resolve <|
-        .ofTyped { headers := headerSnaps, diagnostics := .empty : HeadersParsedSnapshot }
+      snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
     let views ← viewsRef.get
     runTermElabM fun vars => Term.elabMutualDef vars views
   finally

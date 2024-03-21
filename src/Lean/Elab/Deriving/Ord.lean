@@ -84,6 +84,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   for i in [:ctx.typeInfos.size] do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
+     set_option match.ignoreUnusedAlts true
      $auxDefs:command*
     end)
 

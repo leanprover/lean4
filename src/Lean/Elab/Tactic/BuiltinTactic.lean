@@ -49,7 +49,7 @@ where
       if let some old := snap.old? then
         let oldEvaluated := old.val.get
         oldInner? := oldEvaluated.next.get? 0 |>.map (⟨oldEvaluated.data.stx, ·⟩)
-    Term.withNarrowedTacticReuseRaw (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       if let some snap := (← readThe Term.Context).tacSnap? then
         let mut reused := false
         let mut oldNext? := none
@@ -105,7 +105,7 @@ where
     if stx.getNumArgs == 0 then
       return
     saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
-    Term.withNarrowedTacticReuseRaw (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
+    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
 
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
   evalSepTactics stx[0]
@@ -178,14 +178,14 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   return stx.setArgs output
 
 @[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
-  Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[0])) evalSepTactics
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalSepTactics
 
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[1])) evalSepTactics stx
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalSepTactics stx
 
 builtin_initialize registerBuiltinIncrementalTactic ``cdot
 @[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
@@ -197,9 +197,7 @@ builtin_initialize registerBuiltinIncrementalTactic ``cdot
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    Term.withNarrowedTacticReuse (fun
-      | `(tactic| $tk:cdotTk $tacs) => some (tk, tacs)
-      | _ => none) (evalTactic ·) stx
+    Term.withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) stx
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -269,7 +267,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
   setGoals mvarIdsNew.toList
 
 @[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
-  Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[0])) evalTactic
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
@@ -498,11 +496,7 @@ builtin_initialize registerBuiltinIncrementalTactic ``case
       setGoals [g]
       g.setTag Name.anonymous
       withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
-        Term.withNarrowedTacticReuse (fun
-          | `(tactic| case%$caseTk $arg =>%$arr $tac:tacticSeq1Indented) =>
-            some (mkNullNode #[caseTk, arg, arr], tac)
-          | _ => none
-        ) (evalTactic ·) stx
+        Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
       setGoals gs
   | _ => throwUnsupportedSyntax
 

@@ -312,15 +312,31 @@ instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
 
-def withNarrowedTacticReuseRaw [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
-    [MonadOptions m] (parse : Syntax → Option (Syntax × Syntax)) (act : Syntax → m α)
+/--
+Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
+part. `act` is then run on the inner part but with reuse information adjusted as following:
+* If the old syntax (from `tacSnap?`'s `SyntaxGuarded.stx`) cannot be split, reuse is disabled. As
+  the old syntax may not even be the same tactic as the new one, there is no expectation that
+  splitting is always possible. In contrast, failing to split the given syntax results in
+  `throwUnsupportedSyntax`.
+* Otherwise, if the old and new outer syntax are not identical according to `Syntax.structRangeEq`,
+  reuse is disabled.
+* Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
+* In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
+  `act` via this route.
+
+For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
+tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
+-/
+def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] [MonadRef m] (split : Syntax → Option (Syntax × Syntax)) (act : Syntax → m α)
     (stx : Syntax) : m α := do
-    let some (outer, inner) := parse stx
+    let some (outer, inner) := split stx
       | throwUnsupportedSyntax
     let opts ← getOptions
     withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
       { tacSnap with old? := tacSnap.old?.bind fun old => do
-        let some (oldOuter, oldInner) := parse old.stx
+        let some (oldOuter, oldInner) := split old.stx
           | dbg_trace "reuse stopped: failed to parse old syntax {old.stx}" none
         if outer.structRangeEq oldOuter then
           return { old with stx := oldInner }
@@ -329,13 +345,22 @@ def withNarrowedTacticReuseRaw [Monad m] [MonadExceptOf Exception m] [MonadWithR
             dbg_trace "reuse stopped: {outer} != {oldOuter}"
           failure
       }
-    }) (act inner)
+    }) do
+      withRef inner do
+        act inner
 
-def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
-    [MonadOptions m] (parse : Syntax → Option (Syntax × TSyntax inner))
-    (act : TSyntax inner → m α) (stx : Syntax) : m α :=
-  withNarrowedTacticReuseRaw (fun stx => parse stx |>.map (fun (o, i) => (o, i))) (act ∘ TSyntax.mk)
-    stx
+/--
+A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
+child nodes before that as the outer syntax, i.e. reuse is disabled if there was any change before
+`argIdx`.
+
+NOTE: child nodes after `argIdx` are not tested (which would almost always disable reuse as they are
+necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
+depend on them (i.e. they should not be inspected beforehand).
+-/
+def withNarrowedArgTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 

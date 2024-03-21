@@ -333,9 +333,7 @@ mutual
           -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
           -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
           withTacticInfoContext tacticCode[0] do
-            withNarrowedTacticReuse (fun
-              | `(by%$byTk $tacs) => some (byTk, tacs)
-              | _ => none) (evalTactic ·) tacticCode
+            withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) tacticCode
         synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
         if report then

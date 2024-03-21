@@ -62,7 +62,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "release": false,
                 "quick": false,
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{}}\" --run \"bash -euxo pipefail {0}\"",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
@@ -76,7 +76,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "release": true,
                 "quick": true,
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{}}\" --run \"bash -euxo pipefail {0}\"",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
@@ -154,7 +154,7 @@ jobs:
                 "quick": false,
                 "cross": true,
                 "cross_target": "aarch64-unknown-linux-gnu",
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{ localSystem.config = \\\"aarch64-unknown-linux-gnu\\\"; }}\" --run \"bash -euxo pipefail {0}\"",
+                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
               },
@@ -252,7 +252,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: ${{ matrix.shell || 'nix-shell --run "bash -euxo pipefail {0}"' }}
+        shell: ${{ matrix.shell || 'nix develop -c bash -euxo pipefail {0}' }}
     name: ${{ matrix.name }}
     env:
       # must be inside workspace

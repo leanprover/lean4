@@ -119,10 +119,11 @@ class Ord (α : Type u) where
 
 export Ord (compare)
 
+set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
 Compare `x` and `y` by comparing `f x` and `f y`.
 -/
-@[inline] def compareOn [Ord β] (f : α → β) (x y : α) : Ordering :=
+@[inline] def compareOn [ord : Ord β] (f : α → β) (x y : α) : Ordering :=
   compare (f x) (f y)
 
 instance : Ord Nat where

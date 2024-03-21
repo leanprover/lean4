@@ -28,6 +28,12 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
+-- TODO: attribute(s)
+builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
+
+def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
+  builtinIncrementalTactics.modify fun s => s.insert kind
+
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
@@ -72,7 +78,7 @@ where
               task := next.result }]
           unless reused do
             withTheReader Term.Context ({ · with
-                tacSnap? := if tac.isOfKind ``Lean.Parser.Tactic.case then
+                tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
                   some {
                     old? := oldInner?
                     new := inner
@@ -179,8 +185,9 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalSepTactics stx[1]
+    Term.withNarrowedTacticReuseRaw (fun stx => some (.missing, stx[1])) evalSepTactics stx
 
+builtin_initialize registerBuiltinIncrementalTactic ``cdot
 @[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
@@ -190,7 +197,9 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    evalSepTactics stx[1]
+    Term.withNarrowedTacticReuse (fun
+      | `(tactic| $tk:cdotTk $tacs) => some (tk, tacs)
+      | _ => none) (evalTactic ·) stx
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -480,6 +489,7 @@ where
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
 
+builtin_initialize registerBuiltinIncrementalTactic ``case
 @[builtin_tactic «case»] def evalCase : Tactic
   | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     for tag in tag, hs in hs do

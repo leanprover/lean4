@@ -194,7 +194,7 @@ def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
 def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
   let msgLog := MessageLog.empty.add {
     fileName := "<input>"
-    pos := ⟨0, 0⟩
+    pos := ⟨1, 0⟩
     endPos := (← read).fileMap.toPosition (← read).fileMap.source.endPos
     data := msg
   }

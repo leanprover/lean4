@@ -371,7 +371,7 @@ end relations
 section cast
 
 /-- `cast eq i` embeds `i` into an equal `BitVec` type. -/
-@[inline] def cast (eq : n = m) (i : BitVec n) : BitVec m := .ofNatLt i.toNat (eq ▸ i.isLt)
+def cast (eq : n = m) (i : BitVec n) : BitVec m := .ofNatLt i.toNat (eq ▸ i.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
     cast h (BitVec.ofNat n x) = BitVec.ofNat m x := by

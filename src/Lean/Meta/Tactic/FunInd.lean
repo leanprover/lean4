@@ -14,6 +14,12 @@ import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
 import Lean.Elab.Command
+import Lean.Meta.Tactic.ElimInfo
+
+-- Just for testing
+inductive Finn : Nat → Type where
+  | fzero : {n : Nat} → Finn n
+  | fsucc : {n : Nat} → Finn n → Finn (n+1)
 
 /-!
 This module contains code to derive, from the definition of a recursive function
@@ -196,20 +202,6 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
     if let some e' ← isPProdProj oldIH newIH (e.stripArgsN (arity - 3)) then
       return some (e', args)
   return none
-
-def argOfPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-  if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
-    let t ← whnf (← inferType e')
-    forallTelescopeReducing t fun xs t' => do
-      logInfo m!"xs: {xs} t': {t'}"
-      unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
-        throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
-      if t'.getAppNumArgs < 1 then
-        return none
-      else
-        return (t'.getAppArgs[0]!, args)
-  else
-    return none
 
 /-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
 partial def foldCalls (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM Expr := do
@@ -582,21 +574,37 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
 
   buildInductionCase fn oldIH newIH toClear toPreserve goal IHs e
 
-partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
-  lambdaTelescope e fun params body => do
-    if body.isAppOf ``WellFounded.fixF then
-      k params body
-    else if body.isAppOf ``Nat.brecOn then
-      k params body
-    else if body.isAppOf ``List.brecOn then
-      k params body
+partial def findFixF {α} (name : Name) (e : Expr)
+    (k : (params : Array Expr) → (fix : Expr) → (body : Expr) → (targets : Array Expr) →
+      (otherArgs : Array Expr) → MetaM α) : MetaM α := do
+  lambdaTelescope e fun params body => body.withApp fun f args => do
+    if not f.isConst then err else
+    if isBRecOnRecursor (← getEnv) f.constName! then
+      let elimInfo ← getElimExprInfo f
+      let value := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
+      let value := mkAppN value (args[:elimInfo.motivePos])
+      let targets := elimInfo.targetsPos.map (args[·]!)
+      let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
+      let otherArgs := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
+      k params value body targets otherArgs
+    /-
+    else if f.isConstOf ``WellFounded.fixF && args.size == 5 then
+      let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
+      let value := mkAppN value args[:2]
+      let body := args[3]!
+      let targets := #[args[4]!]
+      k params value body targets #[]
     else if body.isAppOf ``WellFounded.fix then
-      findFixF name (← unfoldDefinition body) fun args e' => k (params ++ args) e'
+      findFixF name (← unfoldDefinition body) fun params' value body targets otherArgs =>
+        k (params ++ params') value body targets otherArgs
+    -/
     else
-      throwError m!"Function {name} does not look like a function defined by well-founded " ++
-        m!"recursion.\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
-        m!"function (via `let rec` or `where`), try `{name}.go` where `go` is name of the inner " ++
-        "function."
+      err
+  where
+    err := throwError m!"Function {name} does not look like a function defined by well-founded " ++
+      m!"recursion.\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
+      m!"function (via `let rec` or `where`), try `{name}.go` where `go` is name of the inner " ++
+      "function."
 
 /--
 Given a definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
@@ -607,8 +615,8 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   if ← hasConst inductName then return inductName
 
   let info ← getConstInfoDefn name
-  findFixF name info.value fun params body => body.withApp fun f fixArgs => do
-    -- logInfo f!"{fixArgs}"
+  findFixF name info.value fun params e' body targets extraArgs => do
+    -- logInfo m!"params: {params}\ne': {e'}\ntargets: {targets}\nextraArgs: {extraArgs}"
     unless params.size > 0 do
       throwError "Value of {name} is not a lambda application"
     -- unless f.isConstOf ``WellFounded.fixF do
@@ -618,53 +626,39 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- unless ← isDefEq arg params.back do
     --   throwError "fixF application argument {arg} is not function argument "
     -- let [argLevel, _motiveLevel] := f.constLevels! | unreachable!
-    let recParams ←
-      if f.isConstOf ``Nat.brecOn then pure 0
-      else if f.isConstOf ``List.brecOn then pure 1
-      else throwError "Term isn’t application of {``Nat.brecOn}, but of {f}"
-    let brec := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
-    if h : fixArgs.size < recParams + 3 then
-      throwError "Application of Nat.brecOn has wrong arity {fixArgs.size}" else do
-    let _origMotive := fixArgs[recParams + 0]
-    let arg := fixArgs[recParams + 1]
-    let body := fixArgs[recParams + 2]
-    let extraArgs : Array Expr := fixArgs[recParams + 3:]
-
-    let varyingParams := params.filter fun x => x == arg || extraArgs.contains x
-
-    let motiveType ←
-      mkForallFVars varyingParams (.sort levelZero)
+    let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
+    let motiveType ← mkForallFVars varyingParams (.sort levelZero)
     logInfo m!"motiveType: {motiveType}"
 
     withLocalDecl `motive .default motiveType fun motive => do
 
-    let brecMotive ← mkLambdaFVars #[arg]
+    let brecMotive ← mkLambdaFVars targets
       (← mkForallFVars extraArgs (mkAppN motive varyingParams))
     logInfo m!"brecMotive: {brecMotive}"
     check brecMotive
 
-    let e' := mkAppN brec (fixArgs[:recParams] ++ #[brecMotive, arg])
     -- When unfolding recursive calls, we may have to permute the arguments
     let fn ← mkLambdaFVars varyingParams <|
         mkAppN (.const name (info.levelParams.map mkLevelParam)) params
-    logInfo m!"fn: {fn}"
+    let e' := mkAppN (mkApp e' brecMotive) targets
+    logInfo m!"fn: {fn}\ne': {e'}"
     check e'
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
-      if h : xs.size < 2 + extraArgs.size then
+      if h : xs.size < targets.size + 1 + extraArgs.size then
         throwError "brecOn argument takes too few arguments: {xs}" else
-      let param := xs[0]
-      let genIH := xs[1]
-      let extraParams := xs[2:]
+      let params : Array Expr := xs[:targets.size]
+      let genIH := xs[targets.size]
+      let extraParams := xs[targets.size+1:]
       -- open body with the same arg
-      logInfo m!"goal : {goal}"
-      let body ← instantiateLambda body #[param]
+      logInfo m!"goal : {goal}\nbody: {body}\nparams: {params}"
+      let body ← instantiateLambda body params
       removeLamda body fun oldIH body => do
         let body ← instantiateLambda body extraParams
         -- let goal := motive.beta (#[param] ++ extraParams)
         let body' ← buildInductionBody fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
         if body'.containsFVar oldIH then
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-        mkLambdaFVars #[param, genIH] (← mkLambdaFVars extraParams body')
+        mkLambdaFVars (params.push genIH) (← mkLambdaFVars extraParams body')
 
     -- let e' := mkApp3 e' body' arg acc
     let e' := mkAppN e' #[body']
@@ -872,6 +866,15 @@ run_meta Lean.Tactic.FunInd.deriveInduction `binary
 #check binary.induct
 
 
+-- Different parameter order
+def binary' : Bool → Nat → Bool
+  | acc, 0 | acc , 1 => not acc
+  | acc, n+2 => binary' (binary' acc (n+1)) n
+
+-- #print binary'
+run_meta Lean.Tactic.FunInd.deriveInduction `binary'
+#check binary'.induct
+
 def zip {α β} : List α → List β → List (α × β)
   | [], _ => []
   | _, [] => []
@@ -892,25 +895,10 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
     simp [Nat.min_def]
     split<;>split<;> omega
 
--- The brecOn here has indices, not yet handled above. But hopefully
--- just a generalization from motive parameter to many
-
-inductive Finn : Nat → Type where
-  | fzero : {n : Nat} → Finn n
-  | fsucc : {n : Nat} → Finn n → Finn (n+1)
-
-def Finn.min {n : Nat} : Finn n → Finn n → Finn n
+def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → Finn n → Finn n
   | fzero, _ => fzero
   | _, fzero => fzero
-  | fsucc i, fsucc j => fsucc (Finn.min i j)
+  | fsucc i, fsucc j => fsucc (Finn.min (not x) (m + 1) i j)
 
--- run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min
-
-
-def binary' : Bool → Nat → Bool
-  | acc, 0 | acc , 1 => not acc
-  | acc, n+2 => binary' (binary' acc (n+1)) n
-
--- #print binary'
-run_meta Lean.Tactic.FunInd.deriveInduction `binary'
-#check binary'.induct
+run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min
+#check Finn.min.induct

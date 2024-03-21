@@ -8,7 +8,6 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
-import Init.Data.Nat.Mod
 
 namespace BitVec
 

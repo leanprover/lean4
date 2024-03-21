@@ -512,15 +512,17 @@ section MessageHandling
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
       WorkerM (Array InteractiveDiagnostic) := do
+    let ctx ← read
     let st ← get
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
     -- they receive the non-interactive diagnostics for the new document
+    let stickyDiags ← ctx.stickyDiagnosticsRef.get
     let diags ← st.doc.diagnosticsRef.get
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return diags.filter fun diag =>
+    return (stickyDiags.toArray ++ diags).filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=

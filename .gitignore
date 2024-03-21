@@ -30,3 +30,4 @@ wdErr.txt
 wdIn.txt
 wdOut.txt
 Info.plist
+*.tmp

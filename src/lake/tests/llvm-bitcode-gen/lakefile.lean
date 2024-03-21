@@ -13,12 +13,10 @@ lean_lib «LlvmBitcodeGen» where
 @[default_target]
 lean_exe «llvm-bitcode-gen» where
   root := `Main
-  -- Enables the use of the Lean interpreter by the executable (e.g.,
-  -- `runFrontend`) at the expense of increased binary size on Linux.
-  -- Remove this line if you do not need such functionality.
+  -- Enables the use of the Lean interpreter by the executable.
+  -- We need this to access `Lean.Internal.hasLLVMBackend`.
   supportInterpreter := true
 
 script hasLLVMBackend do
   IO.println s!"Lake Lean.Internal.hasLLVMBackend: {Lean.Internal.hasLLVMBackend ()}"
   return 0
-

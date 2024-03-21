@@ -3,7 +3,9 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Data.Name
+prelude
+import Init.Data.List.Control
+import Init.Data.Format.Syntax
 
 namespace Lean
 
@@ -189,6 +191,16 @@ def subsetAux : List (Name × DataValue) → KVMap → Bool
 
 def subset : KVMap → KVMap → Bool
   | ⟨m₁⟩, m₂ => subsetAux m₁ m₂
+
+def mergeBy (mergeFn : Name → DataValue → DataValue → DataValue) (l r : KVMap)
+    : KVMap := Id.run do
+  let mut result := l
+  for ⟨k, vᵣ⟩ in r do
+    if let some vₗ := result.find k then
+      result := result.insert k (mergeFn k vₗ vᵣ)
+    else
+      result := result.insert k vᵣ
+  return result
 
 def eqv (m₁ m₂ : KVMap) : Bool :=
   subset m₁ m₂ && subset m₂ m₁

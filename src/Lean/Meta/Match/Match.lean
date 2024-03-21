@@ -3,12 +3,16 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Lean.Meta.LitValues
 import Lean.Meta.Check
 import Lean.Meta.Closure
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.GeneralizeTelescope
 import Lean.Meta.Match.Basic
+import Lean.Meta.Match.MatcherApp.Basic
 
 namespace Lean.Meta.Match
 
@@ -92,10 +96,17 @@ private def hasValPattern (p : Problem) : Bool :=
     | .val _ :: _ => true
     | _           => false
 
-private def hasNatValPattern (p : Problem) : Bool :=
-  p.alts.any fun alt => match alt.patterns with
-    | .val v :: _ => v.isNatLit
-    | _           => false
+private def hasNatValPattern (p : Problem) : MetaM Bool :=
+  p.alts.anyM fun alt => do
+    match alt.patterns with
+    | .val v :: _ => return (← getNatValue? v).isSome
+    | _           => return false
+
+private def hasIntValPattern (p : Problem) : MetaM Bool :=
+  p.alts.anyM fun alt => do
+    match alt.patterns with
+    | .val v :: _ => return (← getIntValue? v).isSome
+    | _           => return false
 
 private def hasVarPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
@@ -128,6 +139,21 @@ private def isValueTransition (p : Problem) : Bool :=
      | .var _ :: _ => true
      | _           => false
 
+private def isValueOnlyTransitionCore (p : Problem) (isValue : Expr → MetaM Bool) : MetaM Bool := do
+  if hasVarPattern p then return false
+  if !hasValPattern p then return false
+  p.alts.allM fun alt => do
+     match alt.patterns with
+     | .val v :: _   => isValue v
+     | .ctor .. :: _ => return true
+     | _             => return false
+
+private def isFinValueTransition (p : Problem) : MetaM Bool :=
+  isValueOnlyTransitionCore p fun e => return (← getFinValue? e).isSome
+
+private def isBitVecValueTransition (p : Problem) : MetaM Bool :=
+  isValueOnlyTransitionCore p fun e => return (← getBitVecValue? e).isSome
+
 private def isArrayLitTransition (p : Problem) : Bool :=
   hasArrayLitPattern p && hasVarPattern p
   && p.alts.all fun alt => match alt.patterns with
@@ -135,13 +161,32 @@ private def isArrayLitTransition (p : Problem) : Bool :=
      | .var _ :: _       => true
      | _                 => false
 
-private def isNatValueTransition (p : Problem) : Bool :=
-  hasNatValPattern p
-  && (!isNextVar p ||
-      p.alts.any fun alt => match alt.patterns with
-      | .ctor .. :: _        => true
-      | .inaccessible _ :: _ => true
-      | _                    => false)
+private def hasCtorOrInaccessible (p : Problem) : Bool :=
+  !isNextVar p ||
+    p.alts.any fun alt => match alt.patterns with
+    | .ctor .. :: _        => true
+    | .inaccessible _ :: _ => true
+    | _                    => false
+
+private def isNatValueTransition (p : Problem) : MetaM Bool := do
+  unless (← hasNatValPattern p) do return false
+  return hasCtorOrInaccessible p
+
+/--
+Predicate for testing whether we need to expand `Int` value patterns into constructors.
+There are two cases:
+- We have constructor or inaccessible patterns. Example:
+```
+| 0, ...
+| Int.toVal p, ...
+...
+```
+- We don't have the `else`-case (i.e., variable pattern). This can happen
+when the non-value cases are unreachable.
+-/
+private def isIntValueTransition (p : Problem) : MetaM Bool := do
+  unless (← hasIntValPattern p) do return false
+  return hasCtorOrInaccessible p || !hasVarPattern p
 
 private def processSkipInaccessible (p : Problem) : Problem := Id.run do
   let x :: xs := p.vars | unreachable!
@@ -371,14 +416,13 @@ private def hasRecursiveType (x : Expr) : MetaM Bool := do
    update the next patterns with the fields of the constructor.
    Otherwise, return none. -/
 def processInaccessibleAsCtor (alt : Alt) (ctorName : Name) : MetaM (Option Alt) := do
-  let env ← getEnv
   match alt.patterns with
   | p@(.inaccessible e) :: ps =>
     trace[Meta.Match.match] "inaccessible in ctor step {e}"
     withExistingLocalDecls alt.fvarDecls do
       -- Try to push inaccessible annotations.
       let e ← whnfD e
-      match e.constructorApp? env with
+      match (← constructorApp? e) with
       | some (ctorVal, ctorArgs) =>
         if ctorVal.name == ctorName then
           let fields := ctorArgs.extract ctorVal.numParams ctorArgs.size
@@ -459,12 +503,12 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
 private def altsAreCtorLike (p : Problem) : MetaM Bool := withGoalOf p do
   p.alts.allM fun alt => do match alt.patterns with
     | .ctor .. :: _ => return true
-    | .inaccessible e :: _ => return (← whnfD e).isConstructorApp (← getEnv)
+    | .inaccessible e :: _ => isConstructorApp e
     | _ => return false
 
 private def processNonVariable (p : Problem) : MetaM Problem := withGoalOf p do
   let x :: xs := p.vars | unreachable!
-  if let some (ctorVal, xArgs) := (← whnfD x).constructorApp? (← getEnv) then
+  if let some (ctorVal, xArgs) ← withTransparency .default <| constructorApp'? x then
     if (← altsAreCtorLike p) then
       let alts ← p.alts.filterMapM fun alt => do
         match alt.patterns with
@@ -582,12 +626,46 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
       let newAlts := p.alts.filter isFirstPatternVar
       return { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
-private def expandNatValuePattern (p : Problem) : Problem :=
-  let alts := p.alts.map fun alt => match alt.patterns with
-    | .val (.lit (.natVal 0)) :: ps     => { alt with patterns := .ctor ``Nat.zero [] [] [] :: ps }
-    | .val (.lit (.natVal (n+1))) :: ps => { alt with patterns := .ctor ``Nat.succ [] [] [.val (mkRawNatLit n)] :: ps }
-    | _                                 => alt
-  { p with alts := alts }
+private def expandNatValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | .val n :: ps =>
+      match (← getNatValue? n) with
+      | some 0     => return { alt with patterns := .ctor ``Nat.zero [] [] [] :: ps }
+      | some (n+1) => return { alt with patterns := .ctor ``Nat.succ [] [] [.val (toExpr n)] :: ps }
+      | _ => return alt
+    | _ => return alt
+  return { p with alts := alts }
+
+private def expandIntValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    match alt.patterns with
+    | .val n :: ps =>
+      match (← getIntValue? n) with
+      | some i =>
+        if i >= 0 then
+        return { alt with patterns := .ctor ``Int.ofNat [] [] [.val (toExpr i.toNat)] :: ps }
+        else
+        return { alt with patterns := .ctor ``Int.negSucc [] [] [.val (toExpr (-(i + 1)).toNat)] :: ps }
+      | _ => return alt
+    | _ => return alt
+  return { p with alts := alts }
+
+private def expandFinValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    let .val n :: ps := alt.patterns | return alt
+    let some ⟨n, v⟩ ← getFinValue? n | return alt
+    let p ← mkLt (toExpr v.val) (toExpr n)
+    let h ← mkDecideProof p
+    return { alt with patterns := .ctor ``Fin.mk [] [toExpr n] [.val (toExpr v.val), .inaccessible h] :: ps }
+  return { p with alts := alts }
+
+private def expandBitVecValuePattern (p : Problem) : MetaM Problem := do
+  let alts ← p.alts.mapM fun alt => do
+    let .val n :: ps := alt.patterns | return alt
+    let some ⟨_, v⟩ ← getBitVecValue? n | return alt
+    return { alt with patterns := .ctor ``BitVec.ofFin [] [] [.val (toExpr v.toFin)] :: ps }
+  return { p with alts := alts }
 
 private def traceStep (msg : String) : StateRefT State MetaM Unit := do
   trace[Meta.Match.match] "{msg} step"
@@ -632,9 +710,18 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
     traceStep ("as-pattern")
     let p ← processAsPattern p
     process p
-  else if isNatValueTransition p then
+  else if (← isNatValueTransition p) then
     traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
+    process (← expandNatValuePattern p)
+  else if (← isIntValueTransition p) then
+    traceStep ("int value to constructor")
+    process (← expandIntValuePattern p)
+  else if (← isFinValueTransition p) then
+    traceStep ("fin value to constructor")
+    process (← expandFinValuePattern p)
+  else if (← isBitVecValueTransition p) then
+    traceStep ("bitvec value to constructor")
+    process (← expandBitVecValuePattern p)
   else if !isNextVar p then
     traceStep ("non variable")
     let p ← processNonVariable p
@@ -652,11 +739,11 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
   else if isArrayLitTransition p then
     let ps ← processArrayLit p
     ps.forM process
-  else if hasNatValPattern p then
+  else if (← hasNatValPattern p) then
     -- This branch is reachable when `p`, for example, is just values without an else-alternative.
     -- We added it just to get better error messages.
     traceStep ("nat value to constructor")
-    process (expandNatValuePattern p)
+    process (← expandNatValuePattern p)
   else
     checkNextPatternTypes p
     throwNonSupported p
@@ -682,7 +769,7 @@ builtin_initialize matcherExt : EnvExtension (PHashMap (Expr × Bool) Name) ← 
 def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
-  let result ← Closure.mkValueTypeClosure type value (zeta := false)
+  let result ← Closure.mkValueTypeClosure type value (zetaDelta := false)
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
@@ -888,75 +975,6 @@ def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : 
 
 end Match
 
-/-- Auxiliary function for MatcherApp.addArg -/
-private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts : Array Expr) (i : Nat) : MetaM (Array Nat × Array Expr) := do
-  if h : i < alts.size then
-    let alt       := alts.get ⟨i, h⟩
-    let numParams := altNumParams[i]!
-    let typeNew ← whnfD typeNew
-    match typeNew with
-    | Expr.forallE _ d b _ =>
-      let alt ← forallBoundedTelescope d (some numParams) fun xs d => do
-        let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-        forallBoundedTelescope d (some 1) fun x _ => do
-          let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
-          mkLambdaFVars xs alt
-      updateAlts (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) (i+1)
-    | _ => throwError "unexpected type at MatcherApp.addArg"
-  else
-    return (altNumParams, alts)
-
-/-- Given
-  - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - expression `e : B[discrs]`,
-  Construct the term
-  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`, and
-  We use `kabstract` to abstract the discriminants from `B[discrs]`.
-  This method assumes
-  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
-  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
--/
-def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
-  lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
-    unless motiveArgs.size == matcherApp.discrs.size do
-      -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
-      throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
-    let eType ← inferType e
-    let eTypeAbst ← matcherApp.discrs.size.foldRevM (init := eType) fun i eTypeAbst => do
-      let motiveArg := motiveArgs[i]!
-      let discr     := matcherApp.discrs[i]!
-      let eTypeAbst ← kabstract eTypeAbst discr
-      return eTypeAbst.instantiate1 motiveArg
-    let motiveBody ← mkArrow eTypeAbst motiveBody
-    let matcherLevels ← match matcherApp.uElimPos? with
-      | none     => pure matcherApp.matcherLevels
-      | some pos =>
-        let uElim ← getLevel motiveBody
-        pure <| matcherApp.matcherLevels.set! pos uElim
-    let motive ← mkLambdaFVars motiveArgs motiveBody
-    -- Construct `aux` `match_i As (fun xs => B[xs] → motive[xs]) discrs`, and infer its type `auxType`.
-    -- We use `auxType` to infer the type `B[C_i[ys_i]]` of the new argument in each alternative.
-    let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
-    let aux := mkApp aux motive
-    let aux := mkAppN aux matcherApp.discrs
-    unless (← isTypeCorrect aux) do
-      throwError "failed to add argument to matcher application, type error when constructing the new motive"
-    let auxType ← inferType aux
-    let (altNumParams, alts) ← updateAlts auxType matcherApp.altNumParams matcherApp.alts 0
-    return { matcherApp with
-      matcherLevels := matcherLevels,
-      motive        := motive,
-      alts          := alts,
-      altNumParams  := altNumParams,
-      remaining     := #[e] ++ matcherApp.remaining
-    }
-
-/-- Similar `MatcherApp.addArg?`, but returns `none` on failure. -/
-def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
-  try
-    return some (← matcherApp.addArg e)
-  catch _ =>
-    return none
 
 builtin_initialize
   registerTraceClass `Meta.Match.match

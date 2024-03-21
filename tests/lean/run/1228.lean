@@ -10,7 +10,7 @@ namespace Foo
       cases h₂ : n; sorry
       have: Bar s' := sorry
       exact ex₁ this
-  termination_by _ => sizeOf s
+  termination_by sizeOf s
 
   theorem ex₂
     {s: Foo n}
@@ -22,7 +22,7 @@ namespace Foo
       have: Bar s' := sorry
       have hterm: sizeOf s' < sizeOf s := by simp_all_arith
       exact ex₂ this
-  termination_by _ => sizeOf s
+  termination_by sizeOf s
 
   theorem ex₃ {s: Foo n} (H: s.Bar): True := by
     cases h₁ : s
@@ -32,7 +32,7 @@ namespace Foo
       | _ =>
         have: Bar s' := sorry
         exact ex₃ this
-  termination_by _ => sizeOf s
+  termination_by sizeOf s
 
   -- it works
   theorem ex₄ {s: Foo n} (H: s.Bar): True := by
@@ -43,4 +43,4 @@ namespace Foo
     | _ =>
       have: Bar s' := sorry
       exact ex₄ this
-  termination_by _ => sizeOf s
+  termination_by sizeOf s

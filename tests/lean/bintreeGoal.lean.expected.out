@@ -1,19 +1,2 @@
 bintreeGoal.lean:53:4-53:18: warning: declaration uses 'sorry'
-bintreeGoal.lean:66:26-66:30: error: unsolved goals
-case node.inl.node
-β : Type u_1
-b : BinTree β
-k : Nat
-v : β
-left : Tree β
-key : Nat
-value : β
-right : Tree β
-ihl : BST left → Tree.find? (Tree.insert left k v) k = some v
-ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
-h✝ : k < key
-a✝³ : BST left
-a✝² : ForallTree (fun k v => k < key) left
-a✝¹ : BST right
-a✝ : ForallTree (fun k v => key < k) right
-⊢ BST left
+bintreeGoal.lean:60:8-60:27: warning: declaration uses 'sorry'

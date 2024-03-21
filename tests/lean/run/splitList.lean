@@ -32,15 +32,15 @@ def len : List α → Nat
       have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
       have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
       len fst + len snd
-termination_by _ xs => xs.length
+termination_by xs => xs.length
 
 theorem len_nil : len ([] : List α) = 0 := by
  simp [len]
 
 -- The `simp [len]` above generated the following equation theorems for len
-#check @len._eq_1
-#check @len._eq_2
-#check @len._eq_3
+#check @len.eq_1
+#check @len.eq_2
+#check @len.eq_3
 
 theorem len_1 (a : α) : len [a] = 1 := by
   simp [len]
@@ -49,7 +49,7 @@ theorem len_2 (a b : α) (bs : List α) : len (a::b::bs) = 1 + len (b::bs) := by
   conv => lhs; unfold len
 
 -- The `unfold` tactic above generated the following theorem
-#check @len._unfold
+#check @len.def
 
 theorem len_cons (a : α) (as : List α) : len (a::as) = 1 + len as := by
   cases as with
@@ -76,20 +76,21 @@ def len : List α → Nat
     match h₂ : l, h₃ : splitList l with
     | _, ListSplit.split fst snd =>
       len fst + len snd
-termination_by _ xs => xs.length
+termination_by xs => xs.length
 decreasing_by
-  simp_wf
-  have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
-  subst h₂
-  simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+  all_goals
+    simp_wf
+    have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
+    subst h₂
+    simp_arith [eq_of_heq h₃] at this |- ; simp [this]
 
 theorem len_nil : len ([] : List α) = 0 := by
   simp [len]
 
 -- The `simp [len]` above generated the following equation theorems for len
-#check @len._eq_1
-#check @len._eq_2
-#check @len._eq_3
+#check @len.eq_1
+#check @len.eq_2
+#check @len.eq_3
 
 theorem len_1 (a : α) : len [a] = 1 := by
   simp [len]
@@ -98,7 +99,7 @@ theorem len_2 (a b : α) (bs : List α) : len (a::b::bs) = 1 + len (b::bs) := by
   conv => lhs; unfold len
 
 -- The `unfold` tactic above generated the following theorem
-#check @len._unfold
+#check @len.def
 
 theorem len_cons (a : α) (as : List α) : len (a::as) = 1 + len as := by
   cases as with

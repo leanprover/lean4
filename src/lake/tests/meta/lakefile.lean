@@ -14,3 +14,14 @@ meta if get_config? env = some "foo" then do
 else meta if get_config? env = some "bar" then do
   #print "bar"
   #print "2"
+
+script print_env do
+  IO.eprintln <| get_config? env |>.getD "none"
+  return 0
+
+elab "elab_str" : term => do
+  return Lean.toExpr "elabbed-string"
+
+script print_elab do
+  IO.eprintln elab_str
+  return 0

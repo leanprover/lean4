@@ -3,9 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Data.LBool
 import Lean.Meta.InferType
-import Lean.Meta.AppBuilder
+import Lean.Meta.NatInstTesters
 
 namespace Lean.Meta
 
@@ -15,11 +16,6 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
     failure
   else
     k eNew
-
-def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
-      (numArgs == 4 && (declName == ``Add.add || declName == ``Sub.sub || declName == ``Mul.mul))
-   || (numArgs == 6 && (declName == ``HAdd.hAdd || declName == ``HSub.hSub || declName == ``HMul.hMul))
-   || (numArgs == 3 && declName == ``OfNat.ofNat)
 
 /--
   Evaluate simple `Nat` expressions.
@@ -34,30 +30,28 @@ partial def evalNat (e : Expr) : OptionT MetaM Nat := do
   | _                    => failure
 where
   visit e := do
-    let f := e.getAppFn
-    match f with
-    | .mvar .. => withInstantiatedMVars e evalNat
-    | .const c _ =>
-      let nargs := e.getAppNumArgs
-      if c == ``Nat.succ && nargs == 1 then
-        let v ← evalNat (e.getArg! 0)
-        return v+1
-      else if c == ``Nat.add && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ + v₂
-      else if c == ``Nat.sub && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ - v₂
-      else if c == ``Nat.mul && nargs == 2 then
-        let v₁ ← evalNat (e.getArg! 0)
-        let v₂ ← evalNat (e.getArg! 1)
-        return v₁ * v₂
-      else if isNatProjInst c nargs then
-        evalNat (← unfoldProjInst? e)
-      else
-        failure
+    match_expr e with
+    | OfNat.ofNat _ n i => guard (← isInstOfNatNat i); evalNat n
+    | Nat.succ a => return (← evalNat a) + 1
+    | Nat.add a b => return (← evalNat a) + (← evalNat b)
+    | Add.add _ i a b => guard (← isInstAddNat i); return (← evalNat a) + (← evalNat b)
+    | HAdd.hAdd _ _ _ i a b => guard (← isInstHAddNat i); return (← evalNat a) + (← evalNat b)
+    | Nat.sub a b => return (← evalNat a) - (← evalNat b)
+    | Sub.sub _ i a b => guard (← isInstSubNat i); return (← evalNat a) - (← evalNat b)
+    | HSub.hSub _ _ _ i a b => guard (← isInstHSubNat i); return (← evalNat a) - (← evalNat b)
+    | Nat.mul a b => return (← evalNat a) * (← evalNat b)
+    | Mul.mul _ i a b => guard (← isInstMulNat i); return (← evalNat a) * (← evalNat b)
+    | HMul.hMul _ _ _ i a b => guard (← isInstHMulNat i); return (← evalNat a) * (← evalNat b)
+    | Nat.div a b => return (← evalNat a) / (← evalNat b)
+    | Div.div _ i a b => guard (← isInstDivNat i); return (← evalNat a) / (← evalNat b)
+    | HDiv.hDiv _ _ _ i a b => guard (← isInstHDivNat i); return (← evalNat a) / (← evalNat b)
+    | Nat.mod a b => return (← evalNat a) % (← evalNat b)
+    | Mod.mod _ i a b => guard (← isInstModNat i); return (← evalNat a) % (← evalNat b)
+    | HMod.hMod _ _ _ i a b => guard (← isInstHModNat i); return (← evalNat a) % (← evalNat b)
+    | Nat.pow a b => return (← evalNat a) ^ (← evalNat b)
+    | NatPow.pow _ i a b => guard (← isInstNatPowNat i); return (← evalNat a) ^ (← evalNat b)
+    | Pow.pow _ _ i a b => guard (← isInstPowNat i); return (← evalNat a) ^ (← evalNat b)
+    | HPow.hPow _ _ _ i a b => guard (← isInstHPowNat i); return (← evalNat a) ^ (← evalNat b)
     | _ => failure
 
 mutual
@@ -73,26 +67,18 @@ private partial def getOffset (e : Expr) : MetaM (Expr × Nat) :=
 /--
 Similar to `getOffset` but returns `none` if the expression is not syntactically an offset.
 -/
-private partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
-  match e with
-  | .app _ a => do
-    let f := e.getAppFn
-    match f with
-    | .mvar .. => withInstantiatedMVars e isOffset?
-    | .const c _ =>
-      let nargs := e.getAppNumArgs
-      if c == ``Nat.succ && nargs == 1 then
-        let (s, k) ← getOffset a
-        pure (s, k+1)
-      else if c == ``Nat.add && nargs == 2 then
-        let v ← evalNat (e.getArg! 1)
-        let (s, k) ← getOffset (e.getArg! 0)
-        pure (s, k+v)
-      else if (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
-        isOffset? (← unfoldProjInst? e)
-      else
-        failure
-    | _ => failure
+partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
+  let add (a b : Expr) := do
+    let v ← evalNat b
+    let (s, k) ← getOffset a
+    return (s, k+v)
+  match_expr e with
+  | Nat.succ a =>
+    let (s, k) ← getOffset a
+    return (s, k+1)
+  | Nat.add a b => add a b
+  | Add.add _ i a b => guard (← isInstAddNat i); add a b
+  | HAdd.hAdd _ _ _ i a b => guard (← isInstHAddNat i); add a b
   | _ => failure
 
 end
@@ -108,7 +94,7 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   else if (← isNatZero e) then
     return mkNatLit offset
   else
-    mkAdd e (mkNatLit offset)
+    return mkNatAdd e (mkNatLit offset)
 
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
   let ifNatExpr (x : MetaM LBool) : MetaM LBool := do

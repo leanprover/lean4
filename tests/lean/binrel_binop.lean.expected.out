@@ -1,6 +1,6 @@
 binrel_binop.lean:1:8-1:11: warning: declaration uses 'sorry'
-ex1 (a : Int) (b c : Nat) : a = Int.ofNat b - Int.ofNat c
+ex1 (a : Int) (b c : Nat) : a = ↑b - ↑c
 binrel_binop.lean:5:8-5:11: warning: declaration uses 'sorry'
-ex2 (a : Int) (b c : Nat) : a = Int.ofNat b - Int.ofNat c
+ex2 (a : Int) (b c : Nat) : a = ↑b - ↑c
 binrel_binop.lean:9:8-9:11: warning: declaration uses 'sorry'
-ex3 (a : Int) (b c : Nat) : a = Int.ofNat (b - c)
+ex3 (a : Int) (b c : Nat) : a = ↑(b - c)

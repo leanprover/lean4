@@ -21,6 +21,21 @@ def mkArray {α : Type u} (n : Nat) (v : α) : Array α := {
   data := List.replicate n v
 }
 
+/--
+`ofFn f` with `f : Fin n → α` returns the list whose ith element is `f i`.
+```
+ofFn f = #[f 0, f 1, ... , f(n - 1)]
+``` -/
+def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
+  /-- Auxiliary for `ofFn`. `ofFn.go f i acc = acc ++ #[f i, ..., f(n - 1)]` -/
+  go (i : Nat) (acc : Array α) : Array α :=
+    if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
+termination_by n - i
+
+/-- The array `#[0, 1, ..., n - 1]`. -/
+def range (n : Nat) : Array Nat :=
+  n.fold (flip Array.push) (mkEmpty n)
+
 @[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
   List.length_replicate ..
 
@@ -71,6 +86,12 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
   a.set ⟨i.toNat, h⟩ v
 
+/--
+Swaps two entries in an array.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
@@ -78,12 +99,18 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
+/--
+Swaps two entries in an array, or panics if either index is out of bounds.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
   if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-  else panic! "index out of bounds"
-  else panic! "index out of bounds"
+  else a
+  else a
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
@@ -276,8 +303,8 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
       map (i+1) (r.push (← f as[i]))
     else
       pure r
+  termination_by as.size - i
   map 0 (mkEmpty as.size)
-termination_by map => as.size - i
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
@@ -348,12 +375,12 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
           loop (j+1)
       else
         pure false
+      termination_by stop - j
     loop start
   if h : stop ≤ as.size then
     any stop h
   else
     any as.size (Nat.le_refl _)
-termination_by loop i j => stop - j
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
@@ -400,6 +427,10 @@ def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :
 @[inline]
 def mapIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
   Id.run <| as.mapIdxM f
+
+/-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
+def zipWithIndex (arr : Array α) : Array (α × Nat) :=
+  arr.mapIdx fun i a => (a, i)
 
 @[inline]
 def find? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
@@ -468,9 +499,17 @@ def elem [BEq α] (a : α) (as : Array α) : Bool :=
     else
       (true, r)
 
+/-- Convert a `Array α` into an `List α`. This is O(n) in the size of the array.  -/
+-- This function is exported to C, where it is called by `Array.data`
+-- (the projection) to implement this functionality.
 @[export lean_array_to_list]
 def toList (as : Array α) : List α :=
   as.foldr List.cons []
+
+/-- Prepends an `Array α` onto the front of a list.  Equivalent to `as.toList ++ l`. -/
+@[inline]
+def toListAppend (as : Array α) (l : List α) : List α :=
+  as.foldr List.cons l
 
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec a _ :=
@@ -501,6 +540,13 @@ def concatMapM [Monad m] (f : α → m (Array β)) (as : Array α) : m (Array β
 def concatMap (f : α → Array β) (as : Array α) : Array β :=
   as.foldl (init := empty) fun bs a => bs ++ f a
 
+/-- Joins array of array into a single array.
+
+`flatten #[#[a₁, a₂, ⋯], #[b₁, b₂, ⋯], ⋯]` = `#[a₁, a₂, ⋯, b₁, b₂, ⋯]`
+-/
+def flatten (as : Array (Array α)) : Array α :=
+  as.foldl (init := empty) fun r a => r ++ a
+
 end Array
 
 export Array (mkArray)
@@ -520,7 +566,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
      p a[i] b[i] && isEqvAux a b hsz p (i+1)
   else
     true
-termination_by _ => a.size - i
+termination_by a.size - i
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -624,7 +670,7 @@ def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) 
     if a.get idx == v then some idx
     else indexOfAux a v (i+1)
   else none
-termination_by _ => a.size - i
+termination_by a.size - i
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
@@ -656,7 +702,7 @@ where
       loop as (i+1) ⟨j-1, this⟩
     else
       as
-termination_by _ => j - i
+termination_by j - i
 
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
@@ -666,7 +712,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
       as
   else
     as
-termination_by popWhile as => as.size
+termination_by as.size
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec go (i : Nat) (r : Array α) : Array α :=
@@ -678,36 +724,41 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
         r
     else
       r
+    termination_by as.size - i
   go 0 #[]
-termination_by go i r => as.size - i
 
-def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
-  if h : i < a.size then
-    let idx  : Fin a.size := ⟨i, h⟩;
-    let idx1 : Fin a.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
-    let a' := a.swap idx idx1
-    eraseIdxAux (i+1) a'
+/-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
+def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
+  if h : i.val + 1 < a.size then
+    let a' := a.swap ⟨i.val + 1, h⟩ i
+    let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
+    have : a'.size - i' < a.size - i := by
+      simp [a', Nat.sub_succ_lt_self _ _ i.isLt]
+    a'.feraseIdx i'
   else
     a.pop
-termination_by _ => a.size - i
+termination_by a.size - i.val
 
-def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
-  eraseIdxAux (i.val + 1) a
+derive_functional_induction feraseIdx
 
+theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
+  induction a, i using feraseIdx.induct with
+  | @case1 a i h a' _ _ ih =>
+    unfold feraseIdx
+    simp [h, a', ih]
+  | case2 a i h =>
+    unfold feraseIdx
+    simp [h]
+
+/-- Remove the element at a given index from an array, or do nothing if the index is out of bounds.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
 def eraseIdx (a : Array α) (i : Nat) : Array α :=
-  if i < a.size then eraseIdxAux (i+1) a else a
-
-def eraseIdxSzAux (a : Array α) (i : Nat) (r : Array α) (heq : r.size = a.size) : { r : Array α // r.size = a.size - 1 } :=
-  if h : i < r.size then
-    let idx  : Fin r.size := ⟨i, h⟩;
-    let idx1 : Fin r.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
-    eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
-  else
-    ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
-termination_by _ => r.size - i
-
-def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
-  eraseIdxSzAux a (i.val + 1) a rfl
+  if h : i < a.size then a.feraseIdx ⟨i, h⟩ else a
 
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
@@ -723,10 +774,10 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
       as
+    termination_by j.1
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
-termination_by loop j => j.1
 
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
 def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
@@ -763,7 +814,7 @@ where
     rfl
 
   go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.data.drop i) = as.data := by
-    cases i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, go]
+    induction i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, *]
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then
@@ -776,7 +827,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
       false
   else
     true
-termination_by _ => as.size - i
+termination_by as.size - i
 
 /-- Return true iff `as` is a prefix of `bs`.
 That is, `bs = as ++ t` for some `t : List α`.-/
@@ -797,7 +848,7 @@ private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
     allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
   else
     true
-termination_by _ => as.size - i
+termination_by as.size - i
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
@@ -812,7 +863,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
       cs
   else
     cs
-termination_by _ => as.size - i
+termination_by as.size - i
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

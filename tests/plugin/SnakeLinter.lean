@@ -5,9 +5,9 @@ def oh_no : Nat := 0
 
 def snakeLinter : Linter where
   run stx := do
-    if stx.getKind == `Lean.Parser.Command.declaration then
+    if stx.getKind == ``Lean.Parser.Command.declaration then
       let decl := stx[1]
-      if decl.getKind == `Lean.Parser.Command.def then
+      if decl.getKind == ``Lean.Parser.Command.definition then
         let declId   := decl[1]
         withRef declId do
           let declName := declId[0].getId

@@ -33,7 +33,7 @@ assignees: ''
 
 ### Versions
 
-[Output of `lean --version` in the folder that the issue occured in]
+[Output of `#eval Lean.versionString` or of `lean --version` in the folder that the issue occured in]
 [OS version]
 
 ### Additional Information

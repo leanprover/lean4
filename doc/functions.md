@@ -32,8 +32,8 @@ def fact x :=
 
 #eval fact 100
 ```
-By default, Lean only accepts total functions. The `partial` keyword should be used when Lean cannot
-establish that a function always terminates.
+By default, Lean only accepts total functions.
+The `partial` keyword may be used to define a recursive function without a termination proof; `partial` functions compute in compiled programs, but are opaque in proofs and during type checking.
 ```lean
 partial def g (x : Nat) (p : Nat -> Bool) : Nat :=
   if p x then

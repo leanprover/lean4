@@ -12,7 +12,7 @@
     flake = false;
   };
   inputs.leanInk = {
-    url = "github:leanprover/LeanInk";
+    url = "github:leanprover/LeanInk/refs/pull/57/merge";
     flake = false;
   };
 

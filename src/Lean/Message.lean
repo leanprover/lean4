@@ -5,6 +5,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 
 Message type used by the Lean frontend
 -/
+prelude
 import Lean.Data.Position
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
@@ -64,8 +65,7 @@ inductive MessageData where
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | trace (cls : Name) (msg : MessageData) (children : Array MessageData)
-    (collapsed : Bool := false)
+  | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
   deriving Inhabited
 
 namespace MessageData
@@ -270,8 +270,13 @@ def getInfoMessages (log : MessageLog) : MessageLog :=
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
   log.msgs.forM f
 
+/-- Converts the log to a list, oldest message first. -/
 def toList (log : MessageLog) : List Message :=
-  (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+  log.msgs.toList
+
+/-- Converts the log to an array, oldest message first. -/
+def toArray (log : MessageLog) : Array Message :=
+  log.msgs.toArray
 
 end MessageLog
 
@@ -366,6 +371,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | appTypeMismatch  env lctx e fnType argType =>
     mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
+  | thmTypeIsNotProp env constName type => mkCtx env {} opts m!"(kernel) type of theorem '{constName}' is not a proposition{indentExpr type}"
   | other msg                           => m!"(kernel) {msg}"
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"

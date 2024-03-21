@@ -77,4 +77,4 @@ def addDecorations (e : Expr) : Expr :=
       let rest := Expr.forallE name newType newBody data
       some <| mkApp2 (mkConst `SlimCheck.NamedBinder) (mkStrLit n) rest
     | _ => none
-decreasing_by exact Nat.le_trans (by simp_arith) h
+decreasing_by all_goals exact Nat.le_trans (by simp_arith) h

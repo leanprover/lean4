@@ -21,7 +21,8 @@ theorem ex6 : (if "hello" = "world" then 1 else 2) = 2 :=
 #print ex6
 
 theorem ex7 : (if "hello" = "world" then 1 else 2) = 2 := by
-  fail_if_success simp (config := { decide := false })
+  simp (config := { decide := false })
+  -- Goal is now `⊢ "hello" = "world" → False`
   simp (config := { decide := true })
 
 theorem ex8 : (10 + 2000 = 20) = False :=

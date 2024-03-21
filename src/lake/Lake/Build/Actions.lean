@@ -99,6 +99,7 @@ def download (name : String) (url : String) (file : FilePath) : LogIO PUnit := d
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 def untar (name : String) (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   logVerbose s!"Unpacking {name}"
+  IO.FS.createDirAll dir
   let mut opts := "-x"
   if (← getIsVerbose) then
     opts := opts.push 'v'

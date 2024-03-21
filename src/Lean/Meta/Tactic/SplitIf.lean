@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.LazyInitExtension
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Simp.Main
@@ -31,9 +32,17 @@ def getSimpContext : MetaM Simp.Context :=
 
 /--
   Default `discharge?` function for `simpIf` methods.
-  It only uses hypotheses from the local context. It is effective
-  after a case-split. -/
-def discharge? (useDecide := false) : Simp.Discharge := fun prop => do
+  It only uses hypotheses from the local context that have `index < numIndices`.
+  It is effective after a case-split.
+
+  Remark: when `simp` goes inside binders it adds new local declarations to the
+  local context. We don't want to use these local declarations since the cached result
+  would depend on them (see issue #3229). `numIndices` is the size of the local
+  context `decls` field before we start the simplifying the expression.
+
+  Remark: this function is now private, and we should use `mkDischarge?`.
+-/
+private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge := fun prop => do
   let prop ← instantiateMVars prop
   trace[Meta.Tactic.splitIf] "discharge? {prop}, {prop.notNot?}"
   if useDecide then
@@ -44,7 +53,7 @@ def discharge? (useDecide := false) : Simp.Discharge := fun prop => do
       if r.isConstOf ``true then
         return some <| mkApp3 (mkConst ``of_decide_eq_true) prop d.appArg! (← mkEqRefl (mkConst ``true))
   (← getLCtx).findDeclRevM? fun localDecl => do
-     if localDecl.isAuxDecl then
+     if localDecl.index ≥ numIndices || localDecl.isAuxDecl then
        return none
      else if (← isDefEq prop localDecl.type) then
        return some localDecl.toExpr
@@ -55,6 +64,9 @@ def discharge? (useDecide := false) : Simp.Discharge := fun prop => do
            return some (mkApp2 (mkConst ``not_not_intro) arg localDecl.toExpr)
          else
            return none
+
+def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
+  return discharge? (← getLCtx).numIndices useDecide
 
 /-- Return the condition of an `if` expression to case split. -/
 partial def findIfToSplit? (e : Expr) : Option Expr :=
@@ -82,14 +94,14 @@ open SplitIf
 
 def simpIfTarget (mvarId : MVarId) (useDecide := false) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let (some mvarId', _) ← simpTarget mvarId ctx (discharge? useDecide) (mayCloseGoal := false) then
+  if let (some mvarId', _) ← simpTarget mvarId ctx {} (← mvarId.withContext <| mkDischarge? useDecide) (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!
 
 def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx discharge? (mayCloseGoal := false) then
+  if let (some (_, mvarId'), _) ← simpLocalDecl mvarId fvarId ctx {} (← mvarId.withContext <| mkDischarge?) (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!

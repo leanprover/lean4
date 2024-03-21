@@ -1,0 +1,3 @@
+binopQuotPrecheck.lean:56:41-56:42: error: unknown identifier 'a' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
+binopQuotPrecheck.lean:61:49-61:50: error: unknown identifier 'a' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
+binopQuotPrecheck.lean:66:51-66:52: error: unknown identifier 'a' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.

@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.SubExpr
 import Lean.Data.RBMap
@@ -42,11 +43,37 @@ def withAppArg  (x : m α) : m α := do descend (← getExpr).appArg! 1 x
 def withType (x : m α) : m α := do
   descend (← Meta.inferType (← getExpr)) Pos.typeCoord x -- phantom positions for types
 
+/--
+Uses `xa` to compute the fold across the arguments of an application,
+where `xf` provides the initial value and is evaluated in the context of the head of the application.
+-/
 partial def withAppFnArgs (xf : m α) (xa : α → m α) : m α := do
   if (← getExpr).isApp then
     let acc ← withAppFn (withAppFnArgs xf xa)
     withAppArg (xa acc)
   else xf
+
+/--
+Uses `xa` to compute the fold across up to `maxArgs` outermost arguments of an application,
+where `xf` provides the initial value and is evaluated in the context of the application minus
+the arguments being folded across.
+-/
+def withBoundedAppFnArgs (maxArgs : Nat) (xf : m α) (xa : α → m α) : m α := do
+  match maxArgs, (← getExpr) with
+  | maxArgs' + 1, .app .. =>
+    let acc ← withAppFn (withBoundedAppFnArgs maxArgs' xf xa)
+    withAppArg (xa acc)
+  | _, _ => xf
+
+/--
+Runs `xf` in the context of `Lean.Expr.getBoundedAppFn maxArgs`.
+This is equivalent to `withBoundedAppFnArgs maxArgs xf pure`.
+-/
+def withBoundedAppFn (maxArgs : Nat) (xf : m α) : m α := do
+  let e ← getExpr
+  let numArgs := min maxArgs e.getAppNumArgs
+  let newPos := (← getPos).pushNaryFn numArgs
+  withTheReader SubExpr (fun cfg => { cfg with expr := e.getBoundedAppFn numArgs, pos := newPos }) xf
 
 def withBindingDomain (x : m α) : m α := do descend (← getExpr).bindingDomain! 0 x
 

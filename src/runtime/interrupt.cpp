@@ -48,9 +48,10 @@ void check_interrupted() {
 void check_system(char const * component_name, bool do_check_interrupted) {
     check_stack(component_name);
     check_memory(component_name);
-    if (do_check_interrupted)
+    if (do_check_interrupted) {
         check_interrupted();
-    check_heartbeat();
+        check_heartbeat();
+    }
 }
 
 void sleep_for(unsigned ms, unsigned step_ms) {

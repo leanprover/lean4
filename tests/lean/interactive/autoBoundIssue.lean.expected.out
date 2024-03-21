@@ -1,34 +1,34 @@
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 13, "character": 21}}
 {"range":
  {"start": {"line": 13, "character": 21}, "end": {"line": 13, "character": 24}},
  "goal":
  "k : Fin ?m\nctx : Vector Ty ?m\nty u : Ty\n⊢ Vector Ty ?m"}
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 16, "character": 26}}
 {"range":
  {"start": {"line": 16, "character": 26}, "end": {"line": 16, "character": 29}},
  "goal":
  "k : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 19, "character": 20}}
 {"range":
  {"start": {"line": 19, "character": 20}, "end": {"line": 19, "character": 23}},
  "goal":
  "k : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 24, "character": 18}}
 {"range":
  {"start": {"line": 24, "character": 18}, "end": {"line": 24, "character": 21}},
  "goal":
  "k : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 26, "character": 18}}
 {"range":
  {"start": {"line": 26, "character": 18}, "end": {"line": 26, "character": 21}},
  "goal":
  "aux : {x : Nat} → {k : Fin x} → {ctx : Vector Ty x} → {ty : Ty} → HasType k ctx ty\nk : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}
-{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+{"textDocument": {"uri": "file:///autoBoundIssue.lean"},
  "position": {"line": 29, "character": 24}}
 {"range":
  {"start": {"line": 29, "character": 24}, "end": {"line": 29, "character": 27}},

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Trie
-// Imports: Init Lean.Data.Format
+// Imports: Lean.Data.Format
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_join___rarg(lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(lean_object*);
@@ -1984,13 +1984,14 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie___rarg(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_2 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(x_1);
 x_3 = lean_box(1);
 x_4 = l_Std_Format_joinSep___at_Prod_repr___spec__1(x_2, x_3);
 x_5 = l_Std_Format_defWidth;
-x_6 = lean_format_pretty(x_4, x_5);
-return x_6;
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_format_pretty(x_4, x_5, x_6, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie(lean_object* x_1) {
@@ -2001,16 +2002,12 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Data_Trie_instToStringTrie___rarg), 1, 0
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Trie(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

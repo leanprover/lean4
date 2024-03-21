@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Clear
@@ -33,19 +34,19 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
       match type.eq? with
       | none           => throwTacticEx `injection mvarId "equality expected"
       | some (_, a, b) =>
-        let a ← whnf a
-        let b ← whnf b
         let target ← mvarId.getType
-        let env ← getEnv
-        match a.isConstructorApp? env, b.isConstructorApp? env with
+        match (← isConstructorApp'? a), (← isConstructorApp'? b) with
         | some aCtor, some bCtor =>
-          let val ← mkNoConfusion target prf
+          -- We use the default transparency because `a` and `b` may be builtin literals.
+          let val ← withTransparency .default <| mkNoConfusion target prf
           if aCtor.name != bCtor.name then
             mvarId.assign val
             return InjectionResultCore.solved
           else
             let valType ← inferType val
-            let valType ← whnf valType
+            -- We use the default transparency setting here because `a` and `b` may be builtin literals
+            -- that need to expanded into constructors.
+            let valType ← whnfD valType
             match valType with
             | Expr.forallE _ newTarget _ _ =>
               let newTarget := newTarget.headBeta
@@ -110,7 +111,7 @@ where
       if let some (_, lhs, rhs) ← matchEqHEq? (← fvarId.getType) then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
-        if lhs.isNatLit && rhs.isNatLit then cont
+        if lhs.isRawNatLit && rhs.isRawNatLit then cont
         else
           try
             match (← injection mvarId fvarId newNames) with

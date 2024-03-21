@@ -257,14 +257,23 @@ structure S2 where x : Unit
 inductive NeedsAnalysis {α : Type} : Prop
   | mk : NeedsAnalysis
 
+section proofs
+/--
+The `#testDelab` expects it can elaborate the expression, so here is a macro rule to let that happen.
+-/
+local macro_rules | `(⋯) => `(_)
+
 set_option pp.proofs false in
+set_option pp.proofs.withType true in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting (_ : NeedsAnalysis (α := Unit))
+  expecting (⋯ : NeedsAnalysis (α := Unit))
 
 set_option pp.proofs false in
 set_option pp.proofs.withType false in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting _
+  expecting ⋯
+
+end proofs
 
 #testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
   expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }

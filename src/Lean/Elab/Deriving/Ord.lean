@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
@@ -83,21 +84,23 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   for i in [:ctx.typeInfos.size] do
     auxDefs := auxDefs.push (← mkAuxFunction ctx i)
   `(mutual
+     set_option match.ignoreUnusedAlts true
      $auxDefs:command*
     end)
 
-private def mkOrdInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "ord" declNames[0]!
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord declNames)
+private def mkOrdInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext "ord" declName
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Ord #[declName])
   trace[Elab.Deriving.ord] "\n{cmds}"
   return cmds
 
 open Command
 
 def mkOrdInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM <| mkOrdInstanceCmds declNames
-    cmds.forM elabCommand
+  if (← declNames.allM isInductive) then
+    for declName in declNames do
+      let cmds ← liftTermElabM <| mkOrdInstanceCmds declName
+      cmds.forM elabCommand
     return true
   else
     return false

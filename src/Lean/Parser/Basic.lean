@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Types
 
 /-!
@@ -202,8 +203,9 @@ def trailingNode (n : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parser) : Traili
 
 def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (mergeErrors : Bool) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, some error2⟩ =>
-    if pos == iniPos then ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2)⟩
+  | ⟨stack, lhsPrec, pos, cache, some error2, errs⟩ =>
+    if pos == iniPos then
+      ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2), errs⟩
     else s
   | other => other
 
@@ -284,7 +286,7 @@ instance : OrElse Parser where
 def atomicFn (p : ParserFn) : ParserFn := fun c s =>
   let iniPos := s.pos
   match p c s with
-  | ⟨stack, lhsPrec, _, cache, some msg⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg⟩
+  | ⟨stack, lhsPrec, _, cache, some msg, errs⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs⟩
   | other                       => other
 
 /-- The `atomic(p)` parser parses `p`, returns the same result as `p` and fails iff `p` fails,
@@ -294,6 +296,58 @@ This is important for the `p <|> q` combinator, because it is not backtracking, 
 
 This parser has the same arity as `p` - it produces the same result as `p`. -/
 def atomic : Parser → Parser := withFn atomicFn
+
+/-- Information about the state of the parse prior to the failing parser's execution -/
+structure RecoveryContext where
+  /-- The position prior to the failing parser -/
+  initialPos : String.Pos
+  /-- The syntax stack height prior to the failing parser's execution -/
+  initialSize : Nat
+deriving BEq, DecidableEq, Repr
+
+/--
+Recover from errors in `p` using `recover` to consume input until a known-good state has appeared.
+If `recover` fails itself, then no recovery is performed.
+
+`recover` is provided with information about the failing parser's effects , and it is run in the
+state immediately after the failure. -/
+def recoverFn (p : ParserFn) (recover : RecoveryContext → ParserFn) : ParserFn := fun c s =>
+  let iniPos := s.pos
+  let iniSz := s.stxStack.size
+  let s' := p c s
+  if let some msg := s'.errorMsg then
+    let s' := recover ⟨iniPos, iniSz⟩ c {s' with errorMsg := none}
+    if s'.hasError then s'
+    else {s' with
+            pos := s'.pos,
+            lhsPrec := s'.lhsPrec,
+            cache := s'.cache,
+            errorMsg := none,
+            recoveredErrors := s'.recoveredErrors.push (s'.pos, s'.stxStack, msg) }
+  else s'
+
+/--
+Recover from errors in `parser` using `handler` to consume input until a known-good state has appeared.
+If `handler` fails itself, then no recovery is performed.
+
+`handler` is provided with information about the failing parser's effects , and it is run in the
+state immediately after the failure.
+
+The interactions between <|> and `recover'` are subtle, especially for syntactic
+categories that admit user extension. Consider avoiding it in these cases. -/
+def recover' (parser : Parser) (handler : RecoveryContext → Parser) : Parser where
+  info := parser.info
+  fn := recoverFn parser.fn fun s => handler s |>.fn
+
+/--
+Recover from errors in `parser` using `handler` to consume input until a known-good state has appeared.
+If `handler` fails itself, then no recovery is performed.
+
+`handler` is run in the state immediately after the failure.
+
+The interactions between <|> and `recover` are subtle, especially for syntactic
+categories that admit user extension. Consider avoiding it in these cases. -/
+def recover (parser handler : Parser) : Parser := recover' parser fun _ => handler
 
 def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -564,7 +618,40 @@ def hexDigitFn : ParserFn := fun c s =>
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
-def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
+/--
+Parses the whitespace after the `\` when there is a string gap.
+Raises an error if the whitespace does not contain exactly one newline character.
+Processes `\r\n` as a newline.
+-/
+partial def stringGapFn (seenNewline afterCR : Bool) : ParserFn := fun c s =>
+  let i := s.pos
+  if h : c.input.atEnd i then s -- let strLitFnAux handle the EOI error if !seenNewline
+  else
+    let curr := c.input.get' i h
+    if curr == '\n' then
+      if seenNewline then
+        -- Having more than one newline in a string gap is visually confusing
+        s.mkUnexpectedError "unexpected additional newline in string gap"
+      else
+        stringGapFn true false c (s.next' c.input i h)
+    else if curr == '\r' then
+      stringGapFn seenNewline true c (s.next' c.input i h)
+    else if afterCR then
+      s.mkUnexpectedError "expecting newline after carriage return"
+    else if curr.isWhitespace then
+      stringGapFn seenNewline false c (s.next' c.input i h)
+    else if seenNewline then
+      s
+    else
+      s.mkUnexpectedError "expecting newline in string gap"
+
+/--
+Parses a string quotation after a `\`.
+- `isQuotable` determines which characters are valid escapes
+- `inString` enables features that are only valid within strings,
+  in particular `"\" newline whitespace*` gaps.
+-/
+def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   if h : input.atEnd i then s.mkEOIError
@@ -576,6 +663,8 @@ def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
       andthenFn hexDigitFn hexDigitFn c (s.next' input i h)
     else if curr == 'u' then
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next' input i h)
+    else if inString && (curr == '\n' || curr == '\r') then
+      stringGapFn false false c s
     else
       s.mkUnexpectedError "invalid escape sequence"
 
@@ -583,7 +672,14 @@ def isQuotableCharDefault (c : Char) : Bool :=
   c == '\\' || c == '\"' || c == '\'' || c == 'r' || c == 'n' || c == 't'
 
 def quotedCharFn : ParserFn :=
-  quotedCharCoreFn isQuotableCharDefault
+  quotedCharCoreFn isQuotableCharDefault false
+
+/--
+Like `quotedCharFn` but enables escapes that are only valid inside strings.
+In particular, string gaps (`"\" newline whitespace*`).
+-/
+def quotedStringFn : ParserFn :=
+  quotedCharCoreFn isQuotableCharDefault true
 
 /-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) : ParserFn := fun c s => Id.run do
@@ -624,8 +720,92 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     let s    := s.setPos (input.next' i h)
     if curr == '\"' then
       mkNodeToken strLitKind startPos c s
-    else if curr == '\\' then andthenFn quotedCharFn (strLitFnAux startPos) c s
+    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
+
+/--
+Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
+If we are looking at a valid start to a raw string (`r##...#"`),
+returns true.
+We assume `i` begins at the position immediately after `r`.
+-/
+partial def isRawStrLitStart (input : String) (i : String.Pos) : Bool :=
+  if h : input.atEnd i then false
+  else
+    let curr := input.get' i h
+    if curr == '#' then
+      isRawStrLitStart input (input.next' i h)
+    else
+      curr == '"'
+
+/--
+Parses a raw string literal assuming `isRawStrLitStart` has returned true.
+The `startPos` is the start of the raw string (at the `r`).
+The parser state is assumed to be immediately after the `r`.
+-/
+partial def rawStrLitFnAux (startPos : String.Pos) : ParserFn := initState 0
+where
+  /--
+  Gives the "unterminated raw string literal" error.
+  -/
+  errorUnterminated (s : ParserState) := s.mkUnexpectedErrorAt "unterminated raw string literal" startPos
+  /--
+  Parses the `#`'s and `"` at the beginning of the raw string.
+  The `num` variable counts the number of `#`s after the `r`.
+  -/
+  initState (num : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
+      if curr == '#' then
+        initState (num + 1) c s
+      else if curr == '"' then
+        normalState num c s
+      else
+        -- This should not occur, since we assume `isRawStrLitStart` succeeded.
+        errorUnterminated s
+  /--
+  Parses characters after the first `"`. If we need to start counting `#`'s to decide if we are closing
+  the raw string literal, we switch to `closingState`.
+  -/
+  normalState (num : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
+      if curr == '\"' then
+        if num == 0 then
+          mkNodeToken strLitKind startPos c s
+        else
+          closingState num 0 c s
+      else
+        normalState num c s
+  /--
+  Parses `#` characters immediately after a `"`.
+  The `closingNum` variable counts the number of `#`s seen after the `"`.
+  Note: `num > 0` since the `num = 0` case is entirely handled by `normalState`.
+  -/
+  closingState (num : Nat) (closingNum : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
+      if curr == '#' then
+        if closingNum + 1 == num then
+          mkNodeToken strLitKind startPos c s
+        else
+          closingState num (closingNum + 1) c s
+      else if curr == '\"' then
+        closingState num 0 c s
+      else
+        normalState num c s
 
 def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
   let s     := takeWhileFn (fun c => c.isDigit) c s
@@ -820,6 +1000,8 @@ private def tokenFnAux : ParserFn := fun c s =>
     numberFnAux c s
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
+  else if curr == 'r' && isRawStrLitStart input (input.next i) then
+    rawStrLitFnAux i c (s.next input i)
   else
     let tk := c.tokens.matchPrefix input i
     identFnAux i tk .anonymous c s
@@ -827,11 +1009,11 @@ private def tokenFnAux : ParserFn := fun c s =>
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`
   match s with
-  | ⟨stack, lhsPrec, pos, ⟨_, catCache⟩, none⟩ =>
+  | ⟨stack, lhsPrec, pos, ⟨_, catCache⟩, none, errs⟩ =>
     if stack.size == 0 then s
     else
       let tk := stack.back
-      ⟨stack, lhsPrec, pos, ⟨{ startPos := startPos, stopPos := pos, token := tk }, catCache⟩, none⟩
+      ⟨stack, lhsPrec, pos, ⟨{ startPos := startPos, stopPos := pos, token := tk }, catCache⟩, none, errs⟩
   | other => other
 
 def tokenFn (expected : List String := []) : ParserFn := fun c s =>
@@ -1130,21 +1312,24 @@ def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err⟩
+  | ⟨stack, lhsPrec, pos, cache, err, errs⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err, errs⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
-  | ⟨stack, _, _, cache, _⟩ => ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError⟩
+  | ⟨stack, _, _, cache, _, errs⟩ =>
+    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, some err⟩ =>
-    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, if oldError == err then some err else some (oldError.merge err)⟩
+  | ⟨stack, lhsPrec, pos, cache, some err, errs⟩ =>
+    let newError := if oldError == err then err else oldError.merge err
+    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none⟩
+  | ⟨stack, lhsPrec, pos, cache, _, errs⟩ =>
+    ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none, errs⟩
 
 def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
   s.keepLatest startStackSize

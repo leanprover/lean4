@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Structure
 import Lean.Elab.Attributes
 
@@ -26,6 +27,8 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfo
     match privateToUserName? declName with
     | none          => throwError "'{declName}' has already been declared"
     | some declName => throwError "private declaration '{declName}' has already been declared"
+  if isReservedName env declName then
+    throwError "'{declName}' is a reserved name"
   if env.contains (mkPrivateName env declName) then
     addInfo (mkPrivateName env declName)
     throwError "a private declaration '{declName}' has already been declared"

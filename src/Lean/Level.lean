@@ -3,6 +3,8 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.Array.QSort
 import Lean.Data.HashMap
 import Lean.Data.HashSet
 import Lean.Data.PersistentHashMap
@@ -204,6 +206,9 @@ def isNeverZero : Level → Bool
 def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
+
+instance instOfNat (n : Nat) : OfNat Level n where
+  ofNat := ofNat n
 
 def addOffsetAux : Nat → Level → Level
   | 0,     u => u
@@ -603,7 +608,7 @@ where
       let v' := v.getLevelOffset
       (u.getLevelOffset == v' || v'.isZero)
       && u.getOffset ≥ v.getOffset
-termination_by _ u v => (u, v)
+  termination_by (u, v)
 
 end Level
 

@@ -865,8 +865,10 @@ private:
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
                 string_ref mangled = name_mangle(fn, *g_mangle_prefix);
                 string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
-                throw exception(sstream() << "could not find native implementation of external declaration '" << fn
-                                          << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "')");
+                throw exception(sstream() << "Could not find native implementation of external declaration '" << fn
+                                          << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "').\n"
+                                          << "For declarations from `Init` or `Lean`, you need to set `supportInterpreter := true` "
+                                          << "in the relevant `lean_exe` statement in your `lakefile.lean`.");
             }
             // evaluate args in old stack frame
             for (const auto & arg : args) {

@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
+prelude
 import Lean.Elab.App
 import Lean.Elab.BuiltinNotation
 
@@ -487,8 +488,10 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     ```
     We can improve this failure in the future by applying default instances before reporting a type mismatch.
     -/
-    let lhs ← withRef stx[2] <| toTree stx[2]
-    let rhs ← withRef stx[3] <| toTree stx[3]
+    let lhsStx := stx[2]
+    let rhsStx := stx[3]
+    let lhs ← withRef lhsStx <| toTree lhsStx
+    let rhs ← withRef rhsStx <| toTree rhsStx
     let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
@@ -496,10 +499,10 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       -- Use default elaboration strategy + `toBoolIfNecessary`
       let lhs ← toExprCore lhs
       let rhs ← toExprCore rhs
-      let lhs ← toBoolIfNecessary lhs
-      let rhs ← toBoolIfNecessary rhs
+      let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
+      let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
-      let rhs ← ensureHasType lhsType rhs
+      let rhs ← withRef rhsStx <| ensureHasType lhsType rhs
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
     else
       let mut maxType := r.max?.get!

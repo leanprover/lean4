@@ -35,6 +35,11 @@ static expr * g_nat_mod      = nullptr;
 static expr * g_nat_div      = nullptr;
 static expr * g_nat_beq      = nullptr;
 static expr * g_nat_ble      = nullptr;
+static expr * g_nat_land     = nullptr;
+static expr * g_nat_lor      = nullptr;
+static expr * g_nat_xor      = nullptr;
+static expr * g_nat_shiftLeft  = nullptr;
+static expr * g_nat_shiftRight = nullptr;
 
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
@@ -609,6 +614,11 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
         if (f == *g_nat_beq) return reduce_bin_nat_pred(nat_eq, e);
         if (f == *g_nat_ble) return reduce_bin_nat_pred(nat_le, e);
+        if (f == *g_nat_land) return reduce_bin_nat_op(nat_land, e);
+        if (f == *g_nat_lor)  return reduce_bin_nat_op(nat_lor, e);
+        if (f == *g_nat_xor)  return reduce_bin_nat_op(nat_lxor, e);
+        if (f == *g_nat_shiftLeft) return reduce_bin_nat_op(lean_nat_shiftl, e);
+        if (f == *g_nat_shiftRight) return reduce_bin_nat_op(lean_nat_shiftr, e);
     }
     return none_expr();
 }
@@ -1006,7 +1016,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
     if (r != l_undef) return r == l_true;
-    
+
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.
@@ -1135,46 +1145,44 @@ extern "C" LEAN_EXPORT lean_object * lean_kernel_whnf(lean_object * env, lean_ob
     });
 }
 
+inline static expr * new_persistent_expr_const(name const & n) {
+    expr * e = new expr(mk_const(n));
+    mark_persistent(e->raw());
+    return e;
+}
+
 void initialize_type_checker() {
-    g_dont_care    = new expr(mk_const("dontcare"));
-    mark_persistent(g_dont_care->raw());
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};
-    g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
-    mark_persistent(g_nat_zero->raw());
-    g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
-    mark_persistent(g_nat_succ->raw());
-    g_nat_add      = new expr(mk_constant(name{"Nat", "add"}));
-    mark_persistent(g_nat_add->raw());
-    g_nat_sub      = new expr(mk_constant(name{"Nat", "sub"}));
-    mark_persistent(g_nat_sub->raw());
-    g_nat_mul      = new expr(mk_constant(name{"Nat", "mul"}));
-    mark_persistent(g_nat_mul->raw());
-    g_nat_pow      = new expr(mk_constant(name{"Nat", "pow"}));
-    mark_persistent(g_nat_pow->raw());
-    g_nat_gcd      = new expr(mk_constant(name{"Nat", "gcd"}));
-    mark_persistent(g_nat_gcd->raw());
-    g_nat_div      = new expr(mk_constant(name{"Nat", "div"}));
-    mark_persistent(g_nat_div->raw());
-    g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
-    mark_persistent(g_nat_mod->raw());
-    g_nat_beq      = new expr(mk_constant(name{"Nat", "beq"}));
-    mark_persistent(g_nat_beq->raw());
-    g_nat_ble      = new expr(mk_constant(name{"Nat", "ble"}));
-    mark_persistent(g_nat_ble->raw());
-    g_string_mk    = new expr(mk_constant(name{"String", "mk"}));
-    mark_persistent(g_string_mk->raw());
-    g_lean_reduce_bool = new expr(mk_constant(name{"Lean", "reduceBool"}));
-    mark_persistent(g_lean_reduce_bool->raw());
-    g_lean_reduce_nat  = new expr(mk_constant(name{"Lean", "reduceNat"}));
-    mark_persistent(g_lean_reduce_nat->raw());
+    mark_persistent(g_bool_true->raw());
+    g_dont_care    = new_persistent_expr_const("dontcare");
+    g_nat_zero     = new_persistent_expr_const({"Nat", "zero"});
+    g_nat_succ     = new_persistent_expr_const({"Nat", "succ"});
+    g_nat_add      = new_persistent_expr_const({"Nat", "add"});
+    g_nat_sub      = new_persistent_expr_const({"Nat", "sub"});
+    g_nat_mul      = new_persistent_expr_const({"Nat", "mul"});
+    g_nat_pow      = new_persistent_expr_const({"Nat", "pow"});
+    g_nat_gcd      = new_persistent_expr_const({"Nat", "gcd"});
+    g_nat_div      = new_persistent_expr_const({"Nat", "div"});
+    g_nat_mod      = new_persistent_expr_const({"Nat", "mod"});
+    g_nat_beq      = new_persistent_expr_const({"Nat", "beq"});
+    g_nat_ble      = new_persistent_expr_const({"Nat", "ble"});
+    g_nat_land     = new_persistent_expr_const({"Nat", "land"});
+    g_nat_lor      = new_persistent_expr_const({"Nat", "lor"});
+    g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
+    g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
+    g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
+    g_string_mk    = new_persistent_expr_const({"String", "mk"});
+    g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
+    g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
 void finalize_type_checker() {
-    delete g_dont_care;
     delete g_kernel_fresh;
+    delete g_bool_true;
+    delete g_dont_care;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_add;
@@ -1186,6 +1194,11 @@ void finalize_type_checker() {
     delete g_nat_mod;
     delete g_nat_beq;
     delete g_nat_ble;
+    delete g_nat_land;
+    delete g_nat_lor;
+    delete g_nat_xor;
+    delete g_nat_shiftLeft;
+    delete g_nat_shiftRight;
     delete g_string_mk;
     delete g_lean_reduce_bool;
     delete g_lean_reduce_nat;

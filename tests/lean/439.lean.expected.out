@@ -1,20 +1,20 @@
 fn.imp : {p : P} → Bar.fn p
 439.lean:18:7-18:12: error: function expected at
-  Fn.imp fn
+  fn.imp
 term has type
   Bar.fn ?m
 439.lean:29:7-29:11: error: function expected at
-  Fn.imp fn
+  fn.imp
 term has type
   Bar.fn ?m
-Fn.imp fn : Bar.fn p
-Fn.imp fn' Bp : Bar.fn p
+fn.imp : Bar.fn p
+fn'.imp Bp : Bar.fn p
 439.lean:39:11-39:12: error: application type mismatch
-  Fn.imp fn' p
+  fn'.imp p
 argument
   p
 has type
   P : Sort u
 but is expected to have type
   Bar.fn ?m : Sort ?u
-Fn.imp fn' (sorryAx (Bar.fn ?m) true) : Bar.fn ?m
+fn'.imp (sorryAx (Bar.fn ?m) true) : Bar.fn ?m

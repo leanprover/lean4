@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Calc
-// Imports: Init Lean.Elab.App
+// Imports: Lean.Elab.App
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -242,11 +242,14 @@ lean_dec(x_8);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_inc(x_1);
 x_11 = l_Lean_Expr_appFn_x21(x_1);
+lean_inc(x_11);
 x_12 = l_Lean_Expr_appFn_x21(x_11);
 x_13 = l_Lean_Expr_appArg_x21(x_11);
 lean_dec(x_11);
 x_14 = l_Lean_Expr_appArg_x21(x_1);
+lean_dec(x_1);
 x_15 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
@@ -263,6 +266,7 @@ return x_18;
 else
 {
 lean_object* x_19; lean_object* x_20; 
+lean_dec(x_1);
 x_19 = lean_box(0);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -280,7 +284,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -580,7 +583,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_mkCalcTrans___closed__1;
 x_2 = l_Lean_Elab_Term_mkCalcTrans___closed__2;
-x_3 = lean_unsigned_to_nat(28u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = lean_unsigned_to_nat(53u);
 x_5 = l_Lean_Elab_Term_mkCalcTrans___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -593,7 +596,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_mkCalcTrans___closed__1;
 x_2 = l_Lean_Elab_Term_mkCalcTrans___closed__2;
-x_3 = lean_unsigned_to_nat(29u);
+x_3 = lean_unsigned_to_nat(30u);
 x_4 = lean_unsigned_to_nat(72u);
 x_5 = l_Lean_Elab_Term_mkCalcTrans___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -693,7 +696,6 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Elab_Term_getCalcRelation_x3f(x_2, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_2);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
@@ -735,7 +737,6 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_Elab_Term_getCalcRelation_x3f(x_22, x_5, x_6, x_7, x_8, x_23);
-lean_dec(x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 if (lean_obj_tag(x_25) == 0)
@@ -1011,6 +1012,7 @@ x_117 = lean_ctor_get(x_115, 1);
 lean_inc(x_117);
 lean_dec(x_115);
 x_118 = l_Lean_Expr_headBeta(x_116);
+lean_inc(x_118);
 x_119 = l_Lean_Elab_Term_getCalcRelation_x3f(x_118, x_5, x_6, x_7, x_8, x_117);
 x_120 = lean_ctor_get(x_119, 0);
 lean_inc(x_120);
@@ -1739,6 +1741,7 @@ x_270 = lean_ctor_get(x_268, 1);
 lean_inc(x_270);
 lean_dec(x_268);
 x_271 = l_Lean_Expr_headBeta(x_269);
+lean_inc(x_271);
 x_272 = l_Lean_Elab_Term_getCalcRelation_x3f(x_271, x_5, x_6, x_7, x_8, x_270);
 x_273 = lean_ctor_get(x_272, 0);
 lean_inc(x_273);
@@ -7469,7 +7472,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_mkCalcTrans___closed__1;
 x_2 = l_Lean_Elab_Term_getCalcSteps___closed__3;
-x_3 = lean_unsigned_to_nat(86u);
+x_3 = lean_unsigned_to_nat(87u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_Elab_Term_mkCalcTrans___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8153,7 +8156,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_mkCalcTrans___closed__1;
 x_2 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcSteps___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(92u);
+x_3 = lean_unsigned_to_nat(93u);
 x_4 = lean_unsigned_to_nat(51u);
 x_5 = l_Lean_Elab_Term_mkCalcTrans___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8454,6 +8457,7 @@ lean_inc(x_44);
 x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
+lean_inc(x_44);
 x_46 = l_Lean_Elab_Term_getCalcRelation_x3f(x_44, x_7, x_8, x_9, x_10, x_45);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
@@ -9116,6 +9120,7 @@ lean_inc(x_173);
 x_174 = lean_ctor_get(x_172, 1);
 lean_inc(x_174);
 lean_dec(x_172);
+lean_inc(x_173);
 x_175 = l_Lean_Elab_Term_getCalcRelation_x3f(x_173, x_7, x_8, x_9, x_10, x_174);
 x_176 = lean_ctor_get(x_175, 0);
 lean_inc(x_176);
@@ -10113,7 +10118,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_declRange___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(115u);
+x_1 = lean_unsigned_to_nat(116u);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -10125,7 +10130,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_declRange___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(120u);
+x_1 = lean_unsigned_to_nat(121u);
 x_2 = lean_unsigned_to_nat(15u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -10153,7 +10158,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_declRange___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(115u);
+x_1 = lean_unsigned_to_nat(116u);
 x_2 = lean_unsigned_to_nat(4u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -10165,7 +10170,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabCalc_declRange___clo
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(115u);
+x_1 = lean_unsigned_to_nat(116u);
 x_2 = lean_unsigned_to_nat(12u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -10211,16 +10216,12 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_App(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Calc(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_App(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

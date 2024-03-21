@@ -6,4 +6,4 @@ package foo {
 }
 
 @[default_target]
-lean_lib foo
+lean_lib Foo

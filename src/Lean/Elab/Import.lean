@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Module
 import Lean.Data.Json
 
@@ -16,10 +17,11 @@ def headerToImports (header : Syntax) : Array Import :=
     let id      := stx[2].getId
     { module := id, runtimeOnly := runtime }
 
-def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
+    (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (leakEnv := false)
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (headerToImports header) opts trustLevel
+    let env ← importModules (leakEnv := leakEnv) (headerToImports header) opts trustLevel
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

@@ -1,10 +1,10 @@
 set -ex
 
 cd app
-${LAKE:-../../../build/bin/lake} build -v -U
+${LAKE:-../../../.lake/build/bin/lake} build -v -U
 cd ..
 
 
 cd lib
-${LAKE:-../../../build/bin/lake} build -v
+${LAKE:-../../../.lake/build/bin/lake} build -v
 cd ..

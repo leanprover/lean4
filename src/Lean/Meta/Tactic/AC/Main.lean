@@ -3,6 +3,8 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
+prelude
+import Init.Data.AC
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
@@ -11,6 +13,7 @@ import Lean.Elab.Tactic.Rewrite
 namespace Lean.Meta.AC
 open Lean.Data.AC
 open Lean.Elab.Tactic
+open Std
 
 abbrev ACExpr := Lean.Data.AC.Expr
 
@@ -43,13 +46,13 @@ def getInstance (cls : Name) (exprs : Array Expr) : MetaM (Option Expr) := do
   | _ => return none
 
 def preContext (expr : Expr) : MetaM (Option PreContext) := do
-  if let some assoc := ←getInstance ``IsAssociative #[expr] then
+  if let some assoc := ←getInstance ``Associative #[expr] then
     return some
       { assoc,
         op := expr
         id := 0
-        comm := ←getInstance ``IsCommutative #[expr]
-        idem := ←getInstance ``IsIdempotent #[expr] }
+        comm := ←getInstance ``Commutative #[expr]
+        idem := ←getInstance ``IdempotentOp #[expr] }
 
   return none
 
@@ -99,13 +102,14 @@ where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]!
     let zero := mkLevelZeroEx ()
-    let noneE := mkApp (mkConst ``Option.none [zero])
-    let someE := mkApp2 (mkConst ``Option.some [zero])
-
+    let plift := mkApp (mkConst ``PLift [zero])
+    let pliftUp := mkApp2 (mkConst ``PLift.up [zero])
+    let noneE tp   := mkApp  (mkConst ``Option.none [zero]) (plift tp)
+    let someE tp v := mkApp2 (mkConst ``Option.some [zero]) (plift tp) (pliftUp tp v)
     let vars ← vars.mapM fun x => do
       let isNeutral :=
-        let isNeutralClass := mkApp3 (mkConst ``IsNeutral [u]) α preContext.op x
-        match ←getInstance ``IsNeutral #[preContext.op, x] with
+        let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x
+        match ←getInstance ``LawfulIdentity #[preContext.op, x] with
         | none => (false, noneE isNeutralClass)
         | some isNeutral => (true, someE isNeutralClass isNeutral)
 
@@ -116,13 +120,13 @@ where
     let vars ← mkListLit (mkApp2 (mkConst ``Variable [u]) α preContext.op) vars
 
     let comm :=
-      let commClass := mkApp2 (mkConst ``IsCommutative [u]) α preContext.op
+      let commClass := mkApp2 (mkConst ``Commutative [u]) α preContext.op
       match preContext.comm with
       | none => noneE commClass
       | some comm => someE commClass comm
 
     let idem :=
-      let idemClass := mkApp2 (mkConst ``IsIdempotent [u]) α preContext.op
+      let idemClass := mkApp2 (mkConst ``IdempotentOp [u]) α preContext.op
       match preContext.idem with
       | none => noneE idemClass
       | some idem => someE idemClass idem
@@ -130,12 +134,12 @@ where
     return (isNeutrals, mkApp7 (mkConst ``Lean.Data.AC.Context.mk [u]) α preContext.op preContext.assoc comm idem vars arbitrary)
 
   convert : ACExpr → Expr
-    | Data.AC.Expr.op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)
-    | Data.AC.Expr.var x => mkApp (mkConst ``Data.AC.Expr.var) $ mkNatLit x
+    | .op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)
+    | .var x => mkApp (mkConst ``Data.AC.Expr.var) $ mkNatLit x
 
   convertTarget (vars : Array Expr) : ACExpr → Expr
-    | Data.AC.Expr.op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
-    | Data.AC.Expr.var x => vars[x]!
+    | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
+    | .var x => vars[x]!
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   let simpCtx :=
@@ -150,7 +154,7 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   newGoal.refl
 where
   post (e : Expr) : SimpM Simp.Step := do
-    let ctx ← read
+    let ctx ← Simp.getContext
     match e, ctx.parent? with
     | bin op₁ l r, some (bin op₂ _ _) =>
       if ←isDefEq op₁ op₂ then

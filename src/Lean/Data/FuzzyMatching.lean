@@ -8,6 +8,9 @@ used in LLVM with some modifications. The LLVM algorithm itself is based on VS
 code's client side filtering algorithm. For the LLVM implementation see
 https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
 -/
+prelude
+import Init.Data.Range
+import Init.Data.OfScientific
 
 namespace Lean
 namespace FuzzyMatching

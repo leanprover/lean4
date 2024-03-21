@@ -3,7 +3,9 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Eqns
+import Lean.Meta.CtorRecognizer
 import Lean.Util.CollectFVars
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Tactic.Split
@@ -21,16 +23,25 @@ structure EqnInfoCore where
   value       : Expr
   deriving Inhabited
 
-partial def expand : Expr → Expr
-  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b      => expand b
-  | e => e
+/--
+Zeta reduces `let` and `let_fun` while consuming metadata.
+Returns true if progress is made.
+-/
+partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
+  match e with
+  | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)
+  | Expr.mdata _ b      => expand true b
+  | e =>
+    if let some (_, _, v, b) := e.letFun? then
+      expand true (b.instantiate1 v)
+    else
+      (progress, e)
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
-  unless rhs.isLet || rhs.isMData do return none
-  return some (← mvarId.replaceTargetDefEq (← mkEq lhs (expand rhs)))
+  let (true, rhs') := expand false rhs | return none
+  return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'
@@ -208,13 +219,14 @@ where
 -/
 private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
   let env ← getEnv
-  return Option.isSome <| e.find? fun e => Id.run do
-    if let some info := isMatcherAppCore? env e then
-      let args := e.getAppArgs
-      for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        if discr.isConstructorApp env then
-          return true
-    return false
+  let find (root : Expr) : ExceptT Unit MetaM Unit :=
+    root.forEach fun e => do
+      if let some info := isMatcherAppCore? env e then
+        let args := e.getAppArgs
+        for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+          if (← Meta.isConstructorApp discr) then
+            throwThe Unit ()
+  return (← (find e).run) matches .error _
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
@@ -305,14 +317,6 @@ def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withCo
 def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
-structure UnfoldEqnExtState where
-  map : PHashMap Name Name := {}
-  deriving Inhabited
-
-/- We generate the unfold equation on demand, and do not save them on .olean files. -/
-builtin_initialize unfoldEqnExt : EnvExtension UnfoldEqnExtState ←
-  registerEnvExtension (pure {})
-
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
   `mvarId` is the goal to be proved. It is a goal of the form
@@ -358,9 +362,8 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
-  let env ← getEnv
   withOptions (tactic.hygienic.set · false) do
-    let baseName := mkPrivateName env declName
+    let baseName := declName
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -368,7 +371,7 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := baseName ++ `_unfold
+      let name := baseName ++ `def
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams
@@ -376,13 +379,8 @@ def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {
       return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
-  let env ← getEnv
-  if let some eq := unfoldEqnExt.getState env |>.map.find? declName then
-    return some eq
-  else if let some info := getInfo? () then
-    let eq ← mkUnfoldEq declName info
-    modifyEnv fun env => unfoldEqnExt.modifyState env fun s => { s with map := s.map.insert declName eq }
-    return some eq
+  if let some info := getInfo? () then
+    return some (← mkUnfoldEq declName info)
   else
     return none
 

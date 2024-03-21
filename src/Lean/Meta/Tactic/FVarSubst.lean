@@ -1,8 +1,9 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
+prelude
 import Lean.Data.AssocList
 import Lean.Expr
 import Lean.LocalContext
@@ -62,6 +63,13 @@ def domain (s : FVarSubst) : List FVarId :=
 
 def any (p : FVarId → Expr → Bool) (s : FVarSubst) : Bool :=
   s.map.any p
+
+/--
+Constructs a substitution consisting of `s` followed by `t`.
+This satisfies `(s.append t).apply e = t.apply (s.apply e)`
+-/
+def append (s t : FVarSubst) : FVarSubst :=
+  s.1.foldl (fun s' k v => s'.insert k (t.apply v)) t
 
 end FVarSubst
 end Meta

@@ -82,7 +82,7 @@ theorem List.palindrome_ind (motive : List α → Prop)
     have ih := palindrome_ind motive h₁ h₂ h₃ (a₂::as').dropLast
     have : [a₁] ++ (a₂::as').dropLast ++ [(a₂::as').last (by simp)] = a₁::a₂::as' := by simp
     this ▸ h₃ _ _ _ ih
-termination_by _ as => as.length
+termination_by as.length
 
 /-!
 We use our new induction principle to prove that if `as.reverse = as`, then `Palindrome as` holds.

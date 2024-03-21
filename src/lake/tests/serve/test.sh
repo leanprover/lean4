@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   TAIL=gtail
 else
   TAIL=tail
 fi
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 INIT_REQ=$'Content-Length: 46\r\n\r\n{"jsonrpc":"2.0","method":"initialize","id":1}'
 INITD_NOT=$'Content-Length: 40\r\n\r\n{"jsonrpc":"2.0","method":"initialized"}'
@@ -24,18 +25,18 @@ echo "does not compile" > lakefile.lean
 # ---
 
 MSGS="$INIT_REQ$INITD_NOT$SD_REQ$EXIT_NOT"
-echo -n "$MSGS" | ${LAKE:-../../build/bin/lake} serve >/dev/null
+echo -n "$MSGS" | ${LAKE:-../../.lake/build/bin/lake} serve >/dev/null
 echo "tested 49"
 
 # ---
-# Test that `lake print-paths` retains the error from `lake serve`
+# Test that `lake setup-file` retains the error from `lake serve`
 # See https://github.com/leanprover/lake/issues/116
 # ---
 
-# Test that `lake print-paths` produces the error from `LAKE_INVALID_CONFIG`
+# Test that `lake setup-file` produces the error from `LAKE_INVALID_CONFIG`
 set -x
 # NOTE: For some reason, using `!` here does not work on macOS
-(LAKE_INVALID_CONFIG=$'foo\n' $LAKE print-paths 2>&1 && exit 1 || true) | grep foo
+(LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep foo
 set +x
 
 # Test that `lake serve` produces the `Invalid Lake configuration message`.

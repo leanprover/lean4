@@ -3,6 +3,9 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
+import Init.Data.Array.Basic
+import Init.System.FilePath
 
 open System
 

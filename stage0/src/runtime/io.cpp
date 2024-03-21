@@ -20,6 +20,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
+#include <sys/file.h>
 #ifndef LEAN_EMSCRIPTEN
 #include <sys/random.h>
 #endif
@@ -88,7 +89,11 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    lean_always_assert(fclose(static_cast<FILE *>(h)) == 0);
+    // There is no sensible way to handle errors here; in particular, we should
+    // not panic as finalizing a handle that already is in an invalid state
+    // (broken pipe etc.) should work and not terminate the process. The same
+    // decision was made for `std::fs::File` in the Rust stdlib.
+    fclose(static_cast<FILE *>(h));
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
@@ -294,6 +299,98 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     }
 }
 
+#ifdef LEAN_WINDOWS
+
+static inline HANDLE win_handle(FILE * fp) {
+#ifdef q4_WCE
+    return (HANDLE)_fileno(fp);
+#else
+    return (HANDLE)_get_osfhandle(_fileno(fp));
+#endif
+}
+
+/* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+    OVERLAPPED o = {0};
+    HANDLE wh = win_handle(io_get_handle(h));
+    DWORD flags = x ? LOCKFILE_EXCLUSIVE_LOCK : 0;
+    if (LockFileEx(wh, flags, 0, MAXDWORD, MAXDWORD, &o)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+}
+
+/* Handle.tryLock : (@& Handle) → (exclusive : Bool) → IO Bool */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+    OVERLAPPED o = {0};
+    HANDLE wh = win_handle(io_get_handle(h));
+    DWORD flags = (x ? LOCKFILE_EXCLUSIVE_LOCK : 0) | LOCKFILE_FAIL_IMMEDIATELY;
+    if (LockFileEx(wh, flags, 0, MAXDWORD, MAXDWORD, &o)) {
+        return io_result_mk_ok(box(1));
+    } else {
+        if (GetLastError() == ERROR_LOCK_VIOLATION) {
+            return io_result_mk_ok(box(0));
+        } else {
+            return io_result_mk_error((sstream() << GetLastError()).str());
+        }
+    }
+}
+
+/* Handle.unlock : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /* w */) {
+    OVERLAPPED o = {0};
+    HANDLE wh = win_handle(io_get_handle(h));
+    if (UnlockFileEx(wh, 0, MAXDWORD, MAXDWORD, &o)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        if (GetLastError() == ERROR_NOT_LOCKED) {
+            // For consistency with Unix
+            return io_result_mk_ok(box(0));
+        } else {
+            return io_result_mk_error((sstream() << GetLastError()).str());
+        }
+    }
+}
+
+#else
+
+/* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_lock(b_obj_arg h,  uint8_t x, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+    if (!flock(fileno(fp), x ? LOCK_EX : LOCK_SH)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+/* Handle.tryLock : (@& Handle) → (exclusive : Bool) → IO Bool */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_try_lock(b_obj_arg h, uint8_t x, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+    if (!flock(fileno(fp), (x ? LOCK_EX : LOCK_SH) | LOCK_NB)) {
+        return io_result_mk_ok(box(1));
+    } else {
+        if (errno == EWOULDBLOCK) {
+            return io_result_mk_ok(box(0));
+        } else {
+            return io_result_mk_error(decode_io_error(errno, nullptr));
+        }
+    }
+}
+
+/* Handle.unlock : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+    if (!flock(fileno(fp), LOCK_UN)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+#endif
+
 /* Handle.isEof : (@& Handle) → BaseIO Bool */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
@@ -304,6 +401,30 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (!std::fflush(fp)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+/* Handle.rewind : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_rewind(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+    if (!std::fseek(fp, 0, SEEK_SET)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+/* Handle.truncate : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+#ifdef LEAN_WINDOWS
+    if (!_chsize_s(_fileno(fp), _ftelli64(fp))) {
+#else
+    if (!ftruncate(fileno(fp), ftello(fp))) {
+#endif
         return io_result_mk_ok(box(0));
     } else {
         return io_result_mk_error(decode_io_error(errno, nullptr));
@@ -385,7 +506,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
 
 /* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
-    static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64));
+    static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     return io_result_mk_ok(uint64_to_nat(tm.count()));
@@ -393,7 +514,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
 
 /* monoNanosNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_nanos_now(obj_arg /* w */) {
-    static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64));
+    static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
     return io_result_mk_ok(uint64_to_nat(tm.count()));
@@ -890,19 +1011,21 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/*  mapTask {α : Type u} {β : Type} (f : α → BaseIO β) (t : Task α) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
+/*  mapTask (f : α → BaseIO β) (t : Task α) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
-/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
+/*  bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 

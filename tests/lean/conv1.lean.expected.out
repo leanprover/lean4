@@ -164,3 +164,31 @@ conv1.lean:241:58-241:83: error: 'pattern' conv tactic failed, pattern was found
 conv1.lean:242:58-242:85: error: 'pattern' conv tactic failed, pattern was found only 4 times but 5 expected
 conv1.lean:243:58-243:85: error: 'pattern' conv tactic failed, pattern was found only 3 times but 5 expected
 conv1.lean:244:58-244:87: error: 'pattern' conv tactic failed, pattern was found only 2 times but 5 expected
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2 3
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P
+conv1.lean:268:10-268:13: error: invalid 'fun' conv tactic, application expected
+  p
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P 1 2 3
+P Q : Nat → Nat → Nat → Prop
+h : P = Q
+h2 : Q 1 2 3
+| P
+conv1.lean:280:10-280:15: error: invalid 'arg 0' conv tactic, application expected
+  p

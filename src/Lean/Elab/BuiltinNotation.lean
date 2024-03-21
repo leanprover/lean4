@@ -1,12 +1,17 @@
 /-
 Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Gabriel Ebner
 -/
+prelude
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Meta.KAbstract
+import Lean.Meta.Closure
 import Lean.Meta.MatchUtil
+import Lean.Compiler.ImplementedByAttr
 import Lean.Elab.SyntheticMVars
+import Lean.Elab.Eval
+import Lean.Elab.Binders
 
 namespace Lean.Elab.Term
 open Meta
@@ -18,6 +23,20 @@ open Meta
   if expectedType?.isNone then
     throwError "invalid coercion notation, expected type is not known"
   ensureHasType expectedType? e
+
+@[builtin_term_elab coeFunNotation] def elabCoeFunNotation : TermElab := fun stx _ => do
+  let x ← elabTerm stx[1] none
+  if let some ty ← coerceToFunction? x then
+    return ty
+  else
+    throwError "cannot coerce to function{indentExpr x}"
+
+@[builtin_term_elab coeSortNotation] def elabCoeSortNotation : TermElab := fun stx _ => do
+  let x ← elabTerm stx[1] none
+  if let some ty ← coerceToSort? x then
+    return ty
+  else
+    throwError "cannot coerce to sort{indentExpr x}"
 
 @[builtin_term_elab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
@@ -241,7 +260,8 @@ where
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
-  This method is usually used to implement tactics that function names as arguments (e.g., `simp`).
+  This method is usually used to implement tactics that take function names as arguments
+  (e.g., `simp`).
 -/
 def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none
@@ -409,5 +429,68 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
 @[builtin_term_elab noindex] def elabNoindex : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[1] expectedType?
   return DiscrTree.mkNoindexAnnotation e
+
+@[builtin_term_elab «unsafe»]
+def elabUnsafe : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(unsafe $t) => do
+    let t ← elabTermAndSynthesize t expectedType?
+    if (← logUnassignedUsingErrorInfos (← getMVars t)) then
+      throwAbortTerm
+    let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
+    let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
+    let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
+    let implName ← mkAuxName `unsafe_impl
+    addDecl <| Declaration.defnDecl {
+      name        := implName
+      type        := unsafeDefn.type
+      levelParams := unsafeDefn.levelParams
+      value       := (← mkOfNonempty unsafeDefn.type)
+      hints       := .opaque
+      safety      := .safe
+    }
+    setImplementedBy implName unsafeFn
+    return mkAppN (Lean.mkConst implName unsafeLvls) t.getAppArgs
+  | _ => throwUnsupportedSyntax
+
+/-- Elaborator for `by_elab`. -/
+@[builtin_term_elab byElab] def elabRunElab : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(by_elab $cmds:doSeq) => do
+    if let `(Lean.Parser.Term.doSeq| $e:term) := cmds then
+      if e matches `(Lean.Parser.Term.doSeq| fun $[$_args]* => $_) then
+        let tac ← unsafe evalTerm
+          (Option Expr → TermElabM Expr)
+          (Lean.mkForall `x .default
+            (mkApp (Lean.mkConst ``Option) (Lean.mkConst ``Expr))
+            (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))) e
+        return ← tac expectedType?
+    (← unsafe evalTerm (TermElabM Expr) (mkApp (Lean.mkConst ``TermElabM) (Lean.mkConst ``Expr))
+      (← `(do $cmds)))
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.haveI] def elabHaveI : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(haveI $x:ident $bs* : $ty := $val; $body) =>
+    withExpectedType expectedType? fun expectedType => do
+      let (ty, val) ← elabBinders bs fun bs => do
+        let ty ← elabType ty
+        let val ← elabTermEnsuringType val ty
+        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
+      withLocalDeclD x.getId ty fun x => do
+        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab Lean.Parser.Term.letI] def elabLetI : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(letI $x:ident $bs* : $ty := $val; $body) =>
+    withExpectedType expectedType? fun expectedType => do
+      let (ty, val) ← elabBinders bs fun bs => do
+        let ty ← elabType ty
+        let val ← elabTermEnsuringType val ty
+        pure (← mkForallFVars bs ty, ← mkLambdaFVars bs val)
+      withLetDecl x.getId ty val fun x => do
+        return (← (← elabTerm body expectedType).abstractM #[x]).instantiate #[val]
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Term

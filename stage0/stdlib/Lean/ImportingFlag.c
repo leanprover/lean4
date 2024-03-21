@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.ImportingFlag
-// Imports: Init
+// Imports: Init.System.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,9 +24,9 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_4_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting___rarg(lean_object*, lean_object*);
 lean_object* lean_io_initializing(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_35_(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_4_(lean_object* x_1) {
 _start:
@@ -55,7 +55,7 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_35_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
@@ -312,13 +312,13 @@ x_2 = lean_alloc_closure((void*)(l_Lean_withImporting___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_ImportingFlag(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 if (builtin) {res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_4_(lean_io_mk_world());
@@ -326,7 +326,7 @@ if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_importingRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_importingRef);
 lean_dec_ref(res);
-}if (builtin) {res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_35_(lean_io_mk_world());
+}if (builtin) {res = l_Lean_initFn____x40_Lean_ImportingFlag___hyg_25_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_ImportingFlag_0__Lean_runInitializersRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_ImportingFlag_0__Lean_runInitializersRef);

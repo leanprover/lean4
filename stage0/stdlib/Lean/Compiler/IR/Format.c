@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.Format
-// Imports: Init Lean.Compiler.IR.Basic
+// Imports: Lean.Compiler.IR.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,7 @@ static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType_
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__26;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__2;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__23;
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__34;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__16;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__39;
@@ -1511,11 +1511,12 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringExpr(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr(x_1);
 x_3 = l_Std_Format_defWidth;
-x_4 = lean_format_pretty(x_2, x_3);
-return x_4;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1962,10 +1963,11 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringIRType___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Format_defWidth;
-x_3 = lean_format_pretty(x_1, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_IR_instToStringIRType___closed__1() {
@@ -3216,11 +3218,12 @@ return x_195;
 LEAN_EXPORT lean_object* lean_ir_format_fn_body_head(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = l_Lean_IR_formatFnBodyHead(x_1);
 x_3 = l_Std_Format_defWidth;
-x_4 = lean_format_pretty(x_2, x_3);
-return x_4;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatFnBody_loop___spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {
@@ -4061,12 +4064,13 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringFnBody(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatFnBody_loop(x_2, x_1);
 x_4 = l_Std_Format_defWidth;
-x_5 = lean_format_pretty(x_3, x_4);
-return x_5;
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_IR_formatDecl___closed__1() {
@@ -4208,12 +4212,13 @@ return x_3;
 LEAN_EXPORT lean_object* lean_ir_decl_to_string(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = l_Lean_IR_formatDecl(x_1, x_2);
 x_4 = l_Std_Format_defWidth;
-x_5 = lean_format_pretty(x_3, x_4);
-return x_5;
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_IR_instToStringDecl___closed__1() {
@@ -4232,16 +4237,12 @@ x_1 = l_Lean_IR_instToStringDecl___closed__1;
 return x_1;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_Format(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

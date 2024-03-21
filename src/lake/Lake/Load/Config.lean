@@ -5,17 +5,12 @@ Authors: Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Data.Options
+import Lake.Config.Defaults
 import Lake.Config.Env
 import Lake.Util.Log
 
 namespace Lake
 open System Lean
-
-/-- `elan` toolchain file name -/
-def toolchainFileName : FilePath := "lean-toolchain"
-
-/-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
-def defaultConfigFile : FilePath := "lakefile.lean"
 
 /-- Context for loading a Lake configuration. -/
 structure LoadConfig where

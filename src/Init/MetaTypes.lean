@@ -21,7 +21,14 @@ structure Module where
 namespace Meta
 
 inductive TransparencyMode where
-  | all | default | reducible | instances
+  /-- unfold all constants, even those tagged as `@[irreducible]`. -/
+  | all
+  /-- unfold all constants except those tagged as `@[irreducible]`. -/
+  | default
+  /-- unfold only constants tagged with the `@[reducible]` attribute. -/
+  | reducible
+  /-- unfold reducible constants and constants tagged with the `@[instance]` attribute. -/
+  | instances
   deriving Inhabited, BEq
 
 inductive EtaStructMode where
@@ -36,6 +43,7 @@ inductive EtaStructMode where
 namespace DSimp
 
 structure Config where
+  /-- `let x := v; e[x]` reduces to `e[v]`. -/
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
@@ -50,6 +58,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  /-- Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`. -/
+  zetaDelta         : Bool := false
   deriving Inhabited, BEq
 
 end DSimp
@@ -64,6 +74,7 @@ structure Config where
   contextual        : Bool := false
   memoize           : Bool := true
   singlePass        : Bool := false
+  /-- `let x := v; e[x]` reduces to `e[v]`. -/
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
@@ -88,6 +99,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  /-- Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`. -/
+  zetaDelta         : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -104,6 +117,7 @@ def neutralConfig : Simp.Config := {
   arith             := false
   autoUnfold        := false
   ground            := false
+  zetaDelta         := false
 }
 
 end Simp

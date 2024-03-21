@@ -24,6 +24,5 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
   tar pkg.buildArchive pkg.buildDir pkg.buildArchiveFile
-    (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
   logInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}

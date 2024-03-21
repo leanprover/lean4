@@ -5,6 +5,7 @@ Author: Sebastian Ullrich, Leonardo de Moura, Joachim Breitner
 
 A string trie data structure, used for tokenizing the Lean language
 -/
+prelude
 import Lean.Data.Format
 
 namespace Lean

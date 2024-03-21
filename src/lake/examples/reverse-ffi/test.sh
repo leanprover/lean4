@@ -1,6 +1,8 @@
 set -ex
 
+LAKE=${LAKE:-../../.lake/build/bin/lake}
+
 ./clean.sh
 
-make run
-make run-local
+LAKE=$LAKE make run
+LAKE=$LAKE make run-local

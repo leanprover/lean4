@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 1, "character": 5}}
 {"range":
  {"start": {"line": 1, "character": 5}, "end": {"line": 1, "character": 6}},
@@ -6,7 +6,7 @@
  {"value":
   "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 1, "character": 7}}
 {"range":
  {"start": {"line": 1, "character": 7}, "end": {"line": 1, "character": 8}},
@@ -14,7 +14,7 @@
  {"value":
   "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 6, "character": 6}}
 {"range":
  {"start": {"line": 6, "character": 6}, "end": {"line": 6, "character": 7}},
@@ -22,7 +22,7 @@
  {"value":
   "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 6, "character": 8}}
 {"range":
  {"start": {"line": 6, "character": 8}, "end": {"line": 6, "character": 9}},
@@ -30,7 +30,7 @@
  {"value":
   "```lean\nBool\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 11, "character": 6}}
 {"range":
  {"start": {"line": 11, "character": 6}, "end": {"line": 11, "character": 7}},
@@ -38,7 +38,7 @@
  {"value":
   "```lean\nNat\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverBinderUndescore.lean"},
+{"textDocument": {"uri": "file:///hoverBinderUndescore.lean"},
  "position": {"line": 11, "character": 8}}
 {"range":
  {"start": {"line": 11, "character": 8}, "end": {"line": 11, "character": 9}},

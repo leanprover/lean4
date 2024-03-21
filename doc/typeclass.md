@@ -99,11 +99,11 @@ Let us start with the first step of the program above, declaring an appropriate 
 
 ```lean
 # namespace Ex
-class Inhabited (a : Type u) where
+class Inhabited (a : Sort u) where
   default : a
 
 #check @Inhabited.default
--- Inhabited.default : {a : Type u} → [self : Inhabited a] → a
+-- Inhabited.default : {a : Sort u} → [self : Inhabited a] → a
 # end Ex
 ```
 Note `Inhabited.default` doesn't have any explicit argument.
@@ -114,7 +114,7 @@ Now we populate the class with some instances:
 
 ```lean
 # namespace Ex
-# class Inhabited (a : Type _) where
+# class Inhabited (a : Sort _) where
 #  default : a
 instance : Inhabited Bool where
   default := true
@@ -138,7 +138,7 @@ instance : Inhabited Prop where
 You can use the command `export` to create the alias `default` for `Inhabited.default`
 ```lean
 # namespace Ex
-# class Inhabited (a : Type _) where
+# class Inhabited (a : Sort _) where
 #  default : a
 # instance : Inhabited Bool where
 #  default := true
@@ -174,7 +174,7 @@ instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
 With this added to the earlier instance declarations, type class instance can infer, for example, a default element of ``Nat × Bool``:
 ```lean
 # namespace Ex
-# class Inhabited (a : Type u) where
+# class Inhabited (a : Sort u) where
 #  default : a
 # instance : Inhabited Bool where
 #  default := true
@@ -191,8 +191,14 @@ instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
 ```
 Similarly, we can inhabit type function with suitable constant functions:
 ```lean
+# namespace Ex
+# class Inhabited (a : Sort u) where
+#  default : a
+# opaque default [Inhabited a] : a :=
+#  Inhabited.default
 instance [Inhabited b] : Inhabited (a -> b) where
   default := fun _ => default
+# end Ex
 ```
 As an exercise, try defining default instances for other types, such as `List` and `Sum` types.
 

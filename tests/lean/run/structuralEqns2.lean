@@ -12,9 +12,9 @@ def g (i j : Nat) : Nat :=
   | Nat.succ j => g i j
 
 #eval tst ``g
-#check g._eq_1
-#check g._eq_2
-#check g._unfold
+#check g.eq_1
+#check g.eq_2
+#check g.def
 
 def h (i j : Nat) : Nat :=
   let z :=
@@ -24,6 +24,6 @@ def h (i j : Nat) : Nat :=
   z + z
 
 #eval tst ``h
-#check h._eq_1
-#check h._eq_2
-#check h._unfold
+#check h.eq_1
+#check h.eq_2
+#check h.def

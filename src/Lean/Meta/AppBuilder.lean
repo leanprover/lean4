@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
@@ -23,6 +24,19 @@ def mkId (e : Expr) : MetaM Expr := do
 def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
   return mkApp2 (mkConst ``id [u]) expectedType e
+
+/--
+`mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
+The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
+-/
+def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
+  let f ← mkLambdaFVars #[x] e
+  let ety ← inferType e
+  let α ← inferType x
+  let β ← mkLambdaFVars #[x] ety
+  let u1 ← getLevel α
+  let u2 ← getLevel ety
+  return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
 
 /-- Return `a = b`. -/
 def mkEq (a b : Expr) : MetaM Expr := do
@@ -110,6 +124,17 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
+/--
+Similar to `mkEqTrans`, but arguments can be `none`.
+`none` is treated as a reflexivity proof.
+-/
+def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
+  match h₁?, h₂? with
+  | none, none       => return none
+  | none, some h     => return h
+  | some h, none     => return h
+  | some h₁, some h₂ => mkEqTrans h₁ h₂
+
 /-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``HEq.refl then
@@ -151,10 +176,41 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 
+/--
+If `e` is `@Eq.refl α a`, return `a`.
+-/
+def isRefl? (e : Expr) : Option Expr := do
+  if e.isAppOfArity ``Eq.refl 2 then
+    some e.appArg!
+  else
+    none
+
+/--
+If `e` is `@congrArg α β a b f h`, return `α`, `f` and `h`.
+Also works if `e` can be turned into such an application (e.g. `congrFun`).
+-/
+def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
+  if e.isAppOfArity ``congrArg 6 then
+    let #[α, _β, _a, _b, f, h] := e.getAppArgs | unreachable!
+    return some (α, f, h)
+  if e.isAppOfArity ``congrFun 6 then
+    let #[α, β, _f, _g, h, a] := e.getAppArgs | unreachable!
+    let α' ← withLocalDecl `x .default α fun x => do
+      mkForallFVars #[x] (β.beta #[x])
+    let f' ← withLocalDecl `x .default α' fun f => do
+      mkLambdaFVars #[f] (f.app a)
+    return some (α', f', h)
+  return none
+
 /-- Given `f : α → β` and `h : a = b`, returns a proof of `f a = f b`.-/
-def mkCongrArg (f h : Expr) : MetaM Expr := do
-  if h.isAppOf ``Eq.refl then
-    mkEqRefl (mkApp f h.appArg!)
+partial def mkCongrArg (f h : Expr) : MetaM Expr := do
+  if let some a := isRefl? h then
+    mkEqRefl (mkApp f a)
+  else if let some (α, f₁, h₁) ← congrArg? h then
+    -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
+    let f' ← withLocalDecl `x .default α fun x => do
+      mkLambdaFVars #[x] (f.beta #[f₁.beta #[x]])
+    mkCongrArg f' h₁
   else
     let hType ← infer h
     let fType ← infer f
@@ -168,8 +224,13 @@ def mkCongrArg (f h : Expr) : MetaM Expr := do
 
 /-- Given `h : f = g` and `a : α`, returns a proof of `f a = g a`.-/
 def mkCongrFun (h a : Expr) : MetaM Expr := do
-  if h.isAppOf ``Eq.refl then
-    mkEqRefl (mkApp h.appArg! a)
+  if let some f := isRefl? h then
+    mkEqRefl (mkApp f a)
+  else if let some (α, f₁, h₁) ← congrArg? h then
+    -- Fuse nested `congrArg` for smaller proof terms, e.g. when using simp
+    let f' ← withLocalDecl `x .default α fun x => do
+      mkLambdaFVars #[x] (f₁.beta #[x, a])
+    mkCongrArg f' h₁
   else
     let hType ← infer h
     match hType.eq? with
@@ -273,7 +334,7 @@ private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
   Remark:
   ``mkAppM `arbitrary #[α]`` returns `@arbitrary.{u} α` without synthesizing
   the implicit argument occurring after `α`.
-  Given a `x : (([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`
+  Given a `x : ([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`.
 -/
 def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
   withAppBuilderTrace constName xs do withNewMCtxDepth do
@@ -337,7 +398,7 @@ def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr := do
     let (f, fType) ← mkFun constName
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
-/-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name -/
+/-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name. -/
 def mkAppOptM' (f : Expr) (xs : Array (Option Expr)) : MetaM Expr := do
   let fType ← inferType f
   withAppBuilderTrace f xs do withNewMCtxDepth do
@@ -396,7 +457,7 @@ def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``Pure.pure #[monad, none, none, e]
 
 /--
-  `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
+  `mkProjection s fieldName` returns an expression for accessing field `fieldName` of the structure `s`.
   Remark: `fieldName` may be a subfield of `s`. -/
 partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
   let type ← inferType s
@@ -595,6 +656,27 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
+
+/--
+Given proofs of `P₁`, …, `Pₙ`, returns a proof of `P₁ ∧ … ∧ Pₙ`.
+If `n = 0` returns a proof of `True`.
+If `n = 1` returns the proof of `P₁`.
+-/
+def mkAndIntroN : Array Expr → MetaM Expr
+| #[] => return mkConst ``True.intro []
+| #[e] => return e
+| es => es.foldrM (start := es.size - 1) (fun a b => mkAppM ``And.intro #[a,b]) es.back
+
+
+/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ`, return the proof of `Pᵢ` -/
+def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
+  let mut value := e
+  for _ in [:i] do
+      value := mkProj ``And 1 value
+  if i + 1 < n then
+      value := mkProj ``And 0 value
+  return value
+
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

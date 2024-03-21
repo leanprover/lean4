@@ -1,0 +1,6 @@
+f +' g : Nat → Nat
+(f +' g) 1 : Nat
+f * g : Nat → Nat
+(f * g) 1 : Nat
+mul f g : Nat → Nat
+mul f g 1 : Nat

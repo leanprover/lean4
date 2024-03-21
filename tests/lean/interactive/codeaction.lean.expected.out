@@ -2,21 +2,19 @@
  "kind": "quickfix",
  "edit":
  {"documentChanges":
-  [{"textDocument": {"version": 1, "uri": "file://codeaction.lean"},
+  [{"textDocument": {"version": 1, "uri": "file:///codeaction.lean"},
     "edits":
     [{"range":
       {"start": {"line": 30, "character": 4},
        "end": {"line": 30, "character": 4}},
-      "newText": "hello!!!"}]}],
-  "changes": {},
-  "changeAnnotations": {}}}
+      "newText": "hello!!!"}]}]}}
 {"title": "a long-running action",
  "kind": "refactor",
  "data":
  {"providerResultIndex": 1,
   "providerName": "helloProvider",
   "params":
-  {"textDocument": {"uri": "file://codeaction.lean"},
+  {"textDocument": {"uri": "file:///codeaction.lean"},
    "range":
    {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
    "context": {"diagnostics": []}}}}

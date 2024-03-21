@@ -65,16 +65,36 @@ You now have a Lean binary and library that include your changes, though their
 own compilation was not influenced by them, that you can use to test your
 changes on test programs whose compilation *will* be influenced by the changes.
 
-Finally, when we want to use new language features in the library, we need to
-update the stage 0 compiler, which can be done via `make -C stageN update-stage0`.
-`make update-stage0` without `-C` defaults to stage1.
+## Updating stage0
 
-Updates to `stage0` should be their own commits in the Git history. In
-other words, before running `make update-stage0`, please commit your
-work. Then, commit the updated `stage0` compiler code with the commit message:
+Finally, when we want to use new language features in the library, we need to
+update the archived C source code of the stage 0 compiler in `stage0/src`.
+
+The github repository will automatically update stage0 on `master` once
+`src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
+
+If you have write access to the lean4 repository, you can also also manually
+trigger that process, for example to be able to use new features in the compiler itself.
+You can do that on <https://github.com/nomeata/lean4/actions/workflows/update-stage0.yml>
+or using Github CLI with
+```
+gh workflow run update-stage0.yml
+```
+
+Leaving stage0 updates to the CI automation is preferrable, but should you need
+to do it locally, you can use `make update-stage0` in `build/release`, to
+update `stage0` from `stage1`, `make -C stageN update-stage0` to update from
+another stage, or `nix run .#update-stage0-commit` to update using nix.
+
+Updates to `stage0` should be their own commits in the Git history. So should
+you have to include the stage0 update in your PR (rather than using above
+automation after merging changes), commit your work before running `make
+update-stage0`, commit the updated `stage0` compiler code with the commit
+message:
 ```
 chore: update stage0
 ```
+and coordinate with the admins to not squash your PR.
 
 ## Further Bootstrapping Complications
 

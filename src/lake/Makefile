@@ -1,4 +1,4 @@
-LAKE ?= ./build/bin/lake
+LAKE ?= ./.lake/build/bin/lake
 
 #-------------------------------------------------------------------------------
 # Suite Targets

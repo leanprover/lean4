@@ -5,7 +5,6 @@ After [building Lean](../make/index.md) you can run all the tests using
 cd build/release
 make test ARGS=-j4
 ```
-
 Change the 4 to the maximum number of parallel tests you want to
 allow. The best choice is the number of CPU cores on your machine as
 the tests are mostly CPU bound.  You can find the number of processors
@@ -17,6 +16,12 @@ adding the `-C stageN` argument. The default when run as above is stage 1.  The
 Lean tests will automatically use that stage's corresponding Lean
 executables
 
+Running `make test` will not pick up new test files; run
+```bash
+cmake build/release/stage1
+```
+to update the list of tests.
+
 You can also use `ctest` directly if you are in the right folder.  So
 to run stage1 tests with a 300 second timeout run this:
 
@@ -24,6 +29,9 @@ to run stage1 tests with a 300 second timeout run this:
 cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
+Useful `ctest` flags are `-R <name of test>` to run a single test, and
+`--rerun-failed` to run all tests that failed during the last run.
+You can also pass `ctest` flags via `make test ARGS="--rerun-failed"`.
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary
@@ -33,17 +41,17 @@ information is displayed. This option will show all test output.
 
 All these tests are included by [src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):
 
-- `tests/lean`: contains tests that come equipped with a
-  .lean.expected.out file. The driver script `test_single.sh` runs
+- [`tests/lean`](https://github.com/leanprover/lean4/tree/master/tests/lean/): contains tests that come equipped with a
+  .lean.expected.out file. The driver script [`test_single.sh`](https://github.com/leanprover/lean4/tree/master/tests/lean/test_single.sh) runs
   each test and checks the actual output (*.produced.out) with the
   checked in expected output.
 
-- `tests/lean/run`: contains tests that are run through the lean
+- [`tests/lean/run`](https://github.com/leanprover/lean4/tree/master/tests/lean/run/): contains tests that are run through the lean
   command line one file at a time. These tests only look for error
   codes and do not check the expected output even though output is
   produced, it is ignored.
 
-- `tests/lean/interactive`: are designed to test server requests at a
+- [`tests/lean/interactive`](https://github.com/leanprover/lean4/tree/master/tests/lean/interactive/): are designed to test server requests at a
   given position in the input file. Each .lean file contains comments
   that indicate how to simulate a client request at that position.
   using a `--^` point to the line position. Example:
@@ -53,7 +61,7 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
     Bla.
       --^ textDocument/completion
     ```
-    In this example, the test driver `test_single.sh` will simulate an
+    In this example, the test driver [`test_single.sh`](https://github.com/leanprover/lean4/tree/master/tests/lean/interactive/test_single.sh) will simulate an
     auto-completion request at `Bla.`. The expected output is stored in
     a .lean.expected.out in the json format that is part of the
     [Language Server
@@ -70,21 +78,21 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
     --^ collectDiagnostics
     ```
 
-- `tests/lean/server`: Tests more of the Lean `--server` protocol.
+- [`tests/lean/server`](https://github.com/leanprover/lean4/tree/master/tests/lean/server/): Tests more of the Lean `--server` protocol.
   There are just a few of them, and it uses .log files containing
   JSON.
 
-- `tests/compiler`: contains tests that will run the Lean compiler and
+- [`tests/compiler`](https://github.com/leanprover/lean4/tree/master/tests/compiler/): contains tests that will run the Lean compiler and
   build an executable that is executed and the output is compared to
   the .lean.expected.out file. This test also contains a subfolder
-  `foreign` which shows how to extend Lean using C++.
+  [`foreign`](https://github.com/leanprover/lean4/tree/master/tests/compiler/foreign/) which shows how to extend Lean using C++.
 
-- `tests/lean/trust0`: tests that run Lean in a mode that Lean doesn't
+- [`tests/lean/trust0`](https://github.com/leanprover/lean4/tree/master/tests/lean/trust0): tests that run Lean in a mode that Lean doesn't
   even trust the .olean files (i.e., trust 0).
 
-- `tests/bench`: contains performance tests.
+- [`tests/bench`](https://github.com/leanprover/lean4/tree/master/tests/bench/): contains performance tests.
 
-- `tests/plugin`: tests that compiled Lean code can be loaded into
+- [`tests/plugin`](https://github.com/leanprover/lean4/tree/master/tests/plugin/): tests that compiled Lean code can be loaded into
   `lean` via the `--plugin` command line option.
 
 ## Writing Good Tests
@@ -95,7 +103,7 @@ Every test file should contain:
   and, if not 100% clear, why that is the desirable behavior
 
 At the time of writing, most tests do not follow these new guidelines yet.
-For an example of a conforming test, see `tests/lean/1971.lean`.
+For an example of a conforming test, see [`tests/lean/1971.lean`](https://github.com/leanprover/lean4/tree/master/tests/lean/1971.lean).
 
 ## Fixing Tests
 
@@ -111,7 +119,7 @@ First, we must install [meld](http://meldmerge.org/). On Ubuntu, we can do it by
 sudo apt-get install meld
 ```
 
-Now, suppose `bad_class.lean` test is broken. We can see the problem by going to `tests/lean` directory and
+Now, suppose `bad_class.lean` test is broken. We can see the problem by going to [`tests/lean`](https://github.com/leanprover/lean4/tree/master/tests/lean) directory and
 executing
 
 ```
@@ -124,8 +132,3 @@ outputs. `meld` can also be used to repair the problems.
 
 In Emacs, we can also execute `M-x lean4-diff-test-file` to check/diff the file of the current buffer.
 To mass-copy all `.produced.out` files to the respective `.expected.out` file, use `tests/lean/copy-produced`.
-When using the Nix setup, add `--keep-failed` to the `nix build` call and then call
-```sh
-tests/lean/copy-produced <build-dir>/source/tests/lean
-```
-instead where `<build-dir>` is the path printed out by `nix build`.

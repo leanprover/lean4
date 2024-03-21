@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Class
 import Lean.Parser.Command
 import Lean.Meta.Closure
@@ -101,8 +102,9 @@ leading_parser try (declModifiers >> ident >> " :: ")
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
-    addAuxDeclarationRanges declName structStx[2] structStx[2]
-    pure { ref := structStx, modifiers := {}, name := defaultCtorName, declName }
+    let ref := structStx[1].mkSynthetic
+    addAuxDeclarationRanges declName ref ref
+    pure { ref, modifiers := {}, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -123,7 +125,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
       addAuxDeclarationRanges declName ctor[1] ctor[1]
-      pure { ref := ctor, name, modifiers := ctorModifiers, declName }
+      pure { ref := ctor[1], name, modifiers := ctorModifiers, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
@@ -738,7 +740,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
         throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      discard <| mkAuxDefinition declName type value (zeta := true)
+      discard <| mkAuxDefinition declName type value (zetaDelta := true)
       setReducibleAttribute declName
 
 /--
@@ -840,8 +842,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
         withSaveInfoContext do  -- save new env
           Term.addLocalVarInfo view.ref[1] (← mkConstWithLevelParams view.declName)
-          if let some _ := view.ctor.ref[1].getPos? (canonicalOnly := true) then
-            Term.addTermInfo' view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
+          if let some _ := view.ctor.ref.getPos? (canonicalOnly := true) then
+            Term.addTermInfo' view.ctor.ref (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
           for field in view.fields do
             -- may not exist if overriding inherited field
             if (← getEnv).contains field.declName then
@@ -890,7 +892,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
-  let derivingClassViews ← getOptDerivingClasses stx[6]
+  let derivingClassViews ← liftCoreM <| getOptDerivingClasses stx[6]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let declName ←
     runTermElabM fun scopeVars => do

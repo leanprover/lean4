@@ -3,6 +3,8 @@ Copyright (c) 2014-2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
+
+.olean serialization and deserialization.
 */
 #include <unordered_map>
 #include <vector>
@@ -25,6 +27,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/constants.h"
 #include "library/time_task.h"
 #include "library/util.h"
+#include "githash.h"
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
@@ -41,8 +44,22 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #endif
 
 namespace lean {
-// manually padded to multiple of word size, see `initialize_module`
-static char const * g_olean_header   = "oleanfile!!!!!!!";
+
+/** On-disk format of a .olean file. */
+struct olean_header {
+    // 5 bytes: magic number
+    char marker[5] = {'o', 'l', 'e', 'a', 'n'};
+    // 1 byte: version, currently always `1`
+    uint8_t version = 1;
+    // 42 bytes: build githash, padded with `\0` to the right
+    char githash[42];
+    // address at which the beginning of the file (including header) is attempted to be mmapped
+    size_t base_addr;
+    // payload, a serialize Lean object graph; `size_t` has same alignment requirements as Lean objects
+    size_t data[];
+};
+// make sure we don't have any padding bytes, which also ensures `data` is properly aligned
+static_assert(sizeof(olean_header) == 5 + 1 + 42 + sizeof(size_t), "olean_header must be packed");
 
 extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
@@ -73,10 +90,14 @@ extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg
         // `MapViewOfFileEx` addresses must be aligned to the "memory allocation granularity", which is 64KB.
         base_addr = base_addr & ~((1LL<<16) - 1);
 
-        object_compactor compactor(reinterpret_cast<void *>(base_addr + strlen(g_olean_header) + sizeof(base_addr)));
+        object_compactor compactor(reinterpret_cast<void *>(base_addr + offsetof(olean_header, data)));
         compactor(mdata);
-        out.write(g_olean_header, strlen(g_olean_header));
-        out.write(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
+
+        // see/sync with file format description above
+        olean_header header = {};
+        header.base_addr = base_addr;
+        strncpy(header.githash, LEAN_GITHASH, sizeof(header.githash));
+        out.write(reinterpret_cast<char *>(&header), sizeof(header));
         out.write(static_cast<char const *>(compactor.data()), compactor.size());
         out.close();
         while (std::rename(olean_tmp_fn.c_str(), olean_fn.c_str()) != 0) {
@@ -116,19 +137,21 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
         in.seekg(0, in.end);
         size_t size = in.tellg();
         in.seekg(0);
-        size_t header_size = strlen(g_olean_header);
-        if (size < header_size) {
+
+        olean_header default_header = {};
+        olean_header header;
+        if (!in.read(reinterpret_cast<char *>(&header), sizeof(header))) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        char * header = new char[header_size];
-        in.read(header, header_size);
-        if (strncmp(header, g_olean_header, header_size) != 0) {
+        if (memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0
+            || header.version != default_header.version
+#ifdef LEAN_CHECK_OLEAN_VERSION
+            || strncmp(header.githash, LEAN_GITHASH, sizeof(header.githash)) != 0
+#endif
+        ) {
             return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        delete[] header;
-        char * base_addr;
-        in.read(reinterpret_cast<char *>(&base_addr), sizeof(base_addr));
-        header_size += sizeof(base_addr);
+        char * base_addr = reinterpret_cast<char *>(header.base_addr);
         char * buffer = nullptr;
         bool is_mmap = false;
         std::function<void()> free_data;
@@ -166,24 +189,25 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
         };
 #endif
         if (buffer && buffer == base_addr) {
-            buffer += header_size;
+            buffer += sizeof(olean_header);
             is_mmap = true;
         } else {
 #ifdef LEAN_MMAP
             free_data();
 #endif
-            buffer = static_cast<char *>(malloc(size - header_size));
+            buffer = static_cast<char *>(malloc(size - sizeof(olean_header)));
             free_data = [=]() {
                 free(buffer);
             };
-            in.read(buffer, size - header_size);
+            in.read(buffer, size - sizeof(olean_header));
             if (!in) {
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
             }
         }
         in.close();
 
-        compacted_region * region = new compacted_region(size - header_size, buffer, base_addr + header_size, is_mmap, free_data);
+        compacted_region * region =
+          new compacted_region(size - sizeof(olean_header), buffer, base_addr + sizeof(olean_header), is_mmap, free_data);
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
         // do not report as leak

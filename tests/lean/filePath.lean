@@ -30,3 +30,5 @@ def norm (f : FilePath) : String :=
 #eval norm <| FilePath.withExtension "a/b.tar.gz" "xz"
 #eval norm <| FilePath.withExtension "a/b.tar.gz" ""
 #eval norm <| FilePath.withExtension "a/b" "tar.gz"
+
+#eval norm <| FilePath.addExtension "a/b.tar.gz" "bak"

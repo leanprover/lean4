@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_addParenHeuristic___closed__4;
 LEAN_EXPORT lean_object* l_instToStringProd___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instToStringChar___closed__2;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
@@ -746,10 +746,11 @@ return x_3;
 LEAN_EXPORT lean_object* l_instToStringFormat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Format_defWidth;
-x_3 = lean_format_pretty(x_1, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT uint8_t l_String_anyAux___at_addParenHeuristic___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -51,16 +51,22 @@ protected def LeanLib.recBuildLean
 def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfigSmall LeanLib.recBuildLean
 
-protected def LeanLib.recBuildStatic
-(self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
+@[specialize] protected def LeanLib.recBuildStatic
+(self : LeanLib) (shouldExport : Bool) : IndexBuildM (BuildJob FilePath) := do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
-    mod.nativeFacets.mapM fun facet => fetch <| mod.facet facet.name
-  buildStaticLib self.staticLibFile oJobs
+    mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
+  let libFile := if shouldExport then self.staticExportLibFile else self.staticLibFile
+  buildStaticLib libFile oJobs
 
 /-- The `LibraryFacetConfig` for the builtin `staticFacet`. -/
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
-  mkFacetJobConfig LeanLib.recBuildStatic
+  mkFacetJobConfig (LeanLib.recBuildStatic · false)
+
+/-- The `LibraryFacetConfig` for the builtin `staticExportFacet`. -/
+def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
+  mkFacetJobConfig (LeanLib.recBuildStatic · true)
+
 
 /-! ## Build Shared Lib -/
 
@@ -68,7 +74,7 @@ protected def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
-    mod.nativeFacets.mapM fun facet => fetch <| mod.facet facet.name
+    mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
   let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.shared.fetch))
   buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
@@ -98,5 +104,6 @@ def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
   |>.insert modulesFacet modulesFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig
+  |>.insert staticExportFacet staticExportFacetConfig
   |>.insert sharedFacet sharedFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig

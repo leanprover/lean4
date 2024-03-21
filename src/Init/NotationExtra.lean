@@ -9,6 +9,7 @@ prelude
 import Init.Meta
 import Init.Data.Array.Subarray
 import Init.Data.ToString
+import Init.Conv
 namespace Lean
 
 macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
@@ -123,7 +124,7 @@ calc abc
   _ = xyz := pwxyz
 ```
 
-`calc` has term mode and tactic mode variants. This is the term mode variant.
+`calc` works as a term, as a tactic or as a `conv` tactic.
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
@@ -131,44 +132,12 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calc) "calc" calcSteps : term
 
-/-- Step-wise reasoning over transitive relations.
-```
-calc
-  a = b := pab
-  b = c := pbc
-  ...
-  y = z := pyz
-```
-proves `a = z` from the given step-wise proofs. `=` can be replaced with any
-relation implementing the typeclass `Trans`. Instead of repeating the right-
-hand sides, subsequent left-hand sides can be replaced with `_`.
-```
-calc
-  a = b := pab
-  _ = c := pbc
-  ...
-  _ = z := pyz
-```
-It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols:
-```
-calc abc
-  _ = bce := pabce
-  _ = cef := pbcef
-  ...
-  _ = xyz := pwxyz
-```
-
-`calc` has term mode and tactic mode variants. This is the tactic mode variant,
-which supports an additional feature: it works even if the goal is `a = z'`
-for some other `z'`; in this case it will not close the goal but will instead
-leave a subgoal proving `z = z'`.
-
-See [Theorem Proving in Lean 4][tpil4] for more information.
-
-[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
--/
+@[inherit_doc «calc»]
 syntax (name := calcTactic) "calc" calcSteps : tactic
+
+@[inherit_doc «calc»]
+macro tk:"calc" steps:calcSteps : conv =>
+  `(conv| tactic => calc%$tk $steps)
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
@@ -177,9 +146,13 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
   | `($(_)) => `([])
 
 @[app_unexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x [])      => `([$x])
-  | `($(_) $x [$xs,*]) => `([$x, $xs,*])
-  | _                  => throw ()
+  | `($(_) $x $tail) =>
+    match tail with
+    | `([])      => `([$x])
+    | `([$xs,*]) => `([$x, $xs,*])
+    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    | _          => throw ()
+  | _ => throw ()
 
 @[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])
@@ -373,6 +346,23 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+macro_rules
+  | `(haveI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(haveI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(haveI _ $bs* := $val; $body) => `(haveI x $bs* : _ := $val; $body)
+  | `(haveI _ $bs* : $ty := $val; $body) => `(haveI x $bs* : $ty := $val; $body)
+  | `(haveI $x:ident $bs* := $val; $body) => `(haveI $x $bs* : _ := $val; $body)
+  | `(haveI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+macro_rules
+  | `(letI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(letI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(letI _ $bs* := $val; $body) => `(letI x $bs* : _ := $val; $body)
+  | `(letI _ $bs* : $ty := $val; $body) => `(letI x $bs* : $ty := $val; $body)
+  | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
+  | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
@@ -424,5 +414,27 @@ macro_rules
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))
+
+end Lean
+
+syntax "{" term,+ "}" : term
+
+macro_rules
+  | `({$x:term}) => `(singleton $x)
+  | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+namespace Lean
+
+/-- Unexpander for the `{ x }` notation. -/
+@[app_unexpander singleton]
+def singletonUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a) => `({ $a:term })
+  | _ => throw ()
+
+/-- Unexpander for the `{ x, y, ... }` notation. -/
+@[app_unexpander insert]
+def insertUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
+  | _ => throw ()
 
 end Lean

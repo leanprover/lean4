@@ -15,6 +15,6 @@ def wk_comp : Wk n m → Wk m l → Wk n l
 
 #eval tst ``wk_comp
 
-#check @wk_comp._eq_1
-#check @wk_comp._eq_2
-#check @wk_comp._unfold
+#check @wk_comp.eq_1
+#check @wk_comp.eq_2
+#check @wk_comp.def

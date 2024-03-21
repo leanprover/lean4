@@ -3,6 +3,8 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+prelude
+import Init.Data.Nat.Power2
 import Lean.Data.AssocList
 namespace Lean
 
@@ -89,7 +91,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target
-termination_by _ i source _ => source.size - i
+termination_by source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨
@@ -114,6 +116,22 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
       else
         (expand size' buckets', false)
 
+@[inline] def insertIfNew [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β × Option β :=
+  match m with
+  | ⟨size, buckets⟩ =>
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
+    let bkt    := buckets.val[i]
+    if let some b := bkt.find? a then
+      (m, some b)
+    else
+      let size'    := size + 1
+      let buckets' := buckets.update i (AssocList.cons a b bkt) h
+      if numBucketsForCapacity size' ≤ buckets.val.size then
+        ({ size := size', buckets := buckets' }, none)
+      else
+        (expand size' buckets', none)
+
+
 def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
   match m with
   | ⟨ size, buckets ⟩ =>
@@ -123,9 +141,10 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
     else m
 
 inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
-  | mkWff     : ∀ n,                    WellFormed (mkHashMapImp n)
-  | insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b |>.1)
-  | eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
+  | mkWff          : ∀ n,                    WellFormed (mkHashMapImp n)
+  | insertWff      : ∀ m a b, WellFormed m → WellFormed (insert m a b |>.1)
+  | insertIfNewWff : ∀ m a b, WellFormed m → WellFormed (insertIfNew m a b |>.1)
+  | eraseWff       : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
 end HashMapImp
 
@@ -154,12 +173,21 @@ def insert (m : HashMap α β) (a : α) (b : β) : HashMap α β :=
     match h:m.insert a b with
     | (m', _) => ⟨ m', by have aux := WellFormed.insertWff m a b hw; rw [h] at aux; assumption ⟩
 
-/-- Similar to `insert`, but also returns a Boolean flad indicating whether an existing entry has been replaced with `a -> b`. -/
+/-- Similar to `insert`, but also returns a Boolean flag indicating whether an existing entry has been replaced with `a -> b`. -/
 def insert' (m : HashMap α β) (a : α) (b : β) : HashMap α β × Bool :=
   match m with
   | ⟨ m, hw ⟩ =>
     match h:m.insert a b with
     | (m', replaced) => (⟨ m', by have aux := WellFormed.insertWff m a b hw; rw [h] at aux; assumption ⟩, replaced)
+
+/--
+Similar to `insert`, but returns `some old` if the map already had an entry `α → old`.
+If the result is `some old`, the the resulting map is equal to `m`. -/
+def insertIfNew (m : HashMap α β) (a : α) (b : β) : HashMap α β × Option β :=
+  match m with
+  | ⟨ m, hw ⟩ =>
+    match h:m.insertIfNew a b with
+    | (m', old) => (⟨ m', by have aux := WellFormed.insertIfNewWff m a b hw; rw [h] at aux; assumption ⟩, old)
 
 @[inline] def erase (m : HashMap α β) (a : α) : HashMap α β :=
   match m with
@@ -227,3 +255,17 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
       match m.find? p.fst with
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
+end Lean.HashMap
+
+/--
+Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
+`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+-/
+def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
+    : Lean.HashMap α (Array β) := Id.run do
+  let mut groups := ∅
+  for x in xs do
+    let group := groups.findD (key x) #[]
+    groups := groups.erase (key x) -- make `group` referentially unique
+    groups := groups.insert (key x) (group.push x)
+  return groups

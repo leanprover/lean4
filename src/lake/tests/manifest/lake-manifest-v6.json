@@ -1,0 +1,13 @@
+{"version": 6,
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"path": {"opts": {}, "name": "foo", "inherited": false, "dir": "./foo"}},
+  {"git":
+   {"url": "bar",
+    "subDir?": null,
+    "rev": "dab525a78710d185f3d23622b143bdd837e44ab0",
+    "opts": {},
+    "name": "bar",
+    "inputRev?": null,
+    "inherited": false}}],
+ "name": "test"}

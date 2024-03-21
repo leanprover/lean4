@@ -1,69 +1,69 @@
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 2, "character": 14}}
 {"range":
  {"start": {"line": 2, "character": 2}, "end": {"line": 2, "character": 51}},
  "goal": "⊢ 0 < 2"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 2, "character": 15}}
 {"range":
  {"start": {"line": 2, "character": 15}, "end": {"line": 2, "character": 30}},
  "goal": "⊢ 0 < 1"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 2, "character": 16}}
 {"range":
  {"start": {"line": 2, "character": 15}, "end": {"line": 2, "character": 30}},
  "goal": "⊢ 0 < 1"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 2, "character": 31}}
 {"range":
  {"start": {"line": 2, "character": 31}, "end": {"line": 2, "character": 51}},
  "goal": "⊢ 1 < 2"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 2, "character": 48}}
 {"range":
  {"start": {"line": 2, "character": 32}, "end": {"line": 2, "character": 50}},
  "goal": "⊢ 1 < 2"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 11, "character": 10}}
 {"range":
  {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 19}},
  "goal": "y : Int\n⊢ Option Unit"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 16, "character": 17}}
 {"range":
  {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
  "goal": "m n : Nat\n⊢ ?m m n < n"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 16, "character": 18}}
 {"range":
  {"start": {"line": 16, "character": 17}, "end": {"line": 16, "character": 18}},
  "goal": "m n : Nat\n⊢ ?m m n < n"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 20, "character": 18}}
 {"range":
  {"start": {"line": 20, "character": 18}, "end": {"line": 20, "character": 23}},
  "goal": "⊢ True"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 24, "character": 2}}
 {"range":
  {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 74}},
  "goal": "⊢ ∀ (n : Nat), n < n + 42"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 24, "character": 6}}
 {"range":
  {"start": {"line": 24, "character": 6}, "end": {"line": 24, "character": 7}},
  "goal": "⊢ Nat"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 30, "character": 6}}
 {"range":
  {"start": {"line": 30, "character": 6}, "end": {"line": 30, "character": 18}},
  "goal": "n : Nat\n⊢ ∀ (n m : Nat), n + m = m + n"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 32, "character": 8}}
 {"range":
  {"start": {"line": 32, "character": 8}, "end": {"line": 32, "character": 26}},
  "goal": "n : Nat\n⊢ n < n + 1"}
-{"textDocument": {"uri": "file://plainTermGoal.lean"},
+{"textDocument": {"uri": "file:///plainTermGoal.lean"},
  "position": {"line": 35, "character": 14}}
 {"range":
  {"start": {"line": 35, "character": 14}, "end": {"line": 35, "character": 15}},

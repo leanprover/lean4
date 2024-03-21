@@ -7,18 +7,18 @@ set -euxo pipefail
 ./clean.sh
 
 NO_BUILD_CODE=3
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-# Test `--no-build` for print-paths and module builds (`buildUnlessUpToDate`)
-$LAKE print-paths Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
-test ! -f build/lib/Test.olean
+# Test `--no-build` for setup-file and module builds (`buildUnlessUpToDate`)
+$LAKE setup-file ./Irrelevant.lean Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+test ! -f .lake/build/lib/Test.olean
 $LAKE build Test
-test -f build/lib/Test.olean
-$LAKE print-paths Test --no-build
+test -f .lake/build/lib/Test.olean
+$LAKE setup-file ./Irrelevant.lean Test --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
-$LAKE build +Test:o --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
-test ! -f build/ir/Test.c.o
-$LAKE build +Test:o
-test -f build/ir/Test.c.o
-$LAKE build +Test:o --no-build
+$LAKE build +Test:c.o.export --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+test ! -f .lake/build/ir/Test.c.o.export
+$LAKE build +Test:c.o.export
+test -f .lake/build/ir/Test.c.o.export
+$LAKE build +Test:c.o.export --no-build

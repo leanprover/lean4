@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
@@ -24,15 +25,15 @@ where
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
-        `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+        `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
-        `(if h : $a = $b then
+        `(if h : @$a = @$b then
            by subst h; exact $(← mkSameCtorRhs todo):term
           else
            isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
-        `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
+        `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)
       else
         return rhs
 
@@ -67,11 +68,12 @@ where
                 let b := mkIdent (← mkFreshUserName `b)
                 ctorArgs1 := ctorArgs1.push a
                 ctorArgs2 := ctorArgs2.push b
+                let xType ← inferType x
                 let indValNum :=
                   ctx.typeInfos.findIdx?
-                  ((← inferType x).isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
+                  (xType.isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
                 let recField  := indValNum.map (ctx.auxFunNames[·]!)
-                let isProof   := (← inferType (← inferType x)).isProp
+                let isProof ← isProp xType
                 todo := todo.push (a, b, recField, isProof)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))
@@ -186,12 +188,15 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 
-def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← isEnumType declNames[0]!) then
-    mkDecEqEnum declNames[0]!
+def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
+  if (← isEnumType declName) then
+    mkDecEqEnum declName
     return true
   else
-    mkDecEq declNames[0]!
+    mkDecEq declName
+
+def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
 
 builtin_initialize
   registerDerivingHandler `DecidableEq mkDecEqInstanceHandler

@@ -676,7 +676,7 @@ check t;
 (match t.arrayLit? with
 | some (_, xs) => do
   checkM $ pure $ xs.length == 2;
-  (match (xs.get! 0).natLit?, (xs.get! 1).natLit? with
+  (match (xs.get! 0).rawNatLit?, (xs.get! 1).rawNatLit? with
   | some 1, some 2 => pure ()
   | _, _           => throwError "nat lits expected")
 | none => throwError "array lit expected")

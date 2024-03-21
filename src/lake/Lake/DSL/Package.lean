@@ -65,12 +65,12 @@ optional(docComment) optional(Term.attributes)
 "post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo) : command
 
 macro_rules
-| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?]?) =>
-  `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$wds?]?)
-| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?]?) => do
+| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?:whereDecls]?) =>
+  `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$wds?:whereDecls]?)
+| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?:whereDecls]?) => do
   let pkg ← expandOptSimpleBinder pkg?
   let pkgName := mkIdentFrom pkg `_package.name
   let attr ← withRef kw `(Term.attrInstance| «post_update»)
   let attrs := #[attr] ++ expandAttrs attrs?
   `($[$doc?]? @[$attrs,*] def postUpdateHook : PostUpdateHookDecl :=
-    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?]?)
+    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?:whereDecls]?)

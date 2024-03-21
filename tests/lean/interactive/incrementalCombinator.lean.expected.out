@@ -5,30 +5,8 @@
  "contentChanges":
  [{"text": ".5",
    "range":
-   {"start": {"line": 9, "character": 16},
-    "end": {"line": 9, "character": 16}}}]}
-reuse stopped: (Tactic.case
- "case"
- [(Tactic.caseArg (Lean.binderIdent `inl) [])]
- "=>"
- (Tactic.tacticSeq
-  (Tactic.tacticSeq1Indented
-   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"2.5\""))]))) != (Tactic.case
- "case"
- [(Tactic.caseArg (Lean.binderIdent `inl) [])]
- "=>"
- (Tactic.tacticSeq
-  (Tactic.tacticSeq1Indented
-   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"2\""))])))
-reuse stopped: (Tactic.dbgTrace "dbg_trace" (str "\"2.5\"")) != (Tactic.dbgTrace "dbg_trace" (str "\"2\""))
+   {"start": {"line": 9, "character": 18},
+    "end": {"line": 9, "character": 18}}}]}
 2.5
 {"version": 2,
  "uri": "file:///incrementalCombinator.lean",
@@ -36,16 +14,24 @@ reuse stopped: (Tactic.dbgTrace "dbg_trace" (str "\"2.5\"")) != (Tactic.dbgTrace
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 6, "character": 11}, "end": {"line": 7, "character": 0}},
-   "message": "unsolved goals\na b : Prop\nh✝ : a\n⊢ True",
+   {"start": {"line": 6, "character": 13}, "end": {"line": 7, "character": 0}},
+   "message": "unsolved goals\na b c : Prop\nh✝ : b\n⊢ True",
    "fullRange":
-   {"start": {"line": 6, "character": 11},
-    "end": {"line": 9, "character": 19}}},
+   {"start": {"line": 6, "character": 13},
+    "end": {"line": 9, "character": 21}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 4, "character": 31}, "end": {"line": 5, "character": 0}},
-   "message": "unsolved goals\ncase inr\na b : Prop\nh✝ : b\n⊢ True",
+   {"start": {"line": 4, "character": 13}, "end": {"line": 5, "character": 0}},
+   "message": "unsolved goals\ncase inr\na b c : Prop\nh✝ : c\n⊢ True",
    "fullRange":
-   {"start": {"line": 4, "character": 31},
-    "end": {"line": 9, "character": 19}}}]}
+   {"start": {"line": 4, "character": 13},
+    "end": {"line": 9, "character": 21}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 35}, "end": {"line": 3, "character": 0}},
+   "message": "unsolved goals\ncase inl\na b c : Prop\nh✝ : a\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 35},
+    "end": {"line": 9, "character": 21}}}]}

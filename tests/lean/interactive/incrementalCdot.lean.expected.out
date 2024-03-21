@@ -1,0 +1,48 @@
+0
+1
+2
+3
+{"textDocument": {"version": 2, "uri": "file:///incrementalCdot.lean"},
+ "contentChanges":
+ [{"text": ".5",
+   "range":
+   {"start": {"line": 8, "character": 16},
+    "end": {"line": 8, "character": 16}}}]}
+reuse stopped: (cdot
+ (cdotTk (patternIgnore (token.«. » ".")))
+ (Tactic.tacticSeq
+  (Tactic.tacticSeq1Indented
+   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
+    []
+    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
+    []
+    (Tactic.dbgTrace "dbg_trace" (str "\"2.5\""))]))) != (cdot
+ (cdotTk (patternIgnore (token.«. » ".")))
+ (Tactic.tacticSeq
+  (Tactic.tacticSeq1Indented
+   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
+    []
+    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
+    []
+    (Tactic.dbgTrace "dbg_trace" (str "\"2\""))])))
+reuse stopped: (Tactic.dbgTrace "dbg_trace" (str "\"2.5\"")) != (Tactic.dbgTrace "dbg_trace" (str "\"2\""))
+2.5
+3
+{"version": 2,
+ "uri": "file:///incrementalCdot.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 3}},
+   "message": "unsolved goals\ncase inl\na b : Prop\nh✝ : a\n⊢ True",
+   "fullRange":
+   {"start": {"line": 6, "character": 2}, "end": {"line": 6, "character": 3}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 31}, "end": {"line": 5, "character": 0}},
+   "message": "unsolved goals\ncase inr\na b : Prop\nh✝ : b\n⊢ True",
+   "fullRange":
+   {"start": {"line": 4, "character": 31},
+    "end": {"line": 12, "character": 15}}}]}

@@ -65,8 +65,8 @@ def mkContext (declName : Name) : MetaM Context := do
 where
   motiveName (motiveTypes : Array Expr) (i : Nat) : MetaM Name :=
     if motiveTypes.size > 1
-    then mkFreshUserName s!"motive_{i.succ}"
-    else mkFreshUserName "motive"
+    then mkFreshUserName <| .mkSimple s!"motive_{i.succ}"
+    else mkFreshUserName <| .mkSimple "motive"
 
   mkHeader
       (motives : Array (Name × Expr))
@@ -315,7 +315,7 @@ where
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]!
-  let name := indVal.name ++ brecOnSuffix
+  let name := indVal.name ++ .mkSimple brecOnSuffix
   return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams
@@ -337,8 +337,8 @@ where
       (motive : Name × Expr) : MetaM $ Name × (Array Expr → MetaM Expr) := do
     let name :=
       if ctx.motives.size > 1
-      then mkFreshUserName s!"ih_{idx.val.succ}"
-      else mkFreshUserName "ih"
+      then mkFreshUserName <| .mkSimple s!"ih_{idx.val.succ}"
+      else mkFreshUserName <| .mkSimple "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
       forallTelescopeReducing ih fun ys _ => do

@@ -911,6 +911,7 @@ where
   projInfo : DelabM (Name × Nat × Bool) := do
     let .app fn _ ← getExpr | failure
     let .const c@(.str _ field) _ := fn.getAppFn | failure
+    let field := Name.mkSimple field
     let env ← getEnv
     let some info := env.getProjectionFnInfo? c | failure
     -- Don't delaborate for classes since the instance parameter is implicit.

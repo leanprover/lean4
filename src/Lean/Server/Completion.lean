@@ -250,7 +250,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
   else if let (.str p₁ s₁, .str p₂ s₂) := (id, declName) then
     if p₁ == p₂ then
       -- If the namespaces agree, fuzzy-match on the trailing part
-      return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (s₂, ·)
+      return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (.mkSimple s₂, ·)
     else if p₁.isAnonymous then
       -- If `id` is namespace-less, also fuzzy-match declaration names in arbitrary namespaces
       -- (but don't match the namespace itself).
@@ -383,14 +383,14 @@ private def idCompletionCore
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
       if allowCompletion eligibleHeaderDecls env declName then
-        addUnresolvedCompletionItemForDecl alias.getString! declName score
+        addUnresolvedCompletionItemForDecl (.mkSimple alias.getString!) declName score
   -- search explicitly open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
       if allowCompletion eligibleHeaderDecls env resolvedId then
         if let some score := matchAtomic id openedId then
-          addUnresolvedCompletionItemForDecl openedId.getString! resolvedId score
+          addUnresolvedCompletionItemForDecl (.mkSimple openedId.getString!) resolvedId score
     | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
         if let some score := matchAlias ns alias then
@@ -543,7 +543,7 @@ private def dotCompletion
       if ! (← isDotCompletionMethod typeName c) then
         return
       let completionKind ← getCompletionKindForDecl c
-      addUnresolvedCompletionItem c.name.getString! (.const c.name) (kind := completionKind) 1
+      addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) (kind := completionKind) 1
 
 private def dotIdCompletion
     (params        : CompletionParams)
@@ -580,7 +580,7 @@ private def dotIdCompletion
       let completionKind ← getCompletionKindForDecl c
       if id.isAnonymous then
         -- We're completing a lone dot => offer all decls of the type
-        addUnresolvedCompletionItem c.name.getString! (.const c.name) completionKind 1
+        addUnresolvedCompletionItem (.mkSimple c.name.getString!) (.const c.name) completionKind 1
         return
 
       let some (label, score) ← matchDecl? typeName id (danglingDot := false) declName | pure ()

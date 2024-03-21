@@ -3482,20 +3482,31 @@ instance : Hashable String where
 namespace Lean
 
 /--
-Hierarchical names. We use hierarchical names to name declarations and
-for creating unique identifiers for free variables and metavariables.
+Hierarchical names consist of a sequence of components, each of
+which is either a string or numeric, that are written separated by dots (`.`).
 
-You can create hierarchical names using the following quotation notation.
+Hierarchical names are used to name declarations and for creating
+unique identifiers for free variables and metavariables.
+
+You can create hierarchical names using a backtick:
 ```
 `Lean.Meta.whnf
 ```
-It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`
-You can use double quotes to request Lean to statically check whether the name
+It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`.
+
+You can use double backticks to request Lean to statically check whether the name
 corresponds to a Lean declaration in scope.
 ```
 ``Lean.Meta.whnf
 ```
 If the name is not in scope, Lean will report an error.
+
+There are two ways to convert a `String` to a `Name`:
+
+ 1. `Name.mkSimple` creates a name with a single string component.
+
+ 2. `String.toName` first splits the string into its dot-separated
+    components, and then creates a hierarchical name.
 -/
 inductive Name where
   /-- The "anonymous" name. -/
@@ -3546,7 +3557,9 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
   Name.num p v
 
 /--
-Short for `.str .anonymous s`.
+Converts a `String` to a `Name` without performing any parsing. `mkSimple s` is short for `.str .anonymous s`.
+
+This means that `mkSimple "a.b"` is the name `«a.b»`, not `a.b`.
 -/
 abbrev mkSimple (s : String) : Name :=
   .str .anonymous s

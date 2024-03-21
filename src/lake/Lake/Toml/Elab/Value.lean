@@ -226,7 +226,7 @@ def elabInlineTable (x : TSyntax ``inlineTable) (elabVal : TSyntax ``val → Cor
       throwErrorAt tailKey m!"cannot redefine key '{k}'"
     else
       return t.push k (← elabVal v)
-  return t.filterMap id
+  return t.filterMap fun _ v => v
 
 partial def elabVal (x : TSyntax ``val) : CoreM Value := do
   match x with

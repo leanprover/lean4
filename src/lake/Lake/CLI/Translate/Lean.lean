@@ -7,41 +7,27 @@ import Lake.DSL
 import Lake.Config.Package
 import Lean.Parser.Module
 
+/-! # Lean Translation
+
+Converts a declarative Lake configuration into a Lean module.
+-/
+
 namespace Lake
 open DSL System Lean Syntax Parser Module
 
-abbrev DeclField := TSyntax ``declField
-abbrev PackageDecl := TSyntax ``packageDecl
-abbrev RequireDecl := TSyntax ``requireDecl
-abbrev LeanLibDecl := TSyntax ``leanLibDecl
-abbrev LeanExeDecl := TSyntax ``leanExeDecl
+/-! ## General Helpers -/
 
-instance : Coe PackageDecl Command where
-  coe x := ⟨x.raw⟩
-
-instance : Coe RequireDecl Command where
-  coe x := ⟨x.raw⟩
-
-instance : Coe LeanLibDecl Command where
-  coe x := ⟨x.raw⟩
-
-instance : Coe LeanExeDecl Command where
-  coe x := ⟨x.raw⟩
-
-def mkDeclField [Quote α] (name : Name) (val : α) : DeclField := Unhygienic.run do
-  `(declField|$(mkIdent name) := $(quote val))
-
-local instance : Quote FilePath where
+private local instance : Quote FilePath where
   quote path := quote path.toString
 
 private local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
-local instance : Quote Bool where
+private local instance : Quote Bool where
   quote b := mkIdent <| if b then `true else `false
 
 @[inline] def addDeclField [Quote α] (name : Name) (val : α) (fs : Array DeclField) : Array DeclField :=
-  fs.push (mkDeclField name val)
+  fs.push <| Unhygienic.run `(declField|$(mkIdent name) := $(quote val))
 
 @[inline] def addDeclField? [Quote α] (name : Name) (val? : Option α) (fs : Array DeclField) : Array DeclField :=
   if let some val := val? then addDeclField name val fs else fs
@@ -52,8 +38,7 @@ local instance : Quote Bool where
 @[inline] def addDeclFieldNotEmpty [Quote α] (name : Name) (val : Array α) (fs : Array DeclField) : Array DeclField :=
   if val.isEmpty then fs else addDeclField name val fs
 
-def WorkspaceConfig.addDeclFields (cfg : WorkspaceConfig) (fs : Array DeclField) : Array DeclField :=
-  addDeclFieldD `packagesDir cfg.packagesDir defaultPackagesDir fs
+/-! ## Value Encoders -/
 
 protected def BuildType.quote : BuildType → Term
 | .debug => mkCIdent ``debug
@@ -75,12 +60,17 @@ def quoteLeanOptionValue : LeanOptionValue → Term
 | .ofBool v => quote v
 | .ofNat v => quote v
 
-local instance : Quote LeanOptionValue := ⟨quoteLeanOptionValue⟩
+private local instance : Quote LeanOptionValue := ⟨quoteLeanOptionValue⟩
 
 def quoteLeanOption (opt : LeanOption) : Term := Unhygienic.run do
   `(⟨$(quote opt.name), $(quote opt.value)⟩)
 
-local instance : Quote LeanOption := ⟨quoteLeanOption⟩
+private local instance : Quote LeanOption := ⟨quoteLeanOption⟩
+
+/-! ## Configuration Encoders -/
+
+def WorkspaceConfig.addDeclFields (cfg : WorkspaceConfig) (fs : Array DeclField) : Array DeclField :=
+  addDeclFieldD `packagesDir cfg.packagesDir defaultPackagesDir fs
 
 def LeanConfig.addDeclFields (cfg : LeanConfig) (fs : Array DeclField) : Array DeclField :=
   fs
@@ -174,6 +164,9 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl:= Unhygienic.
     `(requireDecl|require $(mkIdent cfg.name) from git $(quote url)
       $[@ $(rev?.map quote)]? $[/ $(subDir?.map quote)]? $[with $opts?]?)
 
+/-! ## Root Encoder -/
+
+/-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   let pkgConfig := pkg.config.mkSyntax
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty

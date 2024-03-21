@@ -91,7 +91,6 @@ def Backend.orPreferLeft : Backend → Backend → Backend
 | .default, b => b
 | b, _ => b
 
-
 /-- The arguments to pass to `leanc` based on the build type. -/
 def BuildType.leancArgs : BuildType → Array String
 | debug => #["-Og", "-g"]

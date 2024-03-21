@@ -28,19 +28,11 @@ deriving Inhabited, BEq
 /-- A TOML table, an ordered key-value map of TOML values (`Lake.Toml.Value`). -/
 abbrev Table := NameDict Value
 
+@[inline] def Table.empty : Table := RBDict.empty
+@[inline] def Table.mkEmpty (capacity : Nat) : Table := RBDict.mkEmpty capacity
+
 @[match_pattern] abbrev Value.table (ref : Syntax) (t : Table) :=
   Value.table' ref t
-
-instance : OfNat Value n := ⟨.integer .missing n⟩
-instance : EmptyCollection Value := ⟨.table .missing {}⟩
-instance : Coe String Value := ⟨.string .missing⟩
-instance : Coe Int Value := ⟨.integer .missing⟩
-instance : Coe Nat Value := ⟨fun n => .integer .missing (.ofNat n)⟩
-instance : Coe Float Value := ⟨.float .missing⟩
-instance : Coe Bool Value := ⟨.boolean .missing⟩
-instance : Coe DateTime Value := ⟨.dateTime .missing⟩
-instance : Coe (Array Value) Value := ⟨.array .missing⟩
-instance : Coe Table Value := ⟨.table .missing⟩
 
 @[inline] def Value.ref : Value → Syntax
 | .string (ref := ref) .. => ref

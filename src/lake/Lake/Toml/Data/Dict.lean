@@ -5,14 +5,17 @@ Authors: Mac Malone
 -/
 import Lean.Data.NameMap
 
-/-!
-# TOML Value
+/-! # Red-Black Dictionary
+
+Defines an **insertion-ordered** key-value mapping backed by an red-black tree.
+Implemented via a key-index `RBMap` into an `Array` of key-value pairs.
 -/
 
 open Lean
 
 namespace Lake.Toml
 
+/- An insertion-ordered key-value mapping backed by a red-black tree. -/
 structure RBDict (α : Type u) (β : Type v) (cmp : α → α → Ordering)  where
   items : Array (α × β)
   indices : RBMap α Nat cmp
@@ -30,17 +33,22 @@ instance : EmptyCollection (RBDict α β cmp) := ⟨RBDict.empty⟩
 def mkEmpty (capacity : Nat) : RBDict α β cmp :=
   {items := .mkEmpty capacity, indices := {}}
 
-abbrev size (t : RBDict α β cmp) : Nat :=
-  t.items.size
-
-abbrev isEmpty (t : RBDict α β cmp) : Bool :=
-  t.items.isEmpty
-
 def ofArray (items : Array (α × β)) : RBDict α β cmp := Id.run do
   let mut indices := mkRBMap α Nat cmp
   for h : i in [0:items.size] do
     indices := indices.insert (items[i]'h.upper).1 i
   return {items, indices}
+
+protected def beq [BEq (α × β)] (self other : RBDict α β cmp) : Bool :=
+  self.items == other.items
+
+instance [BEq (α × β)] : BEq (RBDict α β cmp) := ⟨RBDict.beq⟩
+
+abbrev size (t : RBDict α β cmp) : Nat :=
+  t.items.size
+
+abbrev isEmpty (t : RBDict α β cmp) : Bool :=
+  t.items.isEmpty
 
 def keys (t : RBDict α β cmp) : Array α :=
   t.items.map (·.1)
@@ -52,26 +60,31 @@ def contains (k : α) (t : RBDict α β cmp) : Bool :=
   t.indices.contains k
 
 def findIdx? (k : α) (t : RBDict α β cmp) : Option (Fin t.size) := do
-  let i ← t.indices.find? k
-  if h : i < t.items.size then some ⟨i, h⟩ else none
+  let i ← t.indices.find? k; if h : i < t.items.size then some ⟨i, h⟩ else none
 
-def find? (k : α) (t : RBDict α β cmp) : Option β := do
-  t.items[← t.findIdx? k].2
+def findEntry? (k : α) (t : RBDict α β cmp) : Option (α × β) := do
+  return t.items[← t.findIdx? k]
+
+@[inline] def find? (k : α) (t : RBDict α β cmp) : Option β := do
+  return (← t.findEntry? k).2
 
 def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   {items := t.items.push ⟨k,v⟩, indices := t.indices.insert k t.items.size}
 
-@[specialize] def insertMapM [Monad m] (k : α) (f : Option β → m β) (t : RBDict α β cmp) : m (RBDict α β cmp) := do
-  if let some i := t.findIdx? k then
-    return {t with items := ← t.items.modifyM i fun (k, v) => return (k, ← f (some v))}
+@[specialize] def alter (k : α) (f : Option β → β) (t : RBDict α β cmp) : RBDict α β cmp :=
+   if let some i := t.findIdx? k then
+    {t with items := t.items.modify i fun (k, v) => (k, f (some v))}
   else
-    return t.push k (← f none)
-
-@[inline] def insertMap (k : α) (f : Option β → β) (t : RBDict α β cmp) : RBDict α β cmp :=
-  Id.run <| t.insertMapM k fun v? => pure <| f v?
+    t.push k (f none)
 
 def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
-  t.insertMap k fun _ => v
+  if let some i := t.findIdx? k then
+    if h : i < t.items.size then
+      {t with items := t.items.set ⟨i,h⟩ (k,v)}
+    else
+      t.push k v
+  else
+    t.push k v
 
 /-- Inserts the value into the dictionary if `p` is `true`. -/
 @[macro_inline] def insertIf (p : Bool) (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
@@ -85,23 +98,21 @@ def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
 @[macro_inline] def insertSome (k : α) (v? : Option β) (t : RBDict α β cmp) : RBDict α β cmp :=
   if let some v := v? then t.insert k v else t
 
-def append (self other : RBDict α β cmp) : RBDict α β cmp :=
-  other.items.foldl (fun t (k,v) => t.insert k v) self
+def appendArray (self : RBDict α β cmp) (other : Array (α × β)): RBDict α β cmp :=
+  other.foldl (fun t (k,v) => t.insert k v) self
+
+instance : HAppend (RBDict α β cmp) (Array (α × β)) (RBDict α β cmp) := ⟨RBDict.appendArray⟩
+
+@[inline] def append (self other : RBDict α β cmp) : RBDict α β cmp :=
+  self.appendArray other.items
 
 instance : Append (RBDict α β cmp) := ⟨RBDict.append⟩
 
-protected def beq [BEq α] [BEq β] (self other : RBDict α β cmp) : Bool :=
-  self.items == other.items
+@[inline] def map (f : α → β → γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
+  {t with items := t.items.map fun ⟨k, v⟩ => ⟨k, f k v⟩}
 
-instance [BEq α] [BEq β] : BEq (RBDict α β cmp) := ⟨RBDict.beq⟩
+@[inline] def filter (p : α → β → Bool) (t : RBDict α β cmp) : RBDict α β cmp :=
+  t.items.foldl (init := {}) fun t (k, v) => if p k v then t.push k v else t
 
-def map (f : β → γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
-  {t with items := t.items.map fun (k, v) => (k, f v)}
-
-def filter (p : β → Bool) (t : RBDict α β cmp) : RBDict α β cmp :=
-  t.items.foldl (init := {}) fun t (k, v) =>
-    if p v then t.push k v else t
-
-def filterMap (f : β → Option γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
-  t.items.foldl (init := {}) fun t (k, v) =>
-    if let some v := f v then t.push k v else t
+@[inline] def filterMap (f : α → β → Option γ) (t : RBDict α β cmp) : RBDict α γ cmp :=
+  t.items.foldl (init := {}) fun t ⟨k, v⟩ => if let some v := f k v then t.push k v else t

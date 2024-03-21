@@ -44,13 +44,18 @@ def KeyTy.isValidPrefix (ty : KeyTy) :=
   | .stdTable | .headerPrefix | .dottedPrefix  => true
   | _ => false
 
+structure Keyval where
+  ref : Syntax
+  key : Name
+  val : Value
+
 structure ElabState where
   keyTys : NameMap KeyTy := {}
   arrKeyTys : NameMap (NameMap KeyTy) := {}
   arrParents : NameMap Name := {}
   currArrKey : Name := .anonymous
   currKey : Name := .anonymous
-  items : Array (Name × Value) := {}
+  items : Array Keyval := {}
   deriving Inhabited
 
 abbrev TomlElabM := StateT ElabState CoreM
@@ -66,10 +71,10 @@ def elabSubKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
     return k
 
 def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
-  let `(keyval|$k = $v) := kv
+  let `(keyval|$kStx = $v) := kv
     | throwErrorAt kv "ill-formed key-value pair syntax"
-  let `(key|$[$ks:simpleKey].*) := k
-    | throwErrorAt k "ill-formed key syntax"
+  let `(key|$[$ks:simpleKey].*) := kStx
+    | throwErrorAt kStx "ill-formed key syntax"
   let tailKeyStx := ks.back
   let k ← elabSubKeys ks.pop
   let k := k.str <| ← elabSimpleKey tailKeyStx
@@ -79,7 +84,7 @@ def elabKeyval (kv : TSyntax ``keyval) : TomlElabM Unit := do
     let v ← elabVal v
     modify fun s => {
       s with
-      items := s.items.push (k, v)
+      items := s.items.push ⟨kStx, k, v⟩
       keyTys := s.keyTys.insert k .value
   }
 
@@ -107,10 +112,10 @@ def elabHeaderKeys (ks : Array (TSyntax ``simpleKey)) : TomlElabM Name := do
     return k
 
 def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
-  let `(stdTable|[$k]) := x
+  let `(stdTable|[$kStx]) := x
     | throwErrorAt x "ill-formed table syntax"
-  let `(key|$[$ks:simpleKey].*) := k
-    | throwErrorAt k "ill-formed key syntax"
+  let `(key|$[$ks:simpleKey].*) := kStx
+    | throwErrorAt kStx "ill-formed key syntax"
   let tailKey := ks.back
   let k ← elabHeaderKeys ks.pop
   let k ← k.str <$> elabSimpleKey tailKey
@@ -121,11 +126,13 @@ def elabStdTable (x : TSyntax ``stdTable) : TomlElabM Unit := withRef x do
     s with
     currKey := k
     keyTys := s.keyTys.insert k .stdTable
-    items := s.items.push (k, .table x {})
+    items := s.items.push ⟨x, k, .table x {}⟩
   }
 
-def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
-  let `(key|$[$ks:simpleKey].*) := x
+def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
+  let `(arrayTable|[[$k]]) := x
+    | throwErrorAt x "ill-formed array table syntax"
+  let `(key|$[$ks:simpleKey].*) := k
     | throwErrorAt x "ill-formed key syntax"
   let tailKey := ks.back
   let k ← elabHeaderKeys ks.pop
@@ -137,8 +144,8 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
         | throwError "(internal) bad array key '{k}'"
       modify fun s => {
         s with
-        keyTys, currArrKey := k
-        items := s.items.push (k, .array x #[.table x {}])
+        keyTys, currKey := k, currArrKey := k
+        items := s.items.push ⟨x, k, .array x #[.table x {}]⟩
       }
     else
       throwErrorAt tailKey s!"cannot redefine {ty} key '{k}'"
@@ -148,18 +155,12 @@ def elabArrayTableKey (x : TSyntax ``key) : TomlElabM Name := do
       {
         s with
         keyTys
+        currKey := k
         currArrKey := k
         arrKeyTys := s.arrKeyTys.insert s.currArrKey keyTys
         arrParents := s.arrParents.insert k s.currArrKey
-        items := s.items.push (k, .array x #[.table x {}])
+        items := s.items.push ⟨x, k, .array x #[.table x {}]⟩
       }
-  return k
-
-def elabArrayTable (x : TSyntax ``arrayTable) : TomlElabM Unit := withRef x do
-  let `(arrayTable|[[$k]]) := x
-    | throwErrorAt x "ill-formed array table syntax"
-  let k ← elabArrayTableKey k
-  modify fun s => {s with currKey := k}
 
 def elabExpression (x : TSyntax ``expression) : TomlElabM Unit := do
   match x with
@@ -168,38 +169,49 @@ def elabExpression (x : TSyntax ``expression) : TomlElabM Unit := do
   | `(expression|$x:arrayTable) => elabArrayTable x
   | _ => throwErrorAt x "ill-formed expression syntax"
 
-partial def mkSimpleTable (items : Array (Name × Value)) : Table :=
-  items.foldl (init := {}) fun t (k,v) =>
+/--
+Construct a table of simple key-value pairs from arbitrary key-value pairs.
+
+For example:
+
+`{a.b := [c.d := 0]}, {a.b := [c.e := 1]}`
+
+becomes
+
+`{a := {b := [{c := {d := 0, e := 1}}]}}`
+-/
+partial def mkSimpleTable (items : Array Keyval) : Table :=
+  items.foldl (init := {}) fun t ⟨kRef,k,v⟩ =>
     match k.components with
     | .nil => t
-    | .cons k ks => insert t k ks v
+    | .cons k ks => insert t kRef k ks v
 where
-  insert (t : Table) k ks newV :=
+  simpVal : Value → Value
+    | .table ref t => .table ref <| t.items.foldl (init := {}) fun t ⟨k,v⟩ =>
+      match k.components with
+      | .nil => t
+      | .cons k ks => insert t ref k ks v
+    | .array ref vs => .array ref <| vs.map simpVal
+    | v => v
+  insert t kRef k ks newV :=
     match ks with
-    | .nil =>
-      match newV with
-      | .table _ newT =>
-        let newT := mkSimpleTable newT.items
-        t.insertMap k fun v? =>
-          match v? with
-          | some (.table ref vt) => .table ref <| vt ++ newT
-          | _ => newT
-      | _ =>
-        t.insertMap k fun v? =>
-          match v? with
-          | some (.array _ vs) => vs.push (.table newV.ref {})
-          | _ => newV
-    | k' :: ks => t.insertMap k fun v? =>
+    | .nil => t.alter k fun v? =>
+      match v?, simpVal newV with
+      | some (.table ref vt), .table _ newT => .table ref (vt ++ newT)
+      | some (.array ref vs), .array _ newVs => .array ref (vs ++ newVs)
+      | some (.array ref vs), newV => .array ref (vs.push newV)
+      | _, newV => newV
+    | k' :: ks => t.alter k fun v? =>
       if let some v := v? then
         match v with
         | .array ref vs =>
           .array ref <| vs.modify (vs.size-1) fun
-          | .table ref t' => .table ref <| insert t' k' ks newV
-          | _ => .table newV.ref {}
-        | .table ref t' => .table ref <| insert t' k' ks newV
-        | _ => .table newV.ref {}
+          | .table ref t' => .table ref <| insert t' kRef k' ks newV
+          | _ => .table kRef {}
+        | .table ref t' => .table ref <| insert t' kRef k' ks newV
+        | _ => .table kRef <| insert {} kRef k' ks newV
       else
-        .table newV.ref <| insert {} k' ks newV
+        .table kRef <| insert {} kRef k' ks newV
 
 nonrec def TomlElabM.run (x : TomlElabM Unit) : CoreM Table := do
   let (_,s) ← x.run {}

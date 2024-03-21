@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Toml
+import Lake.Util.Message
 
 /-!
 ## TOML Test Runner
@@ -14,27 +15,13 @@ compliance suite stored in `tests` (currently, suite v1.4.0 for TOML v1.0.0).
 [1]: https://github.com/toml-lang/toml-test
 -/
 
-open Lake.Toml
+open Lake Toml
 open Lean Parser System
 
 inductive TomlOutcome where
 | pass (t : Table)
 | fail (log : MessageLog)
 | error (e : IO.Error)
-
-def mkParserErrorMessage (ictx : InputContext) (s : ParserState) (e : Parser.Error) : Message where
-  fileName := ictx.fileName
-  pos := ictx.fileMap.toPosition s.pos
-  endPos := none
-  keepFullRange := true
-  data := toString e
-
-def mkErrorMessage (ictx : InputContext) (e : Exception) : Message where
-  fileName := ictx.fileName
-  pos := ictx.fileMap.toPosition <| e.getRef.getPos?.getD 0
-  endPos := ictx.fileMap.toPosition <$> e.getRef.getTailPos?
-  keepFullRange := true
-  data := e.toMessageData
 
 @[inline] def Fin.allM [Monad m] (n) (f : Fin n → m Bool) : m Bool :=
   loop 0
@@ -62,7 +49,7 @@ def String.fromUTF8 (bytes : ByteArray) : String :=
   let s := String.fromUTF8 bytes
   if bytesBEq s.toUTF8 bytes then some s else none
 
-def parseToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
+nonrec def loadToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
   let fileName := tomlFile.fileName.getD tomlFile.toString
   let input ←
     match (← IO.FS.readBinFile tomlFile |>.toBaseIO) with
@@ -74,25 +61,9 @@ def parseToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
           {fileName, pos := ⟨1,0⟩, data := m!"file contains invalid characters"}
     | .error e => return .error e
   let ictx := mkInputContext input fileName
-  let env ←
-    match (← mkEmptyEnvironment.toBaseIO) with
-    | .ok env => pure env
-    | .error e => return .error e
-  let s := toml.fn.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
-  if let some errorMsg := s.errorMsg then
-    return .fail <| MessageLog.empty.add <| mkParserErrorMessage ictx s errorMsg
-  else if input.atEnd s.pos then
-    let act := elabToml ⟨s.stxStack.back⟩
-    match (← act.run {fileName, fileMap := ictx.fileMap} {env} |>.toBaseIO) with
-    | .ok (t, s) =>
-      if s.messages.hasErrors then
-        return .fail s.messages
-      else
-        return .pass t
-    | .error e =>
-      return .fail <| MessageLog.empty.add <| mkErrorMessage ictx e
-  else
-    return .fail <| MessageLog.empty.add <| mkParserErrorMessage ictx s {expected := ["end of input"]}
+  match (← loadToml ictx |>.toBaseIO) with
+  | .ok table => return .pass table
+  | .error log => return .fail log
 
 inductive TestOutcome
 | skip
@@ -100,43 +71,10 @@ inductive TestOutcome
 | fail (s : String)
 | error (e : String)
 
-def mkMessageStringCore
-  (severity : MessageSeverity)
-  (fileName caption body : String)
-  (pos : Position) (endPos? : Option Position := none)
-  (infoWithPos := false)
-: String := Id.run do
-  let mut str := body
-  unless caption == "" do
-    str := caption ++ ":\n" ++ str
-  match severity with
-  | .information =>
-    if infoWithPos then
-      str := mkErrorStringWithPos fileName pos (endPos := endPos?) "info: " ++ str
-  | .warning =>
-    str := mkErrorStringWithPos fileName pos (endPos := endPos?) "warning: " ++ str
-  | .error =>
-    str := mkErrorStringWithPos fileName pos (endPos := endPos?) "error: " ++ str
-  if str.isEmpty || str.back != '\n' then
-    str := str ++ "\n"
-  return str
-
-def mkMessageString (msg : Message) (includeEndPos := false) (infoWithPos := false) : BaseIO String := do
-  let endPos? := if includeEndPos then msg.endPos else none
-  match (← msg.data.toString.toBaseIO) with
-  | .ok s =>
-    return mkMessageStringCore msg.severity msg.fileName msg.caption s msg.pos endPos? infoWithPos
-  | .error e =>
-    return mkMessageStringCore .error msg.fileName msg.caption (toString e) msg.pos endPos? infoWithPos
-
-def mkLogString (log : MessageLog) : BaseIO String :=
-  log.toList.foldlM (init := "") fun s m => do
-    return s ++ (← mkMessageString m (infoWithPos := true))
-
 def testInvalid (tomlFile : FilePath) : BaseIO TestOutcome := do
-  match (← parseToml tomlFile) with
+  match (← loadToml tomlFile) with
   | .pass t => return .fail (ppTable t)
-  | .fail l => return .pass (← mkLogString l)
+  | .fail l => return .pass (← mkMessageLogString l)
   | .error e => return .error (toString e)
 
 @[inline] def Fin.forM [Monad m] (n) (f : Fin n → m Unit) : m Unit :=
@@ -226,7 +164,7 @@ def testValid (tomlFile : FilePath) : BaseIO TestOutcome := do
   let normPath := tomlFile.toString.map fun c => if c = '\\' then '/' else c
   for testPath in ["string/quoted-unicode.toml", "key/quoted-unicode.toml"] do
     if normPath.endsWith testPath then return .skip
-  match (← parseToml tomlFile) with
+  match (← loadToml tomlFile) with
   | .pass t =>
     match (← IO.FS.readFile (tomlFile.withExtension "json") |>.toBaseIO) with
     | .ok contents =>
@@ -237,7 +175,7 @@ def testValid (tomlFile : FilePath) : BaseIO TestOutcome := do
         | .error e => return .fail <| e.trimRight ++ "\n"
       | .error e => return .error s!"invalid JSON: {e}"
     | .error e => return .error (toString e)
-  | .fail l => return .fail (← mkLogString l)
+  | .fail l => return .fail (← mkMessageLogString l)
   | .error e => return .error (toString e)
 
 def walkDir (root : FilePath) (ext : String := "toml") : IO (Array FilePath) := do

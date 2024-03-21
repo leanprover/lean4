@@ -25,8 +25,11 @@ def expandAttrs (attrs? : Option Attributes) : Array AttrInstance :=
   else
     #[]
 
+/-- A single field assignment in a declarative configuration. -/
 syntax declField :=
   ident " := " term
+
+@[inherit_doc declField] abbrev DeclField := TSyntax ``declField
 
 syntax structVal :=
   "{" manyIndent(group(declField ", "?)) "}"

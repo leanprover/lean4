@@ -266,6 +266,12 @@ theorem get?_reverse {l : List α} (i) (h : i < length l) :
     rw [Nat.add_sub_of_le (Nat.le_sub_one_of_lt h),
       Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) h)]
 
+@[simp] theorem getD_nil : getD [] n d = d := rfl
+
+@[simp] theorem getD_cons_zero : getD (x :: xs) 0 d = x := rfl
+
+@[simp] theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := rfl
+
 /-! ### take and drop -/
 
 @[simp] theorem take_append_drop : ∀ (n : Nat) (l : List α), take n l ++ drop n l = l

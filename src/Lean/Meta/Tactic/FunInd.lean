@@ -216,10 +216,15 @@ partial def foldCalls (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM Expr
   unless e.containsFVar oldIH do
     return e
 
-  if let some (arg, args) ← argOfPProdProjWithArgs oldIH newIH e then
-    logInfo m!"arg: {arg}"
+  if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
+    logInfo m!"e: {e} arg: {e'} args: {args}"
+    let t ← whnf (← inferType e')
+    let e' ← forallTelescopeReducing t fun xs t' => do
+      unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
+        throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
+      mkLambdaFVars xs (fn.beta t'.getAppArgs)
     let args' ← args.mapM (foldCalls fn oldIH newIH)
-    let e' := fn.beta (#[arg] ++ args')
+    let e' := e'.beta args'
     unless ← isTypeCorrect e' do
       throwError m!"foldCalls: type incorrect after replacing recursive call:{indentExpr e'}"
     return e'
@@ -640,7 +645,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
     let e' := mkAppN brec (fixArgs[:recParams] ++ #[brecMotive, arg])
     -- When unfolding recursive calls, we may have to permute the arguments
-    let fn ← mkLambdaFVars (#[arg] ++ extraArgs) <|
+    let fn ← mkLambdaFVars varyingParams <|
         mkAppN (.const name (info.levelParams.map mkLevelParam)) params
     logInfo m!"fn: {fn}"
     check e'
@@ -901,10 +906,6 @@ def Finn.min {n : Nat} : Finn n → Finn n → Finn n
 
 -- run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min
 
-
--- TODO:
--- Varying parameters before the decreasing argument
--- cause parameters to be reordered in the motive
 
 def binary' : Bool → Nat → Bool
   | acc, 0 | acc , 1 => not acc

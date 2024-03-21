@@ -574,9 +574,12 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
 
   buildInductionCase fn oldIH newIH toClear toPreserve goal IHs e
 
-partial def findFixF {α} (name : Name) (e : Expr)
-    (k : (params : Array Expr) → (fix : Expr) → (body : Expr) → (targets : Array Expr) →
-      (otherArgs : Array Expr) → MetaM α) : MetaM α := do
+partial def findFixF {α} (name : Name) (e : Expr) (params' : Array Expr := #[])
+    (k1 : (params : Array Expr) → (fix : Expr) → (body : Expr) → (targets : Array Expr) →
+      (otherArgs : Array Expr) → MetaM α)
+    (k2 : (params : Array Expr) → (fix : Expr) → (body : Expr) → (target : Expr) →
+      (argsToAppend : Array Expr) → MetaM α)
+       : MetaM α := do
   lambdaTelescope e fun params body => body.withApp fun f args => do
     if not f.isConst then err else
     if isBRecOnRecursor (← getEnv) f.constName! then
@@ -586,18 +589,16 @@ partial def findFixF {α} (name : Name) (e : Expr)
       let targets := elimInfo.targetsPos.map (args[·]!)
       let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
       let otherArgs := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
-      k params value body targets otherArgs
-    /-
-    else if f.isConstOf ``WellFounded.fixF && args.size == 5 then
+      k1 (params' ++ params) value body targets otherArgs
+    else if f.isConstOf ``WellFounded.fixF && args.size == 6 then
       let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
       let value := mkAppN value args[:2]
       let body := args[3]!
-      let targets := #[args[4]!]
-      k params value body targets #[]
+      let target := args[4]!
+      let acc := args[5]!
+      k2 (params' ++ params) value body target #[acc]
     else if body.isAppOf ``WellFounded.fix then
-      findFixF name (← unfoldDefinition body) fun params' value body targets otherArgs =>
-        k (params ++ params') value body targets otherArgs
-    -/
+      findFixF name (← unfoldDefinition body) (params' ++ params) k1 k2
     else
       err
   where
@@ -615,7 +616,8 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   if ← hasConst inductName then return inductName
 
   let info ← getConstInfoDefn name
-  findFixF name info.value fun params e' body targets extraArgs => do
+  let e' ← findFixF name info.value
+    (k1 := fun params e' body targets extraArgs => do
     -- logInfo m!"params: {params}\ne': {e'}\ntargets: {targets}\nextraArgs: {extraArgs}"
     unless params.size > 0 do
       throwError "Value of {name} is not a lambda application"
@@ -644,8 +646,9 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     logInfo m!"fn: {fn}\ne': {e'}"
     check e'
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
-      if h : xs.size < targets.size + 1 + extraArgs.size then
-        throwError "brecOn argument takes too few arguments: {xs}" else
+      let arity := targets.size + 1 + extraArgs.size
+      if h : xs.size ≠ arity then
+        throwError "expected brecOn argument to take {arity} parameters, got {xs}" else
       let params : Array Expr := xs[:targets.size]
       let genIH := xs[targets.size]
       let extraParams := xs[targets.size+1:]
@@ -664,7 +667,6 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let e' := mkAppN e' #[body']
     let e' := mkAppN e' extraArgs
 
-    let e' ← mkLambdaFVars #[params.back] e'
     let mvars ← getMVarsNoDelayed e'
     let mvars ← mvars.mapM fun mvar => do
       let mvar ← substVarAfter mvar motive.fvarId!
@@ -693,20 +695,79 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- that derives them from an function application in the goal) is harder, as
     -- one would have to infer or keep track of which parameters to pass.
     -- So for now lets just keep them around.
-    let e' ← mkLambdaFVars (binderInfoForMVars := .default) (params.pop ++ #[motive]) e'
-    let e' ← instantiateMVars e'
+    let e' ← mkLambdaFVars (binderInfoForMVars := .default) (params ++ #[motive]) e'
+    instantiateMVars e'
+    )
+    (k2 := fun params e' body target extraArgs => do
+    -- logInfo m!"params: {params}\ne': {e'}\ntargets: {targets}\nextraArgs: {extraArgs}"
+    unless params.size > 0 do
+      throwError "Value of {name} is not a lambda application"
+    let motiveType ← mkForallFVars #[target] (.sort levelZero)
+    logInfo m!"motiveType: {motiveType}"
 
-    unless (← isTypeCorrect e') do
-      logError m!"failed to derive induction priciple:{indentExpr e'}"
-      check e'
+    withLocalDecl `motive .default motiveType fun motive => do
 
-    let eTyp ← inferType e'
-    let eTyp ← elimOptParam eTyp
-    -- logInfo m!"eTyp: {eTyp}"
+    -- When unfolding recursive calls, we may have to permute the arguments
+    let fn ← mkLambdaFVars #[target] <|
+        mkAppN (.const name (info.levelParams.map mkLevelParam)) params
+    let e' := mkApp e' motive
+    check e'
+    let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
+      let #[param, genIH] := xs
+        | throwError "expected fix argument to take 2 parameters, got {xs}"
+      -- open body with the same arg
+      let body ← instantiateLambda body #[param]
+      removeLamda body fun oldIH body => do
+        let body' ← buildInductionBody fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
+        if body'.containsFVar oldIH then
+          throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+        mkLambdaFVars #[param, genIH] body'
 
-    addDecl <| Declaration.thmDecl
-      { name := inductName, levelParams := info.levelParams, type := eTyp, value := e' }
-    return inductName
+    let e' := mkAppN (mkApp2 e' body' target) extraArgs
+
+    let mvars ← getMVarsNoDelayed e'
+    let mvars ← mvars.mapM fun mvar => do
+      let mvar ← substVarAfter mvar motive.fvarId!
+      let (_, mvar) ← mvar.revertAfter motive.fvarId!
+      pure mvar
+    -- Using `mkLambdaFVars` on mvars directly does not reliably replace
+    -- the mvars with the parameter, in the presence of delayed assignemnts.
+    -- Also `abstractMVars` does not handle delayed assignments correctly (as of now).
+    -- So instead we bring suitable fvars into scope and use `assign`; this handles
+    -- delayed assignemnts correctly.
+    -- NB: This idiom only works because
+    -- * we know that the `MVars` have the right local context (thanks to `mvarId.revertAfter`)
+    -- * the MVars are independent (so we don’t need to reorder them)
+    -- * we do no need the mvars in their unassigned form later
+    let e' ← Meta.withLocalDecls
+      (mvars.mapIdx (fun i mvar => (s!"case{i.val+1}", .default, (fun _ => mvar.getType))))
+      fun xs => do
+        for mvar in mvars, x in xs do
+          mvar.assign x
+        let e' ← instantiateMVars e'
+        mkLambdaFVars xs e'
+
+    -- We could pass (usedOnly := true) below, and get nicer induction principles that
+    -- do do not mention odd unused parameters.
+    -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
+    -- that derives them from an function application in the goal) is harder, as
+    -- one would have to infer or keep track of which parameters to pass.
+    -- So for now lets just keep them around.
+    let e' ← mkLambdaFVars (binderInfoForMVars := .default) (params ++ #[motive]) e'
+    instantiateMVars e'
+    )
+
+  unless (← isTypeCorrect e') do
+    logError m!"failed to derive induction priciple:{indentExpr e'}"
+    check e'
+
+  let eTyp ← inferType e'
+  let eTyp ← elimOptParam eTyp
+  -- logInfo m!"eTyp: {eTyp}"
+
+  addDecl <| Declaration.thmDecl
+    { name := inductName, levelParams := info.levelParams, type := eTyp, value := e' }
+  return inductName
 
 /--
 In the type of `value`, reduces
@@ -902,3 +963,14 @@ def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → Finn n → Finn n
 
 run_meta Lean.Tactic.FunInd.deriveInduction `Finn.min
 #check Finn.min.induct
+
+namespace WF
+def fib : Nat → Nat
+  | 0 | 1 => 0
+  | n+2 => fib n + fib (n+1)
+termination_by?
+
+run_meta Lean.Tactic.FunInd.deriveInduction ``fib
+#check fib.induct
+
+end WF

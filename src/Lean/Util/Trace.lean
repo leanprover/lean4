@@ -189,18 +189,22 @@ really need to handle (and then re-throw) every exception lest we end up with a 
 class MonadAlwaysExcept (ε : outParam (Type u)) (m : Type u → Type v) where
   except : MonadExceptOf ε m
 
--- instance sufficient for inferring `MonadAlwaysExcept` for the elaboration monads
+-- instances sufficient for inferring `MonadAlwaysExcept` for the elaboration monads
 
-instance (ε) : MonadAlwaysExcept ε (EIO ε) where
+instance : MonadAlwaysExcept ε (EIO ε) where
   except := inferInstance
 
-instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateT σ m) where
+instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateT σ m) where
   except := let _ := always.except; inferInstance
 
-instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
+instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (StateRefT' ω σ m) where
   except := let _ := always.except; inferInstance
 
-instance (ε) [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (ReaderT ρ m) where
+instance [always : MonadAlwaysExcept ε m] : MonadAlwaysExcept ε (ReaderT ρ m) where
+  except := let _ := always.except; inferInstance
+
+instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α] :
+    MonadAlwaysExcept ε (MonadCacheT α β m) where
   except := let _ := always.except; inferInstance
 
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)

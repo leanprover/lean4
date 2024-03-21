@@ -8,6 +8,7 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Mod
 
 namespace BitVec
 
@@ -611,25 +612,40 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
   simp [cons]
 
-
 /-! ## flatten -/
 
-
-theorem Nat.emod_eq (a b : Nat) : a % b = a - b * (a / b) := sorry -- sad: this is missing
-theorem Nat.lt_mul_ediv_self_add {x k : Nat} (h : 0 < k) : x < k * (x / k) + k := sorry
-
+@[simp] theorem getMsb_flatten {w : Nat} (vs : List (BitVec w)) (i) :
+    (BitVec.flatten vs).getMsb i = (vs[i / w]?.getD 0#w).getMsb (i % w) := by
+  by_cases p : 0 < w
+  · match vs with
+    | [] => simp
+    | x :: rest =>
+      simp only [BitVec.flatten]
+      simp [cond_eq_if]
+      split <;> rename_i h
+      · obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le h
+        rw [getMsb_flatten]
+        simp [p, Nat.add_div_left, Nat.add_sub_cancel_left]
+      · have : i / w = 0 := by simp_all [Nat.div_eq_of_lt]
+        have : i % w = i := by simp_all [Nat.mod_eq_sub_mul_div]
+        simp_all
+  · simp at p
+    subst p
+    simp
 
 @[simp] theorem getLsb_flatten {w : Nat} (vs : List (BitVec w)) (i) :
-    (BitVec.flatten vs).getMsb i = (vs[i / w]?.getD 0#w).getMsb (i % w) := by
-  match vs with
-  | [] => simp
-  | x :: rest =>
-    simp only [BitVec.flatten]
-    simp [cond_eq_if]
-    split
-    · rw [getLsb_flatten]
-      rfl
-    sorry
+    (BitVec.flatten vs).getLsb i = (decide (i < w * vs.length) && (vs[vs.length - 1 - i / w]?.getD 0#w).getLsb (i % w)) := by
+  by_cases p : 0 < w
+  · rw [getLsb_eq_getMsb, getMsb_flatten, getLsb_eq_getMsb]
+    have h₁ : i % w < w := Nat.mod_lt i p
+    simp only [h₁, decide_True, Bool.true_and]
+    by_cases h₂ : i < w * vs.length
+    · simp only [h₂, decide_True, Bool.true_and]
+      congr
+      · rw [Nat.sub_sub, Nat.add_comm, Nat.mul_sub_div h₂, Nat.sub_sub, Nat.add_comm]
+      · rw [Nat.sub_sub, Nat.add_comm, Nat.mul_sub_mod h₂, Nat.sub_sub, Nat.add_comm]
+    · simp only [h₂, decide_False, Bool.false_and, Bool.false_eq]
+  · simp_all
 
 @[simp] theorem flatten_zero_length (vs : List (BitVec 0)) : BitVec.flatten vs = 0 := by
   apply BitVec.eq_of_getLsb_eq
@@ -654,33 +670,36 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
-@[simp] theorem getLsb_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
+@[simp] theorem getLsb_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
   unfold getLsb
   simp [Nat.lt_succ]
 
-theorem extractLsb_flatten (hi lo : Nat) {w  : Nat} (vs : List (BitVec w)) (r : lo ≤ hi) (h : hi / w = lo / w) :
-  extractLsb hi lo (BitVec.flatten vs) =
-    BitVec.cast (by simp [Nat.emod_eq, h]; have := Nat.mul_div_le lo w; omega)
-      (extractLsb (hi % w) (lo % w) (vs[hi / w]?.getD 0#w)) := by
+/--
+Extracting a bitvector from a `flatten` of a `List` of bitvectors, when we only extract from a single bitvector.
+-/
+theorem extractLsb_flatten (hi lo : Nat) {w  : Nat} (vs : List (BitVec w))
+    (w₁ : lo ≤ hi) (w₂ : hi < w * vs.length) (h : hi / w = lo / w) :
+    extractLsb hi lo (BitVec.flatten vs) =
+      BitVec.cast (by simp [Nat.mod_eq_sub_mul_div, h]; have := Nat.mul_div_le lo w; omega)
+        (extractLsb (hi % w) (lo % w) (vs[vs.length - 1 - hi / w]?.getD 0#w)) := by
   by_cases p : 0 < w
-  · apply BitVec.eq_of_getLsb_eq
+  · have t : w * (lo / w) ≤ lo := Nat.mul_div_le lo w
+    have t' : hi < w * (lo / w) + w := by rw [← h]; apply Nat.lt_mul_div_self_add p
+    apply BitVec.eq_of_getLsb_eq
     intro i
-    have t : w * (lo / w) ≤ lo := Nat.mul_div_le lo w
-    have t' : hi < w * (lo / w) + w := by rw [← h]; apply Nat.lt_mul_ediv_self_add p
-    have q : lo + i ≤ hi := by omega
+    have q : i ≤ hi - lo := by omega
+    have q' : i ≤ hi % w - lo % w := by simp [Nat.mod_eq_sub_mul_div, h]; omega
+    have q'' : lo + i < w * vs.length := by omega
     have h₁ : (lo + i) / w = lo / w := by
       apply Nat.div_eq_of_lt_le <;> rw [Nat.mul_comm]
       · omega
       · simp only [Nat.succ_eq_add_one, Nat.mul_add]; omega
-    have h₂ : (lo + i) % w = lo % w + i := by simp [Nat.emod_eq, h₁]; omega
-    simp only [getLsb_extract, getLsb_flatten, h₁, h₂, h, getLsb_cast]
-    congr 2
-    simp only [Nat.emod_eq, h, eq_iff_iff]
-    omega
+    have h₂ : (lo + i) % w = lo % w + i := by simp [Nat.mod_eq_sub_mul_div, h₁]; omega
+    simp only [getLsb_extractLsb, getLsb_flatten, q, q', q'', h₁, h₂, h, getLsb_cast, decide_True, Bool.true_and]
   · simp at p
     subst p
-    simp_all
+    simp
 
 /-! ### rev -/
 

@@ -280,7 +280,7 @@ Nat.le_antisymm
   (le_of_lt_succ ((Nat.div_lt_iff_lt_mul npos).2 hi))
   ((Nat.le_div_iff_mul_le npos).2 lo)
 
-theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
+theorem sub_mul_div {x n p : Nat} (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p := by
   match eq_zero_or_pos n with
   | .inl h₀ => rw [h₀, Nat.div_zero, Nat.div_zero, Nat.zero_sub]
   | .inr h₀ => induction p with
@@ -295,7 +295,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
       simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
 
-theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
+theorem mul_sub_div {x n p : Nat} (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by
     rw [n0, Nat.zero_mul] at h₁; exact not_lt_zero _ h₁
   apply Nat.div_eq_of_lt_le
@@ -378,6 +378,5 @@ theorem mul_div_le (m n : Nat) : n * (m / n) ≤ m := by
   match n, Nat.eq_zero_or_pos n with
   | _, Or.inl rfl => rw [Nat.zero_mul]; exact m.zero_le
   | n, Or.inr h => rw [Nat.mul_comm, ← Nat.le_div_iff_mul_le h]; exact Nat.le_refl _
-
 
 end Nat

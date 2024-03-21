@@ -7,6 +7,7 @@ prelude
 import Init.Data.Nat.MinMax
 import Init.Data.Nat.Log2
 import Init.Data.Nat.Power2
+import Init.Data.Nat.Mod
 import Init.Omega
 
 /-! # Basic lemmas about natural numbers
@@ -799,6 +800,53 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   cases n
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
+
+theorem mod_eq_sub_mul_div (a b : Nat) : a % b = a - b * (a / b) := by
+  have := Nat.mod_add_div a b
+  have := Nat.mul_div_le a b
+  omega
+
+theorem lt_mul_div_self_add {x k : Nat} (h : 0 < k) : x < k * (x / k) + k := by
+  rw [← Int.ofNat_lt]
+  simpa using Int.lt_mul_ediv_self_add (by omega)
+
+theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - (x % n + 1) := by
+  have w : n * (x / n) + n ≤ n * p := by
+    have : x / n < p := Nat.div_lt_of_lt_mul h
+    conv =>
+      lhs; congr
+      · skip
+      · rw [← Nat.mul_one n]
+    rw [← Nat.mul_add]
+    exact Nat.mul_le_mul_left _ this
+  rw [Nat.mod_eq_sub_mul_div, Nat.mul_sub_div h, Nat.sub_sub, Nat.mul_sub_left_distrib,
+    Nat.succ_eq_add_one, Nat.mul_add, Nat.mul_one, Nat.mod_eq_sub_mul_div, ← Nat.add_sub_assoc w,
+    Nat.add_comm (x + 1)]
+  cases p with
+  | zero => simp at h; omega
+  | succ p =>
+    conv =>
+      lhs
+      congr
+      · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]
+    have t : n * (x / n) ≤ x := Nat.mul_div_le x n
+    rw [Nat.mul_add, Nat.mul_one, Nat.add_assoc, Nat.add_sub_assoc (by omega) (n * p)]
+    rw [← Nat.sub_sub]
+    rw [Nat.add_sub_cancel]
+    congr 1
+    omega
+
+@[simp] theorem sub_div_right : (x - y) / y = x / y - 1 := by
+  by_cases p : 0 < y
+  · by_cases h : y ≤ x
+    · obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le h
+      simp [Nat.add_sub_cancel_left, Nat.add_div_left, p]
+    · rw [Nat.sub_eq_zero_of_le (by omega)]
+      simp at h
+      simp [Nat.div_eq_of_lt h]
+  · simp at p
+    subst p
+    simp
 
 /-! ### Decidability of predicates -/
 

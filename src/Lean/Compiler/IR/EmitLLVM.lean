@@ -663,7 +663,7 @@ def emitExternCall (builder : LLVM.Builder llvmctx)
     (name : String := "") : M llvmctx (LLVM.Value llvmctx) :=
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall builder extFn ps ys retty name
-  | some (ExternEntry.inline "llvm" _pat) => throw "Unimplemented codegen of inline LLVM"
+  | some (ExternEntry.inline `llvm _pat) => throw "Unimplemented codegen of inline LLVM"
   | some (ExternEntry.inline _ pat) => throw s!"Cannot codegen non-LLVM inline code '{pat}'."
   | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall builder extFn ps ys retty name
   | _ => throw s!"Failed to emit extern application '{f}'."

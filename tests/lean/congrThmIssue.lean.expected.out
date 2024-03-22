@@ -4,7 +4,7 @@ cap : Nat
 backing : Fin cap → Option α
 size : Nat
 h_size : size ≤ cap
-h_full : ∀ (i : Nat) (h : i < size), Option.isSome (backing { val := i, isLt := ⋯ }) = true
+h_full : ∀ (i : Nat) (h : i < size), Option.isSome (backing ⟨i, ⋯⟩) = true
 i : Nat
 h : i < size
-⊢ Option.isSome (if h_1 : i < cap then backing { val := i, isLt := ⋯ } else none) = true
+⊢ Option.isSome (if h_1 : i < cap then backing ⟨i, ⋯⟩ else none) = true

@@ -384,6 +384,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreD
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkEqnTypes_go___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_brecOnSuffix;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__9___at_Lean_Elab_Eqns_removeUnusedEqnHypotheses_go___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_checked___at_Lean_Elab_Eqns_simpEqnType_collect___spec__5___rarg(lean_object*, lean_object*, lean_object*);
@@ -404,7 +405,6 @@ LEAN_EXPORT lean_object* l_Lean_Option_set___at_Lean_Elab_Eqns_tryURefl___spec__
 static lean_object* l_Lean_Elab_Eqns_mkEqnTypes_go___closed__2;
 static lean_object* l_Lean_Elab_Eqns_mkUnfoldProof___closed__2;
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_isBRecOnRecursor(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__3___closed__1;
 static lean_object* l_panic___at_Lean_Elab_Eqns_simpEqnType_collect___spec__1___rarg___closed__1;
 static lean_object* l_Lean_Elab_Eqns_removeUnusedEqnHypotheses___closed__3;
@@ -478,6 +478,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___private_Lean_Elab_PreD
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__27___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Eqns_expandRHS_x3f___closed__2;
@@ -2270,110 +2271,111 @@ x_10 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSpl
 x_11 = lean_name_eq(x_9, x_10);
 if (x_11 == 0)
 {
-uint8_t x_12; 
-x_12 = l_Lean_isBRecOnRecursor(x_2, x_9);
-if (x_12 == 0)
+lean_object* x_12; uint8_t x_13; 
+x_12 = l_Lean_brecOnSuffix;
+x_13 = l_Lean_isAuxRecursorWithSuffix(x_2, x_9, x_12);
+if (x_13 == 0)
 {
-uint8_t x_13; lean_object* x_14; 
-x_13 = 1;
-x_14 = lean_box(x_13);
-return x_14;
+uint8_t x_14; lean_object* x_15; 
+x_14 = 1;
+x_15 = lean_box(x_14);
+return x_15;
 }
 else
 {
-uint8_t x_15; lean_object* x_16; 
-x_15 = 2;
-x_16 = lean_box(x_15);
-return x_16;
+uint8_t x_16; lean_object* x_17; 
+x_16 = 2;
+x_17 = lean_box(x_16);
+return x_17;
 }
 }
 else
 {
-uint8_t x_17; lean_object* x_18; 
+uint8_t x_18; lean_object* x_19; 
 lean_dec(x_9);
 lean_dec(x_2);
-x_17 = 2;
-x_18 = lean_box(x_17);
-return x_18;
+x_18 = 2;
+x_19 = lean_box(x_18);
+return x_19;
 }
 }
 else
 {
-uint8_t x_19; lean_object* x_20; 
+uint8_t x_20; lean_object* x_21; 
 lean_dec(x_8);
 lean_dec(x_2);
-x_19 = 1;
-x_20 = lean_box(x_19);
-return x_20;
+x_20 = 1;
+x_21 = lean_box(x_20);
+return x_21;
 }
 }
 else
 {
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; uint8_t x_33; 
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; uint8_t x_34; 
 lean_dec(x_2);
-x_21 = lean_ctor_get(x_7, 0);
-lean_inc(x_21);
+x_22 = lean_ctor_get(x_7, 0);
+lean_inc(x_22);
 lean_dec(x_7);
-x_22 = lean_unsigned_to_nat(0u);
-x_23 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_4, x_22);
-x_24 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__3___closed__4;
-lean_inc(x_23);
-x_25 = lean_mk_array(x_23, x_24);
-x_26 = lean_unsigned_to_nat(1u);
-x_27 = lean_nat_sub(x_23, x_26);
-lean_dec(x_23);
-x_28 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_4, x_25, x_27);
-x_29 = l_Lean_Meta_Match_MatcherInfo_getFirstDiscrPos(x_21);
-x_30 = lean_ctor_get(x_21, 1);
-lean_inc(x_30);
-x_31 = lean_nat_add(x_29, x_30);
-lean_dec(x_30);
-x_32 = 0;
+x_23 = lean_unsigned_to_nat(0u);
+x_24 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_4, x_23);
+x_25 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__3___closed__4;
+lean_inc(x_24);
+x_26 = lean_mk_array(x_24, x_25);
+x_27 = lean_unsigned_to_nat(1u);
+x_28 = lean_nat_sub(x_24, x_27);
+lean_dec(x_24);
+x_29 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_4, x_26, x_28);
+x_30 = l_Lean_Meta_Match_MatcherInfo_getFirstDiscrPos(x_22);
+x_31 = lean_ctor_get(x_22, 1);
 lean_inc(x_31);
-x_33 = l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___spec__1(x_28, x_31, x_29, x_31, x_26, x_32);
+x_32 = lean_nat_add(x_30, x_31);
 lean_dec(x_31);
-if (x_33 == 0)
+x_33 = 0;
+lean_inc(x_32);
+x_34 = l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___spec__1(x_29, x_32, x_30, x_32, x_27, x_33);
+lean_dec(x_32);
+if (x_34 == 0)
 {
-uint8_t x_34; lean_object* x_35; 
-lean_dec(x_28);
-lean_dec(x_21);
+uint8_t x_35; lean_object* x_36; 
+lean_dec(x_29);
+lean_dec(x_22);
 lean_dec(x_3);
-x_34 = 1;
-x_35 = lean_box(x_34);
-return x_35;
+x_35 = 1;
+x_36 = lean_box(x_35);
+return x_36;
 }
 else
 {
-lean_object* x_36; lean_object* x_37; 
-x_36 = lean_box(0);
-x_37 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__2(x_21, x_3, x_28, x_36);
-lean_dec(x_28);
-lean_dec(x_21);
-return x_37;
+lean_object* x_37; lean_object* x_38; 
+x_37 = lean_box(0);
+x_38 = l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__2(x_22, x_3, x_29, x_37);
+lean_dec(x_29);
+lean_dec(x_22);
+return x_38;
 }
 }
 }
 else
 {
-uint8_t x_38; lean_object* x_39; 
+uint8_t x_39; lean_object* x_40; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_38 = 1;
-x_39 = lean_box(x_38);
-return x_39;
+x_39 = 1;
+x_40 = lean_box(x_39);
+return x_40;
 }
 }
 else
 {
-uint8_t x_40; lean_object* x_41; 
+uint8_t x_41; lean_object* x_42; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_40 = 1;
-x_41 = lean_box(x_40);
-return x_41;
+x_41 = 1;
+x_42 = lean_box(x_41);
+return x_42;
 }
 }
 }

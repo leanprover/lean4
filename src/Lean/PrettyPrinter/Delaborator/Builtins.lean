@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Gabriel Ebner, Mario Carneiro
 -/
 prelude
 import Lean.Parser
+import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
@@ -22,6 +23,7 @@ If `cond` is true, wraps the syntax produced by `d` in a type ascription.
 def withTypeAscription (d : Delab) (cond : Bool := true) : DelabM Term := do
   let stx ← d
   if cond then
+    let stx ← annotateCurPos stx
     let typeStx ← withType delab
     `(($stx : $typeStx))
   else
@@ -185,6 +187,9 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let fieldNames := getStructureFields env s.induct
   let mut fields := #[]
   guard $ fieldNames.size == stx[1].getNumArgs
+  if hasPPUsingAnonymousConstructorAttribute env s.induct then
+    return ← withTypeAscription (cond := (← withType <| getPPOption getPPStructureInstanceType)) do
+      `(⟨$[$(stx[1].getArgs)],*⟩)
   let args := e.getAppArgs
   let fieldVals := args.extract s.numParams args.size
   for idx in [:fieldNames.size] do
@@ -906,6 +911,7 @@ where
   projInfo : DelabM (Name × Nat × Bool) := do
     let .app fn _ ← getExpr | failure
     let .const c@(.str _ field) _ := fn.getAppFn | failure
+    let field := Name.mkSimple field
     let env ← getEnv
     let some info := env.getProjectionFnInfo? c | failure
     -- Don't delaborate for classes since the instance parameter is implicit.

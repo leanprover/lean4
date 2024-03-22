@@ -165,6 +165,7 @@ whose first component is `a : α` and whose second component is `b : β a`
 It is sometimes known as the dependent sum type, since it is the type level version
 of an indexed summation.
 -/
+@[pp_using_anonymous_constructor]
 structure Sigma {α : Type u} (β : α → Type v) where
   /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : Sigma β`.
   (This will usually require a type ascription to determine `β`
@@ -190,6 +191,7 @@ which can cause problems for universe level unification,
 because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
 `PSigma` is usually only used in automation that constructs pairs of arbitrary types.
 -/
+@[pp_using_anonymous_constructor]
 structure PSigma {α : Sort u} (β : α → Sort v) where
   /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : PSigma β`.
   (This will usually require a type ascription to determine `β`

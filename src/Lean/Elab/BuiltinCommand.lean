@@ -55,7 +55,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
 
 private def checkAnonymousScope : List Scope → Option Name
   | { header := "", .. } :: _ => none
-  | { header := h, .. }  :: _ => some h
+  | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
 
 private def checkEndHeader : Name → List Scope → Option Name
@@ -64,7 +64,7 @@ private def checkEndHeader : Name → List Scope → Option Name
     if h == s then
       (.str · s) <$> checkEndHeader p scopes
     else
-      some h
+      some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>

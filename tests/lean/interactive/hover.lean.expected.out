@@ -339,7 +339,8 @@
  {"start": {"line": 180, "character": 11},
   "end": {"line": 180, "character": 33}},
  "contents":
- {"value": "enable the 'unused variables' linter", "kind": "markdown"}}
+ {"value": "Enables or disables all unused variable linter warnings ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 183, "character": 8}}
 {"range":

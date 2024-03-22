@@ -120,6 +120,8 @@ theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  b
 theorem ofBool_eq_iff_eq : ∀(b b' : Bool), BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
 
+@[simp] theorem not_ofBool : ~~~ (ofBool b) = ofBool (!b) := by cases b <;> rfl
+
 @[simp, bv_toNat] theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 
 @[simp] theorem toNat_ofNatLt (x : Nat) (p : x < 2^w) : (x#'p).toNat = x := rfl
@@ -493,6 +495,24 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   simp [h]
   omega
 
+/-! ### cast -/
+
+@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(cast h x) = cast h (~~~x) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : cast h x ||| cast h y = cast h (x ||| y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
 /-! ### shiftLeft -/
 
 @[simp, bv_toNat] theorem toNat_shiftLeft {x : BitVec v} :
@@ -610,6 +630,32 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
   simp [cons]
+
+
+@[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
+  ext i
+  simp only [getLsb_not, getLsb_append, cond_eq_if]
+  split
+  · simp_all
+  · simp_all; omega
+
+@[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
+
+@[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
+
+@[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
 
 /-! ## flattenList -/
 
@@ -771,6 +817,21 @@ theorem eq_msb_cons_truncate (x : BitVec (w+1)) : x = (cons x.msb (x.truncate w)
   · by_cases h' : i < w
     · simp_all
     · omega
+
+@[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
+  simp [cons]
+
+@[simp] theorem cons_or_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+
+@[simp] theorem cons_and_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+
+@[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) ^^^ (cons b y) = cons (xor a b) (x ^^^ y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
 
 /-! ### concat -/
 

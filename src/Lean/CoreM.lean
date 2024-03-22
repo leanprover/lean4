@@ -219,7 +219,7 @@ def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat)
   unless max == 0 do
     let numHeartbeats ← IO.getNumHeartbeats
     if numHeartbeats - (← read).initHeartbeats > max then
-      throwMaxHeartbeat moduleName optionName max
+      throwMaxHeartbeat (.mkSimple moduleName) optionName max
 
 def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
   checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats

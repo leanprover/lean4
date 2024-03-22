@@ -168,13 +168,13 @@ structure SavedState where
   term   : Term.SavedState
   tactic : State
 
-structure TacticFinishedSnapshot extends Language.Snapshot where
+structure TacticFinished where
   state? : Option SavedState
 deriving Nonempty
 
 structure TacticParsedSnapshotData extends Language.Snapshot where
-  stx    : Syntax
-  finishedSnap : SnapshotTask TacticFinishedSnapshot
+  stx      : Syntax
+  finished : Task TacticFinished
 deriving Nonempty
 
 /-- State after execution of a single synchronous tactic step. -/
@@ -189,7 +189,7 @@ abbrev TacticParsedSnapshot.next : TacticParsedSnapshot → Array (SnapshotTask 
   | .mk _ next => next
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
-    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map go)⟩
+    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map (sync := true) go)⟩
 
 end Snapshot
 end Tactic

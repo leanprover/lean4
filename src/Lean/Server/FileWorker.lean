@@ -435,26 +435,21 @@ section NotificationHandling
 
   /--
   Received from the watchdog when a dependency of this file is detected as being stale.
-  Issues a `LanguageServer_ImportOutOfDate` sticky diagnostic to the client.
+  Issues a sticky diagnostic to the client that it should run "Restart File".
   -/
-  def handleStaleDependency (p : LeanStaleDependencyParams) : WorkerM Unit := do
+  def handleStaleDependency (_ : LeanStaleDependencyParams) : WorkerM Unit := do
     let ctx ← read
     let s ← get
     let text := s.doc.meta.text
-    let _ ← IO.mapTask (t :=  s.srcSearchPathTask) fun srcSearchPath => do
-      let some staleDependencyName ← moduleFromDocumentUri srcSearchPath p.staleDependency
-        | return
-      let diagnostic := {
-        range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
-        fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
-        severity?  := DiagnosticSeverity.hint
-        code?      := some <| .string "LanguageServer_ImportOutOfDate"
-        message    := .text s!"Import '{staleDependencyName}' is out of date; \
-          use the \"Restart File\" command in your editor."
-        data?      := some staleDependencyName.toString
+    let diagnostic := {
+      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
+      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
+      severity?  := DiagnosticSeverity.information
+      message    := .text s!"Imports are out of date and should be rebuilt; \
+        use the \"Restart File\" command in your editor."
     }
-      ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
-      publishDiagnostics ctx s.doc.toEditableDocumentCore
+    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
+    publishDiagnostics ctx s.doc.toEditableDocumentCore
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`

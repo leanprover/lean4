@@ -10,8 +10,8 @@ def fib : Nat → Nat
 derive_functional_induction fib
 /--
 info: fib.induct :
-  ∀ (x : Nat) (motive : Nat → Prop),
-    motive 0 → motive 1 → (∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) → motive x
+  ∀ (a : Nat) (motive : Nat → Prop),
+    motive 0 → motive 1 → (∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) → motive a
 -/
 #guard_msgs in
 #check fib.induct
@@ -24,11 +24,11 @@ def binary : Nat → Nat → Nat
 derive_functional_induction binary
 /--
 info: binary.induct :
-  ∀ (x x_1 : Nat) (motive : Nat → Nat → Prop),
+  ∀ (a a_1 : Nat) (motive : Nat → Nat → Prop),
     (∀ (acc : Nat), motive 0 acc) →
       (∀ (acc : Nat), motive 1 acc) →
         (∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive (Nat.succ (Nat.succ n)) acc) →
-          motive x x_1
+          motive a a_1
 -/
 #guard_msgs in
 #check binary.induct
@@ -42,12 +42,12 @@ def binary' : Bool → Nat → Bool
 derive_functional_induction binary'
 /--
 info: binary'.induct :
-  ∀ (x : Bool) (x_1 : Nat) (motive : Bool → Nat → Prop),
+  ∀ (a : Bool) (a_1 : Nat) (motive : Bool → Nat → Prop),
     (∀ (acc : Bool), motive acc 0) →
       (∀ (acc : Bool), motive acc 1) →
         (∀ (acc : Bool) (n : Nat),
             motive acc (n + 1) → motive (binary' acc (n + 1)) n → motive acc (Nat.succ (Nat.succ n))) →
-          motive x x_1
+          motive a a_1
 -/
 #guard_msgs in
 #check binary'.induct
@@ -60,10 +60,10 @@ def zip {α β} : List α → List β → List (α × β)
 derive_functional_induction zip
 /--
 info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} :
-  ∀ (x : List α) (x_1 : List β) (motive : List α → List β → Prop),
+  ∀ (a : List α) (a_1 : List β) (motive : List α → List β → Prop),
     (∀ (x : List β), motive [] x) →
       (∀ (x : List α), (x = [] → False) → motive x []) →
-        (∀ (x : α) (xs : List α) (y : β) (ys : List β), motive xs ys → motive (x :: xs) (y :: ys)) → motive x x_1
+        (∀ (x : α) (xs : List α) (y : β) (ys : List β), motive xs ys → motive (x :: xs) (y :: ys)) → motive a a_1
 -/
 #guard_msgs in
 #check zip.induct
@@ -93,11 +93,11 @@ def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → (f : Finn n) → Finn n
 derive_functional_induction Finn.min
 /--
 info: Finn.min.induct (x : Bool) {n : Nat} (m : Nat) :
-  ∀ (x_1 x_2 : Finn n) (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop),
-    (∀ (x : Bool) (m n : Nat) (x_3 : Finn n), motive x m Finn.fzero x_3) →
-      (∀ (x : Bool) (m n : Nat) (x_3 : Finn n), (x_3 = Finn.fzero → False) → motive x m x_3 Finn.fzero) →
+  ∀ (a f : Finn n) (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop),
+    (∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1) →
+      (∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero) →
         (∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m (Finn.fsucc i) (Finn.fsucc j)) →
-          motive x m x_1 x_2
+          motive x m a f
 -/
 #guard_msgs in
 #check Finn.min.induct

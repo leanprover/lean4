@@ -27,7 +27,7 @@ derive_functional_induction Tree.rev
 
 /--
 info: Tree.rev.induct (motive : Tree → Prop)
-  (case1 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive t) → motive (Tree.node ts)) (x : Tree) : motive x
+  (case1 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive t) → motive (Tree.node ts)) : ∀ (a : Tree), motive a
 -/
 #guard_msgs in
 #check Tree.rev.induct

@@ -566,33 +566,34 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
 
   buildInductionCase is_wf fn oldIH newIH toClear toPreserve goal IHs e
 
-partial def findFixF {α} (name : Name) (e : Expr) (params' : Array Expr := #[])
+partial def findFixF {α} (name : Name) (varNames : Array Name) (e : Expr) (params' : Array Expr := #[])
     (k1 : (params : Array Expr) → (fix : Expr) → (body : Expr) → (targets : Array Expr) →
       (otherArgs : Array Expr) → MetaM α)
     (k2 : (params : Array Expr) → (fix : Expr) → (body : Expr) → (target : Expr) →
       (argsToAppend : Array Expr) → MetaM α)
        : MetaM α := do
   lambdaTelescope e fun params body => body.withApp fun f args => do
-    if not f.isConst then err else
-    if isBRecOnRecursor (← getEnv) f.constName! then
-      let elimInfo ← getElimExprInfo f
-      let value := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
-      let value := mkAppN value (args[:elimInfo.motivePos])
-      let targets := elimInfo.targetsPos.map (args[·]!)
-      let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
-      let otherArgs := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
-      k1 (params' ++ params) value body targets otherArgs
-    else if f.isConstOf ``WellFounded.fixF && args.size == 6 then
-      let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
-      let value := mkAppN value args[:2]
-      let body := args[3]!
-      let target := args[4]!
-      let acc := args[5]!
-      k2 (params' ++ params) value body target #[acc]
-    else if body.isAppOf ``WellFounded.fix then
-      findFixF name (← unfoldDefinition body) (params' ++ params) k1 k2
-    else
-      err
+    MatcherApp.withUserNames params varNames do
+      if not f.isConst then err else
+      if isBRecOnRecursor (← getEnv) f.constName! then
+        let elimInfo ← getElimExprInfo f
+        let value := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
+        let value := mkAppN value (args[:elimInfo.motivePos])
+        let targets := elimInfo.targetsPos.map (args[·]!)
+        let body := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size]!
+        let otherArgs := args[elimInfo.motivePos + 1 + elimInfo.targetsPos.size + 1:]
+        k1 (params' ++ params) value body targets otherArgs
+      else if f.isConstOf ``WellFounded.fixF && args.size == 6 then
+        let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
+        let value := mkAppN value args[:2]
+        let body := args[3]!
+        let target := args[4]!
+        let acc := args[5]!
+        k2 (params' ++ params) value body target #[acc]
+      else if body.isAppOf ``WellFounded.fix then
+        findFixF name (varNames[params.size:]) (← unfoldDefinition body) (params' ++ params) k1 k2
+      else
+        err
   where
     err := throwError m!"Function {name} does not look like a function defined by well-founded " ++
       m!"recursion.\nNB: If {name} is not itself recursive, but contains an inner recursive " ++
@@ -608,7 +609,10 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   if ← hasConst inductName then return inductName
 
   let info ← getConstInfoDefn name
-  let e' ← findFixF name info.value
+
+  let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
+
+  let e' ← findFixF name varNames info.value
     (k1 := fun params e' body targets extraArgs => do
     -- logInfo m!"params: {params}\ne': {e'}\ntargets: {targets}\nextraArgs: {extraArgs}"
     unless params.size > 0 do
@@ -683,6 +687,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- logInfo m!"params: {params}\ne': {e'}\ntargets: {targets}\nextraArgs: {extraArgs}"
     unless params.size > 0 do
       throwError "Value of {name} is not a lambda application"
+
     let motiveType ← mkForallFVars #[target] (.sort levelZero)
 
     withLocalDecl `motive .default motiveType fun motive => do

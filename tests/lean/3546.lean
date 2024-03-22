@@ -10,7 +10,26 @@ When hex-dumped, traces of the rest of the file (e.g., the 'b' in "bar"; or corr
 
 def test : IO Unit := do
   let tmpFile := "3546.tmp"
-  let s := "foo\u0000bar\ngoo\u0000g\n\n\u0000h"
+  let s := "foo\u0000bar\ngoo\u0000g\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\\n
+  012345\u0000789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  0123456789\u0000bcdef\
+  0123456789abcdef\
+  0123456789abcdef\
+  01\u0000\u0000456789abcdef\
+  0123456789abcdef\
+  \n\n\u0000h"
   let s' := List.toByteArray $ List.map (λ x => UInt8.ofNat $ x.val.val) s.data
   IO.FS.writeBinFile tmpFile s'
   let b := ← IO.FS.readBinFile tmpFile

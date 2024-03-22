@@ -623,7 +623,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
       simp [cond_eq_if]
       split <;> rename_i h
       · obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le h
-        rw [getMsb_flatten]
+        rw [getMsb_flattenList]
         simp [p, Nat.add_div_left, Nat.add_sub_cancel_left]
       · have : i / w = 0 := by simp_all [Nat.div_eq_of_lt]
         have : i % w = i := by simp_all [Nat.mod_eq_sub_mul_div]

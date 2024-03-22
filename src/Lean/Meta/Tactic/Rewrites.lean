@@ -129,20 +129,18 @@ structure RewriteResult where
   weight : Nat
   /-- The result from the `rw` tactic. -/
   result : Meta.RewriteResult
-  /-- Pretty-printed result. -/
-  -- This is an `Option` so that it can be computed lazily.
-  ppResult? : Option String
   /-- The metavariable context after the rewrite.
   This needs to be stored as part of the result so we can backtrack the state. -/
   mctx : MetavarContext
+  rfl? : Bool
 
 /-- Update a `RewriteResult` by filling in the `rfl?` field if it is currently `none`,
 to reflect whether the remaining goal can be closed by `with_reducible rfl`. -/
-def RewriteResult.computeRfl (r : RewriteResult) : MetaM Bool := do
+def computeRfl (mctx : MetavarContext) (res : Meta.RewriteResult) : MetaM Bool := do
   try
-    withoutModifyingState <| withMCtx r.mctx do
+    withoutModifyingState <| withMCtx mctx do
       -- We use `withReducible` here to follow the behaviour of `rw`.
-      withReducible (← mkFreshExprMVar r.result.eNew).mvarId!.applyRfl
+      withReducible (← mkFreshExprMVar res.eNew).mvarId!.applyRfl
       -- We do not need to record the updated `MetavarContext` here.
       pure true
   catch _e =>
@@ -151,11 +149,8 @@ def RewriteResult.computeRfl (r : RewriteResult) : MetaM Bool := do
 /--
 Pretty print the result of the rewrite.
 -/
-def RewriteResult.ppResult (r : RewriteResult) : MetaM String :=
-  if let some pp := r.ppResult? then
-    return pp
-  else
-    return (← ppExpr r.result.eNew).pretty
+private def RewriteResult.ppResult (r : RewriteResult) : MetaM String :=
+  return (← ppExpr r.result.eNew).pretty
 
 
 /-- Should we try discharging side conditions? If so, using `assumption`, or `solve_by_elim`? -/
@@ -184,21 +179,19 @@ def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideC
     let some result ← some <$> goal.rewrite target expr symm <|> pure none
       | return none
     if result.mvarIds.isEmpty then
-      return some {
-        expr,
-        symm,
-        weight,
-        result,
-        ppResult? := none,
-        mctx := ← getMCtx
-      }
+      let mctx ← getMCtx
+      let rfl? ← computeRfl mctx result
+      return some { expr, symm, weight, result, mctx, rfl? }
     else
       -- There are side conditions, which we try to discharge using local hypotheses.
-      match (← match side with
+      let discharge ←
+        match side with
         | .none => pure false
-        | .assumption => ((result.mvarIds.mapM fun m => m.assumption) >>= fun _ => pure true) <|> pure false
-        | .solveByElim => (solveByElim result.mvarIds >>= fun _ => pure true) <|> pure false) with
-      | false => return none
+        | .assumption => ((fun _ => true) <$> result.mvarIds.mapM fun m => m.assumption) <|> pure false
+        | .solveByElim => (solveByElim result.mvarIds >>= fun _ => pure true) <|> pure false
+      match discharge with
+      | false =>
+        return none
       | true =>
         -- If we succeed, we need to reconstruct the expression to report that we rewrote by.
         let some expr := rewriteResultLemma result | return none
@@ -207,11 +200,9 @@ def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideC
             (expr.getArg! 3, true)
           else
             (expr, false)
-        return some {
-            expr, symm, weight, result,
-            ppResult? := none,
-            mctx := ← getMCtx
-          }
+        let mctx ← getMCtx
+        let rfl? ← computeRfl mctx result
+        return some { expr, symm, weight, result, mctx, rfl? }
 
 /--
 Find keys which match the expression, or some subexpression.
@@ -278,32 +269,13 @@ def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
   let lemmas := deduped.map fun ⟨lem, symm, weight⟩ => (Sum.inr lem, symm, weight)
   pure <| hyps ++ lemmas
 
-structure FinRwResult where
-  /-- The lemma we rewrote by.
-  This is `Expr`, not just a `Name`, as it may be a local hypothesis. -/
-  expr : Expr
-  /-- `True` if we rewrote backwards (i.e. with `rw [← h]`). -/
-  symm : Bool
-  /-- The result from the `rw` tactic. -/
-  result : Meta.RewriteResult
-  /-- The metavariable context after the rewrite.
-  This needs to be stored as part of the result so we can backtrack the state. -/
-  mctx : MetavarContext
-  newGoal : Option Expr
+def RewriteResult.newGoal (r : RewriteResult) : Option Expr :=
+  if r.rfl? = true then
+    some (Expr.lit (.strVal "no goals"))
+  else
+    some r.result.eNew
 
-def FinRwResult.mkFin (r : RewriteResult) (rfl? : Bool) : FinRwResult := {
-    expr := r.expr,
-    symm := r.symm,
-    result := r.result,
-    mctx := r.mctx,
-    newGoal :=
-      if rfl? = true then
-        some (Expr.lit (.strVal "no goals"))
-      else
-        some r.result.eNew
-  }
-
-def FinRwResult.addSuggestion (ref : Syntax) (r : FinRwResult) : Elab.TermElabM Unit := do
+def RewriteResult.addSuggestion (ref : Syntax) (r : RewriteResult) : Elab.TermElabM Unit := do
   withMCtx r.mctx do
     Tactic.TryThis.addRewriteSuggestion ref [(r.expr, r.symm)] (type? := r.newGoal) (origSpan? := ← getRef)
 
@@ -316,8 +288,8 @@ structure RewriteResultConfig where
   side : SideConditions := .solveByElim
   mctx : MetavarContext
 
-def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : Array FinRwResult)
-    (xs : List ((Expr ⊕ Name) × Bool × Nat)) : MetaM (Array FinRwResult) := do
+def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : Array RewriteResult)
+    (xs : List ((Expr ⊕ Name) × Bool × Nat)) : MetaM (Array RewriteResult) := do
   let mut seen := seen
   let mut acc := acc
   for (lem, symm, weight) in xs do
@@ -334,16 +306,16 @@ def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : 
       let s ← withoutModifyingState <| withMCtx r.mctx r.ppResult
       if seen.contains s then
         continue
-      let rfl? ← RewriteResult.computeRfl r
+      let rfl? ← computeRfl r.mctx r.result
       if cfg.stopAtRfl then
         if rfl? then
-          return #[FinRwResult.mkFin r true]
+          return #[r]
         else
           seen := seen.insert s ()
-          acc := acc.push (FinRwResult.mkFin r false)
+          acc := acc.push r
       else
         seen := seen.insert s ()
-        acc := acc.push (FinRwResult.mkFin r  rfl?)
+        acc := acc.push r
   return acc
 
 /-- Find lemmas which can rewrite the goal. -/
@@ -352,7 +324,7 @@ def findRewrites (hyps : Array (Expr × Bool × Nat))
     (goal : MVarId) (target : Expr)
     (forbidden : NameSet := ∅) (side : SideConditions := .solveByElim)
     (stopAtRfl : Bool) (max : Nat := 20)
-    (leavePercentHeartbeats : Nat := 10) : MetaM (List FinRwResult) := do
+    (leavePercentHeartbeats : Nat := 10) : MetaM (List RewriteResult) := do
   let mctx ← getMCtx
   let candidates ← rewriteCandidates hyps moduleRef target forbidden
   let minHeartbeats : Nat :=
@@ -360,15 +332,8 @@ def findRewrites (hyps : Array (Expr × Bool × Nat))
           0
         else
           leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
-  let cfg : RewriteResultConfig := {
-    stopAtRfl := stopAtRfl,
-    minHeartbeats,
-    max,
-    mctx,
-    goal,
-    target,
-    side
-  }
+  let cfg : RewriteResultConfig :=
+        { stopAtRfl, minHeartbeats, max, mctx, goal, target, side }
   return (← takeListAux cfg {} (Array.mkEmpty max) candidates.toList).toList
 
 end Lean.Meta.Rewrites

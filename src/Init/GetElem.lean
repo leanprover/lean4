@@ -11,25 +11,28 @@ private def outOfBounds [Inhabited α] : α :=
   panic! "index out of bounds"
 
 /--
-The class `GetElem cont idx elem dom` implements the `xs[i]` notation.
-When you write this, given `xs : cont` and `i : idx`, Lean looks for an instance
-of `GetElem cont idx elem dom`. Here `elem` is the type of `xs[i]`, while
-`dom` is whatever proof side conditions are required to make this applicable.
+The class `GetElem coll idx elem valid` implements the `xs[i]` notation.
+Given `xs[i]` with `xs : coll` and `i : idx`, Lean looks for an instance of
+`GetElem coll idx elem valid` and uses this to infer the type of return
+value `elem` and side conditions `valid` required to ensure `xs[i]` yields
+a valid value of type `elem`.
+
 For example, the instance for arrays looks like
 `GetElem (Array α) Nat α (fun xs i => i < xs.size)`.
 
-The proof side-condition `dom xs i` is automatically dispatched by the
+The proof side-condition `valid xs i` is automatically dispatched by the
 `get_elem_tactic` tactic, which can be extended by adding more clauses to
 `get_elem_tactic_trivial`.
 -/
-class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+class GetElem (coll : Type u) (idx : Type v) (elem : outParam (Type w))
+              (valid : outParam (coll → idx → Prop)) where
   /--
   The syntax `arr[i]` gets the `i`'th element of the collection `arr`.
   If there are proof side conditions to the application, they will be automatically
   inferred by the `get_elem_tactic` tactic.
 
-  The actual behavior of this class is type-dependent,
-  but here are some important implementations:
+  The actual behavior of this class is type-dependent, but here are some
+  important implementations:
   * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`:
     does array indexing with no bounds check and a proof side goal `i < arr.size`.
   * `l[i] : α` where `l : List α` and `i : Nat`: index into a list,
@@ -43,12 +46,12 @@ class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : o
   * `arr[i]?`: returns `none` if the side goal is false
   * `arr[i]'h`: uses `h` to prove the side goal
   -/
-  getElem (xs : cont) (i : idx) (h : dom xs i) : elem
+  getElem (xs : coll) (i : idx) (h : valid xs i) : elem
 
-  getElem? (xs : cont) (i : idx) [Decidable (dom xs i)] : Option elem :=
+  getElem? (xs : coll) (i : idx) [Decidable (valid xs i)] : Option elem :=
     if h : _ then some (getElem xs i h) else none
 
-  getElem! [Inhabited elem] (xs : cont) (i : idx) [Decidable (dom xs i)] : elem :=
+  getElem! [Inhabited elem] (xs : coll) (i : idx) [Decidable (valid xs i)] : elem :=
     match getElem? xs i with | some e => e | none => outOfBounds
 
 export GetElem (getElem getElem! getElem?)

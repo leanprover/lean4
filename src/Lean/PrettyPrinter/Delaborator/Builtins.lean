@@ -218,6 +218,7 @@ def appFieldNotationCandidate? : DelabM (Option (Nat × Name)) := do
   /-
   There are some kinds of expressions that cause issues with field notation,
   so we prevent using it in these cases.
+  For example, `2.succ` is not parseable.
   -/
   let obj := e.getArg! idx
   if obj.isRawNatLit || obj.isAppOfArity ``OfNat.ofNat 3 || obj.isAppOfArity ``OfScientific.ofScientific 5 then
@@ -268,7 +269,7 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
     <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
-  let field? ← do if fieldNotation then appFieldNotationCandidate? else pure none
+  let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do

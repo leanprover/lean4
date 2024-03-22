@@ -5,7 +5,6 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Attributes
-import Lean.Meta.Basic
 
 /-!
 # Attributes for the pretty printer

@@ -205,8 +205,42 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   `({ $fields,* $[: $tyStx]? })
 
 /--
-Given an application of `numArgs` arguments with the calculated `ParamKind`s,
-returns `true` if we should wrap the applied function with `@` when we are in explicit mode.
+If `e` is an application that is a candidate for using field notation,
+returns the parameter index and the field name to use.
+Checks that there are enough arguments.
+-/
+def appFieldNotationCandidate? : DelabM (Option (Nat × Name)) := do
+  let e ← getExpr
+  unless e.isApp do return none
+  let some (field, idx) ← fieldNotationCandidate? e.getAppFn e.getAppArgs (← getPPOption getPPFieldNotationGeneralized)
+    | return none
+  unless idx < e.getAppNumArgs do return none
+  /-
+  There are some kinds of expressions that cause issues with field notation,
+  so we prevent using it in these cases.
+  For example, `2.succ` is not parseable.
+  -/
+  let obj := e.getArg! idx
+  if obj.isRawNatLit || obj.isAppOfArity ``OfNat.ofNat 3 || obj.isAppOfArity ``OfScientific.ofScientific 5 then
+    return none
+  return (idx, field)
+
+/--
+Consumes projections to parent structures, and runs `d` in the resulting context.
+For example, if the current expression is `o.toB.toA`, runs `d` with `o` as the current expression.
+
+If `explicit` is true, then does not consume parent projections for structures with parameters,
+since these are implicit arguments.
+-/
+private partial def withoutParentProjections (explicit : Bool) (d : DelabM α) : DelabM α := do
+  if ← try isParentProj explicit (← getExpr) catch _ => pure false then
+    withAppArg <| withoutParentProjections explicit d
+  else
+    d
+
+/--
+In explicit mode, decides whether or not the applied function needs `@`,
+where `numArgs` is the number of arguments actually supplied to `f`.
 -/
 def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bool :=
   if paramKinds.size == 0 && 0 < numArgs && f matches .const _ [] then
@@ -225,43 +259,62 @@ def needsExplicit (f : Expr) (numArgs : Nat) (paramKinds : Array ParamKind) : Bo
     || paramKinds[numArgs:].any (fun param => param.bInfo.isExplicit && !param.isRegularExplicit)
 
 /--
-Delaborates a function application in explicit mode, and ensures the resulting
-head syntax is wrapped with `@` if needed.
+Delaborates a function application in explicit mode.
+* If `insertExplicit` is true, then ensures the head syntax is wrapped with `@`.
+* If `fieldNotation` is true, then allows the application to be pretty printed using field notation.
+  Field notation will not be used when `insertExplicit` is true.
 -/
-def delabAppExplicitCore (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
+def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (insertExplicit : Bool) → Delab) (paramKinds : Array ParamKind) : Delab := do
+  let insertExplicit := needsExplicit ((← getExpr).getBoundedAppFn numArgs) numArgs paramKinds
+  let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
+    <&&> not <$> getPPOption getPPAnalysisNoDot
+    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+  let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
-    (do
-      let stx ← delabHead
-      let insertExplicit := !stx.raw.isOfKind ``Lean.Parser.Term.explicit && needsExplicit (← getExpr) numArgs paramKinds
-      let stx ← if insertExplicit then `(@$stx) else pure stx
-      pure (stx, paramKinds.toList, #[]))
+    (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
       let isInstImplicit := paramKinds.head? |>.map (·.bInfo == .instImplicit) |>.getD false
-      let argStx ← if ← getPPOption getPPAnalysisHole then `(_)
+      let argStx ← if some argStxs.size = field?.map Prod.fst then
+                     -- With field notation, we can erase parent projections for the object
+                     withoutParentProjections (explicit := true) delab
+                   else if ← getPPOption getPPAnalysisHole then `(_)
                    else if isInstImplicit == true then
                      withTypeAscription (cond := ← getPPOption getPPInstanceTypes) do
                        if ← getPPOption getPPInstances then delab else `(_)
                    else delab
       pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
-  return Syntax.mkApp fnStx argStxs
+  if let some (idx, field) := field? then
+    -- Delaborate using field notation
+    let obj := argStxs[idx]!
+    let mut head : Term ← `($obj.$(mkIdent field))
+    if idx == 0 then
+      -- If it's the first argument, then we can tag `obj.field` with the first app.
+      head ← withBoundedAppFn (numArgs - 1) <| annotateTermInfo head
+    return Syntax.mkApp head (argStxs.eraseIdx idx)
+  else
+    return Syntax.mkApp fnStx argStxs
 
 /--
 Delaborates a function application in the standard mode, where implicit arguments are generally not
 included, unless `pp.analysis.namedArg` is set at that argument.
 
-This delaborator is where `app_unexpander`s and the structure instance unexpander are applied.
+This delaborator is where `app_unexpander`s and the structure instance unexpander are applied, if `unexpand` is true.
+When `unexpand` is true, also considers opportunities for field notation, which takes priority over other unexpanders.
 
 Assumes `numArgs ≤ paramKinds.size`.
 -/
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
-  let (shouldUnexpand, fnStx, _, _, argStxs, argData) ←
+  let unexpand ← pure unexpand
+    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+  let field? ←
+    if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
+      appFieldNotationCandidate?
+    else
+      pure none
+  let (shouldUnexpand, fnStx, fieldIdx?, _, _, argStxs, argData) ←
     withBoundedAppFnArgs numArgs
-      (do
-        let head ← getExpr
-        let shouldUnexpand ← pure (unexpand && head.consumeMData.isConst)
-          <&&> not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)
-        return (shouldUnexpand, ← delabHead, numArgs, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (shouldUnexpand, 0)))
-      (fun (shouldUnexpand, fnStx, remainingArgs, paramKinds, argStxs, argData) => do
+      (do return (unexpand, ← delabHead, none, 0, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (unexpand, 0)))
+      (fun (shouldUnexpand, fnStx, fieldIdx?, idx, paramKinds, argStxs, argData) => do
         /-
         - `argStxs` is the accumulated array of arguments that should be pretty printed
         - `argData` is a list of `Bool × Nat` used to figure out:
@@ -269,7 +322,11 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
           2. how many arguments we need to include after this one when annotating the result of unexpansion.
           Argument `argStxs[i]` corresponds to `argData[i+1]`, with `argData[0]` being for the head itself.
         -/
-        let (argUnexpandable, stx?) ← mkArgStx (remainingArgs - 1) paramKinds
+        if some idx = field?.map Prod.fst then
+          -- This is the object for field notation.
+          let fieldObj ← withoutParentProjections (explicit := false) delab
+          return (false, fnStx, some argStxs.size, idx + 1, paramKinds.tailD [], argStxs.push fieldObj, argData.push (false, 1))
+        let (argUnexpandable, stx?) ← mkArgStx (numArgs - idx - 1) paramKinds
         let shouldUnexpand := shouldUnexpand && argUnexpandable
         let (argStxs, argData) :=
           match stx?, argData.back with
@@ -277,7 +334,17 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
           | some stx, _ => (argStxs.push stx, argData.push (shouldUnexpand, 1))
           -- A non-pretty-printed argument is accounted for by the previous pretty printed one.
           | none, (_, argCount) => (argStxs, argData.pop.push (shouldUnexpand, argCount + 1))
-        return (shouldUnexpand, fnStx, remainingArgs - 1, paramKinds.tailD [], argStxs, argData))
+        return (shouldUnexpand, fnStx, fieldIdx?, idx + 1, paramKinds.tailD [], argStxs, argData))
+  if let some fieldIdx := fieldIdx? then
+    -- Delaborate using field notation
+    let field := field?.get!.2
+    let obj := argStxs[fieldIdx]!
+    let mut head : Term ← `($obj.$(mkIdent field))
+    if fieldIdx == 0 then
+      -- If it's the first argument (after some implicit arguments), we can tag `obj.field` with a prefix of the application
+      -- including the implicit arguments immediately before and after `obj`.
+      head ← withBoundedAppFn (numArgs - argData[0]!.2 - argData[1]!.2) <| annotateTermInfo <| head
+    return Syntax.mkApp head (argStxs.eraseIdx fieldIdx)
   if ← pure (argData.any Prod.fst) <&&> getPPOption getPPNotation then
     -- Try using an app unexpander for a prefix of the arguments.
     if let some stx ← (some <$> tryAppUnexpanders fnStx argStxs argData) <|> pure none then
@@ -348,11 +415,15 @@ where
 
 /--
 Returns true if an application should use explicit mode when delaborating.
+Explicit mode turns off unexpanders
 -/
 def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool := do
   -- If `pp.explicit` is set, then use explicit mode.
   -- (Note that explicit mode can decide to omit `@` if the application has no implicit arguments.)
   if ← getPPOption getPPExplicit then return true
+
+  if ← withBoundedAppFn numArgs <| withMDatasOptions <| getPPOption getPPAnalysisBlockImplicit then
+    return true
 
   -- If there was an error collecting ParamKinds, fall back to explicit mode.
   if paramKinds.size < numArgs then return true
@@ -371,37 +442,36 @@ def useAppExplicit (numArgs : Nat) (paramKinds : Array ParamKind) : DelabM Bool 
   return false
 
 /--
-Delaborates applications. Removes up to `maxArgs` arguments to form
-the "head" of the application and delaborates the head using `delabHead`.
-Then the application is then processed in explicit mode or implicit mode depending on which should be used.
+Delaborates applications. Removes up to `maxArgs` arguments to form the "head" of the application.
+* `delabHead` is a delaborator to use for the head of the expression.
+  It is passed whether the result needs to have `@` inserted.
+* If `unexpand` is true, then allow unexpanders and field notation.
+  This should likely be set to `false` except in the main `delabApp` delaborator.
+
+Propagates `pp.tagAppFns` into the head for `delabHead`.
 -/
-def delabAppCore (unexpand : Bool) (maxArgs : Nat) (delabHead : Delab) : Delab := do
+def delabAppCore (maxArgs : Nat) (delabHead : (insertExplicit : Bool) → Delab) (unexpand : Bool) : Delab := do
+  let tagAppFn ← getPPOption getPPTagAppFns
+  let delabHead' (insertExplicit : Bool) : Delab := withOptionAtCurrPos `pp.tagAppFns tagAppFn (delabHead insertExplicit)
   let e ← getExpr
+  let fn := e.getBoundedAppFn maxArgs
   let args := e.getBoundedAppArgs maxArgs
-  let paramKinds ← getParamKinds (e.getBoundedAppFn maxArgs) args
-
-  let useExplicit ← useAppExplicit args.size paramKinds
-
-  if useExplicit then
-    delabAppExplicitCore args.size delabHead paramKinds
+  let paramKinds ← getParamKinds fn args
+  if (← useAppExplicit args.size paramKinds) then
+    -- Don't use field notation when `pp.tagAppFns` is true since that obscures the head application.
+    delabAppExplicitCore (fieldNotation := unexpand && !tagAppFn) args.size delabHead' paramKinds
   else
-    delabAppImplicitCore unexpand args.size delabHead paramKinds
+    delabAppImplicitCore (unexpand := unexpand) args.size (delabHead' false) paramKinds
 
 /--
 Default delaborator for applications.
 -/
 @[builtin_delab app]
 def delabApp : Delab := do
-  let tagAppFn ← getPPOption getPPTagAppFns
-  let e ← getExpr
-  delabAppCore true e.getAppNumArgs (delabAppFn tagAppFn)
-where
-  delabAppFn (tagAppFn : Bool) : Delab :=
-    withOptionAtCurrPos `pp.tagAppFns tagAppFn do
-      if (← getExpr).consumeMData.isConst then
-        withMDatasOptions delabConst
-      else
-        delab
+  let delabAppFn (insertExplicit : Bool) : Delab := do
+    let stx ← if (← getExpr).consumeMData.isConst then withMDatasOptions delabConst else delab
+    if insertExplicit && !stx.raw.isOfKind ``Lean.Parser.Term.explicit then `(@$stx) else pure stx
+  delabAppCore (← getExpr).getAppNumArgs delabAppFn (unexpand := true)
 
 /--
 The `withOverApp` combinator allows delaborators to handle "over-application" by using the core
@@ -416,11 +486,15 @@ With this combinator one can use an arity-2 delaborator to pretty print this as 
   The combinator will fail if fewer than this number of arguments are passed,
   and if more than this number of arguments are passed the arguments are handled using
   the standard application delaborator.
-* `x`: constructs data corresponding to the main application (`f x` in the example).
+* `x`: delaborates the head application of the expected arity (`f x` in the example).
+  The value of `pp.tagAppFns` for the whole application is propagated to the expression that `x` sees.
 
 In the event of overapplication, the delaborator `x` is wrapped in
 `Lean.PrettyPrinter.Delaborator.withAnnotateTermInfo` to register `TermInfo` for the resulting term.
 The effect of this is that the term is hoverable in the Infoview.
+
+If the application would require inserting `@` around the result of `x`, the delaborator fails
+since we cannot be sure that this insertion will be well-formed.
 -/
 def withOverApp (arity : Nat) (x : Delab) : Delab := do
   let n := (← getExpr).getAppNumArgs
@@ -428,7 +502,10 @@ def withOverApp (arity : Nat) (x : Delab) : Delab := do
   if n == arity then
     x
   else
-    delabAppCore false (n - arity) (withAnnotateTermInfo x)
+    let delabHead (insertExplicit : Bool) : Delab := do
+      guard <| !insertExplicit
+      withAnnotateTermInfo x
+    delabAppCore (n - arity) delabHead (unexpand := false)
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where
@@ -888,52 +965,6 @@ def delabProj : Delab := do
   -- `proj`.
   let idx := Syntax.mkLit fieldIdxKind (toString (idx + 1));
   `($(e).$idx:fieldIdx)
-
-/--
-Delaborates an application of a projection function, for example `Prod.fst p` as `p.fst`.
-Collapses intermediate parent projections, so for example rather than `o.toB.toA.x` it produces `o.x`.
-
-Does not delaborate projection functions from classes, since the instance parameter is implicit;
-we would rather see `default` than `instInhabitedNat.default`.
--/
-@[builtin_delab app]
-partial def delabProjectionApp : Delab := whenPPOption getPPStructureProjections do
-  let (field, arity, _) ← projInfo
-  withOverApp arity do
-    let stx ← withAppArg <| withoutParentProjections delab
-    `($(stx).$(mkIdent field):ident)
-where
-  /--
-  If this is a projection that could delaborate using dot notation,
-  returns the field name, the arity of the projector, and whether this is a parent projection.
-  Otherwise it fails.
-  -/
-  projInfo : DelabM (Name × Nat × Bool) := do
-    let .app fn _ ← getExpr | failure
-    let .const c@(.str _ field) _ := fn.getAppFn | failure
-    let field := Name.mkSimple field
-    let env ← getEnv
-    let some info := env.getProjectionFnInfo? c | failure
-    -- Don't delaborate for classes since the instance parameter is implicit.
-    guard <| !info.fromClass
-    -- If pp.explicit is true, and the structure has parameters, we should not
-    -- use field notation because we will not be able to see the parameters.
-    guard <| !(← getPPOption getPPExplicit) || info.numParams == 0
-    let arity := info.numParams + 1
-    let some (.ctorInfo cVal) := env.find? info.ctorName | failure
-    let isParentProj := (isSubobjectField? env cVal.induct field).isSome
-    return (field, arity, isParentProj)
-  /--
-  Consumes projections to parent structures.
-  For example, if the current expression is `o.toB.toA`, runs `d` with `o` as the current expression.
-  -/
-  withoutParentProjections {α} (d : DelabM α) : DelabM α :=
-    (do
-      let (_, arity, isParentProj) ← projInfo
-      guard isParentProj
-      guard <| (← getExpr).getAppNumArgs == arity
-      withAppArg <| withoutParentProjections d)
-    <|> d
 
 /--
 This delaborator tries to elide functions which are known coercions.

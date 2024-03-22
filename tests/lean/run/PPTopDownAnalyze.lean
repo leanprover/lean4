@@ -330,7 +330,7 @@ set_option pp.analyze.explicitHoles false in
 
 set_option pp.analyze.trustSubtypeMk true in
 #testDelab fun (n : Nat) (val : List Nat) (property : List.length val = n) => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
-  expecting fun n val property => List.length (⟨val, property⟩ : { x : List Nat // List.length x = n }).val = n
+  expecting fun n val property => List.length (Subtype.val (p := fun x => List.length x = n) (⟨val, property⟩ : { x : List Nat // List.length x = n })) = n
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below

@@ -90,10 +90,15 @@ register_builtin_option pp.structureInstances : Bool := {
   descr    := "(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation, \
               or using '⟨fieldValue, ... ⟩' if structure is tagged with the '@[pp_using_anonymous_constructor]' attribute"
 }
-register_builtin_option pp.structureProjections : Bool := {
+register_builtin_option pp.fieldNotation : Bool := {
   defValue := true
   group    := "pp"
-  descr    := "(pretty printer) display structure projections using field notation"
+  descr    := "(pretty printer) use field notation when pretty printing, including for structure projections, unless '@[pp_nodot]' is applied"
+}
+register_builtin_option pp.fieldNotation.generalized : Bool := {
+  defValue := false -- TODO(kmill): set to true
+  group    := "pp"
+  descr    := "(pretty printer) when `pp.fieldNotation` is true, enable using generalized field notation when the argument for field notation is the first explicit argument"
 }
 register_builtin_option pp.explicit : Bool := {
   defValue := false
@@ -215,7 +220,8 @@ def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
 def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
-def getPPStructureProjections (o : Options) : Bool := o.get pp.structureProjections.name (!getPPAll o)
+def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!getPPAll o)
+def getPPFieldNotationGeneralized (o : Options) : Bool := o.get pp.fieldNotation.generalized.name pp.fieldNotation.generalized.defValue
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
 def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o)
 def getPPTagAppFns (o : Options) : Bool := o.get pp.tagAppFns.name (getPPAll o)

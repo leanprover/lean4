@@ -41,11 +41,35 @@ theorem testBit_toNat (x : BitVec w) : x.toNat.testBit i = x.getLsb i := rfl
   have p : 2^w ≤ 2^i := Nat.pow_le_pow_of_le_right (by omega) ge
   omega
 
+@[simp] theorem getMsb_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsb x i = false := by
+  rw [getMsb]
+  simp only [Bool.and_eq_false_imp, decide_eq_true_eq]
+  omega
+
 theorem lt_of_getLsb (x : BitVec w) (i : Nat) : getLsb x i = true → i < w := by
   if h : i < w then
     simp [h]
   else
     simp [Nat.ge_of_not_lt h]
+
+theorem lt_of_getMsb (x : BitVec w) (i : Nat) : getMsb x i = true → i < w := by
+  if h : i < w then
+    simp [h]
+  else
+    simp [Nat.ge_of_not_lt h]
+
+theorem getMsb_eq_getLsb (x : BitVec w) (i : Nat) : x.getMsb i = (decide (i < w) && x.getLsb (w - 1 - i)) := by
+  rw [getMsb]
+
+theorem getLsb_eq_getMsb (x : BitVec w) (i : Nat) : x.getLsb i = (decide (i < w) && x.getMsb (w - 1 - i)) := by
+  rw [getMsb]
+  by_cases h₁ : i < w <;> by_cases h₂ : w - 1 - i < w <;>
+    simp only [h₁, h₂] <;> simp only [decide_True, decide_False, Bool.false_and, Bool.and_false, Bool.true_and, Bool.and_true]
+  · congr
+    omega
+  all_goals
+    apply getLsb_ge
+    omega
 
 -- We choose `eq_of_getLsb_eq` as the `@[ext]` theorem for `BitVec`
 -- somewhat arbitrarily over `eq_of_getMsg_eq`.
@@ -95,6 +119,8 @@ theorem ofNat_one (n : Nat) : BitVec.ofNat 1 n = BitVec.ofBool (n % 2 = 1) :=  b
 
 theorem ofBool_eq_iff_eq : ∀(b b' : Bool), BitVec.ofBool b = BitVec.ofBool b' ↔ b = b' := by
   decide
+
+@[simp] theorem not_ofBool : ~~~ (ofBool b) = ofBool (!b) := by cases b <;> rfl
 
 @[simp, bv_toNat] theorem toNat_ofFin (x : Fin (2^n)) : (BitVec.ofFin x).toNat = x.val := rfl
 
@@ -290,6 +316,19 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
     getLsb (zeroExtend' ge x) i = getLsb x i := by
   simp [getLsb, toNat_zeroExtend']
 
+@[simp] theorem getMsb_zeroExtend' (ge : m ≥ n) (x : BitVec n) (i : Nat) :
+    getMsb (zeroExtend' ge x) i = (decide (i ≥ m - n) && getMsb x (i - (m - n))) := by
+  simp only [getMsb, getLsb_zeroExtend', gt_iff_lt]
+  by_cases h₁ : decide (i < m) <;> by_cases h₂ : decide (i ≥ m - n) <;> by_cases h₃ : decide (i - (m - n) < n) <;>
+    by_cases h₄ : n - 1 - (i - (m - n)) = m - 1 - i
+  all_goals
+    simp only [h₁, h₂, h₃, h₄]
+    simp_all only [ge_iff_le, decide_eq_true_eq, Nat.not_le, Nat.not_lt, Bool.true_and,
+      Bool.false_and, Bool.and_self] <;>
+    (try apply getLsb_ge) <;>
+    (try apply (getLsb_ge _ _ _).symm) <;>
+    omega
+
 @[simp] theorem getLsb_zeroExtend (m : Nat) (x : BitVec n) (i : Nat) :
     getLsb (zeroExtend m x) i = (decide (i < m) && getLsb x i) := by
   simp [getLsb, toNat_zeroExtend, Nat.testBit_mod_two_pow]
@@ -480,6 +519,24 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
   simp [h]
   omega
 
+/-! ### cast -/
+
+@[simp] theorem not_cast {x : BitVec w} (h : w = w') : ~~~(cast h x) = cast h (~~~x) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem and_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem or_cast {x y : BitVec w} (h : w = w') : cast h x ||| cast h y = cast h (x ||| y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
+@[simp] theorem xor_cast {x y : BitVec w} (h : w = w') : cast h x &&& cast h y = cast h (x &&& y) := by
+  ext
+  simp_all [lt_of_getLsb]
+
 /-! ### shiftLeft -/
 
 @[simp, bv_toNat] theorem toNat_shiftLeft {x : BitVec v} :
@@ -529,6 +586,11 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     <;> simp_all
     <;> (rw [getLsb_ge]; omega)
 
+@[simp] theorem getMsb_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
+    getMsb (shiftLeftZeroExtend x n) i = getMsb x i := by
+  have : n ≤ i + n := by omega
+  simp_all [shiftLeftZeroExtend_eq]
+
 @[simp] theorem msb_shiftLeftZeroExtend (x : BitVec w) (i : Nat) :
     (shiftLeftZeroExtend x i).msb = x.msb := by
   simp [shiftLeftZeroExtend_eq, BitVec.msb]
@@ -553,10 +615,17 @@ theorem append_def (x : BitVec v) (y : BitVec w) :
 
 @[simp] theorem getLsb_append {v : BitVec n} {w : BitVec m} :
     getLsb (v ++ w) i = bif i < m then getLsb w i else getLsb v (i - m) := by
-  simp [append_def]
+  simp only [append_def, getLsb_or, getLsb_shiftLeftZeroExtend, getLsb_zeroExtend']
   by_cases h : i < m
   · simp [h]
   · simp [h]; simp_all
+
+@[simp] theorem getMsb_append {v : BitVec n} {w : BitVec m} :
+    getMsb (v ++ w) i = bif n ≤ i then getMsb w (i - n) else getMsb v i := by
+  simp [append_def]
+  by_cases h : n ≤ i
+  · simp [h]
+  · simp [h]
 
 theorem msb_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).msb = bif (w == 0) then (y.msb) else (x.msb) := by
@@ -585,6 +654,31 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
   simp [cons]
+
+@[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
+  ext i
+  simp only [getLsb_not, getLsb_append, cond_eq_if]
+  split
+  · simp_all
+  · simp_all; omega
+
+@[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
+
+@[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
+
+@[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
+    (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
+  ext i
+  simp only [getLsb_append, cond_eq_if]
+  split <;> simp [*]
 
 /-! ### rev -/
 
@@ -630,6 +724,13 @@ theorem toNat_cons' {x : BitVec w} :
 @[simp] theorem msb_cons : (cons a x).msb = a := by
   simp [cons, msb_cast, msb_append]
 
+@[simp] theorem getMsb_cons_zero : (cons a x).getMsb 0 = a := by
+  rw [← BitVec.msb, msb_cons]
+
+@[simp] theorem getMsb_cons_succ : (cons a x).getMsb (i + 1) = x.getMsb i := by
+  simp [cons, cond_eq_if]
+  omega
+
 theorem truncate_succ (x : BitVec w) :
     truncate (i+1) x = cons (getLsb x i) (truncate i x) := by
   apply eq_of_getLsb_eq
@@ -649,6 +750,21 @@ theorem eq_msb_cons_truncate (x : BitVec (w+1)) : x = (cons x.msb (x.truncate w)
   · by_cases h' : i < w
     · simp_all
     · omega
+
+@[simp] theorem not_cons (x : BitVec w) (b : Bool) : ~~~(cons b x) = cons (!b) (~~~x) := by
+  simp [cons]
+
+@[simp] theorem cons_or_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) ||| (cons b y) = cons (a || b) (x ||| y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+
+@[simp] theorem cons_and_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) &&& (cons b y) = cons (a && b) (x &&& y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
+
+@[simp] theorem cons_xor_cons (x y : BitVec w) (a b : Bool) :
+    (cons a x) ^^^ (cons b y) = cons (xor a b) (x ^^^ y) := by
+  ext i; cases i using Fin.succRecOn <;> simp <;> split <;> rfl
 
 /-! ### concat -/
 
@@ -825,7 +941,7 @@ protected theorem lt_of_le_ne (x y : BitVec n) (h1 : x <= y) (h2 : ¬ x = y) : x
   simp
   exact Nat.lt_of_le_of_ne
 
-/- ! ### intMax -/
+/-! ### intMax -/
 
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
 def intMax (w : Nat) : BitVec w  := (2^w - 1)#w
@@ -838,5 +954,21 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
     have pos : 2^w > 0 := Nat.pow_pos (by decide)
     omega
   simp [intMax, Nat.shiftLeft_eq, Nat.one_mul, natCast_eq_ofNat, toNat_ofNat, Nat.mod_eq_of_lt h]
+
+/-! ### ofBoolList -/
+
+@[simp] theorem getMsb_ofBoolListBE : (ofBoolListBE bs).getMsb i = bs.getD i false := by
+  induction bs generalizing i <;> cases i <;> simp_all [ofBoolListBE]
+
+@[simp] theorem getLsb_ofBoolListBE :
+    (ofBoolListBE bs).getLsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
+  simp [getLsb_eq_getMsb]
+
+@[simp] theorem getLsb_ofBoolListLE : (ofBoolListLE bs).getLsb i = bs.getD i false := by
+  induction bs generalizing i <;> cases i <;> simp_all [ofBoolListLE]
+
+@[simp] theorem getMsb_ofBoolListLE :
+    (ofBoolListLE bs).getMsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
+  simp [getMsb_eq_getLsb]
 
 end BitVec

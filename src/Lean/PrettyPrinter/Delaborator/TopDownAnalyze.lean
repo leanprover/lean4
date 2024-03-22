@@ -11,6 +11,7 @@ import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
 import Lean.Util.ReplaceLevel
+import Lean.PrettyPrinter.Delaborator.FieldNotation
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.Elab.Config
@@ -123,6 +124,7 @@ def getPPAnalysisNamedArg        (o : Options) : Bool := o.get `pp.analysis.name
 def getPPAnalysisLetVarType      (o : Options) : Bool := o.get `pp.analysis.letVarType false
 def getPPAnalysisNeedsType       (o : Options) : Bool := o.get `pp.analysis.needsType false
 def getPPAnalysisBlockImplicit   (o : Options) : Bool := o.get `pp.analysis.blockImplicit false
+def getPPAnalysisNoDot           (o : Options) : Bool := o.get `pp.analysis.noDot false
 
 namespace PrettyPrinter.Delaborator
 
@@ -400,6 +402,17 @@ mutual
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType
+
+      -- Prevent using dot notation if the expected of the argument can't be determined.
+      -- TODO: is canBottomUp sufficient for this?
+      if getPPFieldNotation (← getOptions) then
+        if let some (_, idx) ← fieldNotationCandidate? f args (getPPFieldNotationGeneralized (← getOptions)) then
+          if idx < args.size then
+            withKnowing false false do
+              if !(← canBottomUp args[idx]!) then
+                annotateBool `pp.analysis.noDot
+          else
+            annotateBool `pp.analysis.noDot
 
       let forceRegularApp : Bool :=
         (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))

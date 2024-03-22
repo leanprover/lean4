@@ -119,6 +119,7 @@ class Ord (α : Type u) where
 
 export Ord (compare)
 
+set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
 Compare `x` and `y` by comparing `f x` and `f y`.
 -/
@@ -215,7 +216,7 @@ protected def opposite (ord : Ord α) : Ord α where
 /--
 `ord.on f` compares `x` and `y` by comparing `f x` and `f y` according to `ord`.
 -/
-protected def on (ord : Ord β) (f : α → β) : Ord α where
+protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--

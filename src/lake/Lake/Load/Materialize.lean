@@ -29,7 +29,7 @@ def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO
     repo.checkoutDetach rev
 
 /-- Clone the Git package as `repo`. -/
-def cloneGitPkg (name : Name) (repo : GitRepo)
+def cloneGitPkg (name : String) (repo : GitRepo)
 (url : String) (rev? : Option String) : LogIO PUnit := do
   logInfo s!"{name}: cloning {url} to '{repo.dir}'"
   repo.clone url

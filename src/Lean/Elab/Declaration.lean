@@ -95,7 +95,7 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
   let scpView := extractMacroScopes name
   match scpView.name with
   | .str .anonymous _ => return none
-  | .str pre shortName => return some (pre, setDefName stx { scpView with name := shortName }.review)
+  | .str pre shortName => return some (pre, setDefName stx { scpView with name := .mkSimple shortName }.review)
   | _ => return none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do

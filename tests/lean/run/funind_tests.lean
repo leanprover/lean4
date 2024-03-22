@@ -719,7 +719,7 @@ info: Nary.foo.induct (motive : Nat → Nat → (k : Nat) → Fin k → Prop)
   (case4 : ∀ (x x_1 : Nat) (x_2 : Fin 1), (x = 0 → False) → (x_1 = 0 → False) → motive x x_1 1 x_2)
   (case5 :
     ∀ (n m k : Nat) (x : Fin (k + 2)),
-      motive n m (k + 1) { val := 0, isLt := ⋯ } → motive (Nat.succ n) (Nat.succ m) (Nat.succ (Nat.succ k)) x) :
+      motive n m (k + 1) ⟨0, ⋯⟩ → motive (Nat.succ n) (Nat.succ m) (Nat.succ (Nat.succ k)) x) :
   ∀ (a a_1 k : Nat) (a_2 : Fin k), motive a a_1 k a_2
 -/
 #guard_msgs in

@@ -688,8 +688,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     withLocalDecl `motive .default motiveType fun motive => do
 
     -- When unfolding recursive calls, we may have to permute the arguments
-    let fn ← mkLambdaFVars #[target] <|
-        mkAppN (.const name (info.levelParams.map mkLevelParam)) params
+    let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
     let e' := mkApp e' motive
     check e'
     let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do

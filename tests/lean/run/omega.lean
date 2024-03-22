@@ -24,7 +24,7 @@ example {x : Int} : x / 2 + x / (-2) = 0 := by omega
 
 example {x : Nat} (_ : x ≠ 0) : 0 < x := by omega
 
-example {x y z : Nat} (_ : a ≤ c) (_ : b ≤ c) : a < Nat.succ c := by omega
+example (_ : a ≤ c) (_ : b ≤ c) : a < Nat.succ c := by omega
 
 example (_ : 7 < 3) : False := by omega
 example (_ : 0 < 0) : False := by omega
@@ -373,6 +373,9 @@ example (i j : Nat) (p : i ≥ j) : True := by
   let k := l
   have _ : i ≥ k := by omega
   trivial
+
+-- From https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/Nat.2Emul_sub_mod/near/428107094
+example (a b : Nat) (h : a % b + 1 = 0) : False := by omega
 
 /-! ### Fin -/
 

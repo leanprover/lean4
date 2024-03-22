@@ -801,40 +801,24 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
-theorem mod_eq_sub_mul_div (a b : Nat) : a % b = a - b * (a / b) := by
-  have := Nat.mod_add_div a b
-  have := Nat.mul_div_le a b
-  omega
+theorem mod_eq_sub_div_mul {a b : Nat} : a % b = a - (a / b) * b := by
+  rw [eq_comm, Nat.sub_eq_iff_eq_add (div_mul_le_self _ _), Nat.mul_comm, mod_add_div]
+
+theorem mod_eq_sub_mul_div {a b : Nat} : a % b = a - b * (a / b) := by
+  rw [mod_eq_sub_div_mul, Nat.mul_comm]
 
 theorem lt_mul_div_self_add {x k : Nat} (h : 0 < k) : x < k * (x / k) + k := by
   rw [← Int.ofNat_lt]
   simpa using Int.lt_mul_ediv_self_add (by omega)
 
 theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - (x % n + 1) := by
-  have w : n * (x / n) + n ≤ n * p := by
-    have : x / n < p := Nat.div_lt_of_lt_mul h
-    conv =>
-      lhs; congr
-      · skip
-      · rw [← Nat.mul_one n]
-    rw [← Nat.mul_add]
-    exact Nat.mul_le_mul_left _ this
-  rw [Nat.mod_eq_sub_mul_div, Nat.mul_sub_div h, Nat.sub_sub, Nat.mul_sub_left_distrib,
-    Nat.succ_eq_add_one, Nat.mul_add, Nat.mul_one, Nat.mod_eq_sub_mul_div, ← Nat.add_sub_assoc w,
-    Nat.add_comm (x + 1)]
-  cases p with
-  | zero => simp at h; omega
-  | succ p =>
-    conv =>
-      lhs
-      congr
-      · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]
-    have t : n * (x / n) ≤ x := Nat.mul_div_le x n
-    rw [Nat.mul_add, Nat.mul_one, Nat.add_assoc, Nat.add_sub_assoc (by omega) (n * p)]
-    rw [← Nat.sub_sub]
-    rw [Nat.add_sub_cancel]
-    congr 1
-    omega
+  rw [mod_eq_sub_div_mul, mul_sub_div _ _ _ h, Nat.sub_sub, Nat.add_comm, ← Nat.sub_sub,
+    Nat.mul_comm _ n, ← Nat.mul_sub_left_distrib, Nat.sub_sub_self, mul_succ, Nat.add_comm]
+  · conv in (_ + 1) => rw [← mod_add_div x n, Nat.add_right_comm]
+    apply Nat.add_sub_add_right
+  rw [Nat.succ_le, Nat.div_lt_iff_lt_mul]
+  · rwa [Nat.mul_comm]
+  · refine Nat.pos_of_mul_pos_right (by omega : 0 < n * p)
 
 @[simp] theorem sub_div_right : (x - y) / y = x / y - 1 := by
   by_cases p : 0 < y

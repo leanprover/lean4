@@ -1035,7 +1035,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName _ _ =>
-      let fullName := `Function ++ fieldName
+      let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()
@@ -1060,9 +1060,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName fieldName then
+      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
         return LValResolution.const baseStructName structName fullName
-      else if let some (structName', fullName) := findMethodAlias? env structName fieldName then
+      else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
         return LValResolution.const structName' structName' fullName
       else
         throwLValError e eType

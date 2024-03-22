@@ -53,6 +53,9 @@ v4.8.0 (development in progress)
   ```
   is recognized without having to say `termination_by arr.size - i`.
 
+* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
+  rather than `{a := x, b := y, c := z}`.
+  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
 
 Breaking changes:
 
@@ -82,6 +85,10 @@ fact.def :
 ```
 
 v4.7.0
+Breaking changes:
+ * The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+
+v4.7.0 (development in progress)
 ---------
 
 * `simp` and `rw` now use instance arguments found by unification,

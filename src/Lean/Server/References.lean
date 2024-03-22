@@ -204,18 +204,29 @@ def load (path : System.FilePath) : IO Ilean := do
 end Ilean
 /-! # Collecting and deduplicating definitions and usages -/
 
+/-- Gets the name of the module that contains `declName`. -/
+def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name := do
+  if env.constants.map₂.contains declName then
+    return env.header.mainModule
+  let modIdx ← env.getModuleIdxFor? declName
+  env.allImportedModuleNames.get? modIdx
+
 /--
 Determines the `RefIdent` for the `Info` `i` of an identifier in `module` and
 whether it is a declaration.
 -/
-def identOf (module : Name) (i : Info) : Option (RefIdent × Bool) :=
+def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
   match i with
   | Info.ofTermInfo ti => match ti.expr with
-    | Expr.const n .. => some (RefIdent.const module n, ti.isBinder)
-    | Expr.fvar id => some (RefIdent.fvar module id, ti.isBinder)
+    | Expr.const n .. =>
+      some (RefIdent.const (← getModuleContainingDecl? ci.env n) n, ti.isBinder)
+    | Expr.fvar id =>
+      some (RefIdent.fvar ci.env.header.mainModule id, ti.isBinder)
     | _ => none
-  | Info.ofFieldInfo fi => some (RefIdent.const module fi.projName, false)
-  | Info.ofOptionInfo oi => some (RefIdent.const module oi.declName, false)
+  | Info.ofFieldInfo fi =>
+    some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName) fi.projName, false)
+  | Info.ofOptionInfo oi =>
+    some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName) oi.declName, false)
   | _ => none
 
 /-- Finds all references in `trees`. -/
@@ -223,8 +234,7 @@ def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :
   Id.run <| StateT.run' (s := #[]) do
     for tree in trees do
       tree.visitM' (postNode := fun ci info _ => do
-        let mod := ci.env.header.mainModule
-        let some (ident, isBinder) := identOf mod info
+        let some (ident, isBinder) := identOf ci info
           | return
         let some range := info.range?
           | return

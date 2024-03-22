@@ -10,4 +10,4 @@ lean_lib TBA where
 
 @[default_target]
 lean_lib Test where
-  globs := #[.submodules "Test"]
+  globs := #[.submodules `Test]

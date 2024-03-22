@@ -102,6 +102,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_bindCases_go___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_casesOnSuffix;
 lean_object* l_Lean_Compiler_LCNF_ToLCNF_pushElement(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore___spec__7(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToLCNF_State_cache___default;
@@ -462,6 +463,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_ToLCNF_b
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore___spec__9___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__10;
 lean_object* l_Lean_Expr_headBeta(lean_object*);
+uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitProjFn___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -495,7 +497,6 @@ lean_object* l_Lean_Meta_isConstructorApp_x3f(lean_object*, lean_object*, lean_o
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Expr_ReplaceImpl_Cache_store(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
-uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_liftMetaM___rarg___closed__11;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
@@ -10125,45 +10126,37 @@ lean_inc(x_1);
 x_5 = lean_environment_find(x_1, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
-uint8_t x_6; 
+lean_object* x_6; uint8_t x_7; 
+x_6 = l_Lean_casesOnSuffix;
 lean_inc(x_4);
 lean_inc(x_1);
-x_6 = l_Lean_isCasesOnRecursor(x_1, x_4);
-if (x_6 == 0)
+x_7 = l_Lean_isAuxRecursorWithSuffix(x_1, x_4, x_6);
+if (x_7 == 0)
 {
-lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_object* x_8; uint8_t x_9; 
+x_8 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
 lean_inc(x_4);
 lean_inc(x_1);
-x_8 = l_Lean_TagDeclarationExtension_isTagged(x_7, x_1, x_4);
-if (x_8 == 0)
+x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_4);
+if (x_9 == 0)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_9 = l_Lean_instInhabitedProjectionFunctionInfo;
-x_10 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = l_Lean_instInhabitedProjectionFunctionInfo;
+x_11 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
 lean_inc(x_4);
-x_11 = l_Lean_MapDeclarationExtension_contains___rarg(x_9, x_10, x_1, x_4);
-if (x_11 == 0)
+x_12 = l_Lean_MapDeclarationExtension_contains___rarg(x_10, x_11, x_1, x_4);
+if (x_12 == 0)
 {
-lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__5;
-x_13 = lean_name_eq(x_4, x_12);
+lean_object* x_13; uint8_t x_14; 
+x_13 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__5;
+x_14 = lean_name_eq(x_4, x_13);
 lean_dec(x_4);
-return x_13;
-}
-else
-{
-uint8_t x_14; 
-lean_dec(x_4);
-x_14 = 1;
 return x_14;
-}
 }
 else
 {
 uint8_t x_15; 
 lean_dec(x_4);
-lean_dec(x_1);
 x_15 = 1;
 return x_15;
 }
@@ -10179,91 +10172,101 @@ return x_16;
 }
 else
 {
-lean_object* x_17; 
-x_17 = lean_ctor_get(x_5, 0);
-lean_inc(x_17);
-lean_dec(x_5);
-switch (lean_obj_tag(x_17)) {
-case 4:
-{
-uint8_t x_18; 
-lean_dec(x_17);
+uint8_t x_17; 
 lean_dec(x_4);
 lean_dec(x_1);
-x_18 = 1;
-return x_18;
+x_17 = 1;
+return x_17;
 }
-case 6:
+}
+else
+{
+lean_object* x_18; 
+x_18 = lean_ctor_get(x_5, 0);
+lean_inc(x_18);
+lean_dec(x_5);
+switch (lean_obj_tag(x_18)) {
+case 4:
 {
 uint8_t x_19; 
-lean_dec(x_17);
+lean_dec(x_18);
 lean_dec(x_4);
 lean_dec(x_1);
 x_19 = 1;
 return x_19;
 }
-case 7:
+case 6:
 {
 uint8_t x_20; 
-lean_dec(x_17);
+lean_dec(x_18);
 lean_dec(x_4);
 lean_dec(x_1);
 x_20 = 1;
 return x_20;
 }
-default: 
+case 7:
 {
 uint8_t x_21; 
-lean_dec(x_17);
-lean_inc(x_4);
-lean_inc(x_1);
-x_21 = l_Lean_isCasesOnRecursor(x_1, x_4);
-if (x_21 == 0)
-{
-lean_object* x_22; uint8_t x_23; 
-x_22 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
-lean_inc(x_4);
-lean_inc(x_1);
-x_23 = l_Lean_TagDeclarationExtension_isTagged(x_22, x_1, x_4);
-if (x_23 == 0)
-{
-lean_object* x_24; lean_object* x_25; uint8_t x_26; 
-x_24 = l_Lean_instInhabitedProjectionFunctionInfo;
-x_25 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
-lean_inc(x_4);
-x_26 = l_Lean_MapDeclarationExtension_contains___rarg(x_24, x_25, x_1, x_4);
-if (x_26 == 0)
-{
-lean_object* x_27; uint8_t x_28; 
-x_27 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__5;
-x_28 = lean_name_eq(x_4, x_27);
-lean_dec(x_4);
-return x_28;
-}
-else
-{
-uint8_t x_29; 
-lean_dec(x_4);
-x_29 = 1;
-return x_29;
-}
-}
-else
-{
-uint8_t x_30; 
+lean_dec(x_18);
 lean_dec(x_4);
 lean_dec(x_1);
-x_30 = 1;
-return x_30;
+x_21 = 1;
+return x_21;
 }
+default: 
+{
+lean_object* x_22; uint8_t x_23; 
+lean_dec(x_18);
+x_22 = l_Lean_casesOnSuffix;
+lean_inc(x_4);
+lean_inc(x_1);
+x_23 = l_Lean_isAuxRecursorWithSuffix(x_1, x_4, x_22);
+if (x_23 == 0)
+{
+lean_object* x_24; uint8_t x_25; 
+x_24 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_4);
+lean_inc(x_1);
+x_25 = l_Lean_TagDeclarationExtension_isTagged(x_24, x_1, x_4);
+if (x_25 == 0)
+{
+lean_object* x_26; lean_object* x_27; uint8_t x_28; 
+x_26 = l_Lean_instInhabitedProjectionFunctionInfo;
+x_27 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
+lean_inc(x_4);
+x_28 = l_Lean_MapDeclarationExtension_contains___rarg(x_26, x_27, x_1, x_4);
+if (x_28 == 0)
+{
+lean_object* x_29; uint8_t x_30; 
+x_29 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__5;
+x_30 = lean_name_eq(x_4, x_29);
+lean_dec(x_4);
+return x_30;
 }
 else
 {
 uint8_t x_31; 
 lean_dec(x_4);
-lean_dec(x_1);
 x_31 = 1;
 return x_31;
+}
+}
+else
+{
+uint8_t x_32; 
+lean_dec(x_4);
+lean_dec(x_1);
+x_32 = 1;
+return x_32;
+}
+}
+else
+{
+uint8_t x_33; 
+lean_dec(x_4);
+lean_dec(x_1);
+x_33 = 1;
+return x_33;
 }
 }
 }
@@ -10271,11 +10274,11 @@ return x_31;
 }
 else
 {
-uint8_t x_32; 
+uint8_t x_34; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_32 = 0;
-return x_32;
+x_34 = 0;
+return x_34;
 }
 }
 }

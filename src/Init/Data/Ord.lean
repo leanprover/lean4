@@ -6,6 +6,7 @@ Authors: Dany Fabian, Sebastian Ullrich
 
 prelude
 import Init.Data.String
+import Init.Data.Array.Basic
 
 inductive Ordering where
   | lt | eq | gt
@@ -87,10 +88,23 @@ def isGE : Ordering → Bool
 
 end Ordering
 
+/--
+Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
+`x = y` corresponds to `Ordering.eq`.
+-/
 @[inline] def compareOfLessAndEq {α} (x y : α) [LT α] [Decidable (x < y)] [DecidableEq α] : Ordering :=
   if x < y then Ordering.lt
   else if x = y then Ordering.eq
   else Ordering.gt
+
+/--
+Yields an `Ordering` s.t. `x < y` corresponds to `Ordering.lt` / `Ordering.gt` and
+`x == y` corresponds to `Ordering.eq`.
+-/
+@[inline] def compareOfLessAndBEq {α} (x y : α) [LT α] [Decidable (x < y)] [BEq α] : Ordering :=
+  if x < y then .lt
+  else if x == y then .eq
+  else .gt
 
 /--
 Compare `a` and `b` lexicographically by `cmp₁` and `cmp₂`. `a` and `b` are
@@ -105,6 +119,7 @@ class Ord (α : Type u) where
 
 export Ord (compare)
 
+set_option linter.unusedVariables false in  -- allow specifying `ord` explicitly
 /--
 Compare `x` and `y` by comparing `f x` and `f y`.
 -/
@@ -146,6 +161,13 @@ instance : Ord USize where
 
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
+
+instance [Ord α] : Ord (Option α) where
+  compare
+  | none,   none   => .eq
+  | none,   some _ => .lt
+  | some _, none   => .gt
+  | some x, some y => compare x y
 
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
@@ -194,7 +216,7 @@ protected def opposite (ord : Ord α) : Ord α where
 /--
 `ord.on f` compares `x` and `y` by comparing `f x` and `f y` according to `ord`.
 -/
-protected def on (ord : Ord β) (f : α → β) : Ord α where
+protected def on (_ : Ord β) (f : α → β) : Ord α where
   compare := compareOn f
 
 /--
@@ -209,5 +231,14 @@ returns 'equal', by `ord₂`.
 -/
 protected def lex' (ord₁ ord₂ : Ord α) : Ord α where
   compare := compareLex ord₁.compare ord₂.compare
+
+/--
+Creates an order which compares elements of an `Array` in lexicographic order.
+-/
+protected def arrayOrd [a : Ord α] : Ord (Array α) where
+  compare x y :=
+    let _ : LT α := a.toLT
+    let _ : BEq α := a.toBEq
+    compareOfLessAndBEq x.toList y.toList
 
 end Ord

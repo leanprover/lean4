@@ -23,4 +23,9 @@ relation, that is, a relation which has a reflexive lemma tagged with the attrib
 elab_rules : tactic
   | `(tactic| rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl)
 
+@[builtin_tactic Lean.Parser.Tactic.applyRfl] def evalApplyRfl : Tactic := fun stx =>
+  match stx with
+  | `(tactic| apply_rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl)
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Rfl

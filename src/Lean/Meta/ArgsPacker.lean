@@ -532,7 +532,7 @@ where
   go : List Expr → Array Expr → MetaM α
   | [], acc => k acc
   | t::ts, acc => do
-    let name := if argsPacker.numFuncs = 1 then name else s!"{name}{acc.size+1}"
+    let name := if argsPacker.numFuncs = 1 then name else .mkSimple s!"{name}{acc.size+1}"
     withLocalDecl name .default t fun x => do
       go ts (acc.push x)
 

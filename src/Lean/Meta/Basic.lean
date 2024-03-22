@@ -1222,7 +1222,7 @@ where
         process mvars bis j b
       | _ => finalize ()
 
-private def withNewFVar (n : Name) (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
+private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
   if let some c ← isClass? fvarType then
     withNewLocalInstance c fvar <| k fvar
   else
@@ -1234,7 +1234,7 @@ private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Exp
   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
-    withNewFVar n fvar type k
+    withNewFVar fvar type k
 
 /-- Create a free variable `x` with name, binderInfo and type, add it to the context and run in `k`.
 Then revert the context. -/
@@ -1295,7 +1295,7 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
   let lctx := ctx.lctx.mkLetDecl fvarId n type val (nonDep := false) kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
-    withNewFVar n fvar type k
+    withNewFVar fvar type k
 
 /--
   Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new

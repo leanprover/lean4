@@ -37,6 +37,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <iomanip>
 #include <string>
 #include <cstdlib>
+#include <cstddef>
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
@@ -463,34 +464,33 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
 
 /*
   Handle.getLine : (@& Handle) → IO Unit
-  The line returned by `lean_io_prim_handle_get_line`
-  is truncated at the first '\0' character and the
-  rest of the line is discarded. */
+  Include the newline character at the end, if found.
+  Null characters do not cause truncation.
+*/
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    const int buf_sz = 64;
-    char buf_str[buf_sz]; // NOLINT
-    std::string result;
-    bool first = true;
-    while (true) {
-        char * out = std::fgets(buf_str, buf_sz, fp);
-        if (out != nullptr) {
-            if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
-                if (first) {
-                    return io_result_mk_ok(mk_string(out));
-                } else {
-                    result.append(out);
-                    return io_result_mk_ok(mk_string(result));
-                }
+    std::string string;
+    for (;;) {
+        char buff[64];
+        if (size_t read = std::fread(buff, sizeof(char), sizeof(buff), fp)) {
+            if (char * newl = static_cast<char *>(std::memchr(buff, '\n', read))) {
+                ptrdiff_t count = newl - buff;
+                // Include the newline character (hence, the + 1).
+                string.append(buff, count + 1);
+                // Strict inequality:
+                // Ignore the newline character for the following read.
+                for (ptrdiff_t i = static_cast<ptrdiff_t>(read - 1); i > count; --i)
+                    std::ungetc(buff[i], fp);
+                return io_result_mk_ok(mk_string(string));
             }
-            result.append(out);
-        } else if (std::feof(fp)) {
-            clearerr(fp);
-            return io_result_mk_ok(mk_string(result));
-        } else {
-            return io_result_mk_error(decode_io_error(errno, nullptr));
+            string.append(buff, read);
+            continue;
         }
-        first = false;
+        if (std::ferror(fp))
+            return io_result_mk_error(decode_io_error(errno, nullptr));
+        if (std::feof(fp))
+            std::clearerr(fp);
+        return io_result_mk_ok(mk_string(string));
     }
 }
 

@@ -282,22 +282,12 @@ where
     let hasAlts := altsSyntax.size > 0
     let mut usedWildcard := false
     let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
-    let mut altsSyntax := altsSyntax
+    let mut altsSyntaxIdx := 0
+    let mut reuseAlt := true
     for { name := altName, info, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
-      let mut isWildcard := false
-      let altStx? ←
-        match altsSyntax.findIdx? (fun alt => getAltName alt == altName) with
-        | some idx =>
-          let altStx := altsSyntax[idx]!
-          altsSyntax := altsSyntax.eraseIdx idx
-          pure (some altStx)
-        | none => match altsSyntax.findIdx? (fun alt => getAltName alt == `_) with
-          | some idx =>
-            isWildcard := true
-            pure (some altsSyntax[idx]!)
-          | none =>
-            pure none
+      let mut altStx? := altsSyntax[altsSyntaxIdx]?
+      let isWildcard := altStx?.any (getAltName · == `_)
       match altStx? with
       | none =>
         let mut (_, altMVarId) ← altMVarId.introN numFields
@@ -324,7 +314,7 @@ where
             logError m!"alternative '{altName}' has not been provided"
             altMVarIds.forM fun mvarId => admitGoal mvarId
       | some altStx =>
-        (subgoals, usedWildcard) ← withRef altStx do
+        (subgoals, usedWildcard, reuseAlt) ← withRef altStx do
           let altVars := getAltVars altStx
           let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
           if altVars.size > numFieldsToName then
@@ -340,7 +330,7 @@ where
           let unusedAlt := do
             addInfo
             if isWildcard then
-              pure (#[], usedWildcard)
+              pure (#[], usedWildcard, /- reuseAlt -/ false)
             else
               throwError "alternative '{altName}' is not needed"
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
@@ -360,14 +350,22 @@ where
             if altMVarIds.isEmpty then
               unusedAlt
             else
+              Term.withNarrowedArgTacticReuse (stx := mkNullNode altsSyntax) (argIdx := altsSyntaxIdx) fun altStx => do
+              Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
               let mut subgoals := subgoals
+              let reuseAltNew := reuseAlt && (← readThe Term.Context).tacSnap?.any (·.old?.isSome)
               for altMVarId' in altMVarIds do
-                subgoals ← evalAlt altMVarId' altStx addInfo subgoals
-              pure (subgoals, usedWildcard || isWildcard)
+                subgoals ←
+                  Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard || altsSyntaxIdx < altsSyntax.size - 1) do
+                  Term.withoutTacticReuse (!reuseAltNew) do
+                    evalAlt altMVarId' altStx addInfo subgoals
+              pure (subgoals, usedWildcard || isWildcard, reuseAltNew)
+        if !isWildcard then
+          altsSyntaxIdx := altsSyntaxIdx + 1
     if usedWildcard then
-      altsSyntax := altsSyntax.filter fun alt => getAltName alt != `_
-    unless altsSyntax.isEmpty do
-      logErrorAt altsSyntax[0]! "unused alternative"
+      altsSyntaxIdx := altsSyntaxIdx + 1
+    unless altsSyntaxIdx == altsSyntax.size do
+      logErrorAt altsSyntax[altsSyntaxIdx]! "unused alternative"
     setGoals subgoals.toList
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
@@ -574,12 +572,19 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
+builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.induction
 @[builtin_tactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    let optInductionAlts := stx[4]
-    let alts := getAltsOfOptInductionAlts optInductionAlts
+    -- drill down into old and new syntax: allow reuse of the last rhs only if everything before
+    -- it is unchanged
+    Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
+    Term.withNarrowedTacticReuse (stx := optInductionAlts) (fun optInductionAlts =>
+      if optInductionAlts.isNone then
+        (mkNullNode #[], mkNullNode #[])
+      else (mkNullNode optInductionAlts[0].getArgs[:2], optInductionAlts[0].getArg 2)) fun alts => do
+    let alts := alts.getArgs
     let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
     let targets ← generalizeTargets targets
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)

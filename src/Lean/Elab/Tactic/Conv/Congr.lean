@@ -176,6 +176,7 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
     let lhs := (← instantiateMVars lhs).cleanupAnnotations
     if let .forallE n d b bi := lhs then
       let u ← getLevel d
+      let v ← getLevel b
       let p : Expr := .lam n d b bi
       let userName ← if let some userName := userName? then pure userName else mkFreshBinderNameForTactic n
       let (q, h, mvarNew) ← withLocalDecl userName bi d fun a => do
@@ -187,7 +188,7 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
         unless (← isDefEqGuarded rhs rhs') do
           throwError "invalid 'ext' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
         return (q, h, mvarNew)
-      let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
+      let proof := mkApp4 (mkConst ``forall_congr [u, v]) d p q h
       mvarId.assign proof
       return mvarNew.mvarId!
     else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then

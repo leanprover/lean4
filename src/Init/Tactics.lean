@@ -958,7 +958,6 @@ while `congr 2` produces the intended `⊢ x + y = y + x`.
 -/
 syntax (name := congr) "congr" (ppSpace num)? : tactic
 
-
 /--
 In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
 ```

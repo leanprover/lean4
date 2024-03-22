@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.CongrTheorems
+import Lean.Meta.CongrTheorems.Basic
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Clear

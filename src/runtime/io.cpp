@@ -472,6 +472,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
     std::string string;
     for (;;) {
         char buff[64];
+        // fgets leaves the buffer past the NUL character in indeterminate state,
+        // so use fread instead.
         if (size_t read = std::fread(buff, sizeof(char), sizeof(buff), fp)) {
             if (char * newl = static_cast<char *>(std::memchr(buff, '\n', read))) {
                 ptrdiff_t count = newl - buff;

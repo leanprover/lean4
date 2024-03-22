@@ -461,7 +461,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
-/* Handle.getLine : (@& Handle) → IO Unit */
+/*
+  Handle.getLine : (@& Handle) → IO Unit
+  The line returned by `lean_io_prim_handle_get_line`
+  is truncated at the first '\0' character and the
+  rest of the line is discarded. */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     const int buf_sz = 64;
@@ -469,20 +473,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
     std::string result;
     bool first = true;
     while (true) {
-        size_t read = std::fread(buf_str, sizeof *buf_str, buf_sz, fp);
-        if (read) {
-            if (read < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
+        char * out = std::fgets(buf_str, buf_sz, fp);
+        if (out != nullptr) {
+            if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
                 if (first) {
-                    return io_result_mk_ok(lean_mk_string_from_bytes(buf_str, read));
+                    return io_result_mk_ok(mk_string(out));
                 } else {
-                    result.append(buf_str, read);
-                    return io_result_mk_ok(lean_mk_string_from_bytes(result.c_str(), read));
+                    result.append(out);
+                    return io_result_mk_ok(mk_string(result));
                 }
             }
-            result.append(buf_str, read);
+            result.append(out);
         } else if (std::feof(fp)) {
             clearerr(fp);
-            return io_result_mk_ok(lean_mk_string_from_bytes(result.c_str(), read));
+            return io_result_mk_ok(mk_string(result));
         } else {
             return io_result_mk_error(decode_io_error(errno, nullptr));
         }

@@ -601,6 +601,36 @@ partial def findFixF {α} (name : Name) (varNames : Array Name) (e : Expr) (para
       "function."
 
 /--
+Given an expression `e` with metavariables
+* collects all these meta-variables,
+* lifts them to the current context by reverting all local declarations up to `x`
+* introducing a local variable for each of the meta variable
+* assigning that local variable to the mvar
+* and finally lambda-abstracting over these new local variables.
+
+This operation only works if the metavariables are independent from each other.
+
+The resulting meta variable assignment is no longer valid (mentions out-of-scope
+variables), so after this operations, terms that still mention these meta variables must not
+be used anymore.
+
+We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
+do not handle delayed assignemnts correctly.
+-/
+def abstractIndependentMVars (x : FVarId) (e : Expr) : MetaM Expr := do
+    let mvars ← getMVarsNoDelayed e
+    let mvars ← mvars.mapM fun mvar => do
+      let mvar ← substVarAfter mvar x
+      let (_, mvar) ← mvar.revertAfter x
+      pure mvar
+    let decls := mvars.mapIdx fun i mvar =>
+      (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
+    Meta.withLocalDecls decls fun xs => do
+        for mvar in mvars, x in xs do
+          mvar.assign x
+        mkLambdaFVars xs (← instantiateMVars e)
+
+/--
 Given a definition `foo` defined via `WellFounded.fixF`, derive a suitable induction principle
 `foo.induct` for it. See module doc for details.
  -/
@@ -642,37 +672,13 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       let body ← instantiateLambda body params
       removeLamda body fun oldIH body => do
         let body ← instantiateLambda body extraParams
-        -- let goal := motive.beta (#[param] ++ extraParams)
         let body' ← buildInductionBody false fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
         if body'.containsFVar oldIH then
           throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
         mkLambdaFVars (params.push genIH) (← mkLambdaFVars extraParams body')
 
-    -- let e' := mkApp3 e' body' arg acc
-    let e' := mkAppN e' #[body']
-    let e' := mkAppN e' extraArgs
-
-    let mvars ← getMVarsNoDelayed e'
-    let mvars ← mvars.mapM fun mvar => do
-      let mvar ← substVarAfter mvar motive.fvarId!
-      let (_, mvar) ← mvar.revertAfter motive.fvarId!
-      pure mvar
-    -- Using `mkLambdaFVars` on mvars directly does not reliably replace
-    -- the mvars with the parameter, in the presence of delayed assignemnts.
-    -- Also `abstractMVars` does not handle delayed assignments correctly (as of now).
-    -- So instead we bring suitable fvars into scope and use `assign`; this handles
-    -- delayed assignemnts correctly.
-    -- NB: This idiom only works because
-    -- * we know that the `MVars` have the right local context (thanks to `mvarId.revertAfter`)
-    -- * the MVars are independent (so we don’t need to reorder them)
-    -- * we do no need the mvars in their unassigned form later
-    let e' ← Meta.withLocalDecls
-      (mvars.mapIdx (fun i mvar => (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))))
-      fun xs => do
-        for mvar in mvars, x in xs do
-          mvar.assign x
-        let e' ← instantiateMVars e'
-        mkLambdaFVars xs e'
+    let e' := mkAppN (.app e' body') extraArgs
+    let e' ← abstractIndependentMVars motive.fvarId! e'
 
     -- We could pass (usedOnly := true) below, and get nicer induction principles that
     -- do do not mention odd unused parameters.
@@ -710,29 +716,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let e' := mkAppN (mkApp2 e' body' target) extraArgs
     -- We want the (packed) argument last, makes `unpackMutualInduction` easier
     let e' ← mkLambdaFVars #[params.back] e'
-
-    let mvars ← getMVarsNoDelayed e'
-    let mvars ← mvars.mapM fun mvar => do
-      let mvar ← substVarAfter mvar motive.fvarId!
-      let (_, mvar) ← mvar.revertAfter motive.fvarId!
-      pure mvar
-    -- Using `mkLambdaFVars` on mvars directly does not reliably replace
-    -- the mvars with the parameter, in the presence of delayed assignemnts.
-    -- Also `abstractMVars` does not handle delayed assignments correctly (as of now).
-    -- So instead we bring suitable fvars into scope and use `assign`; this handles
-    -- delayed assignemnts correctly.
-    -- NB: This idiom only works because
-    -- * we know that the `MVars` have the right local context (thanks to `mvarId.revertAfter`)
-    -- * the MVars are independent (so we don’t need to reorder them)
-    -- * we do no need the mvars in their unassigned form later
-    let e' ← Meta.withLocalDecls
-      (mvars.mapIdx (fun i mv => (.mkSimple s!"case{i.val+1}", .default, (fun _ => mv.getType))))
-      fun xs => do
-        for mvar in mvars, x in xs do
-          mvar.assign x
-        let e' ← instantiateMVars e'
-        mkLambdaFVars xs e'
-
+    let e' ← abstractIndependentMVars motive.fvarId! e'
     -- We could pass (usedOnly := true) below, and get nicer induction principles that
     -- do do not mention odd unused parameters.
     -- But the downside is that automatic instantiation of the principle (e.g. in a tactic

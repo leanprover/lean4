@@ -436,6 +436,12 @@ def getNameOfIdent' (id : Syntax) : Name :=
 def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :=
   withRef (mkNullNode #[arrow, body]) x
 
+-- TODO: attribute(s)
+builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
+
+def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
+  builtinIncrementalTactics.modify fun s => s.insert kind
+
 builtin_initialize registerTraceClass `Elab.tactic
 builtin_initialize registerTraceClass `Elab.tactic.backtrack
 

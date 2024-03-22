@@ -330,24 +330,27 @@ tactic's syntax and `act` should be used to do recursive tactic evaluation of ne
 -/
 def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
     [MonadOptions m] [MonadRef m] (split : Syntax → Option (Syntax × Syntax)) (act : Syntax → m α)
-    (stx : Syntax) : m α := do
-    let some (outer, inner) := split stx
-      | throwUnsupportedSyntax
-    let opts ← getOptions
-    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
-      { tacSnap with old? := tacSnap.old?.bind fun old => do
-        let some (oldOuter, oldInner) := split old.stx
-          | dbg_trace "reuse stopped: failed to parse old syntax {old.stx}" none
+    (stx : Syntax) (onSplitNewFailed : m α := throwUnsupportedSyntax) : m α := do
+  let some (outer, inner) := split stx
+    | onSplitNewFailed
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+    { tacSnap with old? := tacSnap.old?.bind fun old => do
+      if let some (oldOuter, oldInner) := split old.stx then
         if outer.structRangeEq oldOuter then
           return { old with stx := oldInner }
         else
           if opts.getBool `trace.Elab.reuse then
             dbg_trace "reuse stopped: {outer} != {oldOuter}"
-          failure
-      }
-    }) do
-      withRef inner do
-        act inner
+          none
+      else
+        if opts.getBool `trace.Elab.reuse then
+          dbg_trace "reuse stopped: failed to parse old syntax {old.stx}"
+        none
+    }
+  }) do
+    withRef inner do
+      act inner
 
 /--
 A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
@@ -359,8 +362,37 @@ necessarily shifted by changes at `argIdx`) so it must be ensured that the resul
 depend on them (i.e. they should not be inspected beforehand).
 -/
 def withNarrowedArgTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
-    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax)
+    (onSplitNewFailed : m α := throwUnsupportedSyntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
+    onSplitNewFailed
+
+/--
+Disables incremental tactic reuse *and* reporting for `act` if `cond` is true by setting `tacSnap?`
+to `none`. This should be done for tactic blocks that are run multiple times as otherwise the
+reported progress will jump back and forth (and partial reuse for these kinds of tact blocks is
+similarly questionable).
+-/
+def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+    (cond : Bool) (act : m α) : m α := do
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.filter fun tacSnap => Id.run do
+    if let some old := tacSnap.old? then
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+    return !cond
+  }) act
+
+/-- Disables incremental tactic reuse for `act` if `cond` is true. -/
+def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+    (cond : Bool) (act : m α) : m α := do
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+    { tacSnap with old? := tacSnap.old?.filter fun old => Id.run do
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+      return !cond }
+  }) act
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 

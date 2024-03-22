@@ -28,12 +28,6 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
--- TODO: attribute(s)
-builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
-
-def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
-  builtinIncrementalTactics.modify fun s => s.insert kind
-
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.

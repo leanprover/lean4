@@ -5,10 +5,10 @@ x y : Nat
 x y : Nat
 | x + y = y + x + 0
 x y : Nat
-⊢ x + y = Nat.add y x
+⊢ x + y = y.add x
 case x
 x y : Nat
-⊢ x + y = Nat.add y x
+⊢ x + y = y.add x
 case a
 a b : Nat
 | foo (0 + a) (b + 0)
@@ -48,11 +48,11 @@ case y
 a b : Nat
 | b
 x y : Nat
-⊢ x + y = Nat.add y x
+⊢ x + y = y.add x
 x y : Nat
-⊢ Nat.add x y = Nat.add y x
+⊢ x.add y = y.add x
 x y : Nat
-⊢ f x (Nat.add x y) y = y + x
+⊢ f x (x.add y) y = y + x
 x y : Nat
 | x + y
 case h.h

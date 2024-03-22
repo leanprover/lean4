@@ -45,7 +45,7 @@ info: fact.def :
     fact x =
       match x with
       | 0 => 1
-      | Nat.succ n => (n + 1) * fact n
+      | n.succ => (n + 1) * fact n
 -/
 #guard_msgs in
 #check fact.def
@@ -54,7 +54,7 @@ info: fact.def :
 #guard_msgs in
 #check fact.eq_1
 
-/-- info: fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n -/
+/-- info: fact.eq_2 (n : Nat) : fact n.succ = (n + 1) * fact n -/
 #guard_msgs in
 #check fact.eq_2
 

@@ -1,15 +1,15 @@
 Inferred termination argument:
 termination_by n - i
 Inferred termination argument:
-termination_by Array.size xs - i
+termination_by xs.size - i
 Inferred termination argument:
-termination_by Array.size xs - i
+termination_by xs.size - i
 Inferred termination argument:
-termination_by (Array.size xs - i, Array.size ys - j)
+termination_by (xs.size - i, ys.size - j)
 Inferred termination argument:
-termination_by (Array.size xs - i, i - j)
+termination_by (xs.size - i, i - j)
 Inferred termination argument:
-termination_by (Array.size xs - i, i)
+termination_by (xs.size - i, i)
 guessLexDiff.lean:85:26-85:38: error: fail to show termination for
   failure
 with errors
@@ -33,8 +33,8 @@ The arguments relate at each recursive call as follows:
 8) 88:26-42 _  <  _     _
 9) 97:8-20  _  <  _     _
 
-#1: Array.size xs - i
-#2: Array.size xs - (i + 1)
+#1: xs.size - i
+#2: xs.size - (i + 1)
 
 Please use `termination_by` to specify a decreasing measure.
 guessLexDiff.lean:102:4-102:18: error: fail to show termination for
@@ -88,8 +88,8 @@ i  _  _
 #2 _  _
 
 
-#1: Array.size xs - i
-#2: Array.size xs - (i + 1)
-#3: Array.size xs - i
+#1: xs.size - i
+#2: xs.size - (i + 1)
+#3: xs.size - i
 
 Please use `termination_by` to specify a decreasing measure.

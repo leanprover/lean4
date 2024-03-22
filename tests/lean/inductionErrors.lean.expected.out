@@ -1,11 +1,11 @@
 inductionErrors.lean:11:12-11:27: error: unsolved goals
 case lower.h
 p d : Nat
-⊢ p ≤ p + Nat.succ d
+⊢ p ≤ p + d.succ
 inductionErrors.lean:12:12-12:27: error: unsolved goals
 case upper.h
 q d : Nat
-⊢ q + Nat.succ d > q
+⊢ q + d.succ > q
 inductionErrors.lean:16:19-16:26: error: unknown identifier 'elimEx2'
 inductionErrors.lean:22:2-25:45: error: insufficient number of targets for 'elimEx'
 inductionErrors.lean:28:16-28:23: error: unexpected eliminator resulting type

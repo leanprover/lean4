@@ -2,9 +2,6 @@
 # Delaboration of projection functions, and generalized field notation
 -/
 
--- TODO(kmill): remove this once this is the default
-set_option pp.fieldNotation.generalized true
-
 structure A where
   x : Nat
 

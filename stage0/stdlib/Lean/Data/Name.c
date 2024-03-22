@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_isNum___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_hasNum___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instCoeStringName;
 LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isStr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
@@ -58,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_isPrefixOf___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Name_anyS___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__3;
-static lean_object* l_Lean_instCoeStringName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isAtomic(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isNum(lean_object*);
@@ -85,23 +83,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternal(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkSimple(lean_object*);
-static lean_object* _init_l_Lean_instCoeStringName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_mkSimple), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instCoeStringName() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instCoeStringName___closed__1;
-return x_1;
-}
-}
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object* x_1) {
 _start:
 {
@@ -186,7 +167,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Name_getString_x21___closed__1;
 x_2 = l_Lean_Name_getString_x21___closed__2;
-x_3 = lean_unsigned_to_nat(24u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_Lean_Name_getString_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1231,10 +1212,6 @@ _G_initialized = true;
 res = initialize_Init_Data_Ord(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instCoeStringName___closed__1 = _init_l_Lean_instCoeStringName___closed__1();
-lean_mark_persistent(l_Lean_instCoeStringName___closed__1);
-l_Lean_instCoeStringName = _init_l_Lean_instCoeStringName();
-lean_mark_persistent(l_Lean_instCoeStringName);
 l_Lean_Name_getString_x21___closed__1 = _init_l_Lean_Name_getString_x21___closed__1();
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__1);
 l_Lean_Name_getString_x21___closed__2 = _init_l_Lean_Name_getString_x21___closed__2();

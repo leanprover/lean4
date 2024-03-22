@@ -30,6 +30,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_arity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__5(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,12 +89,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__7(lean
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__7(lean_object*);
+uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__3___closed__1;
 lean_object* l_Lean_InductiveVal_numCtors(lean_object*);
-uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMatcherInfo_x3f___rarg(lean_object*, lean_object*, lean_object*);
@@ -850,48 +851,49 @@ return x_15;
 }
 else
 {
-uint8_t x_16; 
+lean_object* x_16; uint8_t x_17; 
+x_16 = l_Lean_casesOnSuffix;
 lean_inc(x_5);
-x_16 = l_Lean_isCasesOnRecursor(x_10, x_5);
-if (x_16 == 0)
+x_17 = l_Lean_isAuxRecursorWithSuffix(x_10, x_5, x_16);
+if (x_17 == 0)
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-x_17 = lean_ctor_get(x_2, 0);
-lean_inc(x_17);
-lean_dec(x_2);
-x_18 = lean_ctor_get(x_17, 1);
+x_18 = lean_ctor_get(x_2, 0);
 lean_inc(x_18);
-lean_dec(x_17);
-x_19 = lean_box(0);
-x_20 = lean_apply_2(x_18, lean_box(0), x_19);
-x_21 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_20, x_3);
-return x_21;
+lean_dec(x_2);
+x_19 = lean_ctor_get(x_18, 1);
+lean_inc(x_19);
+lean_dec(x_18);
+x_20 = lean_box(0);
+x_21 = lean_apply_2(x_19, lean_box(0), x_20);
+x_22 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_21, x_3);
+return x_22;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_3);
-x_22 = l_Lean_Name_getPrefix(x_5);
+x_23 = l_Lean_Name_getPrefix(x_5);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_2);
-x_23 = l_Lean_getConstInfo___rarg(x_2, x_6, x_7, x_22);
+x_24 = l_Lean_getConstInfo___rarg(x_2, x_6, x_7, x_23);
 lean_inc(x_4);
-x_24 = lean_alloc_closure((void*)(l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__4), 8, 7);
-lean_closure_set(x_24, 0, x_2);
-lean_closure_set(x_24, 1, x_8);
-lean_closure_set(x_24, 2, x_9);
-lean_closure_set(x_24, 3, x_6);
-lean_closure_set(x_24, 4, x_7);
-lean_closure_set(x_24, 5, x_4);
-lean_closure_set(x_24, 6, x_5);
-x_25 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_23, x_24);
-return x_25;
+x_25 = lean_alloc_closure((void*)(l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__4), 8, 7);
+lean_closure_set(x_25, 0, x_2);
+lean_closure_set(x_25, 1, x_8);
+lean_closure_set(x_25, 2, x_9);
+lean_closure_set(x_25, 3, x_6);
+lean_closure_set(x_25, 4, x_7);
+lean_closure_set(x_25, 5, x_4);
+lean_closure_set(x_25, 6, x_5);
+x_26 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_24, x_25);
+return x_26;
 }
 }
 }

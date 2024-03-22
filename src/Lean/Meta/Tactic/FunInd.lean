@@ -368,7 +368,7 @@ def deduplicateIHs (vals : Array Expr) : MetaM (Array Expr) := do
 def assertIHs (vals : Array Expr) (mvarid : MVarId) : MetaM MVarId := do
   let mut mvarid := mvarid
   for v in vals.reverse, i in [0:vals.size] do
-    mvarid ← mvarid.assert s!"ih{i+1}" (← inferType v) v
+    mvarid ← mvarid.assert (.mkSimple s!"ih{i+1}") (← inferType v) v
   return mvarid
 
 
@@ -580,7 +580,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- * the MVars are independent (so we don’t need to reorder them)
     -- * we do no need the mvars in their unassigned form later
     let e' ← Meta.withLocalDecls
-      (mvars.mapIdx (fun i mvar => (s!"case{i.val+1}", .default, (fun _ => mvar.getType))))
+      (mvars.mapIdx (fun i mv => (.mkSimple s!"case{i.val+1}", .default, (fun _ => mv.getType))))
       fun xs => do
         for mvar in mvars, x in xs do
           mvar.assign x

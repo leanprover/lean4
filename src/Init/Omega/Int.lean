@@ -50,6 +50,9 @@ theorem ofNat_shiftLeft_eq {x y : Nat} : (x <<< y : Int) = (x : Int) * (2 ^ y : 
 theorem ofNat_shiftRight_eq_div_pow {x y : Nat} : (x >>> y : Int) = (x : Int) / (2 ^ y : Nat) := by
   simp only [Nat.shiftRight_eq_div_pow, Int.ofNat_ediv]
 
+theorem emod_ofNat_nonneg {x : Nat} {y : Int} : 0 ≤ (x : Int) % y :=
+  Int.ofNat_zero_le _
+
 -- FIXME these are insane:
 theorem lt_of_not_ge {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h
 theorem lt_of_not_le {x y : Int} (h : ¬ (x ≤ y)) : y < x := Int.not_le.mp h

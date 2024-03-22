@@ -55,6 +55,7 @@ v4.8.0 (development in progress)
 
 * Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
   rather than `{a := x, b := y, c := z}`.
+  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
 
 Breaking changes:
 

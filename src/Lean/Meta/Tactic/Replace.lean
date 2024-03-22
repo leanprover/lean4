@@ -141,16 +141,36 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
   mvarId.change targetNew checkDefEq
 
-/-- Runs the continuation `k` after temporarily reverting some variables from the local context of a metavariable (identified by `mvarId`), then reintroduces local variables as specified by `k`.
+/--
+Executes the revert/intro pattern, running the continuation `k` after temporarily reverting
+the given local variables from the local context of the metavariable `mvarId`,
+and then re-introducing the local variables specified by `k`.
 
-The argument `fvarIds` is an array of `fvarIds` to revert in the order specified. An error is thrown if they cannot be reverted in order.
+- `mvarId` is the goal metavariable to operate on.
+- `fvarIds` is an array of `fvarIds` to revert in the order specified.
+  An error is thrown if they cannot be reverted in order.
+- `clearAuxDeclsInsteadOfRevert` is configuration passed to `Lean.MVarId.revert`.
+- `k` is the continuation run once the local variables have been reverted.
+  It is provided `mvarId` after the requested variables have been reverted along with the array of reverted variables.
+  This array always contains `fvarIds`, but it may contain additional variables that were reverted due to dependencies.
+  The continuation returns a value, a new goal, and an _aliasing array_.
 
-Once the local variables have been reverted, `k` is passed `mvarId` along with an array of local variables that were reverted. This array always has `fvarIds` as a prefix, but it may contain additional variables that were reverted due to dependencies. `k` returns a value, a goal, an array of _link variables_.
+Once `k` has completed, one variable is introduced per entry in the aliasing array.
+* If the entry is `none`, the variable is just introduced.
+* If the entry is `some fv` (where `fv` is a variable from `fvarIds`),
+  the variable is introduced and then recorded as an alias of `fv` in the info tree.
+  This for example causes the unused variable linter as seeing `fv` and this newly introduced variable as being "the same".
 
-Once `k` has completed, one variable is introduced for each link variable returned by `k`. If the returned variable is `none`, the variable is just introduced. If it is `some fv`, the variable is introduced and then linked as an alias of `fv` in the info tree. For example, having `k` return `fvars.map .some` as the link variables causes all reverted variables to be introduced and linked.
+For example, if `k` leaves all the reverted variables in the same order,
+having it return `fvars.map .some` as the aliasing array causes those variables to be re-introduced and aliased
+to the original local variables.
 
-Returns the value returned by `k` along with the resulting goal.
- -/
+Returns the value returned by `k` along with the resulting goal after variable introduction.
+
+See `Lean.MVarId.changeLocalDecl` for an example. The motivation is that to work on a local variable,
+you need to move it into the goal, alter the goal, and then bring it back into the local context,
+all while keeping track of any other local variables that depend on this one.
+-/
 def _root_.Lean.MVarId.withReverted (mvarId : MVarId) (fvarIds : Array FVarId)
     (k : MVarId → Array FVarId → MetaM (α × Array (Option FVarId) × MVarId))
     (clearAuxDeclsInsteadOfRevert := false) : MetaM (α × MVarId) := do

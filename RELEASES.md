@@ -21,7 +21,7 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* New command `derive_functinal_induction`:
+* New command `derive_functional_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function
   defined by well-founded recursion, a **functional induction principle** is
@@ -42,7 +42,7 @@ v4.8.0 (development in progress)
   ```
 
 * The termination checker now recognizes more recursion patterns without an
-  explicit `terminatin_by`. In particular the idiom of counting up to an upper
+  explicit `termination_by`. In particular the idiom of counting up to an upper
   bound, as in
   ```
   def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
@@ -88,11 +88,9 @@ fact.def :
 -/
 ```
 
-v4.7.0
-Breaking changes:
- * The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
 
-v4.7.0 (development in progress)
+v4.7.0
 ---------
 
 * `simp` and `rw` now use instance arguments found by unification,

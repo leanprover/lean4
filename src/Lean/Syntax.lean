@@ -91,7 +91,7 @@ including positions contained in e.g. diagnostics and the info tree.
 partial def structRangeEq : Syntax → Syntax → Bool
   | .missing, .missing => true
   | .node info k args, .node info' k' args' =>
-    info.getRange? == info'.getRange? && k == k' && args.isEqv args' structEq
+    info.getRange? == info'.getRange? && k == k' && args.isEqv args' structRangeEq
   | .atom info val, .atom info' val' => info.getRange? == info'.getRange? && val == val'
   | .ident info rawVal val preresolved, .ident info' rawVal' val' preresolved' =>
     info.getRange? == info'.getRange? && rawVal == rawVal' && val == val' &&

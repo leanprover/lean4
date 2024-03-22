@@ -51,7 +51,6 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_addRewr
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addSuggestionCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__14;
 static lean_object* l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_replaceMVarsByUnderscores___spec__1___rarg___closed__4;
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_911____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__23;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__3;
@@ -314,6 +313,7 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__3___boxed__const__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__32;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__11;
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_907____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__4;
 static lean_object* l_List_mapTR_loop___at_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___spec__2___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesis___closed__4;
@@ -2974,7 +2974,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__3;
 x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__6;
 x_4 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__7;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_911____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_907____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

@@ -177,7 +177,7 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
         else
           reuseBody := false
 
-      let newHeader ← withRef view.ref do
+      withRef view.ref do
         addDeclarationRanges declName view.ref
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -236,7 +236,6 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
             -- become unreachable
             headersRef.modify (·.push newHeader)
             check oldHeaders newHeader
-            return newHeader
 where
   getBodyTerm? (stx : Syntax) : Option Syntax :=
     -- TODO: does not work with partial syntax
@@ -940,7 +939,7 @@ where
       -- definitely resolve snapshots created in `elabHeaders`
       for header in (← headersRef.get) do
         if let some snap := header.tacSnap? then
-          snap.new.resolve <| .mk { stx := .missing, diagnostics := .empty, finishedSnap := .pure { diagnostics := .empty, state? := none } } #[]
+          snap.new.resolve <| .mk { stx := .missing, diagnostics := .empty, finished := .pure { state? := none } } #[]
         if let some snap := header.bodySnap? then
           snap.new.resolve none
 

@@ -55,49 +55,51 @@ where
         let mut oldNext? := none
         if let some old := snap.old? then
           let oldEvaluated := old.val.get
-          if let some state := oldEvaluated.data.finishedSnap.get.state? then
+          if let some state := oldEvaluated.data.finished.get.state? then
             state.restoreFull
             reused := true
             oldNext? := oldEvaluated.next.get? 1 |>.map (⟨old.stx, ·⟩)
 
         -- definitely resolved below
         let next ← IO.Promise.new
-        let inner ← IO.Promise.new
         let finished ← IO.Promise.new
         try
-          snap.new.resolve <| .mk {
-            stx := tac
-            diagnostics := .empty
-            finishedSnap := { range? := tac.getRange?, task := finished.result }
-          } #[
-            {
-              range? := tac.getRange?
-              task := inner.result },
-            {
-              range? := stxs |>.getRange?
-              task := next.result }]
-          unless reused do
-            withTheReader Term.Context ({ · with
-                tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
-                  some {
-                    old? := oldInner?
-                    new := inner
-                  } else none }) do
-              evalTactic tac
-          finished.resolve { diagnostics := .empty, state? := (← saveState) }
+          let inner ← IO.Promise.new
+          try
+            snap.new.resolve <| .mk {
+              stx := tac
+              diagnostics := .empty
+              finished := finished.result
+            } #[
+              {
+                range? := tac.getRange?
+                task := inner.result },
+              {
+                range? := stxs |>.getRange?
+                task := next.result }]
+            unless reused do
+              withTheReader Term.Context ({ · with
+                  tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
+                    some {
+                      old? := oldInner?
+                      new := inner
+                    } else none }) do
+                evalTactic tac
+            finished.resolve { state? := (← saveState) }
+          finally
+            inner.resolve <| .mk {
+              stx := tac, diagnostics := .empty
+              finished := .pure { state? := none } } #[]
           withTheReader Term.Context ({ · with tacSnap? := some {
             new := next
             old? := oldNext?
           } }) do
             goOdd stxs
         finally
-          inner.resolve <| .mk {
-            stx := tac, diagnostics := .empty
-            finishedSnap := { range? := none, task := .pure { diagnostics := .empty, state? := none } } } #[]
-          finished.resolve { diagnostics := .empty, state? := none }
+          finished.resolve { state? := none }
           next.resolve <| .mk {
             stx := .missing, diagnostics := .empty
-            finishedSnap := { range? := none, task := finished.result } } #[]
+            finished := finished.result } #[]
       else
         evalTactic tac
         goOdd stxs

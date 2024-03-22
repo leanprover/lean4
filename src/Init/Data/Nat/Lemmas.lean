@@ -812,7 +812,7 @@ theorem lt_mul_div_self_add {x k : Nat} (h : 0 < k) : x < k * (x / k) + k := by
   simpa using Int.lt_mul_ediv_self_add (by omega)
 
 theorem mul_sub_mod {x n p : Nat} (h : x < n * p) : (n * p - (x + 1)) % n = n - (x % n + 1) := by
-  rw [mod_eq_sub_div_mul, mul_sub_div _ _ _ h, Nat.sub_sub, Nat.add_comm, ← Nat.sub_sub,
+  rw [mod_eq_sub_div_mul, mul_sub_div h, Nat.sub_sub, Nat.add_comm, ← Nat.sub_sub,
     Nat.mul_comm _ n, ← Nat.mul_sub_left_distrib, Nat.sub_sub_self, mul_succ, Nat.add_comm]
   · conv in (_ + 1) => rw [← mod_add_div x n, Nat.add_right_comm]
     apply Nat.add_sub_add_right

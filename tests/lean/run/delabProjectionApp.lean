@@ -37,7 +37,7 @@ end
 
 section
 /-!
-Checking `pp.structureProjections` can turn off this delaborator.
+Checking `pp.fieldNotation` can turn off this delaborator.
 -/
 
 set_option pp.fieldNotation false

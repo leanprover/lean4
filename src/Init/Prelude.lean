@@ -834,7 +834,7 @@ it is best to use `{_ : Decidable p}` rather than `[Decidable p]`
 so that non-canonical instances can be found via unification rather than
 typeclass search.
 -/
-class inductive Decidable (p : Prop) where
+class inductive Decidable (p : Prop) : Type where
   /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
   | isFalse (h : Not p) : Decidable p
   /-- Prove that `p` is decidable by supplying a proof of `p` -/

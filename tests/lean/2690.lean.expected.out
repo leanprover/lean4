@@ -1,0 +1,2 @@
+Foo₁.{u_1} (α : Type u_1) : Prop
+Foo₂.{u_1} (α : Type u_1) : Prop

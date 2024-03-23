@@ -393,26 +393,37 @@ Get the root key and rest of terms of an expression using the specified config.
 private def rootKey (cfg: WhnfCoreConfig) (e : Expr) : MetaM (Key × Array Expr) :=
   pushArgs true (Array.mkEmpty initCapacity) e cfg
 
-private partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key)
-    (config : WhnfCoreConfig) : MetaM (Array Key) := do
+private partial def buildPath (op : Bool → Array Expr → Expr → MetaM (Key × Array Expr)) (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
     let e    := todo.back
     let todo := todo.pop
-    let (k, todo) ← pushArgs root todo e config
-    mkPathAux false todo (keys.push k) config
+    let (k, todo) ← op root todo e
+    buildPath op false todo (keys.push k)
 
 /--
-Create a path from an expression.
+Create a key path from an expression using the function used for patterns.
 
-This differs from Lean.Meta.DiscrTree.mkPath in that the expression
+This differs from Lean.Meta.DiscrTree.mkPath and targetPath in that the expression
 should uses free variables rather than meta-variables for holes.
 -/
-private def mkPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+def patternPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
   let todo : Array Expr := .mkEmpty initCapacity
-  let keys : Array Key := .mkEmpty initCapacity
-  mkPathAux (root := true) (todo.push e) keys config
+  let op root todo e := pushArgs root todo e config
+  buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
+
+/--
+Create a key path from an expression we are matching against.
+
+This should have mvars instantiated where feasible.
+-/
+def targetPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
+  let todo : Array Expr := .mkEmpty initCapacity
+  let op root todo e := do
+        let (k, args) ← MatchClone.getMatchKeyArgs e root config
+        pure (k, todo ++ args)
+  buildPath op (root := true) (todo.push e) (.mkEmpty initCapacity)
 
 /- Monad for finding matches while resolving deferred patterns. -/
 @[reducible]
@@ -512,7 +523,7 @@ A match result contains the terms formed from matching a term against
 patterns in the discrimination tree.
 
 -/
-private structure MatchResult (α : Type) where
+structure MatchResult (α : Type) where
   /--
   The elements in the match result.
 
@@ -525,7 +536,9 @@ private structure MatchResult (α : Type) where
   -/
   elts : Array (Array (Array α)) := #[]
 
-private def MatchResult.push (r : MatchResult α) (score : Nat) (e : Array α) : MatchResult α :=
+namespace MatchResult
+
+private def push (r : MatchResult α) (score : Nat) (e : Array α) : MatchResult α :=
   if e.isEmpty then
     r
   else if score < r.elts.size then
@@ -539,14 +552,28 @@ private def MatchResult.push (r : MatchResult α) (score : Nat) (e : Array α) :
     termination_by score - a.size
     loop r.elts
 
-private partial def MatchResult.toArray (mr : MatchResult α) : Array α :=
-    loop (Array.mkEmpty n) mr.elts
-  where n := mr.elts.foldl (fun i a => a.foldl (fun n a => n + a.size) i) 0
-        loop (r : Array α) (a : Array (Array (Array α))) :=
-          if a.isEmpty then
-            r
-          else
-            loop (a.back.foldl (init := r) (fun r a => r ++ a)) a.pop
+/--
+Number of elements in result
+-/
+partial def size (mr : MatchResult α) : Nat :=
+  mr.elts.foldl (fun i a => a.foldl (fun n a => n + a.size) i) 0
+
+/--
+Append results to array
+-/
+@[specialize]
+partial def appendResultsAux (mr : MatchResult α) (a : Array β) (f : Nat → α → β) : Array β :=
+  let aa := mr.elts
+  let n := aa.size
+  Nat.fold (n := n) (init := a) fun i r =>
+    let j := n-1-i
+    let b := aa[j]!
+    b.foldl (init := r) (· ++ ·.map (f j))
+
+partial def appendResults (mr : MatchResult α) (a : Array α) : Array α :=
+  mr.appendResultsAux a (fun _ a => a)
+
+end MatchResult
 
 private partial def getMatchLoop (todo : Array Expr) (score : Nat) (c : TrieIndex)
     (result : MatchResult α) : MatchM α (MatchResult α) := do
@@ -619,8 +646,8 @@ private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) :
   The results are ordered so that the longest matches in terms of number of
   non-star keys are first with ties going to earlier operators first.
 -/
-def getMatch (d : LazyDiscrTree α) (e : Expr) : MetaM (Array α × LazyDiscrTree α) :=
-  withReducible <| runMatch d <| (·.toArray) <$> getMatchCore d.roots e
+def getMatch (d : LazyDiscrTree α) (e : Expr) : MetaM (MatchResult α × LazyDiscrTree α) :=
+  withReducible <| runMatch d <| getMatchCore d.roots e
 
 /--
 Structure for quickly initializing a lazy discrimination tree with a large number
@@ -845,21 +872,11 @@ def createLocalPreDiscrTree
   let r ← (env.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
   pure r
 
-/-- Create an imported environment for tree. -/
-def createLocalEnvironment
-    (act : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
-    CoreM (LazyDiscrTree α) := do
-  let env ← getEnv
-  let ngen ← getChildNgen
-  let d ← ImportData.new
-  let t ← createLocalPreDiscrTree ngen env d act
-  let errors ← d.errors.get
-  if p : errors.size > 0 then
-    throw errors[0].exception
-  pure <| t.toLazy
+def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
+  keys.foldlM (init := t) (·.dropKey ·)
 
-/-- Create an imported environment for tree. -/
-def createImportedEnvironment (ngen : NameGenerator) (env : Environment)
+/-- Create a discriminator tree for imported environment. -/
+def createImportedDiscrTree (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (constantsPerTask : Nat := 1000) :
     EIO Exception (LazyDiscrTree α) := do
@@ -889,23 +906,12 @@ def createImportedEnvironment (ngen : NameGenerator) (env : Environment)
     throw r.errors[0].exception
   pure <| r.tree.toLazy
 
-def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
-  keys.foldlM (init := t) (·.dropKey ·)
-
-/--
-`findCandidates` searches for entries in a lazily initialized discriminator tree.
-
-* `ext` should be an environment extension with an IO.Ref for caching the import lazy
-   discriminator tree.
-* `addEntry` is the function for creating discriminator tree entries from constants.
-* `droppedKeys` contains keys we do not want to consider when searching for matches.
-  It is used for dropping very general keys.
--/
-def findCandidates (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
-    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
-    (droppedKeys : List (List LazyDiscrTree.Key) := [])
-    (constantsPerTask : Nat := 1000)
-    (ty : Expr) : MetaM (Array α) := do
+def findImportMatches
+      (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+      (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+      (droppedKeys : List (List LazyDiscrTree.Key) := [])
+      (constantsPerTask : Nat := 1000)
+      (ty : Expr) : MetaM (MatchResult α) := do
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
@@ -913,14 +919,106 @@ def findCandidates (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
   let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
-      let t ← createImportedEnvironment cNGen (←getEnv) addEntry
+      let t ← createImportedDiscrTree cNGen (←getEnv) addEntry
                 (constantsPerTask := constantsPerTask)
       dropKeys t droppedKeys
-  let (localCandidates, _) ←
-    profileitM Exception  "lazy discriminator local search" (←getOptions) $ do
-      let t ← createLocalEnvironment addEntry
-      let t ← dropKeys t droppedKeys
-      t.getMatch ty
   let (importCandidates, importTree) ← importTree.getMatch ty
-  ref.set importTree
-  pure (localCandidates ++ importCandidates)
+  ref.set (some importTree)
+  pure importCandidates
+
+/--
+A discriminator tree for the current module's declarations only.
+
+Note. We use different discriminator trees for imported and current module
+declarations since imported declarations are typically much more numerous but
+not changed after the environment is created.
+-/
+structure ModuleDiscrTreeRef (α : Type _)  where
+  ref : IO.Ref (LazyDiscrTree α)
+
+/-- Create a discriminator tree for current module declarations. -/
+def createModuleDiscrTree
+    (entriesForConst : Name → ConstantInfo → MetaM (Array (InitEntry α))) :
+    CoreM (LazyDiscrTree α) := do
+  let env ← getEnv
+  let ngen ← getChildNgen
+  let d ← ImportData.new
+  let t ← createLocalPreDiscrTree ngen env d entriesForConst
+  let errors ← d.errors.get
+  if p : errors.size > 0 then
+    throw errors[0].exception
+  pure <| t.toLazy
+
+/--
+Creates reference for lazy discriminator tree that only contains this module's definitions.
+-/
+def createModuleTreeRef (entriesForConst : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (droppedKeys : List (List LazyDiscrTree.Key)) : MetaM (ModuleDiscrTreeRef α) := do
+  profileitM Exception "build module discriminator tree" (←getOptions) $ do
+    let t ← createModuleDiscrTree entriesForConst
+    let t ← dropKeys t droppedKeys
+    pure { ref := ← IO.mkRef t }
+
+/--
+Returns candidates from this module in this module that match the expression.
+
+* `moduleRef` is a references to a lazy discriminator tree only containing
+this module's definitions.
+-/
+def findModuleMatches (moduleRef : ModuleDiscrTreeRef α) (ty : Expr) : MetaM (MatchResult α) := do
+  profileitM Exception  "lazy discriminator local search" (←getOptions) $ do
+    let discrTree ← moduleRef.ref.get
+    let (localCandidates, localTree) ← discrTree.getMatch ty
+    moduleRef.ref.set localTree
+    pure localCandidates
+
+/--
+`findMatchesExt` searches for entries in a lazily initialized discriminator tree.
+
+It provides some additional capabilities beyond `findMatches` to adjust results
+based on priority and cache module declarations
+
+* `modulesTreeRef` points to the discriminator tree for local environment.
+  Used for caching and created by `createLocalTree`.
+* `ext` should be an environment extension with an IO.Ref for caching the import lazy
+   discriminator tree.
+* `addEntry` is the function for creating discriminator tree entries from constants.
+* `droppedKeys` contains keys we do not want to consider when searching for matches.
+  It is used for dropping very general keys.
+* `constantsPerTask` stores number of constants in imported modules used to
+  decide when to create new task.
+* `adjustResult` takes the priority and value to produce a final result.
+* `ty` is the expression type.
+-/
+def findMatchesExt
+    (moduleTreeRef : ModuleDiscrTreeRef α)
+    (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (droppedKeys : List (List LazyDiscrTree.Key) := [])
+    (constantsPerTask : Nat := 1000)
+    (adjustResult : Nat → α → β)
+    (ty : Expr) : MetaM (Array β) := do
+  let moduleMatches ← findModuleMatches moduleTreeRef ty
+  let importMatches ← findImportMatches ext addEntry droppedKeys constantsPerTask ty
+  return Array.mkEmpty (moduleMatches.size + importMatches.size)
+          |> moduleMatches.appendResultsAux (f := adjustResult)
+          |> importMatches.appendResultsAux (f := adjustResult)
+
+/--
+`findMatches` searches for entries in a lazily initialized discriminator tree.
+
+* `ext` should be an environment extension with an IO.Ref for caching the import lazy
+   discriminator tree.
+* `addEntry` is the function for creating discriminator tree entries from constants.
+* `droppedKeys` contains keys we do not want to consider when searching for matches.
+  It is used for dropping very general keys.
+-/
+def findMatches (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
+    (addEntry : Name → ConstantInfo → MetaM (Array (InitEntry α)))
+    (droppedKeys : List (List LazyDiscrTree.Key) := [])
+    (constantsPerTask : Nat := 1000)
+    (ty : Expr) : MetaM (Array α) := do
+
+  let moduleTreeRef ← createModuleTreeRef addEntry droppedKeys
+  let incPrio _ v := v
+  findMatchesExt moduleTreeRef ext addEntry droppedKeys constantsPerTask incPrio ty

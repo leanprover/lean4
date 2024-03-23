@@ -21,7 +21,7 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* New command `derive_functinal_induction`:
+* New command `derive_functional_induction`:
 
   Derived from the definition of a (possibly mutually) recursive function
   defined by well-founded recursion, a **functional induction principle** is
@@ -42,7 +42,7 @@ v4.8.0 (development in progress)
   ```
 
 * The termination checker now recognizes more recursion patterns without an
-  explicit `terminatin_by`. In particular the idiom of counting up to an upper
+  explicit `termination_by`. In particular the idiom of counting up to an upper
   bound, as in
   ```
   def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
@@ -57,9 +57,9 @@ v4.8.0 (development in progress)
   rather than `{a := x, b := y, c := z}`.
   This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
 
-* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is a new suboption `pp.fieldNotation.generalized`
-  to enable pretty printing function applications using generalized field notation.
-  Field notation can now be disabled function-by-function using the `@[pp_nodot]` attribute.
+* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
+  to enable pretty printing function applications using generalized field notation (defaults to true).
+  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
 
 Breaking changes:
 
@@ -88,11 +88,9 @@ fact.def :
 -/
 ```
 
-v4.7.0
-Breaking changes:
- * The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
 
-v4.7.0 (development in progress)
+v4.7.0
 ---------
 
 * `simp` and `rw` now use instance arguments found by unification,

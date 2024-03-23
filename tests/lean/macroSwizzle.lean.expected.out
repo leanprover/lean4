@@ -8,4 +8,4 @@ has type
   String : Type
 but is expected to have type
   Nat : Type
-Nat.succ (sorryAx Nat true) : Nat
+(sorryAx Nat true).succ : Nat

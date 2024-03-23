@@ -1319,6 +1319,22 @@ used when closing the goal.
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
 
 /--
+Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
+-/
+syntax rewrites_forbidden := " [" (("-" ident),*,?) "]"
+
+/--
+`rw?` tries to find a lemma which can rewrite the goal.
+
+`rw?` should not be left in proofs; it is a search tool, like `apply?`.
+
+Suggestions are printed as `rw [h]` or `rw [← h]`.
+
+You can use `rw? [-my_lemma, -my_theorem]` to prevent `rw?` using the named lemmas.
+-/
+syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tactic
+
+/--
 `show_term tac` runs `tac`, then prints the generated term in the form
 "exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
 

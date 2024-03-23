@@ -55,7 +55,7 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
       let exprExplicit? ← match i.info with
         | Elab.Info.ofTermInfo ti =>
           pure <| some <| ← ppExprTaggedWithoutTopLevelHighlight ti.expr (explicit := true)
-        | Elab.Info.ofOmissionInfo { toTermInfo := ti } =>
+        | Elab.Info.ofOmissionInfo { toTermInfo := ti, .. } =>
           -- Omitted terms are simply to be expanded, not printed explicitly.
           -- Keep the top-level tag so that users can also see the explicit version
           -- of the omitted term.

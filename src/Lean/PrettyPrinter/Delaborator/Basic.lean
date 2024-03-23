@@ -232,12 +232,21 @@ where
     stx := stx
   }
 
-def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) : DelabM Unit := do
+inductive OmissionReason
+  | deep
+  | proof
+
+def OmissionReason.toString : OmissionReason → String
+  | deep => "This `⋯` denotes a deep term that was omitted when pretty printing. Use `set_option pp.deepTerms true` to pretty print."
+  | proof => "This `⋯` denotes a proof that was omitted when pretty printing. Use `set_option pp.proofs true` to pretty print."
+
+def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
   modify fun s => { s with infos := s.infos.insert pos info }
 where
   mkOmissionInfo stx e := return {
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
+    reason := reason.toString
   }
 
 /--
@@ -327,10 +336,10 @@ def withAnnotateTermInfo (d : Delab) : Delab := do
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the
 subterm omitted by `⋯` is delaborated when hovered over.
 -/
-def omission : Delab := do
+def omission (reason : OmissionReason) : Delab := do
   let stx ← `(⋯)
   let stx ← annotateCurPos stx
-  addOmissionInfo (← getPos) stx (← getExpr)
+  addOmissionInfo (← getPos) stx (← getExpr) reason
   pure stx
 
 partial def delabFor : Name → Delab
@@ -345,10 +354,10 @@ partial def delab : Delab := do
   let e ← getExpr
 
   if ← shouldOmitExpr e then
-    return ← omission
+    return ← omission .deep
 
   if ← shouldOmitProof e then
-    let pf ← omission
+    let pf ← omission .proof
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
       return ← annotateCurPos (← `(($pf : $stx)))

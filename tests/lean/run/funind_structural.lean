@@ -1,3 +1,5 @@
+import Lean.Elab.Command
+
 /-!
 This module tests functional induction principles on *structurally* recursive functions.
 -/
@@ -91,3 +93,22 @@ info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n
 -/
 #guard_msgs in
 #check Finn.min.induct
+
+
+inductive Even : Nat → Prop where
+| zero : Even 0
+| plus2 : Even n → Even (n + 2)
+
+def idEven : Even n → Even n
+| .zero => .zero
+| .plus2 p => .plus2 (idEven p)
+-- Even.brecOn is not recognized by isBRecOnRecursor:
+-- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Even.brecOn}"
+derive_functional_induction idEven
+
+
+-- Acc.brecOn is not recognized by isBRecOnRecursor:
+-- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Acc.brecOn}"
+def idAcc : Acc p x → Acc p x
+  | Acc.intro x f => Acc.intro x (fun y h => idAcc (f y h))
+derive_functional_induction idAcc

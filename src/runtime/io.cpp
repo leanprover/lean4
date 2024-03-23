@@ -471,21 +471,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
     FILE * fp = io_get_handle(h);
     std::string string;
     for (;;) {
-        char buff[64];
-        // fgets leaves the buffer past the NUL character in indeterminate state,
-        // so use fread instead.
-        if (size_t read = std::fread(buff, sizeof(char), sizeof(buff), fp)) {
-            if (char * newl = static_cast<char *>(std::memchr(buff, '\n', read))) {
-                ptrdiff_t count = newl - buff;
-                // Include the newline character (hence, the + 1).
-                string.append(buff, count + 1);
-                // Strict inequality:
-                // Ignore the newline character for the following read.
-                for (ptrdiff_t i = static_cast<ptrdiff_t>(read - 1); i > count; --i)
-                    std::ungetc(buff[i], fp);
+        int c = std::fgetc(fp);
+        if (c != EOF) {
+            string.append(1, c);
+            if (c == '\n')
+                // Do not ungetc -> ignore newline in subsequent reads.
                 return io_result_mk_ok(mk_string(string));
-            }
-            string.append(buff, read);
             continue;
         }
         if (std::ferror(fp))

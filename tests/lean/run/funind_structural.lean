@@ -2,16 +2,14 @@
 This module tests functional induction principles on *structurally* recursive functions.
 -/
 
-
 def fib : Nat → Nat
   | 0 | 1 => 0
   | n+2 => fib n + fib (n+1)
 
 derive_functional_induction fib
 /--
-info: fib.induct :
-  ∀ (a : Nat) (motive : Nat → Prop),
-    motive 0 → motive 1 → (∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) → motive a
+info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
+  (case3 : ∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
 #check fib.induct
@@ -23,12 +21,9 @@ def binary : Nat → Nat → Nat
 
 derive_functional_induction binary
 /--
-info: binary.induct :
-  ∀ (a a_1 : Nat) (motive : Nat → Nat → Prop),
-    (∀ (acc : Nat), motive 0 acc) →
-      (∀ (acc : Nat), motive 1 acc) →
-        (∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive (Nat.succ (Nat.succ n)) acc) →
-          motive a a_1
+info: binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (acc : Nat), motive 0 acc) (case2 : ∀ (acc : Nat), motive 1 acc)
+  (case3 : ∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive (Nat.succ (Nat.succ n)) acc) :
+  ∀ (a a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
 #check binary.induct
@@ -41,13 +36,12 @@ def binary' : Bool → Nat → Bool
 
 derive_functional_induction binary'
 /--
-info: binary'.induct :
-  ∀ (a : Bool) (a_1 : Nat) (motive : Bool → Nat → Prop),
-    (∀ (acc : Bool), motive acc 0) →
-      (∀ (acc : Bool), motive acc 1) →
-        (∀ (acc : Bool) (n : Nat),
-            motive acc (n + 1) → motive (binary' acc (n + 1)) n → motive acc (Nat.succ (Nat.succ n))) →
-          motive a a_1
+info: binary'.induct (motive : Bool → Nat → Prop) (case1 : ∀ (acc : Bool), motive acc 0)
+  (case2 : ∀ (acc : Bool), motive acc 1)
+  (case3 :
+    ∀ (acc : Bool) (n : Nat),
+      motive acc (n + 1) → motive (binary' acc (n + 1)) n → motive acc (Nat.succ (Nat.succ n))) :
+  ∀ (a : Bool) (a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
 #check binary'.induct
@@ -59,11 +53,10 @@ def zip {α β} : List α → List β → List (α × β)
 
 derive_functional_induction zip
 /--
-info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} :
-  ∀ (a : List α) (a_1 : List β) (motive : List α → List β → Prop),
-    (∀ (x : List β), motive [] x) →
-      (∀ (x : List α), (x = [] → False) → motive x []) →
-        (∀ (x : α) (xs : List α) (y : β) (ys : List β), motive xs ys → motive (x :: xs) (y :: ys)) → motive a a_1
+info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α → List β → Prop)
+  (case1 : ∀ (x : List β), motive [] x) (case2 : ∀ (x : List α), (x = [] → False) → motive x [])
+  (case3 : ∀ (x : α) (xs : List α) (y : β) (ys : List β), motive xs ys → motive (x :: xs) (y :: ys)) :
+  ∀ (a : List α) (a_1 : List β), motive a a_1
 -/
 #guard_msgs in
 #check zip.induct
@@ -92,12 +85,11 @@ def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → (f : Finn n) → Finn n
 
 derive_functional_induction Finn.min
 /--
-info: Finn.min.induct (x : Bool) {n : Nat} (m : Nat) :
-  ∀ (a f : Finn n) (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop),
-    (∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1) →
-      (∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero) →
-        (∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m (Finn.fsucc i) (Finn.fsucc j)) →
-          motive x m a f
+info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
+  (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
+  (case2 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero)
+  (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m (Finn.fsucc i) (Finn.fsucc j))
+  (x : Bool) {n : Nat} (m : Nat) : ∀ (a f : Finn n), motive x m a f
 -/
 #guard_msgs in
 #check Finn.min.induct

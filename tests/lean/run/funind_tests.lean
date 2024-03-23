@@ -826,11 +826,11 @@ where
   termination_by as.size - i
 
 /--
-error: Function Errors.takeWhile does not look like a function defined by well-founded recursion.
+error: Function Errors.takeWhile does not look like a function defined by recursion.
 NB: If Errors.takeWhile is not itself recursive, but contains an inner recursive function (via `let rec` or `where`), try `Errors.takeWhile.go` where `go` is name of the inner function.
 -/
 #guard_msgs in
-derive_functional_induction takeWhile -- Cryptic error message
+derive_functional_induction takeWhile
 
 derive_functional_induction takeWhile.foo
 

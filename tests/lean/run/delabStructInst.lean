@@ -27,7 +27,7 @@ set_option pp.structureInstances.flatten false
 /-- info: { x := 1 } : A -/
 #guard_msgs in #check {x := 1 : A}
 
-/-- info: { x := 1, y := 2 } : B -/
+/-- info: { toA := { x := 1 }, y := 2 } : B -/
 #guard_msgs in #check {x := 1, y := 2 : B}
 end
 

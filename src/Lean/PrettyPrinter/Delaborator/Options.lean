@@ -96,7 +96,7 @@ register_builtin_option pp.fieldNotation : Bool := {
   descr    := "(pretty printer) use field notation when pretty printing, including for structure projections, unless '@[pp_nodot]' is applied"
 }
 register_builtin_option pp.fieldNotation.generalized : Bool := {
-  defValue := false -- TODO(kmill): set to true
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) when `pp.fieldNotation` is true, enable using generalized field notation when the argument for field notation is the first explicit argument"
 }

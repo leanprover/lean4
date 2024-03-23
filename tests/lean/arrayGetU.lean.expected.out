@@ -11,4 +11,4 @@ v : Nat
 h₁ : 0 + i < a.size
 h₂ : j < a.size
 h₃ : i = j
-⊢ f a i v (i.zero_add ▸ h₁) = f a j v h₂
+⊢ f a i v (Nat.zero_add i ▸ h₁) = f a j v h₂

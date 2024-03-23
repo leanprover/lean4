@@ -27,7 +27,7 @@ example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by exact Fin.size_pos')
 
-/-- info: Try this: exact x.add_comm y -/
+/-- info: Try this: exact Nat.add_comm x y -/
 #guard_msgs in
 example (x y : Nat) : x + y = y + x := by apply?
 
@@ -46,7 +46,7 @@ example : x < x + 1 := exact?%
 /-- info: Try this: exact p -/
 #guard_msgs in
 example (P : Prop) (p : P) : P := by apply?
-/-- info: Try this: exact (np p).elim -/
+/-- info: Try this: exact False.elim (np p) -/
 #guard_msgs in
 example (P : Prop) (p : P) (np : ¬P) : false := by apply?
 /-- info: Try this: exact h x rfl -/
@@ -62,19 +62,19 @@ example (α : Prop) : α → α := by apply?
 -- example (a b : Prop) (h : a ∧ b) : a := by apply? -- says: `exact h.left`
 -- example (P Q : Prop) : (¬ Q → ¬ P) → (P → Q) := by apply? -- say: `exact Function.mtr`
 
-/-- info: Try this: exact a.add_comm b -/
+/-- info: Try this: exact Nat.add_comm a b -/
 #guard_msgs in
 example (a b : Nat) : a + b = b + a :=
 by apply?
 
-/-- info: Try this: exact n.mul_sub_left_distrib m k -/
+/-- info: Try this: exact Nat.mul_sub_left_distrib n m k -/
 #guard_msgs in
 example (n m k : Nat) : n * (m - k) = n * m - n * k :=
 by apply?
 
 attribute [symm] Eq.symm
 
-/-- info: Try this: exact (n.mul_sub_left_distrib m k).symm -/
+/-- info: Try this: exact Eq.symm (Nat.mul_sub_left_distrib n m k) -/
 #guard_msgs in
 example (n m k : Nat) : n * m - n * k = n * (m - k) := by
   apply?
@@ -109,10 +109,10 @@ by apply?
 example (a b : Nat) (h : a ∣ b) (w : b > 0) : b ≥ a := by apply?
 
 -- TODO: A lemma with head symbol `¬` can be used to prove `¬ p` or `⊥`
-/-- info: Try this: exact a.not_lt_zero -/
+/-- info: Try this: exact Nat.not_lt_zero a -/
 #guard_msgs in
 example (a : Nat) : ¬ (a < 0) := by apply?
-/-- info: Try this: exact a.not_succ_le_zero h -/
+/-- info: Try this: exact Nat.not_succ_le_zero a h -/
 #guard_msgs in
 example (a : Nat) (h : a < 0) : False := by apply?
 
@@ -239,7 +239,7 @@ example {x : Int} (h : x ≠ 0) : 2 * x ≠ 0 := by
 
 -- Check that adding `with_reducible` prevents expensive kernel reductions.
 -- https://leanprover.zulipchat.com/#narrow/stream/287929-mathlib4/topic/.60exact.3F.60.20failure.3A.20.22maximum.20recursion.20depth.20has.20been.20reached.22/near/417649319
-/-- info: Try this: exact n.add_comm m -/
+/-- info: Try this: exact Nat.add_comm n m -/
 #guard_msgs in
 example (_h : List.range 10000 = List.range 10000) (n m : Nat) : n + m = m + n := by
   with_reducible exact?

@@ -57,6 +57,10 @@ v4.8.0 (development in progress)
   rather than `{a := x, b := y, c := z}`.
   This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
 
+* Now structure instances pretty print with parent structures' fields inlined.
+  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
+  Setting option `pp.structureInstances.flatten` to false turns this off.
+
 * Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
   to enable pretty printing function applications using generalized field notation (defaults to true).
   Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.

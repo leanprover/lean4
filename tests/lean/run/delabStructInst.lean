@@ -41,3 +41,15 @@ structure B' where
 
 /-- info: { toA := { x := 1 }, y := 2 } : B' -/
 #guard_msgs in #check {toA := {x := 1}, y := 2 : B'}
+
+/-!
+Check that this handles parameters.
+-/
+structure C (n : Nat) where
+  x : Fin n
+
+structure D (n : Nat) extends C n where
+  y : Nat
+
+/-- info: { x := 1, y := 2 } : D 3 -/
+#guard_msgs in #check {x := 1, y := 2 : D 3}

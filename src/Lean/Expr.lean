@@ -1881,6 +1881,22 @@ def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Ex
   | .lam n _ b _ => some (rest, n, t, v, b)
   | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
 
+/-- Maps `f` on each immediate child of the given expression. -/
+@[specialize]
+def traverseChildren [Applicative M] (f : Expr → M Expr) : Expr → M Expr
+  | e@(forallE _ d b _) => pure e.updateForallE! <*> f d <*> f b
+  | e@(lam _ d b _)     => pure e.updateLambdaE! <*> f d <*> f b
+  | e@(mdata _ b)       => e.updateMData! <$> f b
+  | e@(letE _ t v b _)  => pure e.updateLet! <*> f t <*> f v <*> f b
+  | e@(app l r)         => pure e.updateApp! <*> f l <*> f r
+  | e@(proj _ _ b)      => e.updateProj! <$> f b
+  | e                   => pure e
+
+/-- `e.foldlM f a` folds the monadic function `f` over the subterms of the expression `e`,
+with initial value `a`. -/
+def foldlM {α : Type} {m} [Monad m] (f : α → Expr → m α) (init : α) (e : Expr) : m α :=
+  Prod.snd <$> StateT.run (e.traverseChildren (fun e' => fun a => Prod.mk e' <$> f a e')) init
+
 end Expr
 
 /--

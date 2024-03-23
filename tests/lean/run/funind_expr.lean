@@ -54,22 +54,22 @@ info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), mot
   (case2 : ∀ (a : Bool), motive (Expr.bool a))
   (case3 :
     ∀ (a b : Expr) (h₁ : HasType a Ty.nat) (h₂ : HasType b Ty.nat),
-      Expr.typeCheck b = Maybe.found Ty.nat h₂ →
-        Expr.typeCheck a = Maybe.found Ty.nat h₁ → motive a → motive b → motive (Expr.plus a b))
+      b.typeCheck = Maybe.found Ty.nat h₂ →
+        a.typeCheck = Maybe.found Ty.nat h₁ → motive a → motive b → motive (a.plus b))
   (case4 :
     ∀ (a b : Expr),
       (∀ (h₁ : HasType a Ty.nat) (h₂ : HasType b Ty.nat),
-          Expr.typeCheck a = Maybe.found Ty.nat h₁ → Expr.typeCheck b = Maybe.found Ty.nat h₂ → False) →
-        motive a → motive b → motive (Expr.plus a b))
+          a.typeCheck = Maybe.found Ty.nat h₁ → b.typeCheck = Maybe.found Ty.nat h₂ → False) →
+        motive a → motive b → motive (a.plus b))
   (case5 :
     ∀ (a b : Expr) (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
-      Expr.typeCheck b = Maybe.found Ty.bool h₂ →
-        Expr.typeCheck a = Maybe.found Ty.bool h₁ → motive a → motive b → motive (Expr.and a b))
+      b.typeCheck = Maybe.found Ty.bool h₂ →
+        a.typeCheck = Maybe.found Ty.bool h₁ → motive a → motive b → motive (a.and b))
   (case6 :
     ∀ (a b : Expr),
       (∀ (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
-          Expr.typeCheck a = Maybe.found Ty.bool h₁ → Expr.typeCheck b = Maybe.found Ty.bool h₂ → False) →
-        motive a → motive b → motive (Expr.and a b))
+          a.typeCheck = Maybe.found Ty.bool h₁ → b.typeCheck = Maybe.found Ty.bool h₂ → False) →
+        motive a → motive b → motive (a.and b))
   (e : Expr) : motive e
 -/
 #guard_msgs in

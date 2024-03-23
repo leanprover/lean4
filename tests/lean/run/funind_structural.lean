@@ -9,7 +9,7 @@ def fib : Nat → Nat
 derive_functional_induction fib
 /--
 info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
-  (case3 : ∀ (n : Nat), motive n → motive (n + 1) → motive (Nat.succ (Nat.succ n))) : ∀ (a : Nat), motive a
+  (case3 : ∀ (n : Nat), motive n → motive (n + 1) → motive n.succ.succ) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
 #check fib.induct
@@ -22,7 +22,7 @@ def binary : Nat → Nat → Nat
 derive_functional_induction binary
 /--
 info: binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (acc : Nat), motive 0 acc) (case2 : ∀ (acc : Nat), motive 1 acc)
-  (case3 : ∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive (Nat.succ (Nat.succ n)) acc) :
+  (case3 : ∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive n.succ.succ acc) :
   ∀ (a a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
@@ -38,9 +38,7 @@ derive_functional_induction binary'
 /--
 info: binary'.induct (motive : Bool → Nat → Prop) (case1 : ∀ (acc : Bool), motive acc 0)
   (case2 : ∀ (acc : Bool), motive acc 1)
-  (case3 :
-    ∀ (acc : Bool) (n : Nat),
-      motive acc (n + 1) → motive (binary' acc (n + 1)) n → motive acc (Nat.succ (Nat.succ n))) :
+  (case3 : ∀ (acc : Bool) (n : Nat), motive acc (n + 1) → motive (binary' acc (n + 1)) n → motive acc n.succ.succ) :
   ∀ (a : Bool) (a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
@@ -88,8 +86,8 @@ derive_functional_induction Finn.min
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
   (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
   (case2 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), (x_1 = Finn.fzero → False) → motive x m x_1 Finn.fzero)
-  (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m (Finn.fsucc i) (Finn.fsucc j))
-  (x : Bool) {n : Nat} (m : Nat) : ∀ (a f : Finn n), motive x m a f
+  (case3 : ∀ (x : Bool) (m n : Nat) (i j : Finn n), motive (!x) (m + 1) i j → motive x m i.fsucc j.fsucc) (x : Bool)
+  {n : Nat} (m : Nat) : ∀ (a f : Finn n), motive x m a f
 -/
 #guard_msgs in
 #check Finn.min.induct

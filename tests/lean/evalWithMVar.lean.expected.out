@@ -1,4 +1,4 @@
-Sum.someRight c : Option Nat
+c.someRight : Option Nat
 evalWithMVar.lean:13:6-13:21: error: don't know how to synthesize implicit argument
   @Sum.someRight ?m Nat c
 context:
@@ -7,5 +7,5 @@ evalWithMVar.lean:13:20-13:21: error: don't know how to synthesize implicit argu
   @c ?m
 context:
 ⊢ Type ?u
-Sum.someRight c : Option Nat
-Sum.someRight c : Option Nat
+c.someRight : Option Nat
+c.someRight : Option Nat

@@ -67,7 +67,7 @@ to find candidate lemmas.
 @[reducible]
 def CandidateFinder := Expr → MetaM (Array (Name × DeclMod))
 
-open LazyDiscrTree (InitEntry findCandidates)
+open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
@@ -111,7 +111,7 @@ private def constantsPerImportTask : Nat := 6500
 
 /-- Create function for finding relevant declarations. -/
 def libSearchFindDecls : Expr → MetaM (Array (Name × DeclMod)) :=
-  findCandidates ext addImport
+  findMatches ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
 
@@ -278,15 +278,15 @@ private def librarySearch' (goal : MVarId)
     MetaM (Option (Array (List MVarId × MetavarContext))) := do
   withTraceNode `Tactic.librarySearch (return m!"{librarySearchEmoji ·} {← goal.getType}") do
   profileitM Exception "librarySearch" (← getOptions) do
-  -- Create predicate that returns true when running low on heartbeats.
-  let candidates ← librarySearchSymm libSearchFindDecls goal
-  let cfg : ApplyConfig := { allowSynthFailures := true }
-  let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
-  let act := fun cand => do
-      if ←shouldAbort then
-        abortSpeculation
-      librarySearchLemma cfg tactic allowFailure cand
-  tryOnEach act candidates
+    -- Create predicate that returns true when running low on heartbeats.
+    let candidates ← librarySearchSymm libSearchFindDecls goal
+    let cfg : ApplyConfig := { allowSynthFailures := true }
+    let shouldAbort ← mkHeartbeatCheck leavePercentHeartbeats
+    let act := fun cand => do
+        if ←shouldAbort then
+          abortSpeculation
+        librarySearchLemma cfg tactic allowFailure cand
+    tryOnEach act candidates
 
 /--
 Tries to solve the goal either by:

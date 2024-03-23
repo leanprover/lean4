@@ -50,21 +50,18 @@ derive_functional_induction Finite.functions
 /--
 info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (α : Type) → Finite → List α → Prop)
   (case1 : motive1 Finite.unit) (case2 : motive1 Finite.bool)
-  (case3 : ∀ (t1 t2 : Finite), motive1 t1 → motive1 t2 → motive1 (Finite.pair t1 t2))
-  (case4 :
-    ∀ (t1 t2 : Finite), motive1 t2 → motive2 (Finite.asType t2) t1 (Finite.enumerate t2) → motive1 (Finite.arr t1 t2))
+  (case3 : ∀ (t1 t2 : Finite), motive1 t1 → motive1 t2 → motive1 (t1.pair t2))
+  (case4 : ∀ (t1 t2 : Finite), motive1 t2 → motive2 t2.asType t1 t2.enumerate → motive1 (t1.arr t2))
   (case5 : ∀ (α : Type) (results : List α), motive2 α Finite.unit results)
   (case6 : ∀ (α : Type) (results : List α), motive2 α Finite.bool results)
   (case7 :
     ∀ (α : Type) (results : List α) (t1 t2 : Finite),
-      motive2 α t2 results →
-        motive2 (Finite.asType t2 → α) t1 (Finite.functions t2 results) → motive2 α (Finite.pair t1 t2) results)
+      motive2 α t2 results → motive2 (t2.asType → α) t1 (t2.functions results) → motive2 α (t1.pair t2) results)
   (case8 :
     ∀ (α : Type) (results : List α) (t1 t2 : Finite),
       motive1 t1 →
-        (∀ (rest : List (Finite.asType (Finite.arr t1 t2) → α)),
-            motive2 (Finite.asType (Finite.arr t1 t2) → α) t2 rest) →
-          motive2 α (Finite.arr t1 t2) results)
+        (∀ (rest : List ((t1.arr t2).asType → α)), motive2 ((t1.arr t2).asType → α) t2 rest) →
+          motive2 α (t1.arr t2) results)
   (α : Type) (t : Finite) (results : List α) : motive2 α t results
 -/
 #guard_msgs in

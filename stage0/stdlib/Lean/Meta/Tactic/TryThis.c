@@ -170,6 +170,7 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Basic_0__Lean_L
 static lean_object* l_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__7;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__20;
+lean_object* l_Lean_throwError___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_getIndentAndColumn___lambda__1___boxed(lean_object*);
@@ -273,6 +274,7 @@ lean_object* lean_mk_syntax_ident(lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__24;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_TryThis_0__Lean_Meta_Tactic_TryThis_addExactSuggestionCore(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_946____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__2;
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___at_Lean_Meta_Tactic_TryThis_replaceMVarsByUnderscores___spec__1___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -314,7 +316,6 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__39;
 LEAN_EXPORT lean_object* l_Lean_Meta_Tactic_TryThis_tryThisWidget___closed__3___boxed__const__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__32;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_error___closed__11;
-lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_907____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__4;
 static lean_object* l_List_mapTR_loop___at_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___spec__2___closed__1;
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_asHypothesis___closed__4;
@@ -486,7 +487,6 @@ static lean_object* l_Lean_Meta_Tactic_TryThis_addHaveSuggestion___closed__38;
 double lean_float_sub(double, double);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Tactic_TryThis_SuggestionStyle_value___closed__13;
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_addRewriteSuggestion___spec__1___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Tactic_TryThis_replaceMVarsByUnderscores___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -2974,7 +2974,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__3;
 x_3 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__6;
 x_4 = l_Lean_Meta_Tactic_TryThis_initFn____x40_Lean_Meta_Tactic_TryThis___hyg_761____closed__7;
-x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_907____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_946____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -5610,7 +5610,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -5656,7 +5656,7 @@ lean_ctor_set(x_25, 8, x_20);
 lean_ctor_set(x_25, 9, x_21);
 lean_ctor_set(x_25, 10, x_22);
 lean_ctor_set_uint8(x_25, sizeof(void*)*11, x_23);
-x_26 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_2, x_3, x_4, x_25, x_6, x_7);
+x_26 = l_Lean_throwError___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2(x_2, x_3, x_4, x_25, x_6, x_7);
 lean_dec(x_25);
 return x_26;
 }

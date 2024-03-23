@@ -177,11 +177,15 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   <||> (pure (getPPMotivesPi opts) <&&> returnsPi motive)
   <||> (pure (getPPMotivesNonConst opts) <&&> isNonConstFun motive)
 
+/--
+Takes application syntax and converts it into structure instance notation, if possible.
+Assumes that the application is pretty printed in implicit mode.
+-/
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv
   let e ← getExpr
   let some s ← isConstructorApp? e | failure
-  guard $ isStructure env s.induct;
+  guard <| isStructure env s.induct
   /- If implicit arguments should be shown, and the structure has parameters, we should not
      pretty print using { ... }, because we will not be able to see the parameters. -/
   let fieldNames := getStructureFields env s.induct
@@ -194,6 +198,14 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
   let fieldVals := args.extract s.numParams args.size
   for idx in [:fieldNames.size] do
     let fieldName := fieldNames[idx]!
+    if (← getPPOption getPPStructureInstancesFlatten) && (Lean.isSubobjectField? env s.induct fieldName).isSome then
+      match stx[1][idx] with
+      | `({ $fields',* $[: $_]?}) =>
+        -- We have found a subobject field that itself is printed with structure instance notation.
+        -- Scavange its fields.
+        fields := fields ++ fields'.getElems
+        continue
+      | _ => pure ()
     let fieldId := mkIdent fieldName
     let fieldPos ← nextExtraPos
     let fieldId := annotatePos fieldPos fieldId

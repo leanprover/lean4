@@ -173,6 +173,7 @@ def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α :
   let b := b.instantiate1 (.fvar x)
   k x b
 
+/-- Structural recursion only: recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`. -/
 partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
   if e.isAppOfArity ``PProd.fst 3 then
     if let some e' ← isPProdProj oldIH newIH e.appArg! then
@@ -189,6 +190,7 @@ partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) 
   else
     return none
 
+/-- Structural recursion only: Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.  -/
 def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
   if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
     let arity := e.getAppNumArgs

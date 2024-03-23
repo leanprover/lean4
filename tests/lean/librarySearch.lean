@@ -35,9 +35,7 @@ example (x y : Nat) : x + y = y + x := by apply?
 #guard_msgs in
 example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 
-/--
-info: Try this: exact Nat.mul_dvd_mul_left a w
--/
+/-- info: Try this: exact Nat.mul_dvd_mul_left a w -/
 #guard_msgs in
 example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 

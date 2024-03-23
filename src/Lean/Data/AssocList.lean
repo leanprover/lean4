@@ -54,17 +54,34 @@ def mapVal (f : β → δ) : AssocList α β → AssocList α δ
   | nil        => nil
   | cons k v t => cons k (f v) (mapVal f t)
 
-def findEntry? [BEq α] (a : α) : AssocList α β → Option (α × β)
+/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
+def reverseAux : AssocList α β → AssocList α β → AssocList α β
+  | nil,   r => r
+  | cons k v l, r => reverseAux l (cons k v r)
+
+def reverse (as : AssocList α β) : AssocList α β := reverseAux as nil
+
+@[inline]
+def mapValM {m : Type u → Type v} [Monad m] {α : Type u} {β γ : Type _} (f : β → m γ) (as : AssocList α β) : m (AssocList α γ) :=
+  let rec @[specialize] loop
+    | nil,         bs => pure bs.reverse
+    | cons k v as, bs => do loop as (cons k (← f v) bs)
+  loop as nil
+
+def getEntry? [BEq α] (a : α) : AssocList α β → Option (α × β)
   | nil         => none
   | cons k v es => match k == a with
     | true  => some (k, v)
-    | false => findEntry? a es
+    | false => getEntry? a es
 
-def find? [BEq α] (a : α) : AssocList α β → Option β
+def get? [BEq α] (a : α) : AssocList α β → Option β
   | nil         => none
   | cons k v es => match k == a with
     | true  => some v
-    | false => find? a es
+    | false => get? a es
+
+@[deprecated getEntry?] def findEntry? [BEq α] : α → AssocList α β → Option (α × β) := getEntry?
+@[deprecated getEntry?] def find? [BEq α] : α → AssocList α β → Option β := get?
 
 def contains [BEq α] (a : α) : AssocList α β → Bool
   | nil         => false

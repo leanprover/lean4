@@ -190,21 +190,25 @@ end Erase
 section Membership
 variable (cmp : α → α → Ordering)
 
-@[specialize] def findCore : RBNode α β → (k : α) → Option (Sigma (fun k => β k))
+@[specialize] def getCore : RBNode α β → (k : α) → Option (Sigma (fun k => β k))
   | leaf,             _ => none
   | node _ a ky vy b, x =>
     match cmp x ky with
-    | Ordering.lt => findCore a x
-    | Ordering.gt => findCore b x
+    | Ordering.lt => getCore a x
+    | Ordering.gt => getCore b x
     | Ordering.eq => some ⟨ky, vy⟩
 
-@[specialize] def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
+@[inline] def get {β : Type v} : RBNode α (fun _ => β) → α → Option β
   | leaf,             _ => none
   | node _ a ky vy b, x =>
     match cmp x ky with
-    | Ordering.lt => find a x
-    | Ordering.gt => find b x
+    | Ordering.lt => get a x
+    | Ordering.gt => get b x
     | Ordering.eq => some vy
+
+@[deprecated getCore] def findCore (n : RBNode α β) (k : α) : Option (Sigma (fun k => β k)) := n.getCore cmp k
+
+@[deprecated get] def find {β : Type v} (n : RBNode α (fun _ => β)) (k : α) : Option β := n.get cmp k
 
 @[specialize] def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
   | leaf,             _, lb => lb
@@ -321,14 +325,26 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
   | []        => mkRBMap ..
   | ⟨k,v⟩::xs => (ofList xs).insert k v
 
-@[inline] def findCore? : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
-  | ⟨t, _⟩, x => t.findCore cmp x
+@[inline] def getCore? : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
+  | ⟨t, _⟩, x => t.getCore cmp x
 
-@[inline] def find? : RBMap α β cmp → α → Option β
-  | ⟨t, _⟩, x => t.find cmp x
+@[inline] def get? : RBMap α β cmp → α → Option β
+  | ⟨t, _⟩, x => t.get cmp x
 
-@[inline] def findD (t : RBMap α β cmp) (k : α) (v₀ : β) : β :=
-  (t.find? k).getD v₀
+@[inline] def getD (t : RBMap α β cmp) (k : α) (v : β) : β :=
+  (t.get? k).getD v
+
+/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key. -/
+@[inline] def get! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
+  match t.get? k with
+  | some b => b
+  | none   => panic! "key is not in the map"
+
+@[deprecated getCore?] def findCore? : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β)) := getCore?
+@[deprecated get?] def find? : RBMap α β cmp → α → Option β := get?
+@[deprecated getD] def findD (t : RBMap α β cmp) (k : α) (v₀ : β) : β := t.getD k v₀
+/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key. -/
+@[deprecated get!] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β := t.get! k
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
@@ -369,12 +385,6 @@ def maxDepth (t : RBMap α β cmp) : Nat :=
   match t.max with
   | some p => p
   | none   => panic! "map is empty"
-
-/-- Attempts to find the value with key `k : α` in `t` and panics if there is no such key. -/
-@[inline] def find! [Inhabited β] (t : RBMap α β cmp) (k : α) : β :=
-  match t.find? k with
-  | some b => b
-  | none   => panic! "key is not in the map"
 
 /-- Merges the maps `t₁` and `t₂`, if a key `a : α` exists in both,
 then use `mergeFn a b₁ b₂` to produce the new merged value. -/

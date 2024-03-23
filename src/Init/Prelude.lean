@@ -2544,43 +2544,6 @@ def panic {α : Type u} [Inhabited α] (msg : String) : α :=
 attribute [nospecialize] Inhabited
 
 /--
-The class `GetElem cont idx elem dom` implements the `xs[i]` notation.
-When you write this, given `xs : cont` and `i : idx`, Lean looks for an instance
-of `GetElem cont idx elem dom`. Here `elem` is the type of `xs[i]`, while
-`dom` is whatever proof side conditions are required to make this applicable.
-For example, the instance for arrays looks like
-`GetElem (Array α) Nat α (fun xs i => i < xs.size)`.
-
-The proof side-condition `dom xs i` is automatically dispatched by the
-`get_elem_tactic` tactic, which can be extended by adding more clauses to
-`get_elem_tactic_trivial`.
--/
-class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
-  /--
-  The syntax `arr[i]` gets the `i`'th element of the collection `arr`.
-  If there are proof side conditions to the application, they will be automatically
-  inferred by the `get_elem_tactic` tactic.
-
-  The actual behavior of this class is type-dependent,
-  but here are some important implementations:
-  * `arr[i] : α` where `arr : Array α` and `i : Nat` or `i : USize`:
-    does array indexing with no bounds check and a proof side goal `i < arr.size`.
-  * `l[i] : α` where `l : List α` and `i : Nat`: index into a list,
-    with proof side goal `i < l.length`.
-  * `stx[i] : Syntax` where `stx : Syntax` and `i : Nat`: get a syntax argument,
-    no side goal (returns `.missing` out of range)
-
-  There are other variations on this syntax:
-  * `arr[i]`: proves the proof side goal by `get_elem_tactic`
-  * `arr[i]!`: panics if the side goal is false
-  * `arr[i]?`: returns `none` if the side goal is false
-  * `arr[i]'h`: uses `h` to prove the side goal
-  -/
-  getElem (xs : cont) (i : idx) (h : dom xs i) : elem
-
-export GetElem (getElem)
-
-/--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array)
 with elements from `α`. This type has special support in the runtime.
 
@@ -2636,9 +2599,6 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
-
-instance : GetElem (Array α) Nat α fun xs i => LT.lt i xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
 
 /--
 Push an element onto the end of an array. This is amortized O(1) because
@@ -3906,9 +3866,6 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
   | Syntax.node _ _ args => args.getD i Syntax.missing
   | _                    => Syntax.missing
-
-instance : GetElem Syntax Nat Syntax fun _ _ => True where
-  getElem stx i _ := stx.getArg i
 
 /-- Gets the list of arguments of the syntax node, or `#[]` if it's not a `node`. -/
 def getArgs (stx : Syntax) : Array Syntax :=

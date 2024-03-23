@@ -10,7 +10,7 @@ import Init.Data.Fin.Basic
 import Init.Data.UInt.Basic
 import Init.Data.Repr
 import Init.Data.ToString.Basic
-import Init.Util
+import Init.GetElem
 universe u v w
 
 namespace Array
@@ -58,6 +58,8 @@ def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
+
+instance : LawfulGetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)

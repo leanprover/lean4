@@ -7,6 +7,7 @@ prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Div
+
 set_option linter.missingDocs true -- keep it documented
 open Decidable List
 
@@ -53,15 +54,6 @@ universe u v w
 variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
-
-instance : GetElem (List α) Nat α fun as i => i < as.length where
-  getElem as i h := as.get ⟨i, h⟩
-
-@[simp] theorem cons_getElem_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
-  rfl
-
-@[simp] theorem cons_getElem_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
-  rfl
 
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
@@ -519,11 +511,6 @@ def drop : Nat → List α → List α
 
 @[simp] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-
-theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
-  match as, i with
-  | _::_, 0   => rfl
-  | _::_, i+1 => get_drop_eq_drop _ i _
 
 /--
 `O(min n |xs|)`. Returns the first `n` elements of `xs`, or the whole list if `n` is too large.

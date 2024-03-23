@@ -32,7 +32,7 @@ partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k 
     | PrefixTreeNode.Node _ m, [] =>
       PrefixTreeNode.Node (some val) m -- overrides old value
     | PrefixTreeNode.Node v m, k :: ks =>
-      let t := match RBNode.find cmp m k with
+      let t := match RBNode.get cmp m k with
         | none   => insertEmpty ks
         | some t => loop t ks
       PrefixTreeNode.Node v (RBNode.insert cmp m k t)
@@ -43,7 +43,7 @@ partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k :
   let rec loop
     | PrefixTreeNode.Node val _, [] => val
     | PrefixTreeNode.Node _   m, k :: ks =>
-      match RBNode.find cmp m k with
+      match RBNode.get cmp m k with
       | none   => none
       | some t => loop t ks
   loop t k
@@ -59,7 +59,7 @@ partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (cmp : α → α 
   let rec find : List α → PrefixTreeNode α β → σ → m σ
     | [],    t, d => fold t d
     | k::ks, PrefixTreeNode.Node _ m, d =>
-      match RBNode.find cmp m k with
+      match RBNode.get cmp m k with
       | none   => pure init
       | some t => find ks t d
   find k t init

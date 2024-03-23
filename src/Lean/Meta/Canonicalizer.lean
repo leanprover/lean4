@@ -56,7 +56,7 @@ structure State where
   -- We use `HashMapImp` to ensure we don't have to tag `State` as `unsafe`.
   cache      : HashMapImp ExprVisited Key := mkHashMapImp
   /--
-  Given a key `k` and `keyToExprs.find? k = some es`, we have that all `es` share key `k`, and
+  Given a key `k` and `keyToExprs.get? k = some es`, we have that all `es` share key `k`, and
   are not definitionally equal modulo the transparency setting used. -/
   keyToExprs : HashMapImp Key (List Expr) := mkHashMapImp
 
@@ -78,7 +78,7 @@ private def shareCommon (a : α) : CanonM α :=
     (a, { keys, cache, keyToExprs })
 
 private partial def mkKey (e : Expr) : CanonM Key := do
-  if let some key := unsafe (← get).cache.find? { e } then
+  if let some key := unsafe (← get).cache.get? { e } then
     return key
   else
     let key ← match e with
@@ -125,7 +125,7 @@ private partial def mkKey (e : Expr) : CanonM Key := do
 def canon (e : Expr) : CanonM Expr := do
   let k ← mkKey e
   -- Find all expressions canonicalized before that have the same key.
-  if let some es' := unsafe (← get).keyToExprs.find? k then
+  if let some es' := unsafe (← get).keyToExprs.get? k then
     withTransparency (← read) do
       for e' in es' do
         -- Found an expression `e'` that is definitionally equal to `e` and share the same key.

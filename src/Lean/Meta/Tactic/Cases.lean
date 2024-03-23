@@ -222,15 +222,18 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
       }
 
 private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
-    : MetaM (Array CasesSubgoal) := mvarId.withContext do
+    (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
-  let casesOn := mkCasesOnName ctx.inductiveVal.name
+  let mut casesOn := mkCasesOnName ctx.inductiveVal.name
+  if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat then
+    if ((← getEnv).find? ``Nat.casesAuxOn).isSome then
+       casesOn := ``Nat.casesAuxOn
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) := do
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) := do
   try
     mvarId.withContext do
       mvarId.checkNotAssigned `cases
@@ -243,11 +246,11 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
            allow callers to specify whether they want the `FVarSubst` or not. -/
         if ctx.inductiveVal.numIndices == 0 then
           -- Simple case
-          inductionCasesOn mvarId majorFVarId givenNames ctx
+          inductionCasesOn mvarId majorFVarId givenNames ctx (useNatCasesAuxOn := useNatCasesAuxOn)
         else
           let s₁ ← generalizeIndices mvarId majorFVarId
           trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
-          let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
+          let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx (useNatCasesAuxOn := useNatCasesAuxOn)
           let s₂ ← elimAuxIndices s₁ s₂
           unifyCasesEqs s₁.numEqs s₂
   catch ex =>
@@ -258,9 +261,11 @@ end Cases
 /--
 Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
 `givenNames` contains user-facing names for each alternative.
+
+- `useNatCasesAuxOn` enables using `Nat.casesAuxOn` instead of `Nat.casesOn`.
 -/
-def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
-  Cases.cases mvarId majorFVarId givenNames
+def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)
 
 @[deprecated MVarId.cases]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=

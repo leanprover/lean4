@@ -788,6 +788,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     // so we have to call the underlying windows API directly to get behavior consistent
     // with the unix-like OSs
     bool ok = MoveFileEx(string_cstr(from), string_cstr(to), MOVEFILE_REPLACE_EXISTING) != 0;
+    if (!ok) {
+        errno = GetLastError();
+    }
 #else
     bool ok = std::rename(string_cstr(from), string_cstr(to)) == 0;
 #endif

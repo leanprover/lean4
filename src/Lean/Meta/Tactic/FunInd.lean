@@ -603,8 +603,12 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       logError m!"failed to derive induction priciple:{indentExpr e'}"
       check e'
 
+    let params := (collectLevelParams {} eTyp).params
+    -- Prune unused level parameters, preserving the original order
+    let us := info.levelParams.filter (params.contains ·)
+
     addDecl <| Declaration.thmDecl
-      { name := inductName, levelParams := info.levelParams, type := eTyp, value := e' }
+      { name := inductName, levelParams := us, type := eTyp, value := e' }
     return inductName
 
 /--

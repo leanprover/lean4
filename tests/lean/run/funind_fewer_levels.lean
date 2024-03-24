@@ -13,7 +13,7 @@ termination_by xs => xs
 derive_functional_induction foo
 /--
 info: WellFounded.foo.induct.{v} {α : Type v} (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) : ∀ (a : List α), motive a
+  (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) (x : List α) : motive x
 -/
 #guard_msgs in
 #check foo.induct

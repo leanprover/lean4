@@ -1,15 +1,7 @@
 name: CI
-on:
+on: 
   push:
-    branches:
-      - 'master'
-    tags:
-      - '*'
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
-  merge_group:
-  schedule:
-    - cron: '0 7 * * *'  # 8AM CET/11PM PT
+  pull_request: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}

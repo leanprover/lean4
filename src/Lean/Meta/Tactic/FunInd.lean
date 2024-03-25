@@ -166,7 +166,7 @@ open Lean Elab Meta
 This is used when replacing parameters with different expressions.
 This way it will not be picked up by metavariables.
 -/
-def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α := do
+def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [Monad n] {α} (e : Expr) (k : FVarId → Expr → n α) : n α := do
   let .lam _n _d b _bi := ← whnfD e | throwError "removeLamda: expected lambda, got {e}"
   let x ← mkFreshFVarId
   let b := b.instantiate1 (.fvar x)
@@ -386,10 +386,15 @@ def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
         mvarId ← trySubstVar mvarId localDecl.fvarId
     return mvarId
 
+/--
+Helper monad to traverse the function body, collecting the cases as mvars
+-/
+abbrev M α := StateT (Array MVarId) MetaM α
+
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
+    (goal : Expr) (IHs : Array Expr) (e : Expr) : M Expr := do
   let IHs := IHs ++ (← collectIHs fn oldIH newIH e)
   let IHs ← deduplicateIHs IHs
 
@@ -398,7 +403,8 @@ def buildInductionCase (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : 
   mvarId ← assertIHs IHs mvarId
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
-  _ ← mvarId.cleanup (toPreserve := toPreserve)
+  mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  modify (·.push mvarId)
   let mvar ← instantiateMVars mvar
   pure mvar
 
@@ -437,8 +443,14 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
+/--
+Builds an expression of type `goal` by replicating the expression `e` into its tail-call-positions,
+where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
+as `MVars` as it goes.
+-/
 partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
+    (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : M Expr := do
+  -- logInfo m!"buildInductionBody {e}"
 
   if e.isDIte then
     let #[_α, c, h, t, f] := e.getAppArgs | unreachable!
@@ -459,7 +471,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
     -- Collect IHs from the parameters and discrs of the matcher
     let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
-    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs fn oldIH newIH))
+    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs fn oldIH newIH ·))
 
     -- Calculate motive
     let eType ← newIH.getType
@@ -471,7 +483,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls fn oldIH)
+        (onParams := (foldCalls fn oldIH ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           removeLamda alt fun oldIH' alt => do
@@ -490,7 +502,7 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls fn oldIH)
+        (onParams := (foldCalls fn oldIH ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           buildInductionBody fn toClear toPreserve expAltType oldIH newIH IHs alt)
@@ -513,6 +525,35 @@ partial def buildInductionBody (fn : Expr) (toClear toPreserve : Array FVarId)
       mkLetFun x v' b'
 
   buildInductionCase fn oldIH newIH toClear toPreserve goal IHs e
+
+/--
+Given an expression `e` with metavariables
+* collects all these meta-variables,
+* lifts them to the current context by reverting all local declarations up to `x`
+* introducing a local variable for each of the meta variable
+* assigning that local variable to the mvar
+* and finally lambda-abstracting over these new local variables.
+
+This operation only works if the metavariables are independent from each other.
+
+The resulting meta variable assignment is no longer valid (mentions out-of-scope
+variables), so after this operations, terms that still mention these meta variables must not
+be used anymore.
+
+We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
+do not handle delayed assignemnts correctly.
+-/
+def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : MetaM Expr := do
+  let mvars ← mvars.mapM fun mvar => do
+    let mvar ← substVarAfter mvar x
+    let (_, mvar) ← mvar.revertAfter x
+    pure mvar
+  let decls := mvars.mapIdx fun i mvar =>
+    (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
+  Meta.withLocalDecls decls fun xs => do
+      for mvar in mvars, x in xs do
+        mvar.assign x
+      mkLambdaFVars xs (← instantiateMVars e)
 
 partial def findFixF {α} (name : Name) (e : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α := do
   lambdaTelescope e fun params body => do
@@ -552,7 +593,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
 
     let e' := mkApp3 (.const ``WellFounded.fixF [argLevel, levelZero]) argType rel motive
     let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) params.pop
-    let body' ← forallTelescope (← inferType e').bindingDomain! fun xs _ => do
+    let (body', mvars) ← StateT.run (s := {}) <| forallTelescope (← inferType e').bindingDomain! fun xs _ => do
       let #[param, genIH] := xs | unreachable!
       -- open body with the same arg
       let body ← instantiateLambda body #[param]
@@ -565,27 +606,8 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     let e' := mkApp3 e' body' arg acc
 
     let e' ← mkLambdaFVars #[params.back] e'
-    let mvars ← getMVarsNoDelayed e'
-    let mvars ← mvars.mapM fun mvar => do
-      let mvar ← substVarAfter mvar motive.fvarId!
-      let (_, mvar) ← mvar.revertAfter motive.fvarId!
-      pure mvar
-    -- Using `mkLambdaFVars` on mvars directly does not reliably replace
-    -- the mvars with the parameter, in the presence of delayed assignemnts.
-    -- Also `abstractMVars` does not handle delayed assignments correctly (as of now).
-    -- So instead we bring suitable fvars into scope and use `assign`; this handles
-    -- delayed assignemnts correctly.
-    -- NB: This idiom only works because
-    -- * we know that the `MVars` have the right local context (thanks to `mvarId.revertAfter`)
-    -- * the MVars are independent (so we don’t need to reorder them)
-    -- * we do no need the mvars in their unassigned form later
-    let e' ← Meta.withLocalDecls
-      (mvars.mapIdx (fun i mv => (.mkSimple s!"case{i.val+1}", .default, (fun _ => mv.getType))))
-      fun xs => do
-        for mvar in mvars, x in xs do
-          mvar.assign x
-        let e' ← instantiateMVars e'
-        mkLambdaFVars xs e'
+    let e' ← abstractIndependentMVars mvars motive.fvarId! e'
+    let e' ← mkLambdaFVars #[motive] e'
 
     -- We could pass (usedOnly := true) below, and get nicer induction principles that
     -- do do not mention odd unused parameters.
@@ -593,7 +615,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
     -- that derives them from an function application in the goal) is harder, as
     -- one would have to infer or keep track of which parameters to pass.
     -- So for now lets just keep them around.
-    let e' ← mkLambdaFVars (binderInfoForMVars := .default) (params.pop ++ #[motive]) e'
+    let e' ← mkLambdaFVars (binderInfoForMVars := .default) params.pop e'
     let e' ← instantiateMVars e'
 
     let eTyp ← inferType e'

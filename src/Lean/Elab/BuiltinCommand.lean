@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.CollectLevelParams
+import Lean.Meta.Eqns
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Eval
@@ -769,6 +770,13 @@ def elabRunMeta : CommandElab := fun stx =>
       addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
+
+@[builtin_command_elab Parser.Command.setEquationTheorems] def elabSetEquationTheorems : CommandElab := fun stx => liftCoreM do
+  let declName ← realizeGlobalConstNoOverloadWithInfo stx[1]
+  let eqns ← stx[3].getSepArgs.mapM realizeGlobalConstNoOverloadWithInfo
+  unless ((← getEnv).getModuleIdxFor? declName).isNone do
+    throwError "invalid 'set_equation_theorems', declaration is in an imported module"
+  Meta.setUserEqns declName eqns
 
 @[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"

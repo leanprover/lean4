@@ -137,12 +137,27 @@ private partial def alreadyGenerated? (declName : Name) : MetaM (Option (Array N
     return none
 
 /--
+Equation theorems to use instead of the generated ones.
+-/
+builtin_initialize userEqnsExt : MapDeclarationExtension (Array Name) ← mkMapDeclarationExtension
+
+/--
+Adds the given equation theorems to the user equations extension.
+-/
+def setUserEqns (declName : Name) (eqns : Array Name) : CoreM Unit := do
+  registerEqnThms declName eqns
+  modifyEnv fun env => userEqnsExt.insert env declName eqns
+
+/--
 Returns equation theorems for the given declaration.
 By default, we do not create equation theorems for nonrecursive definitions.
 You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
 -/
 def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do
   if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+    return some eqs
+  else if let some eqs := userEqnsExt.find? (← getEnv) declName then
+    registerEqnThms declName eqs
     return some eqs
   else if let some eqs ← alreadyGenerated? declName then
     return some eqs

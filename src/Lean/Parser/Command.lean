@@ -293,6 +293,13 @@ in the group.
   "derive_functional_induction " >> Parser.ident
 
 /--
+`set_equation_theorems foo [thm1, thm2, thm3]` sets the equation theorems for definition `foo` to the given list of theorems.
+The effect of this is that when `foo` is unfolded it uses these rather than the generated equation theorems.
+-/
+@[builtin_command_parser] def setEquationTheorems := leading_parser
+  "set_equation_theorems " >> ident >> " [" >> sepBy ident ", " >> "]"
+
+/--
   This is an auxiliary command for generation constructor injectivity theorems for
   inductive types defined at `Prelude.lean`.
   It is meant for bootstrapping purposes only. -/

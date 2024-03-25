@@ -312,17 +312,15 @@ where
         m.withContext do
         throwError "couldn't solve by backwards chaining ({``maxBackwardChainingDepth} = {maxDepth}): {MessageData.ofGoal m}"
 
-def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Unit := do
+def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]!
   let name := indVal.name ++ .mkSimple brecOnSuffix
-  let decl := Declaration.thmDecl {
+  return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams
     type := type
     value := ←proveBrecOn ctx indVal type }
-  addDecl decl
-  modifyEnv (markAuxRecursor · name)
 where
   mkType : MetaM Expr :=
     forallTelescopeReducing ctx.headers[idx]! fun xs _ => do
@@ -589,7 +587,8 @@ def mkBelow (declName : Name) : MetaM Unit := do
       ctx.belowNames.forM Lean.mkCasesOn
       for i in [:ctx.typeInfos.size] do
         try
-          IndPredBelow.mkBrecOnDecl ctx i
+          let decl ← IndPredBelow.mkBrecOnDecl ctx i
+          addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
     else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"

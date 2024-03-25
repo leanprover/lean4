@@ -33,7 +33,6 @@ structure ElimInfo where
   elimExpr   : Expr
   elimType   : Expr
   motivePos  : Nat
-  motiveLevel : Level
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
   deriving Repr, Inhabited
@@ -56,12 +55,11 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
     unless motive.isFVar && targets.all (·.isFVar) && targets.size > 0 do
       throwError "unexpected eliminator resulting type{indentExpr type}"
     let motiveType ← inferType motive
-    let motiveLevel ← forallTelescopeReducing motiveType fun motiveArgs motiveResultType => do
+    forallTelescopeReducing motiveType fun motiveArgs motiveResultType => do
       unless motiveArgs.size == targets.size do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-      pure motiveResultType.sortLevel!
     let some motivePos ← pure (xs.indexOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
@@ -82,7 +80,7 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
             let altDeclName := base ++ name
             if env.contains altDeclName then some altDeclName else none
           altsInfo := altsInfo.push { name, declName?, numFields, provesMotive }
-    pure { elimExpr, elimType,  motivePos, motiveLevel, targetsPos, altsInfo }
+    pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
 
 def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   getElimExprInfo (← mkConstWithFreshMVarLevels elimName) baseDeclName?

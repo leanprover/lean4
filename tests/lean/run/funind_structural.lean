@@ -99,15 +99,11 @@ inductive Even : Nat → Prop where
 | zero : Even 0
 | plus2 : Even n → Even (n + 2)
 
-#print Even.below
-
-set_option trace.Elab.definition true in
-set_option trace.Elab.definition.structural true in
 def idEven : Even n → Even n
 | .zero => .zero
 | .plus2 p => .plus2 (idEven p)
-set_option pp.match false in
-#print idEven
+-- Even.brecOn is not recognized by isBRecOnRecursor:
+-- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Even.brecOn}"
 derive_functional_induction idEven
 
 
@@ -115,5 +111,4 @@ derive_functional_induction idEven
 -- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Acc.brecOn}"
 def idAcc : Acc p x → Acc p x
   | Acc.intro x f => Acc.intro x (fun y h => idAcc (f y h))
-#print idAcc
 derive_functional_induction idAcc

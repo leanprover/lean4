@@ -599,18 +599,6 @@ def abstractIndependentMVars (x : FVarId) (e : Expr) : MetaM Expr := do
         mkLambdaFVars xs (← instantiateMVars e)
 
 /--
-Given an elimination expression `e` (in particular a `brecOn`), figure out which level parameter
-(if any) sets the level of the motive.
--/
-def elimMotiveUniverseParamPos (name : Name) : MetaM (Option Nat) := do
-  let e ← mkConstWithFreshMVarLevels name
-  let elimInfo ← getElimExprInfo e
-  for u in e.constLevels!, i in [:e.constLevels!.length] do
-    if u == elimInfo.motiveLevel then
-      return some i
-  return none
-
-/--
 This function looks that the body of a recursive function and looks for either users of
 `fix`, `fixF` or a `.brecOn`, and abstracts over the differences between them. It passes
 to the continuation
@@ -651,11 +639,8 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         unless params == fixedParams ++ varyingParams do
           throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr e}"
 
-
-        let us := match ← elimMotiveUniverseParamPos f.constName! with
-          | some n => f.constLevels!.set n levelZero
-          | none   => f.constLevels!
-        let value := mkAppN (Expr.const f.constName us) (args[:elimInfo.motivePos])
+        let value := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
+        let value := mkAppN value (args[:elimInfo.motivePos])
         k false fixedParams varyingParams targets.size body
           (fun newMotive => do
             -- We may have to reorder the parameters for motive before passing it to brec

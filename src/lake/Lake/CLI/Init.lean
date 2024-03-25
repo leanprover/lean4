@@ -121,8 +121,7 @@ open Lake DSL
 package {pkgName} where
   -- Settings applied to both builds and interactive editing
   leanOptions := #[
-    ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
-    ⟨`pp.proofs.withType, false⟩
+    ⟨`pp.unicode.fun, true⟩ -- pretty-prints `fun a ↦ b`
   ]
   -- add any additional package configuration options here
 
@@ -140,7 +139,6 @@ defaultTargets = [{repr libRoot}]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
-pp.proofs.withType = false
 
 [[require]]
 name = \"mathlib\"

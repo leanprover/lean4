@@ -36,7 +36,7 @@ Lake is part of the [lean4](https://github.com/leanprover/lean4) repository and 
 
 ## Creating and Building a Package
 
-To create a new package, either run `lake init <package-name> [<template>]` to setup the package in the current directory or `lake new <package-name> [<template>]` to create it in a new directory. For example, we could create the package `hello` like so:
+To create a new package, either run `lake init` to setup the package in the current directory or `lake new` to create it in a new directory. For example, we could create the package `hello` like so:
 
 ```
 $ mkdir hello
@@ -115,7 +115,22 @@ $ ./.lake/build/bin/hello
 Hello, world!
 ```
 
-Examples of different package configurations can be found in the [`examples`](examples) folder of this repository. You can also specified a particular configuration file template when using `lake init` or `lake new` to control what files Lake creates. See `lake help init` or `lake help new` for details.
+Examples of different package configurations can be found in the [`examples`](examples) folder of this repository. You can also pass a package template tp `lake init` or `lake new` to control what files Lake creates. For example, instead of using a Lean configuration file for this package, one could produce a TOML version via `lake new hello .toml`.
+
+**lakefile.toml**
+```toml
+name = "hello"
+defaultTargets = ["hello"]
+
+[[lean_lib]]
+name = "Hello"
+
+[[lean_exe]]
+name = "hello"
+root = "Main"
+```
+
+See `lake help init` or `lake help new` for more details on other template options.
 
 ## Glossary of Terms
 
@@ -195,6 +210,12 @@ lean_lib «target-name» where
   -- configuration options go here
 ```
 
+```toml
+[[lean_lib]]
+name = "«target-name»"
+# more configuration options go here
+```
+
 **Configuration Options**
 
 * `srcDir`: The subdirectory of the package's source directory containing the library's source files. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
@@ -215,6 +236,12 @@ A Lean executable target builds a binary executable from a Lean module with a `m
 ```lean
 lean_exe «target-name» where
   -- configuration options go here
+```
+
+```toml
+[[lean_exe]]
+name = "«target-name»"
+# more configuration options go here
 ```
 
 **Configuration Options**
@@ -303,6 +330,19 @@ require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
 The first form adds a local dependency and the second form adds a Git dependency. For a Git dependency, the revision can be a commit hash, branch, or tag. Also, the `@"rev"` and `/"path-to"/"term"` parts of the `require` are optional.
 
 Both forms also support an optional `with` clause to specify arguments to pass to the dependency's package configuration (i.e., same as `args` in a `lake build -- <args...>` invocation). The elements of both the `from` and `with` clauses are proper terms so normal computation is supported within them (though parentheses made be required to disambiguate the syntax).
+
+To `require` a package in a TOML configuration, the equivalent syntax is:
+
+```toml
+[[require]]
+path = "path/to/local/package"
+options = {}
+
+[[require]]
+git = "url.git"
+rev = "rev"
+subDir = "optional/path-to/dir-with-pkg"
+```
 
 ## GitHub Release Builds
 

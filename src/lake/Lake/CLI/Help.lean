@@ -50,13 +50,16 @@ s!"The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency"
+  math                  library only with a mathlib dependency
+
+Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
+version of the configuration file, respectively. The default is Lean."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>]
+  lake new <name> [<template>][.<language>]
 
 {templateHelp}"
 
@@ -64,7 +67,7 @@ def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>]
+  lake init [<name>] [<template>][.<language>]
 
 {templateHelp}
 

@@ -309,8 +309,7 @@ def transform
         splitterNumParams in matchEqns.splitterAltNumParams,
         origAltType in origAltTypes,
         altType in altTypes do
-      let alt' ←
-        forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
+      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
         let altType ← instantiateForall altType ys
         -- The splitter inserts its extra paramters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs

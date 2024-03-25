@@ -671,6 +671,8 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         (mkAppBody : Expr → Expr → Expr) →
         MetaM α) :
     MetaM α := do
+  -- Uses of WellFounded.fix can be partially applied. Here we eta-expand the body
+  -- to avoid dealing with this
   let e ← lambdaTelescope e fun params body => do mkLambdaFVars params (← etaExpand body)
   lambdaTelescope e fun params body => body.withApp fun f args => do
     MatcherApp.withUserNames params varNames do
@@ -701,29 +703,22 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
       else if Name.isSuffixOf `brecOn f.constName! then
         throwError m!"Function {name} is defined in a way not supported by functional induction, " ++
           "for example by recursion over an inductive predicate."
-      else if f.isConstOf ``WellFounded.fixF && args.size == 6 then
-        let body := args[3]!
-        let target := args[4]!
-        let acc := args[5]!
+      else match_expr body with
+      | WellFounded.fixF α rel _motive body target acc =>
         unless params.back == target do
           throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
-        let value := mkAppN value args[:2]
+        let value := .const ``WellFounded.fixF [f.constLevels![0]!, levelZero]
         k true params.pop #[params.back] 1 body
-          (fun newMotive => pure (mkApp value newMotive))
+          (fun newMotive => pure (mkApp3 value α rel newMotive))
           (fun value newBody => mkApp2 value newBody acc)
-      else if f.isConstOf ``WellFounded.fix && args.size == 6 then
-        -- NB: WellFounded.fix is used partially applied
-        let body := args[4]!
-        let target := args[5]!
+      | WellFounded.fix α _motive rel wf body target =>
         unless params.back == target do
           throwError "functional induction: expected the target as last parameter{indentExpr e}"
-        let value := Expr.const f.constName (f.constLevels!.take 1 ++ [levelZero])
+        let value := .const ``WellFounded.fix [f.constLevels![0]!, levelZero]
         k true params.pop #[target] 1 body
-          (fun newMotive => pure (mkApp4 value args[0]! newMotive args[2]! args[3]!))
+          (fun newMotive => pure (mkApp4 value α newMotive rel wf))
           (fun value newBody => mkApp2 value newBody target)
-      else
-        err
+      | _ => err
   where
     err := throwError m!"Function {name} does not look like a function defined by recursion." ++
       m!"\nNB: If {name} is not itself recursive, but contains an inner recursive " ++

@@ -76,6 +76,20 @@ instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α 
 instance [ToJson α] [ToJson β] : ToJson (α × β) where
   toJson := fun (a, b) => Json.arr #[toJson a, toJson b]
 
+instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α ⊕ β) where
+  fromJson? j := do
+    match fromJson? j with
+    | .ok (a : α) => return Sum.inl a
+    | .error _ =>
+      match fromJson? j with
+      | .ok (b : β) => return Sum.inr b
+      | .error _ => throw s!"expected either left or right of a sum type, got '{j}'"
+
+instance [ToJson α] [ToJson β] : ToJson (α ⊕ β) where
+  toJson x := match x with
+  | .inl a => toJson a
+  | .inr b => toJson b
+
 instance : FromJson Name where
   fromJson? j := do
     let s ← j.getStr?
@@ -93,7 +107,7 @@ instance : ToJson Name where
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do
   let s ← j.getStr?
-  let some v := Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
+  let some v := Syntax.decodeNatLitVal? s
     | throw s!"expected a string-encoded number, got '{j}'"
   return v
 

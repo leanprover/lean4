@@ -38,9 +38,6 @@ structure FileMap where
   The first entry is always `0` and the last always the index of the last character.
   In particular, if the last character is a newline, that index will appear twice. -/
   positions : Array String.Pos
-  /-- The line numbers associated with the `positions`.
-  Has the same length as `positions` and is always of the form `#[1, 2, …, n-1, n-1]`. -/
-  lines     : Array Nat
   deriving Inhabited
 
 class MonadFileMap (m : Type → Type) where
@@ -50,40 +47,50 @@ export MonadFileMap (getFileMap)
 
 namespace FileMap
 
+/-- The last line should always be `positions.size - 1`. -/
+def getLastLine (fmap : FileMap) : Nat :=
+  fmap.positions.size - 1
+
+/-- The line numbers associated with the `positions` of the `FileMap`.
+`fmap.getLine i` is the iᵗʰ entry of `#[1, 2, …, n-1, n-1]`
+where `n` is the `size` of `positions`. -/
+def getLine (fmap : FileMap) (x : Nat) : Nat :=
+  min (x + 1) fmap.getLastLine
+
 partial def ofString (s : String) : FileMap :=
-  let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) (lines : Array Nat) : FileMap :=
-    if s.atEnd i then { source := s, positions := ps.push i, lines := lines.push line }
+  let rec loop (i : String.Pos) (line : Nat) (ps : Array String.Pos) : FileMap :=
+    if s.atEnd i then { source := s, positions := ps.push i }
     else
       let c := s.get i
       let i := s.next i
-      if c == '\n' then loop i (line+1) (ps.push i) (lines.push (line+1))
-      else loop i line ps lines
-  loop 0 1 (#[0]) (#[1])
+      if c == '\n' then loop i (line+1) (ps.push i)
+      else loop i line ps
+  loop 0 1 (#[0])
 
 partial def toPosition (fmap : FileMap) (pos : String.Pos) : Position :=
   match fmap with
-  | { source := str, positions := ps, lines := lines } =>
+  | { source := str, positions := ps } =>
     if ps.size >= 2 && pos <= ps.back then
       let rec toColumn (i : String.Pos) (c : Nat) : Nat :=
         if i == pos || str.atEnd i then c
         else toColumn (str.next i) (c+1)
       let rec loop (b e : Nat) :=
         let posB := ps[b]!
-        if e == b + 1 then { line := lines.get! b, column := toColumn posB 0 }
+        if e == b + 1 then { line := fmap.getLine b, column := toColumn posB 0 }
         else
           let m := (b + e) / 2;
           let posM := ps.get! m;
-          if pos == posM then { line := lines.get! m, column := 0 }
+          if pos == posM then { line := fmap.getLine m, column := 0 }
           else if pos > posM then loop m e
           else loop b m
       loop 0 (ps.size -1)
-    else if lines.isEmpty then
+    else if ps.isEmpty then
       ⟨0, 0⟩
     else
       -- Some systems like the delaborator use synthetic positions without an input file,
       -- which would violate `toPositionAux`'s invariant.
       -- Can also happen with EOF errors, which are not strictly inside the file.
-      ⟨lines.back, (pos - ps.back).byteIdx⟩
+      ⟨fmap.getLastLine, (pos - ps.back).byteIdx⟩
 
 /-- Convert a `Lean.Position` to a `String.Pos`. -/
 def ofPosition (text : FileMap) (pos : Position) : String.Pos :=

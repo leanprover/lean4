@@ -72,8 +72,13 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
     simp [Nat.min_def]
     split<;>split<;> omega
 
+theorem zip_get?  {α β} (as : List α) (bs : List β) :
+    (List.zip as bs).get? i = match as.get? i, bs.get? i with
+      | some a, some b => some (a, b) | _, _ => none := by
+  induction as, bs using zip.induct generalizing i
+    <;> cases i <;> simp_all
 
--- Just for testing
+-- Testing recursion on an indexed data type
 inductive Finn : Nat → Type where
   | fzero : {n : Nat} → Finn n
   | fsucc : {n : Nat} → Finn n → Finn (n+1)

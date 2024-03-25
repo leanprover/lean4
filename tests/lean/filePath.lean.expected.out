@@ -10,6 +10,10 @@ some "/a/b"
 some "/"
 some "/"
 none
+true
+true
+true
+true
 some "b"
 some "b"
 some "b.tar"

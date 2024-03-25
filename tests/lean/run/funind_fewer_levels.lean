@@ -60,9 +60,8 @@ end
 
 derive_functional_induction foo
 /--
-info: Mutual.foo.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : motive2 0)
-  (case3 : ∀ (n : Nat), motive2 n → motive1 n.succ) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) :
-  ∀ (a : Nat), motive1 a
+info: Mutual.foo.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : ∀ (n : Nat), motive2 n → motive1 n.succ)
+  (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : ∀ (a : Nat), motive1 a
 -/
 #guard_msgs in
 #check foo.induct
@@ -70,8 +69,8 @@ info: Mutual.foo.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (ca
 example : foo n = .unit := by
   induction n using foo.induct (motive2 := fun n => bar n = .unit) with
   | case1 => unfold foo; rfl
-  | case2 => unfold bar; rfl
-  | case3 n ih => unfold foo; exact ih
+  | case2 n ih => unfold foo; exact ih
+  | case3 => unfold bar; rfl
   | case4 n ih => unfold bar; exact ih
 
 end Mutual

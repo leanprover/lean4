@@ -191,7 +191,7 @@ open Lean Elab Meta
 This is used when replacing parameters with different expressions.
 This way it will not be picked up by metavariables.
 -/
-def removeLamda {α} (e : Expr) (k : FVarId → Expr →  MetaM α) : MetaM α := do
+def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [Monad n] {α} (e : Expr) (k : FVarId → Expr → n α) : n α := do
   let .lam _n _d b _bi := ← whnfD e | throwError "removeLamda: expected lambda, got {e}"
   let x ← mkFreshFVarId
   let b := b.instantiate1 (.fvar x)
@@ -476,10 +476,15 @@ def substVarAfter (mvarId : MVarId) (x : FVarId) : MetaM MVarId := do
         mvarId ← trySubstVar mvarId localDecl.fvarId
     return mvarId
 
+/--
+Helper monad to traverse the function body, collecting the cases as mvars
+-/
+abbrev M α := StateT (Array MVarId) MetaM α
+
 
 /-- Base case of `buildInductionBody`: Construct a case for the final induction hypthesis.  -/
 def buildInductionCase (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
+    (goal : Expr) (IHs : Array Expr) (e : Expr) : M Expr := do
   let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH e)
   let IHs ← deduplicateIHs IHs
 
@@ -488,7 +493,8 @@ def buildInductionCase (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (toClea
   mvarId ← assertIHs IHs mvarId
   for fvarId in toClear do
     mvarId ← mvarId.clear fvarId
-  _ ← mvarId.cleanup (toPreserve := toPreserve)
+  mvarId ← mvarId.cleanup (toPreserve := toPreserve)
+  modify (·.push mvarId)
   let mvar ← instantiateMVars mvar
   pure mvar
 
@@ -527,8 +533,13 @@ def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
     if b then ys := ys.push x
   return ys
 
+/--
+Builds an expression of type `goal` by replicating the expression `e` into its tail-call-positions,
+where it calls `buildInductionCase`. Collects the cases of the final induction hypothesis
+as `MVars` as it goes.
+-/
 partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : Array FVarId)
-    (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : MetaM Expr := do
+    (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : M Expr := do
   -- logInfo m!"buildInductionBody {e}"
 
   if e.isDIte then
@@ -550,7 +561,7 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
     -- Collect IHs from the parameters and discrs of the matcher
     let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs
-    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs is_wf fn oldIH newIH))
+    let IHs := IHs ++ (← paramsAndDiscrs.concatMapM (collectIHs is_wf fn oldIH newIH ·))
 
     -- Calculate motive
     let eType ← newIH.getType
@@ -562,7 +573,7 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
     if matcherApp.remaining.size == 1 && matcherApp.remaining[0]!.isFVarOf oldIH then
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls is_wf fn oldIH newIH)
+        (onParams := (foldCalls is_wf fn oldIH newIH ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           removeLamda alt fun oldIH' alt => do
@@ -581,7 +592,7 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
 
       let matcherApp' ← matcherApp.transform (useSplitter := true)
         (addEqualities := mask.map not)
-        (onParams := foldCalls is_wf fn oldIH newIH)
+        (onParams := (foldCalls is_wf fn oldIH newIH ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (maskArray mask xs)))
         (onAlt := fun expAltType alt => do
           buildInductionBody is_wf fn toClear toPreserve expAltType oldIH newIH IHs alt)
@@ -603,7 +614,7 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
       let b' ← buildInductionBody is_wf fn toClear toPreserve goal oldIH newIH IHs (b.instantiate1 x)
       mkLetFun x v' b'
 
-  buildInductionCase is_wf fn oldIH newIH toClear toPreserve goal IHs e
+  liftM <| buildInductionCase is_wf fn oldIH newIH toClear toPreserve goal IHs e
 
 /--
 Given an expression `e` with metavariables
@@ -622,18 +633,17 @@ be used anymore.
 We are not using `mkLambdaFVars` on mvars directly, nor `abstractMVars`, as these at the moment
 do not handle delayed assignemnts correctly.
 -/
-def abstractIndependentMVars (x : FVarId) (e : Expr) : MetaM Expr := do
-    let mvars ← getMVarsNoDelayed e
-    let mvars ← mvars.mapM fun mvar => do
-      let mvar ← substVarAfter mvar x
-      let (_, mvar) ← mvar.revertAfter x
-      pure mvar
-    let decls := mvars.mapIdx fun i mvar =>
-      (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
-    Meta.withLocalDecls decls fun xs => do
-        for mvar in mvars, x in xs do
-          mvar.assign x
-        mkLambdaFVars xs (← instantiateMVars e)
+def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : MetaM Expr := do
+  let mvars ← mvars.mapM fun mvar => do
+    let mvar ← substVarAfter mvar x
+    let (_, mvar) ← mvar.revertAfter x
+    pure mvar
+  let decls := mvars.mapIdx fun i mvar =>
+    (.mkSimple s!"case{i.val+1}", .default, (fun _ => mvar.getType))
+  Meta.withLocalDecls decls fun xs => do
+      for mvar in mvars, x in xs do
+        mvar.assign x
+      mkLambdaFVars xs (← instantiateMVars e)
 
 /--
 This function looks that the body of a recursive function and looks for either users of
@@ -740,24 +750,25 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
       let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
       let e' ← mkAppMotive motive
       check e'
-      let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
-        let arity := varyingParams.size + 1
-        if xs.size ≠ arity then
-          throwError "expected recursor argument to take {arity} parameters, got {xs}" else
-        let targets : Array Expr := xs[:motivePosInBody]
-        let genIH := xs[motivePosInBody]!
-        let extraParams := xs[motivePosInBody+1:]
-        -- open body with the same arg
-        let body ← instantiateLambda body targets
-        removeLamda body fun oldIH body => do
-          let body ← instantiateLambda body extraParams
-          let body' ← buildInductionBody is_wf fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
-          if body'.containsFVar oldIH then
-            throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
-          mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
+      let (body', mvars) ← StateT.run (s := {}) do
+        forallTelescope (← inferType e').bindingDomain! fun xs goal => do
+          let arity := varyingParams.size + 1
+          if xs.size ≠ arity then
+            throwError "expected recursor argument to take {arity} parameters, got {xs}" else
+          let targets : Array Expr := xs[:motivePosInBody]
+          let genIH := xs[motivePosInBody]!
+          let extraParams := xs[motivePosInBody+1:]
+          -- open body with the same arg
+          let body ← instantiateLambda body targets
+          removeLamda body fun oldIH body => do
+            let body ← instantiateLambda body extraParams
+            let body' ← buildInductionBody is_wf fn #[genIH.fvarId!] #[] goal oldIH genIH.fvarId! #[] body
+            if body'.containsFVar oldIH then
+              throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
+            mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
       let e' := mkAppBody e' body'
       let e' ← mkLambdaFVars varyingParams e'
-      let e' ← abstractIndependentMVars motive.fvarId! e'
+      let e' ← abstractIndependentMVars mvars motive.fvarId! e'
       let e' ← mkLambdaFVars #[motive] e'
 
       -- We could pass (usedOnly := true) below, and get nicer induction principles that

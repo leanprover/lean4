@@ -638,9 +638,12 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
         unless params == fixedParams ++ varyingParams do
           throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr e}"
+        -- we assume the motive's universe parameter is the first
+        unless 1 ≤ f.constLevels!.length do
+          throwError "functional induction: unexpected recursor: {f} has no universe parameters"
+        let us := f.constLevels!.set 0 levelZero
 
-        let value := Expr.const f.constName (levelZero :: f.constLevels!.drop 1)
-        let value := mkAppN value (args[:elimInfo.motivePos])
+        let value := mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
         k false fixedParams varyingParams targets.size body
           (fun newMotive => do
             -- We may have to reorder the parameters for motive before passing it to brec
@@ -648,6 +651,9 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
               (← mkForallFVars extraArgs (mkAppN newMotive varyingParams))
             return mkAppN (mkApp value brecMotive) targets)
           (fun value newBody => mkAppN (.app value newBody) extraArgs)
+      else if Name.isSuffixOf `brecOn f.constName! then
+        throwError m!"Function {name} is defined in a way not supported by functional induction, " ++
+          "for example by recursion over an inductive predicate."
       else if f.isConstOf ``WellFounded.fixF && args.size == 6 then
         let body := args[3]!
         let target := args[4]!

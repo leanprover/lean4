@@ -102,8 +102,10 @@ inductive Even : Nat → Prop where
 def idEven : Even n → Even n
 | .zero => .zero
 | .plus2 p => .plus2 (idEven p)
--- Even.brecOn is not recognized by isBRecOnRecursor:
--- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Even.brecOn}"
+/--
+error: Function idEven is defined in a way not supported by functional induction, for example by recursion over an inductive predicate.
+-/
+#guard_msgs in
 derive_functional_induction idEven
 
 
@@ -111,4 +113,8 @@ derive_functional_induction idEven
 -- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Acc.brecOn}"
 def idAcc : Acc p x → Acc p x
   | Acc.intro x f => Acc.intro x (fun y h => idAcc (f y h))
+/--
+error: Function idAcc is defined in a way not supported by functional induction, for example by recursion over an inductive predicate.
+-/
+#guard_msgs in
 derive_functional_induction idAcc

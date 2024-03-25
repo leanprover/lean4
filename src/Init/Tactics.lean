@@ -224,7 +224,7 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
-Applies the second constructor when
+Applies the first constructor when
 the goal is an inductive type with exactly two constructors, or fails otherwise.
 ```
 example : True ∨ False := by

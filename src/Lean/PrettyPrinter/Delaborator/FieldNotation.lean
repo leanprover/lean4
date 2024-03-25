@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
-import Lean.Meta.Basic
+import Lean.Meta.InferType
 import Lean.PrettyPrinter.Delaborator.Attributes
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Structure
@@ -56,7 +56,7 @@ private def generalizedFieldInfo (c : Name) (args : Array Expr) : MetaM (Name ×
   let info ← getConstInfo c
   -- Search for the first argument that could be used for field notation
   -- and make sure it is the first explicit argument.
-  Meta.forallBoundedTelescope info.type args.size fun params _ => do
+  forallBoundedTelescope info.type args.size fun params _ => do
     for i in [0:params.size] do
       let fvarId := params[i]!.fvarId!
       -- If there is a motive, we will treat this as a sort of control flow structure and so we won't use field notation.
@@ -94,6 +94,8 @@ def fieldNotationCandidate? (f : Expr) (args : Array Expr) (useGeneralizedFieldN
   -- Handle generalized field notation
   if useGeneralizedFieldNotation then
     try
+      -- Avoid field notation for theorems
+      guard !(← isProof f)
       return ← generalizedFieldInfo c args
     catch _ => pure ()
   -- It's not handled by any of the above.

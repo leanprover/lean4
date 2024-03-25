@@ -10,7 +10,6 @@ namespace Nat
 
 attribute [simp] mod_one
 
-
 theorem succ_mod (a b : Nat) : (a + 1) % b = if a % b + 1 = b then 0 else (a % b) + 1 := by
   match b with
   | 0 =>
@@ -41,68 +40,6 @@ theorem eq_sub_iff (a : Nat) {b c : Nat} (p : b ≥ c) : (a = b - c) ↔ (a + c 
 theorem mul_div_self (a b : Nat) : b * (a / b) = a - a % b := by
   conv => rhs; lhs; rw [← Nat.div_add_mod a b]
   simp
-
-theorem dvd_sub_iff {a b : Nat} (h : a ≥ b) : b ∣ (a - b) ↔ b ∣ a := by
-  apply Iff.intro
-  · intro ⟨c, p⟩
-    replace p := Nat.eq_add_of_sub_eq h p
-    apply Exists.intro (c+1)
-    simp [Nat.mul_add, p]
-  · intro ⟨c, p⟩
-    match c with
-    | 0 =>
-      simp_all
-    | c + 1 =>
-      apply Exists.intro c
-      simp [p, Nat.mul_add]
-
-theorem succ_mod_d (a b : Nat) : (a + 1) % b = if b ∣ (a+1) then 0 else a % b + 1 := by
-  match b with
-  | 0 => simp
-  | b + 1 =>
-    match Nat.lt_trichotomy (a+1) (b+1) with
-    | Or.inl q =>
-      have p : a < b + 1 := Nat.le_succ_of_le (Nat.le_of_succ_le_succ q)
-      split
-      · rename_i dvd
-        replace dvd := Nat.mod_eq_zero_of_dvd dvd
-        simp only [Nat.mod_eq_of_lt q] at dvd
-      · rename_i dvd
-        simp only [Nat.mod_eq_of_lt, p, q]
-    | Or.inr (Or.inl p) =>
-      simp [←p]
-    | Or.inr (Or.inr p) =>
-      replace p : a ≥ b + 1 := Nat.le_of_succ_le_succ p
-      have q : a + 1 ≥ b + 1 := Nat.le_succ_of_le p
-      have r := succ_mod_d (a - (b + 1)) (b + 1)
-      simp only [←Nat.sub_add_comm p, ←Nat.mod_eq_sub_mod p, ←Nat.mod_eq_sub_mod q,
-        Nat.dvd_sub_iff q] at r
-      exact r
-
-theorem succ_div_d (a b : Nat) : (a + 1) / b = if b ∣ (a+1) then a / b + 1 else a / b := by
-  match b with
-  | 0 =>
-    simp
-  | b + 1 =>
-    match Nat.lt_trichotomy (a+1) (b+1) with
-    | Or.inl q =>
-      have p : a < b + 1 := Nat.le_succ_of_le (Nat.le_of_succ_le_succ q)
-      split
-      · rename_i dvd
-        replace dvd := Nat.mod_eq_zero_of_dvd dvd
-        simp only [Nat.mod_eq_of_lt q] at dvd
-      · rename_i dvd
-        simp only [Nat.div_eq_of_lt, p, q]
-    | Or.inr (Or.inl p) =>
-      simp [←p, Nat.div_self, Nat.div_eq_of_lt]
-    | Or.inr (Or.inr p) =>
-      replace p : a ≥ b + 1 := Nat.le_of_succ_le_succ p
-      have q : a + 1 ≥ b + 1 := Nat.le_succ_of_le p
-      have r := succ_div_d (a - (b + 1)) (b + 1)
-      simp only [←Nat.sub_add_comm p, Nat.dvd_sub_iff q] at r
-      have b_pos : 0 < b + 1 := Nat.succ_le_succ (Nat.zero_le b)
-      rw [Nat.div_eq_sub_div b_pos p, Nat.div_eq_sub_div b_pos q, r]
-      split <;> simp
 
 end Nat
 
@@ -138,72 +75,12 @@ protected theorem add_lt_iff (a b c : Int) : a + b < c ↔ a < -b + c := by
     apply @Int.lt_of_add_lt_add_left (-b)
     simp [Int.add_comm (-b) (a + b), Int.add_neg_cancel_right, Int.add_comm c (-b), p]
 
-theorem ofNat_not_neg (a : Nat) : (a : Int) < 0 ↔ False := by
-  simp only [iff_false]
-  apply Int.not_le_of_gt
-  simp [Int.add_le_add_iff_left]
-
-theorem ediv_ofNat_negSucc (m n : Nat) : m / -[n+1] = -ofNat (m / Nat.succ n) := rfl
-theorem ediv_negSucc_zero (m : Nat) : -[m+1] / 0 = 0 := rfl
-theorem ediv_negSucc_succ (m n : Nat) : -[m+1] / (n + 1 : Nat) = -((m / (n + 1)) : Nat) + (-1) := by
-  simp [HDiv.hDiv, Div.div, Int.ediv, Int.negSucc_coe', Int.sub_eq_add_neg]
-theorem ediv_negSucc_negSucc (m n : Nat) : -[m+1] / -[n+1] = ((m / (n + 1) + 1) : Nat) := rfl
-
-theorem emod_ofNat   (a : Nat) (b : Int) : Nat.cast a % b = Nat.cast (a % b.natAbs) := rfl
-theorem emod_negSucc (a : Nat) (b : Int) : -[a+1] % b = (b.natAbs : Int) - (a % b.natAbs + 1) := rfl
-
-
-@[simp]
-theorem dvd_natCast_natCast (a b : Nat) : (a : Int) ∣ (b : Int) ↔ a ∣ b := by
-  simp [Int.dvd_iff_mod_eq_zero, Nat.dvd_iff_mod_eq_zero, mod, Int.emod_ofNat,
-    -emod_ofNat]
-  apply Int.ofNat_inj
-
-@[simp]
-theorem dvd_natCast_negSucc (a b : Nat) : (a : Int) ∣ -[ b +1] ↔ a ∣ b+1 := by
-  simp [Int.dvd_iff_mod_eq_zero, Nat.dvd_iff_mod_eq_zero, mod, Int.emod_ofNat,
-    -emod_ofNat]
-  apply Int.ofNat_inj
-
-set_option trace.Meta.Tactic.simp.rewrite true
-
-@[simp]
-theorem dvd_negSucc (a : Nat) (b : Int) : -[a +1] ∣ b ↔ (((a+1 : Nat) : Int) ∣ b) := by
-  apply Iff.intro
-  · intro ⟨c, p⟩
-    apply Exists.intro (-c)
-    match c with
-    | .ofNat 0 =>
-      simp_all
-    | .ofNat (.succ c) =>
-      simp_all [-natCast_add, Int.mul_neg]
-    | -[c+1] =>
-      simp_all [-natCast_add, Int.mul_neg]
-  · intro ⟨c, p⟩
-    apply Exists.intro (-c)
-    match c with
-    | .ofNat 0 =>
-      simp_all
-    | .ofNat (.succ c) =>
-      simp_all [-natCast_add, Int.mul_neg]
-    | -[c+1] =>
-      simp_all [-natCast_add, Int.mul_neg]
-
-theorem dvd_negSucc_negSucc (a b : Nat) : -[a +1] ∣ -[ b +1] ↔ a+1 ∣ b+1 := by
-  simp [-natCast_add, dvd_natCast_negSucc]
 
 attribute [simp] Int.dvd_neg
 attribute [simp] Int.dvd_refl
 attribute [simp] Int.dvd_natAbs
 
---theorem dvd_sub_self (a b : Int) : (a ∣ b - a) ↔ a ∣ b := by
---  simp [Int.sub_eq_add_neg, Int.dvd_add_left]
-
-theorem dvd_sub_natAbs (a b : Int) : (a ∣ (b - a.natAbs)) ↔ a ∣ b := by
-  simp [Int.sub_eq_add_neg, Int.dvd_add_left]
-
-@[simp]
-theorem dvd_mod_self (a b : Int) : (a ∣ (b % a)) ↔ a ∣ b := by
+@[simp]theorem dvd_mod_self (a b : Int) : (a ∣ b % a) ↔ a ∣ b := by
   have p : a ∣ -(a * (b / a)) := by
     simp [Int.dvd_neg, Int.dvd_mul_right]
   simp [Int.emod_def, Int.sub_eq_add_neg, Int.dvd_add_left p]
@@ -233,10 +110,6 @@ theorem emod_neg_iff (m n : Int) : m % n < 0 ↔ (m < 0 ∧ n = 0) := by
     · intro p
       simp [p]
 
-theorem add_emod_of_dvd (a b c : Int) (p : c ∣ b) : (a + b) % c = a % c := by
-  let ⟨d, eq⟩ := p
-  simp [eq]
-
 theorem emod_sub_natAbs_self (m n : Int) : (m - n.natAbs) % n = m % n := by
   simp [Int.sub_eq_add_neg, add_emod_of_dvd]
 
@@ -261,18 +134,17 @@ theorem div_eq_ediv' (a b : Int) : Int.div a b = a / b + ite (a < 0 ∧ ¬(b ∣
     have q : ¬(Nat.cast ((b + 1) : Nat) = (0 : Int)) := by
       norm_cast
     simp [-Int.natCast_add] at q
-    simp [Int.div, ediv_negSucc_succ, Nat.succ_div_d,
-          Int.negSucc_lt_zero, q, true_and,  dvd_natCast_negSucc,
+    simp [Int.div, ediv_negSucc_succ, Nat.succ_div,
+          Int.negSucc_lt_zero, q, true_and,
           -Int.natCast_add]
     split <;> rename_i pg
     · simp [Int.neg_add]
     · simp [Int.neg_add, Int.neg_add_cancel_right]
   | -[m +1], -[n +1] => by
     simp [Int.div, ediv_negSucc_negSucc,
-      dvd_natCast_negSucc,
       Int.negSucc_lt_zero,
       -ofNat_ediv, -natCast_add,
-      Nat.succ_div_d]
+      Nat.succ_div]
     split <;> rename_i h
     . simp
     · simp [Int.add_neg_cancel_right]
@@ -330,38 +202,8 @@ theorem mod_mod (m n : Int) : Int.mod (Int.mod m n) n = Int.mod m n := by
     · simp [Int.add_neg_cancel_right]
 -/
 
+#print       negSucc_coe'
 
-theorem fdiv_eq_ediv' (a b : Int) : Int.fdiv a b = a / b + if b < 0 ∧ ¬(b ∣ a) then (-1) else 0 := by
-  match a, b with
-  | 0,       b       =>
-    simp [Int.fdiv, Int.dvd_zero]
-  | ofNat (Nat.succ m), ofNat n =>
-    simp [Int.fdiv, Int.ofNat_not_neg]
-  | ofNat (Nat.succ m), -[n+1] =>
-    simp [-Int.natCast_add, -Int.ofNat_ediv, Int.fdiv, ediv_ofNat_negSucc, Nat.succ_div_d]
-    split
-    · rename_i h
-      simp [-Int.natCast_add, h, Int.negSucc_lt_zero]
-      rfl
-    · rename_i h
-      have p : (m : Int) + 1 ≠ 0 := by omega
-      simp [-Int.natCast_add, -Int.ofNat_ediv, h, Int.negSucc_lt_zero]
-      simp [Int.negSucc_eq, Int.neg_add, p]
-  | -[_+1],  0       =>
-    simp
-  | -[m+1],  ofNat (Nat.succ n) => rfl
-  | -[m+1],  -[n+1]  =>
-    simp [-Int.natCast_add, -Int.ofNat_ediv, Int.fdiv, Int.ediv_negSucc_negSucc, Nat.succ_div_d]
-    split
-    · rename_i h
-      simp [-Int.natCast_add, -Int.ofNat_ediv, ediv_ofNat_negSucc, Int.negSucc_lt_zero, h]
-    · rename_i h
-      simp [-Int.natCast_add, -Int.ofNat_ediv, Int.negSucc_lt_zero, h]
-      simp [Int.natCast_add, Int.add_neg_cancel_right]
-
-theorem fmod_eq_emod' (a b : Int) : Int.fmod a b = a % b - b * ite (b < 0 ∧ ¬(b ∣ a)) (-1) 0 := by
-  simp [fmod_def, emod_def, fdiv_eq_ediv', Int.sub_eq_add_neg, Int.mul_add, Int.neg_add,
-        Int.add_assoc]
 
 @[simp]
 theorem fmod_emod (m n : Int) : Int.fmod (m % n) n = Int.fmod m n := by
@@ -652,7 +494,7 @@ def elabIntTest : CommandElab := fun _stx => do
 set_option maxHeartbeats 100000000
 set_option pp.coercions false
 --set_option pp.explicit true
-#intTest
+--#intTest
 
 
 namespace Int

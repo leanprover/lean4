@@ -379,5 +379,4 @@ theorem mul_div_le (m n : Nat) : n * (m / n) ≤ m := by
   | _, Or.inl rfl => rw [Nat.zero_mul]; exact m.zero_le
   | n, Or.inr h => rw [Nat.mul_comm, ← Nat.le_div_iff_mul_le h]; exact Nat.le_refl _
 
-
 end Nat

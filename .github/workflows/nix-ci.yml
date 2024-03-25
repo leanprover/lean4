@@ -79,7 +79,7 @@ jobs:
         run: |
           nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ls -R /tmp/nix-build-*; ln -s /tmp/nix-build-*/source/src/build/ ./result; false)
       - name: Test Summary
-        uses: Kha/action@ctest-system-out
+        uses: Kha/test-summary@dist
         with:
           paths: result/test-results.xml
         if: always()

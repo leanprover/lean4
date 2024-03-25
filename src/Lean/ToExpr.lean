@@ -172,6 +172,12 @@ instance : ToExpr FVarId where
   toTypeExpr    := mkConst ``FVarId
   toExpr fvarId := mkApp (mkConst ``FVarId.mk) (toExpr fvarId.name)
 
+instance : ToExpr Syntax.Preresolved where
+  toTypeExpr := .const ``Syntax.Preresolved []
+  toExpr
+    | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
+    | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
+
 def Expr.toCtorIfLit : Expr → Expr
   | .lit (.natVal v) =>
     if v == 0 then mkConst ``Nat.zero

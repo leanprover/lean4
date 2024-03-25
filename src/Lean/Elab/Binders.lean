@@ -70,30 +70,34 @@ def kindOfBinderName (binderName : Name) : LocalDeclKind :=
   else
     .default
 
-partial def quoteAutoTactic : Syntax → TermElabM Syntax
-  | stx@(.ident ..) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
+partial def quoteAutoTactic : Syntax → CoreM Expr
+  | .ident _ _ val preresolved =>
+    return mkApp4 (.const ``Syntax.ident [])
+      (.const ``SourceInfo.none [])
+      (.app (.const ``String.toSubstring []) (mkStrLit (toString val)))
+      (toExpr val)
+      (toExpr preresolved)
   | stx@(.node _ k args) => do
     if stx.isAntiquot then
       throwErrorAt stx "invalid auto tactic, antiquotation is not allowed"
     else
-      let mut quotedArgs ← `(Array.empty)
+      let ty := .const ``Syntax []
+      let mut quotedArgs := mkApp (.const ``Array.empty [.zero]) ty
       for arg in args do
         if k == nullKind && (arg.isAntiquotSuffixSplice || arg.isAntiquotSplice) then
           throwErrorAt arg "invalid auto tactic, antiquotation is not allowed"
         else
           let quotedArg ← quoteAutoTactic arg
-          quotedArgs ← `(Array.push $quotedArgs $quotedArg)
-      `(Syntax.node SourceInfo.none $(quote k) $quotedArgs)
-  | .atom _ val => `(mkAtom $(quote val))
+          quotedArgs := mkApp3 (.const ``Array.push [.zero]) ty quotedArgs quotedArg
+      return mkApp3 (.const ``Syntax.node []) (.const ``SourceInfo.none []) (toExpr k) quotedArgs
+  | .atom _ val => return .app (.const ``mkAtom []) (toExpr val)
   | .missing    => throwError "invalid auto tactic, tactic is missing"
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do
     let name ← MonadQuotation.addMacroScope `_auto
     let type := Lean.mkConst `Lean.Syntax
-    let tactic ← quoteAutoTactic tactic
-    let value ← elabTerm tactic type
-    let value ← instantiateMVars value
+    let value ← quoteAutoTactic tactic
     trace[Elab.autoParam] value
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }

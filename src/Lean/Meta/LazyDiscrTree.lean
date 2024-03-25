@@ -756,6 +756,23 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
 
+def isInternalDetail : Name → Bool
+  | .str p s     =>
+    s.startsWith "_"
+      || s.startsWith "match_"
+      || s.startsWith "proof_"
+      || p.isInternalOrNum
+  | .num _ _     => true
+  | p            => p.isInternalOrNum
+
+def allowInsertion (env : Environment) (declName : Name) : Bool :=
+  allowCompletion env declName
+  && declName != ``sorryAx
+  && !isInternalDetail declName
+  && !(declName matches .str _ "inj")
+  && !(declName matches .str _ "noConfusionType")
+
+
 private def addConstImportData
     (env : Environment)
     (modName : Name)
@@ -765,7 +782,7 @@ private def addConstImportData
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
-  if !allowCompletion env name then return tree
+  if !allowInsertion env name then return tree
   let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)

@@ -33,8 +33,8 @@ end
 #eval tst ``g
 #check g.eq_1
 #check g.eq_2
-#check g.def
+#check g.eq_def
 #eval tst ``h
 #check h.eq_1
 #check h.eq_2
-#check h.def
+#check h.eq_def

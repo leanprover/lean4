@@ -237,8 +237,8 @@ inductive OmissionReason
   | proof
 
 def OmissionReason.toString : OmissionReason → String
-  | deep => "This `⋯` denotes a term omitted due to its depth (see option `pp.deepTerms`)."
-  | proof => "This `⋯` denotes an omitted proof (see option `pp.proofs`)."
+  | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
+  | proof => "Proof omitted (see option `pp.proofs`)."
 
 def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e

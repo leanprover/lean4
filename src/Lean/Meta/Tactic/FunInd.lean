@@ -17,11 +17,11 @@ import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 
 /-!
-This module contains code to derive, from the definition of a recursive function
-(or mutually recursive functions) defined by well-founded recursion, a
-**functional induction principle** tailored to proofs about that function(s). For
-example from:
+This module contains code to derive, from the definition of a recursive function (structural or
+well-founded, possibly mutual), a **functional induction principle** tailored to proofs about that
+function(s).
 
+For example from:
 ```
 def ackermann : Nat → Nat → Nat
   | 0, m => m + 1
@@ -60,7 +60,7 @@ by `MVarId.cleanup`).
 Mutual recursion is supported and results in multiple motives.
 
 
-## Implementation overview
+## Implementation overview (well-founded recursion)
 
 For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
@@ -130,6 +130,8 @@ For a non-mutual, unary function `foo` (or else for the `_unary` function), we
 
 The resulting term then becomes `foo.induct` at its inferred type.
 
+## Implementation overview (mutual/non-unary well-founded recursion)
+
 If `foo` is not unary and/or part of a mutual reduction, then the induction theorem for `foo._unary`
 (i.e. the unary non-mutual recursion function produced by the equation compiler)
 of the form
@@ -155,7 +157,29 @@ foo.induct : {motive1 : a → b → Prop} {motive2 : c → Prop} →
   (x : a) → (y : b) → motive1 x y
 ```
 
+## Implementation overview (structural recursion)
+
+When handling structural recursion, the overall approach is the same, with the following
+differences:
+
+* Instead of `WellFounded.fix` we look for a `.brecOn` application, using `isBRecOnRecursor`
+
+  Despite its name, this function does *not* recognize the `.brecOn` of inductive *predicates*,
+  which we also do not support at this point.
+
+* The elaboration of structurally recursive function can handle extra arguments. We keep the
+  `motive` parameters in the original order.
+
+* The “induction hyothesis” in a `.brecOn` call is a `below x` term that contains all the possible
+  recursive calls, whic are projected out using `.fst.snd.…`. The `is_wf` flag that we pass down
+  tells us which form of induction hypothesis we are looking for.
+
+* If we have nested recursion (`foo n (foo m acc))`), then we need to infer the argument `m` of the
+  nested call `ih.fst.snd acc`. To do so reliably, we replace the `ih` with the “new `ih`”, which
+  will have type `motive m acc`, and since `motive` is a FVar we can then read off the arguments
+  off this nicely..
 -/
+
 
 set_option autoImplicit false
 
@@ -190,7 +214,10 @@ partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) 
   else
     return none
 
-/-- Structural recursion only: Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.  -/
+/--
+Structural recursion only:
+Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd` and `#[a₁, a₂]`.
+-/
 def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
   if e.isAppOf ``PProd.fst || e.isAppOf ``PProd.snd then
     let arity := e.getAppNumArgs
@@ -200,7 +227,13 @@ def isPProdProjWithArgs (oldIH newIH : FVarId) (e : Expr) : MetaM (Option (Expr 
       return some (e', args)
   return none
 
-/-- Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an error is thrown. -/
+/--
+Replace calls to oldIH back to calls to the original function. At the end, if `oldIH` occurs, an
+error is thrown.
+
+The `newIH` will not show up in the output of `foldCalls`, we use it as a helper to infer the
+argument of nested recursive calls when we have structural recursion.
+-/
 partial def foldCalls (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM Expr := do
   unless e.containsFVar oldIH do
     return e
@@ -289,9 +322,13 @@ partial def foldCalls (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Exp
     throwError m!"collectIHs: cannot eliminate unsaturated call to induction hypothesis"
 
 
--- Non-tail-positions: Collect induction hypotheses
--- (TODO: Worth folding with `foldCalls`, like before?)
--- (TODO: Accumulated with a left fold)
+/-
+In non-tail-positions, we collect the induction hypotheses from all the recursive calls.
+-/
+-- We could run `collectIHs` and `foldCalls` together, and save a few traversals. Not sure if it
+-- worth the extra code complexity.
+-- Also, this way of collecting arrays is not as efficient as a left-fold, but we do not expect
+-- large arrays here.
 partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Expr) : MetaM (Array Expr) := do
   unless e.containsFVar oldIH do
     return #[]
@@ -307,11 +344,11 @@ partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Ex
       return ihs.push (mkApp2 (.fvar newIH) arg' proof')
   else
     if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
-      -- The inferred type that comes out of motive projections has beta redexes
       let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
       let ihs ← args.concatMapM (collectIHs is_wf fn oldIH newIH)
       let e' := mkAppN e' args'
       let eTyp ← inferType e'
+      -- The inferred type that comes out of motive projections has beta redexes
       let eType' := eTyp.headBeta
       return ihs.push (← mkExpectedTypeHint e' eType')
 
@@ -620,8 +657,8 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         (varyingParams : Array Expr) →
         (motivePosInBody : Nat) →
         (body : Expr) →
-        (mkMotiveApp : Expr → MetaM Expr) →
-        (mkBodyApp : Expr → Expr → Expr) →
+        (mkAppMotive : Expr → MetaM Expr) →
+        (mkAppBody : Expr → Expr → Expr) →
         MetaM α) :
     MetaM α := do
   let e ← lambdaTelescope e fun params body => do mkLambdaFVars params (← etaExpand body)
@@ -697,11 +734,11 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let varNames ← forallTelescope info.type fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
   let e' ← findRecursor name varNames info.value
-    fun is_wf fixedParams varyingParams motivePosInBody body mkMotiveApp mkBodyApp => do
+    fun is_wf fixedParams varyingParams motivePosInBody body mkAppMotive mkAppBody => do
       let motiveType ← mkForallFVars varyingParams (.sort levelZero)
       withLocalDecl `motive .default motiveType fun motive => do
       let fn := mkAppN (.const name (info.levelParams.map mkLevelParam)) fixedParams
-      let e' ← mkMotiveApp motive
+      let e' ← mkAppMotive motive
       check e'
       let body' ← forallTelescope (← inferType e').bindingDomain! fun xs goal => do
         let arity := varyingParams.size + 1
@@ -718,7 +755,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           if body'.containsFVar oldIH then
             throwError m!"Did not fully eliminate {mkFVar oldIH} from induction principle body:{indentExpr body}"
           mkLambdaFVars (targets.push genIH) (← mkLambdaFVars extraParams body')
-      let e' := mkBodyApp e' body'
+      let e' := mkAppBody e' body'
       let e' ← mkLambdaFVars varyingParams e'
       let e' ← abstractIndependentMVars motive.fvarId! e'
       let e' ← mkLambdaFVars #[motive] e'

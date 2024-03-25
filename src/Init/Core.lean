@@ -1570,28 +1570,28 @@ set_option linter.unusedVariables.funArgs false in
 (that is, an equivalence relation) instead of an arbitrary relation.
 Prefer `Quotient` over `Quot` if your relation is actually an equivalence relation.
 -/
-def Quotient {α : Sort u} (s : Setoid α) :=
+abbrev Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient
 
 /-- The canonical quotient map into a `Quotient`. -/
 @[inline]
-protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
+abbrev mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
   Quot.mk Setoid.r a
 
 /--
 The canonical quotient map into a `Quotient`.
 (This synthesizes the setoid by typeclass inference.)
 -/
-protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
+abbrev mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
   Quotient.mk s a
 
 /--
 The analogue of `Quot.sound`: If `a` and `b` are related by the equivalence relation,
 then they have equal equivalence classes.
 -/
-def sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
+theorem sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
 /--
@@ -1630,7 +1630,7 @@ variable {motive : Quotient s → Sort v}
 
 /-- The analogue of `Quot.rec` for `Quotient`. See `Quot.rec`. -/
 @[inline, elab_as_elim]
-protected def rec
+protected abbrev rec
     (f : (a : α) → motive (Quotient.mk s a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
     (q : Quotient s)

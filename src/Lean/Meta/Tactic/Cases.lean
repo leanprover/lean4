@@ -226,9 +226,8 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
   let mut casesOn := mkCasesOnName ctx.inductiveVal.name
-  if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat then
-    if ((← getEnv).find? ``Nat.casesAuxOn).isSome then
-       casesOn := ``Nat.casesAuxOn
+  if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
+    casesOn := ``Nat.casesAuxOn
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
@@ -262,7 +261,10 @@ end Cases
 Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
 `givenNames` contains user-facing names for each alternative.
 
-- `useNatCasesAuxOn` enables using `Nat.casesAuxOn` instead of `Nat.casesOn`.
+- `useNatCasesAuxOn` is a temporary hack for the `rcases` family of tactics.
+  Do not use it, as it is subject to removal.
+  It enables using `Nat.casesAuxOn` instead of `Nat.casesOn`,
+  which causes case splits on `n : Nat` to be represented as `0` and `n' + 1` rather than as `Nat.zero` and `Nat.succ n'`.
 -/
 def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)

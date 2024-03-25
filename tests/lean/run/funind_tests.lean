@@ -586,7 +586,7 @@ info: RecCallInDisrs.foo.induct (motive : Nat → Prop) (case1 : motive 0)
 set_option linter.unusedVariables false in
 def bar : Nat → Nat
   | 0 => 0
-  | n+1 => match h₁ : n, bar n with
+  | n+1 => match _h : n, bar n with
     | 0, 0 => 0
     | 0, _ => 1
     | m+1, _ => bar m

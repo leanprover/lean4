@@ -298,3 +298,84 @@ def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.com
       map_comp, assoc]
 
 end CategoryTheory
+
+namespace TerminationChecking
+
+-- Some tests to see if `auto` can become the default and only `decreasing_tactic`
+
+example (n: Nat) (h: ¬n = 0) : (invImage (fun x => x) instWellFoundedRelation).1 (n - 1) n := by
+  decreasing_tactic
+  -- auto
+
+-- From `String.Iterator.find`
+open String in
+example (it: Iterator) (p: Char → Bool) (h1 : ¬it.atEnd):
+    (invImage (fun x => PSigma.casesOn (β := fun _ => Char → Bool) (motive := fun _ => Iterator) x fun it _p => it)
+      instWellFoundedRelation).1 ⟨it.next, p⟩ ⟨it, p⟩ := by
+  decreasing_tactic
+  -- auto
+
+def f : Nat → Nat → Nat
+  | 0, 0 => 0
+  | n, m+1 => f (n-1) m
+  | n+1, m => f n (m + n)
+termination_by n m => (n,m)
+decreasing_by
+  -- all_goals auto
+  · -- This requires omega to handle the lexicographic ordering; decreasing_tactic goes in a wrong
+    -- direction
+    fail_if_success decreasing_tactic
+    simp_wf; omega
+  · decreasing_tactic
+
+inductive Tree (α : Type) where
+  | node : List (Tree α) → Tree α
+
+-- Until upstreamed:
+def _root_.List.attach {α} : (l : List α) → List ({ x // x ∈ l}) := sorry
+
+-- The default `decreasing_trivial` uses `List.sizeOf_lt_of_mem` in forward reasoning
+-- to deduce `sizeOf a < sizeOf as` from `a ∈ as`
+def Tree.map (f : α → β) : Tree α → Tree β
+  | .node ts => Tree.node (ts.attach.map fun ⟨t, _⟩ => t.map f)
+decreasing_by
+  · -- auto
+    decreasing_tactic
+
+-- Similarly, it uses `List.sizeOf_get` to know that `sizeOf l[i] < sizeOf l`
+def Tree.map' (f : α → β) : Tree α → Tree β
+  | .node ts => Id.run do
+    let mut ts' := []
+    for h : i in [:ts.length] do
+      ts' := ts' ++ [ts[i].map' f]
+    return .node ts'
+decreasing_by
+  · -- auto
+    decreasing_tactic
+
+end TerminationChecking
+
+namespace GetElem
+
+-- Ideally, auto can also be used as or in get_elem_tactic_trivial, as in these cases:
+
+example (xs : List Nat) (i : Fin xs.length) : Nat := xs[i]'(by
+    -- auto
+    get_elem_tactic_trivial
+  )
+
+example (xs : List Nat) (i : Fin (xs.length - 2)) : Nat := xs[i]'(by
+    -- auto
+    get_elem_tactic_trivial
+  )
+
+def sum (xs : List Nat) := Id.run do
+  let mut s := 0
+  for h : i in [:xs.length] do
+    s := s + xs[i]'(by
+      -- auto
+      get_elem_tactic_trivial
+    )
+  return s
+
+end GetElem

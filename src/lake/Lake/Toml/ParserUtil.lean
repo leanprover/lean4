@@ -282,9 +282,9 @@ def recNode (f : ParserMapFn) : Parser :=
   dynamicNode (recNodeFn f)
 
 def recNodeWithAntiquot (name : String) (kind : SyntaxNodeKind) (f : ParserMapFn) (anonymous := false) : Parser :=
-  withCache name $ withAntiquot (mkAntiquot name kind anonymous true) $ recNode go
+  withCache kind $ withAntiquot (mkAntiquot name kind anonymous true) $ recNode go
 where
-  go p := withCache name $ withAntiquot (mkAntiquot name kind anonymous true) $ f p
+  go p := withCache kind $ withAntiquot (mkAntiquot name kind anonymous true) $ f p
 
 @[inline] def sepByLinebreak (p : Parser) (allowTrailingLinebreak := true) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")

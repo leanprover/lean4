@@ -47,7 +47,7 @@ lean_lib A where
 @[default_target]
 lean_exe b where
   srcDir := "."
-  root := "b"
+  root := `b
   exeName := "b"
   extraDepTargets := #[]
   supportInterpreter := false

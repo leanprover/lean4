@@ -65,14 +65,14 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
   logInfo m
 
-private def printStruct (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
-    (ctor : Name) (fields : List Name) (isUnsafe : Bool) (isClass : Bool) : CommandElabM Unit := do
-  let mut m ← mkHeader' "structure" id levelParams type isUnsafe
+private def printStructOrClass (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+    (ctor : Name) (fields : Array Name) (isUnsafe : Bool) (isClass : Bool) : CommandElabM Unit := do
+  let kind := if isClass then "class" else "structure"
+  let mut m ← mkHeader' kind id levelParams type isUnsafe
   m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
   m := m ++ Format.line ++ "constructor:"
   let cinfo ← getConstInfo ctor
   m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
-  m := m ++ Format.line ++ "class: " ++ toString isClass
   m := m ++ Format.line ++ "fields:"
   for field in fields do
     match getProjFnForField? (← getEnv) id field with
@@ -96,10 +96,8 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
     match getStructureInfo? env id with
     | some { fieldNames, .. } =>
-      let [ctor] := ctors | panic! "missing structure info"
-      let fields := fieldNames.data
-      let cl := isClass env id
-      printStruct id us numParams t ctor fields u cl
+      let [ctor] := ctors | panic! "structures have only one constructor"
+      printStructOrClass id us numParams t ctor fieldNames u (isClass env id)
     | none => printInduct id us numParams t ctors u
   | none => throwUnknownId id
 

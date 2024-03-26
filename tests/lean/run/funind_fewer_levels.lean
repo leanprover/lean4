@@ -9,16 +9,15 @@ def foo.{u} : Nat → PUnit.{u}
 | 0 => .unit
 | n+1 => foo n
 
-derive_functional_induction foo
 /--
 info: Structural.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) :
   ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check foo.induct
+#check Structural.foo.induct
 
 example : foo n = .unit := by
-  induction n using foo.induct with
+  induction n using Structural.foo.induct with
   | case1 => unfold foo; rfl
   | case2 n ih => unfold foo; exact ih
 
@@ -30,16 +29,15 @@ def foo.{u,v} {α : Type v} : List α  → PUnit.{u}
 | _ :: xs => foo xs
 termination_by xs => xs
 
-derive_functional_induction foo
 /--
 info: WellFounded.foo.induct.{v} {α : Type v} (motive : List α → Prop) (case1 : motive [])
   (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
-#check foo.induct
+#check WellFounded.foo.induct
 
 example : foo xs = .unit := by
-  induction xs using foo.induct with
+  induction xs using WellFounded.foo.induct with
   | case1 => unfold foo; rfl
   | case2 _ xs ih => unfold foo; exact ih
 
@@ -58,16 +56,15 @@ def bar.{u} : Nat → PUnit.{u}
 termination_by n => n
 end
 
-derive_functional_induction foo
 /--
 info: Mutual.foo.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : ∀ (n : Nat), motive2 n → motive1 n.succ)
   (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : ∀ (a : Nat), motive1 a
 -/
 #guard_msgs in
-#check foo.induct
+#check Mutual.foo.induct
 
 example : foo n = .unit := by
-  induction n using foo.induct (motive2 := fun n => bar n = .unit) with
+  induction n using Mutual.foo.induct (motive2 := fun n => bar n = .unit) with
   | case1 => unfold foo; rfl
   | case2 n ih => unfold foo; exact ih
   | case3 => unfold bar; rfl

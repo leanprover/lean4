@@ -101,3 +101,5 @@ def _root_.Lean.MVarId.liftReflToEq (mvarId : MVarId) : MetaM MVarId := do
   return mvarId
 
 end Lean.Meta.Rfl
+
+attribute [refl] Eq.refl

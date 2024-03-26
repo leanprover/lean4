@@ -346,7 +346,12 @@ partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Ex
     if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
       let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
       let ihs ← args.concatMapM (collectIHs is_wf fn oldIH newIH)
-      let e' := mkAppN e' args'
+      let t ← whnf (← inferType e')
+      let arity ← forallTelescopeReducing t fun xs t' => do
+        unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
+          throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
+        pure xs.size
+      let e' := mkAppN e' args'[:arity]
       let eTyp ← inferType e'
       -- The inferred type that comes out of motive projections has beta redexes
       let eType' := eTyp.headBeta

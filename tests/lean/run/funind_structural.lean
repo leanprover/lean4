@@ -124,6 +124,7 @@ error: Function idAcc is defined in a way not supported by functional induction,
 #guard_msgs in
 derive_functional_induction idAcc
 
+namespace TreeExample
 
 inductive Tree (β : Type v) where
   | leaf
@@ -143,7 +144,7 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
 derive_functional_induction Tree.insert
 
 /--
-info: Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
+info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
   (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
   (case2 :
     ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
@@ -158,3 +159,72 @@ info: Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β 
 -/
 #guard_msgs in
 #check Tree.insert.induct
+
+end TreeExample
+
+namespace Term
+
+inductive HList {α : Type v} (β : α → Type u) : List α → Type (max u v)
+  | nil  : HList β []
+  | cons : β i → HList β is → HList β (i::is)
+
+inductive Member : α → List α → Type
+  | head : Member a (a::as)
+  | tail : Member a bs → Member a (b::bs)
+
+def HList.get : HList β is → Member i is → β i
+  | .cons a as, .head => a
+  | .cons _ as, .tail h => as.get h
+
+inductive Ty where
+  | nat
+  | fn : Ty → Ty → Ty
+
+@[reducible] def Ty.denote : Ty → Type
+  | nat    => Nat
+  | fn a b => a.denote → b.denote
+
+inductive Term : List Ty → Ty → Type
+  | var   : Member ty ctx → Term ctx ty
+  | const : Nat → Term ctx .nat
+  | plus  : Term ctx .nat → Term ctx .nat → Term ctx .nat
+  | app   : Term ctx (.fn dom ran) → Term ctx dom → Term ctx ran
+  | lam   : Term (.cons dom ctx) ran → Term ctx (.fn dom ran)
+  | let   : Term ctx ty₁ → Term (.cons ty₁ ctx) ty₂ → Term ctx ty₂
+
+def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
+  | .var h,     env => env.get h
+  | .const n,   _   => n
+  | .plus a b,  env => a.denote env + b.denote env
+  -- the following recursive call is interesting: Here the `ty.denote` for `f`'s type
+  -- becomes a function, and thus the recursive call takes an extra argument
+  -- But in the induction principle, we have `motive f` here, which does not
+  -- take an extra argument, so we have to be careful to not pass too many arguments to it
+  | .app f a,   env => f.denote env (a.denote env)
+  | .lam b,     env => fun x => b.denote (.cons x env)
+  | .let a b,   env => b.denote (.cons (a.denote env) env)
+
+derive_functional_induction Term.denote
+
+/--
+info: Term.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)
+  (case1 : ∀ (a : List Ty) (ty : Ty) (h : Member ty a) (env : HList Ty.denote a), motive (Term.var h) env)
+  (case2 : ∀ (a : List Ty) (n : Nat) (x : HList Ty.denote a), motive (Term.const n) x)
+  (case3 :
+    ∀ (a : List Ty) (a_1 b : Term a Ty.nat) (env : HList Ty.denote a),
+      motive a_1 env → motive b env → motive (a_1.plus b) env)
+  (case4 :
+    ∀ (a : List Ty) (ty dom : Ty) (f : Term a (dom.fn ty)) (a_1 : Term a dom) (env : HList Ty.denote a),
+      motive a_1 env → motive f env → motive (f.app a_1) env)
+  (case5 :
+    ∀ (a : List Ty) (dom ran : Ty) (b : Term (dom :: a) ran) (env : HList Ty.denote a),
+      (∀ (x : dom.denote), motive b (HList.cons x env)) → motive b.lam env)
+  (case6 :
+    ∀ (a : List Ty) (ty ty₁ : Ty) (a_1 : Term a ty₁) (b : Term (ty₁ :: a) ty) (env : HList Ty.denote a),
+      motive a_1 env → motive b (HList.cons (a_1.denote env) env) → motive (a_1.let b) env)
+  {ctx : List Ty} {ty : Ty} : ∀ (a : Term ctx ty) (a_1 : HList Ty.denote ctx), motive a a_1
+-/
+#guard_msgs in
+#check Term.denote.induct
+
+end Term

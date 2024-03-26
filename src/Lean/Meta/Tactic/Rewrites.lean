@@ -35,9 +35,12 @@ def forwardWeight := 2
 /-- Weight to multiply the "specificity" of a rewrite lemma by when rewriting backwards. -/
 def backwardWeight := 1
 
+inductive RwDirection : Type where
+  | forward : RwDirection
+  | backward : RwDirection
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
-    MetaM (Array (InitEntry (Name × Bool × Nat))) := do
+    MetaM (Array (InitEntry (Name × RwDirection))) := do
   if constInfo.isUnsafe then return #[]
   if !allowCompletion (←getEnv) name then return #[]
   -- We now remove some injectivity lemmas which are not useful to rewrite by.
@@ -46,16 +49,22 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   match name with
   | .str _ n => if n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
-  withNewMCtxDepth do withReducible do
-    forallTelescopeReducing constInfo.type fun _ type => do
-      match type.getAppFnArgs with
-      | (``Eq, #[_, lhs, rhs])
-      | (``Iff, #[lhs, rhs]) => do
-        let a := Array.mkEmpty 2
-        let a := a.push (← InitEntry.fromExpr lhs (name, false, forwardWeight))
-        let a := a.push (← InitEntry.fromExpr rhs (name, true,  backwardWeight))
-        pure a
-      | _ => return #[]
+  try
+    withNewMCtxDepth do withReducible do
+      forallTelescopeReducing constInfo.type fun _ type => do
+        match type.getAppFnArgs with
+        | (``Eq, #[_, lhs, rhs])
+        | (``Iff, #[lhs, rhs]) => do
+          let a := Array.mkEmpty 2
+          let a := a.push (← InitEntry.fromExpr lhs (name, RwDirection.forward))
+          let a := a.push (← InitEntry.fromExpr rhs (name, RwDirection.backward))
+          pure a
+        | _ => return #[]
+  catch _e =>
+    throwError "Jhx. Timeout initializing entries"
+--      if e.isMaxHeartbeat then
+--      else
+--        throw e
 
 /-- Configuration for `DiscrTree`. -/
 def discrTreeConfig : WhnfCoreConfig := {}
@@ -82,12 +91,12 @@ they match too much.
 -/
 def droppedKeys : List (List LazyDiscrTree.Key) := [[.star], [.const `Eq 3, .star, .star, .star]]
 
-def createModuleTreeRef : MetaM (LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat)) :=
+def createModuleTreeRef : MetaM (LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection)) :=
   LazyDiscrTree.createModuleTreeRef addImport droppedKeys
 
-private def ExtState := IO.Ref (Option (LazyDiscrTree (Name × Bool × Nat)))
+private def ExtState := IO.Ref (Option (LazyDiscrTree (Name × RwDirection)))
 
-private builtin_initialize ExtState.default : IO.Ref (Option (LazyDiscrTree (Name × Bool × Nat))) ← do
+private builtin_initialize ExtState.default : IO.Ref (Option (LazyDiscrTree (Name × RwDirection))) ← do
   IO.mkRef .none
 
 private instance : Inhabited ExtState where
@@ -106,11 +115,14 @@ initialization performance.
 -/
 private def constantsPerImportTask : Nat := 6500
 
-def incPrio : Nat → Name × Bool × Nat → Name × Bool × Nat
-| p, (nm, d, prio) => (nm, d, prio * p)
+def incPrio : Nat → Name × RwDirection → Name × Bool × Nat
+| q, (nm, d) =>
+  match d with
+  | .forward => (nm, false, 2 * q)
+  | .backward => (nm, true, q)
 
 /-- Create function for finding relevant declarations. -/
-def rwFindDecls (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat)) : Expr → MetaM (Array (Name × Bool × Nat)) :=
+def rwFindDecls (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection)) : Expr → MetaM (Array (Name × Bool × Nat)) :=
   LazyDiscrTree.findMatchesExt moduleRef ext addImport
       (droppedKeys := droppedKeys)
       (constantsPerTask := constantsPerImportTask)
@@ -132,14 +144,12 @@ structure RewriteResult where
   mctx : MetavarContext
   rfl? : Bool
 
-/-- Update a `RewriteResult` by filling in the `rfl?` field if it is currently `none`,
-to reflect whether the remaining goal can be closed by `with_reducible rfl`. -/
-def computeRfl (mctx : MetavarContext) (res : Meta.RewriteResult) : MetaM Bool := do
+/-- Check to see if this expression (which must be a type) can be closed by `with_reducible rfl`. -/
+def dischargableWithRfl? (mctx : MetavarContext) (e : Expr) : MetaM Bool := do
   try
     withoutModifyingState <| withMCtx mctx do
       -- We use `withReducible` here to follow the behaviour of `rw`.
-      withReducible (← mkFreshExprMVar res.eNew).mvarId!.applyRfl
-      -- We do not need to record the updated `MetavarContext` here.
+      withReducible (← mkFreshExprMVar e).mvarId!.applyRfl
       pure true
   catch _e =>
     pure false
@@ -178,7 +188,7 @@ def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideC
       | return none
     if result.mvarIds.isEmpty then
       let mctx ← getMCtx
-      let rfl? ← computeRfl mctx result
+      let rfl? ← dischargableWithRfl? mctx result.eNew
       return some { expr, symm, weight, result, mctx, rfl? }
     else
       -- There are side conditions, which we try to discharge using local hypotheses.
@@ -199,7 +209,7 @@ def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideC
           else
             (expr, false)
         let mctx ← getMCtx
-        let rfl? ← computeRfl mctx result
+        let rfl? ← dischargableWithRfl? mctx result.eNew
         return some { expr, symm, weight, result, mctx, rfl? }
 
 /--
@@ -235,7 +245,7 @@ Find lemmas which can rewrite the goal.
 See also `rewrites` for a more convenient interface.
 -/
 def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
-    (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat))
+    (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection))
     (target : Expr)
     (forbidden : NameSet := ∅) :
     MetaM (Array ((Expr ⊕ Name) × Bool × Nat)) := do
@@ -304,7 +314,7 @@ def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : 
       let s ← withoutModifyingState <| withMCtx r.mctx r.ppResult
       if seen.contains s then
         continue
-      let rfl? ← computeRfl r.mctx r.result
+      let rfl? ← dischargableWithRfl? r.mctx r.result.eNew
       if cfg.stopAtRfl then
         if rfl? then
           return #[r]
@@ -318,7 +328,7 @@ def takeListAux (cfg : RewriteResultConfig) (seen : HashMap String Unit) (acc : 
 
 /-- Find lemmas which can rewrite the goal. -/
 def findRewrites (hyps : Array (Expr × Bool × Nat))
-    (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat))
+    (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × RwDirection))
     (goal : MVarId) (target : Expr)
     (forbidden : NameSet := ∅) (side : SideConditions := .solveByElim)
     (stopAtRfl : Bool) (max : Nat := 20)

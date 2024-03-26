@@ -445,6 +445,35 @@ private def newTrie [Monad m] [MonadState (Array (Trie α)) m] (e : LazyEntry α
 private def addLazyEntryToTrie (i:TrieIndex) (e : LazyEntry α) : MatchM α Unit :=
   modify (·.modify i (·.pushPending e))
 
+private def evalLazyEntry (config : WhnfCoreConfig)
+    (p : Array α × TrieIndex × HashMap Key TrieIndex)
+    (entry : LazyEntry α)
+    : MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
+  let (values, starIdx, children) := p
+  let (todo, lctx, v) := entry
+  if todo.isEmpty then
+    let values := values.push v
+    pure (values, starIdx, children)
+  else
+    let e    := todo.back
+    let todo := todo.pop
+    let (k, todo) ← withLCtx lctx.1 lctx.2 $ pushArgs false todo e config
+    if k == .star then
+      if starIdx = 0 then
+        let starIdx ← newTrie (todo, lctx, v)
+        pure (values, starIdx, children)
+      else
+        addLazyEntryToTrie starIdx (todo, lctx, v)
+        pure (values, starIdx, children)
+    else
+      match children.find? k with
+      | none =>
+        let children := children.insert k (← newTrie (todo, lctx, v))
+        pure (values, starIdx, children)
+      | some idx =>
+        addLazyEntryToTrie idx (todo, lctx, v)
+        pure (values, starIdx, children)
+
 /--
 This evaluates all lazy entries in a trie and updates `values`, `starIdx`, and `children`
 accordingly.
@@ -453,34 +482,10 @@ private partial def evalLazyEntries (config : WhnfCoreConfig)
     (values : Array α) (starIdx : TrieIndex) (children : HashMap Key TrieIndex)
     (entries : Array (LazyEntry α)) :
     MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
-  let rec iter values starIdx children (i : Nat) : MatchM α _ := do
-        if p : i < entries.size then
-          let (todo, lctx, v) := entries[i]
-          if todo.isEmpty then
-            let values := values.push v
-            iter values starIdx children (i+1)
-          else
-            let e    := todo.back
-            let todo := todo.pop
-            let (k, todo) ← withLCtx lctx.1 lctx.2 $ pushArgs false todo e config
-            if k == .star then
-              if starIdx = 0 then
-                let starIdx ← newTrie (todo, lctx, v)
-                iter values starIdx children (i+1)
-              else
-                addLazyEntryToTrie starIdx (todo, lctx, v)
-                iter values starIdx children (i+1)
-            else
-              match children.find? k with
-              | none =>
-                let children := children.insert k (← newTrie (todo, lctx, v))
-                iter values starIdx children (i+1)
-              | some idx =>
-                addLazyEntryToTrie idx (todo, lctx, v)
-                iter values starIdx children (i+1)
-        else
-          pure (values, starIdx, children)
-  iter values starIdx children 0
+  let mut values := values
+  let mut starIdx := starIdx
+  let mut children := children
+  entries.foldlM (init := (values, starIdx, children)) (evalLazyEntry config)
 
 private def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × HashMap Key TrieIndex) := do
@@ -590,7 +595,7 @@ private partial def getMatchLoop (todo : Array Expr) (score : Nat) (c : TrieInde
         and there is an edge for `k` and `k != Key.star`. -/
     let visitStar (result : MatchResult α) : MatchM α (MatchResult α) :=
       if star != 0 then
-        getMatchLoop todo score star result
+        getMatchLoop todo (score + 1) star result
       else
         return result
     let visitNonStar (k : Key) (args : Array Expr) (result : MatchResult α) :=
@@ -617,13 +622,13 @@ private def getStarResult (root : Lean.HashMap Key TrieIndex) : MatchM α (Match
     pure <| {}
   | some idx => do
     let (vs, _) ← evalNode idx
-    pure <| ({} : MatchResult α).push 0 vs
+    pure <| ({} : MatchResult α).push (score := 1) vs
 
 private def getMatchRoot (r : Lean.HashMap Key TrieIndex) (k : Key) (args : Array Expr)
     (result : MatchResult α) : MatchM α (MatchResult α) :=
   match r.find? k with
   | none => pure result
-  | some c => getMatchLoop args 1 c result
+  | some c => getMatchLoop args (score := 1) c result
 
 /--
   Find values that match `e` in `root`.
@@ -631,12 +636,12 @@ private def getMatchRoot (r : Lean.HashMap Key TrieIndex) (k : Key) (args : Arra
 private def getMatchCore (root : Lean.HashMap Key TrieIndex) (e : Expr) :
     MatchM α (MatchResult α) := do
   let result ← getStarResult root
-  let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (←read)
+  let (k, args) ← MatchClone.getMatchKeyArgs e (root := true) (← read)
   match k with
   | .star  => return result
   /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
   | .arrow =>
-    getMatchRoot root k args (←getMatchRoot root .other #[] result)
+    getMatchRoot root k args (← getMatchRoot root .other #[] result)
   | _ =>
     getMatchRoot root k args result
 
@@ -756,21 +761,25 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
 
+def matchPrefix (s : String) (pre : String) :=
+  s.startsWith pre && (s |>.drop pre.length |>.all Char.isDigit)
+
 def isInternalDetail : Name → Bool
   | .str p s     =>
     s.startsWith "_"
-      || s.startsWith "match_"
-      || s.startsWith "proof_"
+      || matchPrefix s "eq_"
+      || matchPrefix s "match_"
+      || matchPrefix s "proof_"
       || p.isInternalOrNum
   | .num _ _     => true
   | p            => p.isInternalOrNum
 
-def allowInsertion (env : Environment) (declName : Name) : Bool :=
-  allowCompletion env declName
-  && declName != ``sorryAx
-  && !isInternalDetail declName
-  && !(declName matches .str _ "inj")
-  && !(declName matches .str _ "noConfusionType")
+def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
+  !allowCompletion env declName
+  || declName == ``sorryAx
+  || isInternalDetail declName
+  || (declName matches .str _ "inj")
+  || (declName matches .str _ "noConfusionType")
 
 private def addConstImportData
     (cctx : Core.Context)
@@ -782,7 +791,7 @@ private def addConstImportData
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (name : Name) (constInfo : ConstantInfo) : BaseIO (PreDiscrTree α) := do
   if constInfo.isUnsafe then return tree
-  if !allowInsertion env name then return tree
+  if blacklistInsertion env name then return tree
   let { ngen, core := core_cache, meta := meta_cache } ← cacheRef.get
   let mstate : Meta.State := { cache := meta_cache }
   cacheRef.set (Cache.empty ngen)
@@ -932,6 +941,7 @@ private def createTreeCtx (ctx : Core.Context) : Core.Context := {
     fileMap := ctx.fileMap,
     options := ctx.options,
     maxRecDepth := ctx.maxRecDepth,
+    maxHeartbeats := 0,
     ref := ctx.ref,
   }
 
@@ -974,7 +984,7 @@ def createModuleDiscrTree
   let ngen ← getChildNgen
   let d ← ImportData.new
   let ctx ← read
-  let t ← createLocalPreDiscrTree (createTreeCtx ctx) ngen env d entriesForConst
+  let t ← createLocalPreDiscrTree ctx ngen env d entriesForConst
   (← d.errors.get).forM logImportFailure
   pure <| t.toLazy
 

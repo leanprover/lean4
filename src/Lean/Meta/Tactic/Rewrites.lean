@@ -69,8 +69,8 @@ def localHypotheses (except : List FVarId := []) : MetaM (Array (Expr × Bool ×
     let (_, _, type) ← forallMetaTelescopeReducing (← inferType h)
     let type ← whnfR type
     match type.getAppFnArgs with
-    | (``Eq, #[_, lhs, rhs])
-    | (``Iff, #[lhs, rhs]) => do
+    | (``Eq, #[_, _, _])
+    | (``Iff, #[_, _]) => do
       result := result.push (h, false, forwardWeight)
                     |>.push (h, true, backwardWeight)
     | _ => pure ()

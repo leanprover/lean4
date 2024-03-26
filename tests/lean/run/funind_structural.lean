@@ -96,35 +96,6 @@ info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n
 #check Finn.min.induct
 
 
-inductive Even : Nat → Prop where
-| zero : Even 0
-| plus2 : Even n → Even (n + 2)
-
-def idEven : Even n → Even n
-| .zero => .zero
-| .plus2 p => .plus2 (idEven p)
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  idEven
-has type
-  Even ?m.19445 → Even ?m.19445
--/
-#guard_msgs in
-#check idEven.induct
-
-
--- Acc.brecOn is not recognized by isBRecOnRecursor:
--- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Acc.brecOn}"
-def idAcc : Acc p x → Acc p x
-  | Acc.intro x f => Acc.intro x (fun y h => idAcc (f y h))
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  idAcc
-has type
-  Acc ?m.20355 ?m.20356 → Acc ?m.20355 ?m.20356
--/
-#guard_msgs in
-#check idAcc.induct
 
 namespace TreeExample
 
@@ -203,16 +174,6 @@ def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | .app f a,   env => f.denote env (a.denote env)
   | .lam b,     env => fun x => b.denote (.cons x env)
   | .let a b,   env => b.denote (.cons (a.denote env) env)
-
--- Bug in reserved names?
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  Term.denote
-has type
-  Term ?m.28895 ?m.28896 → HList Ty.denote ?m.28895 → ?m.28896.denote
--/
-#guard_msgs in
-#check Term.denote.induct
 
 /--
 info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)

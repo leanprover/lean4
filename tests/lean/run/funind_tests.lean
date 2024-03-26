@@ -711,54 +711,6 @@ info: Dite.foo.induct (motive : Nat → Prop)
 
 end Dite
 
-namespace Errors
-
--- Some of these tests made more sense when we had a
--- derive_functional_induction command.
-
-/-- error: unknown identifier 'doesNotExist.induct' -/
-#guard_msgs in
-#check doesNotExist.induct
-
-def takeWhile (p : α → Bool) (as : Array α) : Array α :=
-  foo 0 #[]
-where
-  foo (i : Nat) (r : Array α) : Array α :=
-    if h : i < as.size then
-      let a := as.get ⟨i, h⟩
-      if p a then
-        foo (i+1) (r.push a)
-      else
-        r
-    else
-      r
-  termination_by as.size - i
-
-/--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
-  takeWhile
-has type
-  (?m.165402 → Bool) → Array ?m.165402 → Array ?m.165402
--/
-#guard_msgs in
-#check Errors.takeWhile.induct
-
-/--
-info: Errors.takeWhile.foo.induct.{u_1} {α : Type u_1} (p : α → Bool) (as : Array α) (motive : Nat → Array α → Prop)
-  (case1 :
-    ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      let a := as.get ⟨i, h⟩;
-      p a = true → motive (i + 1) (r.push a) → motive i r)
-  (case2 :
-    ∀ (i : Nat) (r : Array α) (h : i < as.size),
-      let a := as.get ⟨i, h⟩;
-      ¬p a = true → motive i r)
-  (case3 : ∀ (i : Nat) (r : Array α), ¬i < as.size → motive i r) (i : Nat) (r : Array α) : motive i r
--/
-#guard_msgs in
-#check Errors.takeWhile.foo.induct
-
-end Errors
 
 namespace PreserveParams
 

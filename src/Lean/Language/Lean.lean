@@ -71,7 +71,7 @@ private def pushOpt (a? : Option α) (as : Array α) : Array α :=
 
 /-- Option for capturing output to stderr during elaboration. -/
 register_builtin_option stderrAsMessages : Bool := {
-  defValue := false
+  defValue := true
   group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }

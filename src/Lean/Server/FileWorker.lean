@@ -275,7 +275,7 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
   let imports := Elab.headerToImports stx
   let fileSetupResult ← setupFile meta imports fun stderrLine => do
     let progressDiagnostic := {
-      range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
       fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
@@ -435,24 +435,21 @@ section NotificationHandling
 
   /--
   Received from the watchdog when a dependency of this file is detected as being stale.
-  Issues a `LanguageServer_ImportOutOfDate` sticky diagnostic to the client.
+  Issues a sticky diagnostic to the client that it should run "Restart File".
   -/
-  def handleStaleDependency (p : LeanStaleDependencyParams) : WorkerM Unit := do
+  def handleStaleDependency (_ : LeanStaleDependencyParams) : WorkerM Unit := do
     let ctx ← read
     let s ← get
-    let _ ← IO.mapTask (t :=  s.srcSearchPathTask) fun srcSearchPath => do
-      let some staleDependencyName ← moduleFromDocumentUri srcSearchPath p.staleDependency
-        | return
-      let diagnostic := {
-        range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
-        severity? := DiagnosticSeverity.warning
-        code?     := some <| .string "LanguageServer_ImportOutOfDate"
-        message   := .text s!"Import '{staleDependencyName}' is out of date; \
-          use the \"Restart File\" command in your editor."
-        data?     := some staleDependencyName.toString
+    let text := s.doc.meta.text
+    let diagnostic := {
+      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
+      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
+      severity?  := DiagnosticSeverity.information
+      message    := .text s!"Imports are out of date and should be rebuilt; \
+        use the \"Restart File\" command in your editor."
     }
-      ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
-      publishDiagnostics ctx s.doc.toEditableDocumentCore
+    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
+    publishDiagnostics ctx s.doc.toEditableDocumentCore
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
@@ -510,15 +507,17 @@ section MessageHandling
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
       WorkerM (Array InteractiveDiagnostic) := do
+    let ctx ← read
     let st ← get
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
     -- they receive the non-interactive diagnostics for the new document
+    let stickyDiags ← ctx.stickyDiagnosticsRef.get
     let diags ← st.doc.diagnosticsRef.get
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return diags.filter fun diag =>
+    return (stickyDiags.toArray ++ diags).filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=
@@ -623,7 +622,7 @@ end MessageHandling
 
 section MainLoop
   variable (hIn : FS.Stream) in
-  partial def mainLoop : WorkerM UInt32 := do
+  partial def mainLoop : WorkerM Unit := do
     let mut st ← get
     let msg ← hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
@@ -650,7 +649,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      return 0
+      return
     | Message.notification method (some params) =>
       handleNotification method (toJson params)
       mainLoop
@@ -685,21 +684,30 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
-  try
-    let (ctx, st) ← initializeWorker meta o e initParams.param opts
-    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) do
-      let refreshTask ← runRefreshTask
-      let exitCode ← mainLoop i
-      IO.cancel refreshTask
-      pure exitCode
-    return (0 : UInt32)
+  let (ctx, st) ← try
+    initializeWorker meta o e initParams.param opts
   catch err =>
+    writeError meta err
+    return (1 : UInt32)
+  let exitCode ← StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
+    try
+      let refreshTask ← runRefreshTask
+      mainLoop i
+      IO.cancel refreshTask
+      return 0
+    catch err =>
+      let st ← get
+      writeError st.doc.meta err
+      return 1
+  return exitCode
+where
+  writeError (meta : DocumentMeta) (err : Error) : IO Unit := do
     IO.eprintln err
     e.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
-      range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
+      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
-    return (1 : UInt32)
 
 @[export lean_server_worker_main]
 def workerMain (opts : Options) : IO UInt32 := do

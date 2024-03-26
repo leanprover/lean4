@@ -12,15 +12,14 @@ attribute [simp] Formula.count_quantifiers
 
 /--
 info: Formula.count_quantifiers.eq_1.{u_1} :
-  ∀ (x : Nat) (f₁ f₂ : Formula x),
-    Formula.count_quantifiers (Formula.imp f₁ f₂) = Formula.count_quantifiers f₁ + Formula.count_quantifiers f₂
+  ∀ (x : Nat) (f₁ f₂ : Formula x), (f₁.imp f₂).count_quantifiers = f₁.count_quantifiers + f₂.count_quantifiers
 -/
 #guard_msgs in
 #check Formula.count_quantifiers.eq_1
 
 /--
 info: Formula.count_quantifiers.eq_2.{u_1} :
-  ∀ (x : Nat) (f : Formula (x + 1)), Formula.count_quantifiers (Formula.all f) = Formula.count_quantifiers f + 1
+  ∀ (x : Nat) (f : Formula (x + 1)), f.all.count_quantifiers = f.count_quantifiers + 1
 -/
 #guard_msgs in
 #check Formula.count_quantifiers.eq_2
@@ -28,8 +27,8 @@ info: Formula.count_quantifiers.eq_2.{u_1} :
 /--
 info: Formula.count_quantifiers.eq_3.{u_1} :
   ∀ (x : Nat) (x_1 : Formula x),
-    (∀ (f₁ f₂ : Formula x), x_1 = Formula.imp f₁ f₂ → False) →
-      (∀ (f : Formula (x + 1)), x_1 = Formula.all f → False) → Formula.count_quantifiers x_1 = 0
+    (∀ (f₁ f₂ : Formula x), x_1 = f₁.imp f₂ → False) →
+      (∀ (f : Formula (x + 1)), x_1 = f.all → False) → x_1.count_quantifiers = 0
 -/
 #guard_msgs in
 #check Formula.count_quantifiers.eq_3

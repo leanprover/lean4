@@ -63,7 +63,7 @@ def word : Parsec String :=
 def ident : Parsec Name := do
   let head ← word
   let xs ← Parsec.many1 (Parsec.pchar '.' *> word)
-  return xs.foldl Name.mkStr $ head
+  return xs.foldl .str $ .mkSimple head
 
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file:///{args.head!}"

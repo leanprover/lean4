@@ -176,16 +176,32 @@ def arrowDomainsN (n : Nat) (type : Expr) : MetaM (Array Expr) := do
     type := β
   return ts
 
+private def withUserNamesImpl {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α) : MetaM α := do
+  let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
+    lctx.setUserName fvar.fvarId! name
+  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+
 /--
 Sets the user name of the FVars in the local context according to the given array of names.
 
 If they differ in size the shorter size wins.
 -/
-def withUserNames {α} (fvars : Array Expr) (names : Array Name) (k : MetaM α ) : MetaM α := do
-  let lctx := (Array.zip fvars names).foldl (init := ← (getLCtx)) fun lctx (fvar, name) =>
-    lctx.setUserName fvar.fvarId! name
-  withTheReader Meta.Context (fun ctx => { ctx with lctx }) k
+def withUserNames {n} [MonadControlT MetaM n] [Monad n]
+  {α} (fvars : Array Expr) (names : Array Name) (k : n α) : n α := do
+  mapMetaM (withUserNamesImpl fvars names) k
 
+/-
+`Match.forallAltTelescope` lifted to a monad transformer
+(and only passing those arguments that we care about below)
+-/
+private def forallAltTelescope'
+    {n} [Monad n] [MonadControlT MetaM n]
+    {α} (origAltType : Expr) (numParams numDiscrEqs : Nat)
+    (k : Array Expr → Array Expr → n α) : n α := do
+  map2MetaM (fun k =>
+    Match.forallAltTelescope origAltType (numParams - numDiscrEqs) 0
+      fun ys _eqs args _mask _bodyType => k ys args
+  ) k
 
 /--
 Performs a possibly type-changing transformation to a `MatcherApp`.
@@ -208,14 +224,17 @@ This function works even if the the type of alternatives do *not* fit the inferr
 allows you to post-process the `MatcherApp` with `MatcherApp.inferMatchType`, which will
 infer a type, given all the alternatives.
 -/
-def transform (matcherApp : MatcherApp)
+def transform
+    {n} [MonadLiftT MetaM n] [MonadControlT MetaM n] [Monad n] [MonadError n] [MonadEnv n] [MonadLog n]
+    [AddMessageContext n] [MonadOptions n]
+    (matcherApp : MatcherApp)
     (useSplitter := false)
     (addEqualities : Array Bool := mkArray matcherApp.discrs.size false)
-    (onParams : Expr → MetaM Expr := pure)
-    (onMotive : Array Expr → Expr → MetaM Expr := fun _ e => pure e)
-    (onAlt : Expr → Expr → MetaM Expr := fun _ e => pure e)
-    (onRemaining : Array Expr → MetaM (Array Expr) := pure) :
-    MetaM MatcherApp := do
+    (onParams : Expr → n Expr := pure)
+    (onMotive : Array Expr → Expr → n Expr := fun _ e => pure e)
+    (onAlt : Expr → Expr → n Expr := fun _ e => pure e)
+    (onRemaining : Array Expr → n (Array Expr) := pure) :
+    n MatcherApp := do
 
   if addEqualities.size != matcherApp.discrs.size then
     throwError "MatcherApp.transform: addEqualities has wrong size"
@@ -247,7 +266,7 @@ def transform (matcherApp : MatcherApp)
 
     -- Prepend (x = e) → to the motive when an equality is requested
     for arg in motiveArgs, discr in discrs', b in addEqualities do if b then
-      motiveBody' ← mkArrow (← mkEq discr arg) motiveBody'
+      motiveBody' ← liftMetaM <| mkArrow (← mkEq discr arg) motiveBody'
 
     return (← mkLambdaFVars motiveArgs motiveBody', ← getLevel motiveBody')
 
@@ -272,7 +291,7 @@ def transform (matcherApp : MatcherApp)
     let aux1 := mkApp aux1 motive'
     let aux1 := mkAppN aux1 discrs'
     unless (← isTypeCorrect aux1) do
-      logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux1}"
+      logError m!"failed to transform matcher, type error when constructing new pre-splitter motive:{indentExpr aux1}"
       check aux1
     let origAltTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux1)
 
@@ -280,7 +299,7 @@ def transform (matcherApp : MatcherApp)
     let aux2 := mkApp aux2 motive'
     let aux2 := mkAppN aux2 discrs'
     unless (← isTypeCorrect aux2) do
-      logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux2}"
+      logError m!"failed to transform matcher, type error when constructing splitter motive:{indentExpr aux2}"
       check aux2
     let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux2)
 
@@ -290,7 +309,7 @@ def transform (matcherApp : MatcherApp)
         splitterNumParams in matchEqns.splitterAltNumParams,
         origAltType in origAltTypes,
         altType in altTypes do
-      let alt' ← Match.forallAltTelescope origAltType (numParams - numDiscrEqs) 0 fun ys _eqs args _mask _bodyType => do
+      let alt' ← forallAltTelescope' origAltType (numParams - numDiscrEqs) 0 fun ys args => do
         let altType ← instantiateForall altType ys
         -- The splitter inserts its extra paramters after the first ys.size parameters, before
         -- the parameters for the numDiscrEqs
@@ -320,7 +339,6 @@ def transform (matcherApp : MatcherApp)
     let aux := mkApp aux motive'
     let aux := mkAppN aux discrs'
     unless (← isTypeCorrect aux) do
-      -- check aux
       logError m!"failed to transform matcher, type error when constructing new motive:{indentExpr aux}"
       check aux
     let altTypes ← arrowDomainsN matcherApp.alts.size (← inferType aux)

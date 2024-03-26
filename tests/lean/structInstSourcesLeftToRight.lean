@@ -4,6 +4,8 @@
 Implemented in PR #2478 for issue #2451.
 -/
 
+set_option pp.structureInstances.flatten false
+
 structure A where
   x : Nat
 
@@ -49,4 +51,3 @@ def fiz (a : A) (c : C) : C := {c, a with}
 #print biz
 #print faz
 #print fiz
-

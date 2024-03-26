@@ -456,24 +456,12 @@ def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
 
 @[inline]
 def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
-  let rec loop (i : Nat) (j : Nat) (inv : i + j = as.size) : Option Nat :=
-    if hlt : j < as.size then
-      match i, inv with
-      | 0, inv => by
-        apply False.elim
-        rw [Nat.zero_add] at inv
-        rw [inv] at hlt
-        exact absurd hlt (Nat.lt_irrefl _)
-      | i+1, inv =>
-        if p as[j] then
-          some j
-        else
-          have : i + (j+1) = as.size := by
-            rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-          loop i (j+1) this
-    else
-      none
-  loop as.size 0 rfl
+  let rec loop (j : Nat) :=
+    if h : j < as.size then
+      if p as[j] then some j else loop (j + 1)
+    else none
+    termination_by as.size - j
+  loop 0
 
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? fun a => a == v

@@ -224,7 +224,7 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
-Applies the second constructor when
+Applies the first constructor when
 the goal is an inductive type with exactly two constructors, or fails otherwise.
 ```
 example : True ∨ False := by
@@ -1317,6 +1317,22 @@ The optional `using` clause provides identifiers in the local context that must 
 used when closing the goal.
 -/
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+
+/--
+Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
+-/
+syntax rewrites_forbidden := " [" (("-" ident),*,?) "]"
+
+/--
+`rw?` tries to find a lemma which can rewrite the goal.
+
+`rw?` should not be left in proofs; it is a search tool, like `apply?`.
+
+Suggestions are printed as `rw [h]` or `rw [← h]`.
+
+You can use `rw? [-my_lemma, -my_theorem]` to prevent `rw?` using the named lemmas.
+-/
+syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tactic
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form

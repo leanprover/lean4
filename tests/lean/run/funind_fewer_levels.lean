@@ -4,6 +4,26 @@ This test checks if the functional induction principle has fewer universe parame
 if the original function has a parameter that disappears.
 -/
 
+namespace Structural
+def foo.{u} : Nat → PUnit.{u}
+| 0 => .unit
+| n+1 => foo n
+
+derive_functional_induction foo
+/--
+info: Structural.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : ∀ (n : Nat), motive n → motive n.succ) :
+  ∀ (a : Nat), motive a
+-/
+#guard_msgs in
+#check foo.induct
+
+example : foo n = .unit := by
+  induction n using foo.induct with
+  | case1 => unfold foo; rfl
+  | case2 n ih => unfold foo; exact ih
+
+end Structural
+
 namespace WellFounded
 def foo.{u,v} {α : Type v} : List α  → PUnit.{u}
 | [] => .unit
@@ -13,7 +33,7 @@ termination_by xs => xs
 derive_functional_induction foo
 /--
 info: WellFounded.foo.induct.{v} {α : Type v} (motive : List α → Prop) (case1 : motive [])
-  (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) (x : List α) : motive x
+  (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
 #check foo.induct

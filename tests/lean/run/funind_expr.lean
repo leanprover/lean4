@@ -70,7 +70,7 @@ info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), mot
       (∀ (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
           a.typeCheck = Maybe.found Ty.bool h₁ → b.typeCheck = Maybe.found Ty.bool h₂ → False) →
         motive a → motive b → motive (a.and b))
-  (x : Expr) : motive x
+  (e : Expr) : motive e
 -/
 #guard_msgs in
 #check Expr.typeCheck.induct

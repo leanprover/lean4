@@ -278,6 +278,8 @@ inductive Eq : α → α → Prop where
   equality type. See also `rfl`, which is usually used instead. -/
   | refl (a : α) : Eq a a
 
+attribute [refl] Eq.refl
+
 /-- Non-dependent recursor for the equality type. -/
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   h.rec m
@@ -320,7 +322,7 @@ Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
+@[symm] theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
 /--

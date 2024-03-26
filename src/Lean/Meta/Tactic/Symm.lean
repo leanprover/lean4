@@ -113,5 +113,3 @@ def symmSaturate (g : MVarId) : MetaM MVarId := g.withContext do
   return g'
 
 end Lean.MVarId
-
-attribute [symm] Eq.symm

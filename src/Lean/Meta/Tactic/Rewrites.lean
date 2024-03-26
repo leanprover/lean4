@@ -71,10 +71,8 @@ def localHypotheses (except : List FVarId := []) : MetaM (Array (Expr × Bool ×
     match type.getAppFnArgs with
     | (``Eq, #[_, lhs, rhs])
     | (``Iff, #[lhs, rhs]) => do
-      let lhsKey : Array DiscrTree.Key ← DiscrTree.mkPath lhs discrTreeConfig
-      let rhsKey : Array DiscrTree.Key ← DiscrTree.mkPath rhs discrTreeConfig
-      result := result.push (h, false, forwardWeight * lhsKey.size)
-        |>.push (h, true, backwardWeight * rhsKey.size)
+      result := result.push (h, false, forwardWeight)
+                    |>.push (h, true, backwardWeight)
     | _ => pure ()
   return result
 
@@ -109,7 +107,7 @@ initialization performance.
 private def constantsPerImportTask : Nat := 6500
 
 def incPrio : Nat → Name × Bool × Nat → Name × Bool × Nat
-| p, (nm, d, prio) => (nm, d, prio * 100 + p)
+| p, (nm, d, prio) => (nm, d, prio * p)
 
 /-- Create function for finding relevant declarations. -/
 def rwFindDecls (moduleRef : LazyDiscrTree.ModuleDiscrTreeRef (Name × Bool × Nat)) : Expr → MetaM (Array (Name × Bool × Nat)) :=
@@ -168,7 +166,7 @@ def solveByElim (goals : List MVarId) (depth : Nat := 6) : MetaM PUnit := do
   let [] ← SolveByElim.solveByElim cfg lemmas ctx goals
     | failure
 
-def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideConditions := .solveByElim) 
+def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideConditions := .solveByElim)
     (lem : Expr ⊕ Name) (symm : Bool) (weight : Nat) : MetaM (Option RewriteResult) :=
   withMCtx ctx do
     let some expr ← (match lem with

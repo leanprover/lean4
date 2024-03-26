@@ -126,7 +126,7 @@ def addBuiltinUnusedVariablesIgnoreFn (h : IgnoreFunction) : IO Unit :=
 
 /-- An extension which keeps track of registered `IgnoreFunction`s. -/
 builtin_initialize unusedVariablesIgnoreFnsExt :
-  PersistentEnvExtension Name (Name × IgnoreFunction) (List Name × Array IgnoreFunction) ←
+  PersistentEnvExtension (Array Name) (Name × IgnoreFunction) (List Name × Array IgnoreFunction) ←
   registerPersistentEnvExtension {
     mkInitial       := return ([], ← builtinUnusedVariablesIgnoreFnsRef.get)
     addImportedFn   := fun as => do

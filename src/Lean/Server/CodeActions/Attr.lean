@@ -34,7 +34,7 @@ def mkHoleCodeAction (n : Name) : ImportM HoleCodeAction := do
 
 /-- An extension which collects all the hole code actions. -/
 builtin_initialize holeCodeActionExt :
-    PersistentEnvExtension Name (Name × HoleCodeAction) (Array Name × Array HoleCodeAction) ←
+    PersistentEnvExtension (Array Name) (Name × HoleCodeAction) (Array Name × Array HoleCodeAction) ←
   registerPersistentEnvExtension {
     mkInitial := pure (#[], #[])
     addImportedFn := fun as => return (#[], ← as.foldlM (init := #[]) fun m as =>
@@ -99,7 +99,7 @@ def insertBuiltin (args : Array Name) (proc : CommandCodeAction) : IO Unit := do
 
 /-- An extension which collects all the command code actions. -/
 builtin_initialize cmdCodeActionExt :
-    PersistentEnvExtension CommandCodeActionEntry (CommandCodeActionEntry × CommandCodeAction)
+    PersistentEnvExtension (Array CommandCodeActionEntry) (CommandCodeActionEntry × CommandCodeAction)
       (Array CommandCodeActionEntry × CommandCodeActions) ←
   registerPersistentEnvExtension {
     mkInitial := return (#[], ← builtinCmdCodeActions.get)

@@ -88,7 +88,7 @@ def runImportedDecls (importedDeclNames : Array (Array Name)) : CoreM PassManage
       m ← runFromDecl m declName
   return m
 
-builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassManager) (List Name × PassManager) ←
+builtin_initialize passManagerExt : PersistentEnvExtension (Array Name) (Name × PassManager) (List Name × PassManager) ←
   registerPersistentEnvExtension {
     mkInitial := return ([], builtinPassManager)
     addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)

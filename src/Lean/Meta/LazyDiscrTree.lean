@@ -772,8 +772,8 @@ def allowInsertion (env : Environment) (declName : Name) : Bool :=
   && !(declName matches .str _ "inj")
   && !(declName matches .str _ "noConfusionType")
 
-
 private def addConstImportData
+    (cctx : Core.Context)
     (env : Environment)
     (modName : Name)
     (d : ImportData)
@@ -788,10 +788,6 @@ private def addConstImportData
   cacheRef.set (Cache.empty ngen)
   let ctx : Meta.Context := { config := { transparency := .reducible } }
   let cm := (act name constInfo).run ctx mstate
-  let cctx : Core.Context := {
-    fileName := default,
-    fileMap := default
-  }
   let cstate : Core.State := {env, cache := core_cache, ngen}
   match ←(cm.run cctx cstate).toBaseIO with
   | .ok ((a, ms), cs) =>
@@ -835,7 +831,9 @@ private def toFlat (d : ImportData) (tree : PreDiscrTree α) :
   let de ← d.errors.swap #[]
   pure ⟨tree, de⟩
 
-private partial def loadImportedModule (env : Environment)
+private partial def loadImportedModule
+    (cctx : Core.Context)
+    (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (d : ImportData)
     (cacheRef : IO.Ref Cache)
@@ -846,12 +844,12 @@ private partial def loadImportedModule (env : Environment)
   if h : i < mdata.constNames.size then
     let name := mdata.constNames[i]
     let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData env mname d cacheRef tree act name constInfo
-    loadImportedModule env act d cacheRef tree mname mdata (i+1)
+    let tree ← addConstImportData cctx env mname d cacheRef tree act name constInfo
+    loadImportedModule cctx env act d cacheRef tree mname mdata (i+1)
   else
     pure tree
 
-private def createImportedEnvironmentSeq (ngen : NameGenerator) (env : Environment)
+private def createImportedEnvironmentSeq (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (start stop : Nat) : BaseIO (InitResults α) := do
       let cacheRef ← IO.mkRef (Cache.empty ngen)
@@ -860,7 +858,7 @@ private def createImportedEnvironmentSeq (ngen : NameGenerator) (env : Environme
             if start < stop then
               let mname := env.header.moduleNames[start]!
               let mdata := env.header.moduleData[start]!
-              let tree ← loadImportedModule env act d cacheRef tree mname mdata
+              let tree ← loadImportedModule cctx env act d cacheRef tree mname mdata
               go d cacheRef tree (start+1) stop
             else
               toFlat d tree
@@ -877,6 +875,7 @@ def getChildNgen [Monad M] [MonadNameGenerator M] : M NameGenerator := do
   pure cngen
 
 def createLocalPreDiscrTree
+    (cctx : Core.Context)
     (ngen : NameGenerator)
     (env : Environment)
     (d : ImportData)
@@ -885,18 +884,22 @@ def createLocalPreDiscrTree
   let modName := env.header.mainModule
   let cacheRef ← IO.mkRef (Cache.empty ngen)
   let act (t : PreDiscrTree α) (n : Name) (c : ConstantInfo) : BaseIO (PreDiscrTree α) :=
-        addConstImportData env modName d cacheRef t act n c
+        addConstImportData cctx env modName d cacheRef t act n c
   let r ← (env.constants.map₂.foldlM (init := {}) act : BaseIO (PreDiscrTree α))
   pure r
 
 def dropKeys (t : LazyDiscrTree α) (keys : List (List LazyDiscrTree.Key)) : MetaM (LazyDiscrTree α) := do
   keys.foldlM (init := t) (·.dropKey ·)
 
+def logImportFailure [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (f : ImportFailure) : m Unit :=
+  logError m!"Processing failure with {f.const} in {f.module}:\n  {f.exception.toMessageData}"
+
 /-- Create a discriminator tree for imported environment. -/
-def createImportedDiscrTree (ngen : NameGenerator) (env : Environment)
+def createImportedDiscrTree [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT BaseIO m]
+    (cctx : Core.Context) (ngen : NameGenerator) (env : Environment)
     (act : Name → ConstantInfo → MetaM (Array (InitEntry α)))
     (constantsPerTask : Nat := 1000) :
-    EIO Exception (LazyDiscrTree α) := do
+    m (LazyDiscrTree α) := do
   let n := env.header.moduleData.size
   let rec
     /-- Allocate constants to tasks according to `constantsPerTask`. -/
@@ -906,22 +909,31 @@ def createImportedDiscrTree (ngen : NameGenerator) (env : Environment)
         let cnt := cnt + mdata.constants.size
         if cnt > constantsPerTask then
           let (childNGen, ngen) := ngen.mkChild
-          let t ← createImportedEnvironmentSeq childNGen env act start (idx+1) |>.asTask
+          let t ← liftM <| createImportedEnvironmentSeq cctx childNGen env act start (idx+1) |>.asTask
           go ngen (tasks.push t) (idx+1) 0 (idx+1)
         else
           go ngen tasks start cnt (idx+1)
       else
         if start < n then
           let (childNGen, _) := ngen.mkChild
-          tasks.push <$> (createImportedEnvironmentSeq childNGen env act start n).asTask
+          let t ← (createImportedEnvironmentSeq cctx childNGen env act start n).asTask
+          pure (tasks.push t)
         else
           pure tasks
     termination_by env.header.moduleData.size - idx
   let tasks ← go ngen #[] 0 0 0
   let r := combineGet default tasks
-  if p : r.errors.size > 0 then
-    throw r.errors[0].exception
+  r.errors.forM logImportFailure
   pure <| r.tree.toLazy
+
+/-- Creates the core context used for initializing a tree using the current context. -/
+private def createTreeCtx (ctx : Core.Context) : Core.Context := {
+    fileName := ctx.fileName,
+    fileMap := ctx.fileMap,
+    options := ctx.options,
+    maxRecDepth := ctx.maxRecDepth,
+    ref := ctx.ref,
+  }
 
 def findImportMatches
       (ext : EnvExtension (IO.Ref (Option (LazyDiscrTree α))))
@@ -929,6 +941,7 @@ def findImportMatches
       (droppedKeys : List (List LazyDiscrTree.Key) := [])
       (constantsPerTask : Nat := 1000)
       (ty : Expr) : MetaM (MatchResult α) := do
+  let cctx ← (read : CoreM Core.Context)
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
@@ -936,7 +949,7 @@ def findImportMatches
   let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
-      let t ← createImportedDiscrTree cNGen (←getEnv) addEntry
+      let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry
                 (constantsPerTask := constantsPerTask)
       dropKeys t droppedKeys
   let (importCandidates, importTree) ← importTree.getMatch ty
@@ -960,10 +973,9 @@ def createModuleDiscrTree
   let env ← getEnv
   let ngen ← getChildNgen
   let d ← ImportData.new
-  let t ← createLocalPreDiscrTree ngen env d entriesForConst
-  let errors ← d.errors.get
-  if p : errors.size > 0 then
-    throw errors[0].exception
+  let ctx ← read
+  let t ← createLocalPreDiscrTree (createTreeCtx ctx) ngen env d entriesForConst
+  (← d.errors.get).forM logImportFailure
   pure <| t.toLazy
 
 /--
@@ -983,7 +995,7 @@ Returns candidates from this module in this module that match the expression.
 this module's definitions.
 -/
 def findModuleMatches (moduleRef : ModuleDiscrTreeRef α) (ty : Expr) : MetaM (MatchResult α) := do
-  profileitM Exception  "lazy discriminator local search" (←getOptions) $ do
+  profileitM Exception  "lazy discriminator local search" (← getOptions) $ do
     let discrTree ← moduleRef.ref.get
     let (localCandidates, localTree) ← discrTree.getMatch ty
     moduleRef.ref.set localTree

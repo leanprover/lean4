@@ -6,7 +6,6 @@ structure Foo : Type → Type
 number of parameters: 1
 constructor:
 Foo.mk : {α : Type} → Bar (α → α) → (Bool → α) → Nat → Foo α
-class: false
 fields:
 toBar : {α : Type} → Foo α → Bar (α → α)
 c : {α : Type} → Foo α → Bool → α

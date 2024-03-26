@@ -2,7 +2,6 @@ structure Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (
 number of parameters: 2
 constructor:
 Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β
-class: false
 fields:
 a : {α : Sort u_1} → {β : α → Type v} → Foo β → α
 b : {α : Sort u_1} → {β : α → Type v} → (self : Foo β) → β self.a
@@ -11,7 +10,6 @@ structure Boo.{u, v} : Type u → Type v → Type (max u v)
 number of parameters: 2
 constructor:
 Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
-class: false
 fields:
 a : {α : Type u} → {β : Type v} → Boo α β → α
 b : {α : Type u} → {β : Type v} → Boo α β → β

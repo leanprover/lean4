@@ -13,7 +13,7 @@ section
   end
 end
 
---#check A  -- escaping section variable, should fail
+#check A  -- escaping section variable, should fail
 
 section
   variable (x : Nat)

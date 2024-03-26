@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
 
@@ -946,5 +947,23 @@ def elabDeriveInduction : Command.CommandElab := fun stx => Command.runTermElabM
   let ident := stx[1]
   let name ← realizeGlobalConstNoOverloadWithInfo ident
   deriveInduction name
+
+
+def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
+  let .str p s := name | return false
+  unless s = "induct" do return false
+  if (WF.eqnInfoExt.find? env p).isSome then return true
+  if (Structural.eqnInfoExt.find? env p).isSome then return true
+  return false
+
+builtin_initialize
+  registerReservedNamePredicate isFunInductName
+
+  registerReservedNameAction fun name => do
+    if isFunInductName (← getEnv) name then
+      let .str p _ := name | return false
+      MetaM.run' <| deriveInduction p
+      return true
+    return false
 
 end Lean.Tactic.FunInd

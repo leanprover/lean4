@@ -45,8 +45,6 @@ def Finite.functions (t : Finite) (results : List α) : List (t.asType → α) :
         fun (f : t1.asType → t2.asType) => more (f arg) f
 end
 
-derive_functional_induction Finite.functions
-
 /--
 info: Finite.functions.induct (motive1 : Finite → Prop) (motive2 : (α : Type) → Finite → List α → Prop)
   (case1 : motive1 Finite.unit) (case2 : motive1 Finite.bool)

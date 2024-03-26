@@ -1,4 +1,5 @@
 import Lean.Elab.Command
+import Lean.Elab.PreDefinition.Structural.Eqns
 
 /-!
 This module tests functional induction principles on *structurally* recursive functions.
@@ -8,7 +9,6 @@ def fib : Nat → Nat
   | 0 | 1 => 0
   | n+2 => fib n + fib (n+1)
 
-derive_functional_induction fib
 /--
 info: fib.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : motive 1)
   (case3 : ∀ (n : Nat), motive n → motive (n + 1) → motive n.succ.succ) : ∀ (a : Nat), motive a
@@ -21,7 +21,6 @@ def binary : Nat → Nat → Nat
   | 0, acc | 1, acc => 1 + acc
   | n+2, acc => binary n (binary (n+1) acc)
 
-derive_functional_induction binary
 /--
 info: binary.induct (motive : Nat → Nat → Prop) (case1 : ∀ (acc : Nat), motive 0 acc) (case2 : ∀ (acc : Nat), motive 1 acc)
   (case3 : ∀ (n acc : Nat), motive (n + 1) acc → motive n (binary (n + 1) acc) → motive n.succ.succ acc) :
@@ -36,7 +35,6 @@ def binary' : Bool → Nat → Bool
   | acc, 0 | acc , 1 => not acc
   | acc, n+2 => binary' (binary' acc (n+1)) n
 
-derive_functional_induction binary'
 /--
 info: binary'.induct (motive : Bool → Nat → Prop) (case1 : ∀ (acc : Bool), motive acc 0)
   (case2 : ∀ (acc : Bool), motive acc 1)
@@ -51,7 +49,6 @@ def zip {α β} : List α → List β → List (α × β)
   | _, [] => []
   | x::xs, y::ys => (x, y) :: zip xs ys
 
-derive_functional_induction zip
 /--
 info: zip.induct.{u_1, u_2} {α : Type u_1} {β : Type u_2} (motive : List α → List β → Prop)
   (case1 : ∀ (x : List β), motive [] x) (case2 : ∀ (x : List α), (x = [] → False) → motive x [])
@@ -88,7 +85,6 @@ def Finn.min (x : Bool) {n : Nat} (m : Nat) : Finn n → (f : Finn n) → Finn n
   | _, fzero => fzero
   | fsucc i, fsucc j => fsucc (Finn.min (not x) (m + 1) i j)
 
-derive_functional_induction Finn.min
 /--
 info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n → Prop)
   (case1 : ∀ (x : Bool) (m n : Nat) (x_1 : Finn n), motive x m Finn.fzero x_1)
@@ -100,29 +96,6 @@ info: Finn.min.induct (motive : Bool → {n : Nat} → Nat → Finn n → Finn n
 #check Finn.min.induct
 
 
-inductive Even : Nat → Prop where
-| zero : Even 0
-| plus2 : Even n → Even (n + 2)
-
-def idEven : Even n → Even n
-| .zero => .zero
-| .plus2 p => .plus2 (idEven p)
-/--
-error: Function idEven is defined in a way not supported by functional induction, for example by recursion over an inductive predicate.
--/
-#guard_msgs in
-derive_functional_induction idEven
-
-
--- Acc.brecOn is not recognized by isBRecOnRecursor:
--- run_meta Lean.logInfo m!"{Lean.isBRecOnRecursor (← Lean.getEnv) ``Acc.brecOn}"
-def idAcc : Acc p x → Acc p x
-  | Acc.intro x f => Acc.intro x (fun y h => idAcc (f y h))
-/--
-error: Function idAcc is defined in a way not supported by functional induction, for example by recursion over an inductive predicate.
--/
-#guard_msgs in
-derive_functional_induction idAcc
 
 namespace TreeExample
 
@@ -141,8 +114,6 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
     else
       node left k v right
 
-derive_functional_induction Tree.insert
-
 /--
 info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
   (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
@@ -158,11 +129,11 @@ info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β →
   (t : Tree β) (k : Nat) (v : β) : motive t k v
 -/
 #guard_msgs in
-#check Tree.insert.induct
+#check TreeExample.Tree.insert.induct
 
 end TreeExample
 
-namespace Term
+namespace TermDenote
 
 inductive HList {α : Type v} (β : α → Type u) : List α → Type (max u v)
   | nil  : HList β []
@@ -204,10 +175,8 @@ def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | .lam b,     env => fun x => b.denote (.cons x env)
   | .let a b,   env => b.denote (.cons (a.denote env) env)
 
-derive_functional_induction Term.denote
-
 /--
-info: Term.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)
+info: TermDenote.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term ctx ty → HList Ty.denote ctx → Prop)
   (case1 : ∀ (a : List Ty) (ty : Ty) (h : Member ty a) (env : HList Ty.denote a), motive (Term.var h) env)
   (case2 : ∀ (a : List Ty) (n : Nat) (x : HList Ty.denote a), motive (Term.const n) x)
   (case3 :
@@ -225,6 +194,6 @@ info: Term.Term.denote.induct (motive : {ctx : List Ty} → {ty : Ty} → Term c
   {ctx : List Ty} {ty : Ty} : ∀ (a : Term ctx ty) (a_1 : HList Ty.denote ctx), motive a a_1
 -/
 #guard_msgs in
-#check Term.denote.induct
+#check TermDenote.Term.denote.induct
 
-end Term
+end TermDenote

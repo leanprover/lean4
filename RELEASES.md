@@ -21,16 +21,16 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* New command `derive_functional_induction`:
+* Funcitonal induction principles.
 
-  Derived from the definition of a (possibly mutually) recursive function, a **functional induction
-  principle** is created that is tailored to proofs about that function. For example from:
+  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+
+  For example from:
   ```
   def ackermann : Nat → Nat → Nat
     | 0, m => m + 1
     | n+1, 0 => ackermann n 1
     | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  derive_functional_induction ackermann
   ```
   we get
   ```

@@ -24,7 +24,6 @@ mutual
     | c :: cs => replaceConst a b c :: replaceConstLst a b cs
 end
 
-derive_functional_induction replaceConst
 
 /--
 info: Term.replaceConst.induct (a b : String) (motive1 : Term → Prop) (motive2 : List Term → Prop)
@@ -34,10 +33,10 @@ info: Term.replaceConst.induct (a b : String) (motive1 : Term → Prop) (motive2
   (case5 : ∀ (c : Term) (cs : List Term), motive1 c → motive2 cs → motive2 (c :: cs)) : ∀ (a : Term), motive1 a
 -/
 #guard_msgs in
-#check replaceConst.induct
+#check Term.replaceConst.induct
 
 theorem numConsts_replaceConst (a b : String) (e : Term) : numConsts (replaceConst a b e) = numConsts e := by
-  apply replaceConst.induct
+  apply Term.replaceConst.induct
     (motive1 := fun e => numConsts (replaceConst a b e) = numConsts e)
     (motive2 := fun es =>  numConstsLst (replaceConstLst a b es) = numConstsLst es)
   case case1 => intro c h; guard_hyp h :ₛ (a == c) = true; simp [replaceConst, numConsts, *]

@@ -18,6 +18,7 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  test                  run the workspace's test script or executable
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
   update                update dependencies and save them to the manifest
@@ -134,6 +135,15 @@ removed from the configuration). If there are dependencies on multiple versions
 of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
+
+def helpTest :=
+"Run the workspace's test script or executable
+
+USAGE:
+  lake test [-- <args>...]
+
+Looks for a script or executable tagged `@[test_runner]` in the workspace's
+root package and executes it with `args`. "
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -275,6 +285,7 @@ def help : (cmd : String) → String
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
 | "upload"              => helpUpload
+| "test"                => helpTest
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList

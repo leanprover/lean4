@@ -101,4 +101,15 @@ unsafe def registerParserCompilers : IO Unit := do
   ParserCompiler.registerParserCompiler ⟨`formatter, formatterAttribute, combinatorFormatterAttribute⟩
 
 end PrettyPrinter
+
+def MessageData.ofSignature (c : Name) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => do
+        match (← ctx.runMetaM (PrettyPrinter.ppSignature c) |>.toBaseIO) with
+        | .ok fmt => return fmt
+        | .error ex => return f!"[Error pretty printing signature: {ex}]{Format.line}{c}"
+      | none     => return f!"{c}"  -- should never happen
+  }
+
 end Lean

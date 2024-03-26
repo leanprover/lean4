@@ -1,36 +1,39 @@
-runTacticMustCatchExceptions.lean:2:25-2:28: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  1 ≤ a + b : Prop
-runTacticMustCatchExceptions.lean:3:25-3:28: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  a + b ≤ b : Prop
-runTacticMustCatchExceptions.lean:4:25-4:28: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  b ≤ 2 : Prop
-runTacticMustCatchExceptions.lean:9:18-9:21: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  1 ≤ a + b : Prop
-runTacticMustCatchExceptions.lean:10:14-10:17: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  a + b ≤ b : Prop
-runTacticMustCatchExceptions.lean:11:14-11:17: error: type mismatch
-  Iff.rfl
-has type
-  ?m ↔ ?m : Prop
-but is expected to have type
-  b ≤ 2 : Prop
+runTacticMustCatchExceptions.lean:2:25-2:28: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+⊢ 1 ≤ a + b
+runTacticMustCatchExceptions.lean:3:25-3:28: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+this : 1 ≤ a + b
+⊢ a + b ≤ b
+runTacticMustCatchExceptions.lean:4:25-4:28: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+this✝ : 1 ≤ a + b
+this : a + b ≤ b
+⊢ b ≤ 2
+runTacticMustCatchExceptions.lean:9:18-9:21: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+⊢ 1 ≤ a + b
+runTacticMustCatchExceptions.lean:10:14-10:17: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+⊢ a + b ≤ b
+runTacticMustCatchExceptions.lean:11:14-11:17: error: The rfl tactic failed. Possible reasions:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma)
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.
+a b : Nat
+⊢ b ≤ 2

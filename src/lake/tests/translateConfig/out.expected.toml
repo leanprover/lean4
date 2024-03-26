@@ -3,11 +3,14 @@ defaultTargets = ["b"]
 
 [[require]]
 name = "foo"
-path = "-"
+path = "dir"
+options = {foo = "bar"}
 
 [[require]]
 name = "bar"
 git = "https://example.com"
+rev = "abc"
+subDir = "sub/dir"
 
 [[lean_lib]]
 name = "A"

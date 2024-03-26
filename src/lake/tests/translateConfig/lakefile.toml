@@ -47,6 +47,11 @@ supportInterpreter = false
 name = "foo"
 path = "-"
 
+[require.options]
+foo = "bar"
+
 [[require]]
 name = "bar"
 git = "https://example.com"
+rev = "abc"
+subDir = "sub/dir"

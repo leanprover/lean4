@@ -230,7 +230,7 @@ def Workspace.materializeDeps
   (ws : Workspace) (manifest : Manifest)
   (leanOpts : Options := {}) (reconfigure := false)
 : LogIO Workspace := do
-  if !manifest.packages.isEmpty && manifest.packagesDir? != some (normalizePath ws.relPkgsDir) then
+  if !manifest.packages.isEmpty && manifest.packagesDir? != some (mkRelPathString ws.relPkgsDir) then
     logWarning <|
       "manifest out of date: packages directory changed; " ++
       "use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)"

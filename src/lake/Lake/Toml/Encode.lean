@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Toml.Data
+import Lake.Util.FilePath
 
 /-!
 # TOML Encoders
@@ -23,7 +24,7 @@ export ToToml (toToml)
 
 instance : ToToml Value := ⟨id⟩
 instance : ToToml String := ⟨.string .missing⟩
-instance : ToToml FilePath := ⟨(toToml ·.toString)⟩
+instance : ToToml FilePath := ⟨(toToml <| mkRelPathString ·)⟩
 instance : ToToml Name := ⟨(toToml ·.toString)⟩
 instance : ToToml Int := ⟨.integer .missing⟩
 instance : ToToml Nat := ⟨fun n => .integer .missing (.ofNat n)⟩

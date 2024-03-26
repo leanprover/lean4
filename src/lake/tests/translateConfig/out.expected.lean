@@ -7,9 +7,9 @@ package test where
   buildArchive := ""
   platformIndependent := true
 
-require foo from "-"
+require foo from "-" with Lake.NameMap.empty |>.insert `foo "bar"
 
-require bar from git "https://example.com"
+require bar from git "https://example.com"@"abc"/"sub/dir"
 
 lean_lib A
 

@@ -31,8 +31,8 @@ package test where
   packagesDir := defaultPackagesDir
   toLeanConfig := testLeanConfig
 
-require foo from "-"
-require bar from git "https://example.com"
+require foo from "dir" with NameMap.empty.insert `foo "bar"
+require bar from git "https://example.com" @ "abc" / "sub" / "dir"
 
 lean_lib A where
   srcDir := "."

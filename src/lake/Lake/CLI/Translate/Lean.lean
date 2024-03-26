@@ -156,7 +156,9 @@ protected def LeanExeConfig.mkSyntax (cfg : LeanExeConfig) (defaultTarget := fal
   `(leanExeDecl|$[$attrs?:attributes]? lean_exe $(mkIdent cfg.name) $[$declVal?]?)
 
 protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl:= Unhygienic.run do
-  let opts? := none
+  let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
+    cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
+      `($stx |>.insert $(quote opt) $(quote val))
   match cfg.src with
   | .path dir =>
     `(requireDecl|require $(mkIdent cfg.name) from $(quote dir):term $[with $opts?]?)

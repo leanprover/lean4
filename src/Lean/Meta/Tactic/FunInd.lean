@@ -542,8 +542,21 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
     (goal : Expr) (oldIH newIH : FVarId) (IHs : Array Expr) (e : Expr) : M Expr := do
   -- logInfo m!"buildInductionBody {e}"
 
-  if e.isDIte then
-    let #[_α, c, h, t, f] := e.getAppArgs | unreachable!
+  -- if-then-else cause case split:
+  match_expr e with
+  | ite _α c h t f =>
+    let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH c)
+    let c' ← foldCalls is_wf fn oldIH newIH c
+    let h' ← foldCalls is_wf fn oldIH newIH h
+    let t' ← withLocalDecl `h .default c' fun h => do
+      let t' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs t
+      mkLambdaFVars #[h] t'
+    let f' ← withLocalDecl `h .default (mkNot c') fun h => do
+      let f' ← buildInductionBody is_wf fn toClear (toPreserve.push h.fvarId!) goal oldIH newIH IHs f
+      mkLambdaFVars #[h] f'
+    let u ← getLevel goal
+    return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
+  | dite _α c h t f =>
     let IHs := IHs ++ (← collectIHs is_wf fn oldIH newIH c)
     let c' ← foldCalls is_wf fn oldIH newIH c
     let h' ← foldCalls is_wf fn oldIH newIH h
@@ -557,7 +570,9 @@ partial def buildInductionBody (is_wf : Bool) (fn : Expr) (toClear toPreserve : 
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
+  | _ =>
 
+  -- match and casesOn application cause case splitting
   if let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true) then
     -- Collect IHs from the parameters and discrs of the matcher
     let paramsAndDiscrs := matcherApp.params ++ matcherApp.discrs

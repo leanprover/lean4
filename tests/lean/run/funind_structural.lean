@@ -123,3 +123,38 @@ error: Function idAcc is defined in a way not supported by functional induction,
 -/
 #guard_msgs in
 derive_functional_induction idAcc
+
+
+inductive Tree (β : Type v) where
+  | leaf
+  | node (left : Tree β) (key : Nat) (value : β) (right : Tree β)
+
+def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
+  match t with
+  | leaf => node leaf k v leaf
+  | node left key value right =>
+    if k < key then
+      node (left.insert k v) key value right
+    else if key < k then
+      node left key value (right.insert k v)
+    else
+      node left k v right
+
+derive_functional_induction Tree.insert
+
+/--
+info: Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β → Nat → β → Prop)
+  (case1 : ∀ (k : Nat) (v : β), motive Tree.leaf k v)
+  (case2 :
+    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      k < key → motive left k v → motive (left.node key value right) k v)
+  (case3 :
+    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → key < k → motive right k v → motive (left.node key value right) k v)
+  (case4 :
+    ∀ (k : Nat) (v : β) (left : Tree β) (key : Nat) (value : β) (right : Tree β),
+      ¬k < key → ¬key < k → motive (left.node key value right) k v)
+  (t : Tree β) (k : Nat) (v : β) : motive t k v
+-/
+#guard_msgs in
+#check Tree.insert.induct

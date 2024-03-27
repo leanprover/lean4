@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.DeclarationRange
 import Lean.MonadEnv
+import Init.Data.String.Extra
 
 namespace Lean
 
@@ -13,10 +14,10 @@ private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mk
 private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
 
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
-  builtinDocStrings.modify (·.insert declName (removeLeadingSpaces docString))
+  builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
 def addDocString [MonadEnv m] (declName : Name) (docString : String) : m Unit :=
-  modifyEnv fun env => docStringExt.insert env declName (removeLeadingSpaces docString)
+  modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
 def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with

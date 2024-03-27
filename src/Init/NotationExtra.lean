@@ -7,8 +7,10 @@ Extra notation that depends on Init/Meta
 -/
 prelude
 import Init.Data.ToString.Basic
+import Init.Data.Array.Subarray
 import Init.Conv
 import Init.Meta
+
 namespace Lean
 
 -- Auxiliary parsers and functions for declaring notation with binders

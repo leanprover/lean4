@@ -663,7 +663,7 @@ private def findCompletionInfoAt?
     (hoverPos : String.Pos)
     (infoTree : InfoTree)
     : Option (HoverInfo × ContextInfo × CompletionInfo) :=
-  let ⟨hoverLine, x⟩ := fileMap.toPosition hoverPos
+  let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     some (hoverInfo, ctx, info)

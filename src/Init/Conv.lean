@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Notation for operators defined at Prelude.lean
 -/
 prelude
-import Init.Meta
+import Init.Tactics
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -201,7 +201,7 @@ macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-macro (name := case) tk:"case " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case) tk:"case " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case%$tk $args|* =>%$arr conv' => ($s); all_goals rfl)
 
 /--
@@ -210,7 +210,7 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case') tk:"case' " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case'%$tk $args|* =>%$arr conv' => $s)
 
 /--

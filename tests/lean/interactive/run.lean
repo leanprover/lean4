@@ -67,7 +67,8 @@ def ident : Parsec Name := do
 
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file:///{args.head!}"
-  Ipc.runWith (←IO.appPath) #["--server"] do
+  -- We want `dbg_trace` tactics to write directly to stderr instead of being caught in reuse
+  Ipc.runWith (←IO.appPath) #["--server", "-DstderrAsMessages=false"] do
     let capabilities := {
       textDocument? := some {
         completion? := some {
@@ -111,6 +112,8 @@ partial def main (args : List String) : IO Unit := do
           let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
           match method with
           | "insert" =>
+            let some insertion := Syntax.decodeStrLit params
+              | throw <| IO.userError s!"failed to parse {params}"
             let params : DidChangeTextDocumentParams := {
               textDocument := {
                 uri      := uri
@@ -119,7 +122,7 @@ partial def main (args : List String) : IO Unit := do
               contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
                 start := pos
                 «end» := pos
-              } params]
+              } insertion]
             }
             let params := toJson params
             Ipc.writeNotification ⟨"textDocument/didChange", params⟩

@@ -2,30 +2,6 @@
 1
 2
 3
-{"textDocument": {"version": 2, "uri": "file:///incrementalCdot.lean"},
- "contentChanges":
- [{"text": ".5",
-   "range":
-   {"start": {"line": 8, "character": 16},
-    "end": {"line": 8, "character": 16}}}]}
-reuse stopped: (cdot
- (cdotTk (patternIgnore (token.«. » ".")))
- (Tactic.tacticSeq
-  (Tactic.tacticSeq1Indented
-   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"2.5\""))]))) != (cdot
- (cdotTk (patternIgnore (token.«. » ".")))
- (Tactic.tacticSeq
-  (Tactic.tacticSeq1Indented
-   [(Tactic.dbgTrace "dbg_trace" (str "\"0\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"1\""))
-    []
-    (Tactic.dbgTrace "dbg_trace" (str "\"2\""))])))
-reuse stopped: (Tactic.dbgTrace "dbg_trace" (str "\"2.5\"")) != (Tactic.dbgTrace "dbg_trace" (str "\"2\""))
 2.5
 3
 {"version": 2,

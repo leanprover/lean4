@@ -4,6 +4,6 @@ def a2 := sorry
 def a3 := sorry
 ...
  -
---^ insert: /
+--^ insert: "/"
 --^ collectDiagnostics
 def a4 := 0

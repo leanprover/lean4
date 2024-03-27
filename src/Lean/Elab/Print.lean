@@ -65,8 +65,27 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
   logInfo m
 
+private def printStructOrClass (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+    (ctor : Name) (fields : Array Name) (isUnsafe : Bool) (isClass : Bool) : CommandElabM Unit := do
+  let kind := if isClass then "class" else "structure"
+  let mut m ← mkHeader' kind id levelParams type isUnsafe
+  m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
+  m := m ++ Format.line ++ "constructor:"
+  let cinfo ← getConstInfo ctor
+  m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
+  m := m ++ Format.line ++ "fields:"
+  for field in fields do
+    match getProjFnForField? (← getEnv) id field with
+    | some proj =>
+      let field := if isPrivateName proj then "private " ++ toString field else toString field
+      let cinfo ← getConstInfo proj
+      m := m ++ Format.line ++ field ++ " : " ++ cinfo.type
+    | none => panic! "missing structure field info"
+  logInfo m
+
 private def printIdCore (id : Name) : CommandElabM Unit := do
-  match (← getEnv).find? id with
+  let env ← getEnv
+  match env.find? id with
   | ConstantInfo.axiomInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "axiom" id us t u
   | ConstantInfo.defnInfo  { levelParams := us, type := t, value := v, safety := s, .. } => printDefLike "def" id us t v s
   | ConstantInfo.thmInfo  { levelParams := us, type := t, value := v, .. } => printDefLike "theorem" id us t v
@@ -75,7 +94,11 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | ConstantInfo.ctorInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "constructor" id us t u
   | ConstantInfo.recInfo { levelParams := us, type := t, isUnsafe := u, .. } => printAxiomLike "recursor" id us t u
   | ConstantInfo.inductInfo { levelParams := us, numParams, type := t, ctors, isUnsafe := u, .. } =>
-    printInduct id us numParams t ctors u
+    match getStructureInfo? env id with
+    | some { fieldNames, .. } =>
+      let [ctor] := ctors | panic! "structures have only one constructor"
+      printStructOrClass id us numParams t ctor fieldNames u (isClass env id)
+    | none => printInduct id us numParams t ctors u
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do

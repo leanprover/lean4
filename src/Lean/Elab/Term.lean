@@ -337,12 +337,8 @@ def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithRead
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
     { tacSnap with old? := tacSnap.old?.bind fun old => do
       if let some (oldOuter, oldInner) := split old.stx then
-        if outer.structRangeEq oldOuter then
-          return { old with stx := oldInner }
-        else
-          if opts.getBool `trace.Elab.reuse then
-            dbg_trace "reuse stopped: {outer} != {oldOuter}"
-          none
+        guard <| outer.structRangeEqWithTraceReuse opts oldOuter
+        return { old with stx := oldInner }
       else
         if opts.getBool `trace.Elab.reuse then
           dbg_trace "reuse stopped: failed to parse old syntax {old.stx}"

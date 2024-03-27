@@ -98,6 +98,17 @@ partial def structRangeEq : Syntax → Syntax → Bool
     preresolved == preresolved'
   | _, _ => false
 
+/-- Like `structRangeEq` but prints trace on failure if `trace.Elab.reuse` is activated. -/
+def structRangeEqWithTraceReuse (opts : Options) (stx1 stx2 : Syntax) : Bool :=
+  if stx1.structRangeEq stx2 then
+    true
+  else
+    if opts.getBool `trace.Elab.reuse then
+      dbg_trace "reuse stopped: {stx1} != {stx2}"
+      false
+    else
+      false
+
 def getAtomVal : Syntax → String
   | atom _ val => val
   | _          => ""

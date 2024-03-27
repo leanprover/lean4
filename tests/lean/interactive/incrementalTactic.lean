@@ -1,5 +1,3 @@
-/-! # Incremental reuse -/
-
 /-! Basic incremental reuse in top-level tactic block -/
 
 -- set_option trace.Elab.reuse true

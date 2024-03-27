@@ -160,7 +160,7 @@ def Workspace.updateAndMaterialize
             modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
       if let some oldRelPkgsDir := manifest.packagesDir? then
         let oldPkgsDir := ws.dir / oldRelPkgsDir
-        if oldPkgsDir != ws.pkgsDir && (← oldPkgsDir.pathExists) then
+        if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
           let doRename : IO Unit := do
             createParentDirs ws.pkgsDir
             IO.FS.rename oldPkgsDir ws.pkgsDir

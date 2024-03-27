@@ -1,31 +1,10 @@
-0
-1
-2
-2.5
-{"version": 2,
- "uri": "file:///incrementalCombinator.lean",
- "diagnostics":
- [{"source": "Lean 4",
-   "severity": 1,
-   "range":
-   {"start": {"line": 6, "character": 13}, "end": {"line": 7, "character": 0}},
-   "message": "unsolved goals\na b c : Prop\nh✝ : b\n⊢ True",
-   "fullRange":
-   {"start": {"line": 6, "character": 13},
-    "end": {"line": 9, "character": 21}}},
-  {"source": "Lean 4",
-   "severity": 1,
-   "range":
-   {"start": {"line": 4, "character": 13}, "end": {"line": 5, "character": 0}},
-   "message": "unsolved goals\ncase inr\na b c : Prop\nh✝ : c\n⊢ True",
-   "fullRange":
-   {"start": {"line": 4, "character": 13},
-    "end": {"line": 9, "character": 21}}},
-  {"source": "Lean 4",
-   "severity": 1,
-   "range":
-   {"start": {"line": 2, "character": 35}, "end": {"line": 3, "character": 0}},
-   "message": "unsolved goals\ncase inl\na b c : Prop\nh✝ : a\n⊢ True",
-   "fullRange":
-   {"start": {"line": 2, "character": 35},
-    "end": {"line": 9, "character": 21}}}]}
+c 0
+c 1
+c 2
+c 2.5
+d 0
+d 1
+d 2
+d 3
+d 2.5
+d 3

@@ -730,10 +730,8 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
     a.pop
 termination_by a.size - i.val
 
-derive_functional_induction feraseIdx
-
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
-  induction a, i using feraseIdx.induct with
+  induction a, i using Array.feraseIdx.induct with
   | @case1 a i h a' _ _ ih =>
     unfold feraseIdx
     simp [h, a', ih]

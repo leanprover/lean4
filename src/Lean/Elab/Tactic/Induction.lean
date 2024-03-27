@@ -315,6 +315,9 @@ where
             altMVarIds.forM fun mvarId => admitGoal mvarId
       | some altStx =>
         (subgoals, usedWildcard, reuseAlt) ← withRef altStx do
+          if !isWildcard && getAltName altStx != altName then
+            -- must be duplicate because we already checked for unknown names and sorted all others
+            throwError "duplicate alternative '{getAltName altStx}'"
           let altVars := getAltVars altStx
           let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
           if altVars.size > numFieldsToName then

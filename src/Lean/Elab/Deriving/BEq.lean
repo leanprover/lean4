@@ -44,7 +44,8 @@ where
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + ctorInfo.numFields - i - 1]!
+          let pos := indVal.numParams + ctorInfo.numFields - i - 1
+          let x := xs[pos]!
           if type.containsFVar x.fvarId! then
             -- If resulting type depends on this field, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
@@ -59,6 +60,14 @@ where
               continue
             if xType.isAppOf indVal.name then
               rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
+            /- If `x` appears in the type of another field, use `eq_of_beq` to
+               unify the types of the subsequent variables -/
+            else if ← xs[pos+1:].anyM
+                (fun fvar => (Lean.Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
+              rhs ← `(if h : $a:ident == $b:ident then by
+                        cases (eq_of_beq h)
+                        exact $rhs
+                      else false)
             else
               rhs ← `($a:ident == $b:ident && $rhs)
           -- add `_` for inductive parameters, they are inaccessible

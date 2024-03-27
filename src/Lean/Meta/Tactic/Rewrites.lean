@@ -149,7 +149,7 @@ def dischargableWithRfl? (mctx : MetavarContext) (e : Expr) : MetaM Bool := do
   try
     withoutModifyingState <| withMCtx mctx do
       -- We use `withReducible` here to follow the behaviour of `rw`.
-      withReducible (← mkFreshExprMVar e).mvarId!.applyRfl
+      withReducible (← mkFreshExprMVar e).mvarId!.refl
       pure true
   catch _e =>
     pure false

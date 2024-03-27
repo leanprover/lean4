@@ -24,4 +24,4 @@ end
 #eval tst ``isEven
 #check @isEven.eq_1
 #check @isEven.eq_2
-#check @isEven.def
+#check @isEven.eq_def

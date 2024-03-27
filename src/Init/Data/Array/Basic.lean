@@ -456,24 +456,12 @@ def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
 
 @[inline]
 def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
-  let rec loop (i : Nat) (j : Nat) (inv : i + j = as.size) : Option Nat :=
-    if hlt : j < as.size then
-      match i, inv with
-      | 0, inv => by
-        apply False.elim
-        rw [Nat.zero_add] at inv
-        rw [inv] at hlt
-        exact absurd hlt (Nat.lt_irrefl _)
-      | i+1, inv =>
-        if p as[j] then
-          some j
-        else
-          have : i + (j+1) = as.size := by
-            rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-          loop i (j+1) this
-    else
-      none
-  loop as.size 0 rfl
+  let rec loop (j : Nat) :=
+    if h : j < as.size then
+      if p as[j] then some j else loop (j + 1)
+    else none
+    termination_by as.size - j
+  loop 0
 
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? fun a => a == v
@@ -727,33 +715,36 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     termination_by as.size - i
   go 0 #[]
 
-def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
-  if h : i < a.size then
-    let idx  : Fin a.size := ⟨i, h⟩;
-    let idx1 : Fin a.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
-    let a' := a.swap idx idx1
-    eraseIdxAux (i+1) a'
+/-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
+def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
+  if h : i.val + 1 < a.size then
+    let a' := a.swap ⟨i.val + 1, h⟩ i
+    let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
+    have : a'.size - i' < a.size - i := by
+      simp [a', Nat.sub_succ_lt_self _ _ i.isLt]
+    a'.feraseIdx i'
   else
     a.pop
-termination_by a.size - i
+termination_by a.size - i.val
 
-def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
-  eraseIdxAux (i.val + 1) a
+theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
+  induction a, i using Array.feraseIdx.induct with
+  | @case1 a i h a' _ _ ih =>
+    unfold feraseIdx
+    simp [h, a', ih]
+  | case2 a i h =>
+    unfold feraseIdx
+    simp [h]
 
+/-- Remove the element at a given index from an array, or do nothing if the index is out of bounds.
+
+  This function takes worst case O(n) time because
+  it has to backshift all elements at positions greater than `i`.-/
 def eraseIdx (a : Array α) (i : Nat) : Array α :=
-  if i < a.size then eraseIdxAux (i+1) a else a
-
-def eraseIdxSzAux (a : Array α) (i : Nat) (r : Array α) (heq : r.size = a.size) : { r : Array α // r.size = a.size - 1 } :=
-  if h : i < r.size then
-    let idx  : Fin r.size := ⟨i, h⟩;
-    let idx1 : Fin r.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
-    eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
-  else
-    ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
-termination_by r.size - i
-
-def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
-  eraseIdxSzAux a (i.val + 1) a rfl
+  if h : i < a.size then a.feraseIdx ⟨i, h⟩ else a
 
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with

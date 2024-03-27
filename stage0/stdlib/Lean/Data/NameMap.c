@@ -62,7 +62,6 @@ LEAN_EXPORT lean_object* l_Lean_NameSet_append___lambda__1___boxed(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_NameSSet_empty___spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MacroScopesView_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameSet_instInhabitedNameSet;
-LEAN_EXPORT lean_object* l_Lean_instCoeStringName__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_NameMap_insert___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at_Lean_MacroScopesView_isPrefixOf___spec__1___boxed(lean_object*, lean_object*);
@@ -106,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_NameMap_insert___spec__2(le
 LEAN_EXPORT lean_object* l_Lean_NameMap_contains___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_NameHashSet_empty___spec__1___boxed(lean_object*);
-static lean_object* l_Lean_instCoeStringName__1___closed__1;
 static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_NameSSet_insert___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -164,24 +162,7 @@ LEAN_EXPORT uint8_t l_List_beq___at_Lean_MacroScopesView_isPrefixOf___spec__1(le
 static lean_object* l_Lean_NameMap_instForInNameMapProdName___closed__2;
 size_t lean_usize_land(size_t, size_t);
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
-lean_object* l_Lean_Name_mkSimple(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_NameSet_contains___spec__1(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_instCoeStringName__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Name_mkSimple), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instCoeStringName__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_instCoeStringName__1___closed__1;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_mkNameMap(lean_object* x_1) {
 _start:
 {
@@ -9769,10 +9750,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instCoeStringName__1___closed__1 = _init_l_Lean_instCoeStringName__1___closed__1();
-lean_mark_persistent(l_Lean_instCoeStringName__1___closed__1);
-l_Lean_instCoeStringName__1 = _init_l_Lean_instCoeStringName__1();
-lean_mark_persistent(l_Lean_instCoeStringName__1);
 l_Lean_NameMap_instForInNameMapProdName___closed__1 = _init_l_Lean_NameMap_instForInNameMapProdName___closed__1();
 lean_mark_persistent(l_Lean_NameMap_instForInNameMapProdName___closed__1);
 l_Lean_NameMap_instForInNameMapProdName___closed__2 = _init_l_Lean_NameMap_instForInNameMapProdName___closed__2();

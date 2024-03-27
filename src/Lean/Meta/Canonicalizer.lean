@@ -101,7 +101,7 @@ private partial def mkKey (e : Expr) : CanonM Key := do
         let args ← e.getAppArgs.mapIdxM fun i arg => do
           if h : i < info.paramInfo.size then
             let info := info.paramInfo[i]
-            if info.isExplicit then
+            if info.isExplicit && !info.isProp then
               pure (← mkKey arg).e
             else
               pure (mkSort 0) -- some dummy value for erasing implicit

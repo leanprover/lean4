@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 import Init.NotationExtra
+import Init.Data.ToString.Macro
 
 universe u v w
 

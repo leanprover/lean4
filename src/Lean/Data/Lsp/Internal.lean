@@ -161,14 +161,33 @@ instance : FromJson ModuleRefs where
     node.foldM (init := HashMap.empty) fun m k v =>
       return m.insert (← RefIdent.fromJson? (← Json.parse k)) (← fromJson? v)
 
-/-- `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog<-worker notifications.
-
-Contains the file's definitions and references. -/
+/--
+Used in the `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog <- worker notifications.
+Contains the definitions and references of the file managed by a worker.
+-/
 structure LeanIleanInfoParams where
   /-- Version of the file these references are from. -/
   version    : Nat
   /-- All references for the file. -/
   references : ModuleRefs
+  deriving FromJson, ToJson
+
+/--
+Used in the `$/lean/importClosure` watchdog <- worker notification.
+Contains the full import closure of the file managed by a worker.
+-/
+structure LeanImportClosureParams where
+  /-- Full import closure of the file. -/
+  importClosure : Array DocumentUri
+  deriving FromJson, ToJson
+
+/--
+Used in the `$/lean/importClosure` watchdog -> worker notification.
+Informs the worker that one of its dependencies has gone stale and likely needs to be rebuilt.
+-/
+structure LeanStaleDependencyParams where
+  /-- The dependency that is stale. -/
+  staleDependency : DocumentUri
   deriving FromJson, ToJson
 
 end Lean.Lsp

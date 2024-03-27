@@ -59,25 +59,32 @@ open IO
 open Snapshots
 open JsonRpc
 
+open Widget in
+abbrev StickyDiagnostics := RBTree InteractiveDiagnostic InteractiveDiagnostic.compareAsDiagnostics
+
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
-  chanOut           : IO.Channel JsonRpc.Message
+  chanOut              : IO.Channel JsonRpc.Message
   /--
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersionRef  : IO.Ref Int
-  freshRequestIdRef : IO.Ref Int
-  hLog              : FS.Stream
-  initParams        : InitializeParams
-  processor         : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
-  clientHasWidgets  : Bool
+  maxDocVersionRef     : IO.Ref Int
+  freshRequestIdRef    : IO.Ref Int
+  /--
+  Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
+  -/
+  stickyDiagnosticsRef : IO.Ref StickyDiagnostics
+  hLog                 : FS.Stream
+  initParams           : InitializeParams
+  processor            : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
+  clientHasWidgets     : Bool
   /--
   Options defined on the worker cmdline (i.e. not including options from `setup-file`), used for
   context-free tasks such as editing delay.
   -/
-  cmdlineOpts       : Options
+  cmdlineOpts          : Options
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -96,6 +103,13 @@ section Elab
   private def mkIleanInfoFinalNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoFinal"
+
+  /-- Yields a `$/lean/importClosure` notification. -/
+  private def mkImportClosureNotification (importClosure : Array DocumentUri)
+      : JsonRpc.Notification Lsp.LeanImportClosureParams := {
+    method := "$/lean/importClosure",
+    param := { importClosure : LeanImportClosureParams }
+  }
 
   /-- State of `reportSnapshots`. -/
   private structure ReportSnapshotsState where
@@ -127,6 +141,20 @@ This option can only be set on the command line, not in the lakefile or via `set
     diags : Array Widget.InteractiveDiagnostic
   deriving TypeName
 
+  /--
+  Sends a `textDocument/publishDiagnostics` notification to the client that contains the diagnostics
+  in `ctx.stickyDiagnosticsRef` and `doc.diagnosticsRef`.
+  -/
+  private def publishDiagnostics (ctx : WorkerContext) (doc : EditableDocumentCore)
+      : BaseIO Unit := do
+    let stickyInteractiveDiagnostics ← ctx.stickyDiagnosticsRef.get
+    let docInteractiveDiagnostics ← doc.diagnosticsRef.get
+    let diagnostics :=
+      stickyInteractiveDiagnostics.toArray ++ docInteractiveDiagnostics
+      |>.map (·.toDiagnostic)
+    let notification := mkPublishDiagnosticsNotification doc.meta diagnostics
+    ctx.chanOut.send notification
+
   open Language in
   /--
     Reports status of a snapshot tree incrementally to the user: progress,
@@ -156,15 +184,12 @@ This option can only be set on the command line, not in the lakefile or via `set
         else
           ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
         unless st.hasBlocked do
-          publishDiagnostics
+          publishDiagnostics ctx doc
         -- This will overwrite existing ilean info for the file, in case something
         -- went wrong during the incremental updates.
         ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
         return .pure ()
   where
-    publishDiagnostics := do
-      ctx.chanOut.send <| mkPublishDiagnosticsNotification doc.meta <|
-        (← doc.diagnosticsRef.get).map (·.toDiagnostic)
     go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
       if !node.element.diagnostics.msgLog.isEmpty then
         let diags ←
@@ -179,7 +204,7 @@ This option can only be set on the command line, not in the lakefile or via `set
             pure diags
         doc.diagnosticsRef.modify (· ++ diags)
         if st.hasBlocked then
-          publishDiagnostics
+          publishDiagnostics ctx doc
 
       let mut st := { st with hasFatal := st.hasFatal || node.element.isFatal }
 
@@ -200,7 +225,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         unless (← IO.hasFinished t.task) do
           ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta t.range.start
           if !st.hasBlocked then
-            publishDiagnostics
+            publishDiagnostics ctx doc
             st := { st with hasBlocked := true }
         BaseIO.bindTask t.task fun t => do
           BaseIO.bindTask (← go t st) (goSeq · ts)
@@ -250,7 +275,7 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
   let imports := Elab.headerToImports stx
   let fileSetupResult ← setupFile meta imports fun stderrLine => do
     let progressDiagnostic := {
-      range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       -- make progress visible anywhere in the file
       fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
       severity?  := DiagnosticSeverity.information
@@ -289,12 +314,17 @@ section Initialization
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef 0
+    let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
 
     let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
     let initSnap ← processor meta.mkInputContext
+    let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
+      let importClosure := getImportClosure? initSnap
+      let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
+      chanOut.send <| mkImportClosureNotification importClosure
     let ctx := {
       chanOut
       hLog := e
@@ -304,6 +334,7 @@ section Initialization
       maxDocVersionRef
       freshRequestIdRef
       cmdlineOpts := opts
+      stickyDiagnosticsRef
     }
     let doc : EditableDocumentCore := {
       meta, initSnap
@@ -344,6 +375,15 @@ section Initialization
           -- as that would allow outdated messages to be reported until the delay is over
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
       return chanOut
+
+    getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
+      let some snap := snap.result?
+        | return #[]
+      let some snap ← snap.processedSnap.get.result?
+        | return #[]
+      let importClosure := snap.cmdState.env.allImportedModuleNames
+      return importClosure
+
 end Initialization
 
 section ServerRequests
@@ -393,6 +433,24 @@ section NotificationHandling
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
 
+  /--
+  Received from the watchdog when a dependency of this file is detected as being stale.
+  Issues a sticky diagnostic to the client that it should run "Restart File".
+  -/
+  def handleStaleDependency (_ : LeanStaleDependencyParams) : WorkerM Unit := do
+    let ctx ← read
+    let s ← get
+    let text := s.doc.meta.text
+    let diagnostic := {
+      range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
+      fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.endPos⟩
+      severity?  := DiagnosticSeverity.information
+      message    := .text s!"Imports are out of date and should be rebuilt; \
+        use the \"Restart File\" command in your editor."
+    }
+    ctx.stickyDiagnosticsRef.modify fun stickyDiagnostics => stickyDiagnostics.insert diagnostic
+    publishDiagnostics ctx s.doc.toEditableDocumentCore
+
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
@@ -437,6 +495,7 @@ section MessageHandling
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
+    | "$/lean/staleDependency" => handle Lsp.LeanStaleDependencyParams handleStaleDependency
     | "$/lean/rpc/release"     => handle RpcReleaseParams handleRpcRelease
     | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams handleRpcKeepAlive
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
@@ -448,15 +507,17 @@ section MessageHandling
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
       WorkerM (Array InteractiveDiagnostic) := do
+    let ctx ← read
     let st ← get
     -- NOTE: always uses latest document (which is the only one we can retrieve diagnostics for);
     -- any race should be temporary as the client should re-request interactive diagnostics when
     -- they receive the non-interactive diagnostics for the new document
+    let stickyDiags ← ctx.stickyDiagnosticsRef.get
     let diags ← st.doc.diagnosticsRef.get
     -- NOTE: does not wait for `lineRange?` to be fully elaborated, which would be problematic with
     -- fine-grained incremental reporting anyway; instead, the client is obligated to resend the
     -- request when the non-interactive diagnostics of this range have changed
-    return diags.filter fun diag =>
+    return (stickyDiags.toArray ++ diags).filter fun diag =>
       let r := diag.fullRange
       let diagStartLine := r.start.line
       let diagEndLine   :=
@@ -561,7 +622,7 @@ end MessageHandling
 
 section MainLoop
   variable (hIn : FS.Stream) in
-  partial def mainLoop : WorkerM UInt32 := do
+  partial def mainLoop : WorkerM Unit := do
     let mut st ← get
     let msg ← hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
@@ -588,7 +649,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      return 0
+      return
     | Message.notification method (some params) =>
       handleNotification method (toJson params)
       mainLoop
@@ -623,21 +684,30 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
-  try
-    let (ctx, st) ← initializeWorker meta o e initParams.param opts
-    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) do
-      let refreshTask ← runRefreshTask
-      let exitCode ← mainLoop i
-      IO.cancel refreshTask
-      pure exitCode
-    return (0 : UInt32)
+  let (ctx, st) ← try
+    initializeWorker meta o e initParams.param opts
   catch err =>
+    writeError meta err
+    return (1 : UInt32)
+  let exitCode ← StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
+    try
+      let refreshTask ← runRefreshTask
+      mainLoop i
+      IO.cancel refreshTask
+      return 0
+    catch err =>
+      let st ← get
+      writeError st.doc.meta err
+      return 1
+  return exitCode
+where
+  writeError (meta : DocumentMeta) (err : Error) : IO Unit := do
     IO.eprintln err
     e.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
-      range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      range := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩,
+      fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
       severity? := DiagnosticSeverity.error
       message := err.toString }]
-    return (1 : UInt32)
 
 @[export lean_server_worker_main]
 def workerMain (opts : Options) : IO UInt32 := do

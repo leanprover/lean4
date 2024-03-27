@@ -11,7 +11,7 @@ theorem ex : foo 0 = 0 := by
   sorry
 
 /--
-info: foo.def (n : Nat) :
+info: foo.eq_def (n : Nat) :
   foo n =
     if n = 0 then 0
     else
@@ -20,4 +20,4 @@ info: foo.def (n : Nat) :
       foo x
 -/
 #guard_msgs in
-#check foo.def
+#check foo.eq_def

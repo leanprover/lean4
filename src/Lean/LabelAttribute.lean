@@ -80,8 +80,7 @@ macro (name := _root_.Lean.Parser.Command.registerLabelAttr)
   doc:(docComment)? "register_label_attr " id:ident : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  let descr := quote (removeLeadingSpaces
-    (doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)))
+  let descr := quote ((doc.map (·.getDocString) |>.getD ("labelled declarations for " ++ id.getId.toString)).removeLeadingSpaces)
   `($[$doc:docComment]? initialize ext : Lean.LabelExtension ←
       registerLabelAttr $(quote id.getId) $descr $(quote id.getId)
     $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str : attr)

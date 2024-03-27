@@ -426,7 +426,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_E
 static lean_object* l_Lean_Elab_Tactic_Ext_ExtTheorems_erase___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Array_insertionSort_swapLoop___at_Lean_Elab_Tactic_Ext_getExtTheorems___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___at_Lean_Elab_Tactic_Ext_extCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_MVarId_refl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_43____closed__4;
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_43____closed__30;
 lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -644,6 +643,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Ext_ExtTheorems_erase___spec__5(lean_object*, lean_object*, size_t, size_t, uint8_t);
+lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_isParentProj___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_43____closed__22;
 lean_object* l_Lean_Meta_mkProjection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_reprExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_43____boxed(lean_object*, lean_object*);
@@ -8775,7 +8775,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at_Lean_MVarId_refl___spec__3(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_isParentProj___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -8821,7 +8821,7 @@ lean_ctor_set(x_25, 8, x_20);
 lean_ctor_set(x_25, 9, x_21);
 lean_ctor_set(x_25, 10, x_22);
 lean_ctor_set_uint8(x_25, sizeof(void*)*11, x_23);
-x_26 = l_Lean_throwError___at_Lean_MVarId_refl___spec__3(x_2, x_3, x_4, x_25, x_6, x_7);
+x_26 = l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_isParentProj___spec__1(x_2, x_3, x_4, x_25, x_6, x_7);
 lean_dec(x_25);
 return x_26;
 }

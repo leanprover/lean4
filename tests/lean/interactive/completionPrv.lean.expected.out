@@ -28,7 +28,34 @@
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},
      "position": {"line": 9, "character": 11}},
-    "id": {"const": {"declName": "instToBoolBool"}}}}],
+    "id": {"const": {"declName": "instToBoolBool"}}}},
+  {"sortText": "2",
+   "label": "BitVec.getLsb_ofBoolListBE",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.getLsb_ofBoolListBE"}}}},
+  {"sortText": "3",
+   "label": "BitVec.getMsb_ofBoolListBE",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.getMsb_ofBoolListBE"}}}},
+  {"sortText": "4",
+   "label": "BitVec.ofBoolListBE",
+   "kind": 3,
+   "documentation":
+   {"value": "Converts a list of `Bool`s to a big-endian `BitVec`. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionPrv.lean"},
+     "position": {"line": 9, "character": 11}},
+    "id": {"const": {"declName": "BitVec.ofBoolListBE"}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionPrv.lean"},
  "position": {"line": 21, "character": 5}}

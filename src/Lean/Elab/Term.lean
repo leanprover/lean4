@@ -665,7 +665,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
+    (f? : Option Expr := none) (_extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:

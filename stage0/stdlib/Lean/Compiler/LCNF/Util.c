@@ -31,6 +31,7 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__39;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__29;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__15;
+extern lean_object* l_Lean_casesOnSuffix;
 static lean_object* l_Lean_Compiler_LCNF_isLcCast_x3f___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__26;
@@ -109,6 +110,7 @@ lean_object* l_Lean_Compiler_LCNF_isLcCast_x3f(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__10;
@@ -119,7 +121,6 @@ lean_object* l_Lean_Compiler_LCNF_isCompilerRelevantMData___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_InductiveVal_numCtors(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__33;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__23;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__30;
@@ -478,70 +479,72 @@ x_5 = lean_st_ref_get(x_3, x_4);
 x_6 = !lean_is_exclusive(x_5);
 if (x_6 == 0)
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_ctor_get(x_5, 1);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
+x_10 = l_Lean_casesOnSuffix;
 lean_inc(x_1);
-x_10 = l_Lean_isCasesOnRecursor(x_9, x_1);
-if (x_10 == 0)
+x_11 = l_Lean_isAuxRecursorWithSuffix(x_9, x_1, x_10);
+if (x_11 == 0)
 {
-lean_object* x_11; 
+lean_object* x_12; 
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_11 = lean_box(0);
-lean_ctor_set(x_5, 0, x_11);
+x_12 = lean_box(0);
+lean_ctor_set(x_5, 0, x_12);
 return x_5;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; 
+lean_object* x_13; lean_object* x_14; 
 lean_free_object(x_5);
-x_12 = lean_box(0);
-x_13 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_12, x_2, x_3, x_8);
+x_13 = lean_box(0);
+x_14 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_13, x_2, x_3, x_8);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_13;
+return x_14;
 }
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
-x_14 = lean_ctor_get(x_5, 0);
-x_15 = lean_ctor_get(x_5, 1);
-lean_inc(x_15);
-lean_inc(x_14);
-lean_dec(x_5);
-x_16 = lean_ctor_get(x_14, 0);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
+x_15 = lean_ctor_get(x_5, 0);
+x_16 = lean_ctor_get(x_5, 1);
 lean_inc(x_16);
-lean_dec(x_14);
+lean_inc(x_15);
+lean_dec(x_5);
+x_17 = lean_ctor_get(x_15, 0);
+lean_inc(x_17);
+lean_dec(x_15);
+x_18 = l_Lean_casesOnSuffix;
 lean_inc(x_1);
-x_17 = l_Lean_isCasesOnRecursor(x_16, x_1);
-if (x_17 == 0)
-{
-lean_object* x_18; lean_object* x_19; 
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-x_18 = lean_box(0);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_15);
-return x_19;
-}
-else
+x_19 = l_Lean_isAuxRecursorWithSuffix(x_17, x_1, x_18);
+if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
-x_20 = lean_box(0);
-x_21 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_20, x_2, x_3, x_15);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
+x_20 = lean_box(0);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_16);
 return x_21;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_box(0);
+x_23 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_22, x_2, x_3, x_16);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_23;
 }
 }
 }

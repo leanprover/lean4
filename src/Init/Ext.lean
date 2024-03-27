@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
+import Init.Data.ToString.Macro
 import Init.TacticsExtra
 import Init.RCases
 

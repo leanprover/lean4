@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic
-// Imports: Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.TryThis Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename Lean.Meta.Tactic.LinearArith Lean.Meta.Tactic.AC Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Congr Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.NormCast Lean.Meta.Tactic.IndependentOf Lean.Meta.Tactic.Symm Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.SolveByElim Lean.Meta.Tactic.FunInd
+// Imports: Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.TryThis Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename Lean.Meta.Tactic.LinearArith Lean.Meta.Tactic.AC Lean.Meta.Tactic.Refl Lean.Meta.Tactic.Congr Lean.Meta.Tactic.Repeat Lean.Meta.Tactic.NormCast Lean.Meta.Tactic.IndependentOf Lean.Meta.Tactic.Symm Lean.Meta.Tactic.Backtrack Lean.Meta.Tactic.SolveByElim Lean.Meta.Tactic.FunInd Lean.Meta.Tactic.Rfl Lean.Meta.Tactic.Rewrites
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -47,6 +47,8 @@ lean_object* initialize_Lean_Meta_Tactic_Symm(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Backtrack(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_SolveByElim(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_FunInd(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Rfl(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Rewrites(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -152,6 +154,12 @@ res = initialize_Lean_Meta_Tactic_SolveByElim(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_FunInd(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Rfl(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Rewrites(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

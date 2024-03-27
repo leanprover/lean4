@@ -158,8 +158,9 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | _ => throwError m!"unexpected tactic{indentD stx}"
 where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
-     if let some fail := failures[0]? then
-       -- Recall that `failures[0]` is the highest priority evalFn/macro
+     if h : 0 < failures.size  then
+       -- For macros we want to report the error from the first registered / last tried rule (#3770)
+       let fail := failures[failures.size-1]
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else

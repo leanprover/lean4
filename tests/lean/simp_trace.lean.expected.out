@@ -19,9 +19,8 @@ Try this: simp only [foo]
 [Meta.Tactic.simp.rewrite] unfold foo, foo ==> 10
 [Meta.Tactic.simp.rewrite] @eq_self:1000, 10 + x = 10 + x ==> True
 Try this: simp only [g, pure]
-[Meta.Tactic.simp.rewrite] unfold g, g x ==> Id.run
-      (let x := x;
-      pure x)
+[Meta.Tactic.simp.rewrite] unfold g, g x ==> (let x := x;
+      pure x).run
 Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modifyGet, MonadStateOf.modifyGet,
   StateT.modifyGet, pure, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, set, StateT.set]
 [Meta.Tactic.simp.rewrite] unfold f1, f1 ==> modify fun x => g x
@@ -81,26 +80,26 @@ x y : Nat
 α : Type
 xs ys : List α
 h₁ : x + x = y
-h₂ : List.length xs + List.length ys = y
+h₂ : xs.length + ys.length = y
 ⊢ x = length xs
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] @List.length_append:1000, List.length (xs ++ ys) ==> List.length xs + List.length ys
+[Meta.Tactic.simp.rewrite] @List.length_append:1000, (xs ++ ys).length ==> xs.length + ys.length
 Try this: simp only [bla, h, List.length_append] at *
 simp_trace.lean:103:101-104:53: error: unsolved goals
 x y : Nat
 α : Type
 xs ys : List α
 h₁ : x + x = y
-h₂ : List.length xs + List.length ys = y
+h₂ : xs.length + ys.length = y
 ⊢ x = length xs
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] @List.length_append:1000, List.length (xs ++ ys) ==> List.length xs + List.length ys
+[Meta.Tactic.simp.rewrite] @List.length_append:1000, (xs ++ ys).length ==> xs.length + ys.length
 Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z

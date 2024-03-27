@@ -4,12 +4,11 @@ def ackermann : Nat → Nat → Nat
   | 0, m => m + 1
   | n+1, 0 => ackermann n 1
   | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-derive_functional_induction ackermann
 
 /--
 info: ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-  (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
-  (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m)) :
+  (case2 : ∀ (n : Nat), motive n 1 → motive n.succ 0)
+  (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive n.succ m.succ) :
   ∀ (a a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
@@ -23,11 +22,9 @@ def List.attach {α} : (l : List α) → List {x // x ∈ l}
 inductive Tree | node : List Tree → Tree
 def Tree.rev : Tree → Tree | node ts => .node (ts.attach.map (fun ⟨t, _ht⟩ => t.rev) |>.reverse)
 
-derive_functional_induction Tree.rev
-
 /--
 info: Tree.rev.induct (motive : Tree → Prop)
-  (case1 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive t) → motive (Tree.node ts)) (x : Tree) : motive x
+  (case1 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive t) → motive (Tree.node ts)) : ∀ (a : Tree), motive a
 -/
 #guard_msgs in
 #check Tree.rev.induct

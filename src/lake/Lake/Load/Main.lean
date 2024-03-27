@@ -65,13 +65,17 @@ def loadPackage
     | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
   else
     let relLeanFile := cfg.relConfigFile.addExtension "lean"
+    let relTomlFile := cfg.relConfigFile.addExtension "toml"
     let leanFile := cfg.pkgDir / relLeanFile
-    if (← leanFile.pathExists) then
+    let tomlFile := cfg.pkgDir / relTomlFile
+    let leanExists ← leanFile.pathExists
+    let tomlExists ← tomlFile.pathExists
+    if leanExists then
+      if tomlExists then
+        logInfo s!"{name}: {relLeanFile} and {relTomlFile} are both present; using {relLeanFile}"
       (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
     else
-      let relTomlFile := cfg.relConfigFile.addExtension "toml"
-      let tomlFile := cfg.pkgDir / relTomlFile
-      if (← tomlFile.pathExists) then
+      if tomlExists then
         ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir relTomlFile
       else
         error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"

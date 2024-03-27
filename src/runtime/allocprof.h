@@ -7,6 +7,11 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "runtime/object.h"
+
+#ifndef LEAN_RUNTIME_STATS
+#error "RESEARCH: expected LEAN_RUNTIME_STATS to be ON"
+#endif
+
 namespace lean {
 /* Low tech runtime allocation profiler.
    We need to compile Lean using RUNTIME_STATS=ON to use it. */

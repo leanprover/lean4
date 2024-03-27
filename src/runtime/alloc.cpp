@@ -6,9 +6,14 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <lean/lean.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
+#include "runtime/memory.h"
+#include "runtime/research.h"
 
 #ifdef LEAN_RUNTIME_STATS
 #define LEAN_RUNTIME_STAT_CODE(c) c
@@ -30,30 +35,42 @@ Author: Leonardo de Moura
 LEAN_CASSERT(LEAN_PAGE_SIZE > LEAN_MAX_SMALL_OBJECT_SIZE);
 LEAN_CASSERT(LEAN_SEGMENT_SIZE > LEAN_PAGE_SIZE);
 
+
 namespace lean {
 
 #ifdef LEAN_SMALL_ALLOCATOR
 
 namespace allocator {
 #ifdef LEAN_RUNTIME_STATS
-static atomic<uint64> g_num_alloc(0);
-static atomic<uint64> g_num_small_alloc(0);
-static atomic<uint64> g_num_dealloc(0);
-static atomic<uint64> g_num_small_dealloc(0);
-static atomic<uint64> g_num_segments(0);
-static atomic<uint64> g_num_pages(0);
-static atomic<uint64> g_num_exports(0);
-static atomic<uint64> g_num_recycled_pages(0);
+static atomic<uint64_t> g_num_alloc(0);
+static atomic<uint64_t> g_num_small_alloc(0);
+static atomic<uint64_t> g_num_dealloc(0);
+static atomic<uint64_t> g_num_small_dealloc(0);
+static atomic<uint64_t> g_num_segments(0);
+static atomic<uint64_t> g_num_pages(0);
+static atomic<uint64_t> g_num_exports(0);
+static atomic<uint64_t> g_num_recycled_pages(0);
+
+uint64_t get_num_alloc() { return g_num_alloc; }
+uint64_t get_num_small_alloc () { return g_num_small_alloc; }
+uint64_t get_num_dealloc() { return g_num_dealloc; }
+uint64_t get_num_small_dealloc() { return g_num_small_dealloc; }
+uint64_t get_num_segments() { return g_num_segments; }
+uint64_t get_num_pages() { return g_num_pages; }
+uint64_t get_num_exports() { return g_num_exports; }
+uint64_t get_num_recycled_pages() { return g_num_recycled_pages; }
+
+
 struct alloc_stats {
     ~alloc_stats() {
-        std::cerr << "num. alloc.:         " << g_num_alloc << "\n";
-        std::cerr << "num. small alloc.:   " << g_num_small_alloc << "\n";
-        std::cerr << "num. dealloc.:       " << g_num_dealloc << "\n";
-        std::cerr << "num. small dealloc.: " << g_num_small_dealloc << "\n";
-        std::cerr << "num. segments:       " << g_num_segments << "\n";
-        std::cerr << "num. pages:          " << g_num_pages << "\n";
-        std::cerr << "num. recycled pages: " << g_num_recycled_pages << "\n";
-        std::cerr << "num. exports:        " << g_num_exports << "\n";
+        // std::cerr << "num. alloc.:         " << g_num_alloc << "\n";
+        // std::cerr << "num. small alloc.:   " << g_num_small_alloc << "\n";
+        // std::cerr << "num. dealloc.:       " << g_num_dealloc << "\n";
+        // std::cerr << "num. small dealloc.: " << g_num_small_dealloc << "\n";
+        // std::cerr << "num. segments:       " << g_num_segments << "\n";
+        // std::cerr << "num. pages:          " << g_num_pages << "\n";
+        // std::cerr << "num. recycled pages: " << g_num_recycled_pages << "\n";
+        // std::cerr << "num. exports:        " << g_num_exports << "\n";
     }
 };
 static alloc_stats g_alloc_stats;
@@ -382,6 +399,7 @@ void * lean_alloc_small_cold(unsigned sz, unsigned slot_idx, page * p) {
 }
 
 extern "C" LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
+    LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
     page * p = g_heap->m_curr_page[slot_idx];
     g_heap->m_heartbeat++;
     void * r = p->m_header.m_free_list;
@@ -403,7 +421,6 @@ void * alloc(size_t sz) {
         return r;
     }
     lean_assert(g_heap);
-    LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
     unsigned slot_idx = lean_get_slot_idx(sz);
     return lean_alloc_small(sz, slot_idx);
 }

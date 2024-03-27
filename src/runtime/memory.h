@@ -15,4 +15,5 @@ LEAN_EXPORT void set_max_memory(size_t max);
 LEAN_EXPORT void set_max_memory_megabyte(unsigned max);
 LEAN_EXPORT void check_memory(char const * component_name);
 LEAN_EXPORT size_t get_allocated_memory();
+LEAN_EXPORT size_t get_peak_rss();
 }

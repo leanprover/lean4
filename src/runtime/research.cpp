@@ -85,46 +85,46 @@ uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *) {
 }  // end extern "C"
    //
 
-// extern "C" {
-// // dump allocator info into logfile.
-// void research_dump_allocator_log() {
-//   const char *envVarName = "RESEARCH_LEAN_PROFILER_CSV_PATH";
-//   lean::optional<std::string> out_path =
-//       getEnvVarMayExistNonemptyString(envVarName);
-//   if (!out_path) {
-//     return;
-//   }
-//
-//   std::ofstream *of = NULL;
-//   std::ostream *o = NULL;
-//   if (*out_path == "-") {
-//     o = &std::cerr;
-//   } else {
-//     of = new std::ofstream(*out_path, std::ios::app);
-//     o = of;
-//   }
-//
-//   assert(o);
-//
-//   if (research_isResearchLogVerbose()) {
-//     std::cerr << "writing profiling information "
-//               << " to file '" << *out_path << "'"
-//               << "\n";
-//   }
-//
-//   (*o << "rss, " << lean::get_peak_rss()) << "\n";
-//   (*o << "num_alloc, " << lean::allocator::get_num_alloc()) << "\n";
-//   (*o << "num_small_alloc, " << lean::allocator::get_num_small_alloc()) << "\n";
-//   (*o << "num_dealloc, " << lean::allocator::get_num_dealloc()) << "\n";
-//   (*o << "num_small_dealloc, " << lean::allocator::get_num_small_dealloc())
-//       << "\n";
-//   (*o << "num_segments, " << lean::allocator::get_num_segments()) << "\n";
-//   (*o << "num_pages, " << lean::allocator::get_num_pages()) << "\n";
-//   (*o << "num_exports, " << lean::allocator::get_num_exports()) << "\n";
-//   (*o << "num_recycled_pages, " << lean::allocator::get_num_recycled_pages())
-//       << "\n";
-//   if (of) {
-//     delete of;
-//   }
-// }
-// }  // end extern C
+extern "C" {
+// dump allocator info into logfile.
+void research_dump_allocator_log() {
+  const char *envVarName = "RESEARCH_LEAN_PROFILER_CSV_PATH";
+  lean::optional<std::string> out_path =
+      getEnvVarMayExistNonemptyString(envVarName);
+  if (!out_path) {
+    return;
+  }
+
+  std::ofstream *of = NULL;
+  std::ostream *o = NULL;
+  if (*out_path == "-") {
+    o = &std::cerr;
+  } else {
+    of = new std::ofstream(*out_path, std::ios::app);
+    o = of;
+  }
+
+  assert(o);
+
+  if (research_isResearchLogVerbose()) {
+    std::cerr << "writing profiling information "
+              << " to file '" << *out_path << "'"
+              << "\n";
+  }
+
+  (*o << "rss, " << lean::get_peak_rss()) << "\n";
+  (*o << "num_alloc, " << lean::allocator::get_num_alloc()) << "\n";
+  (*o << "num_small_alloc, " << lean::allocator::get_num_small_alloc()) << "\n";
+  (*o << "num_dealloc, " << lean::allocator::get_num_dealloc()) << "\n";
+  (*o << "num_small_dealloc, " << lean::allocator::get_num_small_dealloc())
+      << "\n";
+  (*o << "num_segments, " << lean::allocator::get_num_segments()) << "\n";
+  (*o << "num_pages, " << lean::allocator::get_num_pages()) << "\n";
+  (*o << "num_exports, " << lean::allocator::get_num_exports()) << "\n";
+  (*o << "num_recycled_pages, " << lean::allocator::get_num_recycled_pages())
+      << "\n";
+  if (of) {
+    delete of;
+  }
+}
+}  // end extern C

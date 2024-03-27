@@ -377,8 +377,9 @@ macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is a reflexive relation other than `=`,
+that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 

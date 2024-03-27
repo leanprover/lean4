@@ -10,6 +10,8 @@ import Init.Data.Range
 import Init.Data.OfScientific
 import Init.Data.Hashable
 import Lean.Data.RBMap
+import Init.Data.ToString.Macro
+
 namespace Lean
 
 -- mantissa * 10^-exponent

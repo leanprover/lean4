@@ -83,6 +83,7 @@ jobs:
         with:
           paths: push-test/test-results.xml
         if: always()
+        continue-on-error: true
       - name: Build manual
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc

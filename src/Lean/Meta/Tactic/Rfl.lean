@@ -54,15 +54,12 @@ This tactic applies to a goal whose target has the form `x ~ x`,
 where `~` is a reflexive relation other than `=`,
 that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
 -/
-def _root_.Lean.MVarId.applyRfl (goal : MVarId) (failOnEq : Bool := false) : MetaM Unit := do
+def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := do
   let .app (.app rel _) _ ← whnfR <|← instantiateMVars <|← goal.getType
     | throwError "reflexivity lemmas only apply to binary relations, not{
         indentExpr (← goal.getType)}"
   if let .app (.const ``Eq [_]) _ := rel then
-    if failOnEq then
-      throwError "MVarId.applyRfl fails on equality goals when `failOnEq` is true"
-    else
-      goal.refl
+    throwError "MVarId.applyRfl does not solve `=` goals. Use `MVarId.refl` instead."
   else
     let s ← saveState
     let mut ex? := none

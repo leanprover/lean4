@@ -18,9 +18,7 @@ namespace Lean.Elab.Tactic.Rfl
 
 @[builtin_tactic Lean.Parser.Tactic.applyRfl] def evalApplyRfl : Tactic := fun stx =>
   match stx with
-  -- We call `applyRfl` with `failOnEq := true`,
-  -- so that this does not do duplicative work when called on an `=` goal from `rfl`.
-  | `(tactic| apply_rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl true)
+  | `(tactic| apply_rfl) => withMainContext do liftMetaFinishingTactic (·.applyRfl)
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Rfl

@@ -9,5 +9,5 @@ def case (h : a ∨ b ∨ c) : True := by
       dbg_trace "1"
       dbg_trace "2"
                 --^ collectDiagnostics
-                --^ insert: .5
+                --^ insert: ".5"
                 --^ collectDiagnostics

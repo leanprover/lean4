@@ -9,7 +9,7 @@ theorem basic (n : Nat) : True := by
     dbg_trace "b 0"
     dbg_trace "b 1"
     dbg_trace "b 2"
-                --^ insert: .5
+                --^ insert: ".5"
 
 /-! No reuse in cases where branch is run more than once -/
 
@@ -19,8 +19,7 @@ theorem wildcard (n : Nat) : True := by
   | _ =>
     dbg_trace "w 0"
     dbg_trace "w 1"
-    dbg_trace "w 2"
-                --^ insert: .5
+                --^ insert: ".5"
 
 -- RESET
 theorem preTac (x : Nat × Nat × Nat) : True := by
@@ -29,5 +28,4 @@ theorem preTac (x : Nat × Nat × Nat) : True := by
   | mk x =>
     dbg_trace "p 0"
     dbg_trace "p 1"
-    dbg_trace "p 2"
-                --^ insert: .5
+                --^ insert: ".5"

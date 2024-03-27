@@ -3,7 +3,7 @@
  [{"text": ".",
    "range":
    {"start": {"line": 3, "character": 21},
-    "end": {"line": 3, "character": 21}}}]}
+    "end": {"line": 3, "character": 22}}}]}
 {"textDocument": {"uri": "file:///editCompletion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items":

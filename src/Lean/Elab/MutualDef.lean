@@ -160,7 +160,8 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
           -- Transition from `DefView.snap?` to `DefViewElabHeader.bodySnap?` invariant: if all
           -- headers and all previous bodies could be reused and this body syntax is unchanged, then
           -- we can reuse the result
-          reuseBody := reuseBody && view.value.structRangeEq old.bodyStx
+          reuseBody := reuseBody &&
+            view.value.structRangeEqWithTraceReuse (← getOptions) old.bodyStx
           headersRef.modify (·.push { old.view, view with
             tacSnap? := newTac?.map ({
               old? := do
@@ -344,6 +345,11 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         if let some old := old.get then
           old.state.restoreFull
           snap.new.resolve <| some old
+          -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
+          -- missed tactic reuse on further changes
+          if let some tacSnap := header.tacSnap? then
+            if let some oldTacSnap := tacSnap.old? then
+              tacSnap.new.resolve oldTacSnap.val.get
           return old.value
 
     withDeclName header.declName <| withLevelNames header.levelNames do

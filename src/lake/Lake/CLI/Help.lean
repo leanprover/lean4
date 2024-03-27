@@ -20,6 +20,7 @@ COMMANDS:
   exe <exe> <args>...   build an exe and run it in Lake's environment
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
+  lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
@@ -248,6 +249,17 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpLean :=
+"Elaborate a Lean file in the context of the Lake workspace
+
+USAGE:
+  lake lean <file> [-- <args>...]
+
+Build the imports of the the given file and then runs `lean` on it using
+the workspace's root package's additional Lean arguments and the given args
+(in that order). The `lean` process is executed in Lake's environment like
+`lake env lean` (see `lake help env` for how the environment is set up)."
+
 def helpTranslateConfig :=
 "Translate a Lake configuration file into a different language
 
@@ -282,5 +294,6 @@ def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

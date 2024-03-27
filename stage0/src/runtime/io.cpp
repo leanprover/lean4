@@ -788,17 +788,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     // so we have to call the underlying windows API directly to get behavior consistent
     // with the unix-like OSs
     bool ok = MoveFileEx(string_cstr(from), string_cstr(to), MOVEFILE_REPLACE_EXISTING) != 0;
+    if (!ok) {
+        // TODO: actually produce the right type of IO error
+        return io_result_mk_error((sstream()
+            << "failed to rename '" << string_cstr(from) << "' to '" << string_cstr(to) << "': " << GetLastError()).str());
+    }
 #else
     bool ok = std::rename(string_cstr(from), string_cstr(to)) == 0;
-#endif
-    if (ok) {
-        return io_result_mk_ok(box(0));
-    } else {
+    if (!ok) {
         std::ostringstream s;
         s << string_cstr(from) << " and/or " << string_cstr(to);
         object_ref out{mk_string(s.str())};
         return io_result_mk_error(decode_io_error(errno, out.raw()));
     }
+#endif
+    return io_result_mk_ok(box(0));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {

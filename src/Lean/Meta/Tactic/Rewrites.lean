@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.LazyDiscrTree
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Rewrite
-import Lean.Meta.Tactic.Rfl
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.SolveByElim
 import Lean.Meta.Tactic.TryThis
 import Lean.Util.Heartbeats

@@ -28,7 +28,6 @@ def ackermann : Nat → Nat → Nat
   | 0, m => m + 1
   | n+1, 0 => ackermann n 1
   | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-derive_functional_induction ackermann
 ```
 we get
 ```
@@ -941,13 +940,6 @@ def deriveInduction (name : Name) : MetaM Unit := do
       deriveUnpackedInduction eqnInfo unaryInductName
   else
     _ ← deriveUnaryInduction name
-
-@[builtin_command_elab Parser.Command.deriveInduction]
-def elabDeriveInduction : Command.CommandElab := fun stx => Command.runTermElabM fun _xs => do
-  let ident := stx[1]
-  let name ← realizeGlobalConstNoOverloadWithInfo ident
-  deriveInduction name
-
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false

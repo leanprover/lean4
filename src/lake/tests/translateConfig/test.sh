@@ -6,7 +6,7 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 ./clean.sh
 
 # Test Lean to TOML translation
-$LAKE translate-config -f lakefile.lean toml out.produced.toml
+$LAKE translate-config -f source.lean toml out.produced.toml
 diff --strip-trailing-cr out.expected.toml out.produced.toml
 rm out.produced.toml
 
@@ -15,7 +15,7 @@ $LAKE translate-config -f out.expected.toml toml out.produced.toml
 diff --strip-trailing-cr out.expected.toml out.produced.toml
 
 # Test TOML to Lean translation
-$LAKE translate-config -f lakefile.toml lean out.produced.lean
+$LAKE translate-config -f source.toml lean out.produced.lean
 diff --strip-trailing-cr out.expected.lean out.produced.lean
 rm out.produced.lean
 
@@ -32,3 +32,9 @@ diff --strip-trailing-cr out.produced.toml roundtrip.produced.toml
 $LAKE translate-config -f out.produced.lean toml bridge.produced.toml
 $LAKE translate-config -f bridge.produced.toml lean roundtrip.produced.lean
 diff --strip-trailing-cr out.produced.lean roundtrip.produced.lean
+
+# Test source rename
+cp source.lean lakefile.lean
+$LAKE translate-config toml
+test -f lakefile.lean.bak
+test -f lakefile.toml

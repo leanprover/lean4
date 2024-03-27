@@ -394,13 +394,18 @@ protected def exe : CliM PUnit := do
 protected def translateConfig : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
+  let cfg ← mkLoadConfig opts
   let lang ← parseLangSpec (← takeArg "configuration language")
-  let outFile := (← takeArg?).map FilePath.mk |>.getD <|
-    config.configFile.withExtension lang.fileExtension
+  let outFile? := (← takeArg?).map FilePath.mk
+  noArgsRem do
+  Lean.searchPathRef.set cfg.lakeEnv.leanSearchPath
+  let (pkg, _) ← loadPackage "[root]" cfg
+  let outFile := outFile?.getD <| pkg.configFile.withExtension lang.fileExtension
   if (← outFile.pathExists) then
-    throw <| .outputConfigExists outFile
-  noArgsRem (translateConfig config lang outFile)
+    throw (.outputConfigExists outFile)
+  IO.FS.writeFile outFile (← pkg.mkConfigString lang)
+  if outFile?.isNone then
+    IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption

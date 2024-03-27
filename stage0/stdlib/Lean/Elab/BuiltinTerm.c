@@ -22676,6 +22676,7 @@ x_18 = lean_ctor_get(x_7, 0);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_7, 5);
 lean_inc(x_19);
+lean_inc(x_18);
 x_20 = l_System_FilePath_parent(x_18);
 if (lean_obj_tag(x_20) == 0)
 {

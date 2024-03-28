@@ -166,8 +166,7 @@ theorem msb_eq_getLsb_last (x : BitVec w) :
     x.getLsb (w-1) = decide (2 ^ (w-1) ≤ x.toNat) := by
   rcases w with rfl | w
   · simp
-  · simp only [Nat.zero_lt_succ, decide_True, getLsb, Nat.testBit, Nat.succ_sub_succ_eq_sub,
-    Nat.sub_zero, Nat.and_one_is_mod, Bool.true_and, Nat.shiftRight_eq_div_pow]
+  · simp only [getLsb, Nat.testBit_to_div_mod, Nat.succ_sub_succ_eq_sub, Nat.sub_zero]
     rcases (Nat.lt_or_ge (BitVec.toNat x) (2 ^ w)) with h | h
     · simp [Nat.div_eq_of_lt h, h]
     · simp only [h]
@@ -716,7 +715,6 @@ theorem toNat_cons' {x : BitVec w} :
     have p2 : i ≠ n := by omega
     simp [p1, p2]
   · simp [i_eq_n, testBit_toNat]
-    cases b <;> trivial
   · have p1 : i ≠ n := by omega
     have p2 : i - n ≠ 0 := by omega
     simp [p1, p2, Nat.testBit_bool_to_nat]

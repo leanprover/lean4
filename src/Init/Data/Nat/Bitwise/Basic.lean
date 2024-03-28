@@ -71,6 +71,19 @@ theorem shiftRight_eq_div_pow (m : Nat) : ∀ n, m >>> n = m / 2 ^ n
     rw [shiftRight_add, shiftRight_eq_div_pow m k]
     simp [Nat.div_div_eq_div_mul, ← Nat.pow_succ, shiftRight_succ]
 
+/-- `bodd n` returns `true` if `n` is odd-/
+def bodd (n : Nat) : Bool :=
+  (1 &&& n) != 0 -- `1 &&& n` is faster than `n &&& 1` for big `n`. This may change in the future.
+
+/-- `div2 n = ⌊n/2⌋` the greatest integer smaller than `n/2`-/
+def div2 (n : Nat) : Nat :=
+  n >>> 1
+
+/-- `bit b` appends the digit `b` to the binary representation of
+  its natural number input. -/
+def bit (b : Bool) (n : Nat) : Nat :=
+  cond b (n + n + 1) (n + n)
+
 /-!
 ### testBit
 We define an operation for testing individual bits in the binary representation
@@ -78,6 +91,80 @@ of a number.
 -/
 
 /-- `testBit m n` returns whether the `(n+1)` least significant bit is `1` or `0`-/
-def testBit (m n : Nat) : Bool := (m >>> n) &&& 1 != 0
+def testBit (m n : Nat) : Bool := bodd (m >>> n)
+
+theorem bit_val (b n) : bit b n = 2 * n + cond b 1 0 := by
+  rw [Nat.mul_comm]
+  induction b with
+  | false => exact congrArg (· + n) n.zero_add.symm
+  | true => exact congrArg (· + n + 1) n.zero_add.symm
+
+theorem div2_val (n) : div2 n = n / 2 := rfl
+
+theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
+  match n % 2, @Nat.mod_lt n 2 (by decide) with
+  | 0, _ => .inl rfl
+  | 1, _ => .inr rfl
+
+theorem mod_two_of_bodd (n : Nat) : n % 2 = cond (bodd n) 1 0 := by
+  dsimp [bodd, (· &&& ·), AndOp.and, land]
+  unfold bitwise
+  match Nat.decEq n 0 with
+  | isTrue n0 => subst n0; decide
+  | isFalse n0 =>
+    simp only [ite_false, decide_True, Bool.true_and, decide_eq_true_eq, n0,
+      show 1 / 2 = 0 by decide]
+    cases mod_two_eq_zero_or_one n with | _ h => simp [h]; rfl
+
+theorem div2_add_bodd (n : Nat) : 2 * div2 n + cond (bodd n) 1 0 = n := by
+  rw [← mod_two_of_bodd, div2_val, Nat.div_add_mod]
+
+theorem bit_decomp (n : Nat) : bit (bodd n) (div2 n) = n :=
+  (bit_val _ _).trans (div2_add_bodd _)
+
+theorem bit_eq_zero_iff {n : Nat} {b : Bool} : bit b n = 0 ↔ n = 0 ∧ b = false := by
+  cases n <;> cases b <;> simp [bit, ← Nat.add_assoc]
+
+/-- For a predicate `C : Nat → Sort u`, if instances can be
+  constructed for natural numbers of the form `bit b n`,
+  they can be constructed for any given natural number. -/
+@[inline]
+def bitCasesOn {C : Nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n := bit_decomp n ▸ h _ _
+
+theorem div2_lt_self (h : n ≠ 0) : div2 n < n :=
+  div_lt_self (n.zero_lt_of_ne_zero h) (by decide)
+
+/-- A recursion principle for `bit` representations of natural numbers.
+  For a predicate `C : Nat → Sort u`, if instances can be
+  constructed for natural numbers of the form `bit b n`,
+  they can be constructed for all natural numbers. -/
+@[elab_as_elim, specialize]
+def binaryRec {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) (n : Nat) : C n :=
+  if n0 : n = 0 then congrArg C n0 ▸ z -- `congrArg C _` is `rfl` in non-dependent case
+  else congrArg C n.bit_decomp ▸ f n.bodd n.div2 (binaryRec z f n.div2)
+decreasing_by exact div2_lt_self n0
+
+/-- The same as `binaryRec`, but the induction step can assume that if `n=0`,
+  the bit being appended is `true`-/
+@[elab_as_elim, specialize]
+def binaryRec' {C : Nat → Sort u} (z : C 0)
+    (f : ∀ b n, (n = 0 → b = true) → C n → C (bit b n)) : ∀ n, C n :=
+  binaryRec z fun b n ih =>
+    if h : n = 0 → b = true then f b n h ih
+    else by
+      have : bit b n = 0 := by
+        rw [bit_eq_zero_iff]
+        cases n <;> cases b <;> simp at h <;> simp [h]
+      exact this ▸ z
+
+/-- The same as `binaryRec`, but special casing both 0 and 1 as base cases -/
+@[elab_as_elim, specialize]
+def binaryRecFromOne {C : Nat → Sort u} (z₀ : C 0) (z₁ : C 1)
+    (f : ∀ b n, n ≠ 0 → C n → C (bit b n)) : ∀ n, C n :=
+  binaryRec' z₀ fun b n h ih =>
+    if h' : n = 0 then by
+      rw [h', h h']
+      exact z₁
+    else f b n h' ih
 
 end Nat

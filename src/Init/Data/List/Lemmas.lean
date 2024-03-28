@@ -46,6 +46,17 @@ attribute [simp] concat_eq_append append_assoc
 @[simp] theorem and_nil : [].and = true := rfl
 @[simp] theorem and_cons : (a::l).and = (a && l.and) := rfl
 
+/-! ### getElem? -/
+
+@[simp] theorem getElem?_nil {n : Nat} : ([] : List α)[n]? = none := rfl
+@[simp] theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by
+  simp only [getElem?, length_cons, succ_eq_add_one, zero_lt_succ, ↓reduceDite, cons_getElem_zero]
+@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[n+1]? = l[n]? := by
+  simp only [getElem?, length_cons, succ_eq_add_one, cons_getElem_succ]
+  split
+  · rw [dif_pos]
+  · rw [dif_neg]; simp_all only [Nat.not_lt]; exact le_of_lt_succ ‹_›
+
 /-! ### length -/
 
 theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [] => rfl

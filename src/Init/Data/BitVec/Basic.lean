@@ -575,6 +575,17 @@ def replicate : (i : Nat) → BitVec w → BitVec (w*i)
       rw [Nat.mul_add, Nat.add_comm, Nat.mul_one]
     hEq ▸ (x ++ replicate n x)
 
+/-! ### flatten -/
+
+/-- Flatten a list of bitvectors into one bitvector. -/
+protected def flattenList {n : Nat} (xs : List (BitVec n)) : BitVec (n * xs.length) :=
+  match xs with
+  | [] => 0#0
+  | x :: rest =>
+    have h : n + n * List.length rest = n * List.length (x :: rest) := by
+      simp [List.length_cons, Nat.mul_add, Nat.add_comm]
+    BitVec.cast h (x ++ (BitVec.flattenList rest))
+
 /-!
 ### Cons and Concat
 We give special names to the operations of adding a single bit to either end of a bitvector.

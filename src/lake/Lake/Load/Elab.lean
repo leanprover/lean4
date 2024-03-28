@@ -133,6 +133,7 @@ where
     |>.insert ``externLibAttr
     |>.insert ``targetAttr
     |>.insert ``defaultTargetAttr
+    |>.insert ``testRunnerAttr
     |>.insert ``moduleFacetAttr
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr

@@ -26,3 +26,15 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   tar pkg.buildArchive pkg.buildDir pkg.buildArchiveFile
   logInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
+
+def test (pkg : Package) (args  : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
+  let pkgName := pkg.name.toString (escape := false)
+  if pkg.testRunner.isAnonymous then
+    error s!"{pkgName}: package has no script or executable tagged `@[test_runner]`"
+  else if let some script := pkg.scripts.find? pkg.testRunner then
+    script.run args
+  else if let some exe := pkg.findLeanExe? pkg.testRunner then
+    let exeFile ← runBuild (exe.build >>= (·.await)) buildConfig
+    env exeFile.toString args.toArray
+  else
+    error s!"{pkgName}: invalid test runner: unknown script or executable `{pkg.testRunner}`"

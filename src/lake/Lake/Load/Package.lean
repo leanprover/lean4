@@ -106,6 +106,14 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
       else
         error s!"post-update hook was defined in `{decl.pkg}`, but was registered in `{self.name}`"
     | .error e => error e
+  let testRunners := testRunnerAttr.getAllEntries env
+  let testRunner ←
+    if testRunners.size > 1 then
+      error s!"{self.name}: only one script or executable can be tagged `@[test_runner]`"
+    else if h : testRunners.size > 0 then
+      pure (testRunners[0]'h)
+    else
+      pure .anonymous
 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
@@ -117,7 +125,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   return {self with
     opaqueDeps := deps.map (.mk ·)
     leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts,
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts, testRunner
     postUpdateHooks
   }
 

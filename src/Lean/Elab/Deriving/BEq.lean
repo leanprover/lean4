@@ -43,12 +43,9 @@ where
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
-        -- add `_` for inductive parameters, they are inaccessible
-        for _ in [:indVal.numParams] do
-          ctorArgs1 := ctorArgs1.push (← `(_))
-          ctorArgs2 := ctorArgs2.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]!
+          let pos := indVal.numParams + ctorInfo.numFields - i - 1
+          let x := xs[pos]!
           if type.containsFVar x.fvarId! then
             -- If resulting type depends on this field, we don't need to compare
             ctorArgs1 := ctorArgs1.push (← `(_))
@@ -62,11 +59,23 @@ where
             if (← isProp xType) then
               continue
             if xType.isAppOf indVal.name then
-              rhs ← `($rhs && $(mkIdent auxFunName):ident $a:ident $b:ident)
+              rhs ← `($(mkIdent auxFunName):ident $a:ident $b:ident && $rhs)
+            /- If `x` appears in the type of another field, use `eq_of_beq` to
+               unify the types of the subsequent variables -/
+            else if ← xs[pos+1:].anyM
+                (fun fvar => (Lean.Expr.containsFVar · x.fvarId!) <$> (inferType fvar)) then
+              rhs ← `(if h : $a:ident == $b:ident then by
+                        cases (eq_of_beq h)
+                        exact $rhs
+                      else false)
             else
-              rhs ← `($rhs && $a:ident == $b:ident)
-        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1:term*))
-        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs2:term*))
+              rhs ← `($a:ident == $b:ident && $rhs)
+          -- add `_` for inductive parameters, they are inaccessible
+        for _ in [:indVal.numParams] do
+          ctorArgs1 := ctorArgs1.push (← `(_))
+          ctorArgs2 := ctorArgs2.push (← `(_))
+        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*))
+        patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs2.reverse:term*))
         `(matchAltExpr| | $[$patterns:term],* => $rhs:term)
       alts := alts.push alt
     alts := alts.push (← mkElseAlt)

@@ -429,13 +429,15 @@ partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   loop ByteArray.empty
 
 partial def Handle.readToEnd (h : Handle) : IO String := do
-  let rec loop (s : String) := do
-    let line ← h.getLine
-    if line.isEmpty then
-      return s
+  let s ← h.readBinToEnd
+  -- FIXME: Validate UTF-8.
+  return String.fromUTF8Unchecked <| ByteArray.mk (
+    if System.Platform.isWindows then
+      -- Remove carriage return (0x0d).
+      Array.filter (λ c => c != UInt8.mk 0x0d) (s.data)
     else
-      loop (s ++ line)
-  loop ""
+      s.data
+  )
 
 def readBinFile (fname : FilePath) : IO ByteArray := do
   let h ← Handle.mk fname Mode.read

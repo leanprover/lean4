@@ -9,6 +9,7 @@ def foo1 : (λ x : Nat => id (twice (id x))) = twice := by
       simp
       trace_state
     trace_state  -- `id (twice x)`
+  rfl
 
 
 theorem foo2 (y : Nat) : (fun x => x + y = 0) = (fun x => False) := by

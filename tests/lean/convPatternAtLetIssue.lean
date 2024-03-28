@@ -10,3 +10,4 @@ def test : (λ x => f x)
     trace_state
     simp
     trace_state
+  rfl

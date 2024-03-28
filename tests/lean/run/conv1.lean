@@ -68,6 +68,7 @@ example : id (fun x => 0 + x) = id := by
     arg 1
     ext y
     rw [Nat.zero_add]
+  rfl
 
 def f (x : Nat) :=
   if x > 0 then

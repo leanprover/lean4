@@ -2,7 +2,9 @@
 #include "util/io.h"
 #include "runtime/optional.h"
 
-lean::optional<std::string> getEnvVarMayExistNonemptyString(const char *name);
+
+
+std::string getEnvVarString(const char *name);
 bool research_isResearchLogVerbose();
 
 extern "C" {

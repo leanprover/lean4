@@ -53,27 +53,13 @@ bool getEnvVarBool(const char *name) {
   }
 }
 
-// return an environment variable. It may exist or not. If it does exist, the
-// string must be nonempty.
-lean::optional<std::string> getEnvVarMayExistNonemptyString(const char *name) {
+// return an environment variable which must exist.
+std::string getEnvVarString(const char *name) {
   const char *_var = std::getenv(name);
   if (!_var) {
-    if (research_isResearchLogVerbose()) {
-      std::cerr << "did not find string env var '" << name << "'\n";
-    }
-    return lean::optional<std::string>();
+      throw lean::throwable(std::string("expected environment variable to be string for '") + name + "'\n");
   } else {
-    std::string var(_var);
-    if (var == "") {
-      throw lean::throwable(
-          std::string("expected environment variable to be nonempty string, "
-                      "found empty string for ") +
-          name);
-    }
-    if (research_isResearchLogVerbose()) {
-      std::cerr << "found string env var '" << name << "' = '" << var << "' \n";
-    }
-    return lean::optional<std::string>(var);
+    std::string(_var);
   }
 }
 
@@ -87,29 +73,27 @@ uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *) {
 
 extern "C" {
 // dump allocator info into logfile.
+// TODO: rename into research_runtime_dump_allocator_log_at_end_of_run();
 void research_dump_allocator_log() {
   const char *envVarName = "RESEARCH_LEAN_PROFILER_CSV_PATH";
-  lean::optional<std::string> out_path =
-      getEnvVarMayExistNonemptyString(envVarName);
-  if (!out_path) {
+  std::string out_path = getEnvVarString(envVarName);
+  if (out_path == "") {
     return;
   }
 
   std::ofstream *of = NULL;
   std::ostream *o = NULL;
-  if (*out_path == "-") {
+  if (out_path == "-") {
     o = &std::cerr;
   } else {
-    of = new std::ofstream(*out_path, std::ios::app);
+    of = new std::ofstream(out_path, std::ios::app);
     o = of;
   }
 
   assert(o);
 
   if (research_isResearchLogVerbose()) {
-    std::cerr << "writing profiling information "
-              << " to file '" << *out_path << "'"
-              << "\n";
+    std::cerr << "writing profiling information " << " to file '" << out_path << "'" << "\n";
   }
 
   (*o << "rss, " << lean::get_peak_rss()) << "\n";

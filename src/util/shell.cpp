@@ -453,6 +453,7 @@ struct Profiler {
   bool isReuseEnabled() {
     return research_isReuseAcrossConstructorsEnabled(lean_box(-1));
   }
+
   template <typename T>
   void write_file_identifier(std::ostream &o, std::string file_path,
                              std::string name, T val) {
@@ -821,16 +822,17 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         display_cumulative_profiling_times(std::cerr);
 
 
-        lean::optional <std::string> profiling_path =
-          getEnvVarMayExistNonemptyString("RESEARCH_LEAN_COMPILER_PROFILE_CSV_PATH");
-        if (profiling_path) {
-          if (*profiling_path == "-") {
-	          profiler.write_profiling_times(mod_fn, *profiling_path, std::cerr);
-          } else {
-            std::ofstream profiler_out_file(*profiling_path);
-	          profiler.write_profiling_times(mod_fn, *profiling_path, profiler_out_file);
-          }
-	      }
+        std::string profiling_path = getEnvVarString("RESEARCH_LEAN_COMPILER_PROFILE_CSV_PATH");
+        if (profiling_path == "") {
+          std::cerr << "WARN: RESEARCH_LEAN_COMPILER_PROFILE_CSV_PATH is empty";
+        }
+
+        if (profiling_path == "-") {
+	        profiler.write_profiling_times(mod_fn, profiling_path, std::cerr);
+        } else {
+          std::ofstream profiler_out_file(profiling_path);
+	        profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file);
+        }
 #ifdef LEAN_SMALL_ALLOCATOR
         // If the small allocator is not enabled, then we assume we are not using the sanitizer.
         // Thus, we interrupt execution without garbage collecting.

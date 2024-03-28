@@ -199,11 +199,6 @@ where
         | some decl => decl.userName == suggestion'
       | _ => false
 
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
-  let stxN ← annotateCurPos (mkIdent n)
-  withBindingBody n $ d stxN
-
 @[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
   liftM x
 
@@ -231,6 +226,32 @@ where
     val := val,
     stx := stx
   }
+
+/--
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression.
+-/
+def annotateTermInfo (stx : Term) : Delab := do
+  let stx ← annotateCurPos stx
+  addTermInfo (← getPos) stx (← getExpr)
+  pure stx
+
+/--
+Modifies the delaborator so that it annotates the resulting term with the current expression
+position and registers `TermInfo` to associate the term to the current expression.
+-/
+def withAnnotateTermInfo (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfo stx
+
+/--
+Enters the body of the current expression, which must be a lambda or forall.
+The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
+for the variable.
+-/
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
+  withBindingBody' n (annotateTermInfo (mkIdent n)) (d ·)
 
 inductive OmissionReason
   | deep
@@ -314,23 +335,6 @@ def shouldOmitProof (e : Expr) : DelabM Bool := do
     return false
 
   return !isShallowExpression (← getPPOption getPPProofsThreshold) e
-
-/--
-Annotates the term with the current expression position and registers `TermInfo`
-to associate the term to the current expression.
--/
-def annotateTermInfo (stx : Term) : Delab := do
-  let stx ← annotateCurPos stx
-  addTermInfo (← getPos) stx (← getExpr)
-  pure stx
-
-/--
-Modifies the delaborator so that it annotates the resulting term with the current expression
-position and registers `TermInfo` to associate the term to the current expression.
--/
-def withAnnotateTermInfo (d : Delab) : Delab := do
-  let stx ← d
-  annotateTermInfo stx
 
 /--
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the

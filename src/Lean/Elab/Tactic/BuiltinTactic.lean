@@ -28,13 +28,83 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
-@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx => do
-  let args := stx[0].getArgs
-  for i in [:args.size] do
-    if i % 2 == 0 then
-      evalTactic args[i]!
-    else
-      saveTacticInfoForToken args[i]! -- add `TacticInfo` node for `;`
+/--
+Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
+children.
+ -/
+partial def evalSepTactics : Tactic := goEven
+where
+  goEven stx := do
+    if stx.getNumArgs == 0 then
+      return
+    let tac := stx[0]
+    let mut oldInner? := none
+    if let some snap := (← readThe Term.Context).tacSnap? then
+      if let some old := snap.old? then
+        let oldEvaluated := old.val.get
+        oldInner? := oldEvaluated.next.get? 0 |>.map (⟨oldEvaluated.data.stx, ·⟩)
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
+      if let some snap := (← readThe Term.Context).tacSnap? then
+        let mut reused := false
+        let mut oldNext? := none
+        if let some old := snap.old? then
+          let oldEvaluated := old.val.get
+          if let some state := oldEvaluated.data.finished.get.state? then
+            state.restoreFull
+            reused := true
+            oldNext? := oldEvaluated.next.get? 1 |>.map (⟨old.stx, ·⟩)
+
+        -- definitely resolved below
+        let next ← IO.Promise.new
+        let finished ← IO.Promise.new
+        try
+          let inner ← IO.Promise.new
+          try
+            snap.new.resolve <| .mk {
+              stx := tac
+              diagnostics := .empty
+              finished := finished.result
+            } #[
+              {
+                range? := tac.getRange?
+                task := inner.result },
+              {
+                range? := stxs |>.getRange?
+                task := next.result }]
+            unless reused do
+              withTheReader Term.Context ({ · with
+                  tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
+                    some {
+                      old? := oldInner?
+                      new := inner
+                    } else none }) do
+                evalTactic tac
+            finished.resolve { state? := (← saveState) }
+          finally
+            inner.resolve <| .mk {
+              stx := tac, diagnostics := .empty
+              finished := .pure { state? := none } } #[]
+          withTheReader Term.Context ({ · with tacSnap? := some {
+            new := next
+            old? := oldNext?
+          } }) do
+            goOdd stxs
+        finally
+          finished.resolve { state? := none }
+          next.resolve <| .mk {
+            stx := .missing, diagnostics := .empty
+            finished := finished.result } #[]
+      else
+        evalTactic tac
+        goOdd stxs
+  goOdd stx := do
+    if stx.getNumArgs == 0 then
+      return
+    saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
+    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
+
+@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
+  evalSepTactics stx[0]
 
 @[builtin_tactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
@@ -103,25 +173,17 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
-/-- Evaluate `sepByIndent tactic "; " -/
-def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
-  let stx ← addCheckpoints stx
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
-    if i % 2 == 0 then
-      evalTactic arg
-    else
-      saveTacticInfoForToken arg
-
-@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalSepByIndentTactic stx[0]
+@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalSepTactics
 
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalSepTactics stx
 
+builtin_initialize registerBuiltinIncrementalTactic ``cdot
 @[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
@@ -131,7 +193,7 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    Term.withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) stx
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -200,8 +262,8 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
-@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
-  evalTactic stx[0]
+@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
@@ -421,16 +483,16 @@ where
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
 
-
+builtin_initialize registerBuiltinIncrementalTactic ``case
 @[builtin_tactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>
+  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs
       setGoals [g]
       g.setTag Name.anonymous
-      withCaseRef arr tac do
-        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
+      withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+        Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
       setGoals gs
   | _ => throwUnsupportedSyntax
 

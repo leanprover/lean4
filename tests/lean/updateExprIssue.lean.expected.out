@@ -1,4 +1,5 @@
 
+
 [init]
 def sefFn (x_1 : obj) (x_2 : obj) : obj :=
   case x_1 : obj of

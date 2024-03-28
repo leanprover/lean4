@@ -34,10 +34,6 @@ structure Context where
   -/
   recover    : Bool := true
 
-structure SavedState where
-  term   : Term.SavedState
-  tactic : State
-
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -98,6 +94,14 @@ protected def saveState : TacticM SavedState :=
 
 def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit := do
   b.term.restore restoreInfo
+  set b.tactic
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+betweeen elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : TacticM Unit := do
+  b.term.restoreFull
   set b.tactic
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
@@ -431,6 +435,12 @@ def getNameOfIdent' (id : Syntax) : Name :=
   but the "full range" for the info view will still include `body`. -/
 def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :=
   withRef (mkNullNode #[arrow, body]) x
+
+-- TODO: attribute(s)
+builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
+
+def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
+  builtinIncrementalTactics.modify fun s => s.insert kind
 
 builtin_initialize registerTraceClass `Elab.tactic
 builtin_initialize registerTraceClass `Elab.tactic.backtrack

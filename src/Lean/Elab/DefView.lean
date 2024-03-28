@@ -28,6 +28,81 @@ def DefKind.isExample : DefKind → Bool
   | .example => true
   | _        => false
 
+/-- Header elaboration data of a `DefView`. -/
+structure DefViewElabHeaderData where
+  /--
+    Short name. Recall that all declarations in Lean 4 are potentially recursive. We use `shortDeclName` to refer
+    to them at `valueStx`, and other declarations in the same mutual block. -/
+  shortDeclName : Name
+  /-- Full name for this declaration. This is the name that will be added to the `Environment`. -/
+  declName      : Name
+  /-- Universe level parameter names explicitly provided by the user. -/
+  levelNames    : List Name
+  /-- Syntax objects for the binders occurring before `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
+  binderIds     : Array Syntax
+  /-- Number of parameters before `:`, it also includes auto-implicit parameters automatically added by Lean. -/
+  numParams     : Nat
+  /-- Type including parameters. -/
+  type          : Expr
+deriving Inhabited
+
+section Snapshots
+open Language
+
+/-- Snapshot after processing of a definition body.  -/
+structure BodyProcessedSnapshot extends Language.Snapshot where
+  /-- State after elaboration. -/
+  state : Term.SavedState
+  /-- Elaboration result. -/
+  value : Expr
+deriving Nonempty
+instance : Language.ToSnapshotTree BodyProcessedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+
+/-- Snapshot after elaboration of a definition header. -/
+structure HeaderProcessedSnapshot extends Language.Snapshot where
+  /-- Elaboration results. -/
+  view : DefViewElabHeaderData
+  /-- Resulting elaboration state, including any environment additions. -/
+  state : Term.SavedState
+  /-- Syntax of top-level tactic block if any, for checking reuse of `tacSnap?`. -/
+  tacStx? : Option Syntax
+  /-- Incremental execution of main tactic block, if any. -/
+  tacSnap? : Option (SnapshotTask Tactic.TacticParsedSnapshot)
+  /-- Syntax of definition body, for checking reuse of `bodySnap`. -/
+  bodyStx : Syntax
+  /-- Result of body elaboration. -/
+  bodySnap : SnapshotTask (Option BodyProcessedSnapshot)
+deriving Nonempty
+instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot,
+    (match s.tacSnap? with
+      | some tac => #[tac.map (sync := true) toSnapshotTree]
+      | none     => #[]) ++
+    #[s.bodySnap.map (sync := true) toSnapshotTree]⟩
+
+/-- State before elaboration of a mutual definition. -/
+structure DefParsed where
+  /--
+  Input substring uniquely identifying header elaboration result given the same `Environment`.
+  If missing, results should never be reused.
+  -/
+  headerSubstr? : Option Substring
+  /-- Elaboration result, unless fatal exception occurred. -/
+  headerProcessedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
+deriving Nonempty
+
+/-- Snapshot after syntax tree has been split into separate mutual def headers. -/
+structure DefsParsedSnapshot extends Language.Snapshot where
+  /-- Definitions of this mutual block. -/
+  defs : Array DefParsed
+deriving Nonempty, TypeName
+instance : Language.ToSnapshotTree DefsParsedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot,
+    s.defs.map (·.headerProcessedSnap.map (sync := true) toSnapshotTree)⟩
+
+end Snapshots
+
 structure DefView where
   kind          : DefKind
   ref           : Syntax
@@ -36,6 +111,13 @@ structure DefView where
   binders       : Syntax
   type?         : Option Syntax
   value         : Syntax
+  /--
+  Snapshot for incremental processing of this definition.
+
+  Invariant: If the bundle's `old?` is set, then elaboration of the header is guaranteed to result
+  in the same elaboration result and state, i.e. reuse is possible.
+  -/
+  headerSnap?   : Option (Language.SnapshotBundle (Option HeaderProcessedSnapshot)) := none
   deriving?     : Option (Array Syntax) := none
   deriving Inhabited
 

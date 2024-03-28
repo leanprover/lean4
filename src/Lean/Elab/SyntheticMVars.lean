@@ -288,6 +288,20 @@ private def processPostponedUniverseContraints : TermElabM Unit := do
 private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
   modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
 
+/-
+def withNarrowedReuse [Monad m] [MonadExceptOf Exception m] (modify : Option (Language.SyntaxGuardedSnapshotBundle Tactic.TacticParsedSnapshot))
+    (parse : Syntax → Option (Syntax × TSyntax inner)) (act : TSyntax inner → m α) : Syntax → m α :=
+  fun stx => do
+    let some (outer, inner) := parse stx
+      | throwUnsupportedSyntax
+    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+      { tacSnap with old? := tacSnap.old?.bind fun old => do
+        let (oldOuter, oldInner) ← parse old.stx
+        guard <| outer.structRangeEq oldOuter
+        return { old with stx := oldInner }
+      }
+    }) (act inner)-/
+
 mutual
 
   /--
@@ -298,7 +312,6 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
-    let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
@@ -320,7 +333,7 @@ mutual
           -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
           -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
           withTacticInfoContext tacticCode[0] do
-            evalTactic code
+            withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) tacticCode
         synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
         if report then

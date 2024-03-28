@@ -346,17 +346,6 @@ partial def structEq : Syntax → Syntax → Bool
 instance : BEq Lean.Syntax := ⟨structEq⟩
 instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
-partial def getTailInfo? : Syntax → Option SourceInfo
-  | atom info _   => info
-  | ident info .. => info
-  | node SourceInfo.none _ args =>
-      args.findSomeRev? getTailInfo?
-  | node info _ _    => info
-  | _             => none
-
-def getTailInfo (stx : Syntax) : SourceInfo :=
-  stx.getTailInfo?.getD SourceInfo.none
-
 def getTrailingSize (stx : Syntax) : Nat :=
   match stx.getTailInfo? with
   | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize

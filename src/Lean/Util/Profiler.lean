@@ -105,10 +105,13 @@ partial def addTrace (thread : ThreadWithMaps) (trace : MessageData) : ThreadWit
   StateT.run (go none trace) thread |>.2
 where
   go parentStackIdx? : _ → StateM ThreadWithMaps Unit
-    | .trace data _msg children => do
+    | .trace data _ children => do
       if data.startTime == 0 then
         return
-      let strIdx ← getStrIdx data.cls.toString
+      let mut funcName := data.cls.toString
+      if !data.tag.isEmpty then
+        funcName := s!"{funcName}: {data.tag}"
+      let strIdx ← getStrIdx funcName
       let category := categories.findIdx? (·.name == data.cls.getRoot.toString) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap.find? strIdx then

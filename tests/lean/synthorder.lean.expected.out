@@ -18,7 +18,7 @@ all remaining arguments have metavariables:
       Four α β
       One β
       TwoHalf β
-[Meta.synthOrder] synthesizing the arguments of @instFour in the order [4, 2, 3]:
+[Meta.synthOrder] synthesizing the arguments of @instFourOfThree in the order [4, 2, 3]:
       Three α β
       One β
       TwoHalf β

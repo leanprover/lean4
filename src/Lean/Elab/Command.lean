@@ -147,10 +147,13 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
 
 private def addTraceAsMessages : CommandElabM Unit := do
   let ctx ← read
-  modify fun s => { s with
-    messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-    traceState.traces := {}
-  }
+  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
+  -- pretty printing the trace messages is expensive
+  if trace.profiler.output.get? (← getOptions) |>.isNone then
+    modify fun s => { s with
+      messages          := addTraceAsMessagesCore ctx s.messages s.traceState
+      traceState.traces := {}
+    }
 
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   let s ← get

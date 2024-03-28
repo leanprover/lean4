@@ -7,6 +7,7 @@ prelude
 import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
+import Lean.Util.Profiler
 
 namespace Lean.Elab.Frontend
 
@@ -108,6 +109,7 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
+  let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   if /- Lean #lang? -/ true then
@@ -134,6 +136,9 @@ def runFrontend
         Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
       let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
+
+    if let some out := trace.profiler.output.get? opts then
+      IO.FS.writeFile ⟨out⟩ (← Firefox.Profile.export startTime s.commandState.traceState)
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 

@@ -129,7 +129,7 @@ def addRawTrace (msg : MessageData) : m Unit := do
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
-  modifyTraces (·.push { ref, msg := .trace (collapsed := false) cls msg #[] })
+  modifyTraces (·.push { ref, msg := .trace { collapsed := false, cls } msg #[] })
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then
@@ -141,18 +141,18 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
     addTrace cls msg
 
 private def addTraceNode (oldTraces : PersistentArray TraceElem)
-    (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
+    (data : TraceData) (ref : Syntax) (msg : MessageData) : m Unit :=
   withRef ref do
-  let msg := .trace cls msg ((← getTraces).toArray.map (·.msg)) collapsed
+  let msg := .trace data msg ((← getTraces).toArray.map (·.msg))
   let msg ← addMessageContext msg
   modifyTraces fun _ =>
     oldTraces.push { ref, msg }
 
-def withSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float) := do
+def withStartStopSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float × Float) := do
   let start ← IO.monoNanosNow
   let a ← act
   let stop ← IO.monoNanosNow
-  return (a, (stop - start).toFloat / 1000000000)
+  return (a, start.toFloat / 1000000000, stop.toFloat / 1000000000)
 
 register_builtin_option trace.profiler : Bool := {
   defValue := false
@@ -165,6 +165,13 @@ register_builtin_option trace.profiler.threshold : Nat := {
   group    := "profiler"
   descr    := "threshold in milliseconds, traces below threshold will not be activated"
 }
+
+register_builtin_option trace.profiler.output : String := {
+  defValue := ""
+  group    := "profiler"
+  descr    := "output trace.profiler data in Firefox Profiler-compatible format to given file path"
+}
+
 
 def trace.profiler.threshold.getSecs (o : Options) : Float :=
   (trace.profiler.threshold.get o).toFloat / 1000
@@ -215,16 +222,17 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
-  let (res, secs) ← withSeconds <| observing k
-  let aboveThresh := trace.profiler.get opts && secs > trace.profiler.threshold.getSecs opts
+  let (res, start, stop) ← withStartStopSeconds <| observing k
+  let aboveThresh := trace.profiler.get opts && stop - start > trace.profiler.threshold.getSecs opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
+  let mut data := { cls, collapsed }
   if profiler.get opts || aboveThresh then
-    m := m!"[{secs}s] {m}"
-  addTraceNode oldTraces cls ref m collapsed
+    data := { data with startTime := start, stopTime := stop }
+  addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
 
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
@@ -310,15 +318,16 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
   let msg ← withRef ref do addMessageContext (← msg)
-  let (res, secs) ← withSeconds <| observing k
-  let aboveThresh := trace.profiler.get opts && secs > trace.profiler.threshold.getSecs opts
+  let (res, start, stop) ← withStartStopSeconds <| observing k
+  let aboveThresh := trace.profiler.get opts && stop - start > trace.profiler.threshold.getSecs opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
+  let mut data := { cls, collapsed }
   if profiler.get opts || aboveThresh then
-    msg := m!"[{secs}s] {msg}"
-  addTraceNode oldTraces cls ref msg collapsed
+    data := { data with startTime := start, stopTime := stop }
+  addTraceNode oldTraces data ref msg
   MonadExcept.ofExcept res
 
 end Lean

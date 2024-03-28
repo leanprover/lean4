@@ -670,12 +670,12 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let Expr.lam n _ b _ := e.appArg! | failure
   let n ← getUnusedName n b
   let stxV ← withAppFn <| withAppArg delab
-  let stxB ← withAppArg <| withBindingBody n delab
+  let (stxN, stxB) ← withAppArg <| withBindingBody' n (annotateTermInfo (mkIdent n)) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
-    `(let_fun $(mkIdent n) : $stxT := $stxV; $stxB)
+    `(let_fun $stxN : $stxT := $stxV; $stxB)
   else
-    `(let_fun $(mkIdent n) := $stxV; $stxB)
+    `(let_fun $stxN := $stxV; $stxB)
 
 @[builtin_delab mdata]
 def delabMData : Delab := do
@@ -847,13 +847,16 @@ def delabLetE : Delab := do
   let Expr.letE n t v b _ ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
-  let stxB ← withLetDecl n t v fun fvar =>
+  let (stxN, stxB) ← withLetDecl n t v fun fvar => do
     let b := b.instantiate1 fvar
-    descend b 2 delab
+    let pos ← nextExtraPos
+    let stxN := annotatePos pos (mkIdent n)
+    addTermInfo pos stxN fvar
+    return (stxN, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
-    `(let $(mkIdent n) : $stxT := $stxV; $stxB)
-  else `(let $(mkIdent n) := $stxV; $stxB)
+    `(let $stxN : $stxT := $stxV; $stxB)
+  else `(let $stxN := $stxV; $stxB)
 
 @[builtin_delab app.Char.ofNat]
 def delabChar : Delab := do

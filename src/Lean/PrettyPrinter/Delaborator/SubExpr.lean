@@ -146,6 +146,27 @@ def nextExtraPos : m Pos := do
   return pos
 
 end Hole
+
+section DescendHole
+
+variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m] [MonadStateOf HoleIterator m]
+variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
+variable [MonadLiftT IO m]
+
+/--
+Like `withBindingBody`, but `v` is run with the instantiated fvar as its context.
+
+The position for the fvar comes from the `HoleIterator`
+-/
+def withBindingBody' (n : Name) (v : m β) (x : β → m α) : m α := do
+  let e ← getExpr
+  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar => do
+    let pos ← nextExtraPos
+    let b ← withTheReader SubExpr (fun cfg => { cfg with expr := fvar, pos := pos }) v
+    descend (e.bindingBody!.instantiate1 fvar) 1 (x b)
+
+end DescendHole
+
 end SubExpr
 
 end Lean.PrettyPrinter.Delaborator

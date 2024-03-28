@@ -69,6 +69,14 @@ v4.8.0 (development in progress)
   to enable pretty printing function applications using generalized field notation (defaults to true).
   Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
 
+* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
+  for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
+  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
+  rather than `Nat.zero` and `Nat.succ n`.
+  Added option `tactic.customEliminators` to control whether to use custom eliminators.
+  [#3629](https://github.com/leanprover/lean4/pull/3629) and
+  [#3655](https://github.com/leanprover/lean4/pull/3655).
+
 Breaking changes:
 
 * Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:

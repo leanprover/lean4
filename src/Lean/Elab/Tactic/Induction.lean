@@ -533,11 +533,19 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
     else
       return e
 
+register_builtin_option tactic.customEliminators : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
+    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
+}
+
 -- `optElimId` is of the form `("using" term)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do
   if optElimId.isNone then
-    if let some elimName ← getCustomEliminator? targets induction then
-      return ← getElimInfo elimName
+    if tactic.customEliminators.get (← getOptions) then
+      if let some elimName ← getCustomEliminator? targets induction then
+        return ← getElimInfo elimName
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor targets[0]!

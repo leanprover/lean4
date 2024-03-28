@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Elab.Eval
 import Lean.Elab.ElabRules
+import Lake.Util.FilePath
 
 /-!
 Syntax for elaboration time control flow.
@@ -95,10 +96,3 @@ def elabRunIO : TermElab := fun stx expectedType? =>
     | .ok x => return x
     | .error e => throwErrorAt tk e.toString
   | _ => Elab.throwUnsupportedSyntax
-
-/-! ## ToExpr Instances -/
-
-instance : ToExpr System.FilePath where
-  toExpr p := mkApp (mkConst ``System.FilePath.mk) (toExpr p.toString)
-  toTypeExpr := mkConst ``System.FilePath
-

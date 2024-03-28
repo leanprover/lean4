@@ -5,6 +5,7 @@ Authors: Mac Malone, Gabriel Ebner
 -/
 import Lake.Util.Log
 import Lake.Util.Name
+import Lake.Util.FilePath
 import Lake.Load.Config
 import Lake.Config.Workspace
 
@@ -26,20 +27,6 @@ inductive PackageEntryV6
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
 deriving FromJson, ToJson, Inhabited
-
-/-- Set `/` as the path separator, even on Windows. -/
-def normalizePath (path : FilePath) : FilePath :=
-  if System.Platform.isWindows then
-    path.toString.map fun c => if c = '\\' then '/' else c
-  else
-    path.toString
-
-/--
-Use `/` and instead of `\\` in file paths
-when serializing the manifest on Windows.
--/
-local instance : ToJson FilePath where
-  toJson path := toJson <| normalizePath path
 
 /-- An entry for a package stored in the manifest. -/
 inductive PackageEntry
@@ -141,6 +128,12 @@ def setInherited : PackageEntry → PackageEntry
 
 @[inline] protected def manifestFile? : PackageEntry →  Option FilePath
 | .path (manifestFile? := manifestFile?) .. | .git (manifestFile? := manifestFile?) .. => manifestFile?
+
+def setConfigFile (path : FilePath) : PackageEntry → PackageEntry
+| .path name inherited _ manifestFile? dir =>
+  .path name inherited path manifestFile? dir
+| .git name inherited _ manifestFile? url rev inputRev? subDir? =>
+  .git name inherited path manifestFile? url rev inputRev? subDir?
 
 def setManifestFile (path? : Option FilePath) : PackageEntry → PackageEntry
 | .path name inherited configFile _ dir =>

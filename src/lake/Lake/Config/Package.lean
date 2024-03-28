@@ -27,6 +27,11 @@ Currently used for package and target names taken from the CLI.
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
+
+/-- The default `buildArchive` configuration for a package with `name`. -/
+@[inline] def defaultBuildArchive (name : Name) : String :=
+  s!"{name.toString false}-{System.Platform.target}.tar.gz"
+
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
 --------------------------------------------------------------------------------
@@ -141,8 +146,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
   buildArchive : String :=
-    if let some name := buildArchive? then name else
-    s!"{name.toString false}-{System.Platform.target}.tar.gz"
+    if let some name := buildArchive? then name else defaultBuildArchive name
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -167,18 +171,16 @@ structure Package where
   relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
-  /-- The elaboration environment of the package's configuration file. -/
-  configEnv : Environment
-  /-- The Lean `Options` the package configuration was elaborated with. -/
-  leanOpts : Options
-  /-- The path to the package's configuration file. -/
-  configFile : FilePath
+  /-- The path to the package's configuration file (relative to `dir`). -/
+  relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
+  /-- Dependency configurations for the package. -/
+  depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : OrdNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
@@ -270,6 +272,10 @@ namespace Package
 /-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
+
+/-- The full path to the package's configuration file. -/
+@[inline] def configFile (self : Package) : FilePath :=
+  self.dir / self.relConfigFile
 
 /-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=

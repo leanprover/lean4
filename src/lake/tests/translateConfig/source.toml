@@ -1,0 +1,57 @@
+defaultTargets = ['b']
+
+name = "test"
+extraDepTargets = []
+precompileModules = false
+moreGlobalServerArgs = []
+srcDir = "."
+buildDir = ".lake/build"
+leanLibDir = "lib"
+nativeLibDir = "lib"
+binDir = "bin"
+irDir = "ir"
+releaseRepo = ""
+buildArchive = ""
+preferReleaseBuild = false
+packagesDir = ".lake/packages"
+buildType = "release"
+leanOptions = []
+moreServerOptions = []
+moreLeanArgs = []
+weakLeanArgs = []
+moreLeancArgs = []
+weakLeancArgs = []
+moreLinkArgs = []
+weakLinkArgs = []
+backend = "default"
+platformIndependent = true
+
+[[lean_lib]]
+name = "A"
+srcDir = "."
+roots = ["A"]
+globs = ["A"]
+extraDepTargets = []
+precompileModules = false
+defaultFacets = ["leanArts"]
+
+[[lean_exe]]
+name = "b"
+srcDir = "."
+root = "b"
+exeName = "b"
+extraDepTargets = []
+supportInterpreter = false
+
+[[require]]
+name = "foo"
+path = "-"
+
+[require.options]
+foo = "bar"
+
+[[require]]
+name = "bar"
+git = "https://example.com"
+rev = "abc"
+subDir = "sub/dir"

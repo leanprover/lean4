@@ -61,12 +61,13 @@ def PackageConfig.loadFromEnv
   evalConstCheck env opts _  ``PackageConfig declName
 
 /--
-Load the remainder of a `Package`
-from its configuration environment after resolving its dependencies.
+Load the optional elements of a `Package` from the Lean environment.
+This is done after loading its core configuration but before resolving
+its dependencies.
 -/
-def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := do
-  let env := self.configEnv
-  let opts := self.leanOpts
+def Package.loadFromEnv
+  (self : Package) (env : Environment) (opts : Options)
+: LogIO Package := do
   let strName := self.name.toString (escape := false)
 
   -- Load Script, Facet, Target, and Hook Configurations
@@ -106,6 +107,8 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
       else
         error s!"post-update hook was defined in `{decl.pkg}`, but was registered in `{self.name}`"
     | .error e => error e
+  let depConfigs ← IO.ofExcept <| packageDepAttr.getAllEntries env |>.mapM fun name =>
+    evalConstCheck env opts Dependency ``Dependency name
 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
@@ -115,9 +118,8 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
 
   -- Fill in the Package
   return {self with
-    opaqueDeps := deps.map (.mk ·)
-    leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts,
+    depConfigs, leanLibConfigs, leanExeConfigs, externLibConfigs
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts
     postUpdateHooks
   }
 

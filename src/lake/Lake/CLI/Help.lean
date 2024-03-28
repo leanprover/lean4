@@ -25,6 +25,7 @@ COMMANDS:
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
+  translate-config      change language of the package configuration
   serve                 start the Lean language server
 
 OPTIONS:
@@ -49,13 +50,16 @@ s!"The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency"
+  math                  library only with a mathlib dependency
+
+Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
+version of the configuration file, respectively. The default is Lean."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>]
+  lake new <name> [<template>][.<language>]
 
 {templateHelp}"
 
@@ -63,7 +67,7 @@ def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>]
+  lake init [<name>] [<template>][.<language>]
 
 {templateHelp}
 
@@ -244,6 +248,21 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpTranslateConfig :=
+"Translate a Lake configuration file into a different language
+
+USAGE:
+  lake translate-config <lang> [<out-file>]
+
+Translates the loaded package's configuration into another of
+Lake's supported configuration languages (i.e., either `lean` or `toml`).
+The produced file is written to `out-file` or, if not provided, the path of
+the configuration file with the new language's extension. If the output file
+already exists, Lake will error.
+
+Translation is lossy. It does not preserve comments or formatting and
+non-declarative configuration will be discarded."
+
 def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
@@ -263,4 +282,5 @@ def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "translate-config"    => helpTranslateConfig
 | _                     => usage

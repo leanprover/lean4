@@ -45,7 +45,7 @@ set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "" CACHE STRING "research: path whe
 message(STATUS "Research: compiler profile CSV path LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH(${LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH})")
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)
-option(CCACHE             "use ccache"         ON)
+option(CCACHE             "use ccache"         OFF)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)

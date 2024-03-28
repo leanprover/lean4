@@ -79,6 +79,16 @@ register_builtin_option pp.instantiateMVars : Bool := {
   group    := "pp"
   descr    := "(pretty printer) instantiate mvars before delaborating"
 }
+register_builtin_option pp.mvars : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display metavariables when true, and otherwise display them as '_'"
+}
+register_builtin_option pp.mvars.withType : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display metavariables with a type ascription"
+}
 register_builtin_option pp.beta : Bool := {
   defValue := false
   group    := "pp"
@@ -235,6 +245,8 @@ def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
+def getPPMVars (o : Options) : Bool := o.get pp.mvars.name pp.mvars.defValue
+def getPPMVarsWithType (o : Options) : Bool := o.get pp.mvars.withType.name pp.mvars.withType.defValue
 def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (pp.proofs.defValue || getPPAll o)

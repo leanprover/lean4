@@ -24,6 +24,12 @@ def toNat! (s : String) : Nat :=
 @[extern "lean_string_from_utf8_unchecked"]
 opaque fromUTF8Unchecked (a : @& ByteArray) : String
 
+/--
+  Decide whether the byte array `a` represents a proper UTF-8 encoded string.
+-/
+@[extern "lean_bytearray_is_utf8"]
+opaque isUtf8 (a : @& ByteArray) : Bool
+
 /-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray

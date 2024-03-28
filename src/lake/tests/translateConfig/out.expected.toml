@@ -1,5 +1,6 @@
 name = "test"
-defaultTargets = ["b"]
+testRunner = "b"
+defaultTargets = ["A"]
 
 [[require]]
 name = "foo"

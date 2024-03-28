@@ -34,6 +34,7 @@ package test where
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
 
+@[default_target]
 lean_lib A where
   srcDir := "."
   roots := #[`A]
@@ -44,7 +45,7 @@ lean_lib A where
   nativeFacets := fun _ => #[]
   toLeanConfig := testLeanConfig
 
-@[default_target]
+@[test_runner]
 lean_exe b where
   srcDir := "."
   root := `b

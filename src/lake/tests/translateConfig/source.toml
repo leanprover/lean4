@@ -1,4 +1,5 @@
-defaultTargets = ['b']
+testRunner = "b"
+defaultTargets = ['A']
 
 name = "test"
 extraDepTargets = []

@@ -30,7 +30,7 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
 def test (pkg : Package) (args  : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
   let pkgName := pkg.name.toString (escape := false)
   if pkg.testRunner.isAnonymous then
-    error s!"{pkgName}: package has no script or executable tagged `@[test_runner]`"
+    error s!"{pkgName}: no test runner script or executable"
   else if let some script := pkg.scripts.find? pkg.testRunner then
     script.run args
   else if let some exe := pkg.findLeanExe? pkg.testRunner then

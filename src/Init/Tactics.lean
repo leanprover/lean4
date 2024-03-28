@@ -354,6 +354,9 @@ macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
     with_annotate_state $tk skip
     all_goals $y:tactic)
 
+/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
+syntax (name := fail) "fail" (ppSpace str)? : tactic
+
 /-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
 syntax (name := eqRefl) "eq_refl" : tactic
 
@@ -365,13 +368,18 @@ for new reflexive relations.
 Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
 reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| eq_refl)
+macro "rfl" : tactic => `(tactic| fail "The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")
 
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is a reflexive relation other than `=`,
+that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
@@ -906,9 +914,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 ```
 -/
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
-
-/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
-syntax (name := fail) "fail" (ppSpace str)? : tactic
 
 /--
 `checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
@@ -1517,16 +1522,16 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
-@[inherit_doc getElem]
-syntax:max term noWs "[" withoutPosition(term) "]" : term
-macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
-
-@[inherit_doc getElem]
-syntax term noWs "[" withoutPosition(term) "]'" term:max : term
-macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
-
 /--
 Searches environment for definitions or theorems that can be substituted in
 for `exact?% to solve the goal.
  -/
 syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
+
+set_option linter.unusedVariables.funArgs false in
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

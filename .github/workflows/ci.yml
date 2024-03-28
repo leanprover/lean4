@@ -383,8 +383,14 @@ jobs:
           cd build/stage1
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: build/stage1/test-results.xml
+        # prefix `if` above with `always` so it's run even if tests failed
+        if: always() && (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
         if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}

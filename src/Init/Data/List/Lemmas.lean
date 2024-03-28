@@ -711,3 +711,5 @@ theorem minimum?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·
   | _ :: l, i + 1, j + 1 => by
     have g : i ≠ j := h ∘ congrArg (· + 1)
     simp [get_set_ne l g]
+
+end List

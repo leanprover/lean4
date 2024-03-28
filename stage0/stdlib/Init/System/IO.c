@@ -73,7 +73,6 @@ LEAN_EXPORT lean_object* l_IO_FS_readFile___boxed(lean_object*, lean_object*);
 lean_object* lean_io_check_canceled(lean_object*);
 LEAN_EXPORT lean_object* l_IO_appPath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_EIO_toIO___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_createDirAll___boxed(lean_object*, lean_object*);
 lean_object* lean_io_has_finished(lean_object*, lean_object*);
 static uint32_t l_IO_FS_instInhabitedStream___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_EIO_asTask(lean_object*, lean_object*);
@@ -231,7 +230,6 @@ LEAN_EXPORT lean_object* l_IO_FS_writeBinFile(lean_object*, lean_object*, lean_o
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 static lean_object* l_IO_Process_output___closed__1;
-LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__20;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2297____closed__18;
 size_t lean_usize_of_nat(lean_object*);
@@ -6784,6 +6782,7 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
 x_6 = l_System_FilePath_parent(x_4);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -6819,6 +6818,7 @@ x_15 = lean_ctor_get(x_2, 1);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_dec(x_2);
+lean_inc(x_14);
 x_16 = l_System_FilePath_parent(x_14);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -6953,12 +6953,14 @@ _start:
 {
 lean_object* x_4; 
 lean_dec(x_2);
+lean_inc(x_1);
 x_4 = l_System_FilePath_parent(x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = lean_box(0);
 x_6 = l_IO_FS_createDirAll___lambda__1(x_1, x_5, x_3);
+lean_dec(x_1);
 return x_6;
 }
 else
@@ -6968,7 +6970,6 @@ x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 lean_dec(x_4);
 x_8 = l_IO_FS_createDirAll(x_7, x_3);
-lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -6979,11 +6980,13 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = l_IO_FS_createDirAll___lambda__1(x_1, x_9, x_10);
 lean_dec(x_9);
+lean_dec(x_1);
 return x_11;
 }
 else
 {
 uint8_t x_12; 
+lean_dec(x_1);
 x_12 = !lean_is_exclusive(x_8);
 if (x_12 == 0)
 {
@@ -7028,6 +7031,7 @@ return x_8;
 else
 {
 uint8_t x_9; 
+lean_dec(x_1);
 x_9 = !lean_is_exclusive(x_3);
 if (x_9 == 0)
 {
@@ -7061,24 +7065,6 @@ x_4 = l_IO_FS_createDirAll___lambda__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_IO_FS_createDirAll___lambda__2(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_IO_FS_createDirAll___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_IO_FS_createDirAll(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_IO_FS_removeDirAll___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5) {

@@ -8,6 +8,7 @@ prelude
 import Init.Data.Int.DivMod
 import Init.Data.Int.Order
 import Init.Data.Nat.Dvd
+import Init.RCases
 
 /-!
 # Lemmas about integer division needed to bootstrap `omega`.

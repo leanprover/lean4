@@ -1149,7 +1149,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
 private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
   if baseName == `Function then
     return (← whnfR type).isForall
-  else if type.consumeMData.isAppOf baseName then
+  else if type.cleanupAnnotations.isAppOf baseName then
     return true
   else
     return (← whnfR type).isAppOf baseName

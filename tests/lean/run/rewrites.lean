@@ -1,5 +1,3 @@
-attribute [refl] Eq.refl
-
 private axiom test_sorry : ∀ {α}, α
 
 -- To see the (sorted) list of lemmas that `rw?` will try rewriting by, use:

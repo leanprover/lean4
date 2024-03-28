@@ -1596,7 +1596,7 @@ protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
 The analogue of `Quot.sound`: If `a` and `b` are related by the equivalence relation,
 then they have equal equivalence classes.
 -/
-def sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
+theorem sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
 /--

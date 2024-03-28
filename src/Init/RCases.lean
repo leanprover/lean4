@@ -5,7 +5,8 @@ Authors: Mario Carneiro, Jacob von Raumer
 -/
 prelude
 import Init.Tactics
-import Init.NotationExtra
+import Init.Meta
+
 
 /-!
 # Recursive cases (`rcases`) tactic and related tactics
@@ -127,7 +128,7 @@ the input expression). An `rcases` pattern has the following grammar:
   and so on.
 * A `@` before a tuple pattern as in `@⟨p1, p2, p3⟩` will bind all arguments in the constructor,
   while leaving the `@` off will only use the patterns on the explicit arguments.
-* An alteration pattern `p1 | p2 | p3`, which matches an inductive type with multiple constructors,
+* An alternation pattern `p1 | p2 | p3`, which matches an inductive type with multiple constructors,
   or a nested disjunction like `a ∨ b ∨ c`.
 
 A pattern like `⟨a, b, c⟩ | ⟨d, e⟩` will do a split over the inductive datatype,

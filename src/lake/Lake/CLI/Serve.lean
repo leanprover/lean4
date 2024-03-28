@@ -28,7 +28,7 @@ The `setup-file` command is used internally by Lean 4 server.
 -/
 def setupFile (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
 (buildConfig : BuildConfig := {}) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  if (← loadConfig.configFile.pathExists) then
+  if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
@@ -70,9 +70,9 @@ def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
-      pure (config.env.baseVars.push (invalidConfigEnvVar, log), #[])
+      pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
-    cmd := config.env.lean.lean.toString
+    cmd := config.lakeEnv.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args
     env := extraEnv
   }).wait

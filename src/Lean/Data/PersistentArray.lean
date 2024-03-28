@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 import Init.NotationExtra
+import Init.Data.ToString.Macro
 
 universe u v w
 
@@ -70,6 +71,8 @@ def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
 -- TODO: remove [Inhabited α]
 instance [Inhabited α] : GetElem (PersistentArray α) Nat α fun as i => i < as.size where
   getElem xs i _ := xs.get! i
+
+instance [Inhabited α] : LawfulGetElem (PersistentArray α) Nat α fun as i => i < as.size where
 
 partial def setAux : PersistentArrayNode α → USize → USize → α → PersistentArrayNode α
   | node cs, i, shift, a =>

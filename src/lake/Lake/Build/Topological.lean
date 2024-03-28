@@ -84,7 +84,7 @@ We use `keyOf` to the derive the unique key of a fetch from its descriptor
 `a : α`. We do this because descriptors may not be comparable and/or contain
 more information than necessary to determine uniqueness.
 -/
-@[inline] partial def recFetchAcyclic [BEq κ] [Monad m]
+@[inline] def recFetchAcyclic [BEq κ] [Monad m]
 (keyOf : α → κ) (fetch : DRecFetchFn α β (CycleT κ m)) : DFetchFn α β (CycleT κ m) :=
   recFetch fun a recurse =>
     /-
@@ -110,30 +110,3 @@ memoize fetch results and thus avoid computing the same result twice.
 : DFetchFn α (fun a => β (keyOf a)) (CycleT κ m) :=
   recFetchAcyclic keyOf fun a recurse =>
     fetchOrCreate (keyOf a) do fetch a recurse
-
-/-!
-## Building
-
-In this section, we use the abstractions we have just created to define
-the desired topological recursive build function (a.k.a. a suspending scheduler).
--/
-
-/-- Recursively builds objects for the keys `κ`, avoiding cycles. -/
-@[inline] def buildAcyclic [BEq κ] [Monad m]
-(keyOf : α → κ) (a : α) (build : RecFetchFn α β (CycleT κ m)) : ExceptT (Cycle κ) m β :=
-  recFetchAcyclic (β := fun _ => β) keyOf build a []
-
-/-- Dependently typed version of `buildTop`. -/
-@[inline] def buildDTop (β) [BEq κ] [Monad m] [MonadDStore κ β m]
-(keyOf : α → κ) (a : α) (build : DRecFetchFn α (fun a => β (keyOf a)) (CycleT κ m))
-: ExceptT (Cycle κ) m (β (keyOf a)) :=
-  recFetchMemoize keyOf build a []
-
-/--
-Recursively fills a `MonadStore` of key-object pairs by
-building objects topologically (ι.e., depth-first with memoization).
-If a cycle is detected, the list of keys traversed is thrown.
--/
-@[inline] def buildTop [BEq κ] [Monad m] [MonadStore κ β m]
-(keyOf : α → κ) (a : α) (build : RecFetchFn α β (CycleT κ m)) : ExceptT (Cycle κ) m β :=
-  recFetchMemoize (β := fun _ => β) keyOf build a []

@@ -47,8 +47,6 @@ theorem Expr.typeCheck_correct (h₁ : HasType e ty) (h₂ : e.typeCheck ≠ .un
   | found ty' h' => intro; have := HasType.det h₁ h'; subst this; rfl
   | unknown => intros; contradiction
 
-derive_functional_induction Expr.typeCheck
-
 /--
 info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), motive (Expr.nat a))
   (case2 : ∀ (a : Bool), motive (Expr.bool a))
@@ -70,7 +68,7 @@ info: Expr.typeCheck.induct (motive : Expr → Prop) (case1 : ∀ (a : Nat), mot
       (∀ (h₁ : HasType a Ty.bool) (h₂ : HasType b Ty.bool),
           a.typeCheck = Maybe.found Ty.bool h₁ → b.typeCheck = Maybe.found Ty.bool h₂ → False) →
         motive a → motive b → motive (a.and b))
-  (x : Expr) : motive x
+  (e : Expr) : motive e
 -/
 #guard_msgs in
 #check Expr.typeCheck.induct

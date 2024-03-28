@@ -1,9 +1,8 @@
 import Lake
 open Lake DSL
 
-package foo {
+package foo where
   precompileModules := true
-}
 
 @[default_target]
 lean_lib Foo

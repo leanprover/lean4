@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.11)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'

@@ -54,12 +54,16 @@ def delabBVar : Delab := do
 @[builtin_delab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
-  let mvarDecl ← n.getDecl
-  let n :=
-    match mvarDecl.userName with
-    | Name.anonymous => n.name.replacePrefix `_uniq `m
-    | n => n
-  `(?$(mkIdent n))
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    if ← getPPOption getPPMVars then
+      let mvarDecl ← n.getDecl
+      let n :=
+        match mvarDecl.userName with
+        | .anonymous => n.name.replacePrefix `_uniq `m
+        | n => n
+      `(?$(mkIdent n))
+    else
+      `(_)
 
 @[builtin_delab sort]
 def delabSort : Delab := do

@@ -203,17 +203,17 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> ident)
+  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> ident)
+  "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> ident
+  "namespace " >> checkColGt >> ident
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> Term.bracketedBinder)
+  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 @[builtin_command_parser] def «universe»     := leading_parser
-  "universe" >> many1 (ppSpace >> ident)
+  "universe" >> many1 (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser

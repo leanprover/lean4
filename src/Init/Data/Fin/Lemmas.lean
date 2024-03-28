@@ -682,7 +682,7 @@ and `cast` defines the inductive step using `motive i.succ`, inducting downwards
     cast _ (reverseInduction last cast j.succ)
 termination_by n + 1 - i
 decreasing_by decreasing_with
-  -- FIXME: we put the proof down here to avoid getting a dummy `have` in the definition
+  simp [Nat.succ_sub_succ_eq_sub]
   exact Nat.add_sub_add_right .. ▸ Nat.sub_lt_sub_left i.2 (Nat.lt_succ_self i)
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :

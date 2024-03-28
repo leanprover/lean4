@@ -587,11 +587,11 @@ theorem add_one_le_iff {a b : Int} : a + 1 ≤ b ↔ a < b := .rfl
 theorem lt_add_one_iff {a b : Int} : a < b + 1 ↔ a ≤ b := Int.add_le_add_iff_right _
 
 @[simp] theorem succ_ofNat_pos (n : Nat) : 0 < (n : Int) + 1 :=
-  lt_add_one_iff.2 (ofNat_zero_le _)
+  lt_add_one_iff.mpr (ofNat_zero_le _)
 
-theorem ofNat_not_neg (n : Nat) : (n : Int) < 0 ↔ False := by
-  simp only [iff_false]
-  exact Int.not_le_of_gt (Int.succ_ofNat_pos n)
+theorem ofNat_not_neg (n : Nat) : (n : Int) < 0 ↔ False :=
+  (iff_false _).mpr
+  (Int.not_le_of_gt (lt_add_one_iff.mpr (ofNat_zero_le _)))
 
 theorem le_add_one {a b : Int} (h : a ≤ b) : a ≤ b + 1 :=
   Int.le_of_lt (Int.lt_add_one_iff.2 h)

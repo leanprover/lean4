@@ -249,7 +249,9 @@ theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a
 theorem get?_append_right : ∀ {l₁ l₂ : List α} {n : Nat}, l₁.length ≤ n →
   (l₁ ++ l₂).get? n = l₂.get? (n - l₁.length)
 | [], _, n, _ => rfl
-| a :: l, _, n+1, h₁ => by rw [cons_append]; simp [get?_append_right (Nat.lt_succ.1 h₁)]
+| a :: l, _, n+1, h₁ => by
+  rw [cons_append]
+  simp [succ_sub_succ_eq_sub, get?_append_right (Nat.lt_succ.1 h₁)]
 
 theorem get?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     get? l.reverse i = get? l j

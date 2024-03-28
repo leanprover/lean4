@@ -13,13 +13,12 @@ theorem ediv_negSucc_negSucc (m n : Nat) : -[m+1] / -[n+1] = ((m / (n + 1) + 1) 
 theorem emod_ofNat   (a : Nat) (b : Int) : Nat.cast a % b = Nat.cast (a % b.natAbs) := rfl
 theorem emod_negSucc (a : Nat) (b : Int) : -[a+1] % b = (b.natAbs : Int) - (a % b.natAbs + 1) := rfl
 
-
 @[simp] theorem dvd_natCast_natCast (a b : Nat) : (a : Int) ∣ (b : Int) ↔ a ∣ b := by
   simp [Int.dvd_iff_mod_eq_zero, Nat.dvd_iff_mod_eq_zero, mod, Int.emod_ofNat,
     -emod_ofNat]
   apply Int.ofNat_inj
 
-@[simp] theorem dvd_negSucc (a : Int) (b : Nat) : a ∣ -[ b +1] ↔ a ∣ (b+1 : Nat) := by
+@[simp] theorem dvd_negSucc (a : Int) (b : Nat) : a ∣ -[b +1] ↔ a ∣ (b+1 : Nat) := by
   simp only [Int.dvd_def]
   apply Iff.intro
   · intro ⟨c, p⟩

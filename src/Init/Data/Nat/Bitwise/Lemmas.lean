@@ -271,7 +271,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
   induction i generalizing n x with
   | zero =>
     match n with
-    | 0 => simp
+    | 0 => simp [succ_sub_succ_eq_sub]
     | n+1 =>
       simp [not_decide_mod_two_eq_one]
       omega
@@ -279,7 +279,7 @@ theorem testBit_two_pow_sub_succ (h₂ : x < 2 ^ n) (i : Nat) :
     simp only [testBit_succ]
     match n with
     | 0 =>
-      simp [decide_eq_false]
+      simp [succ_sub_succ_eq_sub, decide_eq_false]
     | n+1 =>
       rw [Nat.two_pow_succ_sub_succ_div_two, ih]
       · simp [Nat.succ_lt_succ_iff]

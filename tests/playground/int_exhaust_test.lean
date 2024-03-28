@@ -9,6 +9,8 @@ open Lean.Test.NormalForms
 namespace Nat
 
 attribute [simp] mod_one
+attribute [simp] Nat.mul_div_cancel
+attribute [simp] Nat.mul_div_cancel_left
 
 theorem succ_mod (a b : Nat) : (a + 1) % b = if a % b + 1 = b then 0 else (a % b) + 1 := by
   match b with
@@ -18,21 +20,49 @@ theorem succ_mod (a b : Nat) : (a + 1) % b = if a % b + 1 = b then 0 else (a % b
     simp
   | b + 2 =>
     simp only [Nat.succ.injEq]
-    split
-    · rename_i dp
-      rw [Nat.add_mod a 1 _]
+    split <;> rename_i dp
+    · rw [Nat.add_mod a 1 _]
       simp [dp]
-    · rename_i dp
-      have one_lt : 1 < b + 2 := Nat.le_add_left ..
+    · have one_lt : 1 < b + 2 := Nat.le_add_left ..
       have q : a % (b + 2) ≤ b + 1 := Nat.le_of_succ_le_succ (Nat.mod_lt _ (by omega))
       have a_lt : a % (b + 2) + 1 < b + 2 := Nat.succ_lt_succ (Nat.lt_of_le_of_ne q dp)
-      rw [Nat.add_mod a 1 _]
-      rw [Nat.mod_eq_of_lt one_lt, Nat.mod_eq_of_lt a_lt]
+      rw [Nat.add_mod a 1 _, Nat.mod_eq_of_lt one_lt, Nat.mod_eq_of_lt a_lt]
 
-theorem sub_div {x n : Nat} (h : n ≤ x) : (x - n) / n = x / n - 1 := by
-  have sd := Nat.sub_mul_div x n 1
-  simp [Nat.mul_one] at sd
-  exact sd h
+theorem le_div_iff_mul_le' (hb : 0 < b) : a ≤ c / b ↔ a * b ≤ c := le_div_iff_mul_le hb
+
+protected theorem div_le_div_right {a b : Nat} (h : a ≤ b) (c : Nat) : a / c ≤ b / c :=
+  (c.eq_zero_or_pos.elim fun hc => by simp [hc]) fun hc ↦
+    (le_div_iff_mul_le' hc).2 <| Nat.le_trans (Nat.div_mul_le_self _ _) h
+
+theorem sub_div_dvd (a : Nat) {b c : Nat} (h : c ∣ b) : (a - b) / c = a / c - b / c := by
+  let ⟨d, p⟩ := h
+  match c with
+  | 0 =>
+    simp
+  | c + 1 =>
+    have sd := Nat.sub_mul_div a (c+1) d
+    if le : (c + 1) * d ≤ a then
+      simp [p, sd le, Nat.mul_comm c d, Nat.mul_div_cancel]
+    else
+      have q := Nat.le_of_not_le le
+      have r := Nat.div_le_of_le_mul q
+      simp [p, Nat.sub_eq_zero_of_le, q, r]
+
+@[simp] theorem sub_div_self (a b : Nat) : (a - b) / b = a / b - 1 := by
+  match b with
+  | 0 => simp
+  | b + 1 => simp [sub_div_dvd, Nat.zero_lt_succ, Nat.div_self]
+
+theorem div_eq_to_mul (a b c : Nat) (h : b > 0) : a / b = c ↔ a = b * c + a % b := by
+  apply Iff.intro
+  · intro p
+    simp [←p]
+    exact (div_add_mod a b).symm
+  · intro p
+    conv at p => lhs; rw [← div_add_mod a b]
+    replace p := Nat.add_right_cancel p
+    replace p := Nat.mul_left_cancel h p
+    exact p
 
 theorem eq_sub_iff (a : Nat) {b c : Nat} (p : b ≥ c) : (a = b - c) ↔ (a + c = b) := by
   rw [@Eq.comm _ a, Nat.sub_eq_iff_eq_add p, @Eq.comm _ b]
@@ -75,7 +105,6 @@ protected theorem add_lt_iff (a b c : Int) : a + b < c ↔ a < -b + c := by
     apply @Int.lt_of_add_lt_add_left (-b)
     simp [Int.add_comm (-b) (a + b), Int.add_neg_cancel_right, Int.add_comm c (-b), p]
 
-
 attribute [simp] Int.dvd_neg
 attribute [simp] Int.dvd_refl
 attribute [simp] Int.dvd_natAbs
@@ -87,13 +116,54 @@ attribute [simp] Int.dvd_natAbs
 
 attribute [simp] emod_self
 
+theorem add_ofNat_ofNat (m n : Nat) : (m : Int) + (n : Int) = (m + n : Nat) := rfl
+theorem add_ofNat_negSucc (m n : Nat) : m + -[n+1] = subNatNat m (n + 1) := rfl
+theorem add_negSucc_ofNat (m n : Nat) : -[m+1] + n = subNatNat n (m + 1) := rfl
+theorem add_negSucc_negSucc (m n : Nat) : -[m+1] + -[n+1] = -[m + n + 1 +1] := rfl
+
+theorem ediv_ofNat_ofNat (m n : Nat) : (m : Int) / (n : Int) = (m / n : Nat) := rfl
+
+--set_option trace.Meta.Tactic.simp.rewrite true
+
+/-
+@[simp] theorem add_ediv_right (a : Int) {b : Int} (h : b ≠ 0) : (a + b) / b = (a / b) + 1 := by
+  match a, b with
+  | .ofNat a, .ofNat b => admit
+  | .ofNat a, -[b +1] => admit
+  | _, 0 => simp at h
+  | -[a+1], .ofNat (b + 1) =>
+    simp [-Int.natCast_add, add_negSucc_ofNat, subNatNat, ediv_negSucc_succ,
+          Int.neg_add_cancel_right]
+    split;
+    · simp only [Int.ediv_ofNat_ofNat]
+      --natCast_add] -- [ediv_ofNat_ofNat];
+      admit
+    · admit
+  | -[a+1], -[b+1] => simp [ediv_negSucc_negSucc]; admit
+-/
+
+/-
+  | ofNat m, ofNat n => ofNat (m / n)
+  | ofNat m, -[n+1]  => -ofNat (m / succ n)
+  | -[_+1],  0       => 0
+  | -[m+1],  ofNat (succ n) => -[m / succ n +1]
+  | -[m+1],  -[n+1]  => ofNat (succ (m / succ n))
+-/
+
+
+
+/-
+@[simp] theorem add_ediv_left (a : Int) {b : Int} (h : b ≠ 0) : (b + a) / b = (a / b) + 1 := by
+  rw [Int.add_comm, add_ediv_right a h]
+-/
+
 theorem emod_neg_iff (m n : Int) : m % n < 0 ↔ (m < 0 ∧ n = 0) := by
   change Int.emod m n < 0 ↔ (m < 0 ∧ n = 0)
   match m with
   | ofNat m =>
     have not_lt_zero (n : Nat) : ¬((n : Int) < 0) := by
-      intro p
-      apply Nat.not_lt_zero _ (Int.ofNat_lt.mp p)
+      apply (Int.ofNat_not_neg _).mp
+      -- (Int.ofNat_zero_le _)
     simp [-ofNat_emod, Int.emod, not_lt_zero]
   | -[m+1] =>
     simp [-ofNat_emod, -Int.natCast_add, Int.emod, Int.subNatNat_eq_coe, negSucc_lt_zero,
@@ -122,6 +192,9 @@ theorem emod_lt (a b : Int) (h : b ≠ 0) : a % b < Int.natAbs b := by
     simp [p, -Int.ofNat_emod]
     apply Int.sub_lt_self
     apply Int.succ_ofNat_pos
+
+@[simp] theorem sub_emod_self_left (n y : Int) : (n - y) % n = (-y) % n := by
+  simp [Int.sub_eq_add_neg]
 
 theorem div_eq_ediv' (a b : Int) : Int.div a b = a / b + ite (a < 0 ∧ ¬(b ∣ a)) (sign b) 0  :=
   match a, b with
@@ -153,12 +226,14 @@ theorem mod_eq_emod' (a b : Int) : Int.mod a b = a % b - b * ite (a < 0 ∧ ¬(b
   simp [emod_def, mod_def, div_eq_ediv',
         Int.mul_add, Int.sub_eq_add_neg, Int.neg_add, Int.add_assoc]
 
-@[simp]
-theorem mod_emod (m n : Int) : Int.mod (m % n) n = m % n := by
+
+@[simp] theorem emod_mod (a b : Int) : (mod a b) % b = a % b := by
+  simp [Int.mod_eq_emod', Int.sub_eq_add_neg, Int.neg_mul_eq_mul_neg]
+
+@[simp] theorem mod_emod (m n : Int) : Int.mod (m % n) n = m % n := by
   simp_all [mod_eq_emod', emod_neg_iff]
 
-@[simp]
-theorem mod_mod (m n : Int) : Int.mod (Int.mod m n) n = Int.mod m n := by
+@[simp] theorem mod_mod (m n : Int) : Int.mod (Int.mod m n) n = Int.mod m n := by
   simp only [mod_eq_emod' m n]
   split
   · rename_i mnn
@@ -168,45 +243,10 @@ theorem mod_mod (m n : Int) : Int.mod (Int.mod m n) n = Int.mod m n := by
               Int.natAbs_pos, Int.emod_lt, Int.dvd_add_left]
   · simp [mod_emod]
 
-#print fmod_eq_emod
+@[simp] theorem emod_fmod (a b : Int) : (fmod a b) % b = a % b := by
+  simp [Int.fmod_eq_emod', Int.sub_eq_add_neg, Int.neg_mul_eq_mul_neg]
 
---theorem div_eq_ediv' (a b : Int) : Int.div a b = + ite (a < 0 ∧ ¬(b ∣ a)) (sign b) 0  :=
-
-#print Int.fdiv
-
-/-
-  match a, b with
-  | (a : Nat), ofNat b => rfl
-  | (a : Nat), -[b +1] => by
-    simp [Int.div, ediv_ofNat_negSucc, ofNat_not_neg]
-  | -[a +1], 0 => by
-    simp [Int.div, ediv_negSucc_zero]
-  | -[a +1], (b+1 : Nat) => by
-    have q : ¬(Nat.cast ((b + 1) : Nat) = (0 : Int)) := by
-      norm_cast
-    simp [-Int.natCast_add] at q
-    simp [Int.div, ediv_negSucc_succ, Nat.succ_div_d,
-          Int.negSucc_lt_zero, q, true_and,  dvd_natCast_negSucc,
-          -Int.natCast_add]
-    split <;> rename_i pg
-    · simp [Int.neg_add]
-    · simp [Int.neg_add, Int.neg_add_cancel_right]
-  | -[m +1], -[n +1] => by
-    simp [Int.div, ediv_negSucc_negSucc,
-      dvd_negSucc_negSucc,
-      Int.negSucc_lt_zero,
-      -ofNat_ediv, -natCast_add,
-      Nat.succ_div_d]
-    split <;> rename_i h
-    . simp
-    · simp [Int.add_neg_cancel_right]
--/
-
-#print       negSucc_coe'
-
-
-@[simp]
-theorem fmod_emod (m n : Int) : Int.fmod (m % n) n = Int.fmod m n := by
+@[simp] theorem fmod_emod (m n : Int) : Int.fmod (m % n) n = Int.fmod m n := by
   simp_all [fmod_eq_emod', emod_neg_iff]
 
 @[simp]
@@ -231,7 +271,7 @@ end Int
 inductive NumType where
 | nat
 | int
-deriving BEq, Hashable, Inhabited, Repr
+deriving DecidableEq, Hashable, Inhabited, Repr
 
 protected def NumType.render [Monad M] [MonadQuotation M] (v : NumType) : M Term := do
   match v with
@@ -244,7 +284,7 @@ inductive  DivMode where
   | tdivInt
   | fdivInt
   | bdivInt
-  deriving BEq, Repr
+  deriving DecidableEq, Repr
 
 def DivMode.typeOf (m : DivMode) : NumType :=
   match m with
@@ -331,12 +371,34 @@ def intLit (i : Int) : NumTerm :=
   else
     lit i.toNat .int
 
+def mkLit (i : Int) (tp : NumType) : NumTerm :=
+  if i < 0 then
+    match tp with
+    | .nat => panic! "Negative number passed into nat"
+    | .int => neg (lit ((- i).toNat) .int)
+  else
+    lit i.toNat tp
+
 def asIntLit (i : NumTerm) : Option Int :=
   match i with
   | .lit n _ => some (n : Int)
   | .neg (.lit n .int) => some (- (n : Int))
   | _ => none
 
+
+/-
+
+  1 + i0 - i0 reduces to
+  1
+but is expected to reduce to
+  1 + i0 - i0
+
+
+  i0 - i1 + i1 reduces to
+  i0
+but is expected to reduce to
+  i0 - i1 + i1
+  -/
 partial def simp (v : NumTerm) : NumTerm :=
   let v := map simp v
   match v with
@@ -352,23 +414,36 @@ partial def simp (v : NumTerm) : NumTerm :=
     match x, y with
     | x, lit 0 _ => x
     | lit 0 _, y => y
-    | lit i _, lit j _ => lit (i+j) tp
-    | _, _ => v
+    | _, _ => Id.run <| do
+      if let .sub xa xb _ := x then
+        if tp = .int ∧ xb == y then
+          return xa
+      if let (some i, some j) := (asIntLit x, asIntLit y) then
+        return (mkLit (i+j) tp)
+      pure v
   | sub x y tp =>
     match x, y, tp with
     | x, lit 0 _, _ => x
-    | lit i _, lit j _, .nat => lit (i-j) tp
-    | lit i _, lit j _, .int => intLit ((i : Int) - (j : Int))
     | lit 0 _, _, .nat => lit 0 .nat
     | lit 0 _, y, .int => simp (neg y)
-    | x, y, _ =>
+    | x, y, _ => Id.run <| do
+      match tp with
+      | .nat =>
+        if let (lit i _, lit j _) := (x, y) then
+          return lit (i-j) .nat
+      | .int =>
+        if let (some i, some j) := (asIntLit x, asIntLit y) then
+          return mkLit (i - j) .int
+      if let .add xa xb _ := x then
+        if xb == y then
+          return xa
       if x == y then
-        .lit 0 tp
-      else
-        v
+        return .lit 0 tp
+      pure v
   | neg x =>
     match x with
     | lit n _ => intLit (- (Int.ofNat n))
+    | neg x => x
     | _ => v
   | mul x y tp =>
     match x, y with
@@ -377,7 +452,10 @@ partial def simp (v : NumTerm) : NumTerm :=
     | _, lit 1 _ => x
     | lit 1 _, _ => y
     | lit i _, lit j _ => lit (i*j) tp
-    | _, _ => v
+    | _, _ => Id.run <| do
+      if let (some i, some j) := (asIntLit x, asIntLit y) then
+        return (mkLit (i * j) tp)
+      pure v
   | div x y op =>
     if let (some x, some y) := (asIntLit x, asIntLit y) then
       match op with
@@ -389,11 +467,43 @@ partial def simp (v : NumTerm) : NumTerm :=
     else if let lit 0 _ := x then
       x
     else if let lit 0 _ := y then
-      y
+      lit 0 op.typeOf
     else if let lit 1 _ := y then
       x
-    else
-      v
+    else Id.run <| do
+      if let add xa xb _tp := x then
+        if let .lit i _ := y then
+          if op ∈ [.divNat] ∧ i ≠ 0 then
+            if xa == y then
+              return simp (.add (.div xb y op) (.lit 1 op.typeOf) op.typeOf)
+            else if xb == y then
+              return simp (.add (.div xa y op) (.lit 1 op.typeOf) op.typeOf)
+      if let sub xa xb _tp := x then
+          if op = .divNat ∧ xb == y then
+            return simp (.sub (.div xa y op) (.lit 1 op.typeOf) op.typeOf)
+      if let mod _ n mOp := x then
+        if op = .divNat ∧ mOp = .divNat ∧ n == y then
+          return .lit 0 .nat
+      if let neg xn := x then
+        match op with
+        | .tdivInt =>
+          return simp (neg (div xn y op))
+        | _ =>
+          pure ()
+      if let neg yn := y then
+        match op with
+        | .edivInt | .tdivInt =>
+          return simp (neg (div x yn op))
+        | _ =>
+          pure ()
+      if let mul xa xb _ := x then
+       if let .lit i _ := y then
+          if i ≠ 0 then
+            if xa == y then
+              return xb
+            if xb == y then
+              return xa
+      pure v
   | mod x n op =>
     if let (some x, some n) := (asIntLit x, asIntLit n) then
       match op with
@@ -411,13 +521,22 @@ partial def simp (v : NumTerm) : NumTerm :=
     else if x == n then
       lit 0 op.typeOf
     else Id.run do
-      if let add xa xb tp := x then
-        if let .edivInt := op then
+      if let add xa xb _tp := x then
+        if op ∈ [.divNat, .edivInt] then
           if xa == n then
             return simp (.mod xb n op)
           else if xb == n then
             return simp (.mod xa n op)
-          if let mul xba xbb tp := xb then
+          if let mul xba xbb _tp := xb then
+            if xba == n || xbb == n then
+              return simp (.mod xa n op)
+      if let sub xa xb _tp := x then
+        if op ∈ [.edivInt] then
+          if xa == n then
+            return simp (.mod (.neg xb) n op)
+          else if xb == n then
+            return simp (.mod xa n op)
+          if let mul xba xbb _tp := xb then
             if xba == n || xbb == n then
               return simp (.mod xa n op)
       if let mul xa xb tp := x then
@@ -431,7 +550,7 @@ partial def simp (v : NumTerm) : NumTerm :=
             | .edivInt, _ => some .edivInt
             | .tdivInt, .edivInt => some .edivInt
             | .tdivInt, .tdivInt => some .tdivInt
-            | .fdivInt, .edivInt => some .edivInt
+            | .fdivInt, .edivInt => some .fdivInt
             | .fdivInt, .fdivInt => some .fdivInt
             | .bdivInt, _ => some .bdivInt
             | _, _ => none
@@ -451,7 +570,7 @@ partial def simpv (u : NumTerm) : NumTerm :=
   if v.typeOf == u.typeOf then
     v
   else
-    panic! s!"{repr u} has changed types."
+    panic! s!"simp result changed types:\n  Input: {repr u}\n  Out:   {repr v}"
 
 def litOp (n : Nat) (tp : NumType) := mkOp [] tp fun _ => lit n tp
 def addOp (tp : NumType) := mkOp [tp, tp] tp fun a => add (a[0]!) (a[1]!) tp
@@ -492,20 +611,29 @@ def elabIntTest : CommandElab := fun _stx => do
   testNormalForms types ops vars NumTerm.simpv stats
 
 set_option maxHeartbeats 100000000
-set_option pp.coercions false
+--set_option pp.coercions false
+--set_option pp.notation false
 --set_option pp.explicit true
---#intTest
+#intTest
 
+section
+variable (i0 : Int)
+
+set_option trace.Meta.Tactic.simp true
+
+
+end
+namespace Nat
+
+end Nat
 
 namespace Int
 
---set_option pp.explicit true
+open Lean.Meta.CheckTactic (CheckGoalType)
 
-
-set_option trace.Meta.Tactic.simp.rewrite true
-
-example (i : Int) : (2 + i) % i = 2 % i := by
+example (b : Int) : div (2 * b) 2 = b := by
   simp
+  --admit
 
 theorem div_as_nat (x y : Int) : Int.div x y =
   ite (x ≥ 0) 1 (-1) * ite (y ≥ 0) 1 (-1) * ((x.natAbs) / (y.natAbs)) := by

@@ -5,8 +5,10 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.BinderPredicates
+import Init.Data.Int.Order
+import Init.Data.List.Lemmas
+import Init.Data.Nat.MinMax
 import Init.Data.Option.Lemmas
-import Init.Data.Nat.Bitwise.Lemmas
 
 /-!
 # `List.nonzeroMinimum`, `List.minNatAbs`, `List.maxNatAbs`

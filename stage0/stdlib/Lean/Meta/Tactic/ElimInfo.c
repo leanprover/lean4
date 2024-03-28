@@ -86,7 +86,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_29
 lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 static lean_object* l_Lean_Meta_addImplicitTargets_collect___lambda__2___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_map___default___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_39____closed__3;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2991____lambda__1___closed__1;
 static lean_object* l_Lean_Meta_getElimExprInfo___closed__4;
@@ -200,7 +199,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_addCustomEliminator(lean_object*, uint8_t, 
 lean_object* l_Lean_ScopedEnvExtension_addScopedEntry___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getElimExprInfo___lambda__4___closed__2;
 uint8_t l_Lean_Expr_isSort(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_CustomEliminators_map___default___lambda__1(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_205____closed__9;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_3070____closed__1;
@@ -256,6 +254,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getElimExprInfo___lambda__1(lean_object*, l
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at_Lean_Meta_mkCustomEliminator___spec__10(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2991____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCustomEliminators___boxed(lean_object*);
+lean_object* l_instDecidableEqBool___boxed(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addCustomEliminator___closed__1;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -4893,35 +4892,11 @@ x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_CustomEliminators_map___default___lambda__1(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-if (x_1 == 0)
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-else
-{
-return x_2;
-}
-}
-}
 static lean_object* _init_l_Lean_Meta_CustomEliminators_map___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_CustomEliminators_map___default___lambda__1___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqBool___boxed), 2, 0);
 return x_1;
 }
 }
@@ -5039,19 +5014,6 @@ lean_object* x_2;
 x_2 = l_Lean_mkHashMap___at_Lean_Meta_CustomEliminators_map___default___spec__1(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_CustomEliminators_map___default___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_Meta_CustomEliminators_map___default___lambda__1(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedCustomEliminators___closed__1() {

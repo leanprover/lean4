@@ -70,7 +70,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     let ctorTy ← instantiateForall (← getConstInfoCtor ctorName).type params
     forallTelescopeReducing ctorTy fun argVars _ => do
     let .str _ ctor := ctorName | throwError m!"constructor name not a string: {ctorName}"
-    let ctorId := mkIdent ctor
+    let ctorId := mkIdent (.mkSimple ctor)
 
     -- create the constructor
     let fieldStxs ← argVars.mapM fun arg => do

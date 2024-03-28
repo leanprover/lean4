@@ -73,9 +73,28 @@ structure GuardMsgFailure where
   res : String
 deriving TypeName
 
+/--
+Makes trailing whitespace visible and protectes them against trimming by the editor, by appending
+the symbol ⏎ to such a line (and also to any line that ends with such a symbol, to avoid
+ambiguities in the case the message already had that symbol).
+-/
+def revealTrailingWhitespace (s : String) : String :=
+  s.replace "⏎\n" "⏎⏎\n" |>.replace "\t\n" "\t⏎\n" |>.replace " \n" " ⏎\n"
+
+/- The inverse of `revealTrailingWhitespace` -/
+def removeTrailingWhitespaceMarker (s : String) : String :=
+  s.replace "⏎\n" "\n"
+
+/--
+Strings are compared up to newlines, to allow users to break long lines.
+-/
+def equalUpToNewlines (exp res : String) : Bool :=
+  exp.replace "\n" " " == res.replace "\n" " "
+
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
-    let expected : String := (← dc?.mapM (getDocStringText ·)).getD "" |>.trim
+    let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
+        |>.trim |> removeTrailingWhitespaceMarker
     let specFn ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     elabCommandTopLevel cmd
@@ -88,8 +107,7 @@ deriving TypeName
       | .drop        => pure ()
       | .passthrough => toPassthrough := toPassthrough.add msg
     let res := "---\n".intercalate (← toCheck.toList.mapM (messageToStringWithoutPos ·)) |>.trim
-    -- We do some whitespace normalization here to allow users to break long lines.
-    if expected.replace "\n" " " == res.replace "\n" " " then
+    if equalUpToNewlines expected res then
       -- Passed. Only put toPassthrough messages back on the message log
       modify fun st => { st with messages := initMsgs ++ toPassthrough }
     else
@@ -119,6 +137,7 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
     lazy? := some do
       let some start := stx.getPos? true | return eager
       let some tail := stx.setArg 0 mkNullNode |>.getPos? true | return eager
+      let res := revealTrailingWhitespace res
       let newText := if res.isEmpty then
         ""
       else if res.length ≤ 100-7 && !res.contains '\n' then -- TODO: configurable line length?

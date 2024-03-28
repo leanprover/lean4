@@ -22,6 +22,6 @@ end
 #print isEven
 
 #eval tst ``isEven
-#check @isEven._eq_1
-#check @isEven._eq_2
-#check @isEven._unfold
+#check @isEven.eq_1
+#check @isEven.eq_2
+#check @isEven.eq_def

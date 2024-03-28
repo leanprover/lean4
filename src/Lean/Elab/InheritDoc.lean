@@ -20,7 +20,7 @@ builtin_initialize
       | `(attr| inherit_doc $[$id?:ident]?) => withRef stx[0] do
         let some id := id?
           | throwError "invalid `[inherit_doc]` attribute, could not infer doc source"
-        let declName ← Elab.resolveGlobalConstNoOverloadWithInfo id
+        let declName ← Elab.realizeGlobalConstNoOverloadWithInfo id
         if (← findDocString? (← getEnv) decl).isSome then
           logWarning m!"{← mkConstWithLevelParams decl} already has a doc string"
         let some doc ← findDocString? (← getEnv) declName

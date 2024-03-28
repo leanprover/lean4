@@ -45,7 +45,7 @@ def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) :
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
-theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
+noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
   induction (apply hwf a) with
   | intro x₁ _ ih => exact h x₁ ih
 
@@ -166,13 +166,13 @@ def lt_wfRel : WellFoundedRelation Nat where
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
 
-protected theorem strongInductionOn
+protected noncomputable def strongInductionOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
-protected theorem caseStrongInductionOn
+protected noncomputable def caseStrongInductionOn
     {motive : Nat → Sort u}
     (a : Nat)
     (zero : motive 0)

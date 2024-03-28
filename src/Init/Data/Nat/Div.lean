@@ -10,6 +10,13 @@ import Init.Data.Nat.Basic
 
 namespace Nat
 
+/--
+Divisibility of natural numbers. `a ∣ b` (typed as `\|`) says that
+there is some `c` such that `b = a * c`.
+-/
+instance : Dvd Nat where
+  dvd a b := Exists (fun c => b = a * c)
+
 theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
@@ -28,7 +35,7 @@ theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 e
   rw [Nat.div]
   rfl
 
-theorem div.inductionOn.{u}
+def div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y : Nat)
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
@@ -95,7 +102,7 @@ protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
 
-theorem mod.inductionOn.{u}
+def mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
       (x y  : Nat)
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
@@ -286,7 +293,7 @@ theorem sub_mul_div (x n p : Nat) (h₁ : n*p ≤ x) : (x - n*p) / n = x / n - p
         rw [mul_succ] at h₁
         exact h₁
       rw [sub_succ, ← IH h₂, div_eq_sub_div h₀ h₃]
-      simp [add_one, Nat.pred_succ, mul_succ, Nat.sub_sub]
+      simp [Nat.pred_succ, mul_succ, Nat.sub_sub]
 
 theorem mul_sub_div (x n p : Nat) (h₁ : x < n*p) : (n * p - succ x) / n = p - succ (x / n) := by
   have npos : 0 < n := (eq_zero_or_pos _).resolve_left fun n0 => by

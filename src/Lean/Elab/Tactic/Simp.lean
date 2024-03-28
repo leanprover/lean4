@@ -179,7 +179,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let id := arg[1]
-            let declNames? ← try pure (some (← resolveGlobalConst id)) catch _ => pure none
+            let declNames? ← try pure (some (← realizeGlobalConst id)) catch _ => pure none
             if let some declNames := declNames? then
               let declName ← ensureNonAmbiguous id declNames
               if (← Simp.isSimproc declName) then

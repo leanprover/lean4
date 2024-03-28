@@ -11,17 +11,26 @@ of each version.
 v4.8.0 (development in progress)
 ---------
 
-* New command `derive_functinal_induction`:
+* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
 
-  Derived from the definition of a (possibly mutually) recursive function
-  defined by well-founded recursion, a **functional induction principle** is
-  tailored to proofs about that function. For example from:
+  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+
+  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+
+* Lean now generates an error if the type of a theorem is **not** a proposition.
+
+* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+
+* Funcitonal induction principles.
+
+  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+
+  For example from:
   ```
   def ackermann : Nat → Nat → Nat
     | 0, m => m + 1
     | n+1, 0 => ackermann n 1
     | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  derive_functional_induction ackermann
   ```
   we get
   ```
@@ -30,6 +39,64 @@ v4.8.0 (development in progress)
     (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
     (x x : Nat) : motive x x
   ```
+
+  It can be used in the `induction` tactic using the `using` syntax:
+  ```
+  induction n, m using ackermann.induct
+  ```
+
+* The termination checker now recognizes more recursion patterns without an
+  explicit `termination_by`. In particular the idiom of counting up to an upper
+  bound, as in
+  ```
+  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
+    if _ : i < arr.size then
+      Array.sum arr (i+1) (acc + arr[i])
+    else
+      acc
+  ```
+  is recognized without having to say `termination_by arr.size - i`.
+
+* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
+  rather than `{a := x, b := y, c := z}`.
+  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
+
+* Now structure instances pretty print with parent structures' fields inlined.
+  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
+  Setting option `pp.structureInstances.flatten` to false turns this off.
+
+* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
+  to enable pretty printing function applications using generalized field notation (defaults to true).
+  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
+
+Breaking changes:
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+```
+def fact : Nat → Nat
+  | 0 => 1
+  | n+1 => (n+1) * fact n
+
+theorem ex : fact 0 = 1 := by unfold fact; decide
+
+#check fact.eq_1
+-- fact.eq_1 : fact 0 = 1
+
+#check fact.eq_2
+-- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
+
+#check fact.def
+/-
+fact.def :
+  ∀ (x : Nat),
+    fact x =
+      match x with
+      | 0 => 1
+      | Nat.succ n => (n + 1) * fact n
+-/
+```
+
+* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
 
 v4.7.0
 ---------

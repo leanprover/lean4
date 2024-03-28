@@ -56,7 +56,8 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
   | _ => throwUnsupportedSyntax
 
 /-- Implementation of `dsimp?`. -/
-def dsimpLocation' (ctx : Simp.Context) (loc : Location) : TacticM Simp.UsedSimps := do
+def dsimpLocation' (ctx : Simp.Context) (simprocs : SimprocsArray) (loc : Location) :
+    TacticM Simp.UsedSimps := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -69,8 +70,8 @@ where
   /-- Implementation of `dsimp?`. -/
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Simp.UsedSimps := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ←
-      dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, usedSimps) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget)
+      (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
@@ -83,8 +84,9 @@ where
       `(tactic| dsimp!%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
       `(tactic| dsimp%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
-    let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
-    let usedSimps ← dsimpLocation' ctx <| (loc.map expandLocation).getD (.targets #[] true)
+    let { ctx, simprocs, .. } ←
+      withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+    let usedSimps ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)
     let stx ← mkSimpCallStx stx usedSimps
     addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax

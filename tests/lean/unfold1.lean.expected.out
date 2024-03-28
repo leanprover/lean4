@@ -4,7 +4,7 @@ x : Nat
 ih : isEven (2 * x) = true
 ⊢ (match 2 * (x + 1) with
     | 0 => true
-    | Nat.succ n => isOdd n) =
+    | n.succ => isOdd n) =
     true
 case succ
 x : Nat

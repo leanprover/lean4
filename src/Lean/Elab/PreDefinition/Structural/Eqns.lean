@@ -63,12 +63,12 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes #[info.declName] goal.mvarId!
-  let baseName := mkPrivateName (← getEnv) info.declName
+  let baseName := info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
     trace[Elab.definition.structural.eqns] "{eqnTypes[i]!}"
-    let name := baseName ++ (`_eq).appendIndexAfter (i+1)
+    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
@@ -81,6 +81,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := do
+  ensureEqnReservedNamesAvailable preDef.declName
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

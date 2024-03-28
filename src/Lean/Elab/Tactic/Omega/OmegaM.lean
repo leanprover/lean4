@@ -7,8 +7,9 @@ prelude
 import Init.Omega.LinearCombo
 import Init.Omega.Int
 import Init.Omega.Logic
-import Init.Data.BitVec
+import Init.Data.BitVec.Basic
 import Lean.Meta.AppBuilder
+import Lean.Meta.Canonicalizer
 
 /-!
 # The `OmegaM` state monad.
@@ -54,7 +55,7 @@ structure State where
   atoms : HashMap Expr Nat := {}
 
 /-- An intermediate layer in the `OmegaM` monad. -/
-abbrev OmegaM' := StateRefT State (ReaderT Context MetaM)
+abbrev OmegaM' := StateRefT State (ReaderT Context CanonM)
 
 /--
 Cache of expressions that have been visited, and their reflection as a linear combination.
@@ -70,7 +71,7 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' HashMap.empty |>.run' {} { cfg }
+  m.run' HashMap.empty |>.run' {} { cfg } |>.run
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
@@ -176,7 +177,7 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
       | _, (``Fin.val, #[n, i]) =>
         r := r.insert (mkApp2 (.const ``Fin.isLt []) n i)
       | _, (``BitVec.toNat, #[n, x]) =>
-        r := r.insert (mkApp2 (.const ``BitVec.toNat_lt []) n x)
+        r := r.insert (mkApp2 (.const ``BitVec.isLt []) n x)
       | _, _ => pure ()
     return r
   | (``HDiv.hDiv, #[_, _, _, _, x, k]) => match natCast? k with
@@ -217,7 +218,12 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
             (mkApp3 (.const ``Int.emod_nonneg []) x k
                 (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos)) |>.insert
               (mkApp3 (.const ``Int.emod_lt_of_pos []) x k cast_pos)
-      | _ => pure ∅
+      | _ =>  match x.getAppFnArgs with
+        | (``Nat.cast, #[.const ``Int [], _, x']) =>
+          -- Since we push coercions inside `%`, we need to record here that
+          -- `(x : Int) % (y : Int)` is non-negative.
+          pure <| HashSet.empty.insert (mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k)
+        | _ => pure ∅
     | _ => pure ∅
   | (``Min.min, #[_, _, x, y]) =>
     pure <| HashSet.empty.insert (mkApp2 (.const ``Int.min_le_left []) x y) |>.insert
@@ -244,6 +250,7 @@ Return its index, and, if it is new, a collection of interesting facts about the
 -/
 def lookup (e : Expr) : OmegaM (Nat × Option (HashSet Expr)) := do
   let c ← getThe State
+  let e ← canon e
   match c.atoms.find? e with
   | some i => return (i, none)
   | none =>

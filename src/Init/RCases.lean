@@ -5,7 +5,8 @@ Authors: Mario Carneiro, Jacob von Raumer
 -/
 prelude
 import Init.Tactics
-import Init.NotationExtra
+import Init.Meta
+
 
 /-!
 # Recursive cases (`rcases`) tactic and related tactics

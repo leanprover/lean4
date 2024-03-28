@@ -21,9 +21,9 @@ macro_rules
 
 /-! ## if-then-else -/
 
-@[simp] theorem if_true {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
+@[simp] theorem if_true {_ : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
 
-@[simp] theorem if_false {h : Decidable False} (t e : α) : ite False t e = e := if_neg id
+@[simp] theorem if_false {_ : Decidable False} (t e : α) : ite False t e = e := if_neg id
 
 theorem ite_id [Decidable c] {α} (t : α) : (if c then t else t) = t := by split <;> rfl
 

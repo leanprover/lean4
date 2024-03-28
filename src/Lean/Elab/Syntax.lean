@@ -173,7 +173,7 @@ where
           | `(stx| $sym:str) => pure sym
           | _ => return arg'
         let sym := sym.getString
-        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (`token ++ sym)) $(arg'.1)), 1)
+        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (Name.str `token sym)) $(arg'.1)), 1)
     else
       pure args'
     let (args', stackSz) := if let some stackSz := info.stackSz? then

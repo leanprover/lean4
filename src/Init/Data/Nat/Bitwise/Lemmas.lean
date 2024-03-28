@@ -6,6 +6,7 @@ Authors: Joe Hendrix
 
 prelude
 import Init.Data.Bool
+import Init.Data.Int.Pow
 import Init.Data.Nat.Bitwise.Basic
 import Init.Data.Nat.Lemmas
 import Init.TacticsExtra

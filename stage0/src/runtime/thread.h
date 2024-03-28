@@ -217,8 +217,13 @@ static T & GETTER_NAME() {                                              \
 }
 
 namespace lean {
+// module initializer pair (NOT for initializing individual threads!)
 void initialize_thread();
 void finalize_thread();
+
+// thread initializer pair, for reverse FFI
+extern "C" LEAN_EXPORT void lean_initialize_thread();
+extern "C" LEAN_EXPORT void lean_finalize_thread();
 
 typedef void (*thread_finalizer)(void *); // NOLINT
 LEAN_EXPORT void register_post_thread_finalizer(thread_finalizer fn, void * p);

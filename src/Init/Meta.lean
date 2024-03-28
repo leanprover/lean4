@@ -9,7 +9,6 @@ prelude
 import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
-import Init.Data.String.Extra
 
 namespace Lean
 
@@ -105,43 +104,6 @@ def idBeginEscape := '«'
 def idEndEscape   := '»'
 def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
 def isIdEndEscape (c : Char) : Bool := c = idEndEscape
-
-private def findLeadingSpacesSize (s : String) : Nat :=
-  let it := s.iter
-  let it := it.find (· == '\n') |>.next
-  consumeSpaces it 0 s.length
-where
-  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
-    else if it.curr == '\n' then findNextLine it.next min
-    else findNextLine it.next (Nat.min curr min)
-  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
-    if it.atEnd then min
-    else if it.curr == '\n' then consumeSpaces it.next 0 min
-    else findNextLine it.next min
-
-private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
-  consumeSpaces n s.iter ""
-where
-  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
-     match n with
-     | 0 => saveLine it r
-     | n+1 =>
-       if it.atEnd then r
-       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
-       else saveLine it r
-  termination_by (it, 1)
-  saveLine (it : String.Iterator) (r : String) : String :=
-    if it.atEnd then r
-    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
-    else saveLine it.next (r.push it.curr)
-  termination_by (it, 0)
-
-def removeLeadingSpaces (s : String) : String :=
-  let n := findLeadingSpacesSize s
-  if n == 0 then s else removeNumLeadingSpaces n s
-
 namespace Name
 
 def getRoot : Name → Name
@@ -947,6 +909,11 @@ def _root_.Substring.toName (s : Substring) : Name :=
       else
         Name.mkStr n comp
 
+/--
+Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+
+`"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
+-/
 def _root_.String.toName (s : String) : Name :=
   s.toSubstring.toName
 

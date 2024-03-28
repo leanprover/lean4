@@ -488,6 +488,7 @@ attribute [unbox] Prod
 Similar to `Prod`, but `α` and `β` can be propositions.
 We use this type internally to automatically generate the `brecOn` recursor.
 -/
+@[pp_using_anonymous_constructor]
 structure PProd (α : Sort u) (β : Sort v) where
   /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/
   fst : α
@@ -509,6 +510,7 @@ structure MProd (α β : Type u) where
 constructed and destructed like a pair: if `ha : a` and `hb : b` then
 `⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.
 -/
+@[pp_using_anonymous_constructor]
 structure And (a b : Prop) : Prop where
   /-- `And.intro : a → b → a ∧ b` is the constructor for the And operation. -/
   intro ::
@@ -575,6 +577,7 @@ a pair-like type, so if you have `x : α` and `h : p x` then
 `⟨x, h⟩ : {x // p x}`. An element `s : {x // p x}` will coerce to `α` but
 you can also make it explicit using `s.1` or `s.val`.
 -/
+@[pp_using_anonymous_constructor]
 structure Subtype {α : Sort u} (p : α → Prop) where
   /-- If `s : {x // p x}` then `s.val : α` is the underlying element in the base
   type. You can also write this as `s.1`, or simply as `s` when the type is
@@ -1194,7 +1197,12 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   /-- `a / b` computes the result of dividing `a` by `b`.
   The meaning of this notation is type-dependent.
   * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
-  * For `Nat` and `Int`, `a / b` rounds toward 0.
+  * For `Nat`, `a / b` rounds downwards.
+  * For `Int`, `a / b` rounds downwards if `b` is positive or upwards if `b` is negative.
+    It is implemented as `Int.ediv`, the unique function satisfiying
+    `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
+    Other rounding conventions are available using the functions
+    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
@@ -1206,7 +1214,8 @@ This enables the notation `a % b : γ` where `a : α`, `b : β`.
 class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`.
   The meaning of this notation is type-dependent.
-  * For `Nat` and `Int`, `a % 0` is defined to be `a`. -/
+  * For `Nat` and `Int` it satisfies `a % b + b * (a / b) = a`,
+    and `a % 0` is defined to be `a`. -/
   hMod : α → β → γ
 
 /--
@@ -1485,6 +1494,7 @@ instance [ShiftRight α] : HShiftRight α α α where
   hShiftRight a b := ShiftRight.shiftRight a b
 
 open HAdd (hAdd)
+open HSub (hSub)
 open HMul (hMul)
 open HPow (hPow)
 open HAppend (hAppend)
@@ -1808,6 +1818,7 @@ theorem System.Platform.numBits_eq : Or (Eq numBits 32) (Eq numBits 64) :=
 `Fin n` is a natural number `i` with the constraint that `0 ≤ i < n`.
 It is the "canonical type with `n` elements".
 -/
+@[pp_using_anonymous_constructor]
 structure Fin (n : Nat) where
   /-- If `i : Fin n`, then `i.val : ℕ` is the described number. It can also be
   written as `i.1` or just `i` when the target type is known. -/
@@ -2035,7 +2046,7 @@ instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 (by decide)
 
 /--
-The size of type `UInt16`, that is, `2^System.Platform.numBits`, which may
+The size of type `USize`, that is, `2^System.Platform.numBits`, which may
 be either `2^32` or `2^64` depending on the platform's architecture.
 
 Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
@@ -2053,7 +2064,7 @@ instance : OfNat (Fin (n+1)) i where
   ofNat := Fin.ofNat i
 ```
 -/
-abbrev USize.size : Nat := Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)
+abbrev USize.size : Nat := hAdd (hSub (hPow 2 System.Platform.numBits) 1) 1
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 4294967296) (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 18446744073709551616) from
@@ -2744,7 +2755,7 @@ def List.redLength : List α → Nat
 /-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
 -- This function is exported to C, where it is called by `Array.mk`
 -- (the constructor) to implement this functionality.
-@[inline, match_pattern, export lean_list_to_array]
+@[inline, match_pattern, pp_nodot, export lean_list_to_array]
 def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)
 
@@ -3481,20 +3492,31 @@ instance : Hashable String where
 namespace Lean
 
 /--
-Hierarchical names. We use hierarchical names to name declarations and
-for creating unique identifiers for free variables and metavariables.
+Hierarchical names consist of a sequence of components, each of
+which is either a string or numeric, that are written separated by dots (`.`).
 
-You can create hierarchical names using the following quotation notation.
+Hierarchical names are used to name declarations and for creating
+unique identifiers for free variables and metavariables.
+
+You can create hierarchical names using a backtick:
 ```
 `Lean.Meta.whnf
 ```
-It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`
-You can use double quotes to request Lean to statically check whether the name
+It is short for `.str (.str (.str .anonymous "Lean") "Meta") "whnf"`.
+
+You can use double backticks to request Lean to statically check whether the name
 corresponds to a Lean declaration in scope.
 ```
 ``Lean.Meta.whnf
 ```
 If the name is not in scope, Lean will report an error.
+
+There are two ways to convert a `String` to a `Name`:
+
+ 1. `Name.mkSimple` creates a name with a single string component.
+
+ 2. `String.toName` first splits the string into its dot-separated
+    components, and then creates a hierarchical name.
 -/
 inductive Name where
   /-- The "anonymous" name. -/
@@ -3545,7 +3567,9 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
   Name.num p v
 
 /--
-Short for `.str .anonymous s`.
+Converts a `String` to a `Name` without performing any parsing. `mkSimple s` is short for `.str .anonymous s`.
+
+This means that `mkSimple "a.b"` is the name `«a.b»`, not `a.b`.
 -/
 abbrev mkSimple (s : String) : Name :=
   .str .anonymous s
@@ -4580,6 +4604,12 @@ def resolveNamespace (n : Name) : MacroM (List Name) := do
 Resolves the given name to an overload list of global definitions.
 The `List String` in each alternative is the deduced list of projections
 (which are ambiguous with name components).
+
+Remark: it will not trigger actions associated with reserved names. Recall that Lean
+has reserved names. For example, a definition `foo` has a reserved name `foo.def` for theorem
+containing stating that `foo` is equal to its definition. The action associated with `foo.def`
+automatically proves the theorem. At the macro level, the name is resolved, but the action is not
+executed. The actions are executed by the elaborator when converting `Syntax` into `Expr`.
 -/
 def resolveGlobalName (n : Name) : MacroM (List (Prod Name (List String))) := do
   (← getMethods).resolveGlobalName n

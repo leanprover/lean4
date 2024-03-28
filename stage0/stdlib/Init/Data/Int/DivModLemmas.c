@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int.DivModLemmas
-// Imports: Init.Data.Int.DivMod Init.Data.Int.Order Init.Data.Nat.Dvd Init.RCases
+// Imports: Init.Data.Int.DivMod Init.Data.Int.Order Init.Data.Nat.Dvd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -53,7 +53,6 @@ return x_4;
 lean_object* initialize_Init_Data_Int_DivMod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int_DivModLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -66,9 +65,6 @@ res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Dvd(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_RCases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_decidableDvd___closed__1 = _init_l_Int_decidableDvd___closed__1();

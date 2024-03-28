@@ -55,7 +55,7 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
 
 private def checkAnonymousScope : List Scope → Option Name
   | { header := "", .. } :: _ => none
-  | { header := h, .. }  :: _ => some h
+  | { header := h, .. }  :: _ => some <| .mkSimple h
   | _                         => some .anonymous -- should not happen
 
 private def checkEndHeader : Name → List Scope → Option Name
@@ -64,7 +64,7 @@ private def checkEndHeader : Name → List Scope → Option Name
     if h == s then
       (.str · s) <$> checkEndHeader p scopes
     else
-      some h
+      some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
@@ -536,7 +536,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
     -- show signature for `#check id`/`#check @id`
     if let `($id:ident) := term then
       try
-        for c in (← resolveGlobalConstWithInfos term) do
+        for c in (← realizeGlobalConstWithInfos term) do
           addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
           logInfoAt tk <| .ofPPFormat { pp := fun
             | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
@@ -760,7 +760,7 @@ def elabRunMeta : CommandElab := fun stx =>
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
-    let declName ← resolveGlobalConstNoOverloadWithInfo id
+    let declName ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo id
     unless ((← getEnv).getModuleIdxFor? declName).isNone do
       throwError "invalid 'add_decl_doc', declaration is in an imported module"
     if let .none ← findDeclarationRangesCore? declName then

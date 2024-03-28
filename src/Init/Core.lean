@@ -19,7 +19,7 @@ which applies to all applications of the function).
 -/
 @[simp] def inline {α : Sort u} (a : α) : α := a
 
-theorem id.def {α : Sort u} (a : α) : id a = a := rfl
+theorem id_def {α : Sort u} (a : α) : id a = a := rfl
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -165,6 +165,7 @@ whose first component is `a : α` and whose second component is `b : β a`
 It is sometimes known as the dependent sum type, since it is the type level version
 of an indexed summation.
 -/
+@[pp_using_anonymous_constructor]
 structure Sigma {α : Type u} (β : α → Type v) where
   /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : Sigma β`.
   (This will usually require a type ascription to determine `β`
@@ -190,6 +191,7 @@ which can cause problems for universe level unification,
 because the equation `max 1 u v = ?u + 1` has no solution in level arithmetic.
 `PSigma` is usually only used in automation that constructs pairs of arbitrary types.
 -/
+@[pp_using_anonymous_constructor]
 structure PSigma {α : Sort u} (β : α → Sort v) where
   /-- Constructor for a dependent pair. If `a : α` and `b : β a` then `⟨a, b⟩ : PSigma β`.
   (This will usually require a type ascription to determine `β`
@@ -737,13 +739,16 @@ theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a ==
 section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
+/-- Non-dependent recursor for `HEq` -/
+noncomputable def HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
   h.rec m
 
-theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
   h.rec m
 
-theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
+/-- `HEq.ndrec` variant -/
+noncomputable def HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
 theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
@@ -1591,7 +1596,7 @@ protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
 The analogue of `Quot.sound`: If `a` and `b` are related by the equivalence relation,
 then they have equal equivalence classes.
 -/
-def sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
+theorem sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
 /--

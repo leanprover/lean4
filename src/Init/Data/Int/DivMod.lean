@@ -160,6 +160,12 @@ instance : Mod Int where
 
 @[simp, norm_cast] theorem ofNat_ediv (m n : Nat) : (↑(m / n) : Int) = ↑m / ↑n := rfl
 
+theorem ofNat_div (m n : Nat) : ↑(m / n) = div ↑m ↑n := rfl
+
+theorem ofNat_fdiv : ∀ m n : Nat, ↑(m / n) = fdiv ↑m ↑n
+  | 0, _ => by simp [fdiv]
+  | succ _, _ => rfl
+
 /-!
 # `bmod` ("balanced" mod)
 

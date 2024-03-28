@@ -657,6 +657,27 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
   else
     mkAppM ``Iff.of_eq #[h]
 
+/--
+Given proofs of `P₁`, …, `Pₙ`, returns a proof of `P₁ ∧ … ∧ Pₙ`.
+If `n = 0` returns a proof of `True`.
+If `n = 1` returns the proof of `P₁`.
+-/
+def mkAndIntroN : Array Expr → MetaM Expr
+| #[] => return mkConst ``True.intro []
+| #[e] => return e
+| es => es.foldrM (start := es.size - 1) (fun a b => mkAppM ``And.intro #[a,b]) es.back
+
+
+/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ`, return the proof of `Pᵢ` -/
+def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
+  let mut value := e
+  for _ in [:i] do
+      value := mkProj ``And 1 value
+  if i + 1 < n then
+      value := mkProj ``And 0 value
+  return value
+
+
 builtin_initialize do
   registerTraceClass `Meta.appBuilder
   registerTraceClass `Meta.appBuilder.result (inherited := true)

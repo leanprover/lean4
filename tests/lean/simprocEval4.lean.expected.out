@@ -17,7 +17,7 @@ x : Nat
 x : Nat
 ⊢ foo x = 10
 x : Nat
-⊢ Int.natAbs (foo x) = 10
+⊢ (foo x).natAbs = 10
 x : Nat
 ⊢ boo x
 x : Nat

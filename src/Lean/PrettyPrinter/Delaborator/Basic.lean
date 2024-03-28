@@ -232,12 +232,21 @@ where
     stx := stx
   }
 
-def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) : DelabM Unit := do
+inductive OmissionReason
+  | deep
+  | proof
+
+def OmissionReason.toString : OmissionReason → String
+  | deep => "Term omitted due to its depth (see option `pp.deepTerms`)."
+  | proof => "Proof omitted (see option `pp.proofs`)."
+
+def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) (reason : OmissionReason) : DelabM Unit := do
   let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
   modify fun s => { s with infos := s.infos.insert pos info }
 where
   mkOmissionInfo stx e := return {
     toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
+    reason := reason.toString
   }
 
 /--
@@ -327,10 +336,10 @@ def withAnnotateTermInfo (d : Delab) : Delab := do
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the
 subterm omitted by `⋯` is delaborated when hovered over.
 -/
-def omission : Delab := do
+def omission (reason : OmissionReason) : Delab := do
   let stx ← `(⋯)
   let stx ← annotateCurPos stx
-  addOmissionInfo (← getPos) stx (← getExpr)
+  addOmissionInfo (← getPos) stx (← getExpr) reason
   pure stx
 
 partial def delabFor : Name → Delab
@@ -345,10 +354,10 @@ partial def delab : Delab := do
   let e ← getExpr
 
   if ← shouldOmitExpr e then
-    return ← omission
+    return ← omission .deep
 
   if ← shouldOmitProof e then
-    let pf ← omission
+    let pf ← omission .proof
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
       return ← annotateCurPos (← `(($pf : $stx)))
@@ -373,16 +382,17 @@ passed the result of pre-pretty printing the application *without* implicitly pa
 to true or `pp.notation` is set to false, it will not be called at all.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
 @[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 
 open SubExpr (Pos PosMap)
-open Delaborator (OptionsPerPos topDownAnalyze)
+open Delaborator (OptionsPerPos topDownAnalyze DelabM)
 
-def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Term × PosMap Elab.Info) := do
+def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
+  MetaM (α × PosMap Elab.Info) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
   let e ← Meta.erasePatternRefAnnotations e
@@ -414,7 +424,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do
-  let (stx, _) ← delabCore e optionsPerPos
+  let (stx, _) ← delabCore e optionsPerPos Delaborator.delab
   return stx
 
 builtin_initialize registerTraceClass `PrettyPrinter.delab

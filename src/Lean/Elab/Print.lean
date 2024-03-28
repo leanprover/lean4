@@ -80,7 +80,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
 
 private def printId (id : Syntax) : CommandElabM Unit := do
   addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
-  let cs ← resolveGlobalConstWithInfos id
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printIdCore
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
@@ -125,7 +125,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    let cs ← resolveGlobalConstWithInfos id
+    let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
 
@@ -140,7 +140,7 @@ private def printEqnsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printEqns»] def elabPrintEqns : CommandElab := fun stx => do
   let id := stx[2]
-  let cs ← resolveGlobalConstWithInfos id
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printEqnsOf
 
 end Lean.Elab.Command

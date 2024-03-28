@@ -31,10 +31,10 @@ decreasing_by
 end
 
 #eval tst ``g
-#check g._eq_1
-#check g._eq_2
-#check g._unfold
+#check g.eq_1
+#check g.eq_2
+#check g.eq_def
 #eval tst ``h
-#check h._eq_1
-#check h._eq_2
-#check h._unfold
+#check h.eq_1
+#check h.eq_2
+#check h.eq_def

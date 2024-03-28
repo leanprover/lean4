@@ -114,7 +114,7 @@ def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
-def «def»            := leading_parser
+def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
@@ -198,7 +198,7 @@ def «structure»          := leading_parser
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
-  («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
+  («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
@@ -280,17 +280,6 @@ def initializeKeyword := leading_parser
 
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident
-
-/--
-`derive_functional_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
-will define a theorem `foo.induct` which provides an induction principle that follows the branching
-and recursion pattern of `foo`.
-
-If `foo` is part of a mutual recursion group, this defines such `.induct`-theorems for all functions
-in the group.
--/
-@[builtin_command_parser] def deriveInduction := leading_parser
-  "derive_functional_induction " >> Parser.ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

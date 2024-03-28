@@ -28,11 +28,11 @@ LEAN_EXPORT lean_object* l_Option_instForIn_x27OptionInferInstanceMembershipInst
 LEAN_EXPORT lean_object* l_Option_pbind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_decidable__eq__none___rarg___boxed(lean_object*);
+lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForIn_x27OptionInferInstanceMembershipInstMembershipOption(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForIn_x27OptionInferInstanceMembershipInstMembershipOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pmap(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instForMOption___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pmap___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_pbind___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_instMembershipOption(lean_object* x_1) {
@@ -49,7 +49,7 @@ _start:
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_2);
-x_5 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____at_Option_instDecidableEqOption___spec__1___rarg(x_1, x_3, x_4);
+x_5 = l___private_Init_Data_Option_Basic_0__Option_decEqOption____x40_Init_Data_Option_Basic___hyg_4____rarg(x_1, x_3, x_4);
 return x_5;
 }
 }

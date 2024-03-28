@@ -106,7 +106,7 @@ def norm [info : ContextInformation α] (ctx : α) (e : Expr) : List Nat :=
   let xs := if info.isComm ctx then sort xs else xs
   if info.isIdem ctx then mergeIdem xs else xs
 
-theorem List.two_step_induction
+noncomputable def List.two_step_induction
   {motive : List Nat → Sort u}
   (l : List Nat)
   (empty : motive [])

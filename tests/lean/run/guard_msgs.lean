@@ -1,3 +1,5 @@
+import Lean.Elab.Command
+
 #guard_msgs in
 /-- error: unknown identifier 'x' -/
 #guard_msgs in
@@ -49,3 +51,47 @@ error: failed to synthesize instance
 -/
 #guard_msgs(error) in
 example : α := 22
+
+-- Trailing whitespace
+
+/--
+info: foo ⏎
+bar
+---
+error: ❌ Docstring on `#guard_msgs` does not match generated message:
+
+info: foo ⏎
+bar
+-/
+#guard_msgs in
+#guard_msgs in
+run_meta Lean.logInfo "foo \nbar"
+
+#guard_msgs in
+/--
+info: foo ⏎
+bar
+-/
+#guard_msgs in
+run_meta Lean.logInfo "foo \nbar"
+
+/--
+info: foo ⏎⏎
+bar
+---
+error: ❌ Docstring on `#guard_msgs` does not match generated message:
+
+info: foo ⏎⏎
+bar
+-/
+#guard_msgs in
+#guard_msgs in
+run_meta Lean.logInfo "foo ⏎\nbar"
+
+#guard_msgs in
+/--
+info: foo ⏎⏎
+bar
+-/
+#guard_msgs in
+run_meta Lean.logInfo "foo ⏎\nbar"

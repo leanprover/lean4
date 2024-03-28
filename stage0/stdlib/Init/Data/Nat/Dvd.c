@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Dvd
-// Imports: Init.Data.Nat.Div Init.TacticsExtra
+// Imports: Init.Data.Nat.Div Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,17 +15,8 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Nat_decidable__dvd___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instDvdNat;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-static lean_object* _init_l_Nat_instDvdNat() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
 LEAN_EXPORT uint8_t l_Nat_decidable__dvd(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -49,7 +40,7 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat_Dvd(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -58,11 +49,9 @@ _G_initialized = true;
 res = initialize_Init_Data_Nat_Div(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
+res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_instDvdNat = _init_l_Nat_instDvdNat();
-lean_mark_persistent(l_Nat_instDvdNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

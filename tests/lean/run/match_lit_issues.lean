@@ -4,8 +4,8 @@
   | _,  0  => b+1
   | _, a+1 => f1 (i-1) a (b*2)
 
-#check f1._eq_1
-#check f1._eq_2
+#check f1.eq_1
+#check f1.eq_2
 
 example : f1 (-1) a b = b := by simp -- should work
 example : f1 (-2) 0 b = b+1 := by simp
@@ -29,8 +29,8 @@ example (h : c ≠ 'a') : f2 c (a+1) b = f2 c a (b*2) := by simp
   | _,  0  => b+1
   | _, a+1 => f3 (i+1) a (b*2)
 
-#check f3._eq_1
-#check f3._eq_2
+#check f3.eq_1
+#check f3.eq_2
 
 example : f3 2 a b = b   := by simp -- should work
 example : f3 3 0 b = b+1 := by simp
@@ -43,8 +43,8 @@ example (h : i ≠ 2) : f3 i (a+1) b = f3 (i+1) a (b*2) := by simp; done -- shou
   | _,  0  => b+1
   | _, a+1 => f4 (i+1) a (b*2)
 
-#check f4._eq_1
-#check f4._eq_2
+#check f4.eq_1
+#check f4.eq_2
 
 example : f4 2 a b = b   := by simp -- should work
 example : f4 3 0 b = b+1 := by simp
@@ -57,8 +57,8 @@ example (h : i ≠ 2) : f4 i (a+1) b = f4 (i+1) a (b*2) := by simp -- should wor
   | _,  0  => b+1
   | _, a+1 => f5 (i+1) a (b*2)
 
-#check f5._eq_1
-#check f5._eq_2
+#check f5.eq_1
+#check f5.eq_2
 
 open BitVec
 
@@ -76,8 +76,8 @@ example (h : i ≠ 2#8) : f5 i (a+1) b = f5 (i+1) a (b*2) := by simp -- should w
   | _,  0  => b+1
   | _, a+1 => f6 (i+1) a (b*2)
 
-#check f6._eq_1
-#check f6._eq_2
+#check f6.eq_1
+#check f6.eq_2
 
 example : f6 2#8 a b = b   := by simp -- should work
 example : f6 2#8 a b = b   := by simp -- should work

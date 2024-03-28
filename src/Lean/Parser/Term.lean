@@ -97,55 +97,6 @@ end Tactic
 def darrow : Parser := " => "
 def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
 
-namespace Termination
-
-/-
-Termination suffix parsers, typically thought of as part of a command, but due to
-letrec we need them here already.
--/
-
-/--
-Specify a termination argument for well-founded termination:
-```
-termination_by a - b
-```
-indicates that termination of the currently defined recursive function follows
-because the difference between the the arguments `a` and `b`.
-
-If the fuction takes further argument after the colon, you can name them as follows:
-```
-def example (a : Nat) : Nat → Nat → Nat :=
-termination_by b c => a - b
-```
-
-If omitted, a termination argument will be inferred. If written as `termination_by?`,
-the inferrred termination argument will be suggested.
--/
-def terminationBy := leading_parser
-  "termination_by " >>
-  optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
-  termParser
-
-@[inherit_doc terminationBy]
-def terminationBy? := leading_parser
-  "termination_by?"
-
-/--
-Manually prove that the termination argument (as specified with `termination_by` or inferred)
-decreases at each recursive call.
-
-By default, the tactic `decreasing_tactic` is used.
--/
-def decreasingBy := leading_parser
-  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
-
-/--
-Termination hints are `termination_by` and `decreasing_by`, in that order.
--/
-def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
-
-end Termination
 
 namespace Term
 
@@ -196,9 +147,12 @@ This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
 /--
-Denotes a term that was omitted by the pretty printer.
-This is only meant to be used for pretty printing, however for copy/paste friendliness it elaborates like `_` while logging a warning.
-The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options.
+The `⋯` term denotes a term that was omitted by the pretty printer.
+The presence of `⋯` in pretty printer output is controlled by the `pp.deepTerms` and `pp.proofs` options,
+and these options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`.
+
+It is only meant to be used for pretty printing.
+However, in case it is copied and pasted from the Infoview, `⋯` logs a warning and elaborates like `_`.
 -/
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
@@ -596,6 +550,59 @@ def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 
 def attributes       := leading_parser
   "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "] "
+
+end Term
+namespace Termination
+
+/-
+Termination suffix parsers, typically thought of as part of a command, but due to
+letrec we need them here already.
+-/
+
+/--
+Specify a termination argument for well-founded termination:
+```
+termination_by a - b
+```
+indicates that termination of the currently defined recursive function follows
+because the difference between the the arguments `a` and `b`.
+
+If the fuction takes further argument after the colon, you can name them as follows:
+```
+def example (a : Nat) : Nat → Nat → Nat :=
+termination_by b c => a - b
+```
+
+If omitted, a termination argument will be inferred. If written as `termination_by?`,
+the inferrred termination argument will be suggested.
+-/
+def terminationBy := leading_parser
+  "termination_by " >>
+  optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
+  termParser
+
+@[inherit_doc terminationBy]
+def terminationBy? := leading_parser
+  "termination_by?"
+
+/--
+Manually prove that the termination argument (as specified with `termination_by` or inferred)
+decreases at each recursive call.
+
+By default, the tactic `decreasing_tactic` is used.
+-/
+def decreasingBy := leading_parser
+  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
+
+/--
+Termination hints are `termination_by` and `decreasing_by`, in that order.
+-/
+def suffix := leading_parser
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
+
+end Termination
+namespace Term
+
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
 def letRecDecl       := leading_parser

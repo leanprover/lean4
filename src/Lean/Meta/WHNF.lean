@@ -221,7 +221,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
 -- ===========================
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩
@@ -605,7 +605,7 @@ where
             matchConstAux f' (fun _ => return e) fun cinfo lvls =>
               match cinfo with
               | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | .quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) go
               | c@(.defnInfo _) => do
                 if (← isAuxDef c.name) then
                   deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
@@ -825,7 +825,7 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
-      | .quotInfo «rec» => reduceQuotRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
+      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then
           deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
@@ -936,21 +936,22 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    checkSystem "whnf"
     let useCache ← useWHNFCache e
     match (← cached? useCache e) with
     | some e' => pure e'
     | none    =>
-      let e' ← whnfCore e
-      match (← reduceNat? e') with
-      | some v => cache useCache e v
-      | none   =>
-        match (← reduceNative? e') with
+      withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do
+        checkSystem "whnf"
+        let e' ← whnfCore e
+        match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← unfoldDefinition? e') with
-          | some e'' => cache useCache e (← whnfImp e'')
-          | none => cache useCache e e'
+          match (← reduceNative? e') with
+          | some v => cache useCache e v
+          | none   =>
+            match (← unfoldDefinition? e') with
+            | some e'' => cache useCache e (← whnfImp e'')
+            | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

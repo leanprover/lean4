@@ -52,7 +52,7 @@ instance : LE Range := leOfOrd
 structure Location where
   uri : DocumentUri
   range : Range
-  deriving Inhabited, BEq, ToJson, FromJson
+  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 structure LocationLink where
   originSelectionRange? : Option Range

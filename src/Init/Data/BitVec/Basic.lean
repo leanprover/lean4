@@ -73,6 +73,9 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
+@[deprecated isLt]
+theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
+
 /-- Theorem for normalizing the bit vector literal representation. -/
 -- TODO: This needs more usage data to assess which direction the simp should go.
 @[simp, bv_toNat] theorem ofNat_eq_ofNat : @OfNat.ofNat (BitVec n) i _ = .ofNat n i := rfl
@@ -614,5 +617,15 @@ section normalization_eqs
 @[simp] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
 @[simp] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
 end normalization_eqs
+
+/-- Converts a list of `Bool`s to a big-endian `BitVec`. -/
+def ofBoolListBE : (bs : List Bool) → BitVec bs.length
+| [] => 0#0
+| b :: bs => cons b (ofBoolListBE bs)
+
+/-- Converts a list of `Bool`s to a little-endian `BitVec`. -/
+def ofBoolListLE : (bs : List Bool) → BitVec bs.length
+| [] => 0#0
+| b :: bs => concat (ofBoolListLE bs) b
 
 end BitVec

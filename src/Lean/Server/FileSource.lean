@@ -37,6 +37,9 @@ instance : FileSource DidOpenTextDocumentParams :=
 instance : FileSource DidChangeTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance : FileSource DidSaveTextDocumentParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 instance : FileSource DidCloseTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 

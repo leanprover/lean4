@@ -992,7 +992,6 @@ x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_Array_feraseIdx___rarg(x_1, x_5);
-lean_dec(x_5);
 return x_6;
 }
 }

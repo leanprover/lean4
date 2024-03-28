@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Compiler.FFI
 import Lake.Config.Module
 
 namespace Lake
@@ -67,15 +68,24 @@ The file name of binary executable
 @[inline] def file (self : LeanExe) : FilePath :=
   self.pkg.binDir / self.fileName
 
+/-- The executable's `supportInterpreter` configuration. -/
+@[inline] def supportInterpreter (self : LeanExe) : Bool :=
+  self.config.supportInterpreter
+
 /--
 The arguments to pass to `leanc` when linking the binary executable.
+By default, the package's plus the executable's `moreLinkArgs`.
 
-That is, `-rdynamic` (if non-Windows and `supportInterpreter`) plus the
-package's and then the executable's `moreLinkArgs`.
+If `supportInterpreter := true`, Lake links directly to the Lean shared
+libraries on Windows by prepending `-leanshared` and adds `-rdynamic` on
+other systems.
 -/
 def linkArgs (self : LeanExe) : Array String :=
-  if self.config.supportInterpreter && !Platform.isWindows then
-    #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+  if self.config.supportInterpreter then
+    if Platform.isWindows then
+      #["-leanshared"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+    else
+      #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   else
     self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 

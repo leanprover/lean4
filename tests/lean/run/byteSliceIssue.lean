@@ -42,4 +42,4 @@ def forIn.loop [Monad m] (f : UInt8 → β → m (ForInStep β))
 termination_by _end - i
 
 attribute [simp] ByteSlice.forIn.loop
-#check @ByteSlice.forIn.loop._eq_1
+#check @ByteSlice.forIn.loop.eq_1

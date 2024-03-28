@@ -21,7 +21,7 @@ noncomputable section
 #guard_msgs in
 example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 
-/-- info: Try this: exact Nat.zero_lt_succ 1 -/
+/-- info: Try this: exact Nat.lt_of_sub_eq_succ rfl -/
 #guard_msgs in
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 
@@ -37,7 +37,7 @@ example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 
 /-- info: Try this: exact Nat.mul_dvd_mul_left a w -/
 #guard_msgs in
-example (ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
+example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 
 /-- info: Try this: Nat.lt.base x -/
 #guard_msgs in
@@ -83,11 +83,11 @@ example (n m k : Nat) : n * m - n * k = n * (m - k) := by
 #guard_msgs in
 example {α : Type} (x y : α) : x = y ↔ y = x := by apply?
 
-/-- info: Try this: exact Nat.add_pos_left ha b -/
+/-- info: Try this: exact Nat.lt_add_right b ha -/
 #guard_msgs in
 example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 
-/-- info: Try this: exact Nat.add_pos_left ha b -/
+/-- info: Try this: exact Nat.lt_add_right b ha -/
 #guard_msgs in
 -- Verify that if maxHeartbeats is 0 we don't stop immediately.
 set_option maxHeartbeats 0 in
@@ -95,7 +95,7 @@ example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 
 section synonym
 
-/-- info: Try this: exact Nat.add_pos_left ha b -/
+/-- info: Try this: exact Nat.lt_add_right b ha -/
 #guard_msgs in
 example (a b : Nat) (ha : a > 0) (_hb : 0 < b) : 0 < a + b := by apply?
 
@@ -165,7 +165,7 @@ axiom F (a b : Nat) : f a ≤ f b ↔ a ≤ b
 #guard_msgs in
 example (a b : Nat) (h : a ≤ b) : f a ≤ f b := by apply?
 
-/-- info: Try this: exact List.join L -/
+/-- info: Try this: exact L.join -/
 #guard_msgs in
 example (L : List (List Nat)) : List Nat := by apply? using L
 

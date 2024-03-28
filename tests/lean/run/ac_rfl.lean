@@ -12,7 +12,7 @@ instance : LawfulCommIdentity HMul.hMul 1 where right_id := Nat.mul_one
   ⟨Nat.le_of_succ_le_succ, Nat.succ_le_succ⟩
 
 @[simp] theorem add_le_add_right_iff {x y z : Nat} : x + z ≤ y + z ↔ x ≤ y := by
-  induction z <;> simp_all [Nat.add_succ]
+  induction z <;> simp_all [← Nat.add_assoc]
 
 set_option linter.unusedVariables false in
 theorem le_ext : ∀ {x y : Nat} (h : ∀ z, z ≤ x ↔ z ≤ y), x = y

@@ -5,6 +5,7 @@ Authors: Scott Morrison
 -/
 prelude
 import Init.Omega.Coeffs
+import Init.Data.ToString.Macro
 
 /-!
 # Linear combinations

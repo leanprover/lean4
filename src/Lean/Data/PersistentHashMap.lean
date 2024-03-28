@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.BasicAux
+import Init.Data.ToString.Macro
 
 namespace Lean
 universe u v w w'
@@ -226,8 +227,10 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
   | n@(Node.collision keys vals heq), _, k =>
     match keys.indexOf? k with
     | some idx =>
-      let ⟨keys', keq⟩ := keys.eraseIdx' idx
-      let ⟨vals', veq⟩ := vals.eraseIdx' (Eq.ndrec idx heq)
+      let keys' := keys.feraseIdx idx
+      have keq := keys.size_feraseIdx idx
+      let vals' := vals.feraseIdx (Eq.ndrec idx heq)
+      have veq := vals.size_feraseIdx (Eq.ndrec idx heq)
       have : keys.size - 1 = vals.size - 1 := by rw [heq]
       (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
     | none     => (n, false)

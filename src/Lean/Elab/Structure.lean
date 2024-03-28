@@ -302,7 +302,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let args := e.getAppArgs
           if let some major := args.get? numParams then
             if (← getNestedProjectionArg major) == parent then
-              if let some existingFieldInfo := findFieldInfo? infos subFieldName then
+              if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
@@ -892,7 +892,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
-  let derivingClassViews ← getOptDerivingClasses stx[6]
+  let derivingClassViews ← liftCoreM <| getOptDerivingClasses stx[6]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let declName ←
     runTermElabM fun scopeVars => do

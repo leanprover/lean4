@@ -49,10 +49,10 @@ decreasing_by
 attribute [simp] robinson
 
 set_option pp.proofs true
-#check robinson._eq_1
-#check robinson._eq_2
-#check robinson._eq_3
-#check robinson._eq_4
+#check robinson.eq_1
+#check robinson.eq_2
+#check robinson.eq_3
+#check robinson.eq_4
 
 theorem ex : (robinson (Term.Var 0) (Term.Var 0)).1 = some id := by
   unfold robinson

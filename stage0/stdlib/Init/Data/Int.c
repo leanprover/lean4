@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Int
-// Imports: Init.Data.Int.Basic Init.Data.Int.Bitwise Init.Data.Int.DivMod Init.Data.Int.DivModLemmas Init.Data.Int.Gcd Init.Data.Int.Lemmas Init.Data.Int.Order
+// Imports: Init.Data.Int.Basic Init.Data.Int.Bitwise Init.Data.Int.DivMod Init.Data.Int.DivModLemmas Init.Data.Int.Gcd Init.Data.Int.Lemmas Init.Data.Int.Order Init.Data.Int.Pow
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* initialize_Init_Data_Int_DivModLemmas(uint8_t builtin, lean_object*
 lean_object* initialize_Init_Data_Int_Gcd(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Order(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Int(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -44,6 +45,9 @@ res = initialize_Init_Data_Int_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Int_Order(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Int_Pow(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

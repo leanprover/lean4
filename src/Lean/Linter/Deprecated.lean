@@ -23,7 +23,7 @@ builtin_initialize deprecatedAttr : ParametricAttribute (Option Name) ←
      match stx with
      | `(attr| deprecated $[$id?]?) =>
        let some id := id? | return none
-       let declNameNew ← Elab.resolveGlobalConstNoOverloadWithInfo id
+       let declNameNew ← Elab.realizeGlobalConstNoOverloadWithInfo id
        return some declNameNew
      | _  => throwError "invalid `[deprecated]` attribute"
   }

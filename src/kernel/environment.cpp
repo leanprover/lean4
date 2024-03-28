@@ -178,6 +178,8 @@ environment environment::add_theorem(declaration const & d, bool check) const {
     if (check) {
         // TODO(Leo): we must add support for handling tasks here
         type_checker checker(*this);
+        if (!checker.is_prop(v.get_type()))
+            throw theorem_type_is_not_prop(*this, v.get_name(), v.get_type());
         check_constant_val(*this, v.to_constant_val(), checker);
         check_no_metavar_no_fvar(*this, v.get_name(), v.get_value());
         expr val_type = checker.check(v.get_value(), v.get_lparams());

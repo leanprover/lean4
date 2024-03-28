@@ -44,7 +44,7 @@ lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta___closed__1;
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__19(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalDelta(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalDelta_declRange___closed__5;
@@ -59,13 +59,7 @@ _start:
 lean_object* x_13; 
 lean_inc(x_11);
 lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-x_13 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__19(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_13 = l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalDelta___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 

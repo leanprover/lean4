@@ -47,7 +47,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_hasDuplicateAntiquot(lean_object*);
 static lean_object* l_Lean_Elab_Command_mkUnexpander___lambda__1___closed__55;
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Command_hasDuplicateAntiquot___spec__1___closed__4;
 lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Elab_Command_expandNotationItemIntoSyntaxItem___lambda__1___closed__2;
@@ -433,26 +433,25 @@ return x_2;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_inc(x_2);
 x_19 = lean_alloc_closure((void*)(l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___lambda__1___boxed), 2, 1);
 lean_closure_set(x_19, 0, x_2);
-x_20 = lean_array_get_size(x_1);
-x_21 = lean_unsigned_to_nat(0u);
-x_22 = l_Array_findIdx_x3f_loop___rarg(x_1, x_19, x_20, x_21, lean_box(0));
-if (lean_obj_tag(x_22) == 0)
+x_20 = lean_unsigned_to_nat(0u);
+x_21 = l_Array_findIdx_x3f_loop___rarg(x_1, x_19, x_20);
+if (lean_obj_tag(x_21) == 0)
 {
 return x_2;
 }
 else
 {
-lean_object* x_23; lean_object* x_24; uint8_t x_25; lean_object* x_26; 
-lean_dec(x_22);
-x_23 = lean_box(0);
-x_24 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___closed__4;
-x_25 = 1;
-x_26 = l_Lean_Syntax_mkAntiquotNode(x_24, x_2, x_21, x_23, x_25);
-return x_26;
+lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; 
+lean_dec(x_21);
+x_22 = lean_box(0);
+x_23 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___closed__4;
+x_24 = 1;
+x_25 = l_Lean_Syntax_mkAntiquotNode(x_23, x_2, x_20, x_22, x_24);
+return x_25;
 }
 }
 }

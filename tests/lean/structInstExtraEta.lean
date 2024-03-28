@@ -4,6 +4,8 @@
 Implemented in PR #2478 for issue #2451.
 -/
 
+set_option pp.structureInstances.flatten false
+
 structure A where
   x : Nat
 

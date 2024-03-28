@@ -65,7 +65,7 @@ rec {
     installPhase = ''
       mkdir -p $out/bin $out/lib/lean
       mv bin/lean $out/bin/
-      mv lib/lean/*.so $out/lib/lean
+      mv lib/lean/*.{so,dylib} $out/lib/lean
     '';
     meta.mainProgram = "lean";
   });
@@ -170,10 +170,11 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
-          touch $out
+          mkdir $out
+          mv test-results.xml $out
         '';
       };
       update-stage0 =

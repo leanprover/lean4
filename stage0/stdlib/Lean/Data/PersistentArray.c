@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentArray
-// Imports: Init.Data.Array.Basic Init.NotationExtra
+// Imports: Init.Data.Array.Basic Init.NotationExtra Init.Data.ToString.Macro
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13806,6 +13806,7 @@ return x_2;
 }
 lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_PersistentArray(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -13815,6 +13816,9 @@ res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_NotationExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedPersistentArrayNode___closed__1 = _init_l_Lean_instInhabitedPersistentArrayNode___closed__1();

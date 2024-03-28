@@ -659,10 +659,10 @@ private def tacticCompletion (params : CompletionParams) (ctx : ContextInfo) : I
     return some { items := sortCompletionItems items, isIncomplete := true }
 
 private def findCompletionInfoAt?
-  (fileMap  : FileMap)
-  (hoverPos : String.Pos)
-  (infoTree : InfoTree)
-  : Option (HoverInfo × ContextInfo × CompletionInfo) :=
+    (fileMap  : FileMap)
+    (hoverPos : String.Pos)
+    (infoTree : InfoTree)
+    : Option (HoverInfo × ContextInfo × CompletionInfo) :=
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
@@ -677,7 +677,8 @@ where
       (info      : Info)
       (best?     : Option (HoverInfo × ContextInfo × Info))
       : Option (HoverInfo × ContextInfo × Info) :=
-    if !info.isCompletion then best?
+    if !info.isCompletion then
+      best?
     else if info.occursInside? hoverPos |>.isSome then
       let headPos          := info.pos?.get!
       let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
@@ -695,15 +696,14 @@ where
     else if let some (HoverInfo.inside _, _, _) := best? then
       -- We assume the "inside matches" have precedence over "before ones".
       best?
-    else if let some d := info.occursBefore? hoverPos then
+    else if info.occursDirectlyBefore hoverPos then
       let pos := info.tailPos?.get!
       let ⟨line, _⟩ := fileMap.toPosition pos
       if line != hoverLine then best?
       else match best? with
         | none => (HoverInfo.after, ctx, info)
         | some (_, _, best) =>
-          let dBest := best.occursBefore? hoverPos |>.get!
-          if d < dBest || (d == dBest && info.isSmaller best) then
+          if info.isSmaller best then
             (HoverInfo.after, ctx, info)
           else
             best?

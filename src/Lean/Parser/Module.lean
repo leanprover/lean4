@@ -12,11 +12,7 @@ namespace Parser
 
 namespace Module
 def «prelude»  := leading_parser "prelude"
--- `optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)`
--- can never fully succeed but ensures that `import (runtime)? <ident>.`
--- produces a partial syntax that contains the dot.
--- The partial syntax is useful for import dot-auto-completion.
-def «import»   := leading_parser "import " >> optional "runtime" >> ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
+def «import»   := leading_parser "import " >> optional "runtime" >> identWithPartialTrailingDot
 def header     := leading_parser optional («prelude» >> ppLine) >> many («import» >> ppLine) >> ppLine
 /--
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that

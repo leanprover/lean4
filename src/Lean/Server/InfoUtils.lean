@@ -166,10 +166,10 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
-  let tailPos ← i.tailPos?
-  guard (tailPos ≤ hoverPos)
-  return hoverPos - tailPos
+def Info.occursDirectlyBefore (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
+  let some tailPos := i.tailPos?
+    | return false
+  return tailPos == hoverPos
 
 def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let headPos ← i.pos?

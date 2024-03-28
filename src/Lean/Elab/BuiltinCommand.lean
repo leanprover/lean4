@@ -749,7 +749,7 @@ def elabRunMeta : CommandElab := fun stx =>
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
+  let options ← Elab.elabSetOption stx[1] stx[3]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 

@@ -12952,7 +12952,7 @@ x_12 = lean_ctor_get(x_9, 5);
 lean_inc(x_12);
 x_13 = l_Lean_Syntax_getArgs(x_12);
 x_14 = lean_unsigned_to_nat(0u);
-x_15 = lean_unsigned_to_nat(2u);
+x_15 = lean_unsigned_to_nat(3u);
 x_16 = l_Array_toSubarray___rarg(x_13, x_14, x_15);
 x_17 = l_Array_ofSubarray___rarg(x_16);
 lean_inc(x_12);
@@ -13201,7 +13201,7 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_unsigned_to_nat(1u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
-x_13 = lean_unsigned_to_nat(2u);
+x_13 = lean_unsigned_to_nat(3u);
 x_14 = l_Lean_Syntax_getArg(x_1, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -13220,7 +13220,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = lean_unsigned_to_nat(4u);
+x_18 = lean_unsigned_to_nat(5u);
 x_19 = l_Lean_Syntax_getArg(x_1, x_18);
 x_20 = !lean_is_exclusive(x_8);
 if (x_20 == 0)

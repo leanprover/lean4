@@ -312,9 +312,9 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
+  let options ← Elab.elabSetOption stx[1] stx[3]
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
-    elabTerm stx[4] expectedType?
+    elabTerm stx[5] expectedType?
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with

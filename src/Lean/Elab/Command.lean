@@ -535,7 +535,7 @@ first evaluates any local `set_option ... in ...` clauses and then invokes `cmd`
 partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&
      stx[0].getKind == ``Lean.Parser.Command.set_option then
-      let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
+      let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
       Command.withScope (fun scope => { scope with opts }) do
         withSetOptionIn cmd stx[1]
   else

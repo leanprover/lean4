@@ -26360,7 +26360,7 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = l_Lean_Syntax_getArg(x_1, x_5);
-x_7 = lean_unsigned_to_nat(2u);
+x_7 = lean_unsigned_to_nat(3u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
 lean_inc(x_3);
 lean_inc(x_2);

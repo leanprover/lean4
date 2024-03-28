@@ -33,6 +33,7 @@ static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__14;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__11;
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_String_removeLeadingSpaces(lean_object*);
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__4;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__47;
@@ -48,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lean_mkLabelAttr___lambda__1___boxed(lean_object*, le
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__7;
 static lean_object* l_Lean_Parser_Command_registerLabelAttr___closed__11;
-lean_object* l_Lean_removeLeadingSpaces(lean_object*);
 static lean_object* l_Lean___aux__Lean__LabelAttribute______macroRules__Lean____root____Lean__Parser__Command__registerLabelAttr__1___closed__42;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto____x40_Lean_LabelAttribute___hyg_52____closed__27;
@@ -2512,7 +2512,7 @@ goto block_142;
 block_142:
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; 
-x_22 = l_Lean_removeLeadingSpaces(x_21);
+x_22 = l_String_removeLeadingSpaces(x_21);
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkStrLit(x_22, x_23);
 lean_dec(x_22);

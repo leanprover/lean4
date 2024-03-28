@@ -463,14 +463,14 @@ struct Profiler {
       << "," << name << ", " << val << "\n";
   }
   void write_profiling_times(std::string src_path, std::string out_path, std::ostream &o) {
-    if (research_isResearchLogVerbose()) {
-      std::cerr << "writing profiling information "
-                << "[reuseEnabled=" << (isReuseEnabled() ? "true" : "false")
-                << "]"
-                << " of '" << src_path << "'"
-                << " to file '" << out_path << "'"
-                << "\n";
-    }
+    // if (research_isResearchLogVerbose()) {
+    //   std::cerr << "writing profiling information "
+    //             << "[reuseEnabled=" << (isReuseEnabled() ? "true" : "false")
+    //             << "]"
+    //             << " of '" << src_path << "'"
+    //             << " to file '" << out_path << "'"
+    //             << "\n";
+    // }
     const auto time_end = std::chrono::high_resolution_clock::now();
     const auto time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count();
 
@@ -822,15 +822,15 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         display_cumulative_profiling_times(std::cerr);
 
 
-        std::string profiling_path = getEnvVarString("RESEARCH_LEAN_COMPILER_PROFILE_CSV_PATH");
+        const std::string profiling_path = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
         if (profiling_path == "") {
-          std::cerr << "WARN: RESEARCH_LEAN_COMPILER_PROFILE_CSV_PATH is empty";
+          std::cerr << "WARN: '" << profiling_path << "' is empty";
         }
 
         if (profiling_path == "-") {
 	        profiler.write_profiling_times(mod_fn, profiling_path, std::cerr);
         } else {
-          std::ofstream profiler_out_file(profiling_path);
+          std::ofstream profiler_out_file(profiling_path, std::ios::app);
 	        profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file);
         }
 #ifdef LEAN_SMALL_ALLOCATOR

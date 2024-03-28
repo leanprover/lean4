@@ -1,4 +1,5 @@
 #include "runtime/research.h"
+#include "lean/config.h"
 
 #include <assert.h>
 
@@ -12,6 +13,13 @@
 #include "runtime/memory.h"
 #include "util/io.h"
 #include "runtime/optional.h"
+
+
+extern "C" {
+  uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *) {
+     return LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED;
+  }
+}
 
 // returns if we enable verbose logging.
 bool research_isResearchLogVerbose() {
@@ -27,7 +35,7 @@ bool research_isResearchLogVerbose() {
       throw lean::throwable("expected environment variable to be 'true/false' for 'RESEARCH_LOG_VERBOSE', found '"+ var + "'");
     }
     return var == "true" || var == "TRUE" || var == "1";
-  }
+  };
 }
 
 bool getEnvVarBool(const char *name) {
@@ -64,14 +72,6 @@ std::string getEnvVarString(const char *name) {
 }
 
 extern "C" {
-uint8_t research_isReuseAcrossConstructorsEnabled(lean_object *) {
-  return getEnvVarBool("RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED");
-}
-
-}  // end extern "C"
-   //
-
-extern "C" {
 // dump allocator info into logfile.
 // TODO: rename into research_runtime_dump_allocator_log_at_end_of_run();
 void research_dump_allocator_log() {
@@ -91,10 +91,6 @@ void research_dump_allocator_log() {
   }
 
   assert(o);
-
-  if (research_isResearchLogVerbose()) {
-    std::cerr << "writing profiling information " << " to file '" << out_path << "'" << "\n";
-  }
 
   (*o << "rss, " << lean::get_peak_rss()) << "\n";
   (*o << "num_alloc, " << lean::allocator::get_num_alloc()) << "\n";

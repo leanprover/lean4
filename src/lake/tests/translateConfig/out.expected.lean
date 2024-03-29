@@ -11,6 +11,6 @@ require foo from "-" with Lake.NameMap.empty |>.insert `foo "bar"
 
 require bar from git "https://example.com"@"abc"/"sub/dir"
 
-lean_lib A
+@[default_target] lean_lib A
 
-@[default_target] lean_exe b
+@[test_runner] lean_exe b

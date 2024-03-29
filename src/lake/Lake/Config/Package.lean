@@ -203,6 +203,8 @@ structure Package where
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
   postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
+  /-- Name of the package's test runner script or executable (if any). -/
+  testRunner : Name := .anonymous
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance

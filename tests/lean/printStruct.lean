@@ -17,6 +17,11 @@
 /- Multiply extended class -/
 #print Applicative
 
+/- Structure with unused parameter -/
+structure Weird (α β : Type _) where
+  a : α
+#print Weird
+
 /- Structure-like inductive -/
 inductive Fake (α : Type _) where
   | mk : (x : α) → Fake α

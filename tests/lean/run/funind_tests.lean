@@ -13,7 +13,7 @@ info: Unary.ackermann.induct (motive : Nat × Nat → Prop) (case1 : ∀ (m : Na
   ∀ (a : Nat × Nat), motive a
 -/
 #guard_msgs in
-#check Unary.ackermann.induct
+#check ackermann.induct
 
 end Unary
 
@@ -32,7 +32,7 @@ info: Binary.ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : 
   ∀ (a a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
-#check Binary.ackermann.induct
+#check ackermann.induct
 
 end Binary
 
@@ -370,7 +370,7 @@ info: UnusedExtraParams.unary.induct (base : Nat) (motive : Nat → Prop) (case1
   (case2 : ∀ (n : Nat), motive n → motive n.succ) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check UnusedExtraParams.unary.induct
+#check unary.induct
 
 def binary (base : Nat) : Nat → Nat → Nat
   | 0, m => base + m
@@ -382,7 +382,7 @@ info: UnusedExtraParams.binary.induct (base : Nat) (motive : Nat → Nat → Pro
   (case2 : ∀ (n m : Nat), motive n m → motive n.succ m) : ∀ (a a_1 : Nat), motive a a_1
 -/
 #guard_msgs in
-#check UnusedExtraParams.binary.induct
+#check binary.induct
 
 end UnusedExtraParams
 
@@ -419,11 +419,11 @@ info: NonTailrecMatch.match_non_tail.induct (motive : Nat → Prop)
   (n : Nat) : motive n
 -/
 #guard_msgs in
-#check NonTailrecMatch.match_non_tail.induct
+#check match_non_tail.induct
 
 
 theorem match_non_tail_eq_true (n : Nat) : match_non_tail n = true := by
-  induction n using NonTailrecMatch.match_non_tail.induct
+  induction n using match_non_tail.induct
   case case1 n IH =>
     unfold match_non_tail
     split <;> dsimp at IH <;> simp [IH]
@@ -444,7 +444,9 @@ info: AsPattern.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : �
   (n : Nat) : motive n
 -/
 #guard_msgs in
-#check AsPattern.foo.induct
+#check foo.induct
+
+
 
 def bar (n : Nat) :=
   1 +
@@ -464,7 +466,7 @@ info: AsPattern.bar.induct (motive : Nat → Prop)
   (n : Nat) : motive n
 -/
 #guard_msgs in
-#check AsPattern.bar.induct
+#check bar.induct
 
 end AsPattern
 
@@ -497,7 +499,7 @@ info: GramSchmidt.foo.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), (�
   (n : Nat) : motive n
 -/
 #guard_msgs in
-#check GramSchmidt.foo.induct
+#check foo.induct
 
 end GramSchmidt
 
@@ -514,7 +516,7 @@ info: LetFun.foo.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Pro
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
-#check LetFun.foo.induct
+#check foo.induct
 
 
 def bar {α} (x : α) : List α → Nat
@@ -529,7 +531,7 @@ info: LetFun.bar.induct.{u_1} {α : Type u_1} (x : α) (motive : List α → Pro
   (case2 : ∀ (_y : α) (ys : List α), motive ys → motive (_y :: ys)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
-#check LetFun.bar.induct
+#check bar.induct
 
 end LetFun
 
@@ -547,7 +549,7 @@ info: RecCallInDisrs.foo.induct (motive : Nat → Prop) (case1 : motive 0)
   (case3 : ∀ (n : Nat), ¬foo n = 0 → motive n → motive n.succ) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check RecCallInDisrs.foo.induct
+#check foo.induct
 
 
 set_option linter.unusedVariables false in
@@ -565,7 +567,7 @@ info: RecCallInDisrs.bar.induct (motive : Nat → Prop) (case1 : motive 0) (case
   (case4 : ∀ (m : Nat), motive m.succ → motive m → motive m.succ.succ) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check RecCallInDisrs.bar.induct
+#check bar.induct
 
 end RecCallInDisrs
 
@@ -587,14 +589,14 @@ info: EvenOdd.even.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (
   (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : ∀ (a : Nat), motive1 a
 -/
 #guard_msgs in
-#check EvenOdd.even.induct
+#check even.induct
 
 /--
 info: EvenOdd.odd.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (case2 : ∀ (n : Nat), motive2 n → motive1 n.succ)
   (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : ∀ (a : Nat), motive2 a
 -/
 #guard_msgs in
-#check EvenOdd.odd.induct
+#check odd.induct
 
 end EvenOdd
 
@@ -617,7 +619,7 @@ info: Tree.Tree.map.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive
   (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) : ∀ (a : Tree), motive1 a
 -/
 #guard_msgs in
-#check Tree.Tree.map.induct
+#check Tree.map.induct
 
 /--
 info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) (motive2 : List Tree → Prop)
@@ -625,7 +627,7 @@ info: Tree.Tree.map_forest.induct (f : Tree → Tree) (motive1 : Tree → Prop) 
   (case2 : ∀ (ts : List Tree), (∀ (t : Tree), t ∈ ts → motive1 t) → motive2 ts) (ts : List Tree) : motive2 ts
 -/
 #guard_msgs in
-#check Tree.Tree.map_forest.induct
+#check Tree.map_forest.induct
 
 end Tree
 
@@ -644,7 +646,7 @@ info: DefaultArgument.unary.induct (fixed : Bool) (motive : Nat → Prop) (case1
   (case2 : ∀ (n : Nat), motive n → motive n.succ) (n : Nat) : motive n
 -/
 #guard_msgs in
-#check DefaultArgument.unary.induct
+#check unary.induct
 
 def foo (fixed : Bool := false) (n : Nat) (m : Nat := 0) : Nat :=
   match n with
@@ -657,7 +659,7 @@ info: DefaultArgument.foo.induct (fixed : Bool) (motive : Nat → Nat → Prop) 
   (case2 : ∀ (m n : Nat), motive n m → motive n.succ m) (n m : Nat) : motive n m
 -/
 #guard_msgs in
-#check DefaultArgument.foo.induct
+#check foo.induct
 
 end DefaultArgument
 
@@ -681,7 +683,7 @@ info: Nary.foo.induct (motive : Nat → Nat → (k : Nat) → Fin k → Prop)
   ∀ (a a_1 k : Nat) (a_2 : Fin k), motive a a_1 k a_2
 -/
 #guard_msgs in
-#check Nary.foo.induct
+#check foo.induct
 
 end Nary
 
@@ -733,7 +735,7 @@ info: PreserveParams.foo.induct (a : Nat) (motive : Nat → Prop) (case1 : motiv
   (case4 : ∀ (n : Nat), ¬a = 23 → ¬a = n → motive n → motive n.succ) : ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check PreserveParams.foo.induct
+#check foo.induct
 
 
 end PreserveParams

@@ -73,20 +73,6 @@ run_meta do
     let rhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``g) x
     assert! (← isDefEq lhs rhs)
 
--- Apply fix to the kernel
-
-#exit
-
-run_meta do
-  withLocalDeclD `x (mkConst ``Nat) fun x => do
-    let lhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``f) x
-    let rhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``g) x
-    match Kernel.isDefEq (← getEnv) {} lhs rhs with
-    | .ok b => assert! b
-    | .error _ => throwError "failed"
-
-#exit
-open Lean Meta
 run_meta do
   withLocalDeclD `x (mkConst ``Nat) fun x => do
     let lhs := Expr.proj ``Foo 0 <| mkApp (mkConst ``f) x

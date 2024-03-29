@@ -46,6 +46,7 @@ Author: Leonardo de Moura
 #include "util/path.h"
 #include "stdlib_flags.h"
 
+
 #ifdef LEAN_TRACY
 #define TRACY_ENABLE
 #include "tracy/Tracy.hpp"
@@ -68,6 +69,21 @@ Author: Leonardo de Moura
 #else
 #include <dlfcn.h>
 #endif
+
+std::streampos fileSize(const char* filePath) {
+
+    std::streampos fsize = 0;
+    std::ifstream file( filePath, std::ios::binary );
+
+    fsize = file.tellg();
+    file.seekg( 0, std::ios::end );
+    fsize = file.tellg() - fsize;
+    file.close();
+
+    return fsize;
+}
+
+
 
 #ifdef _MSC_VER
 // extremely simple implementation of getopt.h
@@ -462,7 +478,7 @@ struct Profiler {
                         : "reuse_across_ctor_disabled")
       << "," << name << ", " << val << "\n";
   }
-  void write_profiling_times(std::string src_path, std::string out_path, std::ostream &o) {
+  void write_profiling_times(std::string src_path, std::string out_path, std::ostream &o, optional<std::string> c_file_path) {
     // if (research_isResearchLogVerbose()) {
     //   std::cerr << "writing profiling information "
     //             << "[reuseEnabled=" << (isReuseEnabled() ? "true" : "false")
@@ -493,9 +509,13 @@ struct Profiler {
     write_file_identifier<uint64_t>(o, src_path, "num_recycled_pages",
                                     lean::allocator::get_num_recycled_pages());
 #endif
+    if (c_file_path) {
+       write_file_identifier<uint64_t>(o, src_path, "c_file_size", uint64_t(fileSize((*c_file_path).c_str())));
+    }
     write_file_identifier<uint64_t>(o, src_path, "time_elapsed_ms", time_elapsed_ms);
   }
 };
+
 
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     Profiler profiler;
@@ -826,14 +846,14 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         const std::string profiling_path = LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH;
         if (profiling_path == "") {
-          std::cerr << "WARN: '" << profiling_path << "' is empty";
-        }
-
-        if (profiling_path == "-") {
-	        profiler.write_profiling_times(mod_fn, profiling_path, std::cerr);
+          std::cerr << "WARN: LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH ('" << profiling_path << "') is empty";
         } else {
-          std::ofstream profiler_out_file(profiling_path, std::ios::app);
-	        profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file);
+          if (profiling_path == "-") {
+	          profiler.write_profiling_times(mod_fn, profiling_path, std::cerr, c_output);
+          } else {
+            std::ofstream profiler_out_file(profiling_path, std::ios::app);
+	          profiler.write_profiling_times(mod_fn, profiling_path, profiler_out_file, c_output);
+          }
         }
 #ifdef LEAN_SMALL_ALLOCATOR
         // If the small allocator is not enabled, then we assume we are not using the sanitizer.

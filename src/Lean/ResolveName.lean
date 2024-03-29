@@ -93,17 +93,20 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 /-! # Global name resolution -/
 namespace ResolveName
 
+private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool :=
+  env.contains declName || isReservedName env declName
+
 /-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
   let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
-  if env.contains resolvedId && (!id.isAtomic || !isProtected env resolvedId) then
+  if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
     resolvedId :: resolvedIds
   else
     -- Check whether environment contains the private version. That is, `_private.<module_name>.ns.id`.
     let resolvedIdPrv := mkPrivateName env resolvedId
-    if env.contains resolvedIdPrv then resolvedIdPrv :: resolvedIds
+    if containsDeclOrReserved env resolvedIdPrv then resolvedIdPrv :: resolvedIds
     else resolvedIds
 
 /-- Check surrounding namespaces -/
@@ -119,12 +122,12 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
   if id.isAtomic then none
   else
     let resolvedId := id.replacePrefix rootNamespace Name.anonymous
-    if env.contains resolvedId then some resolvedId
+    if containsDeclOrReserved env resolvedId then some resolvedId
     else
       -- We also allow `_root` when accessing private declarations.
       -- If we change our minds, we should just replace `resolvedId` with `id`
       let resolvedIdPrv := mkPrivateName env resolvedId
-      if env.contains resolvedIdPrv then some resolvedIdPrv
+      if containsDeclOrReserved env resolvedIdPrv then some resolvedIdPrv
       else none
 
 /-- Check `OpenDecl`s -/
@@ -171,9 +174,9 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
         match resolveExact env id with
         | some newId => [(newId, projs)]
         | none =>
-          let resolvedIds := if env.contains id || isReservedName env id then [id] else []
+          let resolvedIds := if containsDeclOrReserved env id then [id] else []
           let idPrv       := mkPrivateName env id
-          let resolvedIds := if env.contains idPrv || isReservedName env idPrv then [idPrv] ++ resolvedIds else resolvedIds
+          let resolvedIds := if containsDeclOrReserved env idPrv then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
           let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with

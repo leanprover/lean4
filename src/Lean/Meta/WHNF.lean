@@ -566,12 +566,6 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
-
-The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
-then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
-
-If `simpleReduceOnly`, then `iota` and projection reduction are not performed.
-Note that the value of `deltaAtProj` is irrelevant if `simpleReduceOnly = true`.
 -/
 partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
   go e

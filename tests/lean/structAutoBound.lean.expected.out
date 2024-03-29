@@ -3,14 +3,14 @@ number of parameters: 2
 constructor:
 Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β
 fields:
-a : {α : Sort u_1} → {β : α → Type v} → Foo β → α
-b : {α : Sort u_1} → {β : α → Type v} → (self : Foo β) → β self.a
+a : Foo β → α
+b : (self : Foo β) → β self.a
 structAutoBound.lean:9:15-9:16: error: a universe level named 'u' has already been declared
 structure Boo.{u, v} : Type u → Type v → Type (max u v)
 number of parameters: 2
 constructor:
 Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
 fields:
-a : {α : Type u} → {β : Type v} → Boo α β → α
-b : {α : Type u} → {β : Type v} → Boo α β → β
+a : Boo α β → α
+b : Boo α β → β
 structAutoBound.lean:18:0-20:7: error: unused universe parameter 'w'

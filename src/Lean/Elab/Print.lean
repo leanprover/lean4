@@ -78,17 +78,19 @@ private def printStructOrClass (id : Name) (levelParams : List Name) (numParams 
   logInfo m
 where
   doFields := liftTermElabM do
-    forallTelescope (← getConstInfo id).type fun params _ => do
-      let mut m : Format := ""
-      for field in fields do
-        match getProjFnForField? (← getEnv) id field with
-        | some proj =>
-          let field : Format := if isPrivateName proj then "private " ++ toString field else toString field
-          let cinfo ← getConstInfo proj
-          let ftype ← instantiateForall cinfo.type params
-          m := m ++ Format.line ++ field ++ " : " ++ (← ppExpr ftype) -- Why ppExpr here?
-        | none => panic! "missing structure field info"
-      return m
+    forallTelescope (← getConstInfo id).type fun params type =>
+      withLocalDeclD `self type fun self => do
+        let params := params.push self
+        let mut m : Format := ""
+        for field in fields do
+          match getProjFnForField? (← getEnv) id field with
+          | some proj =>
+            let field : Format := if isPrivateName proj then "private " ++ toString field else toString field
+            let cinfo ← getConstInfo proj
+            let ftype ← instantiateForall cinfo.type params
+            m := m ++ Format.line ++ field ++ " : " ++ (← ppExpr ftype) -- Why ppExpr here?
+          | none => panic! "missing structure field info"
+        return m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv

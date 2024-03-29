@@ -341,7 +341,7 @@ protected def test : CliM PUnit := do
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   noArgsRem do
-  let x := test ws.root opts.subArgs (mkBuildConfig opts)
+  let x := ws.root.test opts.subArgs (mkBuildConfig opts)
   exit <| ← x.run (mkLakeContext ws) |>.run (MonadLog.io opts.verbosity)
 
 protected def checkTest : CliM PUnit := do

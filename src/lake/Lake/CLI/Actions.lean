@@ -27,7 +27,7 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   logInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
 
-def test (pkg : Package) (args  : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
+def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
   let pkgName := pkg.name.toString (escape := false)
   if pkg.testRunner.isAnonymous then
     error s!"{pkgName}: no test runner script or executable"

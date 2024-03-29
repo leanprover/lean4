@@ -14,10 +14,10 @@ info: Structural.foo.induct (motive : Nat → Prop) (case1 : motive 0) (case2 : 
   ∀ (a : Nat), motive a
 -/
 #guard_msgs in
-#check Structural.foo.induct
+#check foo.induct
 
 example : foo n = .unit := by
-  induction n using Structural.foo.induct with
+  induction n using foo.induct with
   | case1 => unfold foo; rfl
   | case2 n ih => unfold foo; exact ih
 
@@ -34,10 +34,10 @@ info: WellFounded.foo.induct.{v} {α : Type v} (motive : List α → Prop) (case
   (case2 : ∀ (head : α) (xs : List α), motive xs → motive (head :: xs)) : ∀ (a : List α), motive a
 -/
 #guard_msgs in
-#check WellFounded.foo.induct
+#check foo.induct
 
 example : foo xs = .unit := by
-  induction xs using WellFounded.foo.induct with
+  induction xs using foo.induct with
   | case1 => unfold foo; rfl
   | case2 _ xs ih => unfold foo; exact ih
 
@@ -61,10 +61,10 @@ info: Mutual.foo.induct (motive1 motive2 : Nat → Prop) (case1 : motive1 0) (ca
   (case3 : motive2 0) (case4 : ∀ (n : Nat), motive1 n → motive2 n.succ) : ∀ (a : Nat), motive1 a
 -/
 #guard_msgs in
-#check Mutual.foo.induct
+#check foo.induct
 
 example : foo n = .unit := by
-  induction n using Mutual.foo.induct (motive2 := fun n => bar n = .unit) with
+  induction n using foo.induct (motive2 := fun n => bar n = .unit) with
   | case1 => unfold foo; rfl
   | case2 n ih => unfold foo; exact ih
   | case3 => unfold bar; rfl

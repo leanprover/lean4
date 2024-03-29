@@ -90,7 +90,7 @@ theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasTy
 
 -- The same, using the induction tactic
 theorem Expr.typeCheck_complete' {e : Expr} : e.typeCheck = .unknown → ¬ HasType e ty := by
-  induction e using Expr.typeCheck.induct
+  induction e using typeCheck.induct
   all_goals simp [typeCheck]
   case case3 | case5 => simp [*]
   case case4 iha ihb | case6 iha ihb =>

@@ -81,6 +81,7 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     if explicit then
       withOptionAtCurrPos pp.tagAppFns.name true do
       withOptionAtCurrPos pp.explicit.name true do
+      withOptionAtCurrPos pp.mvars.name true do
         delabApp
     else
       withOptionAtCurrPos pp.proofs.name true do

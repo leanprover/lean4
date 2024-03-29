@@ -71,7 +71,7 @@ structure ResourceTable where
 deriving ToJson
 
 structure Thread where
-  name : String := "main"
+  name : String
   processType : String := "default"
   isMainThread : Bool := true
   samples : SamplesTable
@@ -190,8 +190,9 @@ where
           stringArray := thread.stringArray.push s
           stringMap := thread.stringMap.insert s thread.stringMap.size })
 
-def Profile.export (startTime : Milliseconds) (traceState : TraceState) : IO String := do
+def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState) : IO String := do
   let thread : Thread := {
+    name
     samples := { stack := #[], time := #[], weight := #[], length := 0 }
     stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
     frameTable := { func := #[], length := 0 }

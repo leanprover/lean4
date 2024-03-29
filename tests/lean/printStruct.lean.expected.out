@@ -38,6 +38,12 @@ toPure : Pure f
 toSeq : Seq f
 toSeqLeft : SeqLeft f
 toSeqRight : SeqRight f
+structure Weird.{u_1, u_2} : Type u_1 → Type u_2 → Type u_1
+number of parameters: 2
+constructor:
+Weird.mk : {α : Type u_1} → {β : Type u_2} → α → Weird α β
+fields:
+a : α
 inductive Fake.{u_1} : Type u_1 → Type u_1
 number of parameters: 1
 constructors:

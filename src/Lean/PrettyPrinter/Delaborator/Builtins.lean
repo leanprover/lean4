@@ -670,7 +670,7 @@ def delabLetFun : Delab := whenPPOption getPPNotation <| withOverApp 4 do
   let Expr.lam n _ b _ := e.appArg! | failure
   let n ← getUnusedName n b
   let stxV ← withAppFn <| withAppArg delab
-  let (stxN, stxB) ← withAppArg <| withBindingBody' n (annotateTermInfo (mkIdent n)) fun stxN => return (stxN, ← delab)
+  let (stxN, stxB) ← withAppArg <| withBindingBody' n (mkAnnotatedIdent n) fun stxN => return (stxN, ← delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← SubExpr.withNaryArg 0 delab
     `(let_fun $stxN : $stxT := $stxV; $stxB)
@@ -849,10 +849,7 @@ def delabLetE : Delab := do
   let stxV ← descend v 1 delab
   let (stxN, stxB) ← withLetDecl n t v fun fvar => do
     let b := b.instantiate1 fvar
-    let pos ← nextExtraPos
-    let stxN := annotatePos pos (mkIdent n)
-    addTermInfo pos stxN fvar
-    return (stxN, ← descend b 2 delab)
+    return (← mkAnnotatedIdent n fvar, ← descend b 2 delab)
   if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
     let stxT ← descend t 0 delab
     `(let $stxN : $stxT := $stxV; $stxB)

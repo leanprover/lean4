@@ -77,10 +77,24 @@ def withBoundedAppFn (maxArgs : Nat) (xf : m α) : m α := do
 
 def withBindingDomain (x : m α) : m α := do descend (← getExpr).bindingDomain! 0 x
 
-def withBindingBody (n : Name) (x : m α) : m α := do
+/--
+Assumes the `SubExpr` is a lambda or forall.
+1. Creates a local declaration for this binder using the name `n`.
+2. Evaluates `v` using the fvar for the local declaration.
+3. Enters the binding body, and evaluates `x` using this result.
+-/
+def withBindingBody' (n : Name) (v : Expr → m β) (x : β → m α) : m α := do
   let e ← getExpr
-  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar =>
-    descend (e.bindingBody!.instantiate1 fvar) 1 x
+  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar => do
+    let b ← v fvar
+    descend (e.bindingBody!.instantiate1 fvar) 1 (x b)
+
+/--
+Assumes the `SubExpr` is a lambda or forall.
+Creates a local declaration for this binder using the name `n`, enters the binding body, and evaluates `x`.
+-/
+def withBindingBody (n : Name) (x : m α) : m α :=
+  withBindingBody' n (fun _ => pure ()) (fun _ => x)
 
 def withProj (x : m α) : m α := do
   let Expr.proj _ _ e ← getExpr | unreachable!
@@ -138,7 +152,10 @@ def HoleIterator.next (iter : HoleIterator) : HoleIterator :=
 
 /-- The positioning scheme guarantees that there will be an infinite number of extra positions
 which are never used by `Expr`s. The `HoleIterator` always points at the next such "hole".
-We use these to attach additional `Elab.Info`. -/
+We use these to attach additional `Elab.Info`.
+
+Note: these positions are incompatible with `Lean.SubExpr.Pos.push` since the iterator
+will eventually yield every child of every returned position. -/
 def nextExtraPos : m Pos := do
   let iter ← getThe HoleIterator
   let pos := iter.toPos
@@ -146,27 +163,6 @@ def nextExtraPos : m Pos := do
   return pos
 
 end Hole
-
-section DescendHole
-
-variable [MonadReaderOf SubExpr m] [MonadWithReaderOf SubExpr m] [MonadStateOf HoleIterator m]
-variable [MonadLiftT MetaM m] [MonadControlT MetaM m]
-variable [MonadLiftT IO m]
-
-/--
-Like `withBindingBody`, but `v` is run with the instantiated fvar as its context.
-
-The position for the fvar comes from the `HoleIterator`
--/
-def withBindingBody' (n : Name) (v : m β) (x : β → m α) : m α := do
-  let e ← getExpr
-  Meta.withLocalDecl n e.binderInfo e.bindingDomain! fun fvar => do
-    let pos ← nextExtraPos
-    let b ← withTheReader SubExpr (fun cfg => { cfg with expr := fvar, pos := pos }) v
-    descend (e.bindingBody!.instantiate1 fvar) 1 (x b)
-
-end DescendHole
-
 end SubExpr
 
 end Lean.PrettyPrinter.Delaborator

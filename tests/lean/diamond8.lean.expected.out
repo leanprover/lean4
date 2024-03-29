@@ -3,5 +3,5 @@ number of parameters: 1
 constructor:
 Semiring.mk : {R : Type u} → [toAddCommMonoid : AddCommMonoid R] → [toMonoid : Monoid R] → Semiring R
 fields:
-toAddCommMonoid : [self : Semiring R] → AddCommMonoid R
-toMonoid : [self : Semiring R] → Monoid R
+toAddCommMonoid : AddCommMonoid R
+toMonoid : Monoid R

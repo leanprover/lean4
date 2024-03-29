@@ -3,29 +3,29 @@ number of parameters: 2
 constructor:
 Prod.mk : {α : Type u} → {β : Type v} → α → β → α × β
 fields:
-fst : α × β → α
-snd : α × β → β
+fst : α
+snd : β
 class Inhabited.{u} : Sort u → Sort (max 1 u)
 number of parameters: 1
 constructor:
 Inhabited.mk : {α : Sort u} → α → Inhabited α
 fields:
-default : [self : Inhabited α] → α
+default : α
 structure Thunk.{u} : Type u → Type u
 number of parameters: 1
 constructor:
 Thunk.mk : {α : Type u} → (Unit → α) → Thunk α
 fields:
-private fn : Thunk α → Unit → α
+private fn : Unit → α
 class Alternative.{u, v} : (Type u → Type v) → Type (max (u + 1) v)
 number of parameters: 1
 constructor:
 Alternative.mk : {f : Type u → Type v} →
   [toApplicative : Applicative f] → ({α : Type u} → f α) → ({α : Type u} → f α → (Unit → f α) → f α) → Alternative f
 fields:
-toApplicative : [self : Alternative f] → Applicative f
-failure : [self : Alternative f] → {α : Type u} → f α
-orElse : [self : Alternative f] → {α : Type u} → f α → (Unit → f α) → f α
+toApplicative : Applicative f
+failure : {α : Type u} → f α
+orElse : {α : Type u} → f α → (Unit → f α) → f α
 class Applicative.{u, v} : (Type u → Type v) → Type (max (u + 1) v)
 number of parameters: 1
 constructor:
@@ -33,11 +33,11 @@ Applicative.mk : {f : Type u → Type v} →
   [toFunctor : Functor f] →
     [toPure : Pure f] → [toSeq : Seq f] → [toSeqLeft : SeqLeft f] → [toSeqRight : SeqRight f] → Applicative f
 fields:
-toFunctor : [self : Applicative f] → Functor f
-toPure : [self : Applicative f] → Pure f
-toSeq : [self : Applicative f] → Seq f
-toSeqLeft : [self : Applicative f] → SeqLeft f
-toSeqRight : [self : Applicative f] → SeqRight f
+toFunctor : Functor f
+toPure : Pure f
+toSeq : Seq f
+toSeqLeft : SeqLeft f
+toSeqRight : SeqRight f
 inductive Fake.{u_1} : Type u_1 → Type u_1
 number of parameters: 1
 constructors:

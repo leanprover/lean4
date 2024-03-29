@@ -422,7 +422,20 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
     let mut d := d
     for eqn in eqns do
       d ← SimpTheorems.addConst d eqn
-    if hasSmartUnfoldingDecl (← getEnv) declName then
+    /-
+    Even if a function has equation theorems,
+    we also store it in the `toUnfold` set in the following two cases:
+    1- It was defined by structural recursion and has a smart-unfolding associated declaration.
+    2- It is non-recursive.
+
+    Reason: `unfoldPartialApp := true` or conditional equations may not apply.
+
+    Remark: In the future, we are planning to disable this
+    behavior unless `unfoldPartialApp := true`.
+    Moreover, users will have to use `f.eq_def` if they want to force the definition to be
+    unfolded.
+    -/
+    if hasSmartUnfoldingDecl (← getEnv) declName || !(← isRecursiveDefinition declName) then
       d := d.addDeclToUnfoldCore declName
     return d
   else

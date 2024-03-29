@@ -649,10 +649,13 @@ where
 private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
   trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
   withConfig (fun c => { c with etaStruct := .none }) do
-  let baseName := mkPrivateName (← getEnv) matchDeclName
+  let baseName := matchDeclName
+  let splitterName := baseName ++ `splitter
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
+  -- `alreadyDeclared` is `true` if matcher equations were defined in an imported module
+  let alreadyDeclared := (← getEnv).contains splitterName
   let numDiscrEqs := getNumEqsFromDiscrInfos matchInfo.discrInfos
   forallTelescopeReducing constInfo.type fun xs matchResultType => do
     let mut eqnNames := #[]
@@ -682,57 +685,64 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         trace[Meta.Match.matchEqs] "hs: {hs}"
         let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) (mkArrow · ·))
         let splitterAltNumParam := hs.size + ys.size
-        -- Create a proposition for representing terms that do not match `patterns`
-        let mut notAlt := mkConst ``False
-        for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
-        notAlt ← mkForallFVars (discrs ++ ys) notAlt
-        /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
-           Thus, we need to create new `alts`. -/
-        withNewAlts numDiscrEqs discrs patterns alts fun alts => do
-          let alt := alts[i]!
-          let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
-          let rhs := mkAppN alt rhsArgs
-          let thmType ← mkEq lhs rhs
-          let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
-          let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
-          let thmType ← unfoldNamedPattern thmType
-          let thmVal ← proveCondEqThm matchDeclName thmType
-          addDecl <| Declaration.thmDecl {
-            name        := thmName
-            levelParams := constInfo.levelParams
-            type        := thmType
-            value       := thmVal
-          }
-          return (notAlt, splitterAltType, splitterAltNumParam, argMask)
+        if alreadyDeclared then
+          -- If the matcher equations and splitter have already been declared, the only
+          -- value we need is `splitterAltNumParam`. This code is a bit hackish.
+          return (default, default, splitterAltNumParam, default)
+        else
+          -- Create a proposition for representing terms that do not match `patterns`
+          let mut notAlt := mkConst ``False
+          for discr in discrs.toArray.reverse, pattern in patterns.reverse do
+            notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
+          notAlt ← mkForallFVars (discrs ++ ys) notAlt
+          /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
+             Thus, we need to create new `alts`. -/
+          withNewAlts numDiscrEqs discrs patterns alts fun alts => do
+            let alt := alts[i]!
+            let lhs := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ patterns ++ alts)
+            let rhs := mkAppN alt rhsArgs
+            let thmType ← mkEq lhs rhs
+            let thmType ← hs.foldrM (init := thmType) (mkArrow · ·)
+            let thmType ← mkForallFVars (params ++ #[motive] ++ ys ++ alts) thmType
+            let thmType ← unfoldNamedPattern thmType
+            let thmVal ← proveCondEqThm matchDeclName thmType
+            addDecl <| Declaration.thmDecl {
+              name        := thmName
+              levelParams := constInfo.levelParams
+              type        := thmType
+              value       := thmVal
+            }
+            return (notAlt, splitterAltType, splitterAltNumParam, argMask)
       notAlts := notAlts.push notAlt
       splitterAltTypes := splitterAltTypes.push splitterAltType
       splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
       altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
-    -- Define splitter with conditional/refined alternatives
-    withSplitterAlts splitterAltTypes fun altsNew => do
-      let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
-      let splitterType ← mkForallFVars splitterParams matchResultType
-      trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-      let template ← deltaExpand template (· == constInfo.name)
-      let template := template.headBeta
-      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
-      let splitterName := baseName ++ `splitter
-      addAndCompile <| Declaration.defnDecl {
-        name        := splitterName
-        levelParams := constInfo.levelParams
-        type        := splitterType
-        value       := splitterVal
-        hints       := .abbrev
-        safety      := .safe
-      }
-      setInlineAttribute splitterName
-      let result := { eqnNames, splitterName, splitterAltNumParams }
-      registerMatchEqns matchDeclName result
-      return result
+    if alreadyDeclared then
+      return { eqnNames, splitterName, splitterAltNumParams }
+    else
+      -- Define splitter with conditional/refined alternatives
+      withSplitterAlts splitterAltTypes fun altsNew => do
+        let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
+        let splitterType ← mkForallFVars splitterParams matchResultType
+        trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
+        let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+        let template ← deltaExpand template (· == constInfo.name)
+        let template := template.headBeta
+        let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
+        addAndCompile <| Declaration.defnDecl {
+          name        := splitterName
+          levelParams := constInfo.levelParams
+          type        := splitterType
+          value       := splitterVal
+          hints       := .abbrev
+          safety      := .safe
+        }
+        setInlineAttribute splitterName
+        let result := { eqnNames, splitterName, splitterAltNumParams }
+        registerMatchEqns matchDeclName result
+        return result
 
 /- See header at `MatchEqsExt.lean` -/
 @[export lean_get_match_equations_for]
@@ -742,5 +752,14 @@ def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   | none => mkEquationsFor matchDeclName
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
+
+private def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+  unless (← isMatcher declName) do
+    return none
+  let result ← getEquationsForImpl declName
+  return some result.eqnNames
+
+builtin_initialize
+  registerGetEqnsFn getEqnsFor?
 
 end Lean.Meta.Match

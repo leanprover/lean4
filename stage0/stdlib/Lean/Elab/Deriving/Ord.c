@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Elab_Deriving_Ord_initFn____x40_Lean_Elab_Deriving_Ord___hyg_2911____closed__5;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts___spec__5___lambda__1___closed__4;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Ord_mkAuxFunction___lambda__1___closed__15;
 static lean_object* l_Lean_Elab_Deriving_Ord_initFn____x40_Lean_Elab_Deriving_Ord___hyg_2911____closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Ord_mkOrdInstanceHandler(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +47,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Ord_mkMatch_mkAlts___spec__5___lambda__1___closed__47;
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_Ord_mkMatch___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1355,7 +1355,7 @@ if (x_89 == 0)
 lean_object* x_90; lean_object* x_91; 
 lean_dec(x_87);
 x_90 = l_Lean_instInhabitedExpr;
-x_91 = l___private_Init_Util_0__outOfBounds___rarg(x_90);
+x_91 = l___private_Init_GetElem_0__outOfBounds___rarg(x_90);
 x_32 = x_91;
 goto block_86;
 }
@@ -3840,7 +3840,7 @@ if (x_12 == 0)
 lean_object* x_73; lean_object* x_74; 
 lean_dec(x_10);
 x_73 = l_Lean_instInhabitedName;
-x_74 = l___private_Init_Util_0__outOfBounds___rarg(x_73);
+x_74 = l___private_Init_GetElem_0__outOfBounds___rarg(x_73);
 x_16 = x_74;
 goto block_72;
 }
@@ -3861,7 +3861,7 @@ lean_object* x_69; lean_object* x_70;
 lean_dec(x_13);
 lean_dec(x_2);
 x_69 = l_Lean_instInhabitedInductiveVal;
-x_70 = l___private_Init_Util_0__outOfBounds___rarg(x_69);
+x_70 = l___private_Init_GetElem_0__outOfBounds___rarg(x_69);
 x_17 = x_70;
 goto block_68;
 }

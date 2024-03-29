@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIOMkWorld___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitArgVal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_IR_EmitLLVM_addVartoState___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitFnDeclAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitJmp___closed__1;
 lean_object* lean_llvm_function_type(size_t, size_t, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_emitMainFn___lambda__4___closed__5;
@@ -155,6 +154,7 @@ extern lean_object* l_Lean_builtinInitAttr;
 lean_object* l_LLVM_constInt64(size_t, uint64_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitFnDeclAux___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_IR_EmitLLVM_addJpTostate___spec__5___at_Lean_IR_EmitLLVM_addJpTostate___spec__6___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitUnreachable___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanIOResultIsOk(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitReset(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12181,7 +12181,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_36 = l_Lean_IR_instInhabitedArg;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 lean_inc(x_9);
 lean_inc(x_8);
 x_38 = l_Lean_IR_EmitLLVM_emitArgVal(x_1, x_2, x_37, x_26, x_8, x_9, x_33);
@@ -15804,7 +15804,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_27 = l_Lean_IR_instInhabitedArg;
-x_28 = l___private_Init_Util_0__outOfBounds___rarg(x_27);
+x_28 = l___private_Init_GetElem_0__outOfBounds___rarg(x_27);
 lean_inc(x_9);
 lean_inc(x_8);
 x_29 = l_Lean_IR_EmitLLVM_emitArgSlot__(x_1, x_2, x_28, x_8, x_9, x_10);
@@ -16519,7 +16519,7 @@ if (x_74 == 0)
 {
 lean_object* x_75; lean_object* x_76; 
 x_75 = l_Lean_IR_instInhabitedArg;
-x_76 = l___private_Init_Util_0__outOfBounds___rarg(x_75);
+x_76 = l___private_Init_GetElem_0__outOfBounds___rarg(x_75);
 x_35 = x_76;
 goto block_73;
 }
@@ -28919,7 +28919,7 @@ if (x_78 == 0)
 {
 lean_object* x_79; lean_object* x_80; 
 x_79 = l_Lean_IR_instInhabitedParam;
-x_80 = l___private_Init_Util_0__outOfBounds___rarg(x_79);
+x_80 = l___private_Init_GetElem_0__outOfBounds___rarg(x_79);
 x_34 = x_80;
 goto block_76;
 }
@@ -29236,7 +29236,7 @@ if (x_35 == 0)
 {
 lean_object* x_97; lean_object* x_98; 
 x_97 = l_Lean_IR_instInhabitedParam;
-x_98 = l___private_Init_Util_0__outOfBounds___rarg(x_97);
+x_98 = l___private_Init_GetElem_0__outOfBounds___rarg(x_97);
 x_37 = x_98;
 goto block_96;
 }

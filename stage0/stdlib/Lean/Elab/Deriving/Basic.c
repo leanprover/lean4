@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_elabDeriving___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_processDefDeriving(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2499____closed__15;
@@ -48,6 +47,7 @@ static lean_object* l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__3;
 static lean_object* l_Lean_Elab_defaultHandler___closed__4;
 static lean_object* l_Lean_Elab_elabDeriving___lambda__2___closed__2;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___at_Lean_Elab_elabDeriving___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3504,7 +3504,7 @@ if (x_77 == 0)
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; 
 x_78 = l_Lean_instInhabitedName;
-x_79 = l___private_Init_Util_0__outOfBounds___rarg(x_78);
+x_79 = l___private_Init_GetElem_0__outOfBounds___rarg(x_78);
 lean_inc(x_44);
 x_80 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_tryApplyDefHandler(x_44, x_79, x_75, x_7, x_66);
 if (lean_obj_tag(x_80) == 0)
@@ -3936,7 +3936,7 @@ if (x_176 == 0)
 {
 lean_object* x_177; lean_object* x_178; lean_object* x_179; 
 x_177 = l_Lean_instInhabitedName;
-x_178 = l___private_Init_Util_0__outOfBounds___rarg(x_177);
+x_178 = l___private_Init_GetElem_0__outOfBounds___rarg(x_177);
 lean_inc(x_143);
 x_179 = l___private_Lean_Elab_Deriving_Basic_0__Lean_Elab_tryApplyDefHandler(x_143, x_178, x_174, x_7, x_165);
 if (lean_obj_tag(x_179) == 0)

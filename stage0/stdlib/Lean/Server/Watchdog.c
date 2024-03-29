@@ -20,7 +20,6 @@ static lean_object* l_Lean_Server_Watchdog_initAndRunWatchdog___closed__27;
 lean_object* l_Lean_Server_References_definitionsMatching___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Watchdog_handleRequest___spec__19(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__14;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Watchdog_handleNotification___spec__10(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__39;
@@ -146,6 +145,7 @@ lean_object* l_System_FilePath_extension(lean_object*);
 lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_JsonRpc_instFromJsonMessage___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_Watchdog_handleRequest___spec__18(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_Watchdog_handleRename___spec__10(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_fromJsonCallHierarchyItemData____x40_Lean_Server_Watchdog___hyg_3896____closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanImportClosureParams____x40_Lean_Data_Lsp_Internal___hyg_1840_(lean_object*);
@@ -19738,7 +19738,7 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 lean_dec(x_11);
 lean_dec(x_10);
 x_13 = l_Lean_Lsp_instInhabitedCallHierarchyIncomingCall;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
 {
@@ -21237,7 +21237,7 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 lean_dec(x_11);
 lean_dec(x_10);
 x_13 = l_Lean_Lsp_instInhabitedCallHierarchyOutgoingCall;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
 {

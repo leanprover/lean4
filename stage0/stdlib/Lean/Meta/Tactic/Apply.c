@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_appendParentTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_splitAnd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ApplyNewGoals_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_proofIrrelHeq___lambda__1___closed__4;
@@ -53,6 +52,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ApplyNewGoals_noConfusion___rarg(uint8_t, u
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 lean_object* l_Lean_MVarId_headBetaType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyError___rarg___closed__4;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_propext___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_isDefEqApply___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -876,7 +876,7 @@ if (x_69 == 0)
 uint8_t x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; uint8_t x_74; 
 x_70 = l_Lean_instInhabitedBinderInfo;
 x_71 = lean_box(x_70);
-x_72 = l___private_Init_Util_0__outOfBounds___rarg(x_71);
+x_72 = l___private_Init_GetElem_0__outOfBounds___rarg(x_71);
 x_73 = lean_unbox(x_72);
 lean_dec(x_72);
 x_74 = l_Lean_BinderInfo_isInstImplicit(x_73);
@@ -895,7 +895,7 @@ if (x_76 == 0)
 lean_object* x_77; lean_object* x_78; 
 lean_dec(x_20);
 x_77 = l_Lean_instInhabitedExpr;
-x_78 = l___private_Init_Util_0__outOfBounds___rarg(x_77);
+x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
 x_31 = x_78;
 goto block_67;
 }
@@ -931,7 +931,7 @@ if (x_84 == 0)
 lean_object* x_85; lean_object* x_86; 
 lean_dec(x_20);
 x_85 = l_Lean_instInhabitedExpr;
-x_86 = l___private_Init_Util_0__outOfBounds___rarg(x_85);
+x_86 = l___private_Init_GetElem_0__outOfBounds___rarg(x_85);
 x_31 = x_86;
 goto block_67;
 }
@@ -1274,7 +1274,7 @@ if (x_61 == 0)
 {
 lean_object* x_62; lean_object* x_63; 
 x_62 = l_Lean_instInhabitedExpr;
-x_63 = l___private_Init_Util_0__outOfBounds___rarg(x_62);
+x_63 = l___private_Init_GetElem_0__outOfBounds___rarg(x_62);
 x_18 = x_63;
 goto block_60;
 }
@@ -1310,7 +1310,7 @@ uint8_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; uint8_t x_30;
 lean_dec(x_17);
 x_26 = l_Lean_instInhabitedBinderInfo;
 x_27 = lean_box(x_26);
-x_28 = l___private_Init_Util_0__outOfBounds___rarg(x_27);
+x_28 = l___private_Init_GetElem_0__outOfBounds___rarg(x_27);
 x_29 = lean_unbox(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_BinderInfo_isInstImplicit(x_29);
@@ -1529,7 +1529,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_2);
 x_21 = l_Lean_instInhabitedExpr;
-x_22 = l___private_Init_Util_0__outOfBounds___rarg(x_21);
+x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_21);
 x_23 = l_Lean_Expr_mvarId_x21(x_22);
 x_24 = l_Lean_MVarId_setTag(x_23, x_11, x_4, x_5, x_6, x_7, x_12);
 lean_dec(x_7);
@@ -1612,7 +1612,7 @@ if (x_38 == 0)
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 lean_dec(x_2);
 x_39 = l_Lean_instInhabitedExpr;
-x_40 = l___private_Init_Util_0__outOfBounds___rarg(x_39);
+x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
 x_41 = l_Lean_Expr_mvarId_x21(x_40);
 x_42 = l_Lean_MVarId_setTag(x_41, x_28, x_4, x_5, x_6, x_7, x_29);
 lean_dec(x_7);

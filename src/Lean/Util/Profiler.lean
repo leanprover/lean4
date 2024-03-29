@@ -13,7 +13,7 @@ structure Category where
   name : String
   color : String
   subcategories : Array String := #[]
-deriving ToJson
+deriving FromJson, ToJson
 
 structure ProfileMeta where
   interval : Milliseconds := 0  -- should be irrelevant with `tracing-ms`
@@ -23,7 +23,7 @@ structure ProfileMeta where
   product : String := "lean"
   preprocessedProfileVersion : Nat := 48
   markerSchema : Array Json := #[]
-deriving ToJson
+deriving FromJson, ToJson
 
 structure StackTable where
   frame : Array Nat
@@ -31,7 +31,7 @@ structure StackTable where
   category : Array Nat
   subcategory : Array Nat
   length : Nat
-deriving ToJson
+deriving FromJson, ToJson
 
 structure SamplesTable where
   stack : Array Nat
@@ -39,7 +39,7 @@ structure SamplesTable where
   weight : Array Milliseconds
   weightType : String := "tracing-ms"
   length : Nat
-deriving ToJson
+deriving FromJson, ToJson
 
 structure FuncTable where
   name : Array Nat
@@ -50,25 +50,25 @@ structure FuncTable where
   lineNumber : Array (Option Nat)
   columnNumber : Array (Option Nat)
   length : Nat
-deriving ToJson
+deriving FromJson, ToJson
 
 structure FrameTable where
   func : Array Nat
   inlineDepth : Array Json := #[]
   innerWindowID : Array Json := #[]
   length : Nat
-deriving ToJson
+deriving FromJson, ToJson
 
 structure RawMarkerTable where
   data : Array Json := #[]
   name : Array Json := #[]
   length : Nat := 0
-deriving ToJson
+deriving FromJson, ToJson
 
 structure ResourceTable where
   type : Array Json := #[]
   length : Nat := 0
-deriving ToJson
+deriving FromJson, ToJson
 
 structure Thread where
   name : String
@@ -81,13 +81,13 @@ structure Thread where
   resourceTable : ResourceTable := {}
   stringArray : Array String
   funcTable : FuncTable
-deriving ToJson
+deriving FromJson, ToJson
 
 structure Profile where
   meta : ProfileMeta
   libs : Array Json := #[]
   threads : Array Thread
-deriving ToJson
+deriving FromJson, ToJson
 
 structure ThreadWithMaps extends Thread where
   stringMap : HashMap String Nat := {}
@@ -101,7 +101,7 @@ def categories : Array Category := #[
   { name := "Meta", color := "yellow" }
 ]
 
-partial def addTrace (thread : ThreadWithMaps) (trace : MessageData) : ThreadWithMaps :=
+private partial def addTrace (thread : ThreadWithMaps) (trace : MessageData) : ThreadWithMaps :=
   StateT.run (go none trace) thread |>.2
 where
   go parentStackIdx? : _ → StateM ThreadWithMaps Unit
@@ -190,23 +190,102 @@ where
           stringArray := thread.stringArray.push s
           stringMap := thread.stringMap.insert s thread.stringMap.size })
 
-def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState) : IO String := do
-  let thread : Thread := {
-    name
-    samples := { stack := #[], time := #[], weight := #[], length := 0 }
-    stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
-    frameTable := { func := #[], length := 0 }
-    stringArray := #[]
-    funcTable := { name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[], length := 0 }
-  }
+def Thread.new (name : String) : Thread := {
+  name
+  samples := { stack := #[], time := #[], weight := #[], length := 0 }
+  stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
+  frameTable := { func := #[], length := 0 }
+  stringArray := #[]
+  funcTable := { name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[], length := 0 }
+}
+
+def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState) : IO Profile := do
+  let thread := Thread.new name
   let trace := .trace {
     cls := `runFrontend, startTime, stopTime := (← IO.monoNanosNow).toFloat / 1000000000,
     collapsed := true } "" (traceState.traces.toArray.map (·.msg))
   let thread := addTrace { thread with } trace
-  let profile : Profile := {
+  return {
     meta := { startTime, categories }
     threads := #[thread.toThread]
   }
-  return Json.compress <| toJson profile
 
-end Firefox
+structure ThreadWithCollideMaps extends ThreadWithMaps where
+  sampleMap : HashMap Nat Nat := {}
+
+private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Thread) : ThreadWithCollideMaps :=
+  StateT.run collideSamples thread |>.2
+where
+  collideSamples : StateM ThreadWithCollideMaps Unit := do
+    for oldSampleIdx in [0:add.samples.length] do
+      let oldStackIdx := add.samples.stack[oldSampleIdx]!
+      let stackIdx ← collideStacks oldStackIdx
+      modify fun thread =>
+        if let some idx := thread.sampleMap.find? stackIdx then
+          { thread with
+            samples.weight[idx] := thread.samples.weight[idx]! + add.samples.weight[oldSampleIdx]!  }
+        else
+          { thread with
+            samples := {
+              stack := thread.samples.stack.push stackIdx
+              time := thread.samples.time.push 0
+              weight := thread.samples.weight.push add.samples.weight[oldSampleIdx]!
+              length := thread.samples.length + 1
+            }
+            sampleMap := thread.sampleMap.insert stackIdx thread.sampleMap.size }
+  collideStacks oldStackIdx : StateM ThreadWithCollideMaps Nat := do
+    let oldParentStackIdx? := add.stackTable.prefix[oldStackIdx]!
+    let parentStackIdx? ← oldParentStackIdx?.mapM (collideStacks ·)
+    let oldFrameIdx := add.stackTable.frame[oldStackIdx]!
+    let oldFuncIdx := add.frameTable.func[oldFrameIdx]!
+    let oldStrIdx := add.funcTable.name[oldFuncIdx]!
+    let strIdx ← getStrIdx add.stringArray[oldStrIdx]!
+    let funcIdx ← modifyGet fun thread =>
+      if let some idx := thread.funcMap.find? strIdx then
+        (idx, thread)
+      else
+        (thread.funcMap.size, { thread with
+          funcTable := {
+            name := thread.funcTable.name.push strIdx
+            resource := thread.funcTable.resource.push (-1)
+            fileName := thread.funcTable.fileName.push none
+            lineNumber := thread.funcTable.lineNumber.push none
+            columnNumber := thread.funcTable.columnNumber.push none
+            length := thread.funcTable.length + 1
+          }
+          frameTable := {
+            func := thread.frameTable.func.push thread.funcMap.size
+            length := thread.frameTable.length + 1
+          }
+          funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
+    let frameIdx := funcIdx
+    modifyGet fun thread =>
+      if let some idx := thread.stackMap.find? (frameIdx, parentStackIdx?) then
+        (idx, thread)
+      else
+        let rec upd stackTable := {
+            frame := stackTable.frame.push frameIdx
+            «prefix» := stackTable.prefix.push parentStackIdx?
+            category := stackTable.category.push add.stackTable.category[oldStackIdx]!
+            subcategory := stackTable.subcategory.push add.stackTable.subcategory[oldStackIdx]!
+            length := stackTable.length + 1
+          }
+        (thread.stackMap.size, { thread with
+          stackTable := upd thread.stackTable
+          stackMap := thread.stackMap.insert (frameIdx, parentStackIdx?) thread.stackMap.size })
+  getStrIdx (s : String) :=
+    modifyGet fun thread =>
+      if let some idx := thread.stringMap.find? s then
+        (idx, thread)
+      else
+        (thread.stringMap.size, { thread with
+          stringArray := thread.stringArray.push s
+          stringMap := thread.stringMap.insert s thread.stringMap.size })
+
+def Profile.collide (ps : Array Profile) : Option Profile := do
+  let base ← ps[0]?
+  let thread := Thread.new "collided"
+  let thread := ps.map (·.threads) |>.flatten.foldl collideThreads { thread with }
+  return { base with threads := #[thread.toThread] }
+
+end Lean.Firefox

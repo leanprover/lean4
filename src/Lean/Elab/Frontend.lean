@@ -138,7 +138,8 @@ def runFrontend
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
     if let some out := trace.profiler.output.get? opts then
-      IO.FS.writeFile ⟨out⟩ (← Firefox.Profile.export mainModuleName.toString startTime s.commandState.traceState)
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime s.commandState.traceState
+      IO.FS.writeFile ⟨out⟩ (Json.compress <| toJson profile)
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 

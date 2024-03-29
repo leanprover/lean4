@@ -67,7 +67,7 @@ std::string getEnvVarString(const char *name) {
   if (!_var) {
       throw lean::throwable(std::string("expected environment variable to be string for '") + name + "'\n");
   } else {
-    std::string(_var);
+    return std::string(_var);
   }
 }
 

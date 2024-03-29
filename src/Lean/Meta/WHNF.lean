@@ -342,6 +342,16 @@ inductive ProjReductionKind where
   Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
   -/
   | yesWithDelta
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfI` is used at `s` during the process.
+  Recall that `whnfI` is like `whnf` but uses transparency `instances`.
+  This option is stronger than `yes`, but weaker than `yesWithDelta`.
+  We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
+  When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
+  we only want to unify negation (and not all other field operations as well).
+  Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+  -/
+  | yesWithDeltaI
   deriving DecidableEq, Inhabited, Repr
 
 /--
@@ -607,11 +617,15 @@ where
                   return e
               | _ => return e
       | .proj _ i c =>
-        if config.proj == .no then return e
-        let c ← if config.proj == .yesWithDelta then whnf c else go c
-        match (← projectCore? c i) with
-        | some e => go e
-        | none => return e
+        let k (c : Expr) := do
+          match (← projectCore? c i) with
+          | some e => go e
+          | none => return e
+        match config.proj with
+        | .no => return e
+        | .yes => k (← go c)
+        | .yesWithDelta => k (← whnf c)
+        | .yesWithDeltaI => k (← whnfI c)
       | _ => unreachable!
 
 /--

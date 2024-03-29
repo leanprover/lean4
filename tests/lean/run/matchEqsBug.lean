@@ -26,9 +26,16 @@ set_option trace.Meta.Match.matchEqs true
 test% f.match_1
 #check f.match_1.splitter
 
+/--
+error: 'g.match_1.splitter' is a reserved name
+-/
+#guard_msgs (error) in
 def g.match_1.splitter := 4
 
 test% g.match_1
 #check g.match_1.eq_1
 #check g.match_1.eq_2
 #check g.match_1.splitter
+
+
+def bla.splitter := 5 -- ok

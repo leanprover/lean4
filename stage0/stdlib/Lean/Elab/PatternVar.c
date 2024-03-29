@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_pushNewArg___closed__2;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_CollectPatternVars_collect_processCtorApp___spec__2___closed__8;
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_processCtorApp___closed__2;
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_State_vars___default___closed__1;
@@ -76,6 +75,7 @@ static lean_object* l_Lean_Elab_Term_CollectPatternVars_collect___lambda__3___cl
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_instInhabitedState___closed__1;
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_processExplicitArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_getPatternsVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_CollectPatternVars_collect___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_finalize___closed__2;
@@ -1055,7 +1055,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11;
 lean_dec(x_4);
 lean_dec(x_3);
 x_9 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_getNextParam___closed__1;
-x_10 = l___private_Init_Util_0__outOfBounds___rarg(x_9);
+x_10 = l___private_Init_GetElem_0__outOfBounds___rarg(x_9);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_1);
@@ -1115,7 +1115,7 @@ lean_object* x_28; lean_object* x_29; lean_object* x_30;
 lean_dec(x_19);
 lean_dec(x_18);
 x_28 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_getNextParam___closed__1;
-x_29 = l___private_Init_Util_0__outOfBounds___rarg(x_28);
+x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
 x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_29);
 lean_ctor_set(x_30, 1, x_27);
@@ -3708,7 +3708,7 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60;
 lean_dec(x_53);
 lean_dec(x_21);
 x_57 = l_Lean_Elab_Term_instInhabitedNamedArg;
-x_58 = l___private_Init_Util_0__outOfBounds___rarg(x_57);
+x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
 x_59 = lean_ctor_get(x_58, 2);
 lean_inc(x_59);
 lean_dec(x_58);
@@ -3851,7 +3851,7 @@ lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86;
 lean_dec(x_78);
 lean_dec(x_21);
 x_83 = l_Lean_Elab_Term_instInhabitedNamedArg;
-x_84 = l___private_Init_Util_0__outOfBounds___rarg(x_83);
+x_84 = l___private_Init_GetElem_0__outOfBounds___rarg(x_83);
 x_85 = lean_ctor_get(x_84, 2);
 lean_inc(x_85);
 lean_dec(x_84);
@@ -5143,7 +5143,7 @@ if (x_54 == 0)
 {
 lean_object* x_55; lean_object* x_56; 
 x_55 = l_Lean_instInhabitedSyntax;
-x_56 = l___private_Init_Util_0__outOfBounds___rarg(x_55);
+x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
 x_13 = x_56;
 goto block_51;
 }

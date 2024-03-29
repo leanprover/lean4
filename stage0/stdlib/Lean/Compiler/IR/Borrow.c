@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Lean_IR_Borrow_OwnedSet_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_ownArgsUsingParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -52,6 +51,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_Borrow_preserveTailCall_
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_IR_Borrow_OwnedSet_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_IR_Borrow_BorrowInfState_owned___default___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_inferBorrow(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_infer___closed__1;
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
@@ -3348,13 +3348,13 @@ if (x_14 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_IR_instInhabitedArg;
-x_18 = l___private_Init_Util_0__outOfBounds___rarg(x_17);
+x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
 if (x_16 == 0)
 {
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_dec(x_13);
 x_19 = l_Lean_IR_instInhabitedParam;
-x_20 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 x_21 = lean_ctor_get_uint8(x_20, sizeof(void*)*2);
 lean_dec(x_20);
 if (x_21 == 0)
@@ -3410,7 +3410,7 @@ if (x_16 == 0)
 lean_object* x_33; lean_object* x_34; uint8_t x_35; 
 lean_dec(x_13);
 x_33 = l_Lean_IR_instInhabitedParam;
-x_34 = l___private_Init_Util_0__outOfBounds___rarg(x_33);
+x_34 = l___private_Init_GetElem_0__outOfBounds___rarg(x_33);
 x_35 = lean_ctor_get_uint8(x_34, sizeof(void*)*2);
 lean_dec(x_34);
 if (x_35 == 0)
@@ -3528,7 +3528,7 @@ if (x_14 == 0)
 {
 lean_object* x_17; lean_object* x_18; 
 x_17 = l_Lean_IR_instInhabitedArg;
-x_18 = l___private_Init_Util_0__outOfBounds___rarg(x_17);
+x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
 if (x_16 == 0)
 {
 lean_dec(x_13);
@@ -3539,7 +3539,7 @@ x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 lean_dec(x_18);
 x_20 = l_Lean_IR_instInhabitedParam;
-x_21 = l___private_Init_Util_0__outOfBounds___rarg(x_20);
+x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
 x_22 = l_Lean_IR_Borrow_isOwned(x_19, x_6, x_7);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
@@ -3646,7 +3646,7 @@ x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
 lean_dec(x_46);
 x_48 = l_Lean_IR_instInhabitedParam;
-x_49 = l___private_Init_Util_0__outOfBounds___rarg(x_48);
+x_49 = l___private_Init_GetElem_0__outOfBounds___rarg(x_48);
 x_50 = l_Lean_IR_Borrow_isOwned(x_47, x_6, x_7);
 x_51 = lean_ctor_get(x_50, 0);
 lean_inc(x_51);

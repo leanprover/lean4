@@ -18,7 +18,6 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__7___closed__1;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__6___closed__4;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -50,6 +49,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Structural_mkIndPredBRecOn___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
@@ -716,7 +716,7 @@ x_36 = lean_ctor_get(x_1, 4);
 lean_inc(x_36);
 lean_dec(x_1);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 if (x_35 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -1448,7 +1448,7 @@ if (x_21 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 lean_dec(x_3);
 x_35 = l_Lean_instInhabitedExpr;
-x_36 = l___private_Init_Util_0__outOfBounds___rarg(x_35);
+x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
 lean_inc(x_28);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -4845,7 +4845,7 @@ if (x_39 == 0)
 lean_object* x_40; lean_object* x_41; 
 lean_dec(x_4);
 x_40 = l_Lean_instInhabitedExpr;
-x_41 = l___private_Init_Util_0__outOfBounds___rarg(x_40);
+x_41 = l___private_Init_GetElem_0__outOfBounds___rarg(x_40);
 x_12 = x_41;
 goto block_36;
 }
@@ -4987,7 +4987,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l_Lean_instInhabitedExpr;
-x_24 = l___private_Init_Util_0__outOfBounds___rarg(x_23);
+x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_23);
 x_25 = l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__3___closed__1;
 x_26 = lean_array_push(x_25, x_5);
 x_27 = lean_array_push(x_26, x_24);
@@ -5762,7 +5762,7 @@ if (x_17 == 0)
 lean_object* x_65; lean_object* x_66; 
 lean_dec(x_15);
 x_65 = l_Lean_instInhabitedExpr;
-x_66 = l___private_Init_Util_0__outOfBounds___rarg(x_65);
+x_66 = l___private_Init_GetElem_0__outOfBounds___rarg(x_65);
 x_22 = x_66;
 goto block_64;
 }

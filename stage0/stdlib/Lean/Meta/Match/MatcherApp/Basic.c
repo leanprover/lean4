@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -29,6 +28,7 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -632,7 +632,7 @@ lean_object* x_37; lean_object* x_38;
 lean_dec(x_10);
 lean_dec(x_2);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 if (x_33 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -965,7 +965,7 @@ if (x_18 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_4);
 x_32 = l_Lean_instInhabitedExpr;
-x_33 = l___private_Init_Util_0__outOfBounds___rarg(x_32);
+x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
 lean_inc(x_25);
 lean_inc(x_13);
 lean_inc(x_12);

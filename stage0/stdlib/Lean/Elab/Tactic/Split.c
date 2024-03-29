@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__3;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed__4;
@@ -24,6 +23,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__1;
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___closed__1;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
@@ -1111,7 +1111,7 @@ if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
 x_27 = l_Lean_instInhabitedSyntax;
-x_28 = l___private_Init_Util_0__outOfBounds___rarg(x_27);
+x_28 = l___private_Init_GetElem_0__outOfBounds___rarg(x_27);
 x_13 = x_28;
 goto block_23;
 }

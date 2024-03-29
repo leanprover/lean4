@@ -17,7 +17,6 @@ static lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__1___closed__3;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2909____lambda__2___closed__28;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2909____lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,6 +73,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_RecursorInfo_numParams___boxed(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_List_toString___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__7___closed__4;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3694,7 +3694,7 @@ if (x_20 == 0)
 {
 lean_object* x_73; lean_object* x_74; 
 x_73 = l_Lean_instInhabitedExpr;
-x_74 = l___private_Init_Util_0__outOfBounds___rarg(x_73);
+x_74 = l___private_Init_GetElem_0__outOfBounds___rarg(x_73);
 x_25 = x_74;
 goto block_72;
 }
@@ -4391,7 +4391,7 @@ if (x_41 == 0)
 lean_object* x_59; lean_object* x_60; 
 lean_dec(x_39);
 x_59 = l_Lean_instInhabitedExpr;
-x_60 = l___private_Init_Util_0__outOfBounds___rarg(x_59);
+x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
 x_46 = x_60;
 goto block_58;
 }
@@ -5344,7 +5344,7 @@ if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; 
 x_43 = l_Lean_instInhabitedExpr;
-x_44 = l___private_Init_Util_0__outOfBounds___rarg(x_43);
+x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
 x_13 = x_44;
 goto block_41;
 }

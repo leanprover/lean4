@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_LinearCnstr_toArith___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_356____spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_356____spec__3(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_356____spec__1___closed__3;
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_LinearCnstr_toArith(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_instReprExprCnstr;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprExprCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_278____closed__4;
 static lean_object* l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__6;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___closed__21;
 static lean_object* l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr___closed__1;
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__Lean_Meta_Linear_Nat_reprPolyCnstr____x40_Lean_Meta_Tactic_LinearArith_Nat_Basic___hyg_356____spec__3___closed__5;
@@ -2210,7 +2210,7 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 lean_dec(x_11);
 x_14 = l_Lean_instInhabitedExpr;
-x_15 = l___private_Init_Util_0__outOfBounds___rarg(x_14);
+x_15 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_7);

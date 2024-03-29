@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_2091____closed__2;
 lean_object* l_Lean_Compiler_LCNF_LetDecl_toMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_2091____closed__16;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -40,6 +39,7 @@ extern lean_object* l_Lean_Compiler_LCNF_instInhabitedCode;
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateParamImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ToMono___hyg_2091____closed__17;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
 lean_object* l_Lean_Compiler_LCNF_Arg_toLetValue(lean_object*);
@@ -376,7 +376,7 @@ if (x_35 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_33);
 x_36 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 x_38 = l_Lean_Compiler_LCNF_Arg_toLetValue(x_37);
 lean_dec(x_37);
 lean_ctor_set(x_20, 0, x_38);
@@ -416,7 +416,7 @@ if (x_46 == 0)
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 lean_dec(x_44);
 x_47 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_48 = l___private_Init_Util_0__outOfBounds___rarg(x_47);
+x_48 = l___private_Init_GetElem_0__outOfBounds___rarg(x_47);
 x_49 = l_Lean_Compiler_LCNF_Arg_toLetValue(x_48);
 lean_dec(x_48);
 x_50 = lean_alloc_ctor(1, 1, 0);
@@ -470,7 +470,7 @@ if (x_61 == 0)
 lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 lean_dec(x_59);
 x_62 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_63 = l___private_Init_Util_0__outOfBounds___rarg(x_62);
+x_63 = l___private_Init_GetElem_0__outOfBounds___rarg(x_62);
 x_64 = l_Lean_Compiler_LCNF_Arg_toLetValue(x_63);
 lean_dec(x_63);
 if (lean_is_scalar(x_56)) {
@@ -647,7 +647,7 @@ if (x_99 == 0)
 lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
 lean_dec(x_97);
 x_100 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_101 = l___private_Init_Util_0__outOfBounds___rarg(x_100);
+x_101 = l___private_Init_GetElem_0__outOfBounds___rarg(x_100);
 x_102 = l_Lean_Compiler_LCNF_Arg_toLetValue(x_101);
 lean_dec(x_101);
 if (lean_is_scalar(x_94)) {
@@ -4525,7 +4525,7 @@ if (x_82 == 0)
 lean_object* x_83; lean_object* x_84; 
 lean_dec(x_75);
 x_83 = l_Lean_Compiler_LCNF_trivialStructToMono___closed__13;
-x_84 = l___private_Init_Util_0__outOfBounds___rarg(x_83);
+x_84 = l___private_Init_GetElem_0__outOfBounds___rarg(x_83);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; lean_object* x_86; lean_object* x_87; 

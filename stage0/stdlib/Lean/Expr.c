@@ -23,7 +23,6 @@ static lean_object* l_Lean_Expr_updateFVar_x21___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_letValue_x21___boxed(lean_object*);
 static lean_object* l_Lean_mkDecIsTrue___closed__3;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_117____closed__7;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isArrow___boxed(lean_object*);
@@ -189,6 +188,7 @@ LEAN_EXPORT uint8_t lean_expr_has_fvar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkProj(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateLambda_x21Impl___closed__3;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 uint64_t lean_expr_data(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasFVarEx___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateForall_x21Impl___closed__1;
@@ -30257,7 +30257,7 @@ if (x_16 == 0)
 {
 lean_object* x_49; lean_object* x_50; 
 x_49 = l_Lean_instInhabitedExpr;
-x_50 = l___private_Init_Util_0__outOfBounds___rarg(x_49);
+x_50 = l___private_Init_GetElem_0__outOfBounds___rarg(x_49);
 x_22 = x_50;
 goto block_48;
 }
@@ -30275,7 +30275,7 @@ if (x_18 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = l_Lean_instInhabitedExpr;
-x_46 = l___private_Init_Util_0__outOfBounds___rarg(x_45);
+x_46 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
 x_23 = x_46;
 goto block_44;
 }
@@ -30294,7 +30294,7 @@ if (x_20 == 0)
 lean_object* x_41; lean_object* x_42; 
 lean_dec(x_14);
 x_41 = l_Lean_instInhabitedExpr;
-x_42 = l___private_Init_Util_0__outOfBounds___rarg(x_41);
+x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
 x_24 = x_42;
 goto block_40;
 }

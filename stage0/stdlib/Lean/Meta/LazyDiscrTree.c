@@ -17,7 +17,6 @@ static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTr
 static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_reprKey____x40_Lean_Meta_LazyDiscrTree___hyg_367____closed__27;
 static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_reprKey____x40_Lean_Meta_LazyDiscrTree___hyg_367____closed__7;
 static lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_MatchClone_isNumeral___closed__4;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_evalLazyEntry___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_addConstImportData(lean_object*);
@@ -112,6 +111,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_findMatches___rarg___lambda__
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_findModuleMatches___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_MatchResult_appendResultsAux___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_instBEqKey;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_newTrie(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_LazyDiscrTree_dropKeys___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_createImportedEnvironmentSeq___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10305,7 +10305,7 @@ if (x_9 == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_8);
 x_11 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___lambda__2___closed__2;
-x_12 = l___private_Init_Util_0__outOfBounds___rarg(x_11);
+x_12 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
 x_13 = lean_array_get_size(x_12);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_nat_dec_lt(x_14, x_13);
@@ -10541,7 +10541,7 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 lean_dec(x_13);
 x_15 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___lambda__2___closed__2;
-x_16 = l___private_Init_Util_0__outOfBounds___rarg(x_15);
+x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
 x_17 = lean_array_get_size(x_16);
 x_18 = lean_nat_dec_lt(x_6, x_17);
 if (x_18 == 0)
@@ -14176,7 +14176,7 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_6);
 x_10 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_MatchClone_getKeyArgs___lambda__2___closed__2;
-x_11 = l___private_Init_Util_0__outOfBounds___rarg(x_10);
+x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_10);
 lean_inc(x_1);
 x_12 = lean_apply_1(x_1, x_11);
 x_13 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_PreDiscrTree_modifyAt___rarg(x_3, x_5, x_12);
@@ -14565,7 +14565,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_12);
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_rootKey(x_4, x_19, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -14804,7 +14804,7 @@ if (x_69 == 0)
 lean_object* x_70; lean_object* x_71; lean_object* x_72; 
 lean_dec(x_12);
 x_70 = l_Lean_instInhabitedExpr;
-x_71 = l___private_Init_Util_0__outOfBounds___rarg(x_70);
+x_71 = l___private_Init_GetElem_0__outOfBounds___rarg(x_70);
 x_72 = l___private_Lean_Meta_LazyDiscrTree_0__Lean_Meta_LazyDiscrTree_rootKey(x_4, x_71, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_72) == 0)
 {
@@ -16528,7 +16528,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = l_Lean_instInhabitedConstantInfo;
-x_20 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 lean_inc(x_3);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -16697,13 +16697,13 @@ if (x_15 == 0)
 lean_object* x_19; lean_object* x_20; 
 lean_dec(x_13);
 x_19 = l_Lean_instInhabitedName;
-x_20 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 if (x_18 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_16);
 x_21 = l_Lean_instInhabitedModuleData;
-x_22 = l___private_Init_Util_0__outOfBounds___rarg(x_21);
+x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_21);
 x_23 = lean_unsigned_to_nat(0u);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -16826,7 +16826,7 @@ if (x_18 == 0)
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 lean_dec(x_16);
 x_47 = l_Lean_instInhabitedModuleData;
-x_48 = l___private_Init_Util_0__outOfBounds___rarg(x_47);
+x_48 = l___private_Init_GetElem_0__outOfBounds___rarg(x_47);
 x_49 = lean_unsigned_to_nat(0u);
 lean_inc(x_5);
 lean_inc(x_4);

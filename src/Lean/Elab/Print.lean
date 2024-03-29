@@ -65,6 +65,7 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
     m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
   logInfo m
 
+open Meta in
 private def printStructOrClass (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (ctor : Name) (fields : Array Name) (isUnsafe : Bool) (isClass : Bool) : CommandElabM Unit := do
   let kind := if isClass then "class" else "structure"
@@ -73,15 +74,21 @@ private def printStructOrClass (id : Name) (levelParams : List Name) (numParams 
   m := m ++ Format.line ++ "constructor:"
   let cinfo ← getConstInfo ctor
   m := m ++ Format.line ++ ctor ++ " : " ++ cinfo.type
-  m := m ++ Format.line ++ "fields:"
-  for field in fields do
-    match getProjFnForField? (← getEnv) id field with
-    | some proj =>
-      let field := if isPrivateName proj then "private " ++ toString field else toString field
-      let cinfo ← getConstInfo proj
-      m := m ++ Format.line ++ field ++ " : " ++ cinfo.type
-    | none => panic! "missing structure field info"
+  m := m ++ Format.line ++ "fields:" ++ (← doFields)
   logInfo m
+where
+  doFields := liftTermElabM do
+    forallTelescope (← getConstInfo id).type fun params _ => do
+      let mut m : Format := ""
+      for field in fields do
+        match getProjFnForField? (← getEnv) id field with
+        | some proj =>
+          let field : Format := if isPrivateName proj then "private " ++ toString field else toString field
+          let cinfo ← getConstInfo proj
+          let ftype ← instantiateForall cinfo.type params
+          m := m ++ Format.line ++ field ++ " : " ++ (← ppExpr ftype) -- Why ppExpr here?
+        | none => panic! "missing structure field info"
+      return m
 
 private def printIdCore (id : Name) : CommandElabM Unit := do
   let env ← getEnv

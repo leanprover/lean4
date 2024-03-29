@@ -15,10 +15,10 @@ Turning off `pp.mvars`
 section
 set_option pp.mvars false
 
-/-- info: _ : Nat -/
+/-- info: ?_ : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: _ : Nat -/
+/-- info: ?_ : Nat -/
 #guard_msgs in #check (_ : Nat)
 
 end
@@ -30,10 +30,10 @@ section
 set_option pp.mvars false
 set_option pp.mvars.withType true
 
-/-- info: (_ : Nat) : Nat -/
+/-- info: (?_ : Nat) : Nat -/
 #guard_msgs in #check (?a : Nat)
 
-/-- info: (_ : Nat) : Nat -/
+/-- info: (?_ : Nat) : Nat -/
 #guard_msgs in #check (_ : Nat)
 
 end

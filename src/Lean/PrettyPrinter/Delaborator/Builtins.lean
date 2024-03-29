@@ -63,7 +63,7 @@ def delabMVar : Delab := do
         | n => n
       `(?$(mkIdent n))
     else
-      `(_)
+      `(?_)
 
 @[builtin_delab sort]
 def delabSort : Delab := do

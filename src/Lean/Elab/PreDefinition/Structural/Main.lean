@@ -101,6 +101,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
         -/
         registerEqnsInfo preDef recArgPos
     addSmartUnfoldingDef preDef recArgPos
+    markAsRecursive preDef.declName
     applyAttributesOf #[preDefNonRec] AttributeApplicationTime.afterCompilation
 
 builtin_initialize

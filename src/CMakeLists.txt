@@ -74,7 +74,7 @@ option(SAVE_INFO           "SAVE_INFO" ON)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
-option(RUNTIME_STATS       "RUNTIME_STATS" ON)
+option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 

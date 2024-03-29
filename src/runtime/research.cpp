@@ -93,6 +93,7 @@ void research_dump_allocator_log() {
   assert(o);
 
   (*o << "rss, " << lean::get_peak_rss()) << "\n";
+#ifdef LEAN_RUNTIME_STATS
   (*o << "num_alloc, " << lean::allocator::get_num_alloc()) << "\n";
   (*o << "num_small_alloc, " << lean::allocator::get_num_small_alloc()) << "\n";
   (*o << "num_dealloc, " << lean::allocator::get_num_dealloc()) << "\n";
@@ -103,6 +104,7 @@ void research_dump_allocator_log() {
   (*o << "num_exports, " << lean::allocator::get_num_exports()) << "\n";
   (*o << "num_recycled_pages, " << lean::allocator::get_num_recycled_pages())
       << "\n";
+#endif
   if (of) {
     delete of;
   }

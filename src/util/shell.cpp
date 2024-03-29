@@ -475,6 +475,7 @@ struct Profiler {
     const auto time_elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(time_end - time_start).count();
 
     write_file_identifier<uint64_t>(o, src_path, "rss", lean::get_peak_rss());
+#ifdef LEAN_RUNTIME_STATS
     write_file_identifier<uint64_t>(o, src_path, "num_alloc",
                                     lean::allocator::get_num_alloc());
     write_file_identifier<uint64_t>(o, src_path, "num_small_alloc",
@@ -491,6 +492,7 @@ struct Profiler {
                                     lean::allocator::get_num_exports());
     write_file_identifier<uint64_t>(o, src_path, "num_recycled_pages",
                                     lean::allocator::get_num_recycled_pages());
+#endif
     write_file_identifier<uint64_t>(o, src_path, "time_elapsed_ms", time_elapsed_ms);
   }
 };

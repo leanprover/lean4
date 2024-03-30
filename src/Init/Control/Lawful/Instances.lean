@@ -235,13 +235,13 @@ end StateT
 
 instance : LawfulMonad (EStateM ε σ) := .mk'
   (id_map := fun x => funext <| fun s => by
-    dsimp only [EStateM.instMonadEStateM, EStateM.map]
+    dsimp only [EStateM.instMonad, EStateM.map]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (pure_bind := fun _ _ => rfl)
   (bind_assoc := fun x _ _ => funext <| fun s => by
-    dsimp only [EStateM.instMonadEStateM, EStateM.bind]
+    dsimp only [EStateM.instMonad, EStateM.bind]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)

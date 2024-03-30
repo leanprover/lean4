@@ -66,12 +66,6 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   { ref := stx, kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
-def mkFreshInstanceName : CommandElabM Name := do
-  let s ← get
-  let idx := s.nextInstIdx
-  modify fun s => { s with nextInstIdx := s.nextInstIdx + 1 }
-  return Lean.Elab.mkFreshInstanceName s.env idx
-
 /--
   Generate a name for an instance with the given type.
   Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration. -/
@@ -99,7 +93,7 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
     liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
   catch _ =>
     set savedState
-    mkFreshInstanceName
+    liftMacroM <| mkUnusedBaseName <| Name.mkSimple "instance"
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

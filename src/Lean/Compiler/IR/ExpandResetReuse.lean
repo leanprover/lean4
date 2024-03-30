@@ -126,13 +126,13 @@ abbrev M := ReaderT Context (StateM Nat)
   def mkFreshJoinPoint : M JoinPointId :=
     modifyGet fun n => ({ idx := n }, n + 1)
 
-def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
-  mask.size.foldM (init := b) fun i b =>
+def releaseUnreadFields (y : VarId) (mask : Mask) : M (FnBody → FnBody) :=
+  mask.size.foldM (init := id) fun i b =>
     match mask.get! i with
     | some _ => pure b -- code took ownership of this field
     | none   => do
       let fld ← mkFresh
-      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true false b))
+      pure (FnBody.vdecl fld IRType.object (Expr.proj i y) ∘ (FnBody.dec fld 1 true false ∘ b))
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
   zs.size.fold (init := b) fun i b => FnBody.set y i (zs.get! i) b
@@ -218,8 +218,8 @@ and `z := reuse x ctor_i ws; F` is replaced with
 -/
 def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
   let ctx ← read
-  let b := reuseToSet ctx x y b
-  releaseUnreadFields y mask b
+  let f ← releaseUnreadFields y mask
+  pure (f (reuseToSet ctx x y b))
 
 /- New version of `mkFastPath` that uses drop-specialisation and reuse-specialisation
    instead of expanding the resets to avoid code blowup.
@@ -227,22 +227,34 @@ def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
 
 def null := Expr.lit (LitVal.num 0)
 
+/- Create a new join point, where the declaration `v` obtains a function that will generate
+   a jump to the join point with the variable as an argument. We optimize the case, where
+   the binding is just a return and float it into the declaration. -/
+def mkJoin (x : VarId) (t : IRType) (b : FnBody) (v : (VarId → FnBody) → FnBody) : M FnBody :=
+  match b with
+  | FnBody.ret _ =>
+      return v fun z => FnBody.ret (Arg.var z)
+  | _ => do
+    let j ← mkFreshJoinPoint
+    let z ← mkFresh
+    return FnBody.jdecl j #[mkParam z false t]
+      (b.replaceVar x z)
+      (v (fun z => mkJmp j #[Arg.var z]))
+
 /- Reuse specialisation -/
 def tryReuse (reused token : VarId) (c : CtorInfo) (u : Bool) (t : IRType) (xs : Array Arg) (b : FnBody) : M FnBody := do
   let ctx ← read
-  let j ← mkFreshJoinPoint
   let null? ← mkFresh
   let z ← mkFresh
-  return FnBody.jdecl j #[mkParam z false t]
-    (b.replaceVar reused z)
+  mkJoin reused t b fun jmp =>
     (FnBody.vdecl null? IRType.uint8 (Expr.isNull token)
       (mkIf null?
         (FnBody.vdecl z t (Expr.ctor c xs)
-          (mkJmp j #[Arg.var z]))
+          (jmp z))
         (removeSelfSet ctx
           ((if u then FnBody.setTag token c.cidx else id)
             (setFields token xs
-              (mkJmp j #[Arg.var token]))))))
+              (jmp token))))))
 
 /- Apply reuse specialisation for a reuse instruction -/
 partial def reuseToTryReuse (x y : VarId) : FnBody → M FnBody
@@ -284,20 +296,17 @@ def adjustReferenceCountsSlowPath (y : VarId) (mask : Mask) (b : FnBody) :=
 
 /- Drop specialisation -/
 def tryReset (token oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
-  let j ← mkFreshJoinPoint
   let shared? ← mkFresh
-  let z1 ← mkFresh
   let z2 ← mkFresh
-  let fastPath ← releaseUnreadFields oldAlloc mask (mkJmp j #[Arg.var oldAlloc])
-  let b ← reuseToTryReuse token z1 b
-  return FnBody.jdecl j #[mkParam z1 false IRType.object]
-    b
+  let fastPath ← releaseUnreadFields oldAlloc mask
+  let b ← reuseToTryReuse token token b
+  mkJoin token IRType.object b fun jmp =>
     (FnBody.vdecl shared? IRType.uint8 (Expr.isShared oldAlloc)
       (mkIf shared?
         (adjustReferenceCountsSlowPath oldAlloc mask
           (FnBody.vdecl z2 IRType.object null
-            (mkJmp j #[Arg.var z2])))
-        fastPath))
+            (jmp z2)))
+        (fastPath (jmp oldAlloc))))
 
 -- Expand `bs; x := reset[n] y; b`
 mutual

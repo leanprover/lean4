@@ -322,7 +322,7 @@ partial def expand
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   | FnBody.vdecl x _ (Expr.reset n y) b, bs =>
-      expand bs x n y b
+      mkNewPath bs x n y b
   | FnBody.jdecl j xs v b,   bs => do
     let v ← searchAndExpand v #[]
     let b ← searchAndExpand b #[]

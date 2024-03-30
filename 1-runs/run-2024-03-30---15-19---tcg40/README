@@ -1,0 +1,2 @@
+- Run stage2 normally, then time the compile of stage3. Also track file sizes to compare between baseline and reused compiler.
+

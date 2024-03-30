@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 prelude
 import Lean.Meta.ForEachExpr
 import Lean.Elab.Command
+import Lean.Elab.DeclNameGen
 import Lean.Elab.DeclUtil
 
 namespace Lean.Elab
@@ -65,35 +66,6 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let (binders, type) := expandDeclSig stx[2]
   { ref := stx, kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
-
-/--
-  Generate a name for an instance with the given type.
-  Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration. -/
-def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
-  let savedState ← get
-  try
-    let result ← runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
-      let type ← instantiateMVars (← Term.elabType type)
-      let ref ← IO.mkRef ""
-      Meta.forEachExpr type fun e => do
-        if e.isForall then ref.modify (· ++ "ForAll")
-        else if e.isProp then ref.modify (· ++ "Prop")
-        else if e.isType then ref.modify (· ++ "Type")
-        else if e.isSort then ref.modify (· ++ "Sort")
-        else if e.isConst then
-          match e.constName!.eraseMacroScopes with
-          | .str _ str =>
-              if str.front.isLower then
-                ref.modify (· ++ str.capitalize)
-              else
-                ref.modify (· ++ str)
-          | _ => pure ()
-      ref.get
-    set savedState
-    liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
-  catch _ =>
-    set savedState
-    liftMacroM <| mkUnusedBaseName <| Name.mkSimple "instance"
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

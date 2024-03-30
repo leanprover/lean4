@@ -75,7 +75,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let (binders, type) := expandDeclSig stx[4]
   let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with
-    | some declId => pure declId
+    | some declId => mkInstanceName binders.getArgs type *> pure declId
     | none        =>
       let id ← mkInstanceName binders.getArgs type
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]

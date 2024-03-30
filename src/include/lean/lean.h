@@ -486,11 +486,7 @@ static inline bool lean_is_exclusive(lean_object * o) {
 }
 
 static inline bool lean_is_null(lean_object * a1) {
-    if (LEAN_UNLIKELY(lean_is_scalar(a1))) {
-        return a1 == lean_box(0);
-    } else {
-        return false;
-    }
+    return lean_is_scalar(a1);
 }
 
 static inline bool lean_is_shared(lean_object * o) {

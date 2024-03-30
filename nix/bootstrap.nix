@@ -119,7 +119,7 @@ rec {
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
           ${if stdenv.isDarwin
-            then "-lInit -Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
+            then "-lleancpp -Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "-Wl,--whole-archive -lInit ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} \
           -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
@@ -129,7 +129,7 @@ rec {
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \
           ${if stdenv.isDarwin
-            then "-Wl,-force_load,${libInit_shared}/* -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
+            then "-lleancpp -Wl,-force_load,${libInit_shared}/* -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "${libInit_shared}/* -Wl,--whole-archive -lLean -lleancpp -Wl,--no-whole-archive -lstdc++"} \
           -lm ${stdlibLinkFlags} \
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \

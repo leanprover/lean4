@@ -93,7 +93,7 @@ structure ThreadWithMaps extends Thread where
   stringMap : HashMap String Nat := {}
   funcMap : HashMap Nat Nat := {}
   stackMap : HashMap (Nat × Option Nat) Nat := {}
-  lastTime : Milliseconds := 0
+  lastTime : Float := 0
 
 def categories : Array Category := #[
   { name := "Other", color := "gray" },
@@ -145,31 +145,24 @@ where
               length := thread.stackTable.length + 1
             }
             stackMap := thread.stackMap.insert (frameIdx, parentStackIdx?) thread.stackMap.size })
-      if let some nextStart := children.findSome? getNextStart? then
-        modify fun thread => { thread with samples := {
+      modify fun thread => { thread with lastTime := data.startTime }
+      for c in children do
+        if let some nextStart := getNextStart? c then
+          modify fun thread => { thread with samples := {
+            stack := thread.samples.stack.push stackIdx
+            time := thread.samples.time.push (thread.lastTime * 1000)
+            weight := thread.samples.weight.push ((nextStart - thread.lastTime) * 1000)
+            length := thread.samples.length + 1
+          } }
+          go (some stackIdx) c
+      modify fun thread => { thread with
+        lastTime := data.stopTime
+        samples := {
           stack := thread.samples.stack.push stackIdx
-          time := thread.samples.time.push (data.startTime * 1000)
-          weight := thread.samples.weight.push ((nextStart - data.startTime) * 1000)
+          time := thread.samples.time.push (thread.lastTime * 1000)
+          weight := thread.samples.weight.push ((data.stopTime - thread.lastTime) * 1000)
           length := thread.samples.length + 1
         } }
-        children.forM <| go (some stackIdx)
-        modify fun thread => { thread with
-          lastTime := data.stopTime * 1000
-          samples := {
-            stack := thread.samples.stack.push stackIdx
-            time := thread.samples.time.push thread.lastTime
-            weight := thread.samples.weight.push (data.stopTime * 1000 - thread.lastTime)
-            length := thread.samples.length + 1
-          } }
-      else
-        modify fun thread => { thread with
-          lastTime := data.stopTime * 1000
-          samples := {
-            stack := thread.samples.stack.push stackIdx
-            time := thread.samples.time.push (data.startTime * 1000)
-            weight := thread.samples.weight.push ((data.stopTime - data.startTime) * 1000)
-            length := thread.samples.length + 1
-          } }
     | .withContext _ msg => go parentStackIdx? msg
     | _ => return
   getNextStart?

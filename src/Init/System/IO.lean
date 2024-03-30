@@ -802,7 +802,8 @@ class Eval (α : Type u) where
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
   eval : (Unit → α) → (hideUnit : Bool := true) → IO Unit
 
-instance [ToString α] : Eval α where
+-- Note: changing the name of this instance without updating stage0 causes stage2 to fail to build.
+instance instEval [ToString α] : Eval α where
   eval a _ := IO.println (toString (a ()))
 
 instance [Repr α] : Eval α where

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Lean.Meta.ForEachExpr
 import Lean.Elab.Command
 import Lean.Elab.DeclNameGen
 import Lean.Elab.DeclUtil
@@ -75,7 +74,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let (binders, type) := expandDeclSig stx[4]
   let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with
-    | some declId => mkInstanceName binders.getArgs type *> pure declId
+    | some declId => pure declId
     | none        =>
       let id ← mkInstanceName binders.getArgs type
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]

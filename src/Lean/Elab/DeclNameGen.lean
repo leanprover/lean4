@@ -279,9 +279,12 @@ Generate a name for an instance with the given type.
 Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration.
 -/
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
-  let name ← mkInstanceNameOld binders type
-  let name' ← mkInstanceNameNew binders type
-  let ns ← getCurrNamespace
-  let eq? := if name == name' then "=" else "*"
-  IO.eprintln s!"!!! mkInstanceName{eq?} {ns ++ name} {ns ++ name'}"
-  return name
+  if false then
+    let name ← mkInstanceNameOld binders type
+    let name' ← mkInstanceNameNew binders type
+    let ns ← getCurrNamespace
+    let eq? := if name == name' then "=" else "*"
+    IO.eprintln s!"!!! mkInstanceName{eq?} {ns ++ name} {ns ++ name'}"
+    return name
+  else
+    mkInstanceNameNew binders type

@@ -222,17 +222,22 @@ where
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>
         if let some idx := thread.sampleMap.find? stackIdx then
-          { thread with
-            samples.weight[idx] := thread.samples.weight[idx]! + add.samples.weight[oldSampleIdx]!  }
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩ := thread
+          let ⟨s1, s2, weight, s3, s4⟩ := samples
+          let weight := weight.set! idx <| weight[idx]! + add.samples.weight[oldSampleIdx]!
+          let samples := ⟨s1, s2, weight, s3, s4⟩
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩
         else
-          { thread with
-            samples := {
-              stack := thread.samples.stack.push stackIdx
-              time := thread.samples.time.push 0
-              weight := thread.samples.weight.push add.samples.weight[oldSampleIdx]!
-              length := thread.samples.length + 1
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩ := thread
+          let ⟨stack, time, weight, _, length⟩ := samples
+          let samples := {
+              stack := stack.push stackIdx
+              time := time.push time.size.toFloat
+              weight := weight.push add.samples.weight[oldSampleIdx]!
+              length := length + 1
             }
-            sampleMap := thread.sampleMap.insert stackIdx thread.sampleMap.size }
+          let sampleMap := sampleMap.insert stackIdx sampleMap.size
+          ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩
   collideStacks oldStackIdx : StateM ThreadWithCollideMaps Nat := do
     let oldParentStackIdx? := add.stackTable.prefix[oldStackIdx]!
     let parentStackIdx? ← oldParentStackIdx?.mapM (collideStacks ·)
@@ -263,16 +268,18 @@ where
       if let some idx := thread.stackMap.find? (frameIdx, parentStackIdx?) then
         (idx, thread)
       else
-        let rec upd stackTable := {
-            frame := stackTable.frame.push frameIdx
-            «prefix» := stackTable.prefix.push parentStackIdx?
-            category := stackTable.category.push add.stackTable.category[oldStackIdx]!
-            subcategory := stackTable.subcategory.push add.stackTable.subcategory[oldStackIdx]!
-            length := stackTable.length + 1
+        (thread.stackMap.size,
+          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩ := thread
+          let { frame, «prefix», category, subcategory, length } := stackTable
+          let stackTable := {
+            frame := frame.push frameIdx
+            «prefix» := prefix.push parentStackIdx?
+            category := category.push add.stackTable.category[oldStackIdx]!
+            subcategory := subcategory.push add.stackTable.subcategory[oldStackIdx]!
+            length := length + 1
           }
-        (thread.stackMap.size, { thread with
-          stackTable := upd thread.stackTable
-          stackMap := thread.stackMap.insert (frameIdx, parentStackIdx?) thread.stackMap.size })
+          let stackMap := stackMap.insert (frameIdx, parentStackIdx?) stackMap.size
+          ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩)
   getStrIdx (s : String) :=
     modifyGet fun thread =>
       if let some idx := thread.stringMap.find? s then

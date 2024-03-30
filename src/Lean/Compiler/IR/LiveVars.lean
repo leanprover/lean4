@@ -133,6 +133,7 @@ def collectExpr : Expr → Collector
   | Expr.unbox x        => collectVar x
   | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
+  | Expr.isNull x       => collectVar x
 
 partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.vdecl x _ v b,    m => collectExpr v ∘ bindVar x ∘ collectFnBody b m

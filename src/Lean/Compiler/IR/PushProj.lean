@@ -33,6 +33,7 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
       | Expr.uproj _ _     => push x
       | Expr.sproj _ _ _   => push x
       | Expr.isShared _    => skip ()
+      | Expr.isNull _    => skip ()
       | _                  => done ()
     | _ => done ()
 

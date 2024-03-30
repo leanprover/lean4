@@ -83,7 +83,7 @@ static inline bool get_bool_field(object * o, unsigned num_obj_fields) {
     return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields);
 }
 
-enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsTaggedPtr };
+enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsNull, IsTaggedPtr };
 expr_kind expr_tag(expr const & e) { return static_cast<expr_kind>(cnstr_tag(e.raw())); }
 ctor_info const & expr_ctor_info(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<ctor_info>(e, 0); }
 array_ref<arg> const & expr_ctor_args(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Ctor); return cnstr_get_ref_t<array_ref<arg>>(e, 1); }
@@ -111,6 +111,7 @@ var_id const & expr_box_obj(expr const & e) { lean_assert(expr_tag(e) == expr_ki
 var_id const & expr_unbox_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Unbox); return cnstr_get_ref_t<var_id>(e, 0); }
 lit_val const & expr_lit_val(expr const & e) { lean_assert(expr_tag(e) == expr_kind::Lit); return cnstr_get_ref_t<lit_val>(e, 0); }
 var_id const & expr_is_shared_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsShared); return cnstr_get_ref_t<var_id>(e, 0); }
+var_id const & expr_is_null_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsNull); return cnstr_get_ref_t<var_id>(e, 0); }
 var_id const & expr_is_tagged_ptr_obj(expr const & e) { lean_assert(expr_tag(e) == expr_kind::IsTaggedPtr); return cnstr_get_ref_t<var_id>(e, 0); }
 
 typedef object_ref param;
@@ -551,6 +552,8 @@ private:
                 break;
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
+            case expr_kind::IsNull:
+                return is_null(var(expr_is_null_obj(e)).m_obj);
             case expr_kind::IsTaggedPtr:
                 return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
         }

@@ -160,6 +160,12 @@ static inline void lean_dealloc(lean_object * o, size_t sz) {
 #endif
 }
 
+extern "C" LEAN_EXPORT void lean_free_token(lean_object * o) {
+    if (lean_is_scalar(o))
+        return;
+    return lean_free_small_object(o);
+}
+
 extern "C" LEAN_EXPORT void lean_free_object(lean_object * o) {
     switch (lean_ptr_tag(o)) {
     case LeanArray:       return lean_dealloc(o, lean_array_byte_size(o));

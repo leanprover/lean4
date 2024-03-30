@@ -23,7 +23,7 @@ Assumptions:
   Reason: if there is no `Alt.default` branch, then we can decide whether `x` at `FnBody.case x alts` is an
   enumeration type by simply inspecting the `CtorInfo` values at `alts`.
 - This transformation is applied before lower level optimizations are applied which use
-  `Expr.isShared`, `Expr.isTaggedPtr`, and `FnBody.set`.
+  `Expr.isShared`, `Expr.isNull`, `Expr.isTaggedPtr`, and `FnBody.set`.
 - This transformation is applied after `reset` and `reuse` instructions have been added.
   Reason: `resetreuse.lean` ignores `box` and `unbox` instructions.
 -/

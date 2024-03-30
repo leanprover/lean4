@@ -220,6 +220,8 @@ inductive Expr where
   | lit (v : LitVal)
   /-- Return `1 : uint8` Iff `RC(x) > 1` -/
   | isShared (x : VarId)
+  /-- Return `1 : uint8` Iff `x == LitVal.num 0` -/
+  | isNull (x : VarId)
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
   Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
@@ -262,7 +264,7 @@ inductive FnBody where
   /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
   If `persistent == true` then `x` is statically known to be a persistent object. -/
   | inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
-  /-- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+  /-- RC decrement for `object`. If c == `true`, then `dec` must check whether `x` is a tagged pointer or not.
   If `persistent == true` then `x` is statically known to be a persistent object. -/
   | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
@@ -549,6 +551,7 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.unbox x₁,           Expr.unbox x₂           => aeqv ρ x₁ x₂
   | Expr.lit v₁,             Expr.lit v₂             => v₁ == v₂
   | Expr.isShared x₁,        Expr.isShared x₂        => aeqv ρ x₁ x₂
+  | Expr.isNull x₁,          Expr.isNull x₂          => aeqv ρ x₁ x₂
   | _,                        _                      => false
 
 instance : AlphaEqv Expr:= ⟨Expr.alphaEqv⟩

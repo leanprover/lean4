@@ -49,6 +49,7 @@ private def formatExpr : Expr → Format
   | Expr.unbox x        => "unbox " ++ format x
   | Expr.lit v          => format v
   | Expr.isShared x     => "isShared " ++ format x
+  | Expr.isNull x       => "isNull " ++ format x
 
 instance : ToFormat Expr := ⟨formatExpr⟩
 instance : ToString Expr := ⟨fun e => Format.pretty (format e)⟩

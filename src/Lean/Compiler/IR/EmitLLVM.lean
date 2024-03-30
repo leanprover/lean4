@@ -840,6 +840,16 @@ def callLeanIsExclusive (builder : LLVM.Builder llvmctx)
   let out ← LLVM.buildCall2 builder fnty fn  #[closure] retName
   LLVM.buildSextOrTrunc builder out (← LLVM.i8Type llvmctx)
 
+def callLeanIsNull (builder : LLVM.Builder llvmctx)
+    (closure : LLVM.Value llvmctx) (retName : String := "") : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName :=  "lean_is_null"
+  let retty ← LLVM.i1Type llvmctx
+  let argtys := #[ ← LLVM.voidPtrType llvmctx]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  let out ← LLVM.buildCall2 builder fnty fn  #[closure] retName
+  LLVM.buildSextOrTrunc builder out (← LLVM.i8Type llvmctx)
+
 def callLeanIsScalar (builder : LLVM.Builder llvmctx)
     (closure : LLVM.Value llvmctx) (retName : String := "") : M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_is_scalar"
@@ -851,7 +861,14 @@ def callLeanIsScalar (builder : LLVM.Builder llvmctx)
 
 def emitIsShared (builder : LLVM.Builder llvmctx) (z : VarId) (x : VarId) : M llvmctx Unit := do
     let xv ← emitLhsVal builder x
-    let exclusive? ← callLeanIsExclusive builder xv
+    let null? ← callLeanIsExclusive builder xv
+    let null? ← LLVM.buildSextOrTrunc builder null? (← LLVM.i1Type llvmctx)
+    let null? ← LLVM.buildSext builder null? (← LLVM.i8Type llvmctx)
+    emitLhsSlotStore builder z null?
+
+def emitIsNull (builder : LLVM.Builder llvmctx) (z : VarId) (x : VarId) : M llvmctx Unit := do
+    let xv ← emitLhsVal builder x
+    let exclusive? ← callLeanIsNull builder xv
     let exclusive? ← LLVM.buildSextOrTrunc builder exclusive? (← LLVM.i1Type llvmctx)
     let shared? ← LLVM.buildNot builder exclusive?
     let shared? ← LLVM.buildSext builder shared? (← LLVM.i8Type llvmctx)
@@ -969,6 +986,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.box t x        => emitBox builder z x t
   | Expr.unbox x        => emitUnbox builder z t x
   | Expr.isShared x     => emitIsShared builder z x
+  | Expr.isNull x       => emitIsNull builder z x
   | Expr.lit v          => let _ ← emitLit builder z t v
 
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do

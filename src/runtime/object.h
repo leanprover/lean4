@@ -48,6 +48,7 @@ inline bool is_heap_obj(object * o) { return is_st_heap_obj(o) || is_mt_heap_obj
 inline void mark_mt(object * o) { lean_mark_mt(o); }
 inline bool is_shared(object * o) { return lean_is_shared(o); }
 inline bool is_exclusive(object * o) { return lean_is_exclusive(o); }
+inline bool is_null(object * o) { return lean_is_null(o); }
 inline void inc_ref(object * o) { lean_inc_ref(o); }
 inline void inc_ref(object * o, size_t n) { lean_inc_ref_n(o, n); }
 inline void dec_ref(object * o) { lean_dec_ref(o); }

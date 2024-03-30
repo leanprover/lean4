@@ -37,17 +37,6 @@ def mkProjMap (d : Decl) : ProjMap :=
 structure Context where
   projMap : ProjMap
 
-/-- Return true iff `x` is consumed in all branches of the current block.
-   Here consumption means the block contains a `dec x` or `reuse x ...`. -/
-partial def consumed (x : VarId) : FnBody → Bool
-  | .vdecl _ _ v b   =>
-    match v with
-    | Expr.reuse y _ _ _ => x == y || consumed x b
-    | _                  => consumed x b
-  | .dec y _ _ _ b   => x == y || consumed x b
-  | .case _ _ _ alts => alts.all fun alt => consumed x alt.body
-  | e => !e.isTerminal && consumed x e.body
-
 abbrev Mask := Array (Option VarId)
 
 /-- Auxiliary function for eraseProjIncFor -/
@@ -102,6 +91,8 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
   | FnBody.case tid y yType alts   =>
     let alts := alts.map fun alt => alt.modifyBody (reuseToCtor x)
     FnBody.case tid y yType alts
+  | FnBody.jdecl j xs v b   =>
+    FnBody.jdecl j xs (reuseToCtor x v) (reuseToCtor x b)
   | e =>
     if e.isTerminal then
       e
@@ -131,7 +122,9 @@ def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
 
 abbrev M := ReaderT Context (StateM Nat)
   def mkFresh : M VarId :=
-  modifyGet fun n => ({ idx := n }, n + 1)
+    modifyGet fun n => ({ idx := n }, n + 1)
+  def mkFreshJoinPoint : M JoinPointId :=
+    modifyGet fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
   mask.size.foldM (init := b) fun i b =>
@@ -176,15 +169,8 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   | FnBody.sset x n i y t b   =>
     if isSelfSSet ctx x n i y then removeSelfSet ctx b
     else FnBody.sset x n i y t (removeSelfSet ctx b)
-  | FnBody.case tid y yType alts   =>
-    let alts := alts.map fun alt => alt.modifyBody (removeSelfSet ctx)
-    FnBody.case tid y yType alts
-  | e =>
-    if e.isTerminal then e
-    else
-      let (instr, b) := e.split
-      let b := removeSelfSet ctx b
-      instr.setBody b
+  | FnBody.setTag x c b   => FnBody.setTag x c (removeSelfSet ctx b)
+  | e => e
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
   | FnBody.dec z n c p b   =>
@@ -202,6 +188,8 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
   | FnBody.case tid z zType alts   =>
     let alts := alts.map fun alt => alt.modifyBody (reuseToSet ctx x y)
     FnBody.case tid z zType alts
+  | FnBody.jdecl j xs v b   =>
+    FnBody.jdecl j xs (reuseToSet ctx x y v) (reuseToSet ctx x y b)
   | e =>
     if e.isTerminal then e
     else
@@ -233,8 +221,93 @@ def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
   let b := reuseToSet ctx x y b
   releaseUnreadFields y mask b
 
+/- New version of `mkFastPath` that uses drop-specialisation and reuse-specialisation
+   instead of expanding the resets to avoid code blowup.
+-/
+
+def null := Expr.lit (LitVal.num 0)
+
+/- Reuse specialisation -/
+def tryReuse (reused token : VarId) (c : CtorInfo) (u : Bool) (t : IRType) (xs : Array Arg) (b : FnBody) : M FnBody := do
+  let ctx ← read
+  let j ← mkFreshJoinPoint
+  let null? ← mkFresh
+  let z ← mkFresh
+  return FnBody.jdecl j #[mkParam z false t]
+    (b.replaceVar reused z)
+    (FnBody.vdecl null? IRType.uint8 (Expr.isNull token)
+      (mkIf null?
+        (FnBody.vdecl z t (Expr.ctor c xs)
+          (mkJmp j #[Arg.var z]))
+        (removeSelfSet ctx
+          ((if u then FnBody.setTag token c.cidx else id)
+            (setFields token xs
+              (mkJmp j #[Arg.var token]))))))
+
+/- Apply reuse specialisation for a reuse instruction -/
+partial def reuseToTryReuse (x y : VarId) : FnBody → M FnBody
+  | FnBody.dec z n c p b   =>
+    if x == z then return FnBody.del y b
+    else do
+      let b ← reuseToTryReuse x y b
+      return FnBody.dec z n c p b
+  | FnBody.vdecl z t v b   =>
+    match v with
+    | Expr.reuse w c u zs =>
+      if x == w then
+        tryReuse z y c u t zs b
+      else do
+        let b ← reuseToTryReuse x y b
+        return FnBody.vdecl z t v b
+    | _ => do
+        let b ← reuseToTryReuse x y b
+        return FnBody.vdecl z t v b
+  | FnBody.case tid z zType alts   => do
+    let alts ← alts.mapM fun alt => alt.mmodifyBody (reuseToTryReuse x y)
+    return FnBody.case tid z zType alts
+  | FnBody.jdecl j xs v b   => do
+    let v ← reuseToTryReuse x y v
+    let b ← reuseToTryReuse x y b
+    return FnBody.jdecl j xs v b
+  | e =>
+    if e.isTerminal then return e
+    else do
+      let (instr, b) := e.split
+      let b ← reuseToTryReuse x y b
+      return instr.setBody b
+
+def adjustReferenceCountsSlowPath (y : VarId) (mask : Mask) (b : FnBody) :=
+  let b := FnBody.dec y 1 true false b
+  mask.foldl (init := b) fun b m => match m with
+      | some z => FnBody.inc z 1 true false b
+      | none   => b
+
+/- Drop specialisation -/
+def tryReset (token oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
+  let j ← mkFreshJoinPoint
+  let shared? ← mkFresh
+  let z1 ← mkFresh
+  let z2 ← mkFresh
+  let fastPath ← releaseUnreadFields oldAlloc mask (mkJmp j #[Arg.var oldAlloc])
+  let b ← reuseToTryReuse token z1 b
+  return FnBody.jdecl j #[mkParam z1 false IRType.object]
+    b
+    (FnBody.vdecl shared? IRType.uint8 (Expr.isShared oldAlloc)
+      (mkIf shared?
+        (adjustReferenceCountsSlowPath oldAlloc mask
+          (FnBody.vdecl z2 IRType.object null
+            (mkJmp j #[Arg.var z2])))
+        fastPath))
+
 -- Expand `bs; x := reset[n] y; b`
-partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
+mutual
+partial def mkNewPath (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
+  let (bs, mask) := eraseProjIncFor n y bs
+  let b ← tryReset x y mask b
+  let b ← searchAndExpand b #[]
+  return reshape bs b
+
+partial def expand
     (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
   let (bs, mask) := eraseProjIncFor n y bs
   /- Remark: we may be duplicating variable/JP indices. That is, `bSlow` and `bFast` may
@@ -242,26 +315,25 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
   let bSlow      := mkSlowPath x y mask b
   let bFast ← mkFastPath x y mask b
   /- We only optimize recursively the fast. -/
-  let bFast ← mainFn bFast #[]
+  let bFast ← searchAndExpand bFast #[]
   let c ← mkFresh
   let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast)
   return reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
-  | d@(FnBody.vdecl x _ (Expr.reset n y) b), bs =>
-    if consumed x b then do
-      expand searchAndExpand bs x n y b
-    else
-      searchAndExpand b (push bs d)
+  | FnBody.vdecl x _ (Expr.reset n y) b, bs =>
+      expand bs x n y b
   | FnBody.jdecl j xs v b,   bs => do
     let v ← searchAndExpand v #[]
-    searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
+    let b ← searchAndExpand b #[]
+    return reshape bs (FnBody.jdecl j xs v b)
   | FnBody.case tid x xType alts,   bs => do
     let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
     return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
     if b.isTerminal then return reshape bs b
     else searchAndExpand b.body (push bs b)
+end
 
 def main (d : Decl) : Decl :=
   match d with

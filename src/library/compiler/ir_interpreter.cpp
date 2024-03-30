@@ -682,7 +682,7 @@ private:
                     break;
                 }
                 case fn_body_kind::Del: // delete object of unique reference
-                    lean_free_object(var(fn_body_del_var(b)).m_obj);
+                    lean_free_token(var(fn_body_del_var(b)).m_obj);
                     b = fn_body_del_cont(b);
                     break;
                 case fn_body_kind::MData: // metadata; no-op

@@ -3,4 +3,4 @@
 to a type, after applying `CoeSort.coe`, result is still not a type
   xs.val
 this is often due to incorrect `CoeSort` instances, the synthesized instance was
-  instCoeSortSubtype ϕ
+  inst621 ϕ

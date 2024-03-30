@@ -210,7 +210,8 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}") do
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+              (params := { tag := linter.name.toString }) do
             let savedState ← get
             try
               linter.run stx

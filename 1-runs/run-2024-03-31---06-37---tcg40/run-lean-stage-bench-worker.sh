@@ -35,6 +35,7 @@ KINDS=("noreuse" "reuse")
 
 for i in {0..1}; do
   echo "@@@ ${KINDS[i]} BUILD @@@"
+  curl -d "Started[${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   mkdir -p builds/
   git clone --depth 1 git@github.com:opencompl/lean4.git  --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]}
   mkdir -p $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
@@ -53,6 +54,6 @@ for i in {0..1}; do
   make -j10 stage2
   touch $EXPERIMENTDIR/$CSVNAME && echo "" > $EXPERIMENTDIR/$CSVNAME
   $TIME -v make -j10 stage3 2>&1 | tee "$EXPERIMENTDIR/time-${KINDS[i]}-stage3.txt"
-  # cd stage3 && ctest -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/ctest-${KINDS[i]}-stage3.txt" && cd ../
+  cd stage3 && ctest -E handleLocking -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/ctest-${KINDS[i]}-stage3.txt" && cd ../
   curl -d "Done[${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
 done;

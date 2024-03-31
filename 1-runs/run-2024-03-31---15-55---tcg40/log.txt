@@ -1,0 +1,367 @@
++ set -e
+++ pwd
++ EXPERIMENTDIR=/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40
++ echo 'pwd: /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40'
+pwd: /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40
+++ date
++ DATE='Sun 31 Mar 18:56:17 BST 2024'
++ echo 'date: Sun 31 Mar 18:56:17 BST 2024'
+date: Sun 31 Mar 18:56:17 BST 2024
+++ uname -a
++ MACHINE='Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
++ echo 'machine: Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
+machine: Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+++ git status --short
++ echo 'git status:  M ../run-2024-03-30---15-19---tcg40/reuse.stage3.csv
+ M ../run-2024-03-31---13-28---tcg40/reuse.stage3.csv
+ M ../run-2024-03-31---13-28---tcg40/run-lean-stage-bench-worker.sh
+ M plot-stage3.ipynb
+ M run-stdlib-recompile-worker.sh
+ M run-stdlib-recompile-wrapper.sh
+?? ../../-la
+?? ../../1-TODO.md
+?? ../run-2024-03-30---15-19---tcg40/ctest-reuse-stage3.txt
+?? ../run-2024-03-31---13-28---tcg40/nohup.out
+?? log.txt'
+git status:  M ../run-2024-03-30---15-19---tcg40/reuse.stage3.csv
+ M ../run-2024-03-31---13-28---tcg40/reuse.stage3.csv
+ M ../run-2024-03-31---13-28---tcg40/run-lean-stage-bench-worker.sh
+ M plot-stage3.ipynb
+ M run-stdlib-recompile-worker.sh
+ M run-stdlib-recompile-wrapper.sh
+?? ../../-la
+?? ../../1-TODO.md
+?? ../run-2024-03-30---15-19---tcg40/ctest-reuse-stage3.txt
+?? ../run-2024-03-31---13-28---tcg40/nohup.out
+?? log.txt
+++ git rev-parse HEAD
++ echo 'git commit: dd4b27ca94a1d6de610164aaf7c2ac16278fd9c2'
+git commit: dd4b27ca94a1d6de610164aaf7c2ac16278fd9c2
+++ git rev-parse --show-toplevel
++ ROOT=/auto/homes/sb2743/2024-borrowing/lean4
++ echo 'root folder: /auto/homes/sb2743/2024-borrowing/lean4'
+root folder: /auto/homes/sb2743/2024-borrowing/lean4
++ echo 'out folder: '
+out folder: 
+++ uname -s
++ '[' Linux = Darwin ']'
++ TIME='command time'
++ echo 'time: command time'
+time: command time
++ command time -v echo time
+time
+	Command being timed: "echo time"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1920
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 95
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
++ COMMITS=("2024-borrowing-benching-baseline" "2024-03-30--15-19--tcg40")
++ KINDS=("noreuse" "reuse")
++ for i in {0..1}
++ echo '@@@ noreuse BENCH @@@'
+@@@ noreuse BENCH @@@
++ CSVNAME=noreuse.stage3.csv
++ PROFILE_FILE=/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/noreuse.stage3.csv
+++ basename /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/noreuse.stage3.csv .csv
++ mv /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/noreuse.stage3.csv noreuse.stage3.pre-suite-bench.csv
++ LEAN_TOOLCHAIN=noreuse
++ elan toolchain link noreuse /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/noreuse/build/release/stage2
++ cd /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/noreuse/tests/bench/
++ elan override set noreuse
+info: override toolchain for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/noreuse/tests/bench' set to 'noreuse'
++ elan show
+installed toolchains
+--------------------
+
+noreuse
+reuse
+
+active toolchain
+----------------
+
+noreuse (directory override for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/noreuse/tests/bench')
+Lean (version 4.8.0, commit c016a2599239, Release)
+
++ temci exec --config speedcenter.yaml --out /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/noreuse.speedcenter.bench.yaml --included_blocks suite
+[2024-03-31 18:56:19,113] Start building 13 block(s)
+[2024-03-31 18:56:19,114] Build binarytrees
+[2024-03-31 18:56:19,125] Thread 0: Building block 'binarytrees'
+[2024-03-31 18:56:25,180] Finished building
+[2024-03-31 18:56:25,181] Build binarytrees.st
+[2024-03-31 18:56:25,185] Thread 0: Building block 'binarytrees.st'
+[2024-03-31 18:56:30,529] Finished building
+[2024-03-31 18:56:30,529] Build const_fold
+[2024-03-31 18:56:30,533] Thread 0: Building block 'const_fold'
+[2024-03-31 18:56:36,034] Finished building
+[2024-03-31 18:56:36,034] Build deriv
+[2024-03-31 18:56:36,038] Thread 0: Building block 'deriv'
+[2024-03-31 18:56:42,745] Finished building
+[2024-03-31 18:56:42,746] Build liasolver
+[2024-03-31 18:56:42,749] Thread 0: Building block 'liasolver'
+[2024-03-31 18:57:26,255] Finished building
+[2024-03-31 18:57:26,255] Build parser
+[2024-03-31 18:57:26,264] Thread 0: Building block 'parser'
+[2024-03-31 18:58:03,683] Finished building
+[2024-03-31 18:58:03,684] Build qsort
+[2024-03-31 18:58:03,691] Thread 0: Building block 'qsort'
+[2024-03-31 18:58:09,694] Finished building
+[2024-03-31 18:58:09,695] Build rbmap
+[2024-03-31 18:58:09,699] Thread 0: Building block 'rbmap'
+[2024-03-31 18:58:16,835] Finished building
+[2024-03-31 18:58:16,836] Build rbmap_1
+[2024-03-31 18:58:16,839] Thread 0: Building block 'rbmap_1'
+[2024-03-31 18:58:23,569] Finished building
+[2024-03-31 18:58:23,570] Build rbmap_10
+[2024-03-31 18:58:23,574] Thread 0: Building block 'rbmap_10'
+[2024-03-31 18:58:30,383] Finished building
+[2024-03-31 18:58:30,384] Build rbmap_fbip
+[2024-03-31 18:58:30,391] Thread 0: Building block 'rbmap_fbip'
+[2024-03-31 18:58:35,862] Finished building
+[2024-03-31 18:58:35,862] Build rbmap_library
+[2024-03-31 18:58:35,866] Thread 0: Building block 'rbmap_library'
+[2024-03-31 18:59:16,390] Finished building
+[2024-03-31 18:59:16,391] Build unionfind
+[2024-03-31 18:59:16,397] Thread 0: Building block 'unionfind'
+[2024-03-31 18:59:23,424] Finished building
+Benchmark 10 to 10 times        
+Benchmark 1 out of 10 to 10     
+Benchmark 1 out of 10 to 10     
+Benchmark 2 out of 10 to 10     
+Benchmark 3 out of 10 to 10     
+Benchmark 4 out of 10 to 10     
+Benchmark 5 out of 10 to 10     
+Benchmark 6 out of 10 to 10     
+Benchmark 7 out of 10 to 10     
+Benchmark 8 out of 10 to 10     
+Benchmark 9 out of 10 to 10     
+Benchmark 10 out of 10 to 10    
+Report for single runs
+binarytrees          (   10 single benchmarks)
+	 maxrss     mean =    179609.60(0), deviation =    0.06213%
+	 wall-clock mean =        16.9(90), deviation =    4.24865%
+
+binarytrees.st       (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =         8.(596), deviation =    6.51103%
+
+const_fold           (   10 single benchmarks)
+	 maxrss     mean =    1828531.2000, deviation =    0.00464%
+	 wall-clock mean =         4.(416), deviation =   11.24087%
+
+deriv                (   10 single benchmarks)
+	 maxrss     mean =      441894.400, deviation =    0.01327%
+	 wall-clock mean =         1.(640), deviation =   19.38179%
+
+liasolver            (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =       (2).(658), deviation =  237.14430%
+
+parser               (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =       (8).(072), deviation =   63.57414%
+
+qsort                (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =         3.(378), deviation =   10.96284%
+
+rbmap                (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =         1.(046), deviation =   35.38541%
+
+rbmap_1              (   10 single benchmarks)
+	 maxrss     mean =    2371392.0000, deviation =    0.00498%
+	 wall-clock mean =         4.(766), deviation =    7.31573%
+
+rbmap_10             (   10 single benchmarks)
+	 maxrss     mean =      321856.000, deviation =    0.01988%
+	 wall-clock mean =         1.3(96), deviation =    1.50001%
+
+rbmap_fbip           (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =         2.(492), deviation =   13.72832%
+
+rbmap_library        (   10 single benchmarks)
+	 maxrss     mean =    142822.40(0), deviation =    0.40835%
+	 wall-clock mean =       (2).(604), deviation =  201.00965%
+
+reduceMatch          (   10 single benchmarks)
+	 maxrss     mean =      517649.200, deviation =    0.04041%
+	 wall-clock mean =         4.9(30), deviation =    2.24864%
+
+unionfind            (   10 single benchmarks)
+	 maxrss     mean =    125148.80(0), deviation =    0.09374%
+	 wall-clock mean =         4.(005), deviation =   11.76693%
+
+workspaceSymbols     (   10 single benchmarks)
+	 maxrss     mean =    494932.40(0), deviation =    0.05353%
+	 wall-clock mean =        17.1(60), deviation =    1.05027%
+
+++ uname -a
++ curl -d 'Done[BENCH-noreuse]. run:/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40. machine:Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   599  100   359  100   240    681    455 --:--:-- --:--:-- --:--:--  1136
+{"id":"QaeaE4hggsGq","time":1711908828,"expires":1711952028,"event":"message","topic":"xISSztEV8EoOchM2","message":"Done[BENCH-noreuse]. run:/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40. machine:Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}
++ for i in {0..1}
++ echo '@@@ reuse BENCH @@@'
+@@@ reuse BENCH @@@
++ CSVNAME=reuse.stage3.csv
++ PROFILE_FILE=/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/reuse.stage3.csv
+++ basename /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/reuse.stage3.csv .csv
++ mv /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/reuse.stage3.csv reuse.stage3.pre-suite-bench.csv
++ LEAN_TOOLCHAIN=reuse
++ elan toolchain link reuse /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/reuse/build/release/stage2
++ cd /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/reuse/tests/bench/
++ elan override set reuse
+info: override toolchain for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/reuse/tests/bench' set to 'reuse'
++ elan show
+installed toolchains
+--------------------
+
+noreuse
+reuse
+
+active toolchain
+----------------
+
+reuse (directory override for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/builds/reuse/tests/bench')
+Lean (version 4.8.0, commit 13a64ef64c3c, Release)
+
++ temci exec --config speedcenter.yaml --out /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40/reuse.speedcenter.bench.yaml --included_blocks suite
+[2024-03-31 19:13:49,229] Start building 13 block(s)
+[2024-03-31 19:13:49,230] Build binarytrees
+[2024-03-31 19:13:49,240] Thread 0: Building block 'binarytrees'
+[2024-03-31 19:13:55,836] Finished building
+[2024-03-31 19:13:55,837] Build binarytrees.st
+[2024-03-31 19:13:55,841] Thread 0: Building block 'binarytrees.st'
+[2024-03-31 19:14:00,978] Finished building
+[2024-03-31 19:14:00,979] Build const_fold
+[2024-03-31 19:14:00,983] Thread 0: Building block 'const_fold'
+[2024-03-31 19:14:06,660] Finished building
+[2024-03-31 19:14:06,660] Build deriv
+[2024-03-31 19:14:06,664] Thread 0: Building block 'deriv'
+[2024-03-31 19:14:13,202] Finished building
+[2024-03-31 19:14:13,203] Build liasolver
+[2024-03-31 19:14:13,207] Thread 0: Building block 'liasolver'
+[2024-03-31 19:14:55,715] Finished building
+[2024-03-31 19:14:55,715] Build parser
+[2024-03-31 19:14:55,724] Thread 0: Building block 'parser'
+[2024-03-31 19:15:33,189] Finished building
+[2024-03-31 19:15:33,190] Build qsort
+[2024-03-31 19:15:33,194] Thread 0: Building block 'qsort'
+[2024-03-31 19:15:38,753] Finished building
+[2024-03-31 19:15:38,754] Build rbmap
+[2024-03-31 19:15:38,758] Thread 0: Building block 'rbmap'
+[2024-03-31 19:15:44,567] Finished building
+[2024-03-31 19:15:44,567] Build rbmap_1
+[2024-03-31 19:15:44,571] Thread 0: Building block 'rbmap_1'
+[2024-03-31 19:15:50,480] Finished building
+[2024-03-31 19:15:50,481] Build rbmap_10
+[2024-03-31 19:15:50,484] Thread 0: Building block 'rbmap_10'
+[2024-03-31 19:15:56,994] Finished building
+[2024-03-31 19:15:56,995] Build rbmap_fbip
+[2024-03-31 19:15:57,002] Thread 0: Building block 'rbmap_fbip'
+[2024-03-31 19:16:02,198] Finished building
+[2024-03-31 19:16:02,199] Build rbmap_library
+[2024-03-31 19:16:02,203] Thread 0: Building block 'rbmap_library'
+[2024-03-31 19:16:39,124] Finished building
+[2024-03-31 19:16:39,125] Build unionfind
+[2024-03-31 19:16:39,132] Thread 0: Building block 'unionfind'
+[2024-03-31 19:16:46,062] Finished building
+Benchmark 10 to 10 times        
+Benchmark 1 out of 10 to 10     
+Benchmark 1 out of 10 to 10     
+Benchmark 2 out of 10 to 10     
+Benchmark 3 out of 10 to 10     
+Benchmark 4 out of 10 to 10     
+Benchmark 5 out of 10 to 10     
+Benchmark 6 out of 10 to 10     
+Benchmark 7 out of 10 to 10     
+Benchmark 8 out of 10 to 10     
+Benchmark 9 out of 10 to 10     
+Benchmark 10 out of 10 to 10    
+Report for single runs
+binarytrees          (   10 single benchmarks)
+	 maxrss     mean =      179532.800, deviation =    0.04729%
+	 wall-clock mean =        17.(195), deviation =    5.31984%
+
+binarytrees.st       (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =         8.(050), deviation =    5.26687%
+
+const_fold           (   10 single benchmarks)
+	 maxrss     mean =    1828416.0000, deviation =    0.00470%
+	 wall-clock mean =         3.(854), deviation =    8.56287%
+
+deriv                (   10 single benchmarks)
+	 maxrss     mean =      441830.400, deviation =    0.02526%
+	 wall-clock mean =         1.(697), deviation =   19.46547%
+
+liasolver            (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =       (2).(139), deviation =  222.89804%
+
+parser               (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =       (8).(179), deviation =   56.95131%
+
+qsort                (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =         3.(445), deviation =   13.82417%
+
+rbmap                (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =         1.(087), deviation =   33.71792%
+
+rbmap_1              (   10 single benchmarks)
+	 maxrss     mean =     2371276.800, deviation =    0.00601%
+	 wall-clock mean =         4.(670), deviation =    9.81085%
+
+rbmap_10             (   10 single benchmarks)
+	 maxrss     mean =      321779.200, deviation =    0.02142%
+	 wall-clock mean =         1.4(44), deviation =    3.52746%
+
+rbmap_fbip           (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =         2.(535), deviation =   14.42894%
+
+rbmap_library        (   10 single benchmarks)
+	 maxrss     mean =    141427.2(00), deviation =    0.56150%
+	 wall-clock mean =       (2).(673), deviation =  186.93525%
+
+reduceMatch          (   10 single benchmarks)
+	 maxrss     mean =      514590.400, deviation =    0.04885%
+	 wall-clock mean =         5.0(20), deviation =    2.37521%
+
+unionfind            (   10 single benchmarks)
+	 maxrss     mean =    125008.80(0), deviation =    0.09384%
+	 wall-clock mean =         3.(985), deviation =    9.06653%
+
+workspaceSymbols     (   10 single benchmarks)
+	 maxrss     mean =      492410.400, deviation =    0.03885%
+	 wall-clock mean =        16.9(56), deviation =    2.89716%
+
+++ uname -a
++ curl -d 'Done[BENCH-reuse]. run:/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40. machine:Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux.' ntfy.sh/xISSztEV8EoOchM2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100   595  100   357  100   238   2209   1473 --:--:-- --:--:-- --:--:--  3695
+{"id":"DF8h05zmaMyP","time":1711909858,"expires":1711953058,"event":"message","topic":"xISSztEV8EoOchM2","message":"Done[BENCH-reuse]. run:/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---15-55---tcg40. machine:Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux."}

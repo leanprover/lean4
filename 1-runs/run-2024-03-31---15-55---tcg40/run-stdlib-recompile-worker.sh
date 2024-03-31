@@ -24,11 +24,15 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
+KINDS=("reuse" "noreuse")
 
 for i in {0..1}; do
   curl -d "Start[stdlib-recompile-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
-  touch $EXPERIMENTDIR/${KINDS[i]}/build/src/Init/Prelude.lean # recompile stdlib.
+  touch $EXPERIMENTDIR/builds/${KINDS[i]}/src/Init/Prelude.lean # recompile stdlib.
+
+  cd $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
   make -j10 stage2
+  CSVNAME="${KINDS[i]}.stage3.csv"
   rm $EXPERIMENTDIR/$CSVNAME
   $TIME -v make -j10 stage3 2>&1 | tee $EXPERIMENTDIR/time-rebuild-stdlib-stage3-${KINDS[i]}.txt
   curl -d "Done[stdlib-recompile-${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2

@@ -24,17 +24,17 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
-rm *.txt || true
-rm *.csv || true
-rm -rf builds || true
+rm *.txt -i || true
+rm *.csv -i || true
+rm -rf builds -I || true
 
-echo "@@@ NOREUSE BUILD @@@"
 
 COMMITS=("2024-borrowing-benching-baseline" "2024-03-30--15-19--tcg40")
 KINDS=("noreuse" "reuse")
 # REUSE_FILES=("$EXPERIMENTDIR/ResetReuse.baseline.lean.in" "$EXPERIMENTDIR/ResetReuse.research.lean.in")
 
 for i in {0..1}; do
+  echo "@@@ ${KINDS[i]} BUILD @@@"
   mkdir -p builds/
   git clone --depth 1 git@github.com:opencompl/lean4.git  --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]}
   mkdir -p $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/

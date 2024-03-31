@@ -1,0 +1,157 @@
++ set -e
+++ pwd
++ EXPERIMENTDIR=/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40
++ echo 'pwd: /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40'
+pwd: /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40
+++ date
++ DATE='Sun 31 Mar 06:22:13 BST 2024'
++ echo 'date: Sun 31 Mar 06:22:13 BST 2024'
+date: Sun 31 Mar 06:22:13 BST 2024
+++ uname -a
++ MACHINE='Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
++ echo 'machine: Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux'
+machine: Linux dev-cpu-tcg40 6.5.0-26-generic #26~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Tue Mar 12 10:22:43 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+++ git status --short
++ echo 'git status:  M ../run-2023-03-29---16-31---tcg40/noreuse.stage3.csv
+ M ../run-2023-03-29---16-31---tcg40/reuse.stage3.csv
+ M noreuse.stage3.csv
+ D reuse.stage3.csv
+ M speedcenter-worker.sh
+ M speedcenter-wrapper.sh
+ D time-noreuse-stage3.txt
+ D time-reuse-stage3.txt
+?? log.txt
+?? noreuse.speedcenter.bench.yaml
+?? ../../tests/bench/rbmap_fbip.c'
+git status:  M ../run-2023-03-29---16-31---tcg40/noreuse.stage3.csv
+ M ../run-2023-03-29---16-31---tcg40/reuse.stage3.csv
+ M noreuse.stage3.csv
+ D reuse.stage3.csv
+ M speedcenter-worker.sh
+ M speedcenter-wrapper.sh
+ D time-noreuse-stage3.txt
+ D time-reuse-stage3.txt
+?? log.txt
+?? noreuse.speedcenter.bench.yaml
+?? ../../tests/bench/rbmap_fbip.c
+++ git rev-parse HEAD
++ echo 'git commit: 3d03473258e6e963b44110a2e6917687b7205c44'
+git commit: 3d03473258e6e963b44110a2e6917687b7205c44
+++ git rev-parse --show-toplevel
++ ROOT=/auto/homes/sb2743/2024-borrowing/lean4
++ echo 'root folder: /auto/homes/sb2743/2024-borrowing/lean4'
+root folder: /auto/homes/sb2743/2024-borrowing/lean4
++ echo 'out folder: '
+out folder: 
+++ uname -s
++ '[' Linux = Darwin ']'
++ TIME='command time'
++ echo 'time: command time'
+time: command time
++ command time -v echo time
+time
+	Command being timed: "echo time"
+	User time (seconds): 0.00
+	System time (seconds): 0.00
+	Percent of CPU this job got: 0%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1920
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 96
+	Voluntary context switches: 1
+	Involuntary context switches: 0
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
++ COMMITS=("2024-borrowing-benching-baseline" "2024-03-30--15-19--tcg40")
++ KINDS=("noreuse" "reuse")
++ for i in {0..1}
++ echo '@@@ noreuse BENCH @@@'
+@@@ noreuse BENCH @@@
++ CSVNAME=noreuse.stage3.csv
++ PROFILE_FILE=/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/noreuse.stage3.csv
+++ basename /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/noreuse.stage3.csv .csv
++ mv /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/noreuse.stage3.csv noreuse.stage3.pre-suite-bench.csv
++ LEAN_TOOLCHAIN=noreuse
++ elan toolchain link noreuse /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/builds/noreuse/build/release/stage2
++ cd /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/builds/noreuse/tests/bench/
++ elan override set noreuse
+info: override toolchain for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/builds/noreuse/tests/bench' set to 'noreuse'
++ elan show
+noreuse (directory override for '/auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/builds/noreuse/tests/bench')
+Lean (version 4.8.0, commit 1280c4bd6d4b, Release)
++ temci exec --config speedcenter.yaml --out /homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-30---15-19---tcg40/noreuse.speedcenter.bench.yaml --included_blocks suite
+[2024-03-31 06:22:15,714] Start building 13 block(s)
+[2024-03-31 06:22:15,715] Build binarytrees
+[2024-03-31 06:22:15,718] Thread 0: Building block 'binarytrees'
+[2024-03-31 06:22:22,211] Finished building
+[2024-03-31 06:22:22,212] Build binarytrees.st
+[2024-03-31 06:22:22,217] Thread 0: Building block 'binarytrees.st'
+[2024-03-31 06:22:28,315] Finished building
+[2024-03-31 06:22:28,316] Build const_fold
+[2024-03-31 06:22:28,321] Thread 0: Building block 'const_fold'
+[2024-03-31 06:22:33,938] Finished building
+[2024-03-31 06:22:33,939] Build deriv
+[2024-03-31 06:22:33,943] Thread 0: Building block 'deriv'
+[2024-03-31 06:22:40,165] Finished building
+[2024-03-31 06:22:40,165] Build liasolver
+[2024-03-31 06:22:40,169] Thread 0: Building block 'liasolver'
+[2024-03-31 06:23:22,916] Finished building
+[2024-03-31 06:23:22,917] Build parser
+[2024-03-31 06:23:22,924] Thread 0: Building block 'parser'
+[2024-03-31 06:24:02,318] Finished building
+[2024-03-31 06:24:02,319] Build qsort
+[2024-03-31 06:24:02,323] Thread 0: Building block 'qsort'
+[2024-03-31 06:24:09,222] Finished building
+[2024-03-31 06:24:09,223] Build rbmap
+[2024-03-31 06:24:09,227] Thread 0: Building block 'rbmap'
+[2024-03-31 06:24:15,755] Finished building
+[2024-03-31 06:24:15,755] Build rbmap_1
+[2024-03-31 06:24:15,759] Thread 0: Building block 'rbmap_1'
+[2024-03-31 06:24:21,614] Finished building
+[2024-03-31 06:24:21,614] Build rbmap_10
+[2024-03-31 06:24:21,619] Thread 0: Building block 'rbmap_10'
+[2024-03-31 06:24:27,709] Finished building
+[2024-03-31 06:24:27,709] Build rbmap_fbip
+[2024-03-31 06:24:27,715] Thread 0: Building block 'rbmap_fbip'
+[2024-03-31 06:24:36,425] Finished building
+[2024-03-31 06:24:36,425] Build rbmap_library
+[2024-03-31 06:24:36,429] Thread 0: Building block 'rbmap_library'
+[2024-03-31 06:25:15,765] Finished building
+[2024-03-31 06:25:15,766] Build unionfind
+[2024-03-31 06:25:15,770] Thread 0: Building block 'unionfind'
+[2024-03-31 06:25:22,615] Finished building
+Benchmark 10 to 10 times        
+Benchmark 1 out of 10 to 10     
+Benchmark 1 out of 10 to 10     
+[2024-03-31 06:27:40,203] Program block no. 5 failed: Unexpected return code 1, expected 0
+[2024-03-31 06:27:40,203] error
+
+uncaught exception: no such file or directory (error code: 2)
+  file: ../../src/Init/Prelude.lean
+
+ Performance counter stats for '/tmp/tmpq0ks5exz':
+
+            123.68 msec task-clock                       #    0.007 CPUs utilized             
+   <not supported>      instructions                                                          
+   <not supported>      branches                                                              
+   <not supported>      branch-misses                                                         
+
+      18.456571253 seconds time elapsed
+
+       0.033435000 seconds user
+       0.095858000 seconds sys
+
+
+
+Benchmark 2 out of 10 to 10     

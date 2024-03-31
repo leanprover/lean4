@@ -1,0 +1,246 @@
+Report for binarytrees
+binarytrees [0]      (   10 single benchmarks)
+	 maxrss     mean =      179.60960k, deviation =    0.06213%
+	 wall-clock mean =        17.4(82), deviation =    4.52003%
+
+binarytrees [1]      (   10 single benchmarks)
+	 maxrss     mean =      179.45600k, deviation =    0.06380%
+	 wall-clock mean =        17.4(12), deviation =    3.18106%
+
+Equal program blocks
+	 binarytrees [0]  ⟷   binarytrees [1]
+		 wall-clock confidence =   83%, speed up =      0.40%
+
+Unequal program blocks
+	 binarytrees [0]  ⟷   binarytrees [1]
+		 maxrss     confidence =   99%, speed up =      0.09%
+
+Report for binarytrees.st
+binarytrees.st [0]   (   10 single benchmarks)
+	 maxrss     mean =      124.97840k, deviation =    0.12995%
+	 wall-clock mean =         9.(052), deviation =    5.07252%
+
+binarytrees.st [1]   (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         8.3(83), deviation =    2.64345%
+
+Unequal program blocks
+	 binarytrees.st [0]  ⟷   binarytrees.st [1]
+		 maxrss     confidence =  100%, speed up =     -0.33%
+		 wall-clock confidence =  100%, speed up =      7.39%
+
+Report for const_fold
+const_fold [0]       (   10 single benchmarks)
+	 maxrss     mean =        1.82849M, deviation =    0.00660%
+	 wall-clock mean =         4.3(88), deviation =    1.98430%
+
+const_fold [1]       (   10 single benchmarks)
+	 maxrss     mean =        1.82840M, deviation =    0.00464%
+	 wall-clock mean =         3.8(29), deviation =    2.01411%
+
+Unequal program blocks
+	 const_fold [0]  ⟷   const_fold [1]
+		 wall-clock confidence =  100%, speed up =     12.74%
+
+Uncertain program blocks
+	 const_fold [0]  ⟷   const_fold [1]
+		 maxrss     confidence =    9%, speed up =      0.00%
+
+Report for deriv
+deriv [0]            (   10 single benchmarks)
+	 maxrss     mean =      441.88160k, deviation =    0.01738%
+	 wall-clock mean =         1.6(17), deviation =    3.73076%
+
+deriv [1]            (   10 single benchmarks)
+	 maxrss     mean =      441.80480k, deviation =    0.01419%
+	 wall-clock mean =         1.6(62), deviation =    3.78432%
+
+Unequal program blocks
+	 deriv [0]  ⟷   deriv [1]
+		 maxrss     confidence =   97%, speed up =      0.02%
+
+Uncertain program blocks
+	 deriv [0]  ⟷   deriv [1]
+		 wall-clock confidence =   14%, speed up =     -2.80%
+
+Report for liasolver
+liasolver [0]        (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =    78(7).(234)m, deviation =   75.08527%
+
+liasolver [1]        (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =    74(7).(924)m, deviation =   67.66462%
+
+Equal program blocks
+	 liasolver [0]  ⟷   liasolver [1]
+		 wall-clock confidence =   88%, speed up =      4.99%
+
+Unequal program blocks
+	 liasolver [0]  ⟷   liasolver [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+
+Report for parser
+parser [0]           (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =         6.(967), deviation =    8.07570%
+
+parser [1]           (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         7.(287), deviation =    7.19199%
+
+Equal program blocks
+	 parser [0]  ⟷   parser [1]
+		 wall-clock confidence =   23%, speed up =     -4.59%
+
+Unequal program blocks
+	 parser [0]  ⟷   parser [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+
+Report for qsort
+qsort [0]            (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =         3.4(54), deviation =    4.45948%
+
+qsort [1]            (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         3.4(19), deviation =    4.80364%
+
+Equal program blocks
+	 qsort [0]  ⟷   qsort [1]
+		 wall-clock confidence =   64%, speed up =      1.03%
+
+Unequal program blocks
+	 qsort [0]  ⟷   qsort [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+
+Report for rbmap
+rbmap [0]            (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =    (989).(857)m, deviation =    5.06250%
+
+rbmap [1]            (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         1.0(17), deviation =    2.89390%
+
+Equal program blocks
+	 rbmap [0]  ⟷   rbmap [1]
+		 wall-clock confidence =   18%, speed up =     -2.73%
+
+Unequal program blocks
+	 rbmap [0]  ⟷   rbmap [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+
+Report for rbmap_1
+rbmap_1 [0]          (   10 single benchmarks)
+	 maxrss     mean =        2.37134M, deviation =    0.00378%
+	 wall-clock mean =         4.8(25), deviation =    2.69458%
+
+rbmap_1 [1]          (   10 single benchmarks)
+	 maxrss     mean =        2.37126M, deviation =    0.00270%
+	 wall-clock mean =         4.6(36), deviation =    2.44742%
+
+Unequal program blocks
+	 rbmap_1 [0]  ⟷   rbmap_1 [1]
+		 wall-clock confidence =  100%, speed up =      3.91%
+
+Uncertain program blocks
+	 rbmap_1 [0]  ⟷   rbmap_1 [1]
+		 maxrss     confidence =    5%, speed up =      0.00%
+
+Report for rbmap_10
+rbmap_10 [0]         (   10 single benchmarks)
+	 maxrss     mean =      321.84320k, deviation =    0.03645%
+	 wall-clock mean =         1.4(64), deviation =    4.49278%
+
+rbmap_10 [1]         (   10 single benchmarks)
+	 maxrss     mean =      321.74080k, deviation =    0.01949%
+	 wall-clock mean =         1.4(80), deviation =    2.62223%
+
+Equal program blocks
+	 rbmap_10 [0]  ⟷   rbmap_10 [1]
+		 wall-clock confidence =   54%, speed up =     -1.09%
+
+Unequal program blocks
+	 rbmap_10 [0]  ⟷   rbmap_10 [1]
+		 maxrss     confidence =   97%, speed up =      0.03%
+
+Report for rbmap_fbip
+rbmap_fbip [0]       (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =         2.5(53), deviation =    2.38582%
+
+rbmap_fbip [1]       (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         2.4(94), deviation =    1.90485%
+
+Unequal program blocks
+	 rbmap_fbip [0]  ⟷   rbmap_fbip [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+		 wall-clock confidence =   97%, speed up =      2.31%
+
+Report for rbmap_library
+rbmap_library [0]    (   10 single benchmarks)
+	 maxrss     mean =      142.89920k, deviation =    0.47769%
+	 wall-clock mean =         1.(070), deviation =   46.18827%
+
+rbmap_library [1]    (   10 single benchmarks)
+	 maxrss     mean =       141.8112k, deviation =    0.52700%
+	 wall-clock mean =         1.(156), deviation =   29.70615%
+
+Equal program blocks
+	 rbmap_library [0]  ⟷   rbmap_library [1]
+		 wall-clock confidence =   67%, speed up =     -8.06%
+
+Unequal program blocks
+	 rbmap_library [0]  ⟷   rbmap_library [1]
+		 maxrss     confidence =  100%, speed up =      0.76%
+
+Report for reduceMatch
+reduceMatch [0]      (   10 single benchmarks)
+	 maxrss     mean =      517.51120k, deviation =    0.05774%
+	 wall-clock mean =         5.1(73), deviation =    2.12355%
+
+reduceMatch [1]      (   10 single benchmarks)
+	 maxrss     mean =      514.56680k, deviation =    0.04821%
+	 wall-clock mean =         5.2(27), deviation =    4.22878%
+
+Equal program blocks
+	 reduceMatch [0]  ⟷   reduceMatch [1]
+		 wall-clock confidence =   52%, speed up =     -1.04%
+
+Unequal program blocks
+	 reduceMatch [0]  ⟷   reduceMatch [1]
+		 maxrss     confidence =  100%, speed up =      0.57%
+
+Report for unionfind
+unionfind [0]        (   10 single benchmarks)
+	 maxrss     mean =      124.99120k, deviation =    0.13115%
+	 wall-clock mean =         4.0(22), deviation =    2.12541%
+
+unionfind [1]        (   10 single benchmarks)
+	 maxrss     mean =      125.38480k, deviation =    0.09356%
+	 wall-clock mean =         4.1(95), deviation =    4.39633%
+
+Unequal program blocks
+	 unionfind [0]  ⟷   unionfind [1]
+		 maxrss     confidence =  100%, speed up =     -0.31%
+		 wall-clock confidence =   98%, speed up =     -4.29%
+
+Report for workspaceSymbols
+workspaceSymbols [0] (   10 single benchmarks)
+	 maxrss     mean =      494.93560k, deviation =    0.05148%
+	 wall-clock mean =        18.1(19), deviation =    3.44020%
+
+workspaceSymbols [1] (   10 single benchmarks)
+	 maxrss     mean =      492.26960k, deviation =    0.06588%
+	 wall-clock mean =        17.8(90), deviation =    3.20847%
+
+Equal program blocks
+	 workspaceSymbols [0]  ⟷   workspaceSymbols [1]
+		 wall-clock confidence =   43%, speed up =      1.27%
+
+Unequal program blocks
+	 workspaceSymbols [0]  ⟷   workspaceSymbols [1]
+		 maxrss     confidence =  100%, speed up =      0.54%
+

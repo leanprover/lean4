@@ -8,7 +8,6 @@ import Lean.Compiler.IR.Basic
 import Lean.Compiler.IR.LiveVars
 import Lean.Compiler.IR.Format
 
-
 namespace Lean.IR.ResetReuse
 /-! Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and performed lower level optimizations
@@ -28,7 +27,11 @@ namespace Lean.IR.ResetReuse
 -/
 
 private def mayReuse (c₁ c₂ : CtorInfo) : Bool :=
-  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize
+  c₁.size == c₂.size && c₁.usize == c₂.usize && c₁.ssize == c₂.ssize &&
+  /- The following condition is a heuristic.
+     We don't want to reuse cells from different types even when they are compatible
+     because it produces counterintuitive behavior. -/
+  c₁.name.getPrefix == c₂.name.getPrefix
 
 private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   | FnBody.vdecl x t v@(Expr.ctor c' ys) b   =>

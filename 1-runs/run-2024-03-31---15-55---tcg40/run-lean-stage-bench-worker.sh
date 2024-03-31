@@ -69,8 +69,9 @@ for i in {0..1}; do
     -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH=$PROFILE_FILE
 
   make -j10 stage2
-  touch $EXPERIMENTDIR/$CSVNAME && echo "" > $EXPERIMENTDIR/$CSVNAME
+  rm $EXPERIMENTDIR/$CSVNAME || true
   $TIME -v make -j10 stage3 2>&1 | tee "$EXPERIMENTDIR/time-${KINDS[i]}-stage3.txt"
+  cp "$EXPERIMENTDIR/$CSVNAME" "$EXPERIMENTDIR/${KINDS[i]}.stage3-compile.csv"
   (cd $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/stage3 && (ctest -E handleLocking -j32 --output-on-failure 2>&1 | tee "$EXPERIMENTDIR/ctest-${KINDS[i]}-stage3.txt")) || true
   curl -d "Done[${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
 done;

@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
-import Lean.Meta.ForEachExpr
 import Lean.Elab.Command
-import Lean.Meta.CollectFVars
 
 /-!
 # Name generator for declarations
@@ -15,7 +13,15 @@ This module provides functionality to generate a name for a declaration using it
 This is used to generate names for anonymous instances.
 
 It uses heuristics to generate an informative but terse name given its namespace, supplied binders, and type.
-It tries to make these relatively unique.
+It tries to make these relatively unique, and it uses suffixes derived from the module to ensure cross-project uniqueness.
+
+The name generator can be thought of as a kind of pretty printer, rendering an expression in textual form.
+The general structure of this generator is
+1. `Lean.Elab.Command.NameGen.winnowExpr` takes an expression and re-uses `Expr` as a data structure
+   to record the "Syntax"-like structure.
+2. `Lean.Elab.Command.NameGen.mkBaseNameCore` formats the result of that as a string.
+   It actually does a bit more computation than that, since it further removes duplicate expressions,
+   reporting only the first occurrence of each subexpression.
 -/
 
 namespace Lean.Elab.Command
@@ -237,55 +243,16 @@ end NameGen
 /--
 Generates an instance name for a declaration that has the given binders and type.
 It tries to make these names relatively unique ecosystem-wide.
+
+Note that this elaborates the binders and the type.
+This means that when elaborating an instance declaration, we elaborate these twice.
 -/
-def mkInstanceNameNew (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
+def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
   try
     -- Unfortunately we can't include any of the binders from `runTermElabM` since, without
     -- elaborating the body of the instance, we have no idea which of these binders are
     -- actually used.
-    let name ← runTermElabM fun _ => NameGen.mkBaseNameWithSuffix' "inst" binders type
-    return name
+    runTermElabM fun _ => NameGen.mkBaseNameWithSuffix' "inst" binders type
   finally
     set savedState
-
-def mkInstanceNameOld (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
-  let savedState ← get
-  try
-    let result ← runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
-      let type ← instantiateMVars (← Term.elabType type)
-      let ref ← IO.mkRef ""
-      Meta.forEachExpr type fun e => do
-        if e.isForall then ref.modify (· ++ "ForAll")
-        else if e.isProp then ref.modify (· ++ "Prop")
-        else if e.isType then ref.modify (· ++ "Type")
-        else if e.isSort then ref.modify (· ++ "Sort")
-        else if e.isConst then
-          match e.constName!.eraseMacroScopes with
-          | .str _ str =>
-              if str.front.isLower then
-                ref.modify (· ++ str.capitalize)
-              else
-                ref.modify (· ++ str)
-          | _ => pure ()
-      ref.get
-    set savedState
-    liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
-  catch _ =>
-    set savedState
-    liftMacroM <| mkUnusedBaseName <| Name.mkSimple "instance"
-
-/--
-Generate a name for an instance with the given type.
-Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration.
--/
-def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
-  if false then
-    let name ← mkInstanceNameOld binders type
-    let name' ← mkInstanceNameNew binders type
-    let ns ← getCurrNamespace
-    let eq? := if name == name' then "=" else "*"
-    IO.eprintln s!"!!! mkInstanceName{eq?} {ns ++ name} {ns ++ name'}"
-    return name
-  else
-    mkInstanceNameNew binders type

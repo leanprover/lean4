@@ -24,15 +24,11 @@ fi
 echo "time: $TIME"
 $TIME -v echo "time"
 
-rm *.txt
-rm *.csv
-rm -rf builds
+rm *.txt || true
+rm *.csv || true
+rm -rf builds || true
 
 echo "@@@ NOREUSE BUILD @@@"
-
-CSVNAME=$(date +'%s---%d-%m-%Y---%H:%M:%S')
-echo "CSV name is: $CSVNAME"
-echo "output file is: OUTFOLDER/$CSVNAME"
 
 COMMITS=("2024-borrowing-benching-baseline" "2024-03-30--15-19--tcg40")
 KINDS=("noreuse" "reuse")
@@ -40,9 +36,9 @@ KINDS=("noreuse" "reuse")
 
 for i in {0..1}; do
   mkdir -p builds/
-  git clone --depth 1 --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]}
-  mkdir -p $EXPERIMENTDIR/builds/${KINDS[i]}/build/
-  cd $EXPERIMENTDIR/builds/${KINDS[i]}/build/
+  git clone --depth 1 git@github.com:opencompl/lean4.git  --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]}
+  mkdir -p $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
+  cd $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
 
   # output log name from stage3 build.
   CSVNAME="${KINDS[i]}.stage3.csv"
@@ -53,8 +49,8 @@ for i in {0..1}; do
     -DRUNTIME_STATS=ON \
     -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH=$PROFILE_FILE
 
-  # make -j10 stage2
-  # touch $EXPERIMENTDIR/$CSVNAME && echo "" > $EXPERIMENTDIR/$CSVNAME
-  # $TIME -v make -j10 stage3 2>&1 | tee "$EXPERIMENTDIR/time-${KINDS[i]}-stage3.txt"
+  make -j10 stage2
+  touch $EXPERIMENTDIR/$CSVNAME && echo "" > $EXPERIMENTDIR/$CSVNAME
+  $TIME -v make -j10 stage3 2>&1 | tee "$EXPERIMENTDIR/time-${KINDS[i]}-stage3.txt"
   curl -d "Done[${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
 done;

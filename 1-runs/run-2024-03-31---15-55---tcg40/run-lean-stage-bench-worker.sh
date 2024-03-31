@@ -29,7 +29,8 @@ rm *.csv -i || true
 rm -rf builds -I || true
 
 
-COMMITS=("2024-03-31---10-43---tcg40" "2024-borrowing-benching-baseline" )
+COMMITS=("2024-03-31---15-55---tcg40" "2024-borrowing-benching-baseline" )
+# COMMITS=(13a64ef64c3cd5c2066d66c1228ff789c06bc5d8 c016a25992392716885f5ba8fc5b3ddf7bec2467)
 KINDS=("reuse" "noreuse")
 
 for tag in "${COMMITS[@]}"; do

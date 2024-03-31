@@ -76,50 +76,6 @@ partial def eraseProjIncForAux (y : VarId) (bs : Array FnBody) (mask : Mask) (ke
 def eraseProjIncFor (n : Nat) (y : VarId) (bs : Array FnBody) : Array FnBody × Mask :=
   eraseProjIncForAux y bs (mkArray n none) #[]
 
-/-- Replace `reuse x ctor ...` with `ctor ...`, and remove `dec x` -/
-partial def reuseToCtor (x : VarId) : FnBody → FnBody
-  | FnBody.dec y n c p b   =>
-    if x == y then b -- n must be 1 since `x := reset ...`
-    else FnBody.dec y n c p (reuseToCtor x b)
-  | FnBody.vdecl z t v b   =>
-    match v with
-    | Expr.reuse y c _ xs =>
-      if x == y then FnBody.vdecl z t (Expr.ctor c xs) b
-      else FnBody.vdecl z t v (reuseToCtor x b)
-    | _ =>
-      FnBody.vdecl z t v (reuseToCtor x b)
-  | FnBody.case tid y yType alts   =>
-    let alts := alts.map fun alt => alt.modifyBody (reuseToCtor x)
-    FnBody.case tid y yType alts
-  | FnBody.jdecl j xs v b   =>
-    FnBody.jdecl j xs (reuseToCtor x v) (reuseToCtor x b)
-  | e =>
-    if e.isTerminal then
-      e
-    else
-      let (instr, b) := e.split
-      let b := reuseToCtor x b
-      instr.setBody b
-
-/--
-replace
-```
-x := reset y; b
-```
-with
-```
-inc z_1; ...; inc z_i; dec y; b'
-```
-where `z_i`'s are the variables in `mask`,
-and `b'` is `b` where we removed `dec x` and replaced `reuse x ctor_i ...` with `ctor_i ...`.
--/
-def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
-  let b := reuseToCtor x b
-  let b := FnBody.dec y 1 true false b
-  mask.foldl (init := b) fun b m => match m with
-      | some z => FnBody.inc z 1 true false b
-      | none   => b
-
 abbrev M := ReaderT Context (StateM Nat)
   def mkFresh : M VarId :=
     modifyGet fun n => ({ idx := n }, n + 1)
@@ -171,55 +127,6 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
     else FnBody.sset x n i y t (removeSelfSet ctx b)
   | FnBody.setTag x c b   => FnBody.setTag x c (removeSelfSet ctx b)
   | e => e
-
-partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
-  | FnBody.dec z n c p b   =>
-    if x == z then FnBody.del y b
-    else FnBody.dec z n c p (reuseToSet ctx x y b)
-  | FnBody.vdecl z t v b   =>
-    match v with
-    | Expr.reuse w c u zs =>
-      if x == w then
-        let b := setFields y zs (b.replaceVar z y)
-        let b := if u then FnBody.setTag y c.cidx b else b
-        removeSelfSet ctx b
-      else FnBody.vdecl z t v (reuseToSet ctx x y b)
-    | _ => FnBody.vdecl z t v (reuseToSet ctx x y b)
-  | FnBody.case tid z zType alts   =>
-    let alts := alts.map fun alt => alt.modifyBody (reuseToSet ctx x y)
-    FnBody.case tid z zType alts
-  | FnBody.jdecl j xs v b   =>
-    FnBody.jdecl j xs (reuseToSet ctx x y v) (reuseToSet ctx x y b)
-  | e =>
-    if e.isTerminal then e
-    else
-      let (instr, b) := e.split
-      let b := reuseToSet ctx x y b
-      instr.setBody b
-
-/--
-replace
-```
-x := reset y; b
-```
-with
-```
-let f_i_1 := proj[i_1] y;
-...
-let f_i_k := proj[i_k] y;
-b'
-```
-where `i_j`s are the field indexes
-that the code did not touch immediately before the reset.
-That is `mask[j] == none`.
-`b'` is `b` where `y` `dec x` is replaced with `del y`,
-and `z := reuse x ctor_i ws; F` is replaced with
-`set x i ws[i]` operations, and we replace `z` with `x` in `F`
--/
-def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody := do
-  let ctx ← read
-  let f ← releaseUnreadFields y mask
-  pure (f (reuseToSet ctx x y b))
 
 /- New version of `mkFastPath` that uses drop-specialisation and reuse-specialisation
    instead of expanding the resets to avoid code blowup.
@@ -308,30 +215,15 @@ def tryReset (token oldAlloc : VarId) (mask : Mask) (b : FnBody) : M FnBody := d
             (jmp z2)))
         (fastPath (jmp oldAlloc))))
 
--- Expand `bs; x := reset[n] y; b`
 mutual
-partial def mkNewPath (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
+partial def specialize (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
   let (bs, mask) := eraseProjIncFor n y bs
   let b ← tryReset x y mask b
-  let b ← searchAndExpand b #[]
-  return reshape bs b
-
-partial def expand
-    (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody := do
-  let (bs, mask) := eraseProjIncFor n y bs
-  /- Remark: we may be duplicating variable/JP indices. That is, `bSlow` and `bFast` may
-     have duplicate indices. We run `normalizeIds` to fix the ids after we have expand them. -/
-  let bSlow      := mkSlowPath x y mask b
-  let bFast ← mkFastPath x y mask b
-  /- We only optimize recursively the fast. -/
-  let bFast ← searchAndExpand bFast #[]
-  let c ← mkFresh
-  let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast)
-  return reshape bs b
+  searchAndExpand b bs
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   | FnBody.vdecl x _ (Expr.reset n y) b, bs =>
-      mkNewPath bs x n y b
+      specialize bs x n y b
   | FnBody.jdecl j xs v b,   bs => do
     let v ← searchAndExpand v #[]
     let b ← searchAndExpand b #[]

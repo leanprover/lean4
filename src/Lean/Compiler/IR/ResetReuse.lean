@@ -44,7 +44,9 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
     let v' := S w c v
     if v == v' then FnBody.jdecl j ys v (S w c b)
     else FnBody.jdecl j ys v' b
-  | FnBody.case tid x xType alts    => FnBody.case tid x xType <| alts.map fun alt => alt.modifyBody (S w c)
+  | FnBody.case tid x xType alts =>
+    let alts := alts.map fun alt => alt.modifyBody (S w c)
+    FnBody.case tid x xType alts
   | b =>
     if b.isTerminal then b
     else let

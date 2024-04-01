@@ -41,7 +41,7 @@ enable_testing()
 # Lean research options
 set (LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED "0" CACHE STRING "research: enable reuse across constructors")
 message(STATUS "Research: reuse across ctor LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED(${LEAN_RESEARCH_IS_REUSE_ACROSS_CONSTRUCTORS_ENABLED})")
-set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "" CACHE STRING "research: path where compiler dumps info")
+set (LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH "/tmp/provile.csv" CACHE STRING "research: path where compiler dumps info")
 message(STATUS "Research: compiler profile CSV path LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH(${LEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH})")
 
 option(MULTI_THREAD       "MULTI_THREAD"       ON)

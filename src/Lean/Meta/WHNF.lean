@@ -343,8 +343,8 @@ inductive ProjReductionKind where
   -/
   | yesWithDelta
   /--
-  Projections `s.i` are reduced at `whnfCore`, and `whnfI` is used at `s` during the process.
-  Recall that `whnfI` is like `whnf` but uses transparency `instances`.
+  Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
+  Recall that `whnfAtMostII` is like `whnf` but uses transparency at most `instances`.
   This option is stronger than `yes`, but weaker than `yesWithDelta`.
   We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
   When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
@@ -625,7 +625,8 @@ where
         | .no => return e
         | .yes => k (← go c)
         | .yesWithDelta => k (← whnf c)
-        | .yesWithDeltaI => k (← whnfI c)
+        -- Remark: If the current transparency setting is `reducible`, we should not increase it to `instances`
+        | .yesWithDeltaI => k (← whnfAtMostI c)
       | _ => unreachable!
 
 /--

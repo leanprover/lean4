@@ -50,7 +50,7 @@ mutual
    - We ignore metadata.
    - We ignore universe parameterst at constants.
 -/
-unsafe def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool :=
+partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
   lt a b
 where
   reduce (e : Expr) : MetaM Expr := do
@@ -66,7 +66,9 @@ where
       | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do
-    if ptrAddrUnsafe a == ptrAddrUnsafe b then
+    if a == b then
+      -- We used to have an "optimization" using only pointer equality.
+      -- This was a bad idea, `==` is often much cheaper than `acLt`.
       return false
     -- We ignore metadata
     else if a.isMData then
@@ -186,7 +188,8 @@ end
 
 end ACLt
 
-@[implemented_by ACLt.main, inherit_doc ACLt.main]
-opaque Expr.acLt : Expr → Expr → (mode : ACLt.ReduceMode := .none) → MetaM Bool
+@[inherit_doc ACLt.main]
+def acLt (a b : Expr) (mode : ACLt.ReduceMode := .none) : MetaM Bool :=
+  ACLt.main a b mode
 
 end Lean.Meta

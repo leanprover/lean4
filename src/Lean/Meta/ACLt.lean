@@ -84,6 +84,16 @@ where
     else
       lt a₂ b₂
 
+  getParamsInfo (f : Expr) (numArgs : Nat) : MetaM (Array ParamInfo) := do
+    -- Ensure `f` does not have loose bound variables. This may happen in
+    -- since we go inside binders without extending the local context.
+    -- See `lexSameCtor` and `allChildrenLt`
+    -- See issue #3705.
+    if f.hasLooseBVars then
+      return #[]
+    else
+      return (← getFunInfoNArgs f numArgs).paramInfo
+
   ltApp (a b : Expr) : MetaM Bool := do
     let aFn := a.getAppFn
     let bFn := b.getAppFn
@@ -99,7 +109,7 @@ where
       else if aArgs.size > bArgs.size then
         return false
       else
-        let infos := (← getFunInfoNArgs aFn aArgs.size).paramInfo
+        let infos ← getParamsInfo aFn aArgs.size
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
@@ -137,7 +147,7 @@ where
     | .proj _ _ e ..    => lt e b
     | .app ..           =>
       a.withApp fun f args => do
-        let infos := (← getFunInfoNArgs f args.size).paramInfo
+        let infos ← getParamsInfo f args.size
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then

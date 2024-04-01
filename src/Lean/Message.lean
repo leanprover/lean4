@@ -46,14 +46,12 @@ structure PPFormat where
   /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
   hasSyntheticSorry : MetavarContext → Bool := fun _ => false
 
-structure TraceParams where
-  collapsed : Bool := true
-  tag       : String := ""
-
-structure TraceData extends TraceParams where
+structure TraceData where
   cls       : Name
   startTime : Float := 0
   stopTime  : Float := startTime
+  collapsed : Bool := true
+  tag       : String := ""
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where

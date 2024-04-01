@@ -215,7 +215,7 @@ instance [always : MonadAlwaysExcept ε m] [STWorld ω m] [BEq α] [Hashable α]
   except := let _ := always.except; inferInstance
 
 def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls : Name)
-    (msg : Except ε α → m MessageData) (k : m α) (params : TraceParams := {}) : m α := do
+    (msg : Except ε α → m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
@@ -229,18 +229,18 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
     return (← MonadExcept.ofExcept res)
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
-  let mut data := { params with cls }
+  let mut data := { cls, collapsed, tag }
   if profiler.get opts || aboveThresh then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
 
 def withTraceNode' [MonadAlwaysExcept Exception m] [MonadLiftT BaseIO m] (cls : Name)
-    (k : m (α × MessageData)) (params : TraceParams := {}) : m α :=
+    (k : m (α × MessageData)) (collapsed := true) (tag := "") : m α :=
   let msg := fun
     | .ok (_, msg) => return msg
     | .error err => return err.toMessageData
-  Prod.fst <$> withTraceNode cls msg k params
+  Prod.fst <$> withTraceNode cls msg k collapsed tag
 
 end
 
@@ -308,7 +308,7 @@ TODO: find better name for this function.
 -/
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name)
-    (msg : m MessageData) (k : m α) (params : TraceParams := {}) : m α := do
+    (msg : m MessageData) (k : m α) (collapsed := true) (tag := "") : m α := do
   let _ := always.except
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
@@ -324,7 +324,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-  let mut data := { params with cls }
+  let mut data := { cls, collapsed, tag }
   if profiler.get opts || aboveThresh then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref msg

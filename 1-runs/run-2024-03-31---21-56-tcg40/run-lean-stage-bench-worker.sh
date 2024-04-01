@@ -2,6 +2,8 @@
 set -o xtrace
 set -e
 
+COMMIT_TO_BENCH="2024-03-31---19-38---tcg40"
+
 # --------
 
 EXPERIMENTDIR=$(pwd)
@@ -29,8 +31,7 @@ rm *.csv -i || true
 rm -rf builds -I || true
 
 
-COMMITS=("2024-03-31---19-38---tcg40" "2024-borrowing-benching-baseline" )
-# COMMITS=(13a64ef64c3cd5c2066d66c1228ff789c06bc5d8 c016a25992392716885f5ba8fc5b3ddf7bec2467)
+COMMITS=("$COMMIT_TO_BENCH" "2024-borrowing-benching-baseline" )
 KINDS=("reuse" "noreuse")
 
 for tag in "${COMMITS[@]}"; do
@@ -48,20 +49,16 @@ else
 fi
 
 mkdir -p $EXPERIMENTDIR/builds/
-git clone --depth 1 git@github.com:opencompl/lean4.git  --branch 2024-borrowing-benching-baseline $EXPERIMENTDIR/builds/baseline-src-code
 
-# REUSE_FILES=("$EXPERIMENTDIR/ResetReuse.baseline.lean.in" "$EXPERIMENTDIR/ResetReuse.research.lean.in")
+git clone --depth 1 git@github.com:opencompl/lean4.git --branch 2024-borrowing-benching-baseline $EXPERIMENTDIR/builds/baseline-src-code
 
 for i in {0..1}; do
   echo "@@@ ${KINDS[i]} BUILD @@@"
   curl -d "Started[${KINDS[i]}]. run:$EXPERIMENTDIR. machine:$(uname -a)."  ntfy.sh/xISSztEV8EoOchM2
   mkdir -p $EXPERIMENTDIR/builds/
-  git clone --depth 1 git@github.com:opencompl/lean4.git  --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]}
+  git clone --depth 1 git@github.com:opencompl/lean4.git  --branch ${COMMITS[i]} $EXPERIMENTDIR/builds/${KINDS[i]} --reference /anfs/bigdisc/sb2743/24-borrowing/lean4.reference
   mkdir -p $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
   cd $EXPERIMENTDIR/builds/${KINDS[i]}/build/release/
-  make update-stage0
-  rm -rf ../../src/; cp -r $EXPERIMENTDIR/builds/baseline-src-code/src ../../
-
   # output log name from stage3 build.
   CSVNAME="${KINDS[i]}.stage3.csv"
   PROFILE_FILE=$EXPERIMENTDIR/$CSVNAME
@@ -71,6 +68,9 @@ for i in {0..1}; do
     -DRUNTIME_STATS=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DLEAN_RESEARCH_COMPILER_PROFILE_CSV_PATH=$PROFILE_FILE
+  make update-stage0
+  rm -rf ../../src/; cp -r $EXPERIMENTDIR/builds/baseline-src-code/src ../../
+  git checkout -- ../../src/runtime ../../src/include/lean/lean.h ../../src/library/compiler/ir_interpreter.h
 
   make -j10 stage2
   rm $EXPERIMENTDIR/$CSVNAME || true

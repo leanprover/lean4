@@ -128,7 +128,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         We use `.reduceSimpleOnly` because this is how we indexed the discrimination tree.
         See issue #1815
         -/
-        if !(← Expr.acLt rhs e .reduceSimpleOnly) then
+        if !(← acLt rhs e .reduceSimpleOnly) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"

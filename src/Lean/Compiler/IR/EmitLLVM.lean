@@ -147,7 +147,7 @@ def callLeanRefcountFn (builder : LLVM.Builder llvmctx)
     (delta : Option (LLVM.Value llvmctx) := Option.none) : M llvmctx Unit := do
   let fnName :=  s!"lean_{kind}{if checkRef? then "" else "_ref"}{if delta.isNone then "" else "_n"}"
   let retty ← LLVM.voidType llvmctx
-  let argtys := if delta.isNone then #[← LLVM.voidPtrType llvmctx] else #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
+  let argtys ← if delta.isNone then pure #[← LLVM.voidPtrType llvmctx] else pure #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   match delta with

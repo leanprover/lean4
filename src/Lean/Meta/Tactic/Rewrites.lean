@@ -329,11 +329,11 @@ def findRewrites (hyps : Array (Expr × Bool × Nat))
     (leavePercentHeartbeats : Nat := 10) : MetaM (List RewriteResult) := do
   let mctx ← getMCtx
   let candidates ← rewriteCandidates hyps moduleRef target forbidden
-  let minHeartbeats : Nat :=
+  let minHeartbeats : Nat ←
         if (← getMaxHeartbeats) = 0 then
-          0
+          pure 0
         else
-          leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
+          pure <| leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
   let cfg : RewriteResultConfig :=
         { stopAtRfl, minHeartbeats, max, mctx, goal, target, side }
   return (← takeListAux cfg {} (Array.mkEmpty max) candidates.toList).toList

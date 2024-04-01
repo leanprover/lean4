@@ -24,8 +24,10 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
         let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
         forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
-          let refined := if refined then refined else
-            !(← isDefEq unrefinedArgType (← inferType x[0]!))
+          let refined ← if refined then
+            pure refined
+          else
+            pure <| !(← isDefEq unrefinedArgType (← inferType x[0]!))
           return (← mkLambdaFVars xs alt, refined)
       updateAlts unrefinedArgType (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) refined (i+1)
     | _ => throwError "unexpected type at MatcherApp.addArg"

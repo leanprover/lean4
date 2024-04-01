@@ -78,6 +78,7 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else
     false
 
+-- TODO: we must track whether we are inside a quotation or not.
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node _ k args =>
     if liftMethodDelimiter k then false

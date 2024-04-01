@@ -63,8 +63,9 @@ private def letDeclHasBinders (letDecl : Syntax) : Bool :=
 /-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
 private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   let k := stx.getKind
+  -- TODO: make this extensible in the future.
   if k == ``Parser.Term.fun || k == ``Parser.Term.matchAlts ||
-     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec  then
+     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec then
      -- It is never ok to lift over this kind of binder
     true
   -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
@@ -83,6 +84,8 @@ private partial def hasLiftMethod : Syntax → Bool
     -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
     -- bit slower
     else if k == ``Parser.Term.liftMethod then true
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasLiftMethod args[1]!
     else args.any hasLiftMethod
   | _ => false
 
@@ -1321,6 +1324,12 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return .node i k (alts.map (·.1))
     else if liftMethodDelimiter k then
       return stx
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if args.size >= 2 && (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]!
+      let args := args.set! 1 arg1
+      return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"

@@ -7,6 +7,7 @@ prelude
 import Lean.ReservedNameAction
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
+import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
 /--
@@ -57,7 +58,13 @@ Ensures that `f.eq_def` and `f.eq_<idx>` are reserved names if `f` is a safe def
 -/
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
-  | .str p s => (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s) && env.isSafeDefinition p
+  | .str p s =>
+    (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s)
+    && env.isSafeDefinition p
+    -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
+    -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
+    -- Thus, it cannot be defined in different modules since it is not a theorem, and is used to generate code.
+    && !isMatcherCore env p
   | _ => false
 
 def GetEqnsFn := Name → MetaM (Option (Array Name))

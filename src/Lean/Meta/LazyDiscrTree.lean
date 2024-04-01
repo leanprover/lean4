@@ -598,6 +598,11 @@ structure PartialMatch where
 
 /--
 Evaluate all partial matches and add resulting matches to `MatchResult`.
+
+The partial matches are stored in an array that is used as a stack. When adding
+multiple partial matches to explore next, to ensure the order of results matches
+user expectations, this code must add paths we want to prioritize and return
+results earlier are added last.
 -/
 private partial def getMatchLoop (cases : Array PartialMatch) (result : MatchResult α) : MatchM α (MatchResult α) := do
   if cases.isEmpty then

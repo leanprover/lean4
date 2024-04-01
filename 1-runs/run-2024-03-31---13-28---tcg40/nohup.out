@@ -1,0 +1,90 @@
+[I 2024-03-31 15:25:20.649 ServerApp] jupyter_lsp | extension was successfully linked.
+[I 2024-03-31 15:25:20.653 ServerApp] jupyter_server_terminals | extension was successfully linked.
+[I 2024-03-31 15:25:20.659 ServerApp] jupyterlab | extension was successfully linked.
+[I 2024-03-31 15:25:20.908 ServerApp] notebook_shim | extension was successfully linked.
+[I 2024-03-31 15:25:20.926 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2024-03-31 15:25:20.930 ServerApp] jupyter_lsp | extension was successfully loaded.
+[I 2024-03-31 15:25:20.931 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+[I 2024-03-31 15:25:20.932 LabApp] JupyterLab extension loaded from /home/sb2743/.local/lib/python3.10/site-packages/jupyterlab
+[I 2024-03-31 15:25:20.932 LabApp] JupyterLab application directory is /home/sb2743/.local/share/jupyter/lab
+[I 2024-03-31 15:25:20.933 LabApp] Extension Manager is 'pypi'.
+[I 2024-03-31 15:25:20.981 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2024-03-31 15:25:20.981 ServerApp] Serving notebooks from local directory: /auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---13-28---tcg40
+[I 2024-03-31 15:25:20.981 ServerApp] Jupyter Server 2.13.0 is running at:
+[I 2024-03-31 15:25:20.981 ServerApp] http://localhost:8888/lab?token=d2c087b2dfb6897359f36158e4e1a50fd9e06ebf62c63138
+[I 2024-03-31 15:25:20.981 ServerApp]     http://127.0.0.1:8888/lab?token=d2c087b2dfb6897359f36158e4e1a50fd9e06ebf62c63138
+[I 2024-03-31 15:25:20.981 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2024-03-31 15:25:20.986 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///home/sb2743/.local/share/jupyter/runtime/jpserver-2277332-open.html
+    Or copy and paste one of these URLs:
+        http://localhost:8888/lab?token=d2c087b2dfb6897359f36158e4e1a50fd9e06ebf62c63138
+        http://127.0.0.1:8888/lab?token=d2c087b2dfb6897359f36158e4e1a50fd9e06ebf62c63138
+Refresh (1 sec) http://localhost:8888/lab?token=
+d2c087b2dfb6897359f36158e4e1a50fd9e06ebf62c63138
+
+This page should redirect you to a Jupyter application. If it doesn't, click
+here to go to Jupyter.
+
+[I 2024-03-31 15:25:21.777 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+[I 2024-03-31 15:25:28.757 ServerApp] 302 GET / (@::1) 0.52ms
+[I 2024-03-31 15:25:28.767 LabApp] 302 GET /lab? (@::1) 0.89ms
+[I 2024-03-31 15:25:44.383 LabApp] `sys_prefix` level settings are read-only, using `user` level for migration to `lockedExtensions`
+[I 2024-03-31 15:25:44.389 LabApp] Build is up to date
+[I 2024-03-31 15:25:45.241 ServerApp] Kernel started: 8eae05cd-2e73-4979-b31c-dbefdbcdfa8a
+[I 2024-03-31 15:25:45.676 ServerApp] Connecting to kernel 8eae05cd-2e73-4979-b31c-dbefdbcdfa8a.
+[I 2024-03-31 15:25:45.679 ServerApp] Connecting to kernel 8eae05cd-2e73-4979-b31c-dbefdbcdfa8a.
+[I 2024-03-31 15:25:45.681 ServerApp] Connecting to kernel 8eae05cd-2e73-4979-b31c-dbefdbcdfa8a.
+[I 2024-03-31 15:27:11.290 ServerApp] Saving file at /plot-stage3.ipynb
+[W 2024-03-31 15:30:27.235 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895426900 (ab08efd131294dddb83590bab1433a93@::1) 325.93ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:27.346 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895426900 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:27.787 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895427326 (ab08efd131294dddb83590bab1433a93@::1) 350.31ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:27.902 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895427326 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:28.386 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895427829 (ab08efd131294dddb83590bab1433a93@::1) 367.40ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:28.484 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895427829 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:28.893 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895428443 (ab08efd131294dddb83590bab1433a93@::1) 312.00ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:28.985 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895428443 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:29.400 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895428955 (ab08efd131294dddb83590bab1433a93@::1) 331.53ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:29.538 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895428955 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:30.047 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895429405 (ab08efd131294dddb83590bab1433a93@::1) 359.74ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:30.179 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895429405 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:30.653 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895430055 (ab08efd131294dddb83590bab1433a93@::1) 351.92ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:30.814 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895430055 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:31.342 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895430658 (ab08efd131294dddb83590bab1433a93@::1) 363.74ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:31.496 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895430658 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:31.942 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895431349 (ab08efd131294dddb83590bab1433a93@::1) 352.86ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:32.055 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895431349 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:32.621 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895432027 (ab08efd131294dddb83590bab1433a93@::1) 448.94ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:32.770 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895432027 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:30:33.410 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895432626 (ab08efd131294dddb83590bab1433a93@::1) 481.95ms referer=http://localhost:8888/lab/tree/plot-stage3.ipynb
+--- Logging error ---
+[W 2024-03-31 15:30:33.562 ServerApp] 404 GET /api/contents?content=1&hash=0&1711895432626 (::1): No such file or directory: 
+--- Logging error ---
+[W 2024-03-31 15:42:28.353 ServerApp] /auto/homes/sb2743/2024-borrowing/lean4/1-runs/run-2024-03-31---13-28---tcg40/4913 doesn't exist
+[I 2024-03-31 15:48:52.683 ServerApp] 302 GET / (@::1) 0.50ms
+[I 2024-03-31 15:48:52.698 LabApp] 302 GET /lab? (@::1) 0.65ms
+[C 2024-03-31 15:48:59.742 ServerApp] received signal 15, stopping
+[I 2024-03-31 15:48:59.743 ServerApp] Shutting down 4 extensions
+[I 2024-03-31 15:48:59.743 ServerApp] Shutting down 1 kernel
+[I 2024-03-31 15:48:59.743 ServerApp] Kernel shutdown: 8eae05cd-2e73-4979-b31c-dbefdbcdfa8a

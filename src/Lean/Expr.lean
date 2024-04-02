@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Hashable
 import Lean.Data.KVMap
+import Lean.Data.SMap
 import Lean.Level
 
 namespace Lean
@@ -1389,6 +1390,8 @@ def mkDecIsFalse (pred proof : Expr) :=
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
+abbrev SExprMap (α : Type)  := SMap Expr α
+
 abbrev ExprSet := HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet

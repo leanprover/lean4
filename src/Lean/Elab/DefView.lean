@@ -77,11 +77,11 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some declId =>
       if ← isTracingEnabledFor `Elab.instance.mkInstanceName then
         let id ← mkInstanceName binders.getArgs type
-        trace[Elab.instance.mkInstanceName] "generated {id} for {declId}"
+        trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id} for {declId}"
       pure declId
     | none        =>
       let id ← mkInstanceName binders.getArgs type
-      trace[Elab.instance.mkInstanceName] "generated {id}"
+      trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,

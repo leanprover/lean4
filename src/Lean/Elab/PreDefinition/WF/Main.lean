@@ -144,6 +144,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
   for preDef in preDefs do
+    markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 builtin_initialize registerTraceClass `Elab.definition.wf

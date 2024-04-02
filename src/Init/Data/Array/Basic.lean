@@ -10,7 +10,7 @@ import Init.Data.Fin.Basic
 import Init.Data.UInt.Basic
 import Init.Data.Repr
 import Init.Data.ToString.Basic
-import Init.Util
+import Init.GetElem
 universe u v w
 
 namespace Array
@@ -58,6 +58,8 @@ def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 
 instance : GetElem (Array α) USize α fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
+
+instance : LawfulGetElem (Array α) USize α fun xs i => i.toNat < xs.size where
 
 def back [Inhabited α] (a : Array α) : α :=
   a.get! (a.size - 1)
@@ -456,24 +458,12 @@ def findRev? {α : Type} (as : Array α) (p : α → Bool) : Option α :=
 
 @[inline]
 def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
-  let rec loop (i : Nat) (j : Nat) (inv : i + j = as.size) : Option Nat :=
-    if hlt : j < as.size then
-      match i, inv with
-      | 0, inv => by
-        apply False.elim
-        rw [Nat.zero_add] at inv
-        rw [inv] at hlt
-        exact absurd hlt (Nat.lt_irrefl _)
-      | i+1, inv =>
-        if p as[j] then
-          some j
-        else
-          have : i + (j+1) = as.size := by
-            rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-          loop i (j+1) this
-    else
-      none
-  loop as.size 0 rfl
+  let rec loop (j : Nat) :=
+    if h : j < as.size then
+      if p as[j] then some j else loop (j + 1)
+    else none
+    termination_by as.size - j
+  loop 0
 
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
 a.findIdx? fun a => a == v
@@ -742,10 +732,8 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
     a.pop
 termination_by a.size - i.val
 
-derive_functional_induction feraseIdx
-
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
-  induction a, i using feraseIdx.induct with
+  induction a, i using Array.feraseIdx.induct with
   | @case1 a i h a' _ _ ih =>
     unfold feraseIdx
     simp [h, a', ih]

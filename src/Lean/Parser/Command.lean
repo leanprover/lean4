@@ -203,17 +203,17 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> ident)
+  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> ident)
+  "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> ident
+  "namespace " >> checkColGt >> ident
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> Term.bracketedBinder)
+  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 @[builtin_command_parser] def «universe»     := leading_parser
-  "universe" >> many1 (ppSpace >> ident)
+  "universe" >> many1 (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
@@ -280,17 +280,6 @@ def initializeKeyword := leading_parser
 
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident
-
-/--
-`derive_functional_induction foo`, where `foo` is the name of a function defined using well-founded recursion,
-will define a theorem `foo.induct` which provides an induction principle that follows the branching
-and recursion pattern of `foo`.
-
-If `foo` is part of a mutual recursion group, this defines such `.induct`-theorems for all functions
-in the group.
--/
-@[builtin_command_parser] def deriveInduction := leading_parser
-  "derive_functional_induction " >> Parser.ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

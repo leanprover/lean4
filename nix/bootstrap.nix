@@ -170,10 +170,11 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
-          touch $out
+          mkdir $out
+          mv test-results.xml $out
         '';
       };
       update-stage0 =

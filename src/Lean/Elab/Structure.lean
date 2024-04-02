@@ -704,6 +704,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
       if info.kind == StructFieldKind.fromParent then
         return none
       else
+        let env ← getEnv
         return some {
           fieldName  := info.name
           projFn     := info.declName
@@ -711,7 +712,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
           autoParam? := (← inferType info.fvar).getAutoParamTactic?
           subobject? :=
             if info.kind == StructFieldKind.subobject then
-              match (← getEnv).find? info.declName with
+              match env.find? info.declName with
               | some (ConstantInfo.defnInfo val) =>
                 match val.type.getForallBody.getAppFn with
                 | Expr.const parentName .. => some parentName

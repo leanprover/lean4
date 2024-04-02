@@ -73,7 +73,21 @@ private def posOfLastSep (p : FilePath) : Option String.Pos :=
   p.toString.revFind pathSeparators.contains
 
 def parent (p : FilePath) : Option FilePath :=
-  FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
+  let extractParentPath := FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
+  if p.isAbsolute then
+    let lengthOfRootDirectory := if pathSeparators.contains p.toString.front then 1 else 3
+    if p.toString.length == lengthOfRootDirectory then
+      -- `p` is a root directory
+      none
+    else if posOfLastSep p == String.Pos.mk (lengthOfRootDirectory - 1) then
+      -- `p` is a direct child of the root
+      some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
+    else
+      -- `p` is an absolute path with at least two subdirectories
+      extractParentPath
+  else
+    -- `p` is a relative path
+    extractParentPath
 
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with

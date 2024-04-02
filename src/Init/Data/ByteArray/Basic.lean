@@ -52,8 +52,12 @@ def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
+instance : LawfulGetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
+
 instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
   getElem xs i h := xs.uget i h
+
+instance : LawfulGetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
@@ -196,18 +200,6 @@ instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩
 /-- Interpret a `ByteArray` of size 8 as a little-endian `UInt64`. -/
 def ByteArray.toUInt64LE! (bs : ByteArray) : UInt64 :=
   assert! bs.size == 8
-  (bs.get! 0).toUInt64 <<< 0x38 |||
-  (bs.get! 1).toUInt64 <<< 0x30 |||
-  (bs.get! 2).toUInt64 <<< 0x28 |||
-  (bs.get! 3).toUInt64 <<< 0x20 |||
-  (bs.get! 4).toUInt64 <<< 0x18 |||
-  (bs.get! 5).toUInt64 <<< 0x10 |||
-  (bs.get! 6).toUInt64 <<< 0x8  |||
-  (bs.get! 7).toUInt64
-
-/-- Interpret a `ByteArray` of size 8 as a big-endian `UInt64`. -/
-def ByteArray.toUInt64BE! (bs : ByteArray) : UInt64 :=
-  assert! bs.size == 8
   (bs.get! 7).toUInt64 <<< 0x38 |||
   (bs.get! 6).toUInt64 <<< 0x30 |||
   (bs.get! 5).toUInt64 <<< 0x28 |||
@@ -216,3 +208,15 @@ def ByteArray.toUInt64BE! (bs : ByteArray) : UInt64 :=
   (bs.get! 2).toUInt64 <<< 0x10 |||
   (bs.get! 1).toUInt64 <<< 0x8  |||
   (bs.get! 0).toUInt64
+
+/-- Interpret a `ByteArray` of size 8 as a big-endian `UInt64`. -/
+def ByteArray.toUInt64BE! (bs : ByteArray) : UInt64 :=
+  assert! bs.size == 8
+  (bs.get! 0).toUInt64 <<< 0x38 |||
+  (bs.get! 1).toUInt64 <<< 0x30 |||
+  (bs.get! 2).toUInt64 <<< 0x28 |||
+  (bs.get! 3).toUInt64 <<< 0x20 |||
+  (bs.get! 4).toUInt64 <<< 0x18 |||
+  (bs.get! 5).toUInt64 <<< 0x10 |||
+  (bs.get! 6).toUInt64 <<< 0x8  |||
+  (bs.get! 7).toUInt64

@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 prelude
 import Init.Data.Int.Basic
 import Init.Conv
-import Init.PropLemmas
+import Init.NotationExtra
 
 namespace Int
 

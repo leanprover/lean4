@@ -39,10 +39,10 @@ end
 #eval tst ``f
 #check @f.eq_1
 #check @f.eq_2
-#check @f.def
+#check @f.eq_def
 
 
 #eval tst ``h
 #check @h.eq_1
 #check @h.eq_2
-#check @h.def
+#check @h.eq_def

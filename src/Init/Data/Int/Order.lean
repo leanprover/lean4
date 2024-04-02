@@ -6,7 +6,6 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 prelude
 import Init.Data.Int.Lemmas
 import Init.ByCases
-import Init.RCases
 
 /-!
 # Results about the order properties of the integers, and the integers as an ordered ring.
@@ -999,7 +998,8 @@ theorem natAbs_add_le (a b : Int) : natAbs (a + b) ≤ natAbs a + natAbs b := by
   refine fun a b => subNatNat_elim a b.succ
     (fun m n i => n = b.succ → natAbs i ≤ (m + b).succ) ?_
     (fun i n (e : (n + i).succ = _) => ?_) rfl
-  · rintro i n rfl
+  · intro i n h
+    subst h
     rw [Nat.add_comm _ i, Nat.add_assoc]
     exact Nat.le_add_right i (b.succ + b).succ
   · apply succ_le_succ

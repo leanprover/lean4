@@ -14,7 +14,7 @@ def g (i j : Nat) : Nat :=
 #eval tst ``g
 #check g.eq_1
 #check g.eq_2
-#check g.def
+#check g.eq_def
 
 def h (i j : Nat) : Nat :=
   let z :=
@@ -26,4 +26,4 @@ def h (i j : Nat) : Nat :=
 #eval tst ``h
 #check h.eq_1
 #check h.eq_2
-#check h.def
+#check h.eq_def

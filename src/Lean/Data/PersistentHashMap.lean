@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.BasicAux
+import Init.Data.ToString.Macro
 
 namespace Lean
 universe u v w w'
@@ -153,6 +154,8 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
+
+instance {_ : BEq α} {_ : Hashable α} : LawfulGetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
 
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
@@ -321,6 +324,9 @@ def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α}
 
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps
+
+def toArray {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : Array (α × β) :=
+  m.foldl (init := #[]) fun ps k v => ps.push (k, v)
 
 structure Stats where
   numNodes      : Nat := 0

@@ -8,7 +8,7 @@ def tst (declName : Name) : MetaM Unit := do
 #eval tst ``List.map
 #check @List.map.eq_1
 #check @List.map.eq_2
-#check @List.map.def
+#check @List.map.eq_def
 
 def foo (xs ys zs : List Nat) : List Nat :=
   match (xs, ys) with
@@ -23,7 +23,7 @@ def foo (xs ys zs : List Nat) : List Nat :=
 
 #check foo.eq_1
 #check foo.eq_2
-#check foo.def
+#check foo.eq_def
 
 #eval tst ``foo
 
@@ -40,7 +40,7 @@ def g : List Nat → List Nat → Nat
 #check g.eq_3
 #check g.eq_4
 #check g.eq_5
-#check g.def
+#check g.eq_def
 
 def h (xs : List Nat) (y : Nat) : Nat :=
   match xs with
@@ -53,7 +53,7 @@ def h (xs : List Nat) (y : Nat) : Nat :=
 #eval tst ``h
 #check h.eq_1
 #check h.eq_2
-#check h.def
+#check h.eq_def
 
 def r (i j : Nat) : Nat :=
   i +
@@ -68,7 +68,7 @@ def r (i j : Nat) : Nat :=
 #check r.eq_1
 #check r.eq_2
 #check r.eq_3
-#check r.def
+#check r.eq_def
 
 def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
   f i <|
@@ -83,4 +83,4 @@ def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
 #check @bla.eq_1
 #check @bla.eq_2
 #check @bla.eq_3
-#check @bla.def
+#check @bla.eq_def

@@ -77,7 +77,13 @@ jobs:
           nix build $NIX_BUILD_ARGS .#cacheRoots -o push-build
       - name: Test
         run: |
-          nix build $NIX_BUILD_ARGS .#test -o push-test
+          nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ln -s /tmp/nix-build-*/source/src/build/ ./push-test; false)
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: push-test/test-results.xml
+        if: always()
+        continue-on-error: true
       - name: Build manual
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc

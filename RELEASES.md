@@ -21,17 +21,16 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* New command `derive_functional_induction`:
+* Funcitonal induction principles.
 
-  Derived from the definition of a (possibly mutually) recursive function
-  defined by well-founded recursion, a **functional induction principle** is
-  tailored to proofs about that function. For example from:
+  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+
+  For example from:
   ```
   def ackermann : Nat → Nat → Nat
     | 0, m => m + 1
     | n+1, 0 => ackermann n 1
     | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  derive_functional_induction ackermann
   ```
   we get
   ```
@@ -39,6 +38,11 @@ v4.8.0 (development in progress)
     (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
     (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
     (x x : Nat) : motive x x
+  ```
+
+  It can be used in the `induction` tactic using the `using` syntax:
+  ```
+  induction n, m using ackermann.induct
   ```
 
 * The termination checker now recognizes more recursion patterns without an
@@ -64,6 +68,20 @@ v4.8.0 (development in progress)
 * Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
   to enable pretty printing function applications using generalized field notation (defaults to true).
   Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
+
+* Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
+  When `pp.mvars` is false, metavariables pretty print as `?_`,
+  and when `pp.mvars.withType` is true, metavariables pretty print with a type ascription.
+  These can be set when using `#guard_msgs` to make tests not rely on the unique ids assigned to anonymous metavariables.
+  [#3798](https://github.com/leanprover/lean4/pull/3798).
+
+* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
+  for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
+  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
+  rather than `Nat.zero` and `Nat.succ n`.
+  Added option `tactic.customEliminators` to control whether to use custom eliminators.
+  [#3629](https://github.com/leanprover/lean4/pull/3629) and
+  [#3655](https://github.com/leanprover/lean4/pull/3655).
 
 Breaking changes:
 

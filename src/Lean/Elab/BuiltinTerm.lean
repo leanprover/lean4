@@ -232,7 +232,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
   let id := stx[2].getId
-  let id := if stx[1].isNone then id else (← getCurrNamespace) ++ id
+  let id ← if stx[1].isNone then pure id else pure <| (← getCurrNamespace) ++ id
   let e := stx[3]
   withMacroExpansion stx e <| withDeclName id <| elabTerm e expectedType?
 

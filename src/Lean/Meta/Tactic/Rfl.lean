@@ -6,6 +6,7 @@ Authors: Newell Jensen, Thomas Murrills
 prelude
 import Lean.Meta.Tactic.Apply
 import Lean.Elab.Tactic.Basic
+import Lean.Meta.Tactic.Refl
 
 /-!
 # `rfl` tactic extension for reflexive relations
@@ -38,6 +39,8 @@ initialize registerBuiltinAttribute {
     let fail := throwError
       "@[refl] attribute only applies to lemmas proving x ∼ x, got {declTy}"
     let .app (.app rel lhs) rhs := targetTy | fail
+    if let .app (.const ``Eq [_]) _ := rel then
+      throwError "@[refl] attribute may not be used on `Eq.refl`."
     unless ← withNewMCtxDepth <| isDefEq lhs rhs do fail
     let key ← DiscrTree.mkPath rel reflExt.config
     reflExt.add (decl, key) kind
@@ -47,29 +50,33 @@ open Elab Tactic
 
 /-- `MetaM` version of the `rfl` tactic.
 
-This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is a reflexive relation other than `=`,
+that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
 -/
 def _root_.Lean.MVarId.applyRfl (goal : MVarId) : MetaM Unit := do
   let .app (.app rel _) _ ← whnfR <|← instantiateMVars <|← goal.getType
     | throwError "reflexivity lemmas only apply to binary relations, not{
         indentExpr (← goal.getType)}"
-  let s ← saveState
-  let mut ex? := none
-  for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
-    try
-      let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
-      if gs.isEmpty then return () else
-        logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
-          goalsToMessageData gs}"
-    catch e =>
-      ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
-    s.restore
-  if let some (sErr, e) := ex? then
-    sErr.restore
-    throw e
+  if let .app (.const ``Eq [_]) _ := rel then
+    throwError "MVarId.applyRfl does not solve `=` goals. Use `MVarId.refl` instead."
   else
-    throwError "rfl failed, no lemma with @[refl] applies"
+    let s ← saveState
+    let mut ex? := none
+    for lem in ← (reflExt.getState (← getEnv)).getMatch rel reflExt.config do
+      try
+        let gs ← goal.apply (← mkConstWithFreshMVarLevels lem)
+        if gs.isEmpty then return () else
+          logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{
+            goalsToMessageData gs}"
+      catch e =>
+        ex? := ex? <|> (some (← saveState, e)) -- stash the first failure of `apply`
+      s.restore
+    if let some (sErr, e) := ex? then
+      sErr.restore
+      throw e
+    else
+      throwError "rfl failed, no lemma with @[refl] applies"
 
 /-- Helper theorem for `Lean.MVarId.liftReflToEq`. -/
 private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
@@ -78,7 +85,7 @@ private theorem rel_of_eq_and_refl {α : Sort _} {R : α → α → Prop}
 
 /--
 Convert a goal of the form `x ~ y` into the form `x = y`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute `[refl]`.
+relation, that is, a relation which has a reflexive lemma tagged with the attribute `@[refl]`.
 If this can't be done, returns the original `MVarId`.
 -/
 def _root_.Lean.MVarId.liftReflToEq (mvarId : MVarId) : MetaM MVarId := do

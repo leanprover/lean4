@@ -47,9 +47,10 @@ theorem len_1 (a : α) : len [a] = 1 := by
 
 theorem len_2 (a b : α) (bs : List α) : len (a::b::bs) = 1 + len (b::bs) := by
   conv => lhs; unfold len
+  rfl
 
 -- The `unfold` tactic above generated the following theorem
-#check @len.def
+#check @len.eq_def
 
 theorem len_cons (a : α) (as : List α) : len (a::as) = 1 + len as := by
   cases as with
@@ -97,9 +98,10 @@ theorem len_1 (a : α) : len [a] = 1 := by
 
 theorem len_2 (a b : α) (bs : List α) : len (a::b::bs) = 1 + len (b::bs) := by
   conv => lhs; unfold len
+  rfl
 
 -- The `unfold` tactic above generated the following theorem
-#check @len.def
+#check @len.eq_def
 
 theorem len_cons (a : α) (as : List α) : len (a::as) = 1 + len as := by
   cases as with

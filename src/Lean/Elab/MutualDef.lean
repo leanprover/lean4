@@ -260,7 +260,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
       let val ←
         withTraceNode (if valStx.isOfKind ``Parser.Term.byTactic then `Elab.tacticBody else `Elab.body) (fun _ => pure valStx) do
-          elabTermEnsuringType valStx type
+          elabTermEnsuringType valStx type <* Term.synthesizeSyntheticMVarsNoPostponing
       mkLambdaFVars xs val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
@@ -810,7 +810,6 @@ where
       let values ←
         try
           let values ← elabFunValues headers
-          Term.synthesizeSyntheticMVarsNoPostponing
           values.mapM (instantiateMVars ·)
         catch ex =>
           logException ex

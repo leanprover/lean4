@@ -121,6 +121,7 @@ def runFrontend
     let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
     let env := env.setMainModule mainModuleName
     let mut commandState := Command.mkState env messages opts
+    let elabStartTime := (← IO.monoNanosNow).toFloat / 1000000000
 
     if ileanFileName?.isSome then
       -- Collect InfoTrees so we can later extract and export their info to the ilean file
@@ -138,7 +139,15 @@ def runFrontend
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
     if let some out := trace.profiler.output.get? opts then
-      let profile ← Firefox.Profile.export mainModuleName.toString startTime s.commandState.traceState
+      let traceState := s.commandState.traceState
+      let traceState := { traceState with
+        traces := traceState.traces.push {
+          ref := .missing,
+          msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
+            (.ofFormat "importing") #[]
+        }
+      }
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState
       IO.FS.writeFile ⟨out⟩ (Json.compress <| toJson profile)
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)

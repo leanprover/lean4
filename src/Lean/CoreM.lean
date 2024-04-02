@@ -330,10 +330,13 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let opts ← getOptions
+  let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
-    compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
-  match (← getEnv).compileDecl opts decl with
-  | Except.ok env   => setEnv env
+    compileDeclsNew decls
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return (← getEnv).compileDecl opts decl
+  match res with
+  | Except.ok env => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg

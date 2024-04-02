@@ -13,7 +13,9 @@ This module provides functionality to generate a name for a declaration using it
 This is used to generate names for anonymous instances.
 
 It uses heuristics to generate an informative but terse name given its namespace, supplied binders, and type.
-It tries to make these relatively unique, and it uses suffixes derived from the module to ensure cross-project uniqueness.
+It tries to make these relatively unique,
+and it uses suffixes derived from the module to ensure cross-project uniqueness
+when the instance doesn't refer to anything defined in the current project.
 
 The name generator can be thought of as a kind of pretty printer, rendering an expression in textual form.
 The general structure of this generator is
@@ -206,20 +208,14 @@ and it adds suffixes using the current module if the resulting name doesn't refe
 def mkBaseNameWithSuffix (pre : String) (type : Expr) : MetaM String := do
   let (name, st) ← mkBaseName type |>.run {}
   let name := pre ++ name
-  let module ← getMainModule
-  let project := module.getRoot
-  -- Special case: don't use suffixes for Init
-  if project == `Init then
-    return name
+  let project := (← getMainModule).getRoot
   -- Collect the modules for each constant that appeared.
   let modules ← st.consts.foldM (init := Array.mkEmpty st.consts.size) fun mods name => return mods.push (← findModuleOf? name)
-  -- We can avoid adding the module suffix if the instance refers to module-local names.
+  -- We can avoid adding the suffix if the instance refers to module-local names.
   let isModuleLocal := modules.any Option.isNone
   -- We can also avoid adding the full module suffix if the instance refers to "project"-local names.
   let isProjectLocal := isModuleLocal || modules.any fun mod? => mod?.map (·.getRoot) == project
   if !isProjectLocal then
-    return s!"{name}{moduleToSuffix module}"
-  else if !isModuleLocal then
     return s!"{name}{moduleToSuffix project}"
   else
     return name

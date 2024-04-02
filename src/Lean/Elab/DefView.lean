@@ -74,9 +74,14 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let (binders, type) := expandDeclSig stx[4]
   let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with
-    | some declId => pure declId
+    | some declId =>
+      if ← isTracingEnabledFor `Elab.instance.mkInstanceName then
+        let id ← mkInstanceName binders.getArgs type
+        trace[Elab.instance.mkInstanceName] "generated {id} for {declId}"
+      pure declId
     | none        =>
       let id ← mkInstanceName binders.getArgs type
+      trace[Elab.instance.mkInstanceName] "generated {id}"
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
@@ -131,6 +136,7 @@ def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
     throwError "unexpected kind of definition"
 
 builtin_initialize registerTraceClass `Elab.definition
+builtin_initialize registerTraceClass `Elab.instance.mkInstanceName
 
 end Command
 end Lean.Elab

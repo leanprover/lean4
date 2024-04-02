@@ -655,7 +655,7 @@ _start:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_12 = l_Lean_Syntax_getArgs(x_11);
 x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_unsigned_to_nat(2u);
+x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Array_toSubarray___rarg(x_12, x_13, x_14);
 x_16 = l_Array_ofSubarray___rarg(x_15);
 lean_inc(x_11);

@@ -283,7 +283,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
         args.forM elabCommand
-      else withTraceNode `Elab.command (fun _ => return stx) (tag := stx.getKind.toString) do
+      else withTraceNode `Elab.command (fun _ => return stx) (tag :=
+        -- special case: show actual declaration kind for `declaration` commands
+        (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew?) =>

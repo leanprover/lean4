@@ -224,7 +224,7 @@ the first matching constructor, or else fails.
 syntax (name := constructor) "constructor" : tactic
 
 /--
-Applies the second constructor when
+Applies the first constructor when
 the goal is an inductive type with exactly two constructors, or fails otherwise.
 ```
 example : True ∨ False := by
@@ -354,6 +354,9 @@ macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
     with_annotate_state $tk skip
     all_goals $y:tactic)
 
+/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
+syntax (name := fail) "fail" (ppSpace str)? : tactic
+
 /-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
 syntax (name := eqRefl) "eq_refl" : tactic
 
@@ -365,13 +368,18 @@ for new reflexive relations.
 Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
 reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| eq_refl)
+macro "rfl" : tactic => `(tactic| fail "The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")
 
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
 macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
 
 /--
-This tactic applies to a goal whose target has the form `x ~ x`, where `~` is a reflexive
-relation, that is, a relation which has a reflexive lemma tagged with the attribute [refl].
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is a reflexive relation other than `=`,
+that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
 -/
 syntax (name := applyRfl) "apply_rfl" : tactic
 
@@ -907,9 +915,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 -/
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
-/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
-syntax (name := fail) "fail" (ppSpace str)? : tactic
-
 /--
 `checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
 and if the file is re-elaborated and the input matches, the tactic is not re-run and
@@ -1317,6 +1322,22 @@ The optional `using` clause provides identifiers in the local context that must 
 used when closing the goal.
 -/
 syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+
+/--
+Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
+-/
+syntax rewrites_forbidden := " [" (("-" ident),*,?) "]"
+
+/--
+`rw?` tries to find a lemma which can rewrite the goal.
+
+`rw?` should not be left in proofs; it is a search tool, like `apply?`.
+
+Suggestions are printed as `rw [h]` or `rw [← h]`.
+
+You can use `rw? [-my_lemma, -my_theorem]` to prevent `rw?` using the named lemmas.
+-/
+syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tactic
 
 /--
 `show_term tac` runs `tac`, then prints the generated term in the form

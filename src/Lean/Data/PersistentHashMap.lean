@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.BasicAux
+import Init.Data.ToString.Macro
 
 namespace Lean
 universe u v w w'

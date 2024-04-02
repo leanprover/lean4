@@ -16,4 +16,4 @@ decreasing_by
 
 #eval tst ``f
 #check f.eq_1
-#check f.def
+#check f.eq_def

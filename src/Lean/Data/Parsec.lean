@@ -5,7 +5,7 @@ Author: Dany Fabian
 -/
 prelude
 import Init.NotationExtra
-import Init.Data.ToString.Basic
+import Init.Data.ToString.Macro
 
 namespace Lean
 

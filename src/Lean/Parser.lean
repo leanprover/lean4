@@ -49,9 +49,9 @@ builtin_initialize
   register_parser_alias andthen { stackSz? := none }
   register_parser_alias recover
 
-  registerAlias "notFollowedBy" ``notFollowedBy (notFollowedBy · "element")
-  Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer
-  Formatter.registerAlias "notFollowedBy" notFollowedBy.formatter
+  registerAlias `notFollowedBy ``notFollowedBy (notFollowedBy · "element")
+  Parenthesizer.registerAlias `notFollowedBy notFollowedBy.parenthesizer
+  Formatter.registerAlias `notFollowedBy notFollowedBy.formatter
 
 end Parser
 

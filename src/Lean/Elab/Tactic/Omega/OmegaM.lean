@@ -218,7 +218,12 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
             (mkApp3 (.const ``Int.emod_nonneg []) x k
                 (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) cast_pos)) |>.insert
               (mkApp3 (.const ``Int.emod_lt_of_pos []) x k cast_pos)
-      | _ => pure ∅
+      | _ =>  match x.getAppFnArgs with
+        | (``Nat.cast, #[.const ``Int [], _, x']) =>
+          -- Since we push coercions inside `%`, we need to record here that
+          -- `(x : Int) % (y : Int)` is non-negative.
+          pure <| HashSet.empty.insert (mkApp2 (.const ``Int.emod_ofNat_nonneg []) x' k)
+        | _ => pure ∅
     | _ => pure ∅
   | (``Min.min, #[_, _, x, y]) =>
     pure <| HashSet.empty.insert (mkApp2 (.const ``Int.min_le_left []) x y) |>.insert

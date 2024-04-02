@@ -51,7 +51,7 @@ private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat)
     else
       name.appendAfter ("✝" ++ idx.toSuperscriptString)
   else
-    name ++ Name.mkNum "_inaccessible" idx
+    name ++ Name.num `_inaccessible idx
 
 private def mkInaccessibleUserName (unicode : Bool) : Name → Name
   | .num p@(.str ..) idx =>

@@ -41,7 +41,7 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedJpCasesInfo___closed_
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Simp_collectJpCasesInfo_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___private_Lean_Compiler_LCNF_Simp_JpCases_0__Lean_Compiler_LCNF_Simp_extractJpCases_go___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f_visitJp_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at_Lean_Compiler_LCNF_Simp_simpJpCases_x3f___spec__1(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -251,7 +251,7 @@ goto _start;
 }
 case 4:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 lean_dec(x_4);
 x_10 = lean_ctor_get(x_3, 0);
 lean_inc(x_10);
@@ -259,28 +259,27 @@ lean_dec(x_3);
 x_11 = lean_ctor_get(x_1, 2);
 x_12 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_Simp_isJpCases_x3f_go___lambda__1___boxed), 2, 1);
 lean_closure_set(x_12, 0, x_10);
-x_13 = lean_array_get_size(x_11);
-x_14 = lean_unsigned_to_nat(0u);
-x_15 = l_Array_findIdx_x3f_loop___rarg(x_11, x_12, x_13, x_14, lean_box(0));
-return x_15;
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = l_Array_findIdx_x3f_loop___rarg(x_11, x_12, x_13);
+return x_14;
 }
 default: 
+{
+lean_object* x_15; 
+lean_dec(x_4);
+lean_dec(x_3);
+x_15 = lean_box(0);
+return x_15;
+}
+}
+}
+else
 {
 lean_object* x_16; 
 lean_dec(x_4);
 lean_dec(x_3);
 x_16 = lean_box(0);
 return x_16;
-}
-}
-}
-else
-{
-lean_object* x_17; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_17 = lean_box(0);
-return x_17;
 }
 }
 }

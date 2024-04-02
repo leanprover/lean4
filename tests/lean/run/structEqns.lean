@@ -17,7 +17,7 @@ def foo (xs ys zs : List Nat) : List Nat :=
 #eval tst ``foo
 
 /--
-info: foo.def (xs ys zs : List Nat) :
+info: foo.eq_def (xs ys zs : List Nat) :
   foo xs ys zs =
     match (xs, ys) with
     | (xs', ys') =>
@@ -29,7 +29,7 @@ info: foo.def (xs ys zs : List Nat) :
         | x => [2]
 -/
 #guard_msgs in
-#check foo.def
+#check foo.eq_def
 
 
 def bar (xs ys : List Nat) : List Nat :=

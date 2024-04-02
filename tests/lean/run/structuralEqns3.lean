@@ -17,4 +17,4 @@ def wk_comp : Wk n m → Wk m l → Wk n l
 
 #check @wk_comp.eq_1
 #check @wk_comp.eq_2
-#check @wk_comp.def
+#check @wk_comp.eq_def

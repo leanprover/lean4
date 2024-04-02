@@ -252,7 +252,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
-  | .ofOmissionInfo _ => return none -- Do not display the docstring of ⋯ for omitted terms
+  | .ofOmissionInfo { reason := s, .. } => return s -- Show the omission reason for the docstring.
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
@@ -398,7 +398,7 @@ where go ci?
   | .node i cs =>
     match ci?, i with
     | some ci, .ofTermInfo ti
-    | some ci, .ofOmissionInfo { toTermInfo := ti } => do
+    | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and

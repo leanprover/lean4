@@ -21,17 +21,16 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* New command `derive_functinal_induction`:
+* Funcitonal induction principles.
 
-  Derived from the definition of a (possibly mutually) recursive function
-  defined by well-founded recursion, a **functional induction principle** is
-  tailored to proofs about that function. For example from:
+  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+
+  For example from:
   ```
   def ackermann : Nat → Nat → Nat
     | 0, m => m + 1
     | n+1, 0 => ackermann n 1
     | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  derive_functional_induction ackermann
   ```
   we get
   ```
@@ -41,8 +40,13 @@ v4.8.0 (development in progress)
     (x x : Nat) : motive x x
   ```
 
+  It can be used in the `induction` tactic using the `using` syntax:
+  ```
+  induction n, m using ackermann.induct
+  ```
+
 * The termination checker now recognizes more recursion patterns without an
-  explicit `terminatin_by`. In particular the idiom of counting up to an upper
+  explicit `termination_by`. In particular the idiom of counting up to an upper
   bound, as in
   ```
   def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
@@ -55,6 +59,15 @@ v4.8.0 (development in progress)
 
 * Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
   rather than `{a := x, b := y, c := z}`.
+  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
+
+* Now structure instances pretty print with parent structures' fields inlined.
+  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
+  Setting option `pp.structureInstances.flatten` to false turns this off.
+
+* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
+  to enable pretty printing function applications using generalized field notation (defaults to true).
+  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
 
 Breaking changes:
 
@@ -82,6 +95,8 @@ fact.def :
       | Nat.succ n => (n + 1) * fact n
 -/
 ```
+
+* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
 
 v4.7.0
 ---------

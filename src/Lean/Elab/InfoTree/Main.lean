@@ -187,7 +187,7 @@ def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format
   f!"FieldRedecl @ {formatStxRange ctx info.stx}"
 
 def OmissionInfo.format (ctx : ContextInfo) (info : OmissionInfo) : IO Format := do
-  return f!"Omission @ {← TermInfo.format ctx info.toTermInfo}"
+  return f!"Omission @ {← TermInfo.format ctx info.toTermInfo}\nReason: {info.reason}"
 
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx

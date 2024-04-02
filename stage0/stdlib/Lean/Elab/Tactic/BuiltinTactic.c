@@ -27025,10 +27025,9 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ensureNoOverload___at_Lean_Elab_Tactic_evalOpen___spec__19___closed__3;
 x_2 = l_Lean_Elab_Tactic_addCheckpoints___lambda__1___closed__1;
-x_3 = lean_alloc_ctor(0, 3, 0);
+x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
 return x_3;
 }
 }

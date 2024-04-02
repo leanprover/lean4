@@ -3,11 +3,11 @@ guessLexFailures.lean:11:12-11:46: error: fail to show termination for
 with errors
 argument #1 was not used for structural recursion
   failed to eliminate recursive application
-    nonTerminating (Nat.succ n) (Nat.succ m)
+    nonTerminating n.succ m.succ
 
 argument #2 was not used for structural recursion
   failed to eliminate recursive application
-    nonTerminating (Nat.succ n) (Nat.succ m)
+    nonTerminating n.succ m.succ
 
 structural recursion cannot be used
 

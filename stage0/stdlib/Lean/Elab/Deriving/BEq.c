@@ -20,7 +20,6 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkMatch(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_initFn____x40_Lean_Elab_Deriving_BEq___hyg_3375____closed__4;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Deriving_BEq_mkBEqInstanceHandler___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__11;
 static lean_object* l_Lean_Elab_Deriving_BEq_initFn____x40_Lean_Elab_Deriving_BEq___hyg_3375____closed__14;
@@ -56,6 +55,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMa
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Deriving_BEq_mkBEqInstanceHandler___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkInstanceCmds(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkDiscrs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__4;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstanceCmds___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1323,7 +1323,7 @@ if (x_92 == 0)
 lean_object* x_93; lean_object* x_94; 
 lean_dec(x_90);
 x_93 = l_Lean_instInhabitedExpr;
-x_94 = l___private_Init_Util_0__outOfBounds___rarg(x_93);
+x_94 = l___private_Init_GetElem_0__outOfBounds___rarg(x_93);
 x_35 = x_94;
 goto block_89;
 }
@@ -3564,7 +3564,7 @@ if (x_12 == 0)
 lean_object* x_56; lean_object* x_57; 
 lean_dec(x_10);
 x_56 = l_Lean_instInhabitedName;
-x_57 = l___private_Init_Util_0__outOfBounds___rarg(x_56);
+x_57 = l___private_Init_GetElem_0__outOfBounds___rarg(x_56);
 x_16 = x_57;
 goto block_55;
 }
@@ -3585,7 +3585,7 @@ lean_object* x_52; lean_object* x_53;
 lean_dec(x_13);
 lean_dec(x_2);
 x_52 = l_Lean_instInhabitedInductiveVal;
-x_53 = l___private_Init_Util_0__outOfBounds___rarg(x_52);
+x_53 = l___private_Init_GetElem_0__outOfBounds___rarg(x_52);
 x_17 = x_53;
 goto block_51;
 }
@@ -4814,7 +4814,7 @@ if (x_13 == 0)
 {
 lean_object* x_166; lean_object* x_167; 
 x_166 = l_Lean_instInhabitedName;
-x_167 = l___private_Init_Util_0__outOfBounds___rarg(x_166);
+x_167 = l___private_Init_GetElem_0__outOfBounds___rarg(x_166);
 x_19 = x_167;
 goto block_165;
 }

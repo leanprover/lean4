@@ -18,7 +18,6 @@ static lean_object* l_Lean_Compiler_LCNF_ToLCNF_bindCases_go___closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_ToLCNF_bindCases_visitAlts___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_mkLcProof___closed__1;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__5;
 lean_object* l_Lean_Compiler_LCNF_ToLCNF_mkLcProof(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_ToLCNF_etaExpandN___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,6 +92,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__21;
 lean_object* l_Lean_Compiler_LCNF_replaceExprFVars(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitApp___closed__14;
 extern lean_object* l_Lean_Compiler_LCNF_erasedExpr;
 static lean_object* l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitCore___lambda__2___closed__3;
@@ -4513,7 +4513,7 @@ if (x_143 == 0)
 {
 lean_object* x_144; lean_object* x_145; 
 x_144 = l_Lean_Compiler_LCNF_ToLCNF_instInhabitedElement;
-x_145 = l___private_Init_Util_0__outOfBounds___rarg(x_144);
+x_145 = l___private_Init_GetElem_0__outOfBounds___rarg(x_144);
 switch (lean_obj_tag(x_145)) {
 case 0:
 {
@@ -15811,7 +15811,7 @@ x_138 = lean_ctor_get(x_17, 1);
 lean_inc(x_138);
 lean_dec(x_17);
 x_139 = l_Lean_instInhabitedExpr;
-x_140 = l___private_Init_Util_0__outOfBounds___rarg(x_139);
+x_140 = l___private_Init_GetElem_0__outOfBounds___rarg(x_139);
 x_18 = x_140;
 x_19 = x_137;
 x_20 = x_138;
@@ -16178,7 +16178,7 @@ lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; 
 lean_dec(x_6);
 lean_dec(x_5);
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_117 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_expandNoConfusionMajor___boxed), 8, 2);
 lean_closure_set(x_117, 0, x_116);
 lean_closure_set(x_117, 1, x_113);
@@ -16416,7 +16416,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean
 lean_dec(x_28);
 lean_dec(x_19);
 x_32 = l_Lean_instInhabitedExpr;
-x_33 = l___private_Init_Util_0__outOfBounds___rarg(x_32);
+x_33 = l___private_Init_GetElem_0__outOfBounds___rarg(x_32);
 x_34 = lean_alloc_closure((void*)(l_Lean_Meta_whnf___boxed), 6, 1);
 lean_closure_set(x_34, 0, x_33);
 x_35 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_liftMetaM___rarg___boxed), 7, 1);
@@ -16739,7 +16739,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_59 = l_Lean_instInhabitedExpr;
-x_60 = l___private_Init_Util_0__outOfBounds___rarg(x_59);
+x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -16897,7 +16897,7 @@ if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; 
 x_92 = l_Lean_instInhabitedExpr;
-x_93 = l___private_Init_Util_0__outOfBounds___rarg(x_92);
+x_93 = l___private_Init_GetElem_0__outOfBounds___rarg(x_92);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -17119,7 +17119,7 @@ if (x_135 == 0)
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; 
 x_136 = l_Lean_instInhabitedExpr;
-x_137 = l___private_Init_Util_0__outOfBounds___rarg(x_136);
+x_137 = l___private_Init_GetElem_0__outOfBounds___rarg(x_136);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -17361,7 +17361,7 @@ if (x_185 == 0)
 {
 lean_object* x_186; lean_object* x_187; lean_object* x_188; 
 x_186 = l_Lean_instInhabitedExpr;
-x_187 = l___private_Init_Util_0__outOfBounds___rarg(x_186);
+x_187 = l___private_Init_GetElem_0__outOfBounds___rarg(x_186);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -17691,7 +17691,7 @@ if (x_249 == 0)
 {
 lean_object* x_250; lean_object* x_251; lean_object* x_252; 
 x_250 = l_Lean_instInhabitedExpr;
-x_251 = l___private_Init_Util_0__outOfBounds___rarg(x_250);
+x_251 = l___private_Init_GetElem_0__outOfBounds___rarg(x_250);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -18074,7 +18074,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; 
 x_59 = l_Lean_instInhabitedExpr;
-x_60 = l___private_Init_Util_0__outOfBounds___rarg(x_59);
+x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -18232,7 +18232,7 @@ if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; 
 x_92 = l_Lean_instInhabitedExpr;
-x_93 = l___private_Init_Util_0__outOfBounds___rarg(x_92);
+x_93 = l___private_Init_GetElem_0__outOfBounds___rarg(x_92);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -18454,7 +18454,7 @@ if (x_135 == 0)
 {
 lean_object* x_136; lean_object* x_137; lean_object* x_138; 
 x_136 = l_Lean_instInhabitedExpr;
-x_137 = l___private_Init_Util_0__outOfBounds___rarg(x_136);
+x_137 = l___private_Init_GetElem_0__outOfBounds___rarg(x_136);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -18696,7 +18696,7 @@ if (x_185 == 0)
 {
 lean_object* x_186; lean_object* x_187; lean_object* x_188; 
 x_186 = l_Lean_instInhabitedExpr;
-x_187 = l___private_Init_Util_0__outOfBounds___rarg(x_186);
+x_187 = l___private_Init_GetElem_0__outOfBounds___rarg(x_186);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -19026,7 +19026,7 @@ if (x_249 == 0)
 {
 lean_object* x_250; lean_object* x_251; lean_object* x_252; 
 x_250 = l_Lean_instInhabitedExpr;
-x_251 = l___private_Init_Util_0__outOfBounds___rarg(x_250);
+x_251 = l___private_Init_GetElem_0__outOfBounds___rarg(x_250);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -19325,7 +19325,7 @@ if (x_21 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; 
 lean_dec(x_19);
 x_22 = l_Lean_instInhabitedExpr;
-x_23 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -20250,7 +20250,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l_Lean_instInhabitedExpr;
-x_21 = l___private_Init_Util_0__outOfBounds___rarg(x_20);
+x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -21194,7 +21194,7 @@ if (x_17 == 0)
 {
 lean_object* x_57; lean_object* x_58; 
 x_57 = l_Lean_instInhabitedExpr;
-x_58 = l___private_Init_Util_0__outOfBounds___rarg(x_57);
+x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
 x_24 = x_58;
 goto block_56;
 }
@@ -21215,7 +21215,7 @@ if (x_18 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_28 = l_Lean_instInhabitedExpr;
-x_29 = l___private_Init_Util_0__outOfBounds___rarg(x_28);
+x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
 x_30 = l_Lean_Compiler_LCNF_ToLCNF_mkLcProof(x_29);
 x_31 = lean_array_push(x_27, x_30);
 if (x_19 == 0)
@@ -21223,7 +21223,7 @@ if (x_19 == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_15);
 lean_dec(x_2);
-x_32 = l___private_Init_Util_0__outOfBounds___rarg(x_28);
+x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
 x_33 = l_Lean_Expr_beta(x_32, x_31);
 x_34 = l_Lean_mkAppN(x_33, x_23);
 x_35 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visit), 7, 1);
@@ -21257,7 +21257,7 @@ lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean
 lean_dec(x_15);
 lean_dec(x_2);
 x_45 = l_Lean_instInhabitedExpr;
-x_46 = l___private_Init_Util_0__outOfBounds___rarg(x_45);
+x_46 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
 x_47 = l_Lean_Expr_beta(x_46, x_44);
 x_48 = l_Lean_mkAppN(x_47, x_23);
 x_49 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visit), 7, 1);
@@ -21328,7 +21328,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_14);
 x_23 = l_Lean_instInhabitedExpr;
-x_24 = l___private_Init_Util_0__outOfBounds___rarg(x_23);
+x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_23);
 x_25 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visit), 7, 1);
 lean_closure_set(x_25, 0, x_24);
 x_26 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLambda___spec__1___rarg), 8, 2);
@@ -21365,7 +21365,7 @@ if (x_36 == 0)
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
 lean_dec(x_14);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visit), 7, 1);
 lean_closure_set(x_39, 0, x_38);
 x_40 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLambda___spec__1___rarg), 8, 2);
@@ -21403,7 +21403,7 @@ if (x_50 == 0)
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_dec(x_14);
 x_51 = l_Lean_instInhabitedExpr;
-x_52 = l___private_Init_Util_0__outOfBounds___rarg(x_51);
+x_52 = l___private_Init_GetElem_0__outOfBounds___rarg(x_51);
 x_53 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visit), 7, 1);
 lean_closure_set(x_53, 0, x_52);
 x_54 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLambda___spec__1___rarg), 8, 2);
@@ -21524,7 +21524,7 @@ if (x_136 == 0)
 {
 lean_object* x_137; lean_object* x_138; 
 x_137 = l_Lean_instInhabitedExpr;
-x_138 = l___private_Init_Util_0__outOfBounds___rarg(x_137);
+x_138 = l___private_Init_GetElem_0__outOfBounds___rarg(x_137);
 x_13 = x_138;
 goto block_134;
 }
@@ -22132,7 +22132,7 @@ if (x_16 == 0)
 {
 lean_object* x_39; lean_object* x_40; 
 x_39 = l_Lean_instInhabitedExpr;
-x_40 = l___private_Init_Util_0__outOfBounds___rarg(x_39);
+x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_39);
 x_20 = x_40;
 goto block_38;
 }
@@ -22150,7 +22150,7 @@ if (x_17 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
 x_35 = l_Lean_instInhabitedExpr;
-x_36 = l___private_Init_Util_0__outOfBounds___rarg(x_35);
+x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
 x_21 = x_36;
 goto block_34;
 }
@@ -22177,7 +22177,7 @@ if (x_19 == 0)
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_14);
 x_23 = l_Lean_instInhabitedExpr;
-x_24 = l___private_Init_Util_0__outOfBounds___rarg(x_23);
+x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_23);
 x_25 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitAppArg), 7, 1);
 lean_closure_set(x_25, 0, x_24);
 x_26 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Compiler_LCNF_ToLCNF_toLCNF_visitLambda___spec__1___rarg), 8, 2);

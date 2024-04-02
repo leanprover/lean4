@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__5___closed__6;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_overrideComputedFields___spec__3___lambda__1___boxed(lean_object**);
 static lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___closed__1;
@@ -57,6 +56,7 @@ lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_ComputedFields_getComputedFieldValue___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -5534,7 +5534,7 @@ x_79 = lean_ctor_get(x_34, 1);
 lean_inc(x_79);
 lean_dec(x_34);
 x_80 = l_Lean_instInhabitedExpr;
-x_81 = l___private_Init_Util_0__outOfBounds___rarg(x_80);
+x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
 x_35 = x_81;
 x_36 = x_78;
 x_37 = x_79;

@@ -7,8 +7,28 @@ prelude
 import Lean.ReservedNameAction
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
+import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta
+/--
+Environment extension for storing which declarations are recursive.
+This information is populated by the `PreDefinition` module, but the simplifier
+uses when unfolding declarations.
+-/
+builtin_initialize recExt : TagDeclarationExtension ← mkTagDeclarationExtension `recExt
+
+/--
+Marks the given declaration as recursive.
+-/
+def markAsRecursive (declName : Name) : CoreM Unit :=
+  modifyEnv (recExt.tag · declName)
+
+/--
+Returns `true` if `declName` was defined using well-founded recursion, or structural recursion.
+-/
+def isRecursiveDefinition (declName : Name) : CoreM Bool :=
+  return recExt.isTagged (← getEnv) declName
+
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
 def eqn1ThmSuffix := eqnThmSuffixBasePrefix ++ "1"
@@ -38,7 +58,13 @@ Ensures that `f.eq_def` and `f.eq_<idx>` are reserved names if `f` is a safe def
 -/
 builtin_initialize registerReservedNamePredicate fun env n =>
   match n with
-  | .str p s => (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s) && env.isSafeDefinition p
+  | .str p s =>
+    (isEqnReservedNameSuffix s || isUnfoldReservedNameSuffix s)
+    && env.isSafeDefinition p
+    -- Remark: `f.match_<idx>.eq_<idx>` are private definitions and are not treated as reserved names
+    -- Reason: `f.match_<idx>.splitter is generated at the same time, and can eliminate into type.
+    -- Thus, it cannot be defined in different modules since it is not a theorem, and is used to generate code.
+    && !isMatcherCore env p
   | _ => false
 
 def GetEqnsFn := Name → MetaM (Option (Array Name))

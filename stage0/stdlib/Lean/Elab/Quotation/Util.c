@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Util___hyg_7____closed__10;
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2___closed__8;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_Quotation_getPatternVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,6 +29,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation_getPatternsVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__7;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -753,7 +753,7 @@ if (x_48 == 0)
 lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_17);
 x_49 = l_Lean_instInhabitedSyntax;
-x_50 = l___private_Init_Util_0__outOfBounds___rarg(x_49);
+x_50 = l___private_Init_GetElem_0__outOfBounds___rarg(x_49);
 x_51 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_getAntiquotationIds___spec__2(x_1, x_50, x_14, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_13);
 if (lean_obj_tag(x_51) == 0)
 {

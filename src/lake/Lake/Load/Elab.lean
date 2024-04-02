@@ -42,7 +42,7 @@ def configModuleName : Name := `lakefile
 
 /-- Elaborate `configFile` with the given package directory and options. -/
 def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
-(leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) : LogIO Environment := do
+(leanOpts := Options.empty) (configFile := pkgDir / defaultLeanConfigFile) : LogIO Environment := do
 
   -- Read file and initialize environment
   let input ← IO.FS.readFile configFile
@@ -133,6 +133,7 @@ where
     |>.insert ``externLibAttr
     |>.insert ``targetAttr
     |>.insert ``defaultTargetAttr
+    |>.insert ``testRunnerAttr
     |>.insert ``moduleFacetAttr
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr
@@ -156,13 +157,12 @@ Import the `.olean` for the configuration file if `reconfigure` is not set and
 an up-to-date one exists (i.e., one with matching configuration and on the same
 toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 -/
-def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts : NameMap String)
-(leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
-  let some configName := FilePath.mk <$> configFile.fileName
+def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
+  let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let olean := lakeDir / configName.withExtension "olean"
-  let traceFile := lakeDir / configName.withExtension "olean.trace"
-  let lockFile := lakeDir / configName.withExtension "olean.lock"
+  let olean := cfg.lakeDir / configName.withExtension "olean"
+  let traceFile := cfg.lakeDir / configName.withExtension "olean.trace"
+  let lockFile := cfg.lakeDir / configName.withExtension "olean.lock"
   /-
   Remark:
   To prevent race conditions between the `.olean` and its trace file
@@ -206,7 +206,7 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts 
       h.unlock
       error <| s!"could not acquire an exclusive configuration lock; " ++
         "another process may already be reconfiguring the package"
-  let configHash ← computeTextFileHash configFile
+  let configHash ← computeTextFileHash cfg.configFile
   let elabConfig h (lakeOpts : NameMap String) : LogIO Environment := id do
     /-
     Remark:
@@ -222,10 +222,10 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts 
     match (← IO.FS.removeFile olean |>.toBaseIO) with
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
-        {platform := System.Platform.target, leanHash := lakeEnv.leanGithash,
+        {platform := System.Platform.target, leanHash := cfg.lakeEnv.leanGithash,
           configHash, options := lakeOpts : ConfigTrace}
       h.truncate
-      let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
+      let env ← elabConfigFile cfg.pkgDir lakeOpts cfg.leanOpts cfg.configFile
       Lean.writeModule env olean
       h.unlock
       return env
@@ -235,8 +235,8 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts 
       IO.FS.removeFile traceFile
       failure
   let validateTrace h : LogIO Environment := id do
-    if reconfigure then
-      elabConfig (← acquireTrace h) lakeOpts
+    if cfg.reconfigure then
+      elabConfig (← acquireTrace h) cfg.lakeOpts
     else
       h.lock (exclusive := false)
       let contents ← h.readToEnd
@@ -244,9 +244,9 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts 
         | error "compiled configuration is invalid; run with '-R' to reconfigure"
       let upToDate :=
         (← olean.pathExists) ∧ trace.platform = System.Platform.target ∧
-        trace.leanHash = lakeEnv.leanGithash ∧ trace.configHash = configHash
+        trace.leanHash = cfg.lakeEnv.leanGithash ∧ trace.configHash = configHash
       if upToDate then
-        let env ← importConfigFileCore olean leanOpts
+        let env ← importConfigFileCore olean cfg.leanOpts
         h.unlock
         return env
       else
@@ -254,10 +254,10 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeEnv : Lake.Env) (lakeOpts 
   if (← traceFile.pathExists) then
     validateTrace <| ← IO.FS.Handle.mk traceFile .read
   else
-    IO.FS.createDirAll lakeDir
+    IO.FS.createDirAll cfg.lakeDir
     match (← IO.FS.Handle.mk traceFile .writeNew |>.toBaseIO) with
     | .ok h =>
-      h.lock; elabConfig h lakeOpts
+      h.lock; elabConfig h cfg.lakeOpts
     | .error (.alreadyExists ..) =>
       validateTrace <| ← IO.FS.Handle.mk traceFile .read
     | .error e => error e.toString

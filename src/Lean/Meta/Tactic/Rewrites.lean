@@ -49,22 +49,16 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   match name with
   | .str _ n => if n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
-  try
-    withNewMCtxDepth do withReducible do
-      forallTelescopeReducing constInfo.type fun _ type => do
-        match type.getAppFnArgs with
-        | (``Eq, #[_, lhs, rhs])
-        | (``Iff, #[lhs, rhs]) => do
-          let a := Array.mkEmpty 2
-          let a := a.push (← InitEntry.fromExpr lhs (name, RwDirection.forward))
-          let a := a.push (← InitEntry.fromExpr rhs (name, RwDirection.backward))
-          pure a
-        | _ => return #[]
-  catch _e =>
-    throwError "Jhx. Timeout initializing entries"
---      if e.isMaxHeartbeat then
---      else
---        throw e
+  withNewMCtxDepth do withReducible do
+    forallTelescopeReducing constInfo.type fun _ type => do
+      match type.getAppFnArgs with
+      | (``Eq, #[_, lhs, rhs])
+      | (``Iff, #[lhs, rhs]) => do
+        let a := Array.mkEmpty 2
+        let a := a.push (← InitEntry.fromExpr lhs (name, RwDirection.forward))
+        let a := a.push (← InitEntry.fromExpr rhs (name, RwDirection.backward))
+        pure a
+      | _ => return #[]
 
 /-- Configuration for `DiscrTree`. -/
 def discrTreeConfig : WhnfCoreConfig := {}
@@ -335,11 +329,11 @@ def findRewrites (hyps : Array (Expr × Bool × Nat))
     (leavePercentHeartbeats : Nat := 10) : MetaM (List RewriteResult) := do
   let mctx ← getMCtx
   let candidates ← rewriteCandidates hyps moduleRef target forbidden
-  let minHeartbeats : Nat :=
+  let minHeartbeats : Nat ←
         if (← getMaxHeartbeats) = 0 then
-          0
+          pure 0
         else
-          leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
+          pure <| leavePercentHeartbeats * (← getRemainingHeartbeats) / 100
   let cfg : RewriteResultConfig :=
         { stopAtRfl, minHeartbeats, max, mctx, goal, target, side }
   return (← takeListAux cfg {} (Array.mkEmpty max) candidates.toList).toList

@@ -49,6 +49,15 @@ initialize defaultTargetAttr : OrderedTagAttribute ←
       unless valid do
         throwError "attribute `default_target` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"
 
+initialize testRunnerAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `test_runner "mark a Lake script or executable as the package's test runner"
+    fun name => do
+      let valid ← getEnv <&> fun env =>
+        scriptAttr.hasTag env name ||
+        leanExeAttr.hasTag env name
+      unless valid do
+        throwError "attribute `test_runner` can only be used on a `script` or `lean_exe`"
+
 initialize moduleFacetAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `module_facet "mark a definition as a Lake module facet"
 

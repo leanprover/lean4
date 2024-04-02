@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_ensureNoRecFn___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_Elab_fixLevelParams___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_applyAttributesOf___spec__1(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +46,7 @@ lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_abstractNestedProofs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -8113,7 +8113,7 @@ if (x_18 == 0)
 {
 lean_object* x_86; lean_object* x_87; 
 x_86 = l_Lean_Elab_instInhabitedPreDefinition;
-x_87 = l___private_Init_Util_0__outOfBounds___rarg(x_86);
+x_87 = l___private_Init_GetElem_0__outOfBounds___rarg(x_86);
 x_35 = x_87;
 goto block_85;
 }

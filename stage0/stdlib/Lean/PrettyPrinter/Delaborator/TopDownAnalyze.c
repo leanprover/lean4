@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_inspectOutParams___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replaceLPsWithVars___lambda__1___closed__4;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_withTraceNode___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__2___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectTrivialBottomUps___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_pp_analyze_knowsType;
@@ -140,6 +139,7 @@ static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownA
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_inspectOutParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_analyzeArg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_getPPFieldNotation(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7177,7 +7177,7 @@ if (x_15 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = l_Lean_instInhabitedExpr;
-x_21 = l___private_Init_Util_0__outOfBounds___rarg(x_20);
+x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
 x_22 = lean_expr_instantiate1(x_4, x_21);
 lean_dec(x_21);
 lean_dec(x_4);
@@ -7185,7 +7185,7 @@ if (x_17 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_2);
-x_23 = l___private_Init_Util_0__outOfBounds___rarg(x_20);
+x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
 x_24 = lean_expr_instantiate1(x_5, x_23);
 lean_dec(x_23);
 lean_dec(x_5);
@@ -7216,7 +7216,7 @@ if (x_17 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec(x_2);
 x_31 = l_Lean_instInhabitedExpr;
-x_32 = l___private_Init_Util_0__outOfBounds___rarg(x_31);
+x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
 x_33 = lean_expr_instantiate1(x_5, x_32);
 lean_dec(x_32);
 lean_dec(x_5);
@@ -7275,11 +7275,11 @@ if (x_21 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
 x_24 = l_Lean_instInhabitedExpr;
-x_25 = l___private_Init_Util_0__outOfBounds___rarg(x_24);
+x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
 if (x_23 == 0)
 {
 lean_object* x_26; lean_object* x_27; 
-x_26 = l___private_Init_Util_0__outOfBounds___rarg(x_24);
+x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -7397,7 +7397,7 @@ if (x_23 == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_45 = l_Lean_instInhabitedExpr;
-x_46 = l___private_Init_Util_0__outOfBounds___rarg(x_45);
+x_46 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -8200,7 +8200,7 @@ if (x_116 == 0)
 uint8_t x_117; lean_object* x_118; lean_object* x_119; uint8_t x_120; uint8_t x_121; uint8_t x_122; 
 x_117 = l_Lean_instInhabitedBinderInfo;
 x_118 = lean_box(x_117);
-x_119 = l___private_Init_Util_0__outOfBounds___rarg(x_118);
+x_119 = l___private_Init_GetElem_0__outOfBounds___rarg(x_118);
 x_120 = lean_unbox(x_119);
 lean_dec(x_119);
 x_121 = 3;
@@ -8226,7 +8226,7 @@ if (x_126 == 0)
 {
 lean_object* x_127; lean_object* x_128; 
 x_127 = l_Lean_instInhabitedExpr;
-x_128 = l___private_Init_Util_0__outOfBounds___rarg(x_127);
+x_128 = l___private_Init_GetElem_0__outOfBounds___rarg(x_127);
 x_30 = x_128;
 goto block_114;
 }
@@ -8248,11 +8248,11 @@ if (x_130 == 0)
 {
 lean_object* x_132; lean_object* x_133; 
 x_132 = l_Lean_instInhabitedExpr;
-x_133 = l___private_Init_Util_0__outOfBounds___rarg(x_132);
+x_133 = l___private_Init_GetElem_0__outOfBounds___rarg(x_132);
 if (x_131 == 0)
 {
 lean_object* x_134; lean_object* x_135; 
-x_134 = l___private_Init_Util_0__outOfBounds___rarg(x_132);
+x_134 = l___private_Init_GetElem_0__outOfBounds___rarg(x_132);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8366,7 +8366,7 @@ if (x_131 == 0)
 {
 lean_object* x_151; lean_object* x_152; lean_object* x_153; 
 x_151 = l_Lean_instInhabitedExpr;
-x_152 = l___private_Init_Util_0__outOfBounds___rarg(x_151);
+x_152 = l___private_Init_GetElem_0__outOfBounds___rarg(x_151);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8503,7 +8503,7 @@ if (x_175 == 0)
 {
 lean_object* x_176; lean_object* x_177; 
 x_176 = l_Lean_instInhabitedExpr;
-x_177 = l___private_Init_Util_0__outOfBounds___rarg(x_176);
+x_177 = l___private_Init_GetElem_0__outOfBounds___rarg(x_176);
 x_30 = x_177;
 goto block_114;
 }
@@ -8525,11 +8525,11 @@ if (x_179 == 0)
 {
 lean_object* x_181; lean_object* x_182; 
 x_181 = l_Lean_instInhabitedExpr;
-x_182 = l___private_Init_Util_0__outOfBounds___rarg(x_181);
+x_182 = l___private_Init_GetElem_0__outOfBounds___rarg(x_181);
 if (x_180 == 0)
 {
 lean_object* x_183; lean_object* x_184; 
-x_183 = l___private_Init_Util_0__outOfBounds___rarg(x_181);
+x_183 = l___private_Init_GetElem_0__outOfBounds___rarg(x_181);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8643,7 +8643,7 @@ if (x_180 == 0)
 {
 lean_object* x_200; lean_object* x_201; lean_object* x_202; 
 x_200 = l_Lean_instInhabitedExpr;
-x_201 = l___private_Init_Util_0__outOfBounds___rarg(x_200);
+x_201 = l___private_Init_GetElem_0__outOfBounds___rarg(x_200);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8784,7 +8784,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_36 = l_Lean_instInhabitedExpr;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -9181,7 +9181,7 @@ if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; 
 x_97 = l_Lean_instInhabitedExpr;
-x_98 = l___private_Init_Util_0__outOfBounds___rarg(x_97);
+x_98 = l___private_Init_GetElem_0__outOfBounds___rarg(x_97);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -9615,7 +9615,7 @@ if (x_86 == 0)
 {
 lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; uint8_t x_91; 
 x_87 = l_Lean_instInhabitedExpr;
-x_88 = l___private_Init_Util_0__outOfBounds___rarg(x_87);
+x_88 = l___private_Init_GetElem_0__outOfBounds___rarg(x_87);
 x_89 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_88, x_8, x_9, x_10, x_11, x_38);
 x_90 = lean_ctor_get(x_89, 0);
 lean_inc(x_90);
@@ -9631,7 +9631,7 @@ x_93 = lean_nat_dec_lt(x_17, x_35);
 if (x_93 == 0)
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; uint8_t x_98; 
-x_94 = l___private_Init_Util_0__outOfBounds___rarg(x_87);
+x_94 = l___private_Init_GetElem_0__outOfBounds___rarg(x_87);
 x_95 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_94, x_8, x_9, x_10, x_11, x_92);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
@@ -9694,7 +9694,7 @@ if (x_111 == 0)
 {
 lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; uint8_t x_117; 
 x_112 = l_Lean_instInhabitedExpr;
-x_113 = l___private_Init_Util_0__outOfBounds___rarg(x_112);
+x_113 = l___private_Init_GetElem_0__outOfBounds___rarg(x_112);
 x_114 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_113, x_8, x_9, x_10, x_11, x_110);
 x_115 = lean_ctor_get(x_114, 0);
 lean_inc(x_115);
@@ -9758,12 +9758,12 @@ if (x_43 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = l_Lean_instInhabitedExpr;
-x_46 = l___private_Init_Util_0__outOfBounds___rarg(x_45);
+x_46 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
 if (x_44 == 0)
 {
 lean_object* x_47; lean_object* x_48; 
 lean_dec(x_32);
-x_47 = l___private_Init_Util_0__outOfBounds___rarg(x_45);
+x_47 = l___private_Init_GetElem_0__outOfBounds___rarg(x_45);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -9877,7 +9877,7 @@ if (x_44 == 0)
 lean_object* x_66; lean_object* x_67; lean_object* x_68; 
 lean_dec(x_32);
 x_66 = l_Lean_instInhabitedExpr;
-x_67 = l___private_Init_Util_0__outOfBounds___rarg(x_66);
+x_67 = l___private_Init_GetElem_0__outOfBounds___rarg(x_66);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -13383,7 +13383,7 @@ if (x_172 == 0)
 uint8_t x_173; lean_object* x_174; lean_object* x_175; uint8_t x_176; uint8_t x_177; uint8_t x_178; 
 x_173 = l_Lean_instInhabitedBinderInfo;
 x_174 = lean_box(x_173);
-x_175 = l___private_Init_Util_0__outOfBounds___rarg(x_174);
+x_175 = l___private_Init_GetElem_0__outOfBounds___rarg(x_174);
 x_176 = lean_unbox(x_175);
 lean_dec(x_175);
 x_177 = 0;
@@ -13409,7 +13409,7 @@ if (x_182 == 0)
 {
 lean_object* x_183; lean_object* x_184; 
 x_183 = l_Lean_instInhabitedExpr;
-x_184 = l___private_Init_Util_0__outOfBounds___rarg(x_183);
+x_184 = l___private_Init_GetElem_0__outOfBounds___rarg(x_183);
 x_33 = x_184;
 goto block_170;
 }
@@ -13451,7 +13451,7 @@ if (x_193 == 0)
 {
 lean_object* x_194; lean_object* x_195; 
 x_194 = l_Lean_instInhabitedExpr;
-x_195 = l___private_Init_Util_0__outOfBounds___rarg(x_194);
+x_195 = l___private_Init_GetElem_0__outOfBounds___rarg(x_194);
 x_33 = x_195;
 goto block_170;
 }
@@ -13527,7 +13527,7 @@ if (x_143 == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
 x_145 = l_Lean_instInhabitedExpr;
-x_146 = l___private_Init_Util_0__outOfBounds___rarg(x_145);
+x_146 = l___private_Init_GetElem_0__outOfBounds___rarg(x_145);
 x_147 = lean_unsigned_to_nat(10u);
 lean_inc(x_18);
 lean_inc(x_17);
@@ -13734,7 +13734,7 @@ if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_48 = l_Lean_instInhabitedExpr;
-x_49 = l___private_Init_Util_0__outOfBounds___rarg(x_48);
+x_49 = l___private_Init_GetElem_0__outOfBounds___rarg(x_48);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
@@ -13937,7 +13937,7 @@ if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; 
 x_97 = l_Lean_instInhabitedExpr;
-x_98 = l___private_Init_Util_0__outOfBounds___rarg(x_97);
+x_98 = l___private_Init_GetElem_0__outOfBounds___rarg(x_97);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
@@ -14280,7 +14280,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_Lean_instInhabitedExpr;
-x_6 = l___private_Init_Util_0__outOfBounds___rarg(x_5);
+x_6 = l___private_Init_GetElem_0__outOfBounds___rarg(x_5);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 return x_7;
@@ -14505,7 +14505,7 @@ if (x_78 == 0)
 uint8_t x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; uint8_t x_83; uint8_t x_84; 
 x_79 = l_Lean_instInhabitedBinderInfo;
 x_80 = lean_box(x_79);
-x_81 = l___private_Init_Util_0__outOfBounds___rarg(x_80);
+x_81 = l___private_Init_GetElem_0__outOfBounds___rarg(x_80);
 x_82 = lean_unbox(x_81);
 lean_dec(x_81);
 x_83 = 3;
@@ -14588,11 +14588,11 @@ if (x_33 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = l_Lean_instInhabitedExpr;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 if (x_35 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -14712,7 +14712,7 @@ if (x_35 == 0)
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 x_57 = l_Lean_instInhabitedExpr;
-x_58 = l___private_Init_Util_0__outOfBounds___rarg(x_57);
+x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -15159,7 +15159,7 @@ if (x_63 == 0)
 lean_object* x_64; lean_object* x_65; 
 lean_dec(x_3);
 x_64 = l_Lean_instInhabitedExpr;
-x_65 = l___private_Init_Util_0__outOfBounds___rarg(x_64);
+x_65 = l___private_Init_GetElem_0__outOfBounds___rarg(x_64);
 x_15 = x_65;
 goto block_61;
 }
@@ -15473,7 +15473,7 @@ if (x_43 == 0)
 lean_object* x_44; lean_object* x_45; 
 lean_dec(x_4);
 x_44 = l_Lean_instInhabitedExpr;
-x_45 = l___private_Init_Util_0__outOfBounds___rarg(x_44);
+x_45 = l___private_Init_GetElem_0__outOfBounds___rarg(x_44);
 x_15 = x_45;
 goto block_42;
 }
@@ -15664,7 +15664,7 @@ if (x_41 == 0)
 uint8_t x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; 
 x_42 = l_Lean_instInhabitedBinderInfo;
 x_43 = lean_box(x_42);
-x_44 = l___private_Init_Util_0__outOfBounds___rarg(x_43);
+x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
 x_45 = lean_unbox(x_44);
 lean_dec(x_44);
 x_46 = 1;
@@ -16315,7 +16315,7 @@ if (x_144 == 0)
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; uint8_t x_149; 
 x_145 = l_Lean_instInhabitedExpr;
-x_146 = l___private_Init_Util_0__outOfBounds___rarg(x_145);
+x_146 = l___private_Init_GetElem_0__outOfBounds___rarg(x_145);
 x_147 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_146, x_5, x_6, x_7, x_8, x_13);
 x_148 = lean_ctor_get(x_147, 0);
 lean_inc(x_148);
@@ -16333,7 +16333,7 @@ lean_dec(x_142);
 if (x_152 == 0)
 {
 lean_object* x_153; lean_object* x_154; lean_object* x_155; lean_object* x_156; 
-x_153 = l___private_Init_Util_0__outOfBounds___rarg(x_145);
+x_153 = l___private_Init_GetElem_0__outOfBounds___rarg(x_145);
 x_154 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_153, x_5, x_6, x_7, x_8, x_150);
 x_155 = lean_ctor_get(x_154, 0);
 lean_inc(x_155);
@@ -16396,7 +16396,7 @@ if (x_168 == 0)
 {
 lean_object* x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; 
 x_169 = l_Lean_instInhabitedExpr;
-x_170 = l___private_Init_Util_0__outOfBounds___rarg(x_169);
+x_170 = l___private_Init_GetElem_0__outOfBounds___rarg(x_169);
 x_171 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_170, x_5, x_6, x_7, x_8, x_166);
 x_172 = lean_ctor_get(x_171, 0);
 lean_inc(x_172);
@@ -16512,11 +16512,11 @@ if (x_35 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 if (x_37 == 0)
 {
 lean_object* x_40; lean_object* x_41; 
-x_40 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_40 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 x_41 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_39, x_40, x_3, x_4, x_5, x_6, x_7, x_8, x_19);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -16636,7 +16636,7 @@ if (x_37 == 0)
 {
 lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 x_63 = l_Lean_instInhabitedExpr;
-x_64 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
+x_64 = l___private_Init_GetElem_0__outOfBounds___rarg(x_63);
 x_65 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_62, x_64, x_3, x_4, x_5, x_6, x_7, x_8, x_19);
 if (lean_obj_tag(x_65) == 0)
 {
@@ -16765,11 +16765,11 @@ if (x_89 == 0)
 {
 lean_object* x_92; lean_object* x_93; 
 x_92 = l_Lean_instInhabitedExpr;
-x_93 = l___private_Init_Util_0__outOfBounds___rarg(x_92);
+x_93 = l___private_Init_GetElem_0__outOfBounds___rarg(x_92);
 if (x_91 == 0)
 {
 lean_object* x_94; lean_object* x_95; 
-x_94 = l___private_Init_Util_0__outOfBounds___rarg(x_92);
+x_94 = l___private_Init_GetElem_0__outOfBounds___rarg(x_92);
 x_95 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_93, x_94, x_3, x_4, x_5, x_6, x_7, x_8, x_19);
 if (lean_obj_tag(x_95) == 0)
 {
@@ -16891,7 +16891,7 @@ if (x_91 == 0)
 {
 lean_object* x_117; lean_object* x_118; lean_object* x_119; 
 x_117 = l_Lean_instInhabitedExpr;
-x_118 = l___private_Init_Util_0__outOfBounds___rarg(x_117);
+x_118 = l___private_Init_GetElem_0__outOfBounds___rarg(x_117);
 x_119 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_116, x_118, x_3, x_4, x_5, x_6, x_7, x_8, x_19);
 if (lean_obj_tag(x_119) == 0)
 {
@@ -17039,7 +17039,7 @@ if (x_251 == 0)
 {
 lean_object* x_252; lean_object* x_253; lean_object* x_254; lean_object* x_255; uint8_t x_256; 
 x_252 = l_Lean_instInhabitedExpr;
-x_253 = l___private_Init_Util_0__outOfBounds___rarg(x_252);
+x_253 = l___private_Init_GetElem_0__outOfBounds___rarg(x_252);
 x_254 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_253, x_5, x_6, x_7, x_8, x_13);
 x_255 = lean_ctor_get(x_254, 0);
 lean_inc(x_255);
@@ -17057,7 +17057,7 @@ lean_dec(x_249);
 if (x_259 == 0)
 {
 lean_object* x_260; lean_object* x_261; lean_object* x_262; lean_object* x_263; lean_object* x_264; 
-x_260 = l___private_Init_Util_0__outOfBounds___rarg(x_252);
+x_260 = l___private_Init_GetElem_0__outOfBounds___rarg(x_252);
 x_261 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_260, x_5, x_6, x_7, x_8, x_257);
 x_262 = lean_ctor_get(x_261, 0);
 lean_inc(x_262);
@@ -17126,7 +17126,7 @@ if (x_278 == 0)
 {
 lean_object* x_279; lean_object* x_280; lean_object* x_281; lean_object* x_282; lean_object* x_283; lean_object* x_284; 
 x_279 = l_Lean_instInhabitedExpr;
-x_280 = l___private_Init_Util_0__outOfBounds___rarg(x_279);
+x_280 = l___private_Init_GetElem_0__outOfBounds___rarg(x_279);
 x_281 = l___private_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_0__Lean_PrettyPrinter_Delaborator_TopDownAnalyze_valUnknown(x_280, x_5, x_6, x_7, x_8, x_276);
 x_282 = lean_ctor_get(x_281, 0);
 lean_inc(x_282);
@@ -17241,11 +17241,11 @@ if (x_195 == 0)
 {
 lean_object* x_198; lean_object* x_199; 
 x_198 = l_Lean_instInhabitedExpr;
-x_199 = l___private_Init_Util_0__outOfBounds___rarg(x_198);
+x_199 = l___private_Init_GetElem_0__outOfBounds___rarg(x_198);
 if (x_197 == 0)
 {
 lean_object* x_200; lean_object* x_201; 
-x_200 = l___private_Init_Util_0__outOfBounds___rarg(x_198);
+x_200 = l___private_Init_GetElem_0__outOfBounds___rarg(x_198);
 x_201 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_199, x_200, x_3, x_4, x_5, x_6, x_7, x_8, x_183);
 if (lean_obj_tag(x_201) == 0)
 {
@@ -17377,7 +17377,7 @@ if (x_197 == 0)
 {
 lean_object* x_223; lean_object* x_224; lean_object* x_225; 
 x_223 = l_Lean_instInhabitedExpr;
-x_224 = l___private_Init_Util_0__outOfBounds___rarg(x_223);
+x_224 = l___private_Init_GetElem_0__outOfBounds___rarg(x_223);
 x_225 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_tryUnify(x_222, x_224, x_3, x_4, x_5, x_6, x_7, x_8, x_183);
 if (lean_obj_tag(x_225) == 0)
 {
@@ -17563,7 +17563,7 @@ if (x_156 == 0)
 uint8_t x_157; lean_object* x_158; lean_object* x_159; uint8_t x_160; uint8_t x_161; uint8_t x_162; 
 x_157 = l_Lean_instInhabitedBinderInfo;
 x_158 = lean_box(x_157);
-x_159 = l___private_Init_Util_0__outOfBounds___rarg(x_158);
+x_159 = l___private_Init_GetElem_0__outOfBounds___rarg(x_158);
 x_160 = lean_unbox(x_159);
 lean_dec(x_159);
 x_161 = 0;
@@ -17589,7 +17589,7 @@ if (x_166 == 0)
 {
 lean_object* x_167; lean_object* x_168; 
 x_167 = l_Lean_instInhabitedExpr;
-x_168 = l___private_Init_Util_0__outOfBounds___rarg(x_167);
+x_168 = l___private_Init_GetElem_0__outOfBounds___rarg(x_167);
 x_32 = x_168;
 goto block_154;
 }
@@ -17631,7 +17631,7 @@ if (x_177 == 0)
 {
 lean_object* x_178; lean_object* x_179; 
 x_178 = l_Lean_instInhabitedExpr;
-x_179 = l___private_Init_Util_0__outOfBounds___rarg(x_178);
+x_179 = l___private_Init_GetElem_0__outOfBounds___rarg(x_178);
 x_32 = x_179;
 goto block_154;
 }
@@ -17697,7 +17697,7 @@ if (x_142 == 0)
 {
 lean_object* x_143; lean_object* x_144; lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; 
 x_143 = l_Lean_instInhabitedExpr;
-x_144 = l___private_Init_Util_0__outOfBounds___rarg(x_143);
+x_144 = l___private_Init_GetElem_0__outOfBounds___rarg(x_143);
 x_145 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTrivialBottomUp(x_144, x_12, x_13, x_14, x_15, x_16, x_17, x_141);
 lean_dec(x_144);
 x_146 = lean_ctor_get(x_145, 0);
@@ -17784,7 +17784,7 @@ if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; 
 x_47 = l_Lean_instInhabitedExpr;
-x_48 = l___private_Init_Util_0__outOfBounds___rarg(x_47);
+x_48 = l___private_Init_GetElem_0__outOfBounds___rarg(x_47);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -17985,7 +17985,7 @@ if (x_95 == 0)
 {
 lean_object* x_96; lean_object* x_97; lean_object* x_98; 
 x_96 = l_Lean_instInhabitedExpr;
-x_97 = l___private_Init_Util_0__outOfBounds___rarg(x_96);
+x_97 = l___private_Init_GetElem_0__outOfBounds___rarg(x_96);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -18569,7 +18569,7 @@ if (x_166 == 0)
 uint8_t x_167; lean_object* x_168; lean_object* x_169; uint8_t x_170; uint8_t x_171; uint8_t x_172; 
 x_167 = l_Lean_instInhabitedBinderInfo;
 x_168 = lean_box(x_167);
-x_169 = l___private_Init_Util_0__outOfBounds___rarg(x_168);
+x_169 = l___private_Init_GetElem_0__outOfBounds___rarg(x_168);
 x_170 = lean_unbox(x_169);
 lean_dec(x_169);
 x_171 = 1;
@@ -18595,7 +18595,7 @@ if (x_176 == 0)
 {
 lean_object* x_177; lean_object* x_178; 
 x_177 = l_Lean_instInhabitedExpr;
-x_178 = l___private_Init_Util_0__outOfBounds___rarg(x_177);
+x_178 = l___private_Init_GetElem_0__outOfBounds___rarg(x_177);
 x_148 = x_178;
 goto block_164;
 }
@@ -18637,7 +18637,7 @@ if (x_187 == 0)
 {
 lean_object* x_188; lean_object* x_189; 
 x_188 = l_Lean_instInhabitedExpr;
-x_189 = l___private_Init_Util_0__outOfBounds___rarg(x_188);
+x_189 = l___private_Init_GetElem_0__outOfBounds___rarg(x_188);
 x_148 = x_189;
 goto block_164;
 }
@@ -18794,11 +18794,11 @@ if (x_60 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
 x_63 = l_Lean_instInhabitedExpr;
-x_64 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
+x_64 = l___private_Init_GetElem_0__outOfBounds___rarg(x_63);
 if (x_62 == 0)
 {
 lean_object* x_65; lean_object* x_66; 
-x_65 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
+x_65 = l___private_Init_GetElem_0__outOfBounds___rarg(x_63);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -18920,7 +18920,7 @@ if (x_62 == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 x_82 = l_Lean_instInhabitedExpr;
-x_83 = l___private_Init_Util_0__outOfBounds___rarg(x_82);
+x_83 = l___private_Init_GetElem_0__outOfBounds___rarg(x_82);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -19062,11 +19062,11 @@ if (x_104 == 0)
 {
 lean_object* x_107; lean_object* x_108; 
 x_107 = l_Lean_instInhabitedExpr;
-x_108 = l___private_Init_Util_0__outOfBounds___rarg(x_107);
+x_108 = l___private_Init_GetElem_0__outOfBounds___rarg(x_107);
 if (x_106 == 0)
 {
 lean_object* x_109; lean_object* x_110; 
-x_109 = l___private_Init_Util_0__outOfBounds___rarg(x_107);
+x_109 = l___private_Init_GetElem_0__outOfBounds___rarg(x_107);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -19194,7 +19194,7 @@ if (x_106 == 0)
 {
 lean_object* x_128; lean_object* x_129; lean_object* x_130; 
 x_128 = l_Lean_instInhabitedExpr;
-x_129 = l___private_Init_Util_0__outOfBounds___rarg(x_128);
+x_129 = l___private_Init_GetElem_0__outOfBounds___rarg(x_128);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -20207,7 +20207,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_23);
 x_34 = l_Lean_instInhabitedExpr;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_30);
@@ -20243,7 +20243,7 @@ if (x_45 == 0)
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 lean_dec(x_23);
 x_46 = l_Lean_instInhabitedExpr;
-x_47 = l___private_Init_Util_0__outOfBounds___rarg(x_46);
+x_47 = l___private_Init_GetElem_0__outOfBounds___rarg(x_46);
 x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_30);
@@ -20301,7 +20301,7 @@ if (x_153 == 0)
 uint8_t x_154; lean_object* x_155; lean_object* x_156; uint8_t x_157; uint8_t x_158; uint8_t x_159; 
 x_154 = l_Lean_instInhabitedBinderInfo;
 x_155 = lean_box(x_154);
-x_156 = l___private_Init_Util_0__outOfBounds___rarg(x_155);
+x_156 = l___private_Init_GetElem_0__outOfBounds___rarg(x_155);
 x_157 = lean_unbox(x_156);
 lean_dec(x_156);
 x_158 = 0;
@@ -20383,7 +20383,7 @@ if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_34 = l_Lean_instInhabitedExpr;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 lean_inc(x_16);
 lean_inc(x_15);
 lean_inc(x_14);
@@ -27611,7 +27611,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_23);
 x_34 = l_Lean_instInhabitedExpr;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_30);
@@ -27647,7 +27647,7 @@ if (x_45 == 0)
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 lean_dec(x_23);
 x_46 = l_Lean_instInhabitedExpr;
-x_47 = l___private_Init_Util_0__outOfBounds___rarg(x_46);
+x_47 = l___private_Init_GetElem_0__outOfBounds___rarg(x_46);
 x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_30);
@@ -27757,7 +27757,7 @@ if (x_41 == 0)
 uint8_t x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; uint8_t x_46; uint8_t x_47; 
 x_42 = l_Lean_instInhabitedBinderInfo;
 x_43 = lean_box(x_42);
-x_44 = l___private_Init_Util_0__outOfBounds___rarg(x_43);
+x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
 x_45 = lean_unbox(x_44);
 lean_dec(x_44);
 x_46 = 3;
@@ -28025,7 +28025,7 @@ uint8_t x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19;
 lean_dec(x_13);
 x_16 = l_instInhabitedBool;
 x_17 = lean_box(x_16);
-x_18 = l___private_Init_Util_0__outOfBounds___rarg(x_17);
+x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
 x_19 = lean_unbox(x_18);
 lean_dec(x_18);
 if (x_19 == 0)
@@ -28648,7 +28648,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_23);
 x_34 = l_Lean_instInhabitedExpr;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 x_36 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_30);
@@ -28684,7 +28684,7 @@ if (x_45 == 0)
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 lean_dec(x_23);
 x_46 = l_Lean_instInhabitedExpr;
-x_47 = l___private_Init_Util_0__outOfBounds___rarg(x_46);
+x_47 = l___private_Init_GetElem_0__outOfBounds___rarg(x_46);
 x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
 lean_ctor_set(x_48, 1, x_30);
@@ -28795,7 +28795,7 @@ lean_dec(x_14);
 lean_dec(x_3);
 x_17 = l_instInhabitedBool;
 x_18 = lean_box(x_17);
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = lean_unbox(x_19);
 lean_dec(x_19);
 if (x_20 == 0)
@@ -29457,7 +29457,7 @@ uint8_t x_292; lean_object* x_293; lean_object* x_294; uint8_t x_295;
 lean_dec(x_10);
 x_292 = l_instInhabitedBool;
 x_293 = lean_box(x_292);
-x_294 = l___private_Init_Util_0__outOfBounds___rarg(x_293);
+x_294 = l___private_Init_GetElem_0__outOfBounds___rarg(x_293);
 x_295 = lean_unbox(x_294);
 lean_dec(x_294);
 x_26 = x_295;
@@ -29566,7 +29566,7 @@ uint8_t x_72; lean_object* x_73; lean_object* x_74; uint8_t x_75;
 lean_dec(x_6);
 x_72 = l_instInhabitedBool;
 x_73 = lean_box(x_72);
-x_74 = l___private_Init_Util_0__outOfBounds___rarg(x_73);
+x_74 = l___private_Init_GetElem_0__outOfBounds___rarg(x_73);
 x_75 = lean_unbox(x_74);
 lean_dec(x_74);
 if (x_75 == 0)
@@ -29917,7 +29917,7 @@ uint8_t x_168; lean_object* x_169; lean_object* x_170; uint8_t x_171; lean_objec
 lean_dec(x_8);
 x_168 = l_instInhabitedBool;
 x_169 = lean_box(x_168);
-x_170 = l___private_Init_Util_0__outOfBounds___rarg(x_169);
+x_170 = l___private_Init_GetElem_0__outOfBounds___rarg(x_169);
 x_171 = lean_unbox(x_170);
 lean_dec(x_170);
 x_172 = lean_box(x_171);
@@ -30151,7 +30151,7 @@ uint8_t x_233; lean_object* x_234; lean_object* x_235; uint8_t x_236; lean_objec
 lean_dec(x_8);
 x_233 = l_instInhabitedBool;
 x_234 = lean_box(x_233);
-x_235 = l___private_Init_Util_0__outOfBounds___rarg(x_234);
+x_235 = l___private_Init_GetElem_0__outOfBounds___rarg(x_234);
 x_236 = lean_unbox(x_235);
 lean_dec(x_235);
 x_237 = lean_box(x_236);
@@ -30586,7 +30586,7 @@ if (x_20 == 0)
 lean_object* x_57; lean_object* x_58; 
 lean_dec(x_12);
 x_57 = l_Lean_instInhabitedExpr;
-x_58 = l___private_Init_Util_0__outOfBounds___rarg(x_57);
+x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
 x_21 = x_58;
 goto block_56;
 }
@@ -30631,7 +30631,7 @@ if (x_26 == 0)
 lean_object* x_49; lean_object* x_50; 
 lean_dec(x_13);
 x_49 = l_Lean_instInhabitedExpr;
-x_50 = l___private_Init_Util_0__outOfBounds___rarg(x_49);
+x_50 = l___private_Init_GetElem_0__outOfBounds___rarg(x_49);
 x_32 = x_50;
 goto block_48;
 }
@@ -30659,7 +30659,7 @@ uint8_t x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; lean_object* x
 lean_dec(x_14);
 x_34 = l_Lean_instInhabitedBinderInfo;
 x_35 = lean_box(x_34);
-x_36 = l___private_Init_Util_0__outOfBounds___rarg(x_35);
+x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
 x_37 = lean_unbox(x_36);
 lean_dec(x_36);
 x_38 = lean_box(x_37);

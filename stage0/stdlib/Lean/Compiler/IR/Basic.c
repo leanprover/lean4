@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_IR_instAlphaEqvArg___closed__1;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_IR_IRType_beq___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_IR_instAlphaEqvExpr___closed__1;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LocalContext_addParams(lean_object*, lean_object*);
@@ -56,6 +55,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_instAlphaEqvExpr;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_IR_addParamsRename___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_getInfo___boxed(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CtorInfo_beq___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -2912,7 +2912,7 @@ x_13 = l_Lean_IR_reshapeAux___closed__2;
 x_14 = lean_string_append(x_12, x_13);
 x_15 = l_Lean_IR_reshapeAux___closed__3;
 x_16 = l_Lean_IR_reshapeAux___closed__4;
-x_17 = lean_unsigned_to_nat(126u);
+x_17 = lean_unsigned_to_nat(128u);
 x_18 = lean_unsigned_to_nat(4u);
 x_19 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_15, x_16, x_17, x_18, x_14);
 lean_dec(x_14);
@@ -12422,11 +12422,11 @@ if (x_20 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 x_22 = l_Lean_IR_instInhabitedParam;
-x_23 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 if (x_21 == 0)
 {
 lean_object* x_24; lean_object* x_25; 
-x_24 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 x_25 = l_Lean_IR_addParamRename(x_9, x_23, x_24);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -12482,7 +12482,7 @@ if (x_21 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_35 = l_Lean_IR_instInhabitedParam;
-x_36 = l___private_Init_Util_0__outOfBounds___rarg(x_35);
+x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
 x_37 = l_Lean_IR_addParamRename(x_9, x_34, x_36);
 if (lean_obj_tag(x_37) == 0)
 {

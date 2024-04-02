@@ -26,7 +26,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandTermUnless___boxed(lean_object*,
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__22;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__16;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Do_AltExpr_vars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandTermFor_declRange___closed__2;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__10;
@@ -227,6 +226,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_mkReassignCore___lambda__1(lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_toDoElem___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_Elab_Term_getPatternsVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkPureUnit___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Do_0__Lean_Elab_Term_extractBind___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -18532,7 +18532,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 lean_dec(x_1);
 x_20 = l_Lean_instInhabitedSyntax;
-x_21 = l___private_Init_Util_0__outOfBounds___rarg(x_20);
+x_21 = l___private_Init_GetElem_0__outOfBounds___rarg(x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_3);
@@ -19264,7 +19264,7 @@ if (x_18 == 0)
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_dec(x_1);
 x_26 = l_Lean_instInhabitedSyntax;
-x_27 = l___private_Init_Util_0__outOfBounds___rarg(x_26);
+x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_26);
 x_28 = l___private_Lean_Elab_Do_0__Lean_Elab_Term_letDeclArgHasBinders___closed__6;
 lean_inc(x_21);
 lean_inc(x_15);
@@ -30993,7 +30993,7 @@ if (x_17 == 0)
 {
 lean_object* x_59; lean_object* x_60; 
 x_59 = l_Lean_instInhabitedSyntax;
-x_60 = l___private_Init_Util_0__outOfBounds___rarg(x_59);
+x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
 x_18 = x_60;
 goto block_58;
 }
@@ -31398,7 +31398,7 @@ if (x_155 == 0)
 {
 lean_object* x_156; lean_object* x_157; lean_object* x_158; 
 x_156 = l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___closed__5;
-x_157 = l___private_Init_Util_0__outOfBounds___rarg(x_156);
+x_157 = l___private_Init_GetElem_0__outOfBounds___rarg(x_156);
 x_158 = lean_ctor_get(x_157, 1);
 lean_inc(x_158);
 lean_dec(x_157);
@@ -40137,7 +40137,7 @@ if (x_17 == 0)
 lean_object* x_371; lean_object* x_372; 
 lean_dec(x_13);
 x_371 = l_Lean_instInhabitedSyntax;
-x_372 = l___private_Init_Util_0__outOfBounds___rarg(x_371);
+x_372 = l___private_Init_GetElem_0__outOfBounds___rarg(x_371);
 x_32 = x_372;
 goto block_370;
 }

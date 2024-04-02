@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_Core_withIncRecDepth___at___private_Lean_Elab_Pr
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__10(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_addPreDefinitions___closed__12;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedMVarsAtPreDef___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__12(lean_object*, lean_object*);
@@ -60,6 +59,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDe
 static lean_object* l_Lean_Core_transform___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_betaReduceLetRecApps___spec__3___closed__2;
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__13(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_betaReduceLetRecApps___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9406,7 +9406,7 @@ if (x_372 == 0)
 {
 lean_object* x_373; lean_object* x_374; uint8_t x_375; 
 x_373 = l_Lean_Elab_instInhabitedPreDefinition;
-x_374 = l___private_Init_Util_0__outOfBounds___rarg(x_373);
+x_374 = l___private_Init_GetElem_0__outOfBounds___rarg(x_373);
 x_375 = l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_isNonRecursive(x_374);
 if (x_375 == 0)
 {
@@ -9420,7 +9420,7 @@ else
 lean_object* x_377; 
 lean_dec(x_65);
 lean_dec(x_1);
-x_377 = l___private_Init_Util_0__outOfBounds___rarg(x_373);
+x_377 = l___private_Init_GetElem_0__outOfBounds___rarg(x_373);
 x_23 = x_377;
 goto block_64;
 }
@@ -9756,7 +9756,7 @@ if (x_245 == 0)
 {
 lean_object* x_272; lean_object* x_273; 
 x_272 = l_Lean_Elab_instInhabitedPreDefinition;
-x_273 = l___private_Init_Util_0__outOfBounds___rarg(x_272);
+x_273 = l___private_Init_GetElem_0__outOfBounds___rarg(x_272);
 x_247 = x_273;
 goto block_271;
 }

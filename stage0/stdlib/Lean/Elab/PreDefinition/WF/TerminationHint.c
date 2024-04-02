@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_elabTerminationHints___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationHints_ensureNone___closed__10;
@@ -34,6 +33,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_WF_TerminationBy_che
 lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationHints_rememberExtraParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationHints_ensureNone___closed__7;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -896,7 +896,7 @@ if (x_30 == 0)
 lean_object* x_31; lean_object* x_32; lean_object* x_33; uint8_t x_34; 
 lean_dec(x_10);
 x_31 = lean_box(0);
-x_32 = l___private_Init_Util_0__outOfBounds___rarg(x_31);
+x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
 x_33 = l_Lean_Elab_WF_TerminationBy_checkVars___closed__8;
 lean_inc(x_32);
 x_34 = l_Lean_Syntax_isOfKind(x_32, x_33);

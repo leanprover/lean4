@@ -28,7 +28,6 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_elabModifiers___at_Lean_Elab_Command_elabMutualDef___spec__1___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___spec__3___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_levelMVarToParam(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_MutualClosure_getKindForLetRecs___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_withSavedPartialInfoContext___at_Lean_Elab_Term_elabMutualDef___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,6 +180,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_Mutua
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_check___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereStructInst___closed__3;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Term_MutualClosure_getModifiersForLetRecs___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_declValToTerminationHint___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -2552,7 +2552,7 @@ if (x_63 == 0)
 {
 lean_object* x_64; lean_object* x_65; uint8_t x_66; uint8_t x_67; uint8_t x_68; 
 x_64 = l_Lean_Elab_instInhabitedDefView;
-x_65 = l___private_Init_Util_0__outOfBounds___rarg(x_64);
+x_65 = l___private_Init_GetElem_0__outOfBounds___rarg(x_64);
 x_66 = lean_ctor_get_uint8(x_65, sizeof(void*)*7);
 lean_dec(x_65);
 x_67 = 3;
@@ -2608,7 +2608,7 @@ if (x_5 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = l_Lean_Elab_instInhabitedDefView;
-x_8 = l___private_Init_Util_0__outOfBounds___rarg(x_7);
+x_8 = l___private_Init_GetElem_0__outOfBounds___rarg(x_7);
 x_9 = lean_ctor_get(x_8, 3);
 lean_inc(x_9);
 lean_dec(x_8);
@@ -2646,7 +2646,7 @@ if (x_23 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = l_Lean_Elab_instInhabitedDefView;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 x_24 = x_37;
 goto block_35;
 }
@@ -2711,7 +2711,7 @@ if (x_42 == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
 x_43 = l_Lean_Elab_instInhabitedDefView;
-x_44 = l___private_Init_Util_0__outOfBounds___rarg(x_43);
+x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
 x_45 = lean_ctor_get(x_44, 3);
 lean_inc(x_45);
 lean_dec(x_44);
@@ -3023,7 +3023,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = l_Lean_instInhabitedExpr;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = l_Lean_Expr_app___override(x_9, x_14);
 x_16 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -3104,7 +3104,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_cleanupOfNat___lambda__2___closed__3;
 x_21 = l_Lean_Expr_isConstOf(x_19, x_20);
 lean_dec(x_19);
@@ -9814,13 +9814,13 @@ if (x_28 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
 x_33 = l_Lean_instInhabitedSyntax;
-x_34 = l___private_Init_Util_0__outOfBounds___rarg(x_33);
+x_34 = l___private_Init_GetElem_0__outOfBounds___rarg(x_33);
 if (x_32 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 lean_dec(x_30);
 x_35 = l_Lean_instInhabitedExpr;
-x_36 = l___private_Init_Util_0__outOfBounds___rarg(x_35);
+x_36 = l___private_Init_GetElem_0__outOfBounds___rarg(x_35);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -9934,7 +9934,7 @@ if (x_32 == 0)
 lean_object* x_53; lean_object* x_54; lean_object* x_55; 
 lean_dec(x_30);
 x_53 = l_Lean_instInhabitedExpr;
-x_54 = l___private_Init_Util_0__outOfBounds___rarg(x_53);
+x_54 = l___private_Init_GetElem_0__outOfBounds___rarg(x_53);
 lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
@@ -17658,7 +17658,7 @@ if (x_14 == 0)
 {
 lean_object* x_58; lean_object* x_59; 
 x_58 = l_Lean_Elab_Term_instInhabitedLetRecToLift;
-x_59 = l___private_Init_Util_0__outOfBounds___rarg(x_58);
+x_59 = l___private_Init_GetElem_0__outOfBounds___rarg(x_58);
 x_15 = x_59;
 goto block_57;
 }
@@ -17863,7 +17863,7 @@ if (x_126 == 0)
 {
 lean_object* x_127; lean_object* x_128; 
 x_127 = l_Lean_Elab_Term_instInhabitedLetRecToLift;
-x_128 = l___private_Init_Util_0__outOfBounds___rarg(x_127);
+x_128 = l___private_Init_GetElem_0__outOfBounds___rarg(x_127);
 x_25 = x_128;
 goto block_124;
 }
@@ -18797,14 +18797,14 @@ if (x_14 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = l_Lean_Expr_fvarId_x21(x_19);
 if (x_16 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_12);
 x_21 = l_Lean_Elab_instInhabitedDefViewElabHeader;
-x_22 = l___private_Init_Util_0__outOfBounds___rarg(x_21);
+x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_21);
 x_23 = lean_ctor_get(x_22, 3);
 lean_inc(x_23);
 lean_dec(x_22);
@@ -18843,7 +18843,7 @@ if (x_16 == 0)
 lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
 lean_dec(x_12);
 x_36 = l_Lean_Elab_instInhabitedDefViewElabHeader;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 x_38 = lean_ctor_get(x_37, 3);
 lean_inc(x_38);
 lean_dec(x_37);
@@ -19994,7 +19994,7 @@ if (x_96 == 0)
 {
 lean_object* x_97; lean_object* x_98; 
 x_97 = l_Lean_Elab_instInhabitedDefViewElabHeader;
-x_98 = l___private_Init_Util_0__outOfBounds___rarg(x_97);
+x_98 = l___private_Init_GetElem_0__outOfBounds___rarg(x_97);
 x_20 = x_98;
 goto block_94;
 }
@@ -20045,7 +20045,7 @@ if (x_86 == 0)
 lean_object* x_87; lean_object* x_88; 
 lean_dec(x_19);
 x_87 = l_Lean_instInhabitedExpr;
-x_88 = l___private_Init_Util_0__outOfBounds___rarg(x_87);
+x_88 = l___private_Init_GetElem_0__outOfBounds___rarg(x_87);
 x_31 = x_88;
 goto block_84;
 }

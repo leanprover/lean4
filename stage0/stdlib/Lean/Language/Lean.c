@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_process(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_70_(lean_object*);
 static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_Language_Lean_process_processCmdSignature___spec__1___closed__1;
 static lean_object* l_Lean_Language_Lean_process_processHeader___lambda__4___closed__11;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseHeader___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processCmdSignature___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -57,6 +56,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_List_mapTR_loop___at_Lean_Language_Lean_process_processHeader___spec__1___closed__3;
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_ofIO___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at_Lean_Language_Lean_process_processCmdSignature___spec__5(lean_object*, lean_object*, lean_object*);
@@ -2758,7 +2758,7 @@ if (x_25 == 0)
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_22);
 x_26 = l_Lean_Elab_instInhabitedInfoTree;
-x_27 = l___private_Init_Util_0__outOfBounds___rarg(x_26);
+x_27 = l___private_Init_GetElem_0__outOfBounds___rarg(x_26);
 x_28 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
 x_29 = lean_alloc_ctor(0, 2, 1);
@@ -2824,7 +2824,7 @@ if (x_48 == 0)
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 lean_dec(x_45);
 x_49 = l_Lean_Elab_instInhabitedInfoTree;
-x_50 = l___private_Init_Util_0__outOfBounds___rarg(x_49);
+x_50 = l___private_Init_GetElem_0__outOfBounds___rarg(x_49);
 x_51 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_51, 0, x_50);
 x_52 = lean_alloc_ctor(0, 2, 1);
@@ -3071,7 +3071,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
 lean_dec(x_31);
 x_34 = l_Lean_Elab_Command_instInhabitedScope;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 x_36 = lean_ctor_get(x_35, 1);
 lean_inc(x_36);
 lean_dec(x_35);
@@ -5247,7 +5247,7 @@ if (x_55 == 0)
 lean_object* x_58; lean_object* x_59; lean_object* x_60; uint8_t x_61; lean_object* x_62; lean_object* x_63; 
 lean_dec(x_44);
 x_58 = l_Lean_Elab_instInhabitedInfoTree;
-x_59 = l___private_Init_Util_0__outOfBounds___rarg(x_58);
+x_59 = l___private_Init_GetElem_0__outOfBounds___rarg(x_58);
 x_60 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_60, 0, x_59);
 x_61 = 0;
@@ -5303,7 +5303,7 @@ if (x_74 == 0)
 lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; 
 lean_dec(x_44);
 x_77 = l_Lean_Elab_instInhabitedInfoTree;
-x_78 = l___private_Init_Util_0__outOfBounds___rarg(x_77);
+x_78 = l___private_Init_GetElem_0__outOfBounds___rarg(x_77);
 x_79 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_79, 0, x_78);
 x_80 = 0;
@@ -5444,7 +5444,7 @@ if (x_129 == 0)
 lean_object* x_132; lean_object* x_133; lean_object* x_134; uint8_t x_135; lean_object* x_136; lean_object* x_137; lean_object* x_138; 
 lean_dec(x_116);
 x_132 = l_Lean_Elab_instInhabitedInfoTree;
-x_133 = l___private_Init_Util_0__outOfBounds___rarg(x_132);
+x_133 = l___private_Init_GetElem_0__outOfBounds___rarg(x_132);
 x_134 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_134, 0, x_133);
 x_135 = 0;

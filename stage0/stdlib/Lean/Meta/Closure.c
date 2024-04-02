@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Closure_process___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_preprocess___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_collectLevelAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -48,6 +47,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Nat_foldRev___at_Lean_Meta_Closure_mkBinding___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__13;
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__6;
@@ -9942,7 +9942,7 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = l_Lean_instInhabitedLocalDecl;
-x_13 = l___private_Init_Util_0__outOfBounds___rarg(x_12);
+x_13 = l___private_Init_GetElem_0__outOfBounds___rarg(x_12);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
@@ -10158,7 +10158,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Lean_instInhabitedLocalDecl;
-x_12 = l___private_Init_Util_0__outOfBounds___rarg(x_11);
+x_12 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 
@@ -10326,7 +10326,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
 x_11 = l_Lean_instInhabitedLocalDecl;
-x_12 = l___private_Init_Util_0__outOfBounds___rarg(x_11);
+x_12 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 

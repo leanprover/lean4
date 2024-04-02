@@ -1444,6 +1444,12 @@ def whnfD (e : Expr) : MetaM Expr :=
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
 
+/-- `whnf` with at most instances transparency. -/
+def whnfAtMostI (e : Expr) : MetaM Expr := do
+  match (← getTransparency) with
+  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
+  | _ => whnf e
+
 /--
   Mark declaration `declName` with the attribute `[inline]`.
   This method does not check whether the given declaration is a definition.

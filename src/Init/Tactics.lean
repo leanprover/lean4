@@ -1522,16 +1522,16 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
-@[inherit_doc getElem]
-syntax:max term noWs "[" withoutPosition(term) "]" : term
-macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
-
-@[inherit_doc getElem]
-syntax term noWs "[" withoutPosition(term) "]'" term:max : term
-macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
-
 /--
 Searches environment for definitions or theorems that can be substituted in
 for `exact?% to solve the goal.
  -/
 syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
+
+set_option linter.unusedVariables.funArgs false in
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Tactic_Ext_tryIntros__
 static lean_object* l_Lean_Elab_Tactic_Ext_evalExt___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_614____lambda__7___closed__10;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Tactic_Ext_0__Lean_Elab_Tactic_Ext_hashExtTheorem____x40_Lean_Elab_Tactic_Ext___hyg_213____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____closed__5;
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
@@ -123,6 +122,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_foldValuesM___at_Lean_Elab_T
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Ext_applyExtTheoremAt___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_614____lambda__6___closed__1;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_614____spec__6___closed__14;
@@ -2850,7 +2850,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_8 = l_Lean_Meta_DiscrTree_instInhabitedKey;
-x_9 = l___private_Init_Util_0__outOfBounds___rarg(x_8);
+x_9 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
 lean_inc(x_9);
 lean_inc(x_1);
 x_10 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_321____spec__2(x_1, x_9);

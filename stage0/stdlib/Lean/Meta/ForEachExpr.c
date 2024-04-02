@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_visitLet_visit___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr(lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLet_visit___at_Lean_Meta_setMVarUserNamesAt___spec__15___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_setMVarUserNamesAt___spec__10(lean_object*, lean_object*);
@@ -55,6 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forEachExpr_x27_visit___spec__8(lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLet_visit___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_shouldInferBinderName___at_Lean_Meta_mkForallFVars_x27___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -2853,7 +2853,7 @@ if (x_62 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
 x_63 = l_Lean_instInhabitedExpr;
-x_64 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
+x_64 = l___private_Init_GetElem_0__outOfBounds___rarg(x_63);
 x_27 = x_64;
 goto block_61;
 }

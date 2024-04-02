@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_checkDeadLocalDecls___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_checkAppArgs___spec__2___lambda__2___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_checkDeadLocalDecls___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Check_checkFunDecl___lambda__2___closed__2;
@@ -50,6 +49,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Check_check
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Compiler_LCNF_checkDeadLocalDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_Check_checkAppArgs___spec__2___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Check_checkCases___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1771,7 +1771,7 @@ if (x_19 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_31 = l___private_Init_Util_0__outOfBounds___rarg(x_30);
+x_31 = l___private_Init_GetElem_0__outOfBounds___rarg(x_30);
 x_21 = x_31;
 goto block_29;
 }

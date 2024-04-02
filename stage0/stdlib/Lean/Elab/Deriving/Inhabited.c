@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_m
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_addLocalInstancesForParamsAux___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_collectUsedLocalsInsts___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstance___spec__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,6 +64,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_m
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visited___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_collectUsedLocalsInsts___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith___closed__5;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 extern lean_object* l_Lean_ForEachExprWhere_initCache;
@@ -7187,7 +7187,7 @@ if (x_97 == 0)
 {
 lean_object* x_98; lean_object* x_99; 
 x_98 = l_Lean_instInhabitedExpr;
-x_99 = l___private_Init_Util_0__outOfBounds___rarg(x_98);
+x_99 = l___private_Init_GetElem_0__outOfBounds___rarg(x_98);
 x_25 = x_99;
 goto block_96;
 }

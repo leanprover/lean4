@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_findAssumption_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -572,7 +572,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; 
 x_16 = l_Lean_instInhabitedExpr;
-x_17 = l___private_Init_Util_0__outOfBounds___rarg(x_16);
+x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
 x_18 = l___private_Lean_Elab_PreDefinition_MkInhabitant_0__Lean_Elab_mkFnInhabitant_x3f_loop___closed__1;
 x_19 = lean_array_push(x_18, x_17);
 x_20 = 0;

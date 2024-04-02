@@ -20,7 +20,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Cases___hyg_3374_
 LEAN_EXPORT lean_object* l_Lean_Meta_Cases_Context_majorTypeIndices___default(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_FVarSubst_apply(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visit___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__44___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_casesAnd___closed__3;
@@ -79,6 +78,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTargetsEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__26___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__35(lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -1188,7 +1188,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = l_Lean_instInhabitedExpr;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -3727,12 +3727,12 @@ if (x_12 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_Lean_instInhabitedExpr;
-x_15 = l___private_Init_Util_0__outOfBounds___rarg(x_14);
+x_15 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
 if (x_13 == 0)
 {
 lean_object* x_16; uint8_t x_17; 
 lean_dec(x_11);
-x_16 = l___private_Init_Util_0__outOfBounds___rarg(x_14);
+x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
 x_17 = lean_expr_eqv(x_15, x_16);
 lean_dec(x_16);
 lean_dec(x_15);
@@ -3780,7 +3780,7 @@ if (x_13 == 0)
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 lean_dec(x_11);
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = l___private_Init_Util_0__outOfBounds___rarg(x_25);
+x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
 x_27 = lean_expr_eqv(x_24, x_26);
 lean_dec(x_26);
 lean_dec(x_24);
@@ -11648,7 +11648,7 @@ if (x_17 == 0)
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_8);
 x_22 = l_Lean_instInhabitedName;
-x_23 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 lean_inc(x_4);
 lean_inc(x_23);
 x_24 = l_Lean_Expr_const___override(x_23, x_4);
@@ -11711,7 +11711,7 @@ if (x_17 == 0)
 lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 lean_dec(x_8);
 x_43 = l_Lean_instInhabitedName;
-x_44 = l___private_Init_Util_0__outOfBounds___rarg(x_43);
+x_44 = l___private_Init_GetElem_0__outOfBounds___rarg(x_43);
 lean_inc(x_4);
 lean_inc(x_44);
 x_45 = l_Lean_Expr_const___override(x_44, x_4);

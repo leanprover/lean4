@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__7;
 static lean_object* l_Lean_Elab_WF_instInhabitedTerminationArgument___closed__2;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_delab_go___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_TerminationArgument_elab___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_delab_go___closed__5;
@@ -34,6 +33,7 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Elab_WF_TerminationArgument_delab_go___spec__1___closed__3;
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__17;
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab_parameters___closed__1;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Elab_Term_elabFunBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__6;
 static lean_object* l_Lean_Elab_WF_TerminationArgument_elab___closed__14;
@@ -868,7 +868,7 @@ if (x_40 == 0)
 lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
 lean_dec(x_19);
 x_41 = lean_box(0);
-x_42 = l___private_Init_Util_0__outOfBounds___rarg(x_41);
+x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
 x_43 = l_Lean_Elab_WF_TerminationArgument_elab___closed__14;
 lean_inc(x_42);
 x_44 = l_Lean_Syntax_isOfKind(x_42, x_43);

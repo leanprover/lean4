@@ -163,6 +163,11 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attrs := #[attr] ++ expandAttrs attrs?
   mkConfigDecl none doc? attrs ty sig
 
+@[inherit_doc leanLibDecl] abbrev LeanLibDecl := TSyntax ``leanLibDecl
+
+instance : Coe LeanLibDecl Command where
+  coe x := ⟨x.raw⟩
+
 /--
 Define a new Lean binary executable target for the package.
 Can optionally be provided with a configuration of type `LeanExeConfig`.
@@ -182,6 +187,10 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attrs := #[attr] ++ expandAttrs attrs?
   mkConfigDecl none doc? attrs ty sig
 
+@[inherit_doc leanExeDecl] abbrev LeanExeDecl := TSyntax ``leanExeDecl
+
+instance : Coe LeanExeDecl Command where
+  coe x := ⟨x.raw⟩
 
 --------------------------------------------------------------------------------
 /-! ## External Library Target Declaration                                    -/

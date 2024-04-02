@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__11;
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____closed__6;
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__3;
@@ -32,6 +31,7 @@ lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExprPosition___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_176____boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Prod_lexLtDec___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_FileMap_ofString___closed__2;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1006,7 +1006,7 @@ else
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 lean_dec(x_6);
 x_24 = l_instInhabitedPos;
-x_25 = l___private_Init_Util_0__outOfBounds___rarg(x_24);
+x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
 x_26 = l_Lean_FileMap_getLine(x_1, x_5);
 lean_dec(x_5);
 x_27 = lean_unsigned_to_nat(0u);

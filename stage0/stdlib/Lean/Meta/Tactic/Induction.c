@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__7___lambda__3___closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_InductionSubgoal_fields___default;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3546____closed__7;
@@ -44,6 +43,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_throwUnexpectedMajorType___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___boxed(lean_object**);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_normalizeLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isZero(lean_object*);
@@ -987,12 +987,12 @@ if (x_17 == 0)
 lean_object* x_22; lean_object* x_23; 
 lean_dec(x_14);
 x_22 = l_Lean_instInhabitedFVarId;
-x_23 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_23 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 if (x_21 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_19);
-x_24 = l___private_Init_Util_0__outOfBounds___rarg(x_22);
+x_24 = l___private_Init_GetElem_0__outOfBounds___rarg(x_22);
 x_25 = l_Lean_Expr_fvar___override(x_24);
 x_26 = l_Lean_Meta_FVarSubst_insert(x_8, x_23, x_25);
 x_7 = x_12;
@@ -1021,7 +1021,7 @@ if (x_21 == 0)
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 lean_dec(x_19);
 x_33 = l_Lean_instInhabitedFVarId;
-x_34 = l___private_Init_Util_0__outOfBounds___rarg(x_33);
+x_34 = l___private_Init_GetElem_0__outOfBounds___rarg(x_33);
 x_35 = l_Lean_Expr_fvar___override(x_34);
 x_36 = l_Lean_Meta_FVarSubst_insert(x_8, x_32, x_35);
 x_7 = x_12;
@@ -3327,7 +3327,7 @@ if (x_22 == 0)
 {
 lean_object* x_57; lean_object* x_58; 
 x_57 = l_Lean_instInhabitedExpr;
-x_58 = l___private_Init_Util_0__outOfBounds___rarg(x_57);
+x_58 = l___private_Init_GetElem_0__outOfBounds___rarg(x_57);
 x_24 = x_58;
 goto block_56;
 }
@@ -3839,7 +3839,7 @@ if (x_12 == 0)
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; 
 lean_dec(x_8);
 x_15 = l_Lean_instInhabitedFVarId;
-x_16 = l___private_Init_Util_0__outOfBounds___rarg(x_15);
+x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
 x_17 = l_Lean_Expr_fvar___override(x_16);
 x_18 = l_Lean_Meta_FVarSubst_insert(x_9, x_10, x_17);
 x_19 = lean_alloc_ctor(0, 2, 0);

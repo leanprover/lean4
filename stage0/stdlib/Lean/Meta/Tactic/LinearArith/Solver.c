@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Meta_Linear_Cnstr_getBound___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableEqCnstrKind___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Meta_Linear_instReprVar___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_378____closed__13;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4210____closed__1;
@@ -66,6 +65,7 @@ static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solv
 uint8_t lean_usize_dec_eq(size_t, size_t);
 extern uint8_t l_instInhabitedBool;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4210____closed__7;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_177____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -4755,14 +4755,14 @@ if (x_6 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Meta_Linear_Assignment_val___default___closed__1;
-x_11 = l___private_Init_Util_0__outOfBounds___rarg(x_10);
+x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_10);
 if (x_9 == 0)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 lean_dec(x_4);
 x_12 = l_instInhabitedBool;
 x_13 = lean_box(x_12);
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = lean_unbox(x_14);
 lean_dec(x_14);
 x_16 = 1;
@@ -4791,7 +4791,7 @@ uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; 
 lean_dec(x_4);
 x_23 = l_instInhabitedBool;
 x_24 = lean_box(x_23);
-x_25 = l___private_Init_Util_0__outOfBounds___rarg(x_24);
+x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
 x_26 = lean_unbox(x_25);
 lean_dec(x_25);
 x_27 = 1;
@@ -4839,14 +4839,14 @@ if (x_6 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = l_Lean_Meta_Linear_Assignment_val___default___closed__1;
-x_11 = l___private_Init_Util_0__outOfBounds___rarg(x_10);
+x_11 = l___private_Init_GetElem_0__outOfBounds___rarg(x_10);
 if (x_9 == 0)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 lean_dec(x_4);
 x_12 = l_instInhabitedBool;
 x_13 = lean_box(x_12);
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = lean_unbox(x_14);
 lean_dec(x_14);
 x_16 = 0;
@@ -4875,7 +4875,7 @@ uint8_t x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; uint8_t x_27; 
 lean_dec(x_4);
 x_23 = l_instInhabitedBool;
 x_24 = lean_box(x_23);
-x_25 = l___private_Init_Util_0__outOfBounds___rarg(x_24);
+x_25 = l___private_Init_GetElem_0__outOfBounds___rarg(x_24);
 x_26 = lean_unbox(x_25);
 lean_dec(x_25);
 x_27 = 0;
@@ -5491,13 +5491,13 @@ if (x_14 == 0)
 {
 lean_object* x_146; lean_object* x_147; 
 x_146 = l_Lean_Meta_Linear_Assignment_val___default___closed__1;
-x_147 = l___private_Init_Util_0__outOfBounds___rarg(x_146);
+x_147 = l___private_Init_GetElem_0__outOfBounds___rarg(x_146);
 if (x_16 == 0)
 {
 uint8_t x_148; lean_object* x_149; lean_object* x_150; uint8_t x_151; uint8_t x_152; lean_object* x_153; 
 x_148 = l_instInhabitedBool;
 x_149 = lean_box(x_148);
-x_150 = l___private_Init_Util_0__outOfBounds___rarg(x_149);
+x_150 = l___private_Init_GetElem_0__outOfBounds___rarg(x_149);
 x_151 = lean_unbox(x_150);
 lean_dec(x_150);
 x_152 = 1;
@@ -5526,7 +5526,7 @@ if (x_16 == 0)
 uint8_t x_159; lean_object* x_160; lean_object* x_161; uint8_t x_162; uint8_t x_163; lean_object* x_164; 
 x_159 = l_instInhabitedBool;
 x_160 = lean_box(x_159);
-x_161 = l___private_Init_Util_0__outOfBounds___rarg(x_160);
+x_161 = l___private_Init_GetElem_0__outOfBounds___rarg(x_160);
 x_162 = lean_unbox(x_161);
 lean_dec(x_161);
 x_163 = 1;
@@ -5553,14 +5553,14 @@ if (x_18 == 0)
 {
 lean_object* x_118; lean_object* x_119; 
 x_118 = l_Lean_Meta_Linear_Assignment_val___default___closed__1;
-x_119 = l___private_Init_Util_0__outOfBounds___rarg(x_118);
+x_119 = l___private_Init_GetElem_0__outOfBounds___rarg(x_118);
 if (x_16 == 0)
 {
 uint8_t x_120; lean_object* x_121; lean_object* x_122; uint8_t x_123; uint8_t x_124; lean_object* x_125; 
 lean_dec(x_11);
 x_120 = l_instInhabitedBool;
 x_121 = lean_box(x_120);
-x_122 = l___private_Init_Util_0__outOfBounds___rarg(x_121);
+x_122 = l___private_Init_GetElem_0__outOfBounds___rarg(x_121);
 x_123 = lean_unbox(x_122);
 lean_dec(x_122);
 x_124 = 0;
@@ -5619,7 +5619,7 @@ uint8_t x_133; lean_object* x_134; lean_object* x_135; uint8_t x_136; uint8_t x_
 lean_dec(x_11);
 x_133 = l_instInhabitedBool;
 x_134 = lean_box(x_133);
-x_135 = l___private_Init_Util_0__outOfBounds___rarg(x_134);
+x_135 = l___private_Init_GetElem_0__outOfBounds___rarg(x_134);
 x_136 = lean_unbox(x_135);
 lean_dec(x_135);
 x_137 = 0;

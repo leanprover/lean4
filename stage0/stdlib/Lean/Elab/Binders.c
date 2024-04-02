@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_expandExplicitFun(lean_ob
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_ensureAtomicBinderName___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDecl___closed__2;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_elabFun___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_precheckFun___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderIdent___closed__5;
@@ -124,6 +123,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabLetTmpDecl_declRange(
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandFun(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__40;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_compileDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabFunBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl_declRange___closed__5;
@@ -5938,7 +5938,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = l_Lean_instInhabitedExpr;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = lean_apply_8(x_1, x_14, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_15;
 }

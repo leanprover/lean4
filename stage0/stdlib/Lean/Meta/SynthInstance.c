@@ -25,7 +25,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_9390
 static lean_object* l_Lean_Meta_SynthInstance_MkTableKey_instMonadMCtxM___closed__3;
 static lean_object* l_Lean_Meta_SynthInstance_resume___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_List_anyM___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_tryResolve___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode_x27___at_Lean_Meta_SynthInstance_newSubgoal___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Meta_SynthInstance_tryResolve___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,6 +132,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_StateT_bind___at_Lean_Meta_SynthInstance_MkTableKey_instMonadMCtxM___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_MkTableKey_instMonadMCtxM;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Meta_SynthInstance_newSubgoal___spec__5(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_9390____closed__11;
@@ -8155,7 +8155,7 @@ if (x_10 == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_6);
 x_13 = l_Lean_instInhabitedExpr;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = lean_array_uset(x_8, x_3, x_14);
 x_3 = x_12;
 x_4 = x_15;

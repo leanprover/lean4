@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_Compiler_LCNF_mkAuxLetDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferLitValueType___closed__6;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_isErasedCompatible_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -50,6 +49,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__3;
 extern uint8_t l_instInhabitedBool;
 LEAN_EXPORT lean_object* l_List_isEqv___at_Lean_Compiler_LCNF_eqvTypes___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_InferType_inferType___spec__1___closed__2;
 lean_object* l_Lean_Compiler_LCNF_InferType_inferLitValueType(lean_object*);
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
@@ -357,7 +357,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = l_Lean_instInhabitedExpr;
-x_17 = l___private_Init_Util_0__outOfBounds___rarg(x_16);
+x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
 x_18 = l_Lean_Expr_fvarId_x21(x_17);
 lean_inc(x_4);
 lean_inc(x_18);
@@ -11183,7 +11183,7 @@ if (x_35 == 0)
 {
 lean_object* x_36; lean_object* x_37; 
 x_36 = l_Lean_Compiler_LCNF_mkCasesResultType___lambda__1___closed__1;
-x_37 = l___private_Init_Util_0__outOfBounds___rarg(x_36);
+x_37 = l___private_Init_GetElem_0__outOfBounds___rarg(x_36);
 x_8 = x_37;
 goto block_32;
 }
@@ -11476,7 +11476,7 @@ lean_dec(x_13);
 lean_dec(x_2);
 x_15 = l_instInhabitedBool;
 x_16 = lean_box(x_15);
-x_17 = l___private_Init_Util_0__outOfBounds___rarg(x_16);
+x_17 = l___private_Init_GetElem_0__outOfBounds___rarg(x_16);
 x_18 = lean_unbox(x_17);
 lean_dec(x_17);
 x_19 = lean_box(x_18);

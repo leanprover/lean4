@@ -129,7 +129,7 @@ info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β →
   (t : Tree β) (k : Nat) (v : β) : motive t k v
 -/
 #guard_msgs in
-#check TreeExample.Tree.insert.induct
+#check Tree.insert.induct
 
 end TreeExample
 

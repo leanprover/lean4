@@ -28,7 +28,7 @@ inductive DischargeResult where
   deriving DecidableEq
 
 /--
-Wrapper for invoking `discharge?`. It checks for maximum discharge depth, create trace nodes, and ensure
+Wrapper for invoking `discharge?` method. It checks for maximum discharge depth, create trace nodes, and ensure
 the generated proof was successfully assigned to `x`.
 -/
 def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
@@ -44,8 +44,9 @@ def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
     else withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
       -- We save the state, so that `UsedTheorems` does not accumulate
       -- `simp` lemmas used during unsuccessful discharging.
+      -- We use `withPreservedCache` to ensure the cache is restored after `discharge?`
       let usedTheorems := (← get).usedTheorems
-      match (← discharge? type) with
+      match (← withPreservedCache <| (← getMethods).discharge? type) with
       | some proof =>
         unless (← isDefEq x proof) do
           modify fun s => { s with usedTheorems }

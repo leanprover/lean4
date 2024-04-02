@@ -21,8 +21,6 @@ structure Result where
   /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
   If `none`, the proof is assumed to be `refl`. -/
   proof?         : Option Expr := none
-  /-- Save the field `dischargeDepth` at `Simp.Context` because it impacts the simplifier result. -/
-  dischargeDepth : UInt32 := 0
   /-- If `cache := true` the result is cached. -/
   cache          : Bool := true
   deriving Inhabited
@@ -44,7 +42,8 @@ def Result.mkEqSymm (e : Expr) (r : Simp.Result) : MetaM Simp.Result :=
   | none   => return { r with expr := e }
   | some p => return { r with expr := e, proof? := some (← Meta.mkEqSymm p) }
 
-abbrev Cache := ExprMap Result
+-- We use `SExprMap` because we want to discard cached results after a `discharge?`
+abbrev Cache := SExprMap Result
 
 abbrev CongrCache := ExprMap (Option CongrTheorem)
 
@@ -92,7 +91,8 @@ structure Context where
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
-abbrev UsedSimps := HashMap Origin Nat
+-- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
+abbrev UsedSimps := PHashMap Origin Nat
 
 structure State where
   cache        : Cache := {}
@@ -254,9 +254,6 @@ def pre (e : Expr) : SimpM Step := do
 def post (e : Expr) : SimpM Step := do
   (← getMethods).post e
 
-def discharge? (e : Expr) : SimpM (Option Expr) := do
-  (← getMethods).discharge? e
-
 @[inline] def getContext : SimpM Context :=
   readThe Context
 
@@ -272,16 +269,26 @@ def getSimpTheorems : SimpM SimpTheoremsArray :=
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
-@[inline] def savingCache (x : SimpM α) : SimpM α := do
+@[inline] def withPreservedCache (x : SimpM α) : SimpM α := do
+  -- Recall that `cache.map₁` should be used linearly but `cache.map₂` is great for copies.
+  let savedMap₂   := (← get).cache.map₂
+  let savedStage₁ := (← get).cache.stage₁
+  modify fun s => { s with cache := s.cache.switch }
+  try x finally modify fun s => { s with cache.map₂ := savedMap₂, cache.stage₁ := savedStage₁ }
+
+/--
+Save current cache, reset it, execute `x`, and then restore original cache.
+-/
+@[inline] def withFreshCache (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try x finally modify fun s => { s with cache := cacheSaved }
 
 @[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
-  savingCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
+  withFreshCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
 
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
-  savingCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
+  withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
   /-

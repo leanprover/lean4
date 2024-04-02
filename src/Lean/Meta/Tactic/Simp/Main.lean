@@ -585,9 +585,7 @@ def simpStep (e : Expr) : SimpM Result := do
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
   if cfg.memoize && r.cache then
-    let ctx ← readThe Simp.Context
-    let dischargeDepth := ctx.dischargeDepth
-    modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+    modify fun s => { s with cache := s.cache.insert e r }
   return r
 
 partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
@@ -634,12 +632,7 @@ where
     if cfg.memoize then
       let cache := (← get).cache
       if let some result := cache.find? e then
-        /-
-          If the result was cached at a dischargeDepth > the current one, it may not be valid.
-          See issue #1234
-        -/
-        if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
-          return result
+        return result
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 

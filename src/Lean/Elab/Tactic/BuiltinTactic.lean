@@ -29,6 +29,18 @@ open Parser.Tactic
   done
 
 /--
+Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act.
+-/
+-- TODO: see if this is the right abstraction, move
+private def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (act : IO.Promise α → m Unit) : m Unit := do
+  let p ← IO.Promise.new
+  try
+    act p
+  finally
+    p.resolve default
+
+/--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.
  -/
@@ -54,46 +66,35 @@ where
             reused := true
             oldNext? := oldEvaluated.next.get? 1 |>.map (⟨old.stx, ·⟩)
 
-        -- definitely resolved below
-        let next ← IO.Promise.new
-        let finished ← IO.Promise.new
-        try
-          let inner ← IO.Promise.new
-          try
-            snap.new.resolve <| .mk {
-              stx := tac
-              diagnostics := .empty
-              finished := finished.result
-            } #[
-              {
-                range? := tac.getRange?
-                task := inner.result },
-              {
-                range? := stxs |>.getRange?
-                task := next.result }]
-            unless reused do
-              withTheReader Term.Context ({ · with
-                  tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
-                    some {
-                      old? := oldInner?
-                      new := inner
-                    } else none }) do
-                evalTactic tac
-            finished.resolve { state? := (← saveState) }
-          finally
-            inner.resolve <| .mk {
-              stx := tac, diagnostics := .empty
-              finished := .pure { state? := none } } #[]
+        withAlwaysResolvedPromise fun next => do
+          withAlwaysResolvedPromise fun finished => do
+            withAlwaysResolvedPromise fun inner => do
+              snap.new.resolve <| .mk {
+                stx := tac
+                diagnostics := .empty
+                finished := finished.result
+              } #[
+                {
+                  range? := tac.getRange?
+                  task := inner.result },
+                {
+                  range? := stxs |>.getRange?
+                  task := next.result }]
+              unless reused do
+                withTheReader Term.Context ({ · with
+                    tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
+                      some {
+                        old? := oldInner?
+                        new := inner
+                      } else none }) do
+                  evalTactic tac
+              finished.resolve { state? := (← saveState) }
+
           withTheReader Term.Context ({ · with tacSnap? := some {
             new := next
             old? := oldNext?
           } }) do
             goOdd stxs
-        finally
-          finished.resolve { state? := none }
-          next.resolve <| .mk {
-            stx := .missing, diagnostics := .empty
-            finished := finished.result } #[]
       else
         evalTactic tac
         goOdd stxs

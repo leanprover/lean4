@@ -170,17 +170,17 @@ structure SavedState where
 
 structure TacticFinished where
   state? : Option SavedState
-deriving Nonempty
+deriving Inhabited
 
 structure TacticParsedSnapshotData extends Language.Snapshot where
   stx      : Syntax
   finished : Task TacticFinished
-deriving Nonempty
+deriving Inhabited
 
 /-- State after execution of a single synchronous tactic step. -/
 inductive TacticParsedSnapshot where
   | mk (data : TacticParsedSnapshotData) (next : Array (SnapshotTask TacticParsedSnapshot))
-deriving Nonempty
+deriving Inhabited
 abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData
   | .mk data _ => data
 /-- Potential, potentially parallel, follow-up tactic executions. -/

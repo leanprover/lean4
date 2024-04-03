@@ -56,11 +56,7 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := reduceBin ``HPow.hPo
 builtin_dsimproc [simp, seval] reduceGcd (gcd _ _)       := reduceBin ``gcd 2 gcd
 
 builtin_simproc [simp, seval] reduceLT  (( _ : Nat) < _)  := reduceBinPred ``LT.lt 4 (. < .)
-builtin_simproc [simp, seval] reduceLE  (( _ : Nat) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
 builtin_simproc [simp, seval] reduceGT  (( _ : Nat) > _)  := reduceBinPred ``GT.gt 4 (. > .)
-builtin_simproc [simp, seval] reduceGE  (( _ : Nat) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
-builtin_simproc [simp, seval] reduceEq  (( _ : Nat) = _)  := reduceBinPred ``Eq 3 (. = .)
-builtin_simproc [simp, seval] reduceNe  (( _ : Nat) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : Nat) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)
 builtin_dsimproc [simp, seval] reduceBNe  (( _ : Nat) != _)  := reduceBoolPred ``bne 4 (. != .)
 
@@ -103,19 +99,22 @@ private partial def NatOffset.asOffset (e : Expr) : Meta.SimpM (Option (Expr × 
     pure none
 
 /- Attempt to parse a `NatOffset` from an expression-/
-private partial def NatOffset.fromExprAux (e : Expr) (inc : Nat) : Meta.SimpM (Option NatOffset) := do
+private partial def NatOffset.fromExprAux (e : Expr) (inc : Nat) : Meta.SimpM (Option (Expr × Nat)) := do
   let e := e.consumeMData
   match ← asOffset e with
   | some (b, o) =>
     fromExprAux b (inc + o)
   | none =>
-    return if inc != 0 then some (.offset e (toExpr inc) inc) else none
+    return if inc != 0 then some (e, inc) else none
 
 /- Attempt to parse a `NatOffset` from an expression-/
-private def NatOffset.fromExpr? (e : Expr) : Meta.SimpM (Option NatOffset) := do
+private def NatOffset.fromExpr? (e : Expr) (inc : Nat := 0) : Meta.SimpM (Option NatOffset) := do
   match ← Nat.fromExpr? e with
-  | some n => pure (some (.const n))
-  | none => fromExprAux e 0
+  | some n => pure (some (const (n + inc)))
+  | none =>
+    match ← fromExprAux e inc with
+    | none => pure none
+    | some (b, o) => pure (some (offset b (toExpr o) o))
 
 private def mkAddNat (x y : Expr) : Expr :=
   let lz := levelZero
@@ -132,6 +131,12 @@ private def mkSubNat (x y : Expr) : Expr :=
 
 private def mkEqNat (x y : Expr) : Expr :=
   mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat, x, y]
+
+private def mkBeqNat (x y : Expr) : Expr :=
+  mkAppN (mkConst ``BEq.beq [levelZero]) #[mkConst ``Nat, mkConst ``instBEqNat, x, y]
+
+private def mkBneNat (x y : Expr) : Expr :=
+  mkAppN (mkConst ``bne [levelZero]) #[mkConst ``Nat, mkConst ``instBEqNat, x, y]
 
 private def mkLENat (x y : Expr) : Expr :=
   mkAppN (.const ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
@@ -152,50 +157,107 @@ def applySimprocConst (expr : Expr) (nm : Name) (args : Array Expr) : SimpM Step
   let finProof := mkAppN (mkConst nm) args
   return .visit { expr, proof? := finProof, cache := true }
 
+inductive EqResult where
+| decide (b : Bool) : EqResult
+| false (p : Expr) : EqResult
+| eq (x y : Expr) (p : Expr) : EqResult
+
+def applyEqLemma (e : Expr → EqResult) (lemmaName : Name) (args : Array Expr) : SimpM (Option EqResult) := do
+  unless (← getEnv).contains lemmaName do
+    return none
+  return .some (e (mkAppN (mkConst lemmaName) args))
+
+def reduceNatEqExpr (x y : Expr) : SimpM (Option EqResult):= do
+  let some xno ← NatOffset.fromExpr? x | return none
+  let some yno ← NatOffset.fromExpr? y | return none
+  match xno, yno with
+  | .const xn, .const yn =>
+    return some (.decide (xn = yn))
+  | .offset xb xo xn, .const yn => do
+    if xn ≤ yn then
+      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
+      applyEqLemma (.eq xb (toExpr (yn - xn))) ``Nat.Simproc.add_eq_le #[xb, xo, y, leProof]
+    else
+      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
+      applyEqLemma .false ``Nat.Simproc.add_eq_gt  #[xb, xo, y, gtProof]
+  | .const xn, .offset yb yo yn => do
+    if yn ≤ xn then
+      let leProof ← mkOfDecideEqTrue (mkLENat yo x)
+      applyEqLemma (.eq yb (toExpr (xn - yn))) ``Nat.Simproc.eq_add_le  #[x, yb, yo, leProof]
+    else
+      let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
+      applyEqLemma .false ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
+  | .offset xb xo xn, .offset yb yo yn => do
+    if xn ≤ yn then
+      let zb := (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
+      applyEqLemma (.eq xb zb) ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
+    else
+      let zb := mkAddNat xb (toExpr (xn - yn))
+      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
+      applyEqLemma (.eq zb yb) ``Nat.Simproc.add_eq_add_ge #[xb, yb, xo, yo, geProof]
+
 builtin_simproc [simp, seval] reduceEqDiff ((_ : Nat) = _) := fun e => do
   unless e.isAppOfArity ``Eq 3 do
     return .continue
   let x := e.appFn!.appArg!
-  let some xno ← NatOffset.fromExpr? x | return .continue
   let y := e.appArg!
-  let some yno ← NatOffset.fromExpr? y | return .continue
-  match xno, yno with
-  | .const xn, .const yn =>
-    Meta.Simp.evalPropStep e (xn = yn)
-  | .offset xb xo xn, .const yn => do
-    if xn ≤ yn then
-      let finExpr := mkEqNat xb (toExpr (yn - xn))
-      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
-      applySimprocConst finExpr ``Nat.Simproc.add_eq_le #[xb, xo, y, leProof]
-    else
-      let finExpr := mkConst ``False
-      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
-      applySimprocConst finExpr ``Nat.Simproc.add_eq_gt  #[xb, xo, y, gtProof]
-  | .const xn, .offset yb yo yn => do
-    if yn ≤ xn then
-      let finExpr := mkEqNat yb (toExpr (xn - yn))
-      let leProof ← mkOfDecideEqTrue (mkLENat yo x)
-      applySimprocConst finExpr ``Nat.Simproc.eq_add_le  #[x, yb, yo, leProof]
-    else
-      let finExpr := mkConst ``False
-      let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
-      applySimprocConst finExpr ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
-  | .offset xb xo xn, .offset yb yo yn => do
-    if xn ≤ yn then
-      let finExpr := mkEqNat xb (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
-      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
-      applySimprocConst finExpr ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
-    else
-      let finExpr := mkEqNat (mkAddNat xb (toExpr (xn - yn))) yb
-      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
-      applySimprocConst finExpr ``Nat.Simproc.add_eq_add_ge #[xb, yb, xo, yo, geProof]
+  match ← reduceNatEqExpr x y with
+  | none =>
+    return .continue
+  | some (.decide true) =>
+    let d ← mkDecide e
+    let p := mkAppN (mkConst ``eq_true_of_decide)  #[e, d.appArg!, (← mkEqRefl (mkConst ``true))]
+    return .done  { expr := mkConst ``True,  proof? := some p, cache := true }
+  | some (.decide false) =>
+    let d ← mkDecide e
+    let p := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))]
+    return .done  { expr := mkConst ``False, proof? := some p, cache := true }
+  | some (.false p)  =>
+    return .done  { expr := mkConst ``False, proof? := some p, cache := true }
+  | some (.eq x y p) =>
+    return .visit { expr := mkEqNat x y,     proof? := some p, cache := true }
 
-builtin_simproc [simp, seval] reduceLeDiff ((_ : Nat) ≤ _) := fun e => do
-  unless e.isAppOfArity ``LE.le 4 do
+builtin_simproc [simp, seval] reduceBeqDiff ((_ : Nat) == _) := fun e => do
+  unless e.isAppOfArity ``BEq.beq 4 do
     return .continue
   let x := e.appFn!.appArg!
-  let some xno ← NatOffset.fromExpr? x | return .continue
   let y := e.appArg!
+  match ← reduceNatEqExpr x y with
+  | none =>
+    return .continue
+  | some (.decide b) =>
+    return .done { expr := toExpr b }
+  | some (.false p) =>
+    let q := mkAppN (mkConst ``Nat.Simproc.beqFalseOfEqFalse) #[x, y, p]
+    return .done  { expr := mkConst ``false, proof? := some q, cache := true }
+  | some (.eq u v p) =>
+    let q := mkAppN (mkConst ``Nat.Simproc.beqEqOfEqEq) #[x, y, u, v, p]
+    return .visit { expr := mkBeqNat u v, proof? := some q, cache := true }
+
+builtin_simproc [simp, seval] reduceBneDiff ((_ : Nat) != _) := fun e => do
+  unless e.isAppOfArity ``bne 4 do
+    return .continue
+  let x := e.appFn!.appArg!
+  let y := e.appArg!
+  match ← reduceNatEqExpr x y with
+  | none =>
+    return .continue
+  | some (.decide b) =>
+    return .done { expr := toExpr (!b) }
+  | some (.false p) =>
+    let q := mkAppN (mkConst ``Nat.Simproc.bneTrueOfEqFalse) #[x, y, p]
+    return .done  { expr := mkConst ``true, proof? := some q, cache := true }
+  | some (.eq u v p) =>
+    let q := mkAppN (mkConst ``Nat.Simproc.bneEqOfEqEq) #[x, y, u, v, p]
+    return .visit { expr := mkBneNat u v, proof? := some q, cache := true }
+
+def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity nm arity do
+    return .continue
+  let x := e.appFn!.appArg!
+  let y := e.appArg!
+  let some xno ← NatOffset.fromExpr? x (inc := cond isLT 1 0) | return .continue
   let some yno ← NatOffset.fromExpr? y | return .continue
   match xno, yno with
   | .const xn, .const yn =>
@@ -225,6 +287,8 @@ builtin_simproc [simp, seval] reduceLeDiff ((_ : Nat) ≤ _) := fun e => do
       let finExpr := mkLENat (mkAddNat xb (toExpr (xn - yn))) yb
       let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
       applySimprocConst finExpr ``Nat.Simproc.add_le_add_ge  #[xb, yb, xo, yo, geProof]
+
+builtin_simproc [simp, seval] reduceLeDiff ((_ : Nat) ≤ _) := reduceLTLE ``LE.le 4 false
 
 builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
   unless e.isAppOfArity ``HSub.hSub 6 do

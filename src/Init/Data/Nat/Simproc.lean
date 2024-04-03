@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix
 -/
 prelude
+import Init.Data.Bool
 import Init.Data.Nat.Basic
 import Init.Data.Nat.Lemmas
 
@@ -12,6 +13,8 @@ This contains lemmas used by the Nat simprocs for simplifying arithmetic
 addition offsets.
 -/
 namespace Nat.Simproc
+
+/- Sub proofs -/
 
 theorem sub_add_eq_comm (a b c : Nat) : a - (b + c) = a - c - b := by
   rw [Nat.add_comm b c]
@@ -38,6 +41,8 @@ theorem add_sub_le (a : Nat) {b c : Nat} (h : b ≤ c) : a + b - c = a - (c - b)
   simp only [Nat.zero_add] at p
   exact p
 
+/- Eq proofs -/
+
 theorem add_eq_gt (a : Nat) {b c : Nat} (h : b > c) : (a + b = c) = False :=
   eq_false (Nat.ne_of_gt (Nat.lt_of_lt_of_le h (le_add_left b a)))
 
@@ -60,6 +65,22 @@ theorem add_eq_le (a : Nat) {b c : Nat} (h : b ≤ c) : (a + b = c) = (a = c - b
 theorem eq_add_le {a : Nat} (b : Nat) {c : Nat} (h : c ≤ a) : (a = b + c) = (b = a - c) := by
   rw [@Eq.comm Nat a (b + c)]
   exact add_eq_le b h
+
+/- Lemmas for lifting Eq proofs to beq -/
+
+theorem beqEqOfEqEq {a b c d : Nat} (p : (a = b) = (c = d)) : (a == b) = (c == d) := by
+  simp only [Bool.beq_eq_decide_eq, p]
+
+theorem beqFalseOfEqFalse {a b : Nat} (p : (a = b) = False) : (a == b) = false := by
+  simp [Bool.beq_eq_decide_eq, p]
+
+theorem bneEqOfEqEq {a b c d : Nat} (p : (a = b) = (c = d)) : (a != b) = (c != d) := by
+  simp only [bne, beqEqOfEqEq p]
+
+theorem bneTrueOfEqFalse {a b : Nat} (p : (a = b) = False) : (a != b) = true := by
+  simp [bne, beqFalseOfEqFalse p]
+
+/- le proofs -/
 
 theorem add_le_add_le (a c : Nat) {b d : Nat} (h : b ≤ d) : (a + b ≤ c + d) = (a ≤ c + (d - b)) := by
   rw [← Nat.add_sub_assoc h, Nat.le_sub_iff_add_le]

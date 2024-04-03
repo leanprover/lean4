@@ -10,7 +10,7 @@ import Lean.Util.Trace
 
 namespace Lean.Firefox
 
--- https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.js
+/-! Definitions from https://github.com/firefox-devtools/profiler/blob/main/src/types/profile.js -/
 
 abbrev Milliseconds := Float
 
@@ -94,12 +94,15 @@ structure Profile where
   threads : Array Thread
 deriving FromJson, ToJson
 
+/-- Thread with maps necessary for computing max sharing indices -/
 structure ThreadWithMaps extends Thread where
   stringMap : HashMap String Nat := {}
   funcMap : HashMap Nat Nat := {}
   stackMap : HashMap (Nat × Option Nat) Nat := {}
+  /-- Last timestamp encountered: stop time of preceding sibling, or else start time of parent.  -/
   lastTime : Float := 0
 
+-- TODO: add others, dynamically?
 def categories : Array Category := #[
   { name := "Other", color := "gray" },
   { name := "Elab", color := "red" },
@@ -112,11 +115,17 @@ where
   go parentStackIdx? : _ → StateM ThreadWithMaps Unit
     | .trace data _ children => do
       if data.startTime == 0 then
-        return
+        return  -- no time data, skip
       let mut funcName := data.cls.toString
       if !data.tag.isEmpty then
         funcName := s!"{funcName}: {data.tag}"
-      let strIdx ← getStrIdx funcName
+      let strIdx ← modifyGet fun thread =>
+        if let some idx := thread.stringMap.find? funcName then
+          (idx, thread)
+        else
+          (thread.stringMap.size, { thread with
+            stringArray := thread.stringArray.push funcName
+            stringMap := thread.stringMap.insert funcName thread.stringMap.size })
       let category := categories.findIdx? (·.name == data.cls.getRoot.toString) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap.find? strIdx then
@@ -126,6 +135,7 @@ where
             funcTable := {
               name := thread.funcTable.name.push strIdx
               resource := thread.funcTable.resource.push (-1)
+              -- the following fields could be inferred from `Syntax` in the message
               fileName := thread.funcTable.fileName.push none
               lineNumber := thread.funcTable.lineNumber.push none
               columnNumber := thread.funcTable.columnNumber.push none
@@ -153,6 +163,7 @@ where
       modify fun thread => { thread with lastTime := data.startTime }
       for c in children do
         if let some nextStart := getNextStart? c then
+          -- add run time slice between children/before first child
           modify fun thread => { thread with samples := {
             stack := thread.samples.stack.push stackIdx
             time := thread.samples.time.push (thread.lastTime * 1000)
@@ -160,6 +171,7 @@ where
             length := thread.samples.length + 1
           } }
           go (some stackIdx) c
+      -- add remaining slice after last child
       modify fun thread => { thread with
         lastTime := data.stopTime
         samples := {
@@ -170,6 +182,7 @@ where
         } }
     | .withContext _ msg => go parentStackIdx? msg
     | _ => return
+  /-- Returns first `startTime` in the trace tree, if any. -/
   getNextStart?
     | .trace data _ children => do
       if data.startTime != 0 then
@@ -179,14 +192,6 @@ where
       none
     | .withContext _ msg => getNextStart? msg
     | _ => none
-  getStrIdx s :=
-    modifyGet fun thread =>
-      if let some idx := thread.stringMap.find? s then
-        (idx, thread)
-      else
-        (thread.stringMap.size, { thread with
-          stringArray := thread.stringArray.push s
-          stringMap := thread.stringMap.insert s thread.stringMap.size })
 
 def Thread.new (name : String) : Thread := {
   name
@@ -194,11 +199,14 @@ def Thread.new (name : String) : Thread := {
   stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
   frameTable := { func := #[], length := 0 }
   stringArray := #[]
-  funcTable := { name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[], length := 0 }
+  funcTable := {
+    name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[],
+    length := 0 }
 }
 
 def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState) : IO Profile := do
   let thread := Thread.new name
+  -- wrap entire trace up to current time in `runFrontend` node
   let trace := .trace {
     cls := `runFrontend, startTime, stopTime := (← IO.monoNanosNow).toFloat / 1000000000,
     collapsed := true } "" (traceState.traces.toArray.map (·.msg))
@@ -209,9 +217,15 @@ def Profile.export (name : String) (startTime : Milliseconds) (traceState : Trac
   }
 
 structure ThreadWithCollideMaps extends ThreadWithMaps where
+  /-- Max sharing map for samples -/
   sampleMap : HashMap Nat Nat := {}
 
-private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Thread) : ThreadWithCollideMaps :=
+/--
+Adds samples from `add` to `thread`, increasing the weight of existing samples with identical stacks
+instead of pushing new samples.
+-/
+private partial def collideThreads (thread : ThreadWithCollideMaps) (add : Thread) :
+    ThreadWithCollideMaps :=
   StateT.run collideSamples thread |>.2
 where
   collideSamples : StateM ThreadWithCollideMaps Unit := do
@@ -220,13 +234,16 @@ where
       let stackIdx ← collideStacks oldStackIdx
       modify fun thread =>
         if let some idx := thread.sampleMap.find? stackIdx then
+          -- imperative to preserve linear use of arrays here!
           let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩ := thread
           let ⟨s1, s2, weight, s3, s4⟩ := samples
           let weight := weight.set! idx <| weight[idx]! + add.samples.weight[oldSampleIdx]!
           let samples := ⟨s1, s2, weight, s3, s4⟩
           ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, o6⟩
         else
-          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩ := thread
+          -- imperative to preserve linear use of arrays here!
+          let ⟨⟨⟨t1, t2, t3, samples, t5, t6, t7, t8, t9, t10⟩, o2, o3, o4, o5⟩, sampleMap⟩ :=
+            thread
           let ⟨stack, time, weight, _, length⟩ := samples
           let samples := {
               stack := stack.push stackIdx
@@ -267,7 +284,8 @@ where
         (idx, thread)
       else
         (thread.stackMap.size,
-          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩ := thread
+          let ⟨⟨⟨t1,t2, t3, t4, t5, stackTable, t7, t8, t9, t10⟩, o2, o3, stackMap, o5⟩, o6⟩ :=
+            thread
           let { frame, «prefix», category, subcategory, length } := stackTable
           let stackTable := {
             frame := frame.push frameIdx
@@ -287,6 +305,10 @@ where
           stringArray := thread.stringArray.push s
           stringMap := thread.stringMap.insert s thread.stringMap.size })
 
+/--
+Merges given profiles such that samples with identical stacks are deduplicated by adding up their
+weights. Minimizes profile size while preserving per-stack timing information.
+-/
 def Profile.collide (ps : Array Profile) : Option Profile := do
   let base ← ps[0]?
   let thread := Thread.new "collided"

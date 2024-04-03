@@ -47,10 +47,15 @@ structure PPFormat where
   hasSyntheticSorry : MetavarContext → Bool := fun _ => false
 
 structure TraceData where
+  /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
+  /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
   startTime : Float := 0
+  /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
   stopTime  : Float := startTime
+  /-- Whether trace node defaults to collapsed in the infoview. -/
   collapsed : Bool := true
+  /-- Optional tag shown in `trace.profiler.output` output after the trace class name. -/
   tag       : String := ""
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/

@@ -140,6 +140,7 @@ def runFrontend
 
     if let some out := trace.profiler.output.get? opts then
       let traceState := s.commandState.traceState
+      -- importing does not happen in an elaboration monad, add now
       let traceState := { traceState with
         traces := traceState.traces.push {
           ref := .missing,
@@ -148,7 +149,7 @@ def runFrontend
         }
       }
       let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState
-      IO.FS.writeFile ⟨out⟩ (Json.compress <| toJson profile)
+      IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 

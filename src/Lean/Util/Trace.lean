@@ -169,7 +169,8 @@ register_builtin_option trace.profiler.threshold : Nat := {
 register_builtin_option trace.profiler.output : String := {
   defValue := ""
   group    := "profiler"
-  descr    := "output trace.profiler data in Firefox Profiler-compatible format to given file path"
+  descr    :=
+    "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
 

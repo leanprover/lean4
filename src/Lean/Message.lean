@@ -42,7 +42,7 @@ structure NamingContext where
 /-- Lazily formatted text to be used in `MessageData`. -/
 structure PPFormat where
   /-- Pretty-prints text using surrounding context, if any. -/
-  pp : Option PPContext → IO FormatWithInfos
+  pp : Option PPContext → BaseIO FormatWithInfos
   /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
   hasSyntheticSorry : MetavarContext → Bool := fun _ => false
 
@@ -136,10 +136,10 @@ where
   | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
-partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
+partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
   | _,    _,         ofFormat fmt             => return fmt
   | nCtx, ctx?,      ofPPFormat f             => (·.fmt) <$> f.pp (ctx?.map (mkPPContext nCtx))
-  | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
+  | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
@@ -152,10 +152,10 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     let children ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::children.toList) "\n")
 
-protected def format (msgData : MessageData) : IO Format :=
+protected def format (msgData : MessageData) : BaseIO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
 
-protected def toString (msgData : MessageData) : IO String := do
+protected def toString (msgData : MessageData) : BaseIO String := do
   return toString (← msgData.format)
 
 instance : Append MessageData := ⟨compose⟩
@@ -221,7 +221,7 @@ structure Message where
 
 namespace Message
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+protected def toString (msg : Message) (includeEndPos := false) : BaseIO String := do
   let mut str ← msg.data.toString
   let endPos := if includeEndPos then msg.endPos else none
   unless msg.caption == "" do

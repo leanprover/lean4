@@ -728,8 +728,7 @@ theorem toNat_cons' {x : BitVec w} :
   rw [← BitVec.msb, msb_cons]
 
 @[simp] theorem getMsb_cons_succ : (cons a x).getMsb (i + 1) = x.getMsb i := by
-  simp [cons, cond_eq_if]
-  omega
+  simp [cons, Nat.le_add_left 1 i]
 
 theorem truncate_succ (x : BitVec w) :
     truncate (i+1) x = cons (getLsb x i) (truncate i x) := by

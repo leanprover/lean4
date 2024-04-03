@@ -52,8 +52,6 @@ where
       (pkgs, modSet, jobs) ← go recImports pkgs modSet jobs shouldPrecompile
     return (pkgs, modSet, jobs)
 
-variable [MonadLiftT BuildM m]
-
 /--
 Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
@@ -142,7 +140,7 @@ def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Ar
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
-  mkFacetJobConfigSmall (·.recBuildDeps)
+  mkFacetJobConfig (·.recBuildDeps)
 
 /--
 Recursively build a Lean module.
@@ -150,6 +148,7 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
+  withRegisterJob s!"Building {mod.name}" do
   (← mod.deps.fetch).bindSync fun (dynlibPath, dynlibs) depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
@@ -157,7 +156,7 @@ def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
     buildUnlessUpToDate mod modTrace mod.traceFile do
       let hasLLVM := Lean.Internal.hasLLVMBackend ()
       let bcFile? := if hasLLVM then some mod.bcFile else none
-      compileLeanModule mod.name.toString mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
+      compileLeanModule mod.name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
         (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       discard <| cacheFileHash mod.oleanFile
       discard <| cacheFileHash mod.ileanFile
@@ -172,26 +171,26 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfigSmall fun mod => do
+  mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
       return (mod.oleanFile, mixTrace (← fetchFileTrace mod.oleanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
-  mkFacetJobConfigSmall fun mod => do
+  mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
       return (mod.ileanFile, mixTrace (← fetchFileTrace mod.ileanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
-  mkFacetJobConfigSmall fun mod => do
+  mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged C files
       return (mod.cFile, ← fetchFileTrace mod.cFile)
 
 /-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
 def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
-  mkFacetJobConfigSmall fun mod => do
+  mkFacetJobConfig fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged bitcode files
       return (mod.bcFile, ← fetchFileTrace mod.bcFile)
@@ -200,10 +199,11 @@ def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
 Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
 -/
-def Module.recBuildLeanCToOExport (self : Module) : IndexBuildM (BuildJob FilePath) := do
+def Module.recBuildLeanCToOExport (self : Module) : IndexBuildM (BuildJob FilePath) :=
+  withRegisterJob s!"Compiling {self.name}" do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
-  buildLeanO self.name.toString self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
+  buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `coExportFacet`. -/
 def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
@@ -213,9 +213,10 @@ def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
 Recursively build the module's object file from its C file produced by `lean`.
 This version does not export any Lean symbols.
 -/
-def Module.recBuildLeanCToONoExport (self : Module) : IndexBuildM (BuildJob FilePath) := do
+def Module.recBuildLeanCToONoExport (self : Module) : IndexBuildM (BuildJob FilePath) :=
+  withRegisterJob s!"Compiling {self.name}" do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.name.toString self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+  buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `coNoExportFacet`. -/
 def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
@@ -223,13 +224,14 @@ def Module.coNoExportFacetConfig : ModuleFacetConfig coNoExportFacet :=
 
 /-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
 def Module.coFacetConfig : ModuleFacetConfig coFacet :=
-  mkFacetJobConfigSmall fun mod =>
+  mkFacetJobConfig fun mod =>
     if Platform.isWindows then mod.coNoExport.fetch else mod.coExport.fetch
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+  withRegisterJob s!"Compiling {self.name}" do
   -- TODO: add option to pass a target triplet for cross compilation
-  buildLeanO self.name.toString self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
+  buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
 def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
@@ -237,21 +239,21 @@ def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
 
 /-- The `ModuleFacetConfig` for the builtin `oExportFacet`. -/
 def Module.oExportFacetConfig : ModuleFacetConfig oExportFacet :=
-  mkFacetJobConfigSmall fun mod =>
+  mkFacetJobConfig fun mod =>
     match mod.backend with
     | .default | .c => mod.coExport.fetch
     | .llvm => mod.bco.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `oNoExportFacet`. -/
 def Module.oNoExportFacetConfig : ModuleFacetConfig oNoExportFacet :=
-  mkFacetJobConfigSmall fun mod =>
+  mkFacetJobConfig fun mod =>
     match mod.backend with
     | .default | .c => mod.coNoExport.fetch
     | .llvm => error "the LLVM backend only supports exporting Lean symbols"
 
 /-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetJobConfigSmall fun mod =>
+  mkFacetJobConfig fun mod =>
     match mod.backend with
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
@@ -275,6 +277,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
 
   -- Build dynlib
   show SchedulerM _ from do
+    withRegisterJob s!"Linking {mod.name} dynlib" do
     linksJob.bindAsync fun links linksTrace => do
     modDynlibsJob.bindAsync fun modDynlibs modLibsTrace => do
     externDynlibsJob.bindSync fun externDynlibs externLibsTrace => do
@@ -289,7 +292,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
           links.map toString ++
           libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
           mod.weakLinkArgs ++ mod.linkArgs
-        compileSharedLib mod.name.toString mod.dynlibFile args (← getLeanc)
+        compileSharedLib mod.dynlibFile args (← getLeanc)
       return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/

@@ -23,9 +23,9 @@ fi
 $LAKE build targets:noexistent && false || true
 
 # Test custom targets and package, library, and module facets
-$LAKE build bark | grep Bark!
-$LAKE build targets/bark_bark | grep Bark!
-$LAKE build targets:print_name | grep targets
+$LAKE build bark | tee /dev/stderr | awk '/bark/,/Bark!/' | wc -l | grep -q 2
+$LAKE build targets/bark_bark | tee /dev/stderr | awk '/bark/,/bark_bark/' | wc -l | grep -q 3
+$LAKE build targets:print_name | tee /dev/stderr | awk '/targets/,/print_name/' | wc -l | grep -q 2
 $LAKE build Foo.Bar:print_src | grep Bar.lean
 $LAKE build Foo:print_name | grep Foo
 

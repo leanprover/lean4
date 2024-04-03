@@ -20,17 +20,21 @@ open Lean
 namespace Lake
 
 /--
-Converts a conveniently typed target facet build function into its
-dynamically typed equivalent.
+Converts a conveniently-typed target facet build function into its
+dynamically-typed equivalent.
 -/
-@[macro_inline] def mkTargetFacetBuild (facet : Name) (build : IndexBuildM α)
-[h : FamilyOut TargetData facet α] : IndexBuildM (TargetData facet) :=
+@[macro_inline] def mkTargetFacetBuild
+  (facet : Name) (build : IndexBuildM (BuildJob α))
+  [h : FamilyOut TargetData facet (BuildJob α)]
+: IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
-def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) :=
+  withRegisterJob s!"Building {lib.staticTargetName.toString}" do
   lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
-def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
+def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) :=
+  withRegisterJob s!"Linking {lib.staticTargetName.toString}" do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
 def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
@@ -92,21 +96,3 @@ and a topological / suspending scheduler and return the dynamic result.
 @[macro_inline] def buildIndexTop (info : BuildInfo)
 [FamilyOut BuildData info.key α] : RecBuildM α := do
   cast (by simp) <| buildIndexTop' info
-
-/-- Build the given Lake target in a fresh build store. -/
-@[inline] def BuildInfo.build
-(self : BuildInfo) [FamilyOut BuildData self.key α] : BuildM α :=
-  buildIndexTop self |>.run
-
-export BuildInfo (build)
-
-/-! ### Lean Executable Builds -/
-
-@[inline] protected def LeanExe.build (self : LeanExe) : BuildM (BuildJob FilePath) :=
-  self.exe.build
-
-@[inline] protected def LeanExeConfig.build (self : LeanExeConfig) : BuildM (BuildJob FilePath) := do
-  (← self.get).build
-
-@[inline] protected def LeanExe.fetch (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
-  self.exe.fetch

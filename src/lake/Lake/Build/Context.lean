@@ -25,12 +25,21 @@ structure BuildConfig where
   trustHash : Bool := true
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
+  verbosity : Verbosity := .normal
+
+abbrev LogIOTask α :=
+  BaseIOTask (EResult Nat Log α)
+
+abbrev JobTask α := LogIOTask α
+
+/-- A Lake job. -/
+structure Job (α : Type u)  where
+  task : JobTask α
 
 /-- A Lake context with a build configuration and additional build data. -/
 structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
-  startedBuilds : IO.Ref Nat
-  finishedBuilds : IO.Ref Nat
+  buildJobs : IO.Ref (Array (String × Job Unit))
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
@@ -56,6 +65,9 @@ abbrev SchedulerM := BuildT <| LogT BaseIO
 /-- The core monad for Lake builds. -/
 abbrev BuildM := BuildT LogIO
 
+/-- The monad of Lake jobs. -/
+abbrev JobM := BuildM
+
 /-- A transformer to equip a monad with a Lake build store. -/
 abbrev BuildStoreT := StateT BuildStore
 
@@ -73,14 +85,6 @@ instance [Pure m] : MonadLift LakeM (BuildT m) where
 
 @[inline] def BuildM.run (ctx : BuildContext) (self : BuildM α) : LogIO α :=
   self ctx
-
-def BuildM.catchFailure (f : Unit → BaseIO α) (self : BuildM α) : SchedulerM α :=
-  fun ctx logMethods => self ctx logMethods |>.catchFailure f
-
-def logStep (message : String) : BuildM Unit := do
-  let done ← (← read).finishedBuilds.get
-  let started ← (← read).startedBuilds.get
-  logInfo s!"[{done}/{started}] {message}"
 
 def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir

@@ -8,43 +8,115 @@ import Lake.Build.Trace
 import Lake.Build.Context
 
 open System
+
 namespace Lake
-
-/-- A Lake job. -/
-abbrev Job α := OptionIOTask α
-
-/-- The monad of Lake jobs. -/
-abbrev JobM := BuildM
-
-/-- The monad of a finished Lake job. -/
-abbrev ResultM := OptionIO
 
 namespace Job
 
-@[inline] def attempt (self : Job α) : Job Bool := do
-  Option.isSome <$> self.run
+@[inline] protected def pure (a : α) : Job α :=
+  {task := Task.pure (.ok a {})}
 
-@[inline] def attempt? (self : Job α) : Job (Option α) := do
-  some <$> self.run
+instance : Pure Job := ⟨Job.pure⟩
+instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 
-@[inline] def nil : Job Unit :=
- pure ()
+@[inline] protected def nop : Job Unit :=
+  pure ()
 
-@[inline] protected def async (act : JobM α) : SchedulerM (Job α) :=
-  async act
+@[inline] protected def error (l : Log) : Job α :=
+  {task := Task.pure (.error 0 l)}
 
-@[inline] protected def await (self : Job α) : ResultM α :=
-  await self
+@[inline] def mapResult (f : EResult Nat Log α → EResult Nat Log β) (self : Job α) : Job β :=
+  {task := self.task.map f}
 
-@[inline] protected def bindSync
-(self : Job α) (f : α → JobM β) (prio := Task.Priority.default) : SchedulerM (Job β) :=
-  bindSync prio self f
+@[inline] protected def map (f : α → β) (self : Job α) : Job β :=
+  self.mapResult (·.map f)
 
-@[inline] protected def bindAsync
-(self : Job α) (f : α → SchedulerM (Job β)) : SchedulerM (Job β)  :=
-  bindAsync self f
+instance : Functor Job where map := Job.map
+
+@[inline] def clearLog (self : Job α) : Job α :=
+  self.mapResult fun
+  | .ok a _ => .ok a {}
+  | .error .. => .error 0 {}
+
+@[inline] def attempt (self : Job α) : Job Bool :=
+  self.mapResult fun
+  | .error n l => .ok false (l.shrink n)
+  | .ok _ l => .ok true l
+
+@[inline] def attempt? (self : Job α) : Job (Option α) :=
+  self.mapResult fun
+  | .error n l => .ok none (l.shrink n)
+  | .ok a l => .ok (some a) l
+
+@[inline] protected def async
+  (act : JobM α) (prio := Task.Priority.default)
+: SchedulerM (Job α) := fun ctx => Job.mk <$> liftM do
+  BaseIO.asTask (act ctx {}) prio
+
+@[inline] protected def await? (self : Job α) : BaseIO (Option α) := do
+  return (← IO.wait self.task).result?
+
+@[inline] protected def await (self : Job α) : LogIO α := do
+  match (← IO.wait self.task) with
+  | .error n l => l.replay; throw n
+  | .ok a l => l.replay; pure a
+
+/--
+`let c ← a.thenJobM b` asynchronously performs the action `b`
+after the job `a` completes.
+-/
+@[inline] protected def thenJobM
+  (self : Job α) (f : α → JobM β)
+  (prio := Task.Priority.default) (sync := false)
+: SchedulerM (Job β) := fun ctx => Job.mk <$> liftM do
+  BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun r=>
+    match (r : EResult Nat Log α) with
+    | .ok a l => f a ctx l
+    | .error n l => return .error n l
+
+@[deprecated Job.thenJobM] protected abbrev bindSync := @Job.thenJobM
+
+/--
+`let c ← a.thenJob b` asynchronously performs the action `b`
+after the job `a` completes and then merges into the job produced by `b`.
+-/
+@[inline] protected def thenJob
+  (self : Job α) (f : α → SchedulerM (Job β))
+  (prio := Task.Priority.default) (sync := false)
+: SchedulerM (Job β) := fun ctx => Job.mk <$> liftM do
+  BaseIO.bindTask self.task (prio := prio) (sync := sync) fun
+    | .ok a l => do
+      let (job, l) ← f a ctx l
+      if l.isEmpty then return job.task else
+      return job.task.map (prio := prio) (sync := true) fun
+      | EResult.ok a l' => .ok a (l ++ l')
+      | EResult.error n l' => .error (l.size + n) (l ++ l')
+    | .error n l => return Task.pure (EResult.error n l)
+
+@[deprecated Job.thenJob] protected abbrev bindAsync := @Job.thenJob
+
+@[inline] def zipWith
+  (f : α → β → γ) (x : Job α) (y : Job β)
+  (prio := Task.Priority.default) (sync := false)
+: BaseIO (Job γ) := Job.mk <$> liftM do
+  BaseIO.bindTask x.task (prio := prio) (sync := true) fun rx =>
+  BaseIO.bindTask y.task (prio := prio) (sync := sync) fun ry =>
+  match rx, ry with
+  | .ok a la, .ok b lb => return Task.pure (EResult.ok (f a b) (la ++ lb))
+  | rx, ry => return Task.pure (EResult.error 0 (rx.state ++ ry.state))
 
 end Job
+
+/-- Register the produced build job for the CLI progress UI.  -/
+@[inline] def withRegisterJob
+  [Monad m] [MonadReaderOf BuildContext m] [MonadLiftT BaseIO m]
+  (caption : String) (x : m (Job α))
+: m (Job α) := do
+  let job ← x
+  let ctx ← read
+  liftM (m := BaseIO) do
+  ctx.buildJobs.modify (·.push (caption, discard job))
+  return job.clearLog
 
 /-- A Lake build job. -/
 abbrev BuildJob α := Job (α × BuildTrace)
@@ -69,14 +141,14 @@ namespace BuildJob
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
 
 @[inline] def attempt (self : BuildJob α) : BuildJob Bool :=
-  mk <| self.toJob.map fun
-    | none => some (false, nilTrace)
-    | some (_, t) => some (true, t)
+  {task := self.toJob.task.map fun
+    | .error _ l => .ok (false, nilTrace) l
+    | .ok (_, t) l => .ok (true, t) l}
 
 @[inline] def attempt? (self : BuildJob α) : BuildJob (Option α) :=
-  mk <| self.toJob.map fun
-    | none => some (none, nilTrace)
-    | some (a, t) => some (some a, t)
+  {task := self.toJob.task.map fun
+    | .error _ l => .ok (none, nilTrace) l
+    | .ok (a, t) l => .ok (some a, t) l}
 
 @[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => (f a,t)) <$> self.toJob
@@ -87,45 +159,40 @@ instance : Functor BuildJob where
 @[inline] def mapWithTrace (f : α → BuildTrace → β × BuildTrace) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => f a t) <$> self.toJob
 
-@[inline] protected def bindSync
+@[inline] protected def thenJobM
 (self : BuildJob α) (f : α → BuildTrace → JobM β)
 (prio : Task.Priority := .default) : SchedulerM (Job β) :=
   self.toJob.bindSync (prio := prio) fun (a, t) => f a t
 
-@[inline] protected def bindAsync
+@[deprecated BuildJob.thenJobM] protected abbrev bindSync := @BuildJob.thenJobM
+
+@[inline] protected def thenJob
 (self : BuildJob α) (f : α → BuildTrace → SchedulerM (Job β)) : SchedulerM (Job β)  :=
   self.toJob.bindAsync fun (a, t) => f a t
 
-@[inline] protected def await (self : BuildJob α) : ResultM α :=
-  (·.1) <$> await self.toJob
+@[deprecated BuildJob.thenJob] protected abbrev bindAsync := @BuildJob.thenJob
 
-instance : Await BuildJob ResultM := ⟨BuildJob.await⟩
-
-@[inline] def materialize (self : BuildJob α) : ResultM Unit :=
-  discard <| await self.toJob
+@[inline] protected def await? (self : BuildJob α) : BaseIO (Option α) :=
+  (·.map (·.1)) <$> self.toJob.await?
 
 def add (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob α) :=
-  mk <$> seqLeftAsync t1.toJob t2.toJob
+  mk <$> t1.toJob.zipWith (fun a _ => a) t2.toJob
 
 def mix (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob Unit) :=
-  mk <$> seqWithAsync (fun (_,t) (_,t') => ((), mixTrace t t')) t1.toJob t2.toJob
+  mk <$> t1.toJob.zipWith (fun (_,t) (_,t') => ((), mixTrace t t')) t2.toJob
 
 def mixList (jobs : List (BuildJob α)) : BaseIO (BuildJob Unit) := ofJob <$> do
-  jobs.foldrM (init := pure nilTrace) fun j a =>
-    seqWithAsync (fun (_,t') t => mixTrace t t') j.toJob a
+  jobs.foldrM (·.toJob.zipWith (fun (_,t') t => mixTrace t t') ·) (pure nilTrace)
 
 def mixArray (jobs : Array (BuildJob α)) : BaseIO (BuildJob Unit) := ofJob <$> do
-  jobs.foldlM (init := pure nilTrace) fun a j =>
-    seqWithAsync (fun t (_,t') => mixTrace t t') a j.toJob
+  jobs.foldlM (·.zipWith (fun t (_,t') => mixTrace t t') ·.toJob) (pure nilTrace)
 
-protected def seqWithAsync
+protected def zipWith
 (f : α → β → γ) (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob γ) :=
-  mk <$> seqWithAsync (fun (a,t) (b,t') => (f a b, mixTrace t t')) t1.toJob t2.toJob
-
-instance : SeqWithAsync BaseIO BuildJob := ⟨BuildJob.seqWithAsync⟩
+  mk <$> t1.toJob.zipWith (fun (a,t) (b,t') => (f a b, mixTrace t t'))  t2.toJob
 
 def collectList (jobs : List (BuildJob α)) : BaseIO (BuildJob (List α)) :=
-  jobs.foldrM (seqWithAsync List.cons) (pure [])
+  jobs.foldrM (BuildJob.zipWith List.cons) (pure [])
 
 def collectArray (jobs : Array (BuildJob α)) : BaseIO (BuildJob (Array α)) :=
-  jobs.foldlM (seqWithAsync Array.push) (pure #[])
+  jobs.foldlM (BuildJob.zipWith Array.push) (pure #[])

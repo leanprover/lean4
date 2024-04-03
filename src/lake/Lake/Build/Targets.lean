@@ -3,7 +3,7 @@ Copyright (c) 2023 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Monad
+import Lake.Config.Monad
 
 /-! # Build Target Fetching
 Utilities for fetching package, library, module, and executable targets and facets.

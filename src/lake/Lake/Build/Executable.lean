@@ -12,7 +12,8 @@ The build function definition for a Lean executable.
 -/
 
 protected def LeanExe.recBuildExe
-(self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
+(self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
+  withRegisterJob s!"Linking {self.fileName}" do
   let imports ← self.root.transImports.fetch
   let mut linkJobs := #[← self.root.o.fetch]
   for mod in imports do for facet in mod.nativeFacets self.supportInterpreter do

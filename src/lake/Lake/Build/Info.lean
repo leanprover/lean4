@@ -282,6 +282,9 @@ abbrev LeanLib.extraDep (self : LeanLib) : BuildInfo :=
 abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   .leanExe self
 
+@[inline] protected def LeanExe.fetch (self : LeanExe) :   IndexBuildM (BuildJob FilePath) :=
+  self.exe.fetch
+
 /-- Build info of the external library's static binary. -/
 abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
   .staticExternLib self

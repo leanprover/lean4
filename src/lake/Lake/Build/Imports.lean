@@ -37,18 +37,23 @@ Builds an `Array` of module imports. Used by `lake setup-file` to build modules
 for the Lean server and by `lake lean` to build the imports of a file.
 Returns the set of module dynlibs built (so they can be loaded by Lean).
 -/
-def buildImportsAndDeps (imports : Array Module) : BuildM (Array FilePath) := do
-  let ws ← getWorkspace
+def buildImportsAndDeps (imports : Array Module) : IndexBuildM (BuildJob (Array FilePath)) := do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
-    ws.root.extraDep.build >>= (·.materialize)
-    return #[]
+    (← getRootPackage).extraDep.fetch <&> (·.map fun _ => #[])
   else
     -- build local imports from list
     let (modJobs, precompileJobs, externLibJobs) ←
-      recBuildImports imports |>.run.run
-    modJobs.forM (·.await)
-    let modLibs ← precompileJobs.mapM (·.await <&> (·.path))
-    let externLibs ← externLibJobs.mapM (·.await <&> (·.path))
-    -- NOTE: Lean wants the external library symbols before module symbols
-    return externLibs ++ modLibs
+      recBuildImports imports
+    let modJob ← BuildJob.mixArray modJobs
+    let precompileJob ← BuildJob.collectArray precompileJobs
+    let externLibJob ← BuildJob.collectArray externLibJobs
+    let job ←
+      modJob.bindAsync fun _ modTrace =>
+      precompileJob.bindAsync fun modLibs modLibTrace =>
+      externLibJob.bindSync fun externLibs externTrace => do
+        -- NOTE: Lean wants the external library symbols before module symbols
+        let libs := (externLibs ++ modLibs).map (·.path)
+        let trace := modTrace.mix modLibTrace |>.mix externTrace
+        return (libs, trace)
+    return job

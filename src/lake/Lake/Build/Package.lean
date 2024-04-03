@@ -46,10 +46,11 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
-  mkFacetJobConfigSmall Package.recBuildExtraDepTargets
+  mkFacetJobConfig Package.recBuildExtraDepTargets
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do
+def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) :=
+  withRegisterJob "Fetching {self.name} cloud release" <| Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
@@ -63,11 +64,11 @@ def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.as
   let depTrace := Hash.ofString url
   let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
   let upToDate ← buildUnlessUpToDate' self.buildArchiveFile depTrace traceFile do
-    logStep s!"Downloading {self.name} cloud release"
-    download logName url self.buildArchiveFile
+    logVerbose s!"downloading {logName}"
+    download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do
-    logStep s!"Unpacking {self.name} cloud release"
-    untar logName self.buildArchiveFile self.buildDir
+    logVerbose s!"unpacking {logName}"
+    untar self.buildArchiveFile self.buildDir
   return ((), .nil)
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
@@ -82,7 +83,7 @@ def Package.afterReleaseAsync (self : Package) (build : SchedulerM (Job α)) : I
     build
 
 /-- Perform a build after first checking for a cloud release for the package. -/
-def Package.afterReleaseSync (self : Package) (build : BuildM α) : IndexBuildM (Job α) := do
+def Package.afterReleaseSync (self : Package) (build : JobM α) : IndexBuildM (Job α) := do
   if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
     (← self.release.fetch).bindSync fun _ _ => build
   else

@@ -49,10 +49,12 @@ protected def LeanLib.recBuildLean
 
 /-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
 def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
-  mkFacetJobConfigSmall LeanLib.recBuildLean
+  mkFacetJobConfig LeanLib.recBuildLean
 
 @[specialize] protected def LeanLib.recBuildStatic
 (self : LeanLib) (shouldExport : Bool) : IndexBuildM (BuildJob FilePath) := do
+  let exports := if shouldExport then "w/ exports" else "w/o exports"
+  withRegisterJob s!"Building {self.staticLibFileName} ({exports})" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -72,6 +74,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 
 protected def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
+  withRegisterJob s!"Linking {self.sharedLibFileName}" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -92,7 +95,7 @@ def LeanLib.recBuildExtraDepTargets (self : LeanLib) : IndexBuildM (BuildJob Uni
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
-  mkFacetJobConfigSmall LeanLib.recBuildExtraDepTargets
+  mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
 open LeanLib in
 /--

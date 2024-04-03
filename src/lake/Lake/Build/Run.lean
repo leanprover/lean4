@@ -3,20 +3,17 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 -/
-import Lake.Config.Monad
-import Lake.Build.Context
-import Lake.Util.EStateT
+import Lake.Build.Index
 
 open System
 
 namespace Lake
 
-def mkBuildContext (ws : Workspace) (config : BuildConfig) : IO BuildContext := do
+def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
   return {
     opaqueWs := ws,
     toBuildConfig := config,
-    startedBuilds := ← IO.mkRef 0
-    finishedBuilds := ← IO.mkRef 0,
+    buildJobs := ← IO.mkRef #[],
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
@@ -31,7 +28,7 @@ Run the recursive build in the given build store.
 If a cycle is encountered, log it and then fail.
 -/
 @[inline] def RecBuildM.runIn (store : BuildStore) (build : RecBuildM α) : BuildM (α × BuildStore) := do
-  let (res, store) ← EStateT.run store <| ReaderT.run build []
+  let (res, store) ← (build []).run.run store
   return (← failOnBuildCycle res, store)
 
 /--
@@ -85,9 +82,42 @@ def lockFileName : String :=
 @[inline] def Workspace.lockFile (self : Workspace) : FilePath :=
   self.root.buildDir / lockFileName
 
-/-- Run the given build function in the Workspace's context. -/
-@[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (config : BuildConfig := {}) : LogIO α := do
-  let ctx ← mkBuildContext ws config
+def monitorBuildJobs
+  (build : BuildM α) (out : IO.FS.Stream)
+: BuildT IO (Option α) := fun ctx => do
+  print "[?/?] Computing build jobs"
+  let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run ctx).captureLog
+  if io.isEmpty && log.isEmpty then
+    resetLine
+  else
+    print "\n"
+    unless log.isEmpty do
+      log.replay (logger := MonadLog.stream out ctx.verbosity)
+    unless io.isEmpty do
+      out.putStr "stdout/stderr:\n"
+      out.putStr io
+  let jobs ← ctx.buildJobs.get
+  let numJobs := jobs.size
+  numJobs.forM fun i => do
+    let (caption, job) := jobs[i]!
+    print s!"[{i+1}/{numJobs}] {caption}"
+    let log := (← IO.wait job.task).state
+    if log.isEmpty then
+      resetLine
+    else
+      print "\n"
+      log.replay (logger := MonadLog.stream out ctx.verbosity)
+  return a?
+where
+  print s := out.putStr s
+  resetLine := print "\n" --"\x1B[2K\r"
+
+/-- Run a build function in the Workspace's context. -/
+@[inline] def Workspace.runBuildM
+  (ws : Workspace) (build : BuildM α)
+  (cfg : BuildConfig := {}) (useStdout := false)
+: IO (Option α) := do
+  let ctx ← mkBuildContext ws cfg
   /-
   TODO:
   The lock file has been temporarily disabled (by lean4#2445)
@@ -95,8 +125,21 @@ def lockFileName : String :=
   Absent this, the lock file was too disruptive for users.
   -/
   -- withLockFile ws.lockFile do
-  build.run ctx
+  let out ← if useStdout then IO.getStdout else IO.getStderr
+  (monitorBuildJobs build out).run ctx
 
-/-- Run the given build function in the Lake monad's workspace. -/
-@[inline] def runBuild (build : BuildM α) (config : BuildConfig := {}) : LakeT LogIO α := do
-  (← getWorkspace).runBuild build config
+/-- Run a build function in the Workspace's context and await the result. -/
+@[inline] def Workspace.runBuild
+  (ws : Workspace) (build : IndexBuildM (BuildJob α))
+  (cfg : BuildConfig := {}) (useStdout := false)
+: LogIO α := do
+  let some job ← ws.runBuildM build.run.run cfg useStdout | error "build failed"
+  let some a ← job.await? | error "build failed"
+  return a
+
+/-- Produce a build job in the  Lake monad's workspace and await the result. -/
+@[inline] def runBuild
+  (build : IndexBuildM (BuildJob α))
+  (cfg : BuildConfig := {}) (useStdout := false)
+: LakeT LogIO α := do
+  (← getWorkspace).runBuild build cfg useStdout

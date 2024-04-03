@@ -24,25 +24,11 @@ protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := none
 
-/--
-A smart constructor for facet configurations that generate jobs for the CLI.
-This is for small jobs that do not the increase the progress counter.
--/
-@[inline] def mkFacetJobConfigSmall (build : ι → IndexBuildM (BuildJob α))
+/-- A smart constructor for facet configurations that generate jobs for the CLI. -/
+@[inline] def mkFacetJobConfig (build : ι → IndexBuildM (BuildJob α))
 [h : FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some fun data => discard <| ofFamily data
-
-/-- A smart constructor for facet configurations that generate jobs for the CLI.  -/
-@[inline] def mkFacetJobConfig (build : ι → IndexBuildM (BuildJob α))
-[FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet :=
-  mkFacetJobConfigSmall fun i => do
-    let ctx ← readThe BuildContext
-    ctx.startedBuilds.modify (·+1)
-    let job ← build i
-    job.bindSync (prio := .default + 1) fun a trace => do
-      ctx.finishedBuilds.modify (·+1)
-      return (a, trace)
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

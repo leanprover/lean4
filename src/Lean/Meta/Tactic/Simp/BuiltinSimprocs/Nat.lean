@@ -77,18 +77,45 @@ private inductive NatOffset where
   | offset (e o : Expr) (n : Nat)
 
 /- Attempt to parse a `NatOffset` from an expression-/
-private def NatOffset.fromExpr? (e : Expr) : Meta.SimpM (Option NatOffset) := do
-  match ← Nat.fromExpr? e with
-  | some n => pure (some (.const n))
-  | none =>
-    unless e.isAppOfArity ``HAdd.hAdd 6 do return none
+private partial def NatOffset.asOffset (e : Expr) : Meta.SimpM (Option (Expr × Nat)) := do
+  if e.isAppOfArity ``HAdd.hAdd 6 then
     let inst := e.appFn!.appFn!.appArg!
     unless inst.isAppOfArity ``instHAdd 2 do return none
     unless inst.appArg!.isAppOfArity ``instAddNat 0 do return none
     let b := e.appFn!.appArg!
     let o := e.appArg!
     let some n ← Nat.fromExpr? o | return none
-    pure (some (.offset b o n))
+    pure (some (b, n))
+  else if e.isAppOfArity ``Add.add 4 then
+    let inst := e.appFn!.appFn!.appArg!
+    unless inst.isAppOfArity ``instAddNat 0 do return none
+    let b := e.appFn!.appArg!
+    let some n ← Nat.fromExpr? e.appArg! | return none
+    pure (some (b, n))
+  else if e.isAppOfArity ``Nat.add 2 then
+    let b := e.appFn!.appArg!
+    let some n ← Nat.fromExpr? e.appArg! | return none
+    pure (some (b, n))
+  else if e.isAppOfArity ``Nat.succ 1 then
+    let b := e.appArg!
+    pure (some (b, 1))
+  else
+    pure none
+
+/- Attempt to parse a `NatOffset` from an expression-/
+private partial def NatOffset.fromExprAux (e : Expr) (inc : Nat) : Meta.SimpM (Option NatOffset) := do
+  let e := e.consumeMData
+  match ← asOffset e with
+  | some (b, o) =>
+    fromExprAux b (inc + o)
+  | none =>
+    return if inc != 0 then some (.offset e (toExpr inc) inc) else none
+
+/- Attempt to parse a `NatOffset` from an expression-/
+private def NatOffset.fromExpr? (e : Expr) : Meta.SimpM (Option NatOffset) := do
+  match ← Nat.fromExpr? e with
+  | some n => pure (some (.const n))
+  | none => fromExprAux e 0
 
 private def mkAddNat (x y : Expr) : Expr :=
   let lz := levelZero
@@ -120,6 +147,11 @@ private def mkOfDecideEqTrue (p : Expr) : MetaM Expr := do
   let d ← Meta.mkDecide p
   pure <| mkAppN (mkConst ``of_decide_eq_true) #[p, d.appArg!, (← Meta.mkEqRefl (mkConst ``true))]
 
+def applySimprocConst (expr : Expr) (nm : Name) (args : Array Expr) : SimpM Step := do
+  unless (← getEnv).contains nm do return .continue
+  let finProof := mkAppN (mkConst nm) args
+  return .visit { expr, proof? := finProof, cache := true }
+
 builtin_simproc [simp, seval] reduceEqDiff ((_ : Nat) = _) := fun e => do
   unless e.isAppOfArity ``Eq 3 do
     return .continue
@@ -132,49 +164,67 @@ builtin_simproc [simp, seval] reduceEqDiff ((_ : Nat) = _) := fun e => do
     Meta.Simp.evalPropStep e (xn = yn)
   | .offset xb xo xn, .const yn => do
     if xn ≤ yn then
-      unless (← getEnv).contains ``Nat.Simproc.add_eq_le do return .continue
-      let leProp := mkLENat xo y
-      let leProof ← mkOfDecideEqTrue leProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_eq_le) #[xb, xo, y, leProof]
       let finExpr := mkEqNat xb (toExpr (yn - xn))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
+      applySimprocConst finExpr ``Nat.Simproc.add_eq_le #[xb, xo, y, leProof]
     else
-      unless (← getEnv).contains ``Nat.Simproc.add_eq_gt do return .continue
-      let gtProp := mkGTNat xo y
-      let gtProof ← mkOfDecideEqTrue gtProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_eq_gt) #[xb, xo, y, gtProof]
       let finExpr := mkConst ``False
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
+      applySimprocConst finExpr ``Nat.Simproc.add_eq_gt  #[xb, xo, y, gtProof]
   | .const xn, .offset yb yo yn => do
     if yn ≤ xn then
-      unless (← getEnv).contains ``Nat.Simproc.eq_add_le do return .continue
-      let leProp := mkLENat yo x
-      let leProof ← mkOfDecideEqTrue leProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.eq_add_le) #[x, yb, yo, leProof]
       let finExpr := mkEqNat yb (toExpr (xn - yn))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let leProof ← mkOfDecideEqTrue (mkLENat yo x)
+      applySimprocConst finExpr ``Nat.Simproc.eq_add_le  #[x, yb, yo, leProof]
     else
-      unless (← getEnv).contains ``Nat.Simproc.eq_add_gt do return .continue
-      let gtProp := mkGTNat yo x
-      let gtProof ← mkOfDecideEqTrue gtProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.eq_add_gt) #[x, yb, yo, gtProof]
       let finExpr := mkConst ``False
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let gtProof ← mkOfDecideEqTrue (mkGTNat yo x)
+      applySimprocConst finExpr ``Nat.Simproc.eq_add_gt #[x, yb, yo, gtProof]
   | .offset xb xo xn, .offset yb yo yn => do
     if xn ≤ yn then
-      unless (← getEnv).contains ``Nat.Simproc.add_eq_add_le do return .continue
-      let leProp := mkLENat xo yo
-      let leProof ← mkOfDecideEqTrue leProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_eq_add_le) #[xb, yb, xo, yo, leProof]
       let finExpr := mkEqNat xb (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
+      applySimprocConst finExpr ``Nat.Simproc.add_eq_add_le #[xb, yb, xo, yo, leProof]
     else
-      unless (← getEnv).contains ``Nat.Simproc.add_eq_add_ge do return .continue
-      let geProp := mkGENat xo yo
-      let geProof ← mkOfDecideEqTrue geProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_eq_add_ge) #[xb, yb, xo, yo, geProof]
       let finExpr := mkEqNat (mkAddNat xb (toExpr (xn - yn))) yb
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
+      applySimprocConst finExpr ``Nat.Simproc.add_eq_add_ge #[xb, yb, xo, yo, geProof]
+
+builtin_simproc [simp, seval] reduceLeDiff ((_ : Nat) ≤ _) := fun e => do
+  unless e.isAppOfArity ``LE.le 4 do
+    return .continue
+  let x := e.appFn!.appArg!
+  let some xno ← NatOffset.fromExpr? x | return .continue
+  let y := e.appArg!
+  let some yno ← NatOffset.fromExpr? y | return .continue
+  match xno, yno with
+  | .const xn, .const yn =>
+    Meta.Simp.evalPropStep e (xn ≤ yn)
+  | .offset xb xo xn, .const yn => do
+    if xn ≤ yn then
+      let finExpr := mkLENat xb (toExpr (yn - xn))
+      let leProof ← mkOfDecideEqTrue (mkLENat xo y)
+      applySimprocConst finExpr ``Nat.Simproc.add_le_le #[xb, xo, y, leProof]
+    else
+      let gtProof ← mkOfDecideEqTrue (mkGTNat xo y)
+      applySimprocConst (mkConst ``False) ``Nat.Simproc.add_le_gt #[xb, xo, y, gtProof]
+  | .const xn, .offset yb yo yn => do
+    if xn ≤ yn then
+      let leProof ← mkOfDecideEqTrue (mkLENat x yo)
+      applySimprocConst (mkConst ``True) ``Nat.Simproc.le_add_le #[x, yb, yo, leProof]
+    else
+      let finExpr := mkLENat (toExpr (xn - yn)) yb
+      let geProof ← mkOfDecideEqTrue (mkGENat yo x)
+      applySimprocConst finExpr ``Nat.Simproc.le_add_ge #[x, yb, yo, geProof]
+  | .offset xb xo xn, .offset yb yo yn => do
+    if xn ≤ yn then
+      let finExpr := mkLENat xb (if xn = yn then yb else mkAddNat yb (toExpr (yn - xn)))
+      let leProof ← mkOfDecideEqTrue (mkLENat xo yo)
+      applySimprocConst finExpr ``Nat.Simproc.add_le_add_le  #[xb, yb, xo, yo, leProof]
+    else
+      let finExpr := mkLENat (mkAddNat xb (toExpr (xn - yn))) yb
+      let geProof ← mkOfDecideEqTrue (mkGENat xo yo)
+      applySimprocConst finExpr ``Nat.Simproc.add_le_add_ge  #[xb, yb, xo, yo, geProof]
 
 builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
   unless e.isAppOfArity ``HSub.hSub 6 do
@@ -191,38 +241,24 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
     return .done  { expr := finExpr, proof? := finProof, cache := true }
   | .offset pb po pn, .const n => do
     if pn ≤ n then
-      let leProp := mkLENat po q
-      let leProof ← mkOfDecideEqTrue leProp
-      unless (← getEnv).contains ``Nat.Simproc.add_sub_le do return .continue
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_sub_le) #[pb, po, q, leProof]
       let finExpr := if pn = n then pb else mkSubNat pb (toExpr (n - pn))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let leProof ← mkOfDecideEqTrue (mkLENat po q)
+      applySimprocConst finExpr ``Nat.Simproc.add_sub_le  #[pb, po, q, leProof]
     else
-      let geProp := mkGENat po q
-      let geProof ← mkOfDecideEqTrue geProp
-      unless (← getEnv).contains ``Nat.add_sub_assoc do return .continue
-      let finProof : Expr := mkAppN (mkConst ``Nat.add_sub_assoc) #[po, q, geProof, pb]
       let finExpr := mkAddNat pb (toExpr (pn - n))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let geProof ← mkOfDecideEqTrue (mkGENat po q)
+      applySimprocConst finExpr ``Nat.add_sub_assoc #[po, q, geProof, pb]
   | .const po, .offset nb no nn => do
-      unless (← getEnv).contains ``Nat.Simproc.sub_add_eq_comm do return .continue
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.sub_add_eq_comm) #[p, nb, no]
       let finExpr := mkSubNat (toExpr (po - nn)) nb
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      applySimprocConst finExpr ``Nat.Simproc.sub_add_eq_comm #[p, nb, no]
   | .offset pb po pn, .offset nb no nn => do
     if pn ≤ nn then
-      unless (← getEnv).contains ``Nat.Simproc.add_sub_add_le do return .continue
-      let leProp := mkLENat po no
-      let leProof ← mkOfDecideEqTrue leProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_sub_add_le) #[pb, nb, po, no, leProof]
       let finExpr := mkSubNat pb (if pn = nn then nb else mkAddNat nb (toExpr (nn - pn)))
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let leProof ← mkOfDecideEqTrue (mkLENat po no)
+      applySimprocConst finExpr ``Nat.Simproc.add_sub_add_le #[pb, nb, po, no, leProof]
     else
-      unless (← getEnv).contains ``Nat.Simproc.add_sub_add_ge do return .continue
-      let geProp := mkGENat po no
-      let geProof ← mkOfDecideEqTrue geProp
-      let finProof : Expr := mkAppN (mkConst ``Nat.Simproc.add_sub_add_ge) #[pb, nb, po, no, geProof]
       let finExpr := mkSubNat (mkAddNat pb (toExpr (pn - nn))) nb
-      return .visit { expr := finExpr, proof? := finProof, cache := true }
+      let geProof ← mkOfDecideEqTrue (mkGENat po no)
+      applySimprocConst finExpr ``Nat.Simproc.add_sub_add_ge #[pb, nb, po, no, geProof]
 
 end Nat

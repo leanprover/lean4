@@ -5,6 +5,7 @@ Authors: Joe Hendrix
 -/
 prelude
 import Init.Data.Nat.Basic
+import Init.Data.Nat.Lemmas
 
 /-!
 This contains lemmas used by the Nat simprocs for simplifying arithmetic
@@ -59,5 +60,28 @@ theorem add_eq_le (a : Nat) {b c : Nat} (h : b ≤ c) : (a + b = c) = (a = c - b
 theorem eq_add_le {a : Nat} (b : Nat) {c : Nat} (h : c ≤ a) : (a = b + c) = (b = a - c) := by
   rw [@Eq.comm Nat a (b + c)]
   exact add_eq_le b h
+
+theorem add_le_add_le (a c : Nat) {b d : Nat} (h : b ≤ d) : (a + b ≤ c + d) = (a ≤ c + (d - b)) := by
+  rw [← Nat.add_sub_assoc h, Nat.le_sub_iff_add_le]
+  exact Nat.le_trans h (le_add_left d c)
+
+theorem add_le_add_ge (a c : Nat) {b d : Nat} (h : b ≥ d) : (a + b ≤ c + d) = (a + (b - d) ≤ c) := by
+  rw [← Nat.add_sub_assoc h, Nat.sub_le_iff_le_add]
+
+theorem add_le_le (a : Nat) {b c : Nat} (h : b ≤ c) : (a + b ≤ c) = (a ≤ c - b) := by
+  have r := add_le_add_le a 0 h
+  simp only [Nat.zero_add] at r
+  exact r
+
+theorem add_le_gt (a : Nat) {b c : Nat} (h : b > c) : (a + b ≤ c) = False :=
+  eq_false (Nat.not_le_of_gt (Nat.lt_of_lt_of_le h (le_add_left b a)))
+
+theorem le_add_le (a : Nat) {b c : Nat} (h : a ≤ c) : (a ≤ b + c) = True :=
+  eq_true (Nat.le_trans h (le_add_left c b))
+
+theorem le_add_ge (a : Nat) {b c : Nat} (h : a ≥ c) : (a ≤ b + c) = (a - c ≤ b) := by
+  have r := add_le_add_ge 0 b h
+  simp only [Nat.zero_add] at r
+  exact r
 
 end Nat.Simproc

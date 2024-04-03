@@ -138,7 +138,6 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
         addDeclarationRanges declName view.ref
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-          withTraceNode `Elab.header (fun _ => pure view.ref) do
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
             let mut type ← match view.type? with
@@ -258,9 +257,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       for i in [0:header.binderIds.size] do
         -- skip auto-bound prefix in `xs`
         addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
-      let val ←
-        withTraceNode (if valStx.isOfKind ``Parser.Term.byTactic then `Elab.tacticBody else `Elab.body) (fun _ => pure valStx) do
-          elabTermEnsuringType valStx type <* Term.synthesizeSyntheticMVarsNoPostponing
+      let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
@@ -810,6 +807,7 @@ where
       let values ←
         try
           let values ← elabFunValues headers
+          Term.synthesizeSyntheticMVarsNoPostponing
           values.mapM (instantiateMVars ·)
         catch ex =>
           logException ex

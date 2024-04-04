@@ -8,3 +8,9 @@
 #eval "αβcc".mkIterator.next.next.pos
 #eval "αβcc".mkIterator.next.setCurr 'a'
 #eval "αβcd".mkIterator.toEnd.pos
+
+#eval "012".splitOn "12"
+#eval "007".splitOn "07"
+#eval "ababcab".splitOn "abc"
+#eval "αbαbcαbcαααbcα".splitOn "αb"
+#eval "αbαbcαbcαααbcα".splitOn "αbcα"

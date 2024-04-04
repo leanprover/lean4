@@ -246,11 +246,10 @@ termination_by s.endPos.1 - i.1
   splitAux s p 0 0 []
 
 def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) : List String :=
-  if h : s.atEnd i then
+  if s.atEnd i then
     let r := (s.extract b i)::r
     r.reverse
   else
-    have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
     if s.get i == sep.get j then
       let i := s.next i
       let j := sep.next j
@@ -259,8 +258,28 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
       else
         splitOnAux s sep b i j r
     else
-      splitOnAux s sep b (s.next i) 0 r
-termination_by s.endPos.1 - i.1
+      splitOnAux s sep b (s.next (i - j)) 0 r
+termination_by (s.endPos.1 - (i - j).1, sep.endPos.1 - j.1)
+decreasing_by
+  all_goals simp_wf
+  focus
+    rename_i h _ _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (lt_next s _))
+  focus
+    rename_i i₀ j₀ _ eq h'
+    rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
+      show (_ + csize _) - (_ + csize _) = _
+      rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
+    right; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
+      (lt_next sep _)
+  focus
+    rename_i h _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (lt_next s _)
 
 def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []

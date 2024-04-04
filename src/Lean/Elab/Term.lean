@@ -256,7 +256,7 @@ structure Context where
   Invariant: if the bundle's `old?` is set, then the state *up to the start* of the tactic is
   unchanged, i.e. reuse is possible.
   -/
-  tacSnap?         : Option (Language.SyntaxGuardedSnapshotBundle Tactic.TacticParsedSnapshot) := none
+  tacSnap?         : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot) := none
   /--
   If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
   of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.

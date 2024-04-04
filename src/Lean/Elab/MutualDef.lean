@@ -30,7 +30,7 @@ structure DefViewElabHeader extends DefView, DefViewElabHeaderData where
   Invariant: if the bundle's `old?` is set, then the state *up to the start* of the tactic block is
   unchanged, i.e. reuse is possible.
   -/
-  tacSnap? : Option (Language.SyntaxGuardedSnapshotBundle Tactic.TacticParsedSnapshot)
+  tacSnap? : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot)
   /--
   Snapshot for incremental processing of definition body.
 
@@ -142,7 +142,7 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
       if let some snap := view.headerSnap? then
         -- by the `DefView.headerSnap?` invariant, safe to reuse results at this point, so let's
         -- wait for them!
-        if let some old := snap.old?.bind (·.get) then
+        if let some old := snap.old?.bind (·.val.get) then
           old.state.restoreFull
           -- definitely resolved in `finally` of `elabMutualDef`
           let (newTac?, tacStx?, newTacTask?) ← mkTacPromiseAndSnap view.value
@@ -170,7 +170,8 @@ private def elabHeaders (views : Array DefView) (headersRef : IO.Ref (Array DefV
               new := ·
             })
             bodySnap? := some {
-              old? := guard reuseBody *> old.bodySnap
+              -- no syntax guard to store, we already did the necessary checks
+              old? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
               new := newBody
             }
           })
@@ -342,7 +343,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       if let some old := snap.old? then
         -- guaranteed reusable as by the `bodySnap?` invariant, so let's wait on the previous
         -- elaboration
-        if let some old := old.get then
+        if let some old := old.val.get then
           old.state.restoreFull
           snap.new.resolve <| some old
           -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
@@ -988,10 +989,11 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
             -- unchanged.
             let old ← snap.old?
             -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
-            let old ← old.get.toTyped? DefsParsedSnapshot
+            let old ← old.val.get.toTyped? DefsParsedSnapshot
             let oldParsed ← old.defs[i]?
             guard <| (← headerSubstr?).sameAs (← oldParsed.headerSubstr?)
-            oldParsed.headerProcessedSnap
+            -- no syntax guard to store, we already did the necessary checks
+            return ⟨.missing, oldParsed.headerProcessedSnap⟩
           new
         } }
         defs := defs.push {

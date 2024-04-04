@@ -452,7 +452,7 @@ where
       let headers ← IO.Promise.new
       let finishedSnap ←
         doElab stx cmdState msgLog.hasErrors beginPos
-          { old? := old?.map (·.data.elabSnap), new := headers } ctx
+          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := headers } ctx
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command

@@ -132,6 +132,15 @@ def SnapshotTask.get? (t : SnapshotTask α) : BaseIO (Option α) :=
   return if (← IO.hasFinished t.task) then some t.task.get else none
 
 /--
+Arbitrary value paired with a syntax that should be inspected when considering the value for reuse.
+-/
+structure SyntaxGuarded (α : Type) where
+  /-- Syntax to be inspected for reuse. -/
+  stx : Syntax
+  /-- Potentially reusable value. -/
+  val : α
+
+/--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
 checking if we can reuse `old?` if set or else redoing the corresponding elaboration step. In either
@@ -146,10 +155,10 @@ hashes but the promise will still need to be passed through the elaborator.
 -/
 structure SnapshotBundle (α : Type) where
   /--
-  Snapshot task of corresponding elaboration in previous document version if any.  Should be set to
-  `none` as soon as reuse can be ruled out.
+  Snapshot task of corresponding elaboration in previous document version if any, paired with its
+  old syntax to be considered for reuse. Should be set to `none` as soon as reuse can be ruled out.
   -/
-  old? : Option (SnapshotTask α)
+  old? : Option (SyntaxGuarded (SnapshotTask α))
   /--
   Promise of snapshot value for the current document. When resolved, the language server will
   report its result even before the current elaborator invocation has finished.
@@ -213,28 +222,6 @@ def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : Dynam
 def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
     Option α :=
   snap.val.get? α
-
-/--
-Arbitrary value paired with a syntax that should be inspected when considering the value for reuse.
--/
-structure SyntaxGuarded (α : Type) where
-  /-- Syntax to be inspected for reuse. -/
-  stx : Syntax
-  /-- Potentially reusable value. -/
-  val : α
-
-/-- `SnapshotBundle` with `SyntaxGuarded` old value. -/
-structure SyntaxGuardedSnapshotBundle (α : Type) where
-  /--
-  Snapshot task of corresponding elaboration in previous document version if any, paired with
-  its old syntax to be considered for reuse.
-  -/
-  old? : Option (SyntaxGuarded <| SnapshotTask α)
-  /--
-  Promise of snapshot value for the current document. When resolved, the language server will
-  report its result even before the current elaborator invocation has finished.
-  -/
-  new  : IO.Promise α
 
 /--
   Option for printing end position of each message in addition to start position. Used for testing

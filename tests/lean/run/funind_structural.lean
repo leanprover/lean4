@@ -67,7 +67,7 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
   case case3 =>
     simp [zip, *]
     simp [Nat.min_def]
-    split<;>split<;> omega
+    split <;> omega
 
 theorem zip_get?  {α β} (as : List α) (bs : List β) :
     (List.zip as bs).get? i = match as.get? i, bs.get? i with

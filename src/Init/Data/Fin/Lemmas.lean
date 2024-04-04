@@ -541,7 +541,7 @@ theorem pred_mk {n : Nat} (i : Nat) (h : i < n + 1) (w) : Fin.pred ⟨i, h⟩ w 
     ∀ {a b : Fin (n + 1)} {ha : a ≠ 0} {hb : b ≠ 0}, a.pred ha = b.pred hb ↔ a = b
   | ⟨0, _⟩, _, ha, _ => by simp only [mk_zero, ne_eq, not_true] at ha
   | ⟨i + 1, _⟩, ⟨0, _⟩, _, hb => by simp only [mk_zero, ne_eq, not_true] at hb
-  | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [ext_iff]
+  | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [ext_iff, Nat.succ.injEq]
 
 @[simp] theorem pred_one {n : Nat} :
     Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := rfl
@@ -683,6 +683,7 @@ and `cast` defines the inductive step using `motive i.succ`, inducting downwards
 termination_by n + 1 - i
 decreasing_by decreasing_with
   -- FIXME: we put the proof down here to avoid getting a dummy `have` in the definition
+  try simp only [Nat.succ_sub_succ_eq_sub]
   exact Nat.add_sub_add_right .. ▸ Nat.sub_lt_sub_left i.2 (Nat.lt_succ_self i)
 
 @[simp] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :

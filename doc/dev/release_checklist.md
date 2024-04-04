@@ -21,7 +21,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - Reconcile discrepancies in the `v4.6.0` section,
     usually via copy and paste and a commit to `releases/v4.6.0`.
 - `git tag v4.6.0`
-- `git push origin v4.6.0`
+- `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository
 - Now wait, while CI runs.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`,
     looking for the `v4.6.0` tag.
@@ -34,48 +34,77 @@ We'll use `v4.6.0` as the intended release version as a running example.
     (e.g. `v4.6.0-rc1`), and quickly sanity check.
 - Next, we will move a curated list of downstream repos to the latest stable release.
   - For each of the repositories listed below:
-    - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`.
-      The PR title should be "chore: bump toolchain to v4.6.0".
-      Since the `v4.6.0` release should be functionally identical to the last release candidate,
-      which the repository should already be on, this PR is a no-op besides changing the toolchain.
-    - Once this is merged, create the tag `v4.6.0` from `master`/`main` and push it.
-    - Merge the tag `v4.6.0` into the stable branch.
+    - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`
+      - Update the toolchain file
+      - In the Lakefile, if there are dependencies on specific version tags of dependencies that you've already pushed as part of this process, update them to the new tag.
+        If they depend on `main` or `master`, don't change this; you've just updated the dependency, so it will work and be saved in the manifest
+      - Run `lake update`
+      - The PR title should be "chore: bump toolchain to v4.6.0".
+      - Since the `v4.6.0` release should be functionally identical to the last release candidate, which the repository should already be on, this PR is a no-op besides changing the toolchain, the Lakefile, and the manifest
+    - Merge the PR once CI completes.
+    - Create the tag `v4.6.0` from `master`/`main` and push it.
+    - Merge the tag `v4.6.0` into the `stable` branch and push it.
   - We do this for the repositories:
     - [lean4checker](https://github.com/leanprover/lean4checker)
-      - `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
-    - [Std](https://github.com/leanprover-community/repl)
+      - No dependencies
+      - Note: `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
+      - Toolchain bump PR
+      - Create and push the tag
+      - Merge the tag into `stable`
+    - [Std](https://github.com/leanprover-community/std4)
+      - No dependencies
+      - Toolchain bump PR
+      - Create and push the tag
+      - Merge the tag into `stable`
     - [ProofWidgets4](https://github.com/leanprover-community/ProofWidgets4)
-      - `ProofWidgets` uses a sequential version tagging scheme, e.g. `v0.0.29`,
-        which does not refer to the toolchain being used.
-      - Make a new release in this sequence after merging the toolchain bump PR.
-      - `ProofWidgets` does not maintain a `stable` branch.
+      - Dependencies: `Std`
+      - Note on versions and branches:
+        - `ProofWidgets` uses a sequential version tagging scheme, e.g. `v0.0.29`,
+          which does not refer to the toolchain being used.
+        - Make a new release in this sequence after merging the toolchain bump PR.
+        - `ProofWidgets` does not maintain a `stable` branch.
+      - Toolchain bump PR
+      - Create and push the tag, following the version convention of the repository
     - [Aesop](https://github.com/leanprover-community/aesop)
+      - Dependencies: `Std`
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - Merge the tag into `stable`
+    - [doc-gen4](https://github.com/leanprover/doc-gen4)
+      - Dependencies: exist, but they're not part of the release workflow
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [import-graph](https://github.com/leanprover-community/import-graph)
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
     - [Mathlib](https://github.com/leanprover-community/mathlib4)
-      - In addition to updating the `lean-toolchain` and `lakefile.lean`,
-        in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
-        `git checkout toolchain/v4.6.0` to the appropriate tag,
-        and then run `.github/workflows/mk_build_yml.sh`.
+      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Std`, `doc-gen4`, `import-graph`
+      - Toolchain bump PR notes:
+        - In addition to updating the `lean-toolchain` and `lakefile.lean`,
+          in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
+          `git checkout toolchain/v4.6.0` to the appropriate tag,
+          and then run `.github/workflows/mk_build_yml.sh`. Coordinate with
+          a Mathlib maintainer to get this merged.
+        - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
+        - Create and push the tag
+        - Create a new branch from the tag, push it, and open a pull request against `stable`.
+          Coordinate with a Mathlib maintainer to get this merged.
     - [REPL](https://github.com/leanprover-community/repl)
+      - Dependencies: `Mathlib` (for test code)
       - Note that there are two copies of `lean-toolchain`/`lakefile.lean`:
-        in the root, and in `test/Mathlib/`.
-  - Note that there are dependencies between these packages:
-    you should update the lakefile so that you are using the `v4.6.0` tag of upstream repositories
-    (or the sequential tag for `ProofWidgets4`), and run `lake update` before committing.
-  - This means that this process is sequential; each repository must have its bump PR merged,
-    and the new tag pushed, before you can make the PR for the downstream repositories.
-    - `lean4checker` has no dependencies
-    - `Std` has no dependencies
-    - `Aesop` depends on `Std`
-    - `ProofWidgets4` depends on `Std`
-    - `Mathlib` depends on `Aesop`, `ProofWidgets4`, and `lean4checker` (and transitively on `Std`)
-    - `REPL` depends on `Mathlib` (this dependency is only for testing).
+        in the root, and in `test/Mathlib/`. Edit both, and run `lake update` in both directories.
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - Merge the tag into `stable`
 - Merge the release announcement PR for the Lean website - it will be deployed automatically
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.
   You will want a few bullet points for main topics from the release notes.
   Link to the blog post from the Zulip announcement.
-  Please also make sure that whoever is handling social media knows the release is out.
+- Make sure that whoever is handling social media knows the release is out.
 
 ## Optimistic(?) time estimates:
 - Initial checks and push the tag: 30 minutes.

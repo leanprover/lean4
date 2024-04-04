@@ -14,3 +14,7 @@
 #eval "ababcab".splitOn "abc"
 #eval "αbαbcαbcαααbcα".splitOn "αb"
 #eval "αbαbcαbcαααbcα".splitOn "αbcα"
+#eval "here is some text ".splitOn
+#eval "here is some text ".splitOn "some"
+#eval "here is some text ".splitOn ""
+#eval "ababacabac".splitOn  "aba"

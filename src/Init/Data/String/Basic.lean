@@ -245,6 +245,16 @@ termination_by s.endPos.1 - i.1
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
 
+/--
+Auxiliary for `splitOn`. Preconditions:
+* `sep` is not empty
+* `b <= i` are indexes into `s`
+* `j` is an index into `sep`, and not at the end
+
+It represents the state where we have currently parsed some split parts into `r` (in reverse order),
+`b` is the beginning of the string / the end of the previous match of `sep`, and the first `j` bytes
+of `sep` match the bytes `i-j .. i` of `s`.
+-/
 def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) : List String :=
   if s.atEnd i then
     let r := (s.extract b i)::r
@@ -281,6 +291,19 @@ decreasing_by
       (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
       (lt_next s _)
 
+/--
+Splits a string `s` on occurrences of the separator `sep`. When `sep` is empty, it returns `[s]`;
+when `sep` occurs in overlapping patterns, the first match is taken. There will always be exactly
+`n+1` elements in the returned list if there were `n` nonoverlapping matches of `sep` in the string.
+The default separator is `" "`. The separators are not included in the returned substrings.
+
+```
+"here is some text ".splitOn = ["here", "is", "some", "text", ""]
+"here is some text ".splitOn "some" = ["here is ", " text "]
+"here is some text ".splitOn "" = ["here is some text "]
+"ababacabac".splitOn "aba" = ["", "bac", "c"]
+```
+-/
 def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 

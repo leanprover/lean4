@@ -12,3 +12,7 @@ String.Iterator.mk "αacc" { byteIdx := 2 }
 ["ab", "ab"]
 ["", "", "c", "cαα", "cα"]
 ["αb", "bcαα", ""]
+["here", "is", "some", "text", ""]
+["here is ", " text "]
+["here is some text "]
+["", "bac", "c"]

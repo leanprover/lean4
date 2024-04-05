@@ -92,17 +92,31 @@ contained state, we will want to explicitly wait for it instead of redoing the w
 hand, the `Syntax` is not surrounded by a task so that we can immediately access it for comparisons,
 even if the snapshot task may, eventually, give access to the same syntax tree.
 
-TODO: tactic examples
-
-While it is generally true that we can provide incremental reporting even without reuse, we
-generally want to avoid that when it would be confusing/annoying, e.g. when a tactic block is run
-multiple times because otherwise the progress bar would snap back and forth multiple times. For this
-purpose, we can disable both incremental modes using `Term.withoutTacticIncrementality`, assuming we
-opted into incrementality because of other parts of the combinator. `induction` is an example of
-this because there are some induction alternatives that are run multiple times, so we disable all of
-incrementality for them.
+For the most part, inside an elaborator participating in incrementality, we just have to ensure that
+we do not forward the snapshot bundle as soon as we notice a relevant difference between old and new
+syntax tree. For example, allowing incrementality inside the cdot tactic combinator is as simple as
+```
+builtin_initialize registerBuiltinIncrementalTactic ``cdot
+@[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
+  ...
+  closeUsingOrAdmit do
+    -- save state before/after entering focus on `·`
+    ...
+    Term.withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) stx
+```
+The `Term.withNarrowedArgTacticReuse` combinator will focus on the given argument of `stx`, which in
+this case is the nested tactic sequence, and run `evalTactic` on it. But crucially, it will also
+compare all preceding arguments, in this case the cdot token itself, with the old syntax in the
+current snapshot bundle, which in the case of tactics is stored in `Term.Context.tacSnap?`. Indeed
+it is important here to check if the cdot token is identical because its position has been saved in
+the info tree, so it would be bad if we later restored some old state that uses a different position
+for it even if everything else is unchanged.  If there is any mismatch, the bundle's old value is
+set to `none` in order to prevent reuse from this point on. Note that in any case we still want to
+forward the "new" promise in order to provide incremental reporting and construct a snapshot tree
+for reuse in future document versions! Note also that we explicitly opted into incrementality using
+`registerBuiltinIncrementalTactic` as any tactic combinator not written with these concerns in mind
+would likely misbehave under incremental reuse.
 -/
-
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean

@@ -40,7 +40,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
         If they depend on `main` or `master`, don't change this; you've just updated the dependency, so it will work and be saved in the manifest
       - Run `lake update`
       - The PR title should be "chore: bump toolchain to v4.6.0".
-      - Since the `v4.6.0` release should be functionally identical to the last release candidate, which the repository should already be on, this PR is a no-op besides changing the toolchain, the Lakefile, and the manifest
     - Merge the PR once CI completes.
     - Create the tag `v4.6.0` from `master`/`main` and push it.
     - Merge the tag `v4.6.0` into the `stable` branch and push it.

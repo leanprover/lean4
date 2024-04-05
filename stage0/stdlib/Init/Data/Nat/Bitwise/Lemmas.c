@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat.Bitwise.Lemmas
-// Imports: Init.Data.Bool Init.Data.Int.Pow Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Lemmas Init.TacticsExtra Init.Omega
+// Imports: Init.Data.Bool Init.Data.Int.Pow Init.Data.Nat.Bitwise.Basic Init.Data.Nat.Lemmas Init.Data.Nat.Simproc Init.TacticsExtra Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Pow(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Bitwise_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -34,6 +35,9 @@ res = initialize_Init_Data_Nat_Bitwise_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Simproc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());

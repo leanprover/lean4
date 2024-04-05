@@ -6,7 +6,6 @@ Authors: Mac Malone
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
 import Lake.Build.Facets
-import Lake.Util.EquipT
 
 /-!
 # Build Info
@@ -62,7 +61,7 @@ abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
 /-! ### Build Info to Key -/
 
 /-- The key that identifies the build in the Lake build store. -/
-abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
+@[reducible] def BuildInfo.key : (self : BuildInfo) → BuildKey
 | moduleFacet m f => m.facetBuildKey f
 | packageFacet p f => p.facetBuildKey f
 | libraryFacet l f => l.facetBuildKey f
@@ -108,27 +107,6 @@ instance [FamilyOut TargetData ExternLib.sharedFacet α]
 instance [FamilyOut TargetData ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
   family_key_eq_type := by unfold BuildData; simp
-
---------------------------------------------------------------------------------
-/-! ## Recursive Building                                                     -/
---------------------------------------------------------------------------------
-
-/-- A build function for any element of the Lake build index. -/
-abbrev IndexBuildFn (m : Type → Type v) :=
-  -- `DBuildFn BuildInfo (BuildData ·.key) m` with less imports
-  (info : BuildInfo) → m (BuildData info.key)
-
-/-- A transformer to equip a monad with a build function for the Lake index. -/
-abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
-
-/-- The monad for build functions that are part of the index. -/
-abbrev IndexBuildM := IndexT RecBuildM
-
-/-- Fetch the result associated with the info using the Lake build index. -/
-@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : IndexBuildM α :=
-  fun build => cast (by simp) <| build self
-
-export BuildInfo (fetch)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -281,9 +259,6 @@ abbrev LeanLib.extraDep (self : LeanLib) : BuildInfo :=
 /-- Build info of the Lean executable. -/
 abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   .leanExe self
-
-@[inline] protected def LeanExe.fetch (self : LeanExe) :   IndexBuildM (BuildJob FilePath) :=
-  self.exe.fetch
 
 /-- Build info of the external library's static binary. -/
 abbrev ExternLib.static (self : ExternLib) : BuildInfo :=

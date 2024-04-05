@@ -38,7 +38,7 @@ class NilTrace.{u} (t : Type u) where
 
 export NilTrace (nilTrace)
 
-instance [NilTrace t] : Inhabited t := ⟨nilTrace⟩
+instance inhabitedOfNilTrace [NilTrace t] : Inhabited t := ⟨nilTrace⟩
 
 class MixTrace.{u} (t : Type u) where
   /-- Combine two traces. The result should be dirty if either of the inputs is dirty. -/

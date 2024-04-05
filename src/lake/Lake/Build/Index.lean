@@ -3,7 +3,6 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Targets
 import Lake.Build.Executable
 import Lake.Build.Topological
 
@@ -38,6 +37,7 @@ def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath)
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
 def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
+  withRegisterJob s!"Computing {lib.staticTargetName.toString} dynlib" do
   computeDynlibOfShared (← lib.shared.fetch)
 
 /-!
@@ -74,25 +74,3 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
   mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
 | .dynlibExternLib lib =>
   mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
-
-/--
-Run the given recursive build using the Lake build index
-and a topological / suspending scheduler.
--/
-def IndexBuildM.run (build : IndexBuildM α) : RecBuildM α :=
-  build <| recFetchMemoize BuildInfo.key recBuildWithIndex
-
-/--
-Recursively build the given info using the Lake build index
-and a topological / suspending scheduler.
--/
-def buildIndexTop' (info : BuildInfo) : RecBuildM (BuildData info.key) :=
-  recFetchMemoize BuildInfo.key recBuildWithIndex info
-
-/--
-Recursively build the given info using the Lake build index
-and a topological / suspending scheduler and return the dynamic result.
--/
-@[macro_inline] def buildIndexTop (info : BuildInfo)
-[FamilyOut BuildData info.key α] : RecBuildM α := do
-  cast (by simp) <| buildIndexTop' info

@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Util.Error
 import Lake.Util.EStateT
-import Lake.Util.OptionIO
 
 namespace Lake
 

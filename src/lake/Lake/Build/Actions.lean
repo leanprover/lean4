@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
-import Lake.Build.Context
+import Lake.Build.Basic
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -13,6 +13,9 @@ Low level actions to build common Lean artifacts via the Lean toolchain.
 
 namespace Lake
 open System
+
+def createParentDirs (path : FilePath) : IO Unit := do
+  if let some dir := path.parent then IO.FS.createDirAll dir
 
 def compileLeanModule
   (name : Name) (leanFile : FilePath)

@@ -63,14 +63,14 @@ def Package.fetchFacetJob (name : Name)
 def ModuleFacetConfig.fetchJob (mod : Module)
 (self : ModuleFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
   let some getJob := self.getJob?
-    | error "module facet '{self.name}' has no associated build job"
+    | error s!"module facet '{self.name}' has no associated build job"
   return getJob <| ← fetch <| mod.facet self.name
 
 /-- Fetch the build job of a module facet. -/
 def Module.fetchFacetJob
 (name : Name) (self : Module) : IndexBuildM (BuildJob Unit) :=  do
   let some config := (← getWorkspace).moduleFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
+    | error s!"library facet '{name}' does not exist in workspace"
   inline <| config.fetchJob self
 
 /-! ## Lean Library Facets -/
@@ -79,7 +79,7 @@ def Module.fetchFacetJob
 @[inline] def LeanLibConfig.get
 (self : LeanLibConfig) [Monad m] [MonadError m] [MonadLake m] : m LeanLib := do
   let some lib ← findLeanLib? self.name
-    | error "Lean library '{self.name}' does not exist in the workspace"
+    | error s!"Lean library '{self.name}' does not exist in the workspace"
   return lib
 
 /-- Fetch the build result of a library facet. -/
@@ -91,14 +91,14 @@ def Module.fetchFacetJob
 def LibraryFacetConfig.fetchJob (lib : LeanLib)
 (self : LibraryFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
   let some getJob := self.getJob?
-    | error "library facet '{self.name}' has no associated build job"
+    | error s!"library facet '{self.name}' has no associated build job"
   return getJob <| ← fetch <| lib.facet self.name
 
 /-- Fetch the build job of a library facet. -/
 def LeanLib.fetchFacetJob (name : Name)
 (self : LeanLib) : IndexBuildM (BuildJob Unit) :=  do
   let some config := (← getWorkspace).libraryFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
+    | error s!"library facet '{name}' does not exist in workspace"
   inline <| config.fetchJob self
 
 /-! ## Lean Executable Target -/
@@ -107,10 +107,14 @@ def LeanLib.fetchFacetJob (name : Name)
 @[inline] def LeanExeConfig.get (self : LeanExeConfig)
 [Monad m] [MonadError m] [MonadLake m] : m LeanExe := do
   let some exe ← findLeanExe? self.name
-    | error "Lean executable '{self.name}' does not exist in the workspace"
+    | error s!"Lean executable '{self.name}' does not exist in the workspace"
   return exe
 
 /-- Fetch the build of the Lean executable. -/
 @[inline] def LeanExeConfig.fetch
 (self : LeanExeConfig) : IndexBuildM (BuildJob FilePath) := do
   (← self.get).exe.fetch
+
+/-- Fetch the build of the Lean executable. -/
+@[inline] def LeanExe.fetch (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
+  self.exe.fetch

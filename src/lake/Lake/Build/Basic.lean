@@ -6,12 +6,9 @@ Authors: Mac Malone
 import Lake.Util.Log
 import Lake.Util.Exit
 import Lake.Util.Task
-import Lake.Util.Error
-import Lake.Util.OptionIO
+import Lake.Util.Lift
 import Lake.Config.Context
 import Lake.Build.Trace
-import Lake.Build.Store
-import Lake.Build.Topological
 
 open System
 namespace Lake
@@ -27,10 +24,8 @@ structure BuildConfig where
   noBuild : Bool := false
   verbosity : Verbosity := .normal
 
-abbrev LogIOTask α :=
-  BaseIOTask (EResult Nat Log α)
-
-abbrev JobTask α := LogIOTask α
+abbrev JobResult α := EResult Nat Log α
+abbrev JobTask α := BaseIOTask (JobResult α)
 
 /-- A Lake job. -/
 structure Job (α : Type u)  where
@@ -63,28 +58,13 @@ abbrev BuildT := ReaderT BuildContext
 abbrev SchedulerM := BuildT <| LogT BaseIO
 
 /-- The core monad for Lake builds. -/
-abbrev BuildM := BuildT LogIO
+abbrev CoreBuildM := BuildT LogIO
 
 /-- The monad of Lake jobs. -/
-abbrev JobM := BuildM
-
-/-- A transformer to equip a monad with a Lake build store. -/
-abbrev BuildStoreT := StateT BuildStore
-
-/-- A Lake build cycle. -/
-abbrev BuildCycle := Cycle BuildKey
-
-/-- A transformer for monads that may encounter a build cycle. -/
-abbrev BuildCycleT := CycleT BuildKey
-
-/-- A recursive build of a Lake build store that may encounter a cycle. -/
-abbrev RecBuildM := BuildCycleT <| BuildStoreT BuildM
+abbrev JobM := CoreBuildM
 
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 
-@[inline] def BuildM.run (ctx : BuildContext) (self : BuildM α) : LogIO α :=
+@[inline] def CoreBuildM.run (ctx : BuildContext) (self : CoreBuildM α) : LogIO α :=
   self ctx
-
-def createParentDirs (path : FilePath) : IO Unit := do
-  if let some dir := path.parent then IO.FS.createDirAll dir

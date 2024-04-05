@@ -3,12 +3,14 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 -/
+import Lake.Util.Lock
 import Lake.Build.Index
 
 open System
 
 namespace Lake
 
+/-- Create a fresh build context from a workspace and a build configuration. -/
 def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
   return {
     opaqueWs := ws,
@@ -17,76 +19,28 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
-def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
-| Except.ok a => pure a
-| Except.error cycle => do
-  let cycle := cycle.map (s!"  {·}")
-  error s!"build cycle detected:\n{"\n".intercalate cycle}"
+/-- Run a recursive build. -/
+@[inline] def RecBuildM.run
+  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
+: CoreBuildM (α × BuildStore) := do
+  build stack store
+
+/-- Run a recursive build in a fresh build store. -/
+@[inline] def RecBuildM.run' (build : RecBuildM α) : CoreBuildM α := do
+  (·.1) <$> build.run {} {}
 
 /--
-Run the recursive build in the given build store.
-If a cycle is encountered, log it and then fail.
+Run the given recursive build using the Lake build index
+and a topological / suspending scheduler.
 -/
-@[inline] def RecBuildM.runIn (store : BuildStore) (build : RecBuildM α) : BuildM (α × BuildStore) := do
-  let (res, store) ← (build []).run.run store
-  return (← failOnBuildCycle res, store)
-
-/--
-Run the recursive build in a fresh build store.
-If a cycle is encountered, log it and then fail.
--/
-@[inline] def RecBuildM.run (build : RecBuildM α) : BuildM α := do
-  (·.1) <$> build.runIn {}
-
-/--
-Busy waits to acquire the lock represented by the `lockFile`.
-Prints a warning if on the first time it has to wait.
--/
-@[inline] partial def busyAcquireLockFile (lockFile : FilePath) : IO PUnit := do
-  busyLoop true
-where
-  busyLoop firstTime :=
-    try
-      -- Remark: fail if already exists
-      -- (not part of POSIX, but supported on all our platforms)
-      createParentDirs lockFile
-      let h ← IO.FS.Handle.mk lockFile .writeNew
-      h.putStrLn <| toString <| ← IO.Process.getPID
-    catch
-      | .alreadyExists .. => do
-        if firstTime then
-          let stderr ← IO.getStderr
-          stderr.putStrLn s!"warning: waiting for prior `lake build` invocation to finish... (remove '{lockFile}' if stuck)"
-          stderr.flush
-        IO.sleep (ms := 300)
-        busyLoop false
-      | e => throw e
-
-/-- Busy wait to acquire the lock of `lockFile`, run `act`, and then release the lock. -/
-@[inline] def withLockFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (lockFile : FilePath) (act : m α) : m α := do
-  try
-    busyAcquireLockFile lockFile; act
-  finally show IO _ from do
-    try
-      IO.FS.removeFile lockFile
-    catch
-      | .noFileOrDirectory .. => IO.eprintln <|
-        s!"warning: `{lockFile}` was deleted before the lock was released"
-      | e => throw e
-
-/-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
-def lockFileName : String :=
-  "lake.lock"
-
-/-- The workspace's build lock file. -/
-@[inline] def Workspace.lockFile (self : Workspace) : FilePath :=
-  self.root.buildDir / lockFileName
+def IndexBuildM.run (build : IndexBuildM α) : RecBuildM α :=
+  build (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)
 
 def monitorBuildJobs
-  (build : BuildM α) (out : IO.FS.Stream)
-: BuildT IO (Option α) := fun ctx => do
+  (ctx : BuildContext) (out : IO.FS.Stream) (spawner : CoreBuildM α)
+: IO (Option α) := do
   print "[?/?] Computing build jobs"
-  let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run ctx).captureLog
+  let (io, a?, log) ← IO.FS.withIsolatedStreams (spawner.run ctx).captureLog
   if io.isEmpty && log.isEmpty then
     resetLine
   else
@@ -112,9 +66,17 @@ where
   print s := out.putStr s
   resetLine := print "\n" --"\x1B[2K\r"
 
+/-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
+def lockFileName : String :=
+  "lake.lock"
+
+/-- The workspace's build lock file. -/
+@[inline] def Workspace.lockFile (self : Workspace) : FilePath :=
+  self.root.buildDir / lockFileName
+
 /-- Run a build function in the Workspace's context. -/
-@[inline] def Workspace.runBuildM
-  (ws : Workspace) (build : BuildM α)
+def Workspace.runBuildM
+  (ws : Workspace) (build : IndexBuildM α)
   (cfg : BuildConfig := {}) (useStdout := false)
 : IO (Option α) := do
   let ctx ← mkBuildContext ws cfg
@@ -126,14 +88,14 @@ where
   -/
   -- withLockFile ws.lockFile do
   let out ← if useStdout then IO.getStdout else IO.getStderr
-  (monitorBuildJobs build out).run ctx
+  inline <| monitorBuildJobs ctx out build.run.run'
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild
   (ws : Workspace) (build : IndexBuildM (BuildJob α))
   (cfg : BuildConfig := {}) (useStdout := false)
 : LogIO α := do
-  let some job ← ws.runBuildM build.run.run cfg useStdout | error "build failed"
+  let some job ← ws.runBuildM build cfg useStdout | error "build failed"
   let some a ← job.await? | error "build failed"
   return a
 

@@ -3,9 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.Async
 import Lake.Build.Trace
-import Lake.Build.Context
+import Lake.Build.Basic
 
 open System
 
@@ -25,7 +24,7 @@ instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 @[inline] protected def error (l : Log) : Job α :=
   {task := Task.pure (.error 0 l)}
 
-@[inline] def mapResult (f : EResult Nat Log α → EResult Nat Log β) (self : Job α) : Job β :=
+@[inline] def mapResult (f : JobResult α → JobResult β) (self : Job α) : Job β :=
   {task := self.task.map f}
 
 @[inline] protected def map (f : α → β) (self : Job α) : Job β :=
@@ -62,25 +61,23 @@ instance : Functor Job where map := Job.map
   | .ok a l => l.replay; pure a
 
 /--
-`let c ← a.thenJobM b` asynchronously performs the action `b`
+`let c ← a.bindSync b` asynchronously performs the action `b`
 after the job `a` completes.
 -/
-@[inline] protected def thenJobM
+@[inline] protected def bindSync
   (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SchedulerM (Job β) := fun ctx => Job.mk <$> liftM do
   BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun r=>
-    match (r : EResult Nat Log α) with
-    | .ok a l => f a ctx l
-    | .error n l => return .error n l
-
-@[deprecated Job.thenJobM] protected abbrev bindSync := @Job.thenJobM
+    match r with
+    | EResult.ok a l => f a ctx l
+    | EResult.error n l => return .error n l
 
 /--
-`let c ← a.thenJob b` asynchronously performs the action `b`
+`let c ← a.bindAsync b` asynchronously performs the action `b`
 after the job `a` completes and then merges into the job produced by `b`.
 -/
-@[inline] protected def thenJob
+@[inline] protected def bindAsync
   (self : Job α) (f : α → SchedulerM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SchedulerM (Job β) := fun ctx => Job.mk <$> liftM do
@@ -91,9 +88,7 @@ after the job `a` completes and then merges into the job produced by `b`.
       return job.task.map (prio := prio) (sync := true) fun
       | EResult.ok a l' => .ok a (l ++ l')
       | EResult.error n l' => .error (l.size + n) (l ++ l')
-    | .error n l => return Task.pure (EResult.error n l)
-
-@[deprecated Job.thenJob] protected abbrev bindAsync := @Job.thenJob
+    | .error n l => return Task.pure (.error n l)
 
 @[inline] def zipWith
   (f : α → β → γ) (x : Job α) (y : Job β)

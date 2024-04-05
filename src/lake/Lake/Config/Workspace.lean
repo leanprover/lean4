@@ -115,7 +115,7 @@ def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Wor
   {self with moduleFacetConfigs := self.moduleFacetConfigs.insert name cfg}
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
-@[inline] def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
+def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (ModuleFacetConfig name) :=
   self.moduleFacetConfigs.find? name
 
 /-- Add a package facet to the workspace. -/
@@ -123,7 +123,7 @@ def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : W
   {self with packageFacetConfigs := self.packageFacetConfigs.insert name cfg}
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
-@[inline] def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
+def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (PackageFacetConfig name) :=
   self.packageFacetConfigs.find? name
 
 /-- Add a library facet to the workspace. -/
@@ -131,7 +131,7 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
   {self with libraryFacetConfigs := self.libraryFacetConfigs.insert cfg.name cfg}
 
 /-- Try to find a library facet configuration in the workspace with the given name. -/
-@[inline] def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
+def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
   self.libraryFacetConfigs.find? name
 
 /-- The workspace's binary directories (which are added to `Path`). -/

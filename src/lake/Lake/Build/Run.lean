@@ -30,11 +30,11 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
   (·.1) <$> build.run {} {}
 
 /--
-Run the given recursive build using the Lake build index
+Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
-def IndexBuildM.run (build : IndexBuildM α) : RecBuildM α :=
-  build (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)
+def FetchM.run (x : FetchM α) : RecBuildM α :=
+  x (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)
 
 def monitorBuildJobs
   (ctx : BuildContext) (out : IO.FS.Stream) (spawner : CoreBuildM α)
@@ -75,8 +75,8 @@ def lockFileName : String :=
   self.root.buildDir / lockFileName
 
 /-- Run a build function in the Workspace's context. -/
-def Workspace.runBuildM
-  (ws : Workspace) (build : IndexBuildM α)
+def Workspace.runFetchM
+  (ws : Workspace) (build : FetchM α)
   (cfg : BuildConfig := {}) (useStdout := false)
 : IO (Option α) := do
   let ctx ← mkBuildContext ws cfg
@@ -92,16 +92,16 @@ def Workspace.runBuildM
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild
-  (ws : Workspace) (build : IndexBuildM (BuildJob α))
+  (ws : Workspace) (build : FetchM (BuildJob α))
   (cfg : BuildConfig := {}) (useStdout := false)
 : LogIO α := do
-  let some job ← ws.runBuildM build cfg useStdout | error "build failed"
+  let some job ← ws.runFetchM build cfg useStdout | error "build failed"
   let some a ← job.await? | error "build failed"
   return a
 
 /-- Produce a build job in the  Lake monad's workspace and await the result. -/
 @[inline] def runBuild
-  (build : IndexBuildM (BuildJob α))
+  (build : FetchM (BuildJob α))
   (cfg : BuildConfig := {}) (useStdout := false)
 : LakeT LogIO α := do
   (← getWorkspace).runBuild build cfg useStdout

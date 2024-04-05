@@ -16,7 +16,7 @@ open System
 namespace Lake
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
-def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
+def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
   (·.toArray) <$> self.deps.foldlM (init := OrdPackageSet.empty) fun deps dep => do
     return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
 
@@ -28,7 +28,7 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 Build the `extraDepTargets` for the package and its transitive dependencies.
 Also fetch pre-built releases for the package's' dependencies.
 -/
-def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
+def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) := do
   let mut job := BuildJob.nil
   -- Build dependencies' extra dep targets
   for dep in self.deps do
@@ -76,14 +76,14 @@ def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
   mkFacetJobConfig (·.fetchRelease)
 
 /-- Perform a build job after first checking for a cloud release for the package. -/
-def Package.afterReleaseAsync (self : Package) (build : SchedulerM (Job α)) : IndexBuildM (Job α) := do
+def Package.afterReleaseAsync (self : Package) (build : SchedulerM (Job α)) : FetchM (Job α) := do
   if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
     (← self.release.fetch).bindAsync fun _ _ => build
   else
     build
 
 /-- Perform a build after first checking for a cloud release for the package. -/
-def Package.afterReleaseSync (self : Package) (build : JobM α) : IndexBuildM (Job α) := do
+def Package.afterReleaseSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
     (← self.release.fetch).bindSync fun _ _ => build
   else

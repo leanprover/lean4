@@ -18,7 +18,7 @@ the build jobs of their precompiled modules and the build jobs of said modules'
 external libraries.
 -/
 def recBuildImports (imports : Array Module)
-: IndexBuildM (Array (BuildJob Unit) × Array (BuildJob Dynlib) × Array (BuildJob Dynlib)) := do
+: FetchM (Array (BuildJob Unit) × Array (BuildJob Dynlib) × Array (BuildJob Dynlib)) := do
   let mut modJobs := #[]
   let mut precompileImports := OrdModuleSet.empty
   for mod in imports do
@@ -37,7 +37,7 @@ Builds an `Array` of module imports. Used by `lake setup-file` to build modules
 for the Lean server and by `lake lean` to build the imports of a file.
 Returns the set of module dynlibs built (so they can be loaded by Lean).
 -/
-def buildImportsAndDeps (imports : Array Module) : IndexBuildM (BuildJob (Array FilePath)) := do
+def buildImportsAndDeps (imports : Array Module) : FetchM (BuildJob (Array FilePath)) := do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
     (← getRootPackage).extraDep.fetch <&> (·.map fun _ => #[])

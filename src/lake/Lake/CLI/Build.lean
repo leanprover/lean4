@@ -29,10 +29,10 @@ structure BuildSpec where
     | throw <| CliError.nonCliFacet facetType facet
   return {info, getBuildJob := h ▸ getJob}
 
-protected def BuildSpec.fetch (self : BuildSpec) : IndexBuildM (BuildJob Unit) :=
+protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) :=
   self.getBuildJob <$> self.info.fetch
 
-def buildSpecs (specs : Array BuildSpec) : IndexBuildM (BuildJob Unit) := do
+def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
   BuildJob.mixArray (← specs.mapM (·.fetch))
 
 /-! ## Parsing CLI Build Target Specifiers -/

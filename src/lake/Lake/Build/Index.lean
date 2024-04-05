@@ -23,20 +23,20 @@ Converts a conveniently-typed target facet build function into its
 dynamically-typed equivalent.
 -/
 @[macro_inline] def mkTargetFacetBuild
-  (facet : Name) (build : IndexBuildM (BuildJob α))
+  (facet : Name) (build : FetchM (BuildJob α))
   [h : FamilyOut TargetData facet (BuildJob α)]
-: IndexBuildM (TargetData facet) :=
+: FetchM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
-def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) :=
+def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (BuildJob FilePath) :=
   withRegisterJob s!"Building {lib.staticTargetName.toString}" do
   lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
-def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) :=
+def ExternLib.recBuildShared (lib : ExternLib) : FetchM (BuildJob FilePath) :=
   withRegisterJob s!"Linking {lib.staticTargetName.toString}" do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
-def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib) := do
+def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (BuildJob Dynlib) := do
   withRegisterJob s!"Computing {lib.staticTargetName.toString} dynlib" do
   computeDynlibOfShared (← lib.shared.fetch)
 
@@ -45,7 +45,7 @@ def ExternLib.recComputeDynlib (lib : ExternLib) : IndexBuildM (BuildJob Dynlib)
 -/
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
+def recBuildWithIndex : (info : BuildInfo) → FetchM (BuildData info.key)
 | .moduleFacet mod facet => do
   if let some config := (← getWorkspace).findModuleFacetConfig? facet then
     config.build mod

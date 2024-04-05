@@ -10,7 +10,7 @@ namespace Lake
 /-- A facet's declarative configuration. -/
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where
   /-- The facet's build (function). -/
-  build : ι → IndexBuildM (DataFam name)
+  build : ι → FetchM (DataFam name)
   /-- Does this facet produce an associated asynchronous job? -/
   getJob? : Option (DataFam name → BuildJob Unit)
   deriving Inhabited
@@ -18,13 +18,13 @@ structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 
 /-- A smart constructor for facet configurations that are not known to generate targets. -/
-@[inline] def mkFacetConfig (build : ι → IndexBuildM α)
+@[inline] def mkFacetConfig (build : ι → FetchM α)
 [h : FamilyOut Fam facet α] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := none
 
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
-@[inline] def mkFacetJobConfig (build : ι → IndexBuildM (BuildJob α))
+@[inline] def mkFacetJobConfig (build : ι → FetchM (BuildJob α))
 [h : FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some fun data => discard <| ofFamily data

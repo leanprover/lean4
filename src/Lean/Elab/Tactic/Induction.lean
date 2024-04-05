@@ -54,23 +54,25 @@ private def getAltDArrow (alt : Syntax) : Syntax :=
 def isHoleRHS (rhs : Syntax) : Bool :=
   rhs.isOfKind ``Parser.Term.syntheticHole || rhs.isOfKind ``Parser.Term.hole
 
-def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) (remainingGoals : Array MVarId) : TacticM (Array MVarId) :=
+def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) : TacticM Unit :=
   let rhs := getAltRHS alt
   withCaseRef (getAltDArrow alt) rhs do
     if isHoleRHS rhs then
       addInfo
-      let gs' ← mvarId.withContext <| withTacticInfoContext rhs do
+      mvarId.withContext <| withRef rhs do
         let mvarDecl ← mvarId.getDecl
         let val ← elabTermEnsuringType rhs mvarDecl.type
         mvarId.assign val
         let gs' ← getMVarsNoDelayed val
         tagUntaggedGoals mvarDecl.userName `induction gs'.toList
-        pure gs'
-      return remainingGoals ++ gs'
+        setGoals <| (← getGoals) ++ gs'.toList
     else
-      setGoals [mvarId]
-      closeUsingOrAdmit (withTacticInfoContext alt (addInfo *> evalTactic rhs))
-      return remainingGoals
+      let goals ← getGoals
+      try
+        setGoals [mvarId]
+        closeUsingOrAdmit (withTacticInfoContext alt (addInfo *> evalTactic rhs))
+      finally
+        setGoals goals
 
 /-!
   Helper method for creating an user-defined eliminator/recursor application.
@@ -199,6 +201,9 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
       return altInfo.numFields
   throwError "unknown alternative name '{altName}'"
 
+private def isWildcard (altStx : Syntax) : Bool :=
+  getAltName altStx == `_
+
 private def checkAltNames (alts : Array Alt) (altsSyntax : Array Syntax) : TacticM Unit :=
   for i in [:altsSyntax.size] do
     let altStx := altsSyntax[i]!
@@ -241,7 +246,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
       sleep 5000 -- sleeps for 5 seconds
       save
       have : y = 0 := h₃ h
-      -- We can confortably work here
+      -- We can comfortably work here
     | inl h => stop ...
   ```
   If we do reorder, the `inl` alternative will be executed first. Moreover, as we type in the `inr` alternative,
@@ -249,19 +254,6 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
 
   2- The errors are produced in the same order the appear in the code above. This is not super important when using IDEs.
 -/
-def reorderAlts (alts : Array Alt) (altsSyntax : Array Syntax) : Array Alt := Id.run do
-  if altsSyntax.isEmpty then
-    return alts
-  else
-    let mut alts := alts
-    let mut result := #[]
-    for altStx in altsSyntax do
-      let altName := getAltName altStx
-      let some i := alts.findIdx? (·.1 == altName) | return result ++ alts
-      result := result.push alts[i]!
-      alts := alts.eraseIdx i
-    return result ++ alts
-
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
@@ -278,98 +270,91 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (alts
 where
   go := do
     checkAltNames alts altsSyntax
-    let alts := reorderAlts alts altsSyntax
     let hasAlts := altsSyntax.size > 0
-    let mut usedWildcard := false
-    let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
-    let mut altsSyntaxIdx := 0
+    -- when alternatives are not provided (missing or holes), we accumulate subgoals here
+    let mut alts := alts
+    for altStxIdx in [0:altsSyntax.size] do
+      let altStx := altsSyntax[altStxIdx]!
+      let altName := getAltName altStx
+      if let some i := alts.findIdx? (·.1 == altName) then
+        applyAltStx altStxIdx altStx alts[i]!
+        alts := alts.eraseIdx i
+      else if !alts.isEmpty && isWildcard altStx then
+        for alt in alts do
+          applyAltStx altStxIdx altStx alt
+        alts := #[]
+      else
+        throwError "unused alternative '{altName}'"
     for { name := altName, info, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
-      let mut altStx? := altsSyntax[altsSyntaxIdx]?
-      let isWildcard := altStx?.any (getAltName · == `_)
-      match altStx? with
-      | none =>
-        let mut (_, altMVarId) ← altMVarId.introN numFields
-        match (← Cases.unifyEqs? numEqs altMVarId {}) with
-        | none   => pure () -- alternative is not reachable
-        | some (altMVarId', subst) =>
-          altMVarId ← if info.provesMotive then
-            (_, altMVarId) ← altMVarId'.introNP numGeneralized
-            pure altMVarId
-          else
-            pure altMVarId'
-          for fvarId in toClear do
-            altMVarId ← altMVarId.tryClear fvarId
-          altMVarId.withContext do
-            for (stx, fvar) in toTag do
-              Term.addLocalVarInfo stx (subst.get fvar)
-          let altMVarIds ← applyPreTac altMVarId
-          if !hasAlts then
-            -- User did not provide alternatives using `|`
-            subgoals := subgoals ++ altMVarIds.toArray
-          else if altMVarIds.isEmpty then
-            pure ()
-          else
-            logError m!"alternative '{altName}' has not been provided"
-            altMVarIds.forM fun mvarId => admitGoal mvarId
-      | some altStx =>
-        (subgoals, usedWildcard) ← withRef altStx do
-          if !isWildcard && getAltName altStx != altName then
-            -- must be duplicate because we already checked for unknown names and sorted all others
-            throwError "duplicate alternative '{getAltName altStx}'"
-          let altVars := getAltVars altStx
-          let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
-          if altVars.size > numFieldsToName then
-            logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
-          let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
-          -- Delay adding the infos for the pattern LHS because we want them to nest
-          -- inside tacticInfo for the current alternative (in `evalAlt`)
-          let addInfo : TermElabM Unit := do
-            if (← getInfoState).enabled then
-              if let some declName := info.declName? then
-                addConstInfo (getAltNameStx altStx) declName
-              saveAltVarsInfo altMVarId altStx fvarIds
-          let unusedAlt := do
-            addInfo
-            if isWildcard then
-              pure (#[], usedWildcard)
-            else
-              throwError "alternative '{altName}' is not needed"
-          match (← Cases.unifyEqs? numEqs altMVarId {}) with
-          | none => unusedAlt
-          | some (altMVarId', subst) =>
-            altMVarId ← if info.provesMotive then
-              (_, altMVarId) ← altMVarId'.introNP numGeneralized
-              pure altMVarId
-            else
-              pure altMVarId'
-            for fvarId in toClear do
-              altMVarId ← altMVarId.tryClear fvarId
-            altMVarId.withContext do
-              for (stx, fvar) in toTag do
-                Term.addLocalVarInfo stx (subst.get fvar)
-            let altMVarIds ← applyPreTac altMVarId
-            if altMVarIds.isEmpty then
-              unusedAlt
-            else
-              -- all previous alternatives have to be unchanged for reuse
-              Term.withNarrowedArgTacticReuse (stx := mkNullNode altsSyntax) (argIdx := altsSyntaxIdx) fun altStx => do
-              -- everything up to rhs has to be unchanged for reuse
-              Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
-              let mut subgoals := subgoals
-              for altMVarId' in altMVarIds do
-                subgoals ←
-                  -- disable reuse if rhs is run multiple times, also for any rhs but the last
-                  Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard || altsSyntaxIdx < altsSyntax.size - 1) do
-                    evalAlt altMVarId' altStx addInfo subgoals
-              pure (subgoals, usedWildcard || isWildcard)
-        if !isWildcard then
-          altsSyntaxIdx := altsSyntaxIdx + 1
-    if usedWildcard then
-      altsSyntaxIdx := altsSyntaxIdx + 1
-    unless altsSyntaxIdx == altsSyntax.size do
-      logErrorAt altsSyntax[altsSyntaxIdx]! "unused alternative"
-    setGoals subgoals.toList
+      let mut (_, altMVarId) ← altMVarId.introN numFields
+      match (← Cases.unifyEqs? numEqs altMVarId {}) with
+      | none   => pure () -- alternative is not reachable
+      | some (altMVarId', subst) =>
+        altMVarId ← if info.provesMotive then
+          (_, altMVarId) ← altMVarId'.introNP numGeneralized
+          pure altMVarId
+        else
+          pure altMVarId'
+        for fvarId in toClear do
+          altMVarId ← altMVarId.tryClear fvarId
+        altMVarId.withContext do
+          for (stx, fvar) in toTag do
+            Term.addLocalVarInfo stx (subst.get fvar)
+        let altMVarIds ← applyPreTac altMVarId
+        if !hasAlts then
+          -- User did not provide alternatives using `|`
+          setGoals <| (← getGoals) ++ altMVarIds
+        else if altMVarIds.isEmpty then
+          pure ()
+        else
+          logError m!"alternative '{altName}' has not been provided"
+          altMVarIds.forM fun mvarId => admitGoal mvarId
+  applyAltStx altStxIdx altStx alt := withRef altStx do
+    let { name := altName, info, mvarId := altMVarId } := alt
+    -- also checks for unknown alternatives
+    let numFields ← getAltNumFields elimInfo altName
+    let altVars := getAltVars altStx
+    let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
+    if altVars.size > numFieldsToName then
+      logError m!"too many variable names provided at alternative '{altName}', #{altVars.size} provided, but #{numFieldsToName} expected"
+    let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+    -- Delay adding the infos for the pattern LHS because we want them to nest
+    -- inside tacticInfo for the current alternative (in `evalAlt`)
+    let addInfo : TermElabM Unit := do
+      if (← getInfoState).enabled then
+        if let some declName := info.declName? then
+          addConstInfo (getAltNameStx altStx) declName
+        saveAltVarsInfo altMVarId altStx fvarIds
+    let unusedAlt := do
+      addInfo
+      if !isWildcard altStx then
+        throwError "alternative '{altName}' is not needed"
+    match (← Cases.unifyEqs? numEqs altMVarId {}) with
+    | none => unusedAlt
+    | some (altMVarId', subst) =>
+      altMVarId ← if info.provesMotive then
+        (_, altMVarId) ← altMVarId'.introNP numGeneralized
+        pure altMVarId
+      else
+        pure altMVarId'
+      for fvarId in toClear do
+        altMVarId ← altMVarId.tryClear fvarId
+      altMVarId.withContext do
+        for (stx, fvar) in toTag do
+          Term.addLocalVarInfo stx (subst.get fvar)
+      let altMVarIds ← applyPreTac altMVarId
+      if altMVarIds.isEmpty then
+        unusedAlt
+      else
+        -- all previous alternatives have to be unchanged for reuse
+        Term.withNarrowedArgTacticReuse (stx := mkNullNode altsSyntax) (argIdx := altStxIdx) fun altStx => do
+        -- everything up to rhs has to be unchanged for reuse
+        Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
+        for altMVarId' in altMVarIds do
+          -- disable reuse if rhs is run multiple times, also for any rhs but the last
+          Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx || altStxIdx < altsSyntax.size - 1) do
+            evalAlt altMVarId' altStx addInfo
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
       return [mvarId]

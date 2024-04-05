@@ -36,7 +36,7 @@ example : ∀ (x y : Nat), x ≤ y := by
   exact test_sorry
 
 axiom K : Type
-@[instance] axiom K.hasOne : OfNat K 1
+@[instance] axiom K.hasOne : OfNat K (nat_lit 1)
 @[instance] axiom K.hasIntCoe : Coe K Int
 
 noncomputable def foo : K → K := test_sorry

@@ -116,6 +116,15 @@ forward the "new" promise in order to provide incremental reporting and construc
 for reuse in future document versions! Note also that we explicitly opted into incrementality using
 `registerBuiltinIncrementalTactic` as any tactic combinator not written with these concerns in mind
 would likely misbehave under incremental reuse.
+
+While it is generally true that we can provide incremental reporting even without reuse, we
+generally want to avoid that when it would be confusing/annoying, e.g. when a tactic block is run
+multiple times because otherwise the progress bar would snap back and forth multiple times. For this
+purpose, we can disable both incremental modes using `Term.withoutTacticIncrementality`, assuming we
+opted into incrementality because of other parts of the combinator. `induction` is an example of
+this because there are some induction alternatives that are run multiple times, so we disable all of
+incrementality for them.
+
 -/
 set_option linter.missingDocs true
 

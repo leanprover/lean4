@@ -21,7 +21,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - Reconcile discrepancies in the `v4.6.0` section,
     usually via copy and paste and a commit to `releases/v4.6.0`.
 - `git tag v4.6.0`
-- `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository
+- `git push $REMOTE v4.6.0`, where `$REMOTE` is the upstream Lean repository (e.g., `origin`, `upstream`)
 - Now wait, while CI runs.
   - You can monitor this at `https://github.com/leanprover/lean4/actions/workflows/ci.yml`,
     looking for the `v4.6.0` tag.

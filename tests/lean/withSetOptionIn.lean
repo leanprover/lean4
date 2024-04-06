@@ -15,8 +15,7 @@ open Lean Elab Command
 elab "#trace_debug_foo" : command => do trace[debug] "foo"
 
 /-- Elab `cmd` using `withSetOptionIn`. -/
-elab "#test " cmd:command : command => do
-  withSetOptionIn elabCommand cmd
+elab "#test " cmd:command : command => withSetOptionIn elabCommand cmd
 
 /-! ## Controls -/
 

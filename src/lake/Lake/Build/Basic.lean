@@ -63,6 +63,9 @@ abbrev JobM := CoreBuildM
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
 abbrev SpawnM := BuildT BaseIO
 
+/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
+@[deprecated SpawnM] abbrev SchedulerM := SpawnM
+
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 

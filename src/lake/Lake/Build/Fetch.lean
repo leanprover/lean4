@@ -36,6 +36,12 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 /-- The top-level monad for Lake build functions. -/
 abbrev FetchM := IndexT RecBuildM
 
+/-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
+@[deprecated FetchM] abbrev IndexBuildM := FetchM
+
+/-- The old build monad. **Uses should generally be replaced by `FetchM`.** -/
+@[deprecated FetchM] abbrev BuildM := CoreBuildM
+
 /-- Fetch the result associated with the info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=
   fun build => cast (by simp) <| build self

@@ -537,7 +537,7 @@ partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
      stx[0].getKind == ``Lean.Parser.Command.set_option then
       let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
       Command.withScope (fun scope => { scope with opts }) do
-        withSetOptionIn cmd stx[1]
+        withSetOptionIn cmd stx[2]
   else
     cmd stx
 

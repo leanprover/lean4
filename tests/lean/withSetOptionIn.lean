@@ -17,15 +17,23 @@ elab "#trace_debug_foo" : command => do trace[debug] "foo"
 /-- Elab `cmd` using `withSetOptionIn`. -/
 elab "#test " cmd:command : command => withSetOptionIn elabCommand cmd
 
-/-! ## Controls -/
+/-! ## Controls
 
-#trace_debug_foo -- no trace
+Ensure that `#trace_debug_foo` works as expected.
+-/
 
-set_option trace.debug true in #trace_debug_foo -- trace
+#guard_msgs in
+#trace_debug_foo
+
+/-- info: [debug] foo -/
+#guard_msgs in
+set_option trace.debug true in #trace_debug_foo
 
 /-! ## Test
 
 Should trace `[debug] foo`, and not log the error "unexpected command 'in'".
 -/
 
+/-- info: [debug] foo -/
+#guard_msgs in
 #test set_option trace.debug true in #trace_debug_foo

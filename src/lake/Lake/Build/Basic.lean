@@ -54,14 +54,14 @@ abbrev BuildT := ReaderT BuildContext
 @[inline] def getNoBuild [Monad m] : BuildT m Bool :=
   (·.noBuild) <$> getBuildConfig
 
-/-- The monad for the Lake build manager. -/
-abbrev SchedulerM := BuildT <| LogT BaseIO
-
-/-- The core monad for Lake builds. -/
+/-- The internal core monad of Lake builds.  Not intended for user use. -/
 abbrev CoreBuildM := BuildT LogIO
 
-/-- The monad of Lake jobs. -/
+/-- The monad of asynchronous Lake jobs. -/
 abbrev JobM := CoreBuildM
+
+/-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
+abbrev SpawnM := BuildT BaseIO
 
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext

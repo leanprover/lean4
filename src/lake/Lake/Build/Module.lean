@@ -260,7 +260,8 @@ def Module.oFacetConfig : ModuleFacetConfig oFacet :=
 
 -- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
-def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) := do
+def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) :=
+  withRegisterJob s!"Linking {mod.name} dynlib" do
 
   -- Compute dependencies
   let transImports ← mod.transImports.fetch
@@ -276,24 +277,22 @@ def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) := do
   let externDynlibsJob ← BuildJob.collectArray externJobs
 
   -- Build dynlib
-  show SchedulerM _ from do
-    withRegisterJob s!"Linking {mod.name} dynlib" do
-    linksJob.bindAsync fun links linksTrace => do
-    modDynlibsJob.bindAsync fun modDynlibs modLibsTrace => do
-    externDynlibsJob.bindSync fun externDynlibs externLibsTrace => do
-      let libNames := modDynlibs.map (·.name) ++ externDynlibs.map (·.name)
-      let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
-      let depTrace :=
-        linksTrace.mix <| modLibsTrace.mix <| externLibsTrace.mix
-        <| (← getLeanTrace).mix <| (pureHash mod.linkArgs).mix <|
-        platformTrace
-      let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
-        let args :=
-          links.map toString ++
-          libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
-          mod.weakLinkArgs ++ mod.linkArgs
-        compileSharedLib mod.dynlibFile args (← getLeanc)
-      return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
+  linksJob.bindAsync fun links linksTrace => do
+  modDynlibsJob.bindAsync fun modDynlibs modLibsTrace => do
+  externDynlibsJob.bindSync fun externDynlibs externLibsTrace => do
+    let libNames := modDynlibs.map (·.name) ++ externDynlibs.map (·.name)
+    let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
+    let depTrace :=
+      linksTrace.mix <| modLibsTrace.mix <| externLibsTrace.mix
+      <| (← getLeanTrace).mix <| (pureHash mod.linkArgs).mix <|
+      platformTrace
+    let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
+      let args :=
+        links.map toString ++
+        libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
+        mod.weakLinkArgs ++ mod.linkArgs
+      compileSharedLib mod.dynlibFile args (← getLeanc)
+    return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=

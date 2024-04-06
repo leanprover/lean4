@@ -33,7 +33,7 @@ abbrev IndexBuildFn (m : Type → Type v) :=
 /-- A transformer to equip a monad with a build function for the Lake index. -/
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 
-/-- The main monad for Lake build functions. -/
+/-- The top-level monad for Lake build functions. -/
 abbrev FetchM := IndexT RecBuildM
 
 /-- Fetch the result associated with the info using the Lake build index. -/

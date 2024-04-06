@@ -110,7 +110,7 @@ trace (and/or `extraDepTrace`) has changed.
 @[inline] def buildFileAfterDep
   (file : FilePath) (dep : BuildJob α) (build : α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   dep.bindSync fun depInfo depTrace => do
     let depTrace := depTrace.mix (← extraDepTrace)
     let trace ← buildFileUnlessUpToDate file depTrace <| build depInfo
@@ -120,20 +120,20 @@ trace (and/or `extraDepTrace`) has changed.
 @[inline] def buildFileAfterDepList
   (file : FilePath) (deps : List (BuildJob α)) (build : List α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-: SchedulerM (BuildJob FilePath) := do
+: SpawnM (BuildJob FilePath) := do
   buildFileAfterDep file (← BuildJob.collectList deps) build extraDepTrace
 
 /-- Build `file` using `build` after `deps` have built if any of their traces change. -/
 @[inline] def buildFileAfterDepArray
   (file : FilePath) (deps : Array (BuildJob α)) (build : Array α → JobM PUnit)
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-: SchedulerM (BuildJob FilePath) := do
+: SpawnM (BuildJob FilePath) := do
   buildFileAfterDep file (← BuildJob.collectArray deps) build extraDepTrace
 
 /-! ## Common Builds -/
 
 /-- A build job for file that is expected to already exist (e.g., a source file). -/
-def inputFile (path : FilePath) : SchedulerM (BuildJob FilePath) :=
+def inputFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
 
 /--
@@ -155,7 +155,7 @@ which will be computed in the resulting `BuildJob` before building.
   (oFile : FilePath) (srcJob : BuildJob FilePath)
   (weakArgs traceArgs : Array String := #[]) (compiler : FilePath := "cc")
   (extraDepTrace : JobM _ := pure BuildTrace.nil)
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   let extraDepTrace :=
     return (← extraDepTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
@@ -165,7 +165,7 @@ which will be computed in the resulting `BuildJob` before building.
 @[inline] def buildLeanO
   (oFile : FilePath) (srcJob : BuildJob FilePath)
   (weakArgs traceArgs : Array String := #[])
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   let extraDepTrace :=
     return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDep oFile srcJob (extraDepTrace := extraDepTrace) fun srcFile => do
@@ -174,7 +174,7 @@ which will be computed in the resulting `BuildJob` before building.
 /-- Build a static library from object file jobs using the `ar` packaged with Lean. -/
 def buildStaticLib
   (libFile : FilePath) (oFileJobs : Array (BuildJob FilePath))
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   buildFileAfterDepArray libFile oFileJobs fun oFiles => do
     compileStaticLib libFile oFiles (← getLeanAr)
 
@@ -182,7 +182,7 @@ def buildStaticLib
 def buildLeanSharedLib
   (libFile : FilePath) (linkJobs : Array (BuildJob FilePath))
   (weakArgs traceArgs : Array String := #[])
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   let extraDepTrace :=
     return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray libFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
@@ -192,7 +192,7 @@ def buildLeanSharedLib
 def buildLeanExe
   (exeFile : FilePath) (linkJobs : Array (BuildJob FilePath))
   (weakArgs traceArgs : Array String := #[])
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   let extraDepTrace :=
     return (← getLeanTrace).mix <| (pureHash traceArgs).mix platformTrace
   buildFileAfterDepArray exeFile linkJobs (extraDepTrace := extraDepTrace) fun links => do
@@ -202,7 +202,7 @@ def buildLeanExe
 def buildLeanSharedLibOfStatic
   (staticLibJob : BuildJob FilePath)
   (weakArgs traceArgs : Array String := #[])
-: SchedulerM (BuildJob FilePath) :=
+: SpawnM (BuildJob FilePath) :=
   staticLibJob.bindSync fun staticLib staticTrace => do
     let dynlib := staticLib.withExtension sharedLibExt
     let baseArgs :=
@@ -218,7 +218,7 @@ def buildLeanSharedLibOfStatic
     return (dynlib, trace)
 
 /-- Construct a `Dynlib` object for a shared library target. -/
-def computeDynlibOfShared (sharedLibTarget : BuildJob FilePath) : SchedulerM (BuildJob Dynlib) :=
+def computeDynlibOfShared (sharedLibTarget : BuildJob FilePath) : SpawnM (BuildJob Dynlib) :=
   sharedLibTarget.bindSync fun sharedLib trace => do
     if let some stem := sharedLib.fileStem then
       if Platform.isWindows then

@@ -96,7 +96,7 @@ def Workspace.runFetchM
   (cfg : BuildConfig := {}) (useStdout := false)
 : LogIO α := do
   let some job ← ws.runFetchM build cfg useStdout | error "build failed"
-  let some a ← job.await? | error "build failed"
+  let some a ← job.wait? | error "build failed"
   return a
 
 /-- Produce a build job in the  Lake monad's workspace and await the result. -/

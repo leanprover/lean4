@@ -101,3 +101,27 @@ variable (a b : Nat)
 #check_simp (a + 1000) != (b + 1000) ~> a != b
 #check_simp (a + 1000) != (b +  400) ~> a + 600 != b
 #check_simp (a +  400) != (b + 1000) ~> a != b + 600
+
+/-! Alterate instance tests
+
+These check that the simplification rules will matching
+offets still trigger even when the expression for the
+index is definition equal but not syntactically equal
+to the defualt instance.
+
+This can be relevant in Mathlib when rewriting using
+theorems involving algebraic hierarchy classes.
+-/
+
+class AddCommMagma (G : Type u) extends Add G where
+  add_comm : ∀(x y : G), x + y = y + x
+
+instance instAddExtNat : AddCommMagma Nat where
+  add_comm := Nat.add_comm
+
+#check_tactic @Add.add _ instAddExtNat.toAdd a 1 = 4 ~> a = 3 by simp only [Nat.succ.injEq]
+#check_tactic @HAdd.hAdd _ _ _ (@instHAdd _ instAddExtNat.toAdd) a 1 = 4 ~> a = 3 by simp only [Nat.succ.injEq]
+
+#check_tactic @Add.add _ instAddNat a 1 = 4 ~> a = 3 by simp
+#check_tactic @Add.add _ instAddExtNat.toAdd a 1 = 4 ~> a = 3 by simp
+#check_tactic @HAdd.hAdd _ _ _ (@instHAdd _ instAddExtNat.toAdd) a 1 = 4 ~> a = 3 by simp

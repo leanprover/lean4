@@ -67,7 +67,7 @@ theorem zip_length {α β} (xs : List α) (ys : List β) :
   case case3 =>
     simp [zip, *]
     simp [Nat.min_def]
-    split<;>split<;> omega
+    split <;> omega
 
 theorem zip_get?  {α β} (as : List α) (bs : List β) :
     (List.zip as bs).get? i = match as.get? i, bs.get? i with
@@ -129,7 +129,7 @@ info: TreeExample.Tree.insert.induct.{u_1} {β : Type u_1} (motive : Tree β →
   (t : Tree β) (k : Nat) (v : β) : motive t k v
 -/
 #guard_msgs in
-#check TreeExample.Tree.insert.induct
+#check Tree.insert.induct
 
 end TreeExample
 

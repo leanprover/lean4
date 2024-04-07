@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isParentProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,6 +28,7 @@ LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Delaborator_FieldNotatio
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isParentProj(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -789,7 +789,7 @@ if (x_99 == 0)
 {
 lean_object* x_100; lean_object* x_101; 
 x_100 = l_Lean_instInhabitedExpr;
-x_101 = l___private_Init_Util_0__outOfBounds___rarg(x_100);
+x_101 = l___private_Init_GetElem_0__outOfBounds___rarg(x_100);
 x_57 = x_101;
 goto block_98;
 }
@@ -1113,7 +1113,7 @@ if (x_58 == 0)
 {
 lean_object* x_59; lean_object* x_60; 
 x_59 = l_Lean_instInhabitedExpr;
-x_60 = l___private_Init_Util_0__outOfBounds___rarg(x_59);
+x_60 = l___private_Init_GetElem_0__outOfBounds___rarg(x_59);
 x_23 = x_60;
 goto block_57;
 }

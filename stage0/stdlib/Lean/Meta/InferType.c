@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at___private_Lean_Me
 static lean_object* l_Lean_Meta_throwFunctionExpected___rarg___closed__4;
 extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Expr_instantiateBetaRevRange_visit___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferFVarType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_looseBVarRange(lean_object*);
@@ -66,6 +65,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Expr_instantiateBetaRevRange___spec__1(lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_instantiateBetaRevRange___closed__5;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwIncorrectNumberOfLevels(lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
@@ -1177,7 +1177,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_22);
 x_25 = l_Lean_instInhabitedExpr;
-x_26 = l___private_Init_Util_0__outOfBounds___rarg(x_25);
+x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
 x_27 = lean_unsigned_to_nat(0u);
 x_28 = lean_expr_lift_loose_bvars(x_26, x_27, x_5);
 lean_dec(x_5);

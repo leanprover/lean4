@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__59(lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__41(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__62___at_Lean_ParserCompiler_compileParserExpr___spec__63___rarg___boxed(lean_object**);
 static lean_object* l_Lean_ParserCompiler_registerParserCompiler___rarg___lambda__1___closed__28;
@@ -107,6 +106,7 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__37(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Parser_registerParserAttributeHook(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__32___rarg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
@@ -3092,7 +3092,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -3158,7 +3158,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -3721,7 +3721,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -3786,7 +3786,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -4319,7 +4319,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -4385,7 +4385,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -4930,7 +4930,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -4995,7 +4995,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -5566,7 +5566,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -5631,7 +5631,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -6164,7 +6164,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -6229,7 +6229,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -6928,7 +6928,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -6994,7 +6994,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -7539,7 +7539,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -7604,7 +7604,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8137,7 +8137,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -8203,7 +8203,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -8748,7 +8748,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -8813,7 +8813,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -9346,7 +9346,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -9411,7 +9411,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -9944,7 +9944,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -10009,7 +10009,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -10708,7 +10708,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -10774,7 +10774,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -11319,7 +11319,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -11384,7 +11384,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -11917,7 +11917,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -11983,7 +11983,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -12528,7 +12528,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -12593,7 +12593,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -13126,7 +13126,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -13191,7 +13191,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -13724,7 +13724,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -13789,7 +13789,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -14488,7 +14488,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -14554,7 +14554,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -15099,7 +15099,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -15164,7 +15164,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -15697,7 +15697,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -15763,7 +15763,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -16308,7 +16308,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -16373,7 +16373,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -16906,7 +16906,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -16971,7 +16971,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -17504,7 +17504,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -17569,7 +17569,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -18268,7 +18268,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -18334,7 +18334,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -18879,7 +18879,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -18944,7 +18944,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -19477,7 +19477,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -19543,7 +19543,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -20088,7 +20088,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -20153,7 +20153,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -20686,7 +20686,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -20751,7 +20751,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -21284,7 +21284,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -21349,7 +21349,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -22048,7 +22048,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -22114,7 +22114,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -22659,7 +22659,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -22724,7 +22724,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -23257,7 +23257,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -23323,7 +23323,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -23868,7 +23868,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -23933,7 +23933,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -24466,7 +24466,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -24531,7 +24531,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -25064,7 +25064,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -25129,7 +25129,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -25828,7 +25828,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -25894,7 +25894,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -26439,7 +26439,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -26504,7 +26504,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -27037,7 +27037,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -27103,7 +27103,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -27648,7 +27648,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -27713,7 +27713,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -28246,7 +28246,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -28311,7 +28311,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -28844,7 +28844,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -28909,7 +28909,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -29608,7 +29608,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -29674,7 +29674,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -30219,7 +30219,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -30284,7 +30284,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -30817,7 +30817,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -30883,7 +30883,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -31428,7 +31428,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -31493,7 +31493,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -32026,7 +32026,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -32091,7 +32091,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -32624,7 +32624,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -32689,7 +32689,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -33388,7 +33388,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -33454,7 +33454,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -33999,7 +33999,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -34064,7 +34064,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -34597,7 +34597,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -34663,7 +34663,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -35208,7 +35208,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -35273,7 +35273,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -35806,7 +35806,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -35871,7 +35871,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -36404,7 +36404,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -36469,7 +36469,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -37168,7 +37168,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -37234,7 +37234,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -37779,7 +37779,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -37844,7 +37844,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -38377,7 +38377,7 @@ if (x_32 == 0)
 {
 lean_object* x_114; lean_object* x_115; 
 x_114 = l_Lean_instInhabitedExpr;
-x_115 = l___private_Init_Util_0__outOfBounds___rarg(x_114);
+x_115 = l___private_Init_GetElem_0__outOfBounds___rarg(x_114);
 x_34 = x_115;
 goto block_113;
 }
@@ -38443,7 +38443,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_instInhabitedExpr;
-x_39 = l___private_Init_Util_0__outOfBounds___rarg(x_38);
+x_39 = l___private_Init_GetElem_0__outOfBounds___rarg(x_38);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);
@@ -38988,7 +38988,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -39053,7 +39053,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -39586,7 +39586,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -39651,7 +39651,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);
@@ -40184,7 +40184,7 @@ if (x_31 == 0)
 {
 lean_object* x_115; lean_object* x_116; 
 x_115 = l_Lean_instInhabitedExpr;
-x_116 = l___private_Init_Util_0__outOfBounds___rarg(x_115);
+x_116 = l___private_Init_GetElem_0__outOfBounds___rarg(x_115);
 x_33 = x_116;
 goto block_114;
 }
@@ -40249,7 +40249,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = l_Lean_instInhabitedExpr;
-x_38 = l___private_Init_Util_0__outOfBounds___rarg(x_37);
+x_38 = l___private_Init_GetElem_0__outOfBounds___rarg(x_37);
 x_39 = l_Std_Range_forIn_loop___at_Lean_ParserCompiler_compileParserExpr___spec__3___at_Lean_ParserCompiler_compileParserExpr___spec__4___rarg___closed__1;
 lean_inc(x_16);
 lean_inc(x_15);

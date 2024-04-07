@@ -174,7 +174,7 @@ protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
 protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
   induction n with
   | zero => simp
-  | succ n ih => simp [succ_add]; intro h; apply ih h
+  | succ n ih => simp [succ_add, succ.injEq]; intro h; apply ih h
 
 protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := by
   rw [Nat.add_comm n m, Nat.add_comm k m] at h
@@ -248,7 +248,7 @@ theorem lt_succ_of_le {n m : Nat} : n ≤ m → n < succ m := succ_le_succ
 
 @[simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
 
-@[simp] theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
+theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
@@ -574,7 +574,7 @@ theorem eq_zero_or_eq_succ_pred : ∀ n, n = 0 ∨ n = succ (pred n)
   | 0 => .inl rfl
   | _+1 => .inr rfl
 
-theorem succ_inj' : succ a = succ b ↔ a = b := ⟨succ.inj, congrArg _⟩
+theorem succ_inj' : succ a = succ b ↔ a = b := (Nat.succ.injEq a b).to_iff
 
 theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_succ, succ_le_succ⟩
 
@@ -802,7 +802,7 @@ theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
 protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
   induction k with
   | zero => simp
-  | succ k ih => simp [← Nat.add_assoc, ih]
+  | succ k ih => simp [← Nat.add_assoc, succ_sub_succ_eq_sub, ih]
 
 protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
   rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]

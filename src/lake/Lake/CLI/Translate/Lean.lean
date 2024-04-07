@@ -130,10 +130,9 @@ protected def Glob.quote (glob : Glob) : Term := Unhygienic.run do
 
 local instance : Quote Glob := ⟨Glob.quote⟩
 
-@[inline] private def mkConfigAttrs? (defaultTarget : Bool) : Option Attributes :=
-  if defaultTarget then Unhygienic.run `(Term.attributes|@[default_target]) else none
-
-protected def LeanLibConfig.mkSyntax (cfg : LeanLibConfig) (defaultTarget := false) : LeanLibDecl := Unhygienic.run do
+protected def LeanLibConfig.mkSyntax
+  (cfg : LeanLibConfig) (defaultTarget := false)
+: LeanLibDecl := Unhygienic.run do
   let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `srcDir cfg.srcDir "."
     |> addDeclFieldD `roots cfg.roots #[cfg.name]
@@ -142,20 +141,26 @@ protected def LeanLibConfig.mkSyntax (cfg : LeanLibConfig) (defaultTarget := fal
     |> addDeclFieldD `precompileModules cfg.precompileModules false
     |> addDeclFieldD `defaultFacets cfg.defaultFacets #[LeanLib.leanArtsFacet]
     |> cfg.toLeanConfig.addDeclFields
-  let attrs? := mkConfigAttrs? defaultTarget
+  let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanLibDecl|$[$attrs?:attributes]? lean_lib $(mkIdent cfg.name) $[$declVal?]?)
 
-protected def LeanExeConfig.mkSyntax (cfg : LeanExeConfig) (defaultTarget := false) : LeanExeDecl := Unhygienic.run do
+protected def LeanExeConfig.mkSyntax
+  (cfg : LeanExeConfig) (defaultTarget := false) (testRunner := false)
+: LeanExeDecl := Unhygienic.run do
   let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `srcDir cfg.srcDir "."
     |> addDeclFieldD `root cfg.root cfg.name
     |> addDeclFieldD `exeName cfg.exeName (cfg.name.toStringWithSep "-" (escape := false))
     |> addDeclFieldD `supportInterpreter cfg.supportInterpreter false
     |> cfg.toLeanConfig.addDeclFields
-  let attrs? := mkConfigAttrs? defaultTarget
+  let attrs? ← id do
+    let mut attrs := #[]
+    if testRunner then attrs := attrs.push <| ← `(Term.attrInstance|test_runner)
+    if defaultTarget then attrs := attrs.push <| ← `(Term.attrInstance|default_target)
+    if attrs.isEmpty then pure none else some <$> `(Term.attributes|@[$attrs,*])
   `(leanExeDecl|$[$attrs?:attributes]? lean_exe $(mkIdent cfg.name) $[$declVal?]?)
 
-protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl:= Unhygienic.run do
+protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic.run do
   let opts? := if cfg.opts.isEmpty then none else some <| Unhygienic.run do
     cfg.opts.foldM (init := mkCIdent ``NameMap.empty) fun stx opt val =>
       `($stx |>.insert $(quote opt) $(quote val))
@@ -170,13 +175,14 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl:= Unhygienic.
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let pkgConfig := pkg.config.mkSyntax
+  let testRunner := pkg.testRunner
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
+  let pkgConfig := pkg.config.mkSyntax
   let requires := pkg.depConfigs.map (·.mkSyntax)
   let leanLibs := pkg.leanLibConfigs.toArray.map fun cfg =>
     cfg.mkSyntax (defaultTargets.contains cfg.name)
   let leanExes := pkg.leanExeConfigs.toArray.map fun cfg =>
-    cfg.mkSyntax (defaultTargets.contains cfg.name)
+    cfg.mkSyntax (defaultTargets.contains cfg.name) (cfg.name == testRunner)
   `(module|
   import $(mkIdent `Lake)
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)

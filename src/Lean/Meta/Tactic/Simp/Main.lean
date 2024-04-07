@@ -54,6 +54,10 @@ def foldRawNatLit (e : Expr) : SimpM Expr := do
 def isOfScientificLit (e : Expr) : Bool :=
   e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 4).isRawNatLit && (e.getArg! 2).isRawNatLit
 
+/-- Return true if `e` is of the form `Char.ofNat n` where `n` is a kernel Nat literals. -/
+def isCharLit (e : Expr) : Bool :=
+  e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isRawNatLit
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -436,13 +440,18 @@ Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application su
 -/
 private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
+/--
+Auliliary `dsimproc` for not visiting `Char` literal subterms.
+-/
+private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
+
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
@@ -562,7 +571,7 @@ def congr (e : Expr) : SimpM Result := do
     congrDefault e
 
 def simpApp (e : Expr) : SimpM Result := do
-  if isOfNatNatLit e || isOfScientificLit e then
+  if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else
@@ -585,9 +594,7 @@ def simpStep (e : Expr) : SimpM Result := do
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
   if cfg.memoize && r.cache then
-    let ctx ← readThe Simp.Context
-    let dischargeDepth := ctx.dischargeDepth
-    modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+    modify fun s => { s with cache := s.cache.insert e r }
   return r
 
 partial def simpLoop (e : Expr) : SimpM Result := withIncRecDepth do
@@ -634,12 +641,7 @@ where
     if cfg.memoize then
       let cache := (← get).cache
       if let some result := cache.find? e then
-        /-
-          If the result was cached at a dischargeDepth > the current one, it may not be valid.
-          See issue #1234
-        -/
-        if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
-          return result
+        return result
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 

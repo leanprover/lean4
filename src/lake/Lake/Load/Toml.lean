@@ -259,10 +259,12 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
+      let testRunner ← table.tryDecodeD `testRunner .anonymous
       let depConfigs ← table.tryDecodeD `require #[]
       return {
-        dir, relDir, relConfigFile,
-        config, depConfigs, leanLibConfigs, leanExeConfigs, defaultTargets
+        dir, relDir, relConfigFile
+        config, depConfigs, leanLibConfigs, leanExeConfigs
+        defaultTargets, testRunner
       }
     if errs.isEmpty then
       return pkg

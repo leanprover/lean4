@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_inlineProjInst_x3f_visit___closed__4;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_instantiateParamsLevelParams(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_inlineProjInst_x3f_visit___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkLetDeclErased(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Simp_inlineProjInst_x3f_visit___spec__1___closed__1;
@@ -546,7 +546,7 @@ lean_object* x_91; lean_object* x_92;
 lean_dec(x_88);
 lean_dec(x_30);
 x_91 = l_Lean_Compiler_LCNF_instInhabitedArg;
-x_92 = l___private_Init_Util_0__outOfBounds___rarg(x_91);
+x_92 = l___private_Init_GetElem_0__outOfBounds___rarg(x_91);
 if (lean_obj_tag(x_92) == 1)
 {
 lean_object* x_93; lean_object* x_94; 

@@ -18,8 +18,10 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  test                  run the workspace's test script or executable
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
+  lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
@@ -135,6 +137,15 @@ of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
 
+def helpTest :=
+"Run the workspace's test script or executable
+
+USAGE:
+  lake test [-- <args>...]
+
+Looks for a script or executable tagged `@[test_runner]` in the workspace's
+root package and executes it with `args`. "
+
 def helpUpload :=
 "Upload build artifacts to a GitHub release
 
@@ -248,6 +259,17 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpLean :=
+"Elaborate a Lean file in the context of the Lake workspace
+
+USAGE:
+  lake lean <file> [-- <args>...]
+
+Build the imports of the the given file and then runs `lean` on it using
+the workspace's root package's additional Lean arguments and the given args
+(in that order). The `lean` process is executed in Lake's environment like
+`lake env lean` (see `lake help env` for how the environment is set up)."
+
 def helpTranslateConfig :=
 "Translate a Lake configuration file into a different language
 
@@ -275,6 +297,7 @@ def help : (cmd : String) → String
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
 | "upload"              => helpUpload
+| "test"                => helpTest
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
@@ -282,5 +305,6 @@ def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

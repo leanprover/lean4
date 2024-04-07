@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_OpenDecl_elabOpenDecl_
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_nestedExceptionToMessageData___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___spec__5___rarg___lambda__1___closed__1;
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__22(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__37(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__89(lean_object*);
@@ -105,6 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_resolveId___rarg___lambda__1(lean_
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__93___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_resolveNameUsingNamespacesCore___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__36(lean_object*);
@@ -2517,7 +2517,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_1);
 x_34 = l_Lean_instInhabitedName;
-x_35 = l___private_Init_Util_0__outOfBounds___rarg(x_34);
+x_35 = l___private_Init_GetElem_0__outOfBounds___rarg(x_34);
 x_36 = lean_ctor_get(x_4, 0);
 lean_inc(x_36);
 lean_dec(x_4);
@@ -2607,7 +2607,7 @@ x_20 = lean_ctor_get(x_5, 0);
 lean_inc(x_20);
 lean_dec(x_5);
 x_21 = l_Lean_instInhabitedException;
-x_22 = l___private_Init_Util_0__outOfBounds___rarg(x_21);
+x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_21);
 x_23 = lean_apply_2(x_20, lean_box(0), x_22);
 x_24 = lean_apply_3(x_17, lean_box(0), x_12, x_23);
 return x_24;

@@ -131,10 +131,10 @@ def withExtHyps (struct : Name) (flat : Term)
   withLocalDeclD `x (mkAppN structC params) fun x => do
   withLocalDeclD `y (mkAppN structC params) fun y => do
     let mut hyps := #[]
-    let fields := if flat then
-      getStructureFieldsFlattened (← getEnv) struct (includeSubobjectFields := false)
+    let fields ← if flat then
+      pure <| getStructureFieldsFlattened (← getEnv) struct (includeSubobjectFields := false)
     else
-      getStructureFields (← getEnv) struct
+      pure <| getStructureFields (← getEnv) struct
     for field in fields do
       let x_f ← mkProjection x field
       let y_f ← mkProjection y field

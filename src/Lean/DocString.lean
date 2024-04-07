@@ -16,10 +16,12 @@ private builtin_initialize docStringExt : MapDeclarationExtension String ← mkM
 def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
   builtinDocStrings.modify (·.insert declName docString.removeLeadingSpaces)
 
-def addDocString [MonadEnv m] (declName : Name) (docString : String) : m Unit :=
+def addDocString [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString : String) : m Unit := do
+  unless (← getEnv).getModuleIdxFor? declName |>.isNone do
+    throwError s!"invalid doc string, declaration '{declName}' is in an imported module"
   modifyEnv fun env => docStringExt.insert env declName docString.removeLeadingSpaces
 
-def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
+def addDocString' [Monad m] [MonadError m] [MonadEnv m] (declName : Name) (docString? : Option String) : m Unit :=
   match docString? with
   | some docString => addDocString declName docString
   | none => return ()

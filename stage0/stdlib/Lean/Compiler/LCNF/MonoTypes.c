@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_toMonoType_visitApp___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_toMonoType_visitApp___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -46,6 +45,7 @@ static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__26;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern uint8_t l_instInhabitedBool;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_MonoTypeExtState_mono___default;
 extern lean_object* l_Lean_Compiler_LCNF_erasedExpr;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -1429,7 +1429,7 @@ if (x_23 == 0)
 uint8_t x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
 x_24 = l_instInhabitedBool;
 x_25 = lean_box(x_24);
-x_26 = l___private_Init_Util_0__outOfBounds___rarg(x_25);
+x_26 = l___private_Init_GetElem_0__outOfBounds___rarg(x_25);
 x_27 = lean_unbox(x_26);
 lean_dec(x_26);
 if (x_27 == 0)
@@ -1561,7 +1561,7 @@ if (x_53 == 0)
 uint8_t x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
 x_54 = l_instInhabitedBool;
 x_55 = lean_box(x_54);
-x_56 = l___private_Init_Util_0__outOfBounds___rarg(x_55);
+x_56 = l___private_Init_GetElem_0__outOfBounds___rarg(x_55);
 x_57 = lean_unbox(x_56);
 lean_dec(x_56);
 if (x_57 == 0)
@@ -2681,7 +2681,7 @@ lean_object* x_54; lean_object* x_55; lean_object* x_56;
 lean_dec(x_51);
 lean_dec(x_50);
 x_54 = l_Lean_instInhabitedExpr;
-x_55 = l___private_Init_Util_0__outOfBounds___rarg(x_54);
+x_55 = l___private_Init_GetElem_0__outOfBounds___rarg(x_54);
 x_56 = l_Lean_Compiler_LCNF_toMonoType(x_55, x_5, x_6, x_49);
 return x_56;
 }

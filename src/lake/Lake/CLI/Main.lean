@@ -335,6 +335,20 @@ protected def setupFile : CliM PUnit := do
   let imports ← takeArgs
   setupFile loadConfig filePath imports buildConfig opts.verbosity
 
+protected def test : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  noArgsRem do
+  let x := ws.root.test opts.subArgs (mkBuildConfig opts)
+  exit <| ← x.run (mkLakeContext ws) |>.run (MonadLog.io opts.verbosity)
+
+protected def checkTest : CliM PUnit := do
+  processOptions lakeOption
+  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if ws.root.testRunner.isAnonymous then 1 else 0
+
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions)
@@ -391,6 +405,26 @@ protected def exe : CliM PUnit := do
   let exeFile ← ws.runBuild (exe.build >>= (·.await)) <| mkBuildConfig opts
   exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
+protected def lean : CliM PUnit := do
+  processOptions lakeOption
+  let leanFile ← takeArg "Lean file"
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let imports ← Lean.parseImports' (← IO.FS.readFile leanFile) leanFile
+  let imports := imports.filterMap (ws.findModule? ·.module)
+  let dynlibs ← ws.runBuild (buildImportsAndDeps imports) (mkBuildConfig opts)
+  let spawnArgs := {
+    args :=
+      #[leanFile] ++ dynlibs.map (s!"--load-dynlib={·}") ++
+      ws.root.moreLeanArgs ++ opts.subArgs
+    cmd := ws.lakeEnv.lean.lean.toString
+    env := ws.augmentedEnvVars
+  }
+  logProcCmd spawnArgs logVerbose
+  let rc ← IO.Process.spawn spawnArgs >>= (·.wait)
+  exit rc
+
 protected def translateConfig : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -424,6 +458,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
 | "setup-file"          => lake.setupFile
+| "test"                => lake.test
+| "check-test"          => lake.checkTest
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list
@@ -431,6 +467,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "serve"               => lake.serve
 | "env"                 => lake.env
 | "exe" | "exec"        => lake.exe
+| "lean"                => lake.lean
 | "translate-config"    => lake.translateConfig
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help

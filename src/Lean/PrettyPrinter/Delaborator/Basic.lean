@@ -178,35 +178,6 @@ def annotatePos (pos : Pos) (stx : Term) : Term :=
 def annotateCurPos (stx : Term) : Delab :=
   return annotatePos (← getPos) stx
 
-def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
-  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
-  let suggestion := if suggestion.isAnonymous then `a else suggestion
-  -- We use this small hack to convert identifiers created using `mkAuxFunDiscr` to simple names
-  let suggestion := suggestion.eraseMacroScopes
-  let lctx ← getLCtx
-  if !lctx.usesUserName suggestion then
-    return suggestion
-  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
-    return suggestion
-  else
-    return lctx.getUnusedName suggestion
-where
-  bodyUsesSuggestion (lctx : LocalContext) (suggestion' : Name) : Bool :=
-    Option.isSome <| body.find? fun
-      | Expr.fvar fvarId =>
-        match lctx.find? fvarId with
-        | none      => false
-        | some decl => decl.userName == suggestion'
-      | _ => false
-
-def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
-  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
-  let stxN ← annotateCurPos (mkIdent n)
-  withBindingBody n $ d stxN
-
-@[inline] def liftMetaM {α} (x : MetaM α) : DelabM α :=
-  liftM x
-
 def addTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false) : DelabM Unit := do
   let info := Info.ofTermInfo <| ← mkTermInfo stx e isBinder
   modify fun s => { s with infos := s.infos.insert pos info }
@@ -231,6 +202,62 @@ where
     val := val,
     stx := stx
   }
+
+/--
+Annotates the term with the current expression position and registers `TermInfo`
+to associate the term to the current expression.
+-/
+def annotateTermInfo (stx : Term) : Delab := do
+  let stx ← annotateCurPos stx
+  addTermInfo (← getPos) stx (← getExpr)
+  pure stx
+
+/--
+Modifies the delaborator so that it annotates the resulting term with the current expression
+position and registers `TermInfo` to associate the term to the current expression.
+-/
+def withAnnotateTermInfo (d : Delab) : Delab := do
+  let stx ← d
+  annotateTermInfo stx
+
+def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
+  -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
+  let suggestion := if suggestion.isAnonymous then `a else suggestion
+  -- We use this small hack to convert identifiers created using `mkAuxFunDiscr` to simple names
+  let suggestion := suggestion.eraseMacroScopes
+  let lctx ← getLCtx
+  if !lctx.usesUserName suggestion then
+    return suggestion
+  else if (← getPPOption getPPSafeShadowing) && !bodyUsesSuggestion lctx suggestion then
+    return suggestion
+  else
+    return lctx.getUnusedName suggestion
+where
+  bodyUsesSuggestion (lctx : LocalContext) (suggestion' : Name) : Bool :=
+    Option.isSome <| body.find? fun
+      | Expr.fvar fvarId =>
+        match lctx.find? fvarId with
+        | none      => false
+        | some decl => decl.userName == suggestion'
+      | _ => false
+
+/--
+Creates an identifier that is annotated with the term `e`, using a fresh position using the `HoleIterator`.
+-/
+def mkAnnotatedIdent (n : Name) (e : Expr) : DelabM Ident := do
+  let pos ← nextExtraPos
+  let stx : Syntax := annotatePos pos (mkIdent n)
+  addTermInfo pos stx e
+  return ⟨stx⟩
+
+/--
+Enters the body of the current expression, which must be a lambda or forall.
+The binding variable is passed to `d` as `Syntax`, and it is an identifier that has been annotated with the fvar expression
+for the variable.
+-/
+def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
+  let n ← getUnusedName (← getExpr).bindingName! (← getExpr).bindingBody!
+  withBindingBody' n (mkAnnotatedIdent n) (d ·)
 
 inductive OmissionReason
   | deep
@@ -314,23 +341,6 @@ def shouldOmitProof (e : Expr) : DelabM Bool := do
     return false
 
   return !isShallowExpression (← getPPOption getPPProofsThreshold) e
-
-/--
-Annotates the term with the current expression position and registers `TermInfo`
-to associate the term to the current expression.
--/
-def annotateTermInfo (stx : Term) : Delab := do
-  let stx ← annotateCurPos stx
-  addTermInfo (← getPos) stx (← getExpr)
-  pure stx
-
-/--
-Modifies the delaborator so that it annotates the resulting term with the current expression
-position and registers `TermInfo` to associate the term to the current expression.
--/
-def withAnnotateTermInfo (d : Delab) : Delab := do
-  let stx ← d
-  annotateTermInfo stx
 
 /--
 Delaborates the current expression as `⋯` and attaches `Elab.OmissionInfo`, which influences how the

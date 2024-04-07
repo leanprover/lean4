@@ -325,6 +325,9 @@ def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α}
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps
 
+def toArray {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : Array (α × β) :=
+  m.foldl (init := #[]) fun ps k v => ps.push (k, v)
+
 structure Stats where
   numNodes      : Nat := 0
   numNull       : Nat := 0

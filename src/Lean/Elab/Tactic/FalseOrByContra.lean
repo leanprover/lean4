@@ -36,7 +36,9 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
   match ty with
   | .const ``False _ => pure g
   | .forallE _ _ _ _
-  | .app (.const ``Not _) _ => falseOrByContra (← g.intro1).2
+  | .app (.const ``Not _) _ =>
+    -- We set the transparency back to default; otherwise this breaks when run by a `simp` discharger.
+    falseOrByContra (← withTransparency default g.intro1P).2 useClassical
   | _ =>
     let gs ← if ← isProp ty then
       match useClassical with

@@ -59,7 +59,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) (remaini
   withCaseRef (getAltDArrow alt) rhs do
     if isHoleRHS rhs then
       addInfo
-      let gs' ← mvarId.withContext <| withRef rhs do
+      let gs' ← mvarId.withContext <| withTacticInfoContext rhs do
         let mvarDecl ← mvarId.getDecl
         let val ← elabTermEnsuringType rhs mvarDecl.type
         mvarId.assign val

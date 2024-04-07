@@ -109,6 +109,14 @@ def Package.loadFromEnv
     | .error e => error e
   let depConfigs ← IO.ofExcept <| packageDepAttr.getAllEntries env |>.mapM fun name =>
     evalConstCheck env opts Dependency ``Dependency name
+  let testRunners := testRunnerAttr.getAllEntries env
+  let testRunner ←
+    if testRunners.size > 1 then
+      error s!"{self.name}: only one script or executable can be tagged `@[test_runner]`"
+    else if h : testRunners.size > 0 then
+      pure (testRunners[0]'h)
+    else
+      pure .anonymous
 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
@@ -119,7 +127,7 @@ def Package.loadFromEnv
   -- Fill in the Package
   return {self with
     depConfigs, leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts, testRunner
     postUpdateHooks
   }
 

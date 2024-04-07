@@ -1690,9 +1690,9 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     tryUnificationHints t s <||> tryUnificationHints s t
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | Expr.proj m i t, Expr.proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
-  | Expr.proj structName 0 s, v => isDefEqSingleton structName s v
-  | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
+  | .proj m i t, .proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+  | .proj structName 0 s, v  => isDefEqSingleton structName s v
+  | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
@@ -1779,25 +1779,30 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
   if (← isDefEqProj t s) then return true
-  whenUndefDo (isDefEqNative t s) do
-  whenUndefDo (isDefEqNat t s) do
-  whenUndefDo (isDefEqOffset t s) do
-  whenUndefDo (isDefEqDelta t s) do
-  -- We try structure eta *after* lazy delta reduction;
-  -- otherwise we would end up applying it at every step of a reduction chain
-  -- as soon as one of the sides is a constructor application,
-  -- which is very costly because it requires us to unify the fields.
-  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
-    return true
-  if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-    return true
+  let t' ← whnfCore t
+  let s' ← whnfCore s
+  if t != t' || s != s' then
+    Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqProjInst t s) do
-    whenUndefDo (isDefEqStringLit t s) do
-    if (← isDefEqUnitLike t s) then return true else
-    isDefEqOnFailure t s
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDelta t s) do
+    -- We try structure eta *after* lazy delta reduction;
+    -- otherwise we would end up applying it at every step of a reduction chain
+    -- as soon as one of the sides is a constructor application,
+    -- which is very costly because it requires us to unify the fields.
+    if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
+      return true
+    else
+      whenUndefDo (isDefEqProjInst t s) do
+      whenUndefDo (isDefEqStringLit t s) do
+      if (← isDefEqUnitLike t s) then return true else
+      isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
   | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
@@ -1863,14 +1868,41 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   whenUndefDo (isDefEqProofIrrel t s) do
   /-
     We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
-    When unifying e.g. `@Neg.neg α (@Field.toNeg α inst1) =?= @Neg.neg α (@Field.toNeg α inst2)`,
+    When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
-    We used to *not* reduce projections here, to support unifying `(?a).1 =?= (x, y).1`.
-    NOTE: this still seems to work because we don't eagerly unfold projection definitions to primitive projections.
+
+    Note that ew use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    We added this refinement to address a performance issue in code such as
+    ```
+    let val : Test := bar c1 key
+    have : val.1 = (bar c1 key).1 := rfl
+    ```
+    where `bar` is a complex function that takes a long time to be reduced.
+
+    Note that the current solution times out at unification problems such as
+    `(f x).1 =?= (g x).1` where `f`, `g` are defined as
+    ```
+    structure Foo where
+      x : Nat
+      y : Nat
+
+    def f (x : Nat) : Foo :=
+      { x, y := ack 10 10 }
+
+    def g (x : Nat) : Foo :=
+      { x, y := ack 10 11 }
+    ```
+    and `ack` is ackermann. We claim this is an abuse of the unifier.
+    That being said, we could in principle address this issue by implementing
+    lazy-delta reduction at `isDefEqProj`.
+
+    The current solution should be sufficient. In the past, we have used
+    `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
+    and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t
-  let s' ← whnfCore s
+  let t' ← whnfCore t (config := { proj := .yesWithDeltaI })
+  let s' ← whnfCore s (config := { proj := .yesWithDeltaI })
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

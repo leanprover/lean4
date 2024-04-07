@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Hashable
 import Lean.Data.KVMap
+import Lean.Data.SMap
 import Lean.Level
 
 namespace Lean
@@ -1389,6 +1390,8 @@ def mkDecIsFalse (pred proof : Expr) :=
 
 abbrev ExprMap (α : Type)  := HashMap Expr α
 abbrev PersistentExprMap (α : Type) := PHashMap Expr α
+abbrev SExprMap (α : Type)  := SMap Expr α
+
 abbrev ExprSet := HashSet Expr
 abbrev PersistentExprSet := PHashSet Expr
 abbrev PExprSet := PersistentExprSet
@@ -2019,17 +2022,46 @@ def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
 /-- Return `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
+/-! Constants for Nat typeclasses. -/
+namespace Nat
+
+def natType : Expr := mkConst ``Nat
+
+def instAdd : Expr := mkConst ``instAddNat
+def instHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) natType instAdd
+
+def instSub : Expr := mkConst ``instSubNat
+def instHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) natType instSub
+
+def instMul : Expr := mkConst ``instMulNat
+def instHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) natType instMul
+
+def instDiv : Expr := mkConst ``Nat.instDivNat
+def instHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) natType instDiv
+
+def instMod : Expr := mkConst ``Nat.instModNat
+def instHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) natType instMod
+
+def instNatPow : Expr := mkConst ``instNatPowNat
+def instPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) natType instNatPow
+def instHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) natType natType instPow
+
+def instLT : Expr := mkConst ``instLTNat
+def instLE : Expr := mkConst ``instLENat
+
+end Nat
+
 private def natAddFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHAdd [0]) nat (mkConst ``instAddNat))
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.instHAdd
 
 private def natSubFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHSub [0]) nat (mkConst ``instSubNat))
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.instHSub
 
 private def natMulFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHMul [0]) nat (mkConst ``instMulNat))
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.instHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2048,7 +2080,7 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat)
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.instLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=

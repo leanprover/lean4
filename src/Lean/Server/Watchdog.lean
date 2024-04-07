@@ -1109,7 +1109,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       capabilities := mkLeanServerCapabilities
       serverInfo?  := some {
         name     := "Lean 4 Server"
-        version? := "0.1.2"
+        version? := "0.2.0"
       }
       : InitializeResult
     }

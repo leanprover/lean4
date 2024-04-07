@@ -44,7 +44,6 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
-
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
   "/-!" >> commentBody >> ppLine
@@ -203,17 +202,17 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> ident)
+  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> ident)
+  "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> ident
+  "namespace " >> checkColGt >> ident
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> Term.bracketedBinder)
+  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 @[builtin_command_parser] def «universe»     := leading_parser
-  "universe" >> many1 (ppSpace >> ident)
+  "universe" >> many1 (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
@@ -236,7 +235,7 @@ def «structure»          := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 @[builtin_command_parser] def «set_option»   := leading_parser
-  "set_option " >> ident >> ppSpace >> optionValue
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
 def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser
@@ -324,7 +323,7 @@ It makes the given namespaces available in the term `e`.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
 @[builtin_term_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
@@ -336,7 +335,7 @@ but it opens a namespace only within the tactics `tacs`. -/
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 
 end Parser

@@ -137,11 +137,13 @@ theorem add_le_iff_le_sub (a b c : Int) : a + b ≤ c ↔ a ≤ c - b := by
     lhs
     rw [← Int.add_zero c, ← Int.sub_self (-b), Int.sub_eq_add_neg, ← Int.add_assoc, Int.neg_neg,
       Int.add_le_add_iff_right]
+  try rfl -- stage0 update TODO: Change this to rfl or remove
 
 theorem le_add_iff_sub_le (a b c : Int) : a ≤ b + c ↔ a - c ≤ b := by
   conv =>
     lhs
     rw [← Int.neg_neg c, ← Int.sub_eq_add_neg, ← add_le_iff_le_sub]
+  try rfl -- stage0 update TODO: Change this to rfl or remove
 
 theorem add_le_zero_iff_le_neg (a b : Int) : a + b ≤ 0 ↔ a ≤ - b := by
   rw [add_le_iff_le_sub, Int.zero_sub]

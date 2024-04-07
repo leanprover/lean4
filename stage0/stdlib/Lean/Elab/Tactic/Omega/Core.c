@@ -22,7 +22,6 @@ static lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___closed__6;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Meta_mkSorry(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_instToExprConstraint___lambda__1___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_isEmpty___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__2;
@@ -105,6 +104,7 @@ LEAN_EXPORT lean_object* l_List_toString___at_Lean_Elab_Tactic_Omega_Justificati
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_toString___closed__6;
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_runOmega___closed__2;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_explanation_x3f___default___elambda__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__12;
@@ -5132,7 +5132,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_15);
 x_18 = l_Lean_Elab_Tactic_Omega_Justification_proof___rarg___closed__6;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = lean_box(x_8);
 x_21 = lean_apply_10(x_19, x_5, x_6, x_7, x_20, x_9, x_10, x_11, x_12, x_13, x_14);
 return x_21;
@@ -13969,7 +13969,7 @@ if (x_130 == 0)
 {
 lean_object* x_131; lean_object* x_132; 
 x_131 = l_Lean_Elab_Tactic_Omega_Problem_instInhabitedFourierMotzkinData;
-x_132 = l___private_Init_Util_0__outOfBounds___rarg(x_131);
+x_132 = l___private_Init_GetElem_0__outOfBounds___rarg(x_131);
 x_35 = x_132;
 goto block_129;
 }
@@ -14851,7 +14851,7 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Lean_Elab_Tactic_Omega_Problem_instInhabitedFourierMotzkinData;
-x_12 = l___private_Init_Util_0__outOfBounds___rarg(x_11);
+x_12 = l___private_Init_GetElem_0__outOfBounds___rarg(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_9);
@@ -14925,7 +14925,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 x_19 = l_Lean_Elab_Tactic_Omega_Problem_instInhabitedFourierMotzkinData;
-x_20 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 lean_dec(x_20);
@@ -15104,7 +15104,7 @@ if (x_11 == 0)
 {
 lean_object* x_40; lean_object* x_41; 
 x_40 = l_Lean_Elab_Tactic_Omega_Problem_instInhabitedFourierMotzkinData;
-x_41 = l___private_Init_Util_0__outOfBounds___rarg(x_40);
+x_41 = l___private_Init_GetElem_0__outOfBounds___rarg(x_40);
 x_12 = x_41;
 goto block_39;
 }

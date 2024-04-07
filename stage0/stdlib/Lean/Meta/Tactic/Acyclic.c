@@ -31,7 +31,9 @@ static lean_object* l_Lean_MVarId_acyclic_go___closed__22;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__17;
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_acyclic_go___closed__32;
 LEAN_EXPORT lean_object* l_Lean_MVarId_acyclic_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_acyclic_go___closed__34;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__8;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__1;
@@ -69,6 +71,7 @@ static lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_8
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__11;
 lean_object* l_Lean_Meta_mkFalseElim(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_instBEqOrigin___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_842____closed__1;
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__31;
@@ -81,6 +84,7 @@ lean_object* l_Lean_Meta_mkLT(lean_object*, lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic___lambda__1___closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_acyclic_go___closed__33;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__14;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Acyclic_0__Lean_MVarId_isTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,6 +96,7 @@ static lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_8
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__21;
+lean_object* l_Lean_Meta_instHashableOrigin___boxed(lean_object*);
 extern lean_object* l_Lean_Meta_Simp_defaultMaxSteps;
 static lean_object* l_Lean_MVarId_acyclic___lambda__2___closed__2;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__15;
@@ -415,7 +420,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Nat", 3);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instBEqOrigin___boxed), 2, 0);
 return x_1;
 }
 }
@@ -423,7 +428,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_of_lt_of_eq", 14);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instHashableOrigin___boxed), 1, 0);
 return x_1;
 }
 }
@@ -431,26 +436,27 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MVarId_acyclic_go___closed__23;
-x_2 = l_Lean_MVarId_acyclic_go___closed__24;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+x_1 = l_Lean_MVarId_acyclic_go___closed__19;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__26() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Nat", 3);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lt_irrefl", 9);
+x_1 = lean_mk_string_from_bytes("lt_of_lt_of_eq", 14);
 return x_1;
 }
 }
@@ -458,7 +464,7 @@ static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MVarId_acyclic_go___closed__23;
+x_1 = l_Lean_MVarId_acyclic_go___closed__26;
 x_2 = l_Lean_MVarId_acyclic_go___closed__27;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
@@ -467,12 +473,39 @@ return x_3;
 static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__29() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__30() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("lt_irrefl", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__31() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_MVarId_acyclic_go___closed__26;
+x_2 = l_Lean_MVarId_acyclic_go___closed__30;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__32() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_MVarId_acyclic_go___lambda__2___boxed), 6, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__30() {
+static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__33() {
 _start:
 {
 lean_object* x_1; 
@@ -480,11 +513,11 @@ x_1 = lean_mk_string_from_bytes("succeeded", 9);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__31() {
+static lean_object* _init_l_Lean_MVarId_acyclic_go___closed__34() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_acyclic_go___closed__30;
+x_1 = l_Lean_MVarId_acyclic_go___closed__33;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -569,7 +602,7 @@ lean_ctor_set_uint32(x_110, sizeof(void*)*4, x_108);
 lean_ctor_set_uint32(x_110, sizeof(void*)*4 + 4, x_106);
 x_111 = l_Lean_MVarId_acyclic_go___closed__22;
 x_112 = 1;
-x_113 = l_Lean_MVarId_acyclic_go___closed__17;
+x_113 = l_Lean_MVarId_acyclic_go___closed__25;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -617,10 +650,10 @@ lean_inc(x_123);
 x_124 = lean_ctor_get(x_122, 1);
 lean_inc(x_124);
 lean_dec(x_122);
-x_125 = l_Lean_MVarId_acyclic_go___closed__26;
+x_125 = l_Lean_MVarId_acyclic_go___closed__29;
 x_126 = lean_array_push(x_125, x_97);
 x_127 = lean_array_push(x_126, x_123);
-x_128 = l_Lean_MVarId_acyclic_go___closed__25;
+x_128 = l_Lean_MVarId_acyclic_go___closed__28;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -635,7 +668,7 @@ x_131 = lean_ctor_get(x_129, 1);
 lean_inc(x_131);
 lean_dec(x_129);
 x_132 = lean_array_push(x_82, x_86);
-x_133 = l_Lean_MVarId_acyclic_go___closed__28;
+x_133 = l_Lean_MVarId_acyclic_go___closed__31;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -684,7 +717,7 @@ lean_inc(x_148);
 x_149 = lean_ctor_get(x_147, 1);
 lean_inc(x_149);
 lean_dec(x_147);
-x_150 = l_Lean_MVarId_acyclic_go___closed__29;
+x_150 = l_Lean_MVarId_acyclic_go___closed__32;
 x_151 = lean_unbox(x_148);
 lean_dec(x_148);
 if (x_151 == 0)
@@ -738,7 +771,7 @@ goto block_81;
 else
 {
 lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; 
-x_160 = l_Lean_MVarId_acyclic_go___closed__31;
+x_160 = l_Lean_MVarId_acyclic_go___closed__34;
 x_161 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_146, x_160, x_5, x_6, x_7, x_8, x_149);
 x_162 = lean_ctor_get(x_161, 0);
 lean_inc(x_162);
@@ -1944,6 +1977,12 @@ l_Lean_MVarId_acyclic_go___closed__30 = _init_l_Lean_MVarId_acyclic_go___closed_
 lean_mark_persistent(l_Lean_MVarId_acyclic_go___closed__30);
 l_Lean_MVarId_acyclic_go___closed__31 = _init_l_Lean_MVarId_acyclic_go___closed__31();
 lean_mark_persistent(l_Lean_MVarId_acyclic_go___closed__31);
+l_Lean_MVarId_acyclic_go___closed__32 = _init_l_Lean_MVarId_acyclic_go___closed__32();
+lean_mark_persistent(l_Lean_MVarId_acyclic_go___closed__32);
+l_Lean_MVarId_acyclic_go___closed__33 = _init_l_Lean_MVarId_acyclic_go___closed__33();
+lean_mark_persistent(l_Lean_MVarId_acyclic_go___closed__33);
+l_Lean_MVarId_acyclic_go___closed__34 = _init_l_Lean_MVarId_acyclic_go___closed__34();
+lean_mark_persistent(l_Lean_MVarId_acyclic_go___closed__34);
 l_Lean_MVarId_acyclic___lambda__1___closed__1 = _init_l_Lean_MVarId_acyclic___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_MVarId_acyclic___lambda__1___closed__1);
 l_Lean_MVarId_acyclic___lambda__1___closed__2 = _init_l_Lean_MVarId_acyclic___lambda__1___closed__2();

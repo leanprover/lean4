@@ -17,7 +17,6 @@ static lean_object* l_Lean_Elab_Command_elabElabRules___lambda__6___closed__2;
 static lean_object* l_Lean_Elab_Command_elabElab___lambda__1___closed__6;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__12;
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__33;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__45;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__48;
@@ -58,6 +57,7 @@ static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__9
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__57;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__85;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__5___lambda__2___closed__15;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__77;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
@@ -1050,7 +1050,7 @@ if (x_53 == 0)
 {
 lean_object* x_54; lean_object* x_55; 
 x_54 = l_Lean_instInhabitedSyntax;
-x_55 = l___private_Init_Util_0__outOfBounds___rarg(x_54);
+x_55 = l___private_Init_GetElem_0__outOfBounds___rarg(x_54);
 x_32 = x_55;
 goto block_51;
 }

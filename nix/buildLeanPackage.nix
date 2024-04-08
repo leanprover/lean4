@@ -224,7 +224,8 @@ with builtins; let
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
   objects   = mapAttrs (_: m: m.obj) mods';
-  staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
+  bintools = if stdenv.isDarwin then darwin.cctools else stdenv.cc.bintools.bintools;
+  staticLib = runCommand "${name}-lib" { buildInputs = [ bintools ]; } ''
     mkdir -p $out
     ar Trcs $out/lib${libName}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';

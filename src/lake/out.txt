@@ -1,31 +1,0 @@
-cd examples/hello && ./test.sh
-++ LAKE='e:\Sync\Programs\lean4\lean4\src\lake\.lake\build\bin\lake.exe'
-++ ./clean.sh
-++ 'e:\Sync\Programs\lean4\lean4\src\lake\.lake\build\bin\lake.exe' exe hello
-Hello, world!
-info: [root]: lakefile.lean and lakefile.toml are both present; using lakefile.lean
-info: hello: no previous manifest, creating one from scratch
-[?/?] Computing build jobs[1/5] Building Hello[2/5] Building Main[3/5] Compiling Main:c (w/o exported symbols)[4/5] Compiling Hello:c (w/o exported symbols)[5/5] Linking hello.exe++ 'e:\Sync\Programs\lean4\lean4\src\lake\.lake\build\bin\lake.exe' exe hello Bob Bill
-Hello, Bob, Bill!
-info: [root]: lakefile.lean and lakefile.toml are both present; using lakefile.lean
-[?/?] Computing build jobs[1/5] Building Hello[2/5] Building Main[3/5] Compiling Main:c (w/o exported symbols)[4/5] Compiling Hello:c (w/o exported symbols)[5/5] Linking hello.exe++ .lake/build/bin/hello
-Hello, world!
-++ test -f lake-manifest.json
-++ ./clean.sh
-++ 'e:\Sync\Programs\lean4\lean4\src\lake\.lake\build\bin\lake.exe' -f lakefile.toml exe hello
-Hello, world!
-info: hello: no previous manifest, creating one from scratch
-[?/?] Computing build jobs[1/5] Building Hello[2/5] Building Main[3/5] Compiling Main:c (w/o exported symbols)[4/5] Compiling Hello:c (w/o exported symbols)[5/5] Linking hello.exe++ 'e:\Sync\Programs\lean4\lean4\src\lake\.lake\build\bin\lake.exe' -f lakefile.toml exe hello Bob Bill
-Hello, Bob, Bill!
-[?/?] Computing build jobs[1/5] Building Hello[2/5] Building Main[3/5] Compiling Main:c (w/o exported symbols)[4/5] Compiling Hello:c (w/o exported symbols)[5/5] Linking hello.exe++ .lake/build/bin/hello
-Hello, world!
-info: [210/239] Building Lake.Build.Run
-info: [227/242] Compiling Lake.Build.Run
-info: [227/242] Building Lake.CLI.Actions
-info: [227/242] Building Lake.Build
-info: [229/242] Building Lake.CLI.Serve
-info: [231/242] Building Lake
-info: [236/242] Building Lake.CLI.Main
-info: [238/242] Building Lake.CLI
-info: [240/242] Building Lake.Main
-info: [242/242] Linking lake.exe

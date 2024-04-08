@@ -526,6 +526,49 @@ def cases₂ (mvarId : MVarId) (p : Expr) (hName : Name := `h) :
     | throwError "'cases' tactic failed, unexpected new hypothesis"
   return ((s₁.mvarId, f₁), (s₂.mvarId, f₂))
 
+/--
+Helpful error message when omega cannot find a solution
+-/
+def formatErrorMessage (p : Problem) : OmegaM MessageData := do
+  if p.possible then
+    if p.isEmpty then
+      return m!"it is trivially false"
+    else
+      let mask ← mentioned p.constraints
+      return m!"a possible counterexample may satisfy the constraints\n{prettyConstraints p.constraints}where\n{← prettyAtoms mask}"
+  else
+    -- formatErrorMessage should not be used in this case case
+    return "it is trivially solvable"
+where
+  var (n : Nat) : String :=
+    "x" ++ ((toString (n+1)).map fun c => .ofNat (c.toNat - '0'.toNat + '₀'.toNat))
+
+  prettyConstraints (constraints : HashMap Coeffs Fact) : String :=
+    constraints.toList
+      |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => s!"{prettyCoeffs coeffs} ∈ {cst}\n")
+      |> String.join
+
+  prettyCoeffs (coeffs : Coeffs) : String :=
+    coeffs.toList.enum
+      |>.filter (fun (_,c) => c ≠ 0)
+      |>.enum
+      |>.map (fun (j, (i,c)) =>
+        (if j > 0 then if c > 0 then " + " else " - " else if c > 0 then "" else "- ") ++
+        (if Int.natAbs c = 1 then var i else s!"{c.natAbs}*{var i}"))
+      |> String.join
+
+  mentioned (constraints : HashMap Coeffs Fact) : OmegaM (Array Bool) := do
+    let initMask := Array.mkArray (← getThe State).atoms.size false
+    return constraints.fold (init := initMask) fun mask coeffs _ =>
+      coeffs.enum.foldl (init := mask) fun mask (i, c) =>
+        if c = 0 then mask else mask.set! i true
+
+  prettyAtoms (mask : Array Bool) : OmegaM MessageData := do
+    return (← atoms).toList.enum
+      |>.filter (fun (i, _) => mask.getD i false)
+      |>.map (fun (i, a) => m!"{var i} := {a}")
+      |> m!"\n".joinSep
+
 
 mutual
 
@@ -535,7 +578,7 @@ call `omegaImpl` in both branches.
 -/
 partial def splitDisjunction (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withContext do
   match m.disjunctions with
-    | [] => throwError "omega did not find a contradiction:\n{m.problem}"
+    | [] => throwError "omega could not prove the goal:\n{← formatErrorMessage m.problem}"
     | h :: t =>
       trace[omega] "Case splitting on {← inferType h}"
       let ctx ← getMCtx

@@ -173,6 +173,12 @@ register_builtin_option trace.profiler.output : String := {
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
+register_builtin_option trace.profiler.output.pp : Bool := {
+  defValue := false
+  group    := "profiler"
+  descr    :=
+    "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any"
+}
 
 def trace.profiler.threshold.getSecs (o : Options) : Float :=
   (trace.profiler.threshold.get o).toFloat / 1000

@@ -109,16 +109,19 @@ def categories : Array Category := #[
   { name := "Meta", color := "yellow" }
 ]
 
-private partial def addTrace (thread : ThreadWithMaps) (trace : MessageData) : ThreadWithMaps :=
-  StateT.run (go none trace) thread |>.2
+private partial def addTrace (pp : Bool) (thread : ThreadWithMaps) (trace : MessageData) :
+    IO ThreadWithMaps :=
+  (·.2) <$> StateT.run (go none trace) thread
 where
-  go parentStackIdx? : _ → StateM ThreadWithMaps Unit
-    | .trace data _ children => do
+  go parentStackIdx? : _ → StateT ThreadWithMaps IO Unit
+    | .trace data msg children => do
       if data.startTime == 0 then
         return  -- no time data, skip
       let mut funcName := data.cls.toString
       if !data.tag.isEmpty then
         funcName := s!"{funcName}: {data.tag}"
+      if pp then
+        funcName := s!"{funcName}: {← msg.format}"
       let strIdx ← modifyGet fun thread =>
         if let some idx := thread.stringMap.find? funcName then
           (idx, thread)
@@ -204,13 +207,14 @@ def Thread.new (name : String) : Thread := {
     length := 0 }
 }
 
-def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState) : IO Profile := do
+def Profile.export (name : String) (startTime : Milliseconds) (traceState : TraceState)
+    (opts : Options) : IO Profile := do
   let thread := Thread.new name
   -- wrap entire trace up to current time in `runFrontend` node
   let trace := .trace {
     cls := `runFrontend, startTime, stopTime := (← IO.monoNanosNow).toFloat / 1000000000,
     collapsed := true } "" (traceState.traces.toArray.map (·.msg))
-  let thread := addTrace { thread with } trace
+  let thread ← addTrace (Lean.trace.profiler.output.pp.get opts) { thread with } trace
   return {
     meta := { startTime, categories }
     threads := #[thread.toThread]

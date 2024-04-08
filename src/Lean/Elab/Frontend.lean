@@ -148,7 +148,7 @@ def runFrontend
             (.ofFormat "importing") #[]
         }].toPArray' ++ traceState.traces
       }
-      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
       IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)

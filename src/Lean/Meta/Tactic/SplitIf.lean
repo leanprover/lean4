@@ -20,10 +20,6 @@ builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
     s ← s.addConst ``dif_neg
     return {
       simpTheorems  := #[s]
-      -- We don't use the default `congr` lemmas here,
-      -- as this can result in unwanted simplification of the branches of `if` statements.
-      -- We only use `ite_congr_cond`, to descend into the condition.
-      congrTheorems := addSimpCongrTheoremEntry {} (← mkSimpCongrTheorem ``ite_congr_cond 1000)
       config        := { Simp.neutralConfig with dsimp := false }
     }
 

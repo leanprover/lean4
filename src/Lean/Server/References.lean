@@ -230,7 +230,8 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
   | _ =>
     if let some ei := i.toElabInfo? then
       let n := ei.stx.getKind
-      some (RefIdent.const (← getModuleContainingDecl? ci.env n) n, false)
+      if n.isInternal then none
+      else some (RefIdent.const (← getModuleContainingDecl? ci.env n) n, false)
     else
       none
 

@@ -451,6 +451,19 @@ static inline void lean_dec(lean_object * o) { if (!lean_is_scalar(o)) lean_dec_
 /* Just free memory */
 LEAN_EXPORT void lean_dealloc(lean_object * o);
 
+/*
+An object `o` satisfies `lean_is_ctor` if it is a member of an inductive type, barring the exceptions
+listed at https://lean-lang.org/lean4/doc/dev/ffi.html?highlight=ffi#translating-types-from-lean-to-c.
+A notable example of an exception are inductive types where all constructors have no parameters (enumeration types). 
+A notable example of types which *do* satisfy `lean_is_ctor` are structure types which are represented
+as inductive types with a single constructor (whose parameters are the structure's fields).
+
+Accessing the fields of such an object `o` works differently depending on the type of the field.
+For fields whose values are represented by `lean_object*` (for example, strings, arrays or other types 
+satisfying `lean_is_ctor`), use `lean_ctor_get`. For fields containing values represented by scalars 
+(for example, booleans, enumeration types, integer types or floating point types), use the family of
+`lean_ctor_get_...` functions.
+*/
 static inline bool lean_is_ctor(lean_object * o) { return lean_ptr_tag(o) <= LeanMaxCtorTag; }
 static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == LeanClosure; }
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }
@@ -521,6 +534,23 @@ static inline void lean_set_non_heap_header_for_big(lean_object * o, unsigned ta
 
 /* Constructor objects */
 
+/*
+Returns the number of non-scalar parameters of a given ctor-object. 
+
+For example, let `o` be a value of the following structure in Lean:
+
+```
+structure S where
+    a : String
+    b : String
+    c : Bool
+    d : UInt64
+    e : Array Nat
+```
+
+Then `lean_ctor_num_objs(o) == 3`, as `a`, `b` and `e` are the non-scalar 
+parameters of the constructor (`S.mk`) used to construct `o`.
+*/
 static inline unsigned lean_ctor_num_objs(lean_object * o) {
     assert(lean_is_ctor(o));
     return lean_ptr_other(o);
@@ -543,6 +573,29 @@ static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, uns
     return o;
 }
 
+/*
+Returns the `i`th non-scalar parameter of a given ctor-object. Notably,
+the index `i` does not index the entire list of parameters of a given 
+constructor, but rather only the non-scalar ones.
+
+For example, let `o` be a value of the following structure in Lean:
+
+```
+structure S where
+    a : String
+    b : String
+    c : Bool
+    d : UInt64
+    e : Array Nat
+```
+
+Then 
+* `lean_ctor_get(o, 0)` returns the object representing `a`
+* `lean_ctor_get(o, 1)` returns the object representing `b`
+* `lean_ctor_get(o, 2)` returns the object representing `e`
+
+To get the number of non-scalar parameters use `lean_ctor_num_objs`.
+*/
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
     return lean_ctor_obj_cptr(o)[i];
@@ -570,26 +623,77 @@ static inline size_t lean_ctor_get_usize(b_lean_obj_arg o, unsigned i) {
     return *((size_t*)(lean_ctor_obj_cptr(o) + i));
 }
 
+/*
+Given a ctor-object, returns a scalar parameter of type `uint8_t` at a given offset. 
+
+The offset does *not* represent an index into the list of parameters of an inductive 
+type constructor, but is instead only a byte offset. To access a specific constructor 
+parameter, construct the correct byte offset as follows. 
+
+All scalar parameters of a ctor-object are represented in a contiguous block following
+the non-scalar parameters. Thus, the base offset required to access a scalar parameter
+of a ctor-object `o` is `lean_ctor_num_objs(o) * sizeof(void*)` (cf. the documentation 
+for `lean_ctor_num_objs` for more details). Then, to locate the desired scalar parameter, 
+add the sizes of  all scalar parameters preceeding the target parameter. For example, 
+let `o` be a value of the following structure in Lean:
+
+```
+structure S where
+    a : String
+    b : Bool
+    c : UInt64
+    e : Array Nat
+    d : UInt8
+```
+
+Then 
+* the base offset is `base_offset := 3 * sizeof(void*)`.
+* as `b` is the first scalar parameter, its offset is exactly the `base_offset`.
+* the offset for `c` is `base_offset + sizeof(uint8_t)`, where `sizeof(uint8_t)` 
+  is the number of bytes used by the preceeding parameter `b`. 
+* the offset for `d` is `base_offset + sizeof(uint8_t) + sizeof(uint64_t)` where
+  `sizeof(uint8_t) + sizeof(uint64_t)` are the number of bytes used by the preceeding
+  parameters `b` and `c`.
+
+Thus, `lean_ctor_get_uint8(o, 3 * sizeof(void*) + sizeof(uint8_t) + sizeof(uint64_t))`
+returns the value of `d`.
+*/
 static inline uint8_t lean_ctor_get_uint8(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     return *((uint8_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+/*
+Given a ctor-object, returns a scalar parameter of type `uint16_t` at a given offset. 
+For an explanation of the offset, cf. the documentation for `lean_ctor_get_uint8`.
+*/
 static inline uint16_t lean_ctor_get_uint16(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     return *((uint16_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+/*
+Given a ctor-object, returns a scalar parameter of type `uint32_t` at a given offset. 
+For an explanation of the offset, cf. the documentation for `lean_ctor_get_uint8`.
+*/
 static inline uint32_t lean_ctor_get_uint32(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     return *((uint32_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+/*
+Given a ctor-object, returns a scalar parameter of type `uint64_t` at a given offset. 
+For an explanation of the offset, cf. the documentation for `lean_ctor_get_uint8`.
+*/
 static inline uint64_t lean_ctor_get_uint64(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     return *((uint64_t*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+/*
+Given a ctor-object, returns a scalar parameter of type `float` at a given offset. 
+For an explanation of the offset, cf. the documentation for `lean_ctor_get_uint8`.
+*/
 static inline double lean_ctor_get_float(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     return *((double*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));

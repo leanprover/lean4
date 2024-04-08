@@ -20,12 +20,15 @@ builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
     s ← s.addConst ``dif_neg
     return {
       simpTheorems  := #[s]
-      congrTheorems := (← getSimpCongrTheorems)
+      -- We don't use the default `congr` lemmas here,
+      -- as this can result in unwanted simplification of the branches of `if` statements.
+      -- We only use `ite_congr_cond`, to descend into the condition.
+      congrTheorems := addSimpCongrTheoremEntry {} (← mkSimpCongrTheorem ``ite_congr_cond 1000)
       config        := { Simp.neutralConfig with dsimp := false }
     }
 
 /--
-  Default `Simp.Context` for `simpIf` methods. It contains all congruence theorems, but
+  Default `Simp.Context` for `simpIf` methods. It contains no congruence theorems, and
   just the rewriting rules for reducing `if` expressions. -/
 def getSimpContext : MetaM Simp.Context :=
   ext.get

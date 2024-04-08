@@ -72,6 +72,12 @@ theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
   | inl h => rw [if_pos h]; subst b; rw [if_pos h]; exact h₂ h
   | inr h => rw [if_neg h]; subst b; rw [if_neg h]; exact h₃ h
 
+-- Specialisation of `ite_congr` only descending into the condition,
+-- not the branches. We use this in `split_ifs`.
+theorem ite_congr_cond {s : Decidable b} [Decidable c]
+    (h : b = c) : ite b x y = ite c x y := by
+  simp [h]
+
 theorem Eq.mpr_prop {p q : Prop} (h₁ : p = q) (h₂ : q)  : p  := h₁ ▸ h₂
 theorem Eq.mpr_not  {p q : Prop} (h₁ : p = q) (h₂ : ¬q) : ¬p := h₁ ▸ h₂
 

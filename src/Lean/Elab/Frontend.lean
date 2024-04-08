@@ -142,11 +142,11 @@ def runFrontend
       let traceState := s.commandState.traceState
       -- importing does not happen in an elaboration monad, add now
       let traceState := { traceState with
-        traces := traceState.traces.push {
+        traces := #[{
           ref := .missing,
           msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
             (.ofFormat "importing") #[]
-        }
+        }].toPArray' ++ traceState.traces
       }
       let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState
       IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile

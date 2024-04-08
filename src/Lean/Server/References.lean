@@ -227,7 +227,12 @@ def identOf (ci : ContextInfo) (i : Info) : Option (RefIdent × Bool) := do
     some (RefIdent.const (← getModuleContainingDecl? ci.env fi.projName) fi.projName, false)
   | Info.ofOptionInfo oi =>
     some (RefIdent.const (← getModuleContainingDecl? ci.env oi.declName) oi.declName, false)
-  | _ => none
+  | _ =>
+    if let some ei := i.toElabInfo? then
+      let n := ei.stx.getKind
+      some (RefIdent.const (← getModuleContainingDecl? ci.env n) n, false)
+    else
+      none
 
 /-- Finds all references in `trees`. -/
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :=

@@ -333,6 +333,14 @@ def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
   modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
+  Core.restoreFull b.core
+  set b.meta
+
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
   restoreState s := s.restore

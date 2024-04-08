@@ -32,6 +32,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
     tacticCache? := none
+    snap?        := none
   }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"

@@ -261,6 +261,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
+  s.meta.restoreFull
+  set s.elab
+
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
@@ -1757,6 +1765,7 @@ builtin_initialize
   registerTraceClass `Elab.postpone
   registerTraceClass `Elab.coe
   registerTraceClass `Elab.debug
+  registerTraceClass `Elab.reuse
 
 export Term (TermElabM)
 

@@ -105,13 +105,6 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
-def ofThunk (f : IO MessageData) : IO MessageData := do
-  let t ← BaseIO.asThunk do
-    match ← f.toBaseIO with
-    | .ok msg => return msg
-    | .error _err => return .ofFormat ".thunk threw error"
-  return .thunk t
-
 def ofSyntax (stx : Syntax) : MessageData :=
   -- discard leading/trailing whitespace
   let stx := stx.copyHeadTailInfoFrom .missing

@@ -136,12 +136,19 @@ where
     | [], as => f as.reverse |>.asTask prio
 
 private unsafe def asThunk_impl (f : BaseIO α) : BaseIO (Thunk α) := do
-  return Thunk.mk (fun () => unsafeBaseIO f)
+  return Thunk.mk fun () => unsafeBaseIO f
 
+/--
+Stores an `BaseIO` action in a thunk so that the action is executed when the thunk is forced
+(using `Thunk.get`) the first time. This is a possibly unsafe operations, as `Thunk.get` has a pure
+function type, but its evaluation can control whether and when the side effects occur.
+
+This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO).
+-/
 @[implemented_by asThunk_impl]
 def asThunk (f : BaseIO α) : BaseIO (Thunk α) := do
   let x ← f
-  return Thunk.mk (fun () => x)
+  return Thunk.pure x
 
 end BaseIO
 

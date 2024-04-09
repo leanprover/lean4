@@ -1547,6 +1547,27 @@ def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := d
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
 
 /--
+Runs the `MetaM` action lazily, when the resulting `Thunk` is forced.
+This forks the state of the `MetaM` and `CoreM` monad, and discards changes to that state.
+Caveats of `BaseIO.asThunk` apply.
+-/
+def MetaM.asThunk (m : MetaM α) : MetaM (Thunk (Except Exception α)) := do
+  let ctx ← readThe Meta.Context
+  let state ← saveState
+  let coreState ← getThe Core.State
+  let coreCtxt ← readThe Core.Context
+  (do restoreState state; m).run' (ctx := ctx) |>.run' coreCtxt coreState |>.toBaseIO.asThunk
+
+/--
+Delays computation of `MessageData` until the message is used. This can be used to avoid constructing
+a complex error message when it woudn’t be shown anyways.
+-/
+def _root_.MessageData.ofMetaMThunk (m : MetaM MessageData) : MetaM MessageData :=
+  return .thunk <| (← m.asThunk).map fun
+    | .ok m => m
+    | .error e => m!"Exception while constructing message:\n{e.toMessageData}"
+
+/--
   Sort free variables using an order `x < y` iff `x` was defined before `y`.
   If a free variable is not in the local context, we use their id. -/
 def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do

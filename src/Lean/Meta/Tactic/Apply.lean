@@ -51,19 +51,6 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 
-def _root_.Lean.Meta.MetaM.asThunk (m : MetaM α) : MetaM (Thunk (Except Exception α)) := do
-  let ctx ← readThe Meta.Context
-  let state ← saveState
-  let coreState ← getThe Core.State
-  let coreCtxt ← readThe Core.Context
-  BaseIO.asThunk do
-    MetaM.run' (do restoreState state; m) (ctx := ctx) |>.run' coreCtxt coreState |>.toBaseIO
-
-def MessageData.ofMetaMThunk (m : MetaM MessageData) : MetaM MessageData :=
-  return .thunk <| (← m.asThunk).map fun
-    | .ok m => m
-    | .error _ => m!"(error)"
-
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
   let explanation ← MessageData.ofMetaMThunk do
       let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType

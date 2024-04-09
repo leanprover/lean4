@@ -6,6 +6,7 @@ on:
     tags:
       - '*'
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   merge_group:
 
 concurrency:
@@ -71,18 +72,18 @@ jobs:
         run: |
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache
-      - name: Install Cachix
-        uses: cachix/cachix-action@v12
-        with:
-          name: lean4
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-          skipPush: true  # we push specific outputs only
       - name: Build
         run: |
           nix build $NIX_BUILD_ARGS .#cacheRoots -o push-build
       - name: Test
         run: |
-          nix build $NIX_BUILD_ARGS .#test -o push-test
+          nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ln -s /tmp/nix-build-*/source/src/build/ ./push-test; false)
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: push-test/test-results.xml
+        if: always()
+        continue-on-error: true
       - name: Build manual
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
@@ -94,23 +95,14 @@ jobs:
         id: lychee
         uses: lycheeverse/lychee-action@v1.9.0
         with:
-          fail: true
+          fail: false  # report errors but do not block CI on temporary failures
           # gmplib.org consistently times out from GH actions
-          args: --base './dist' --no-progress --exclude 'gmplib.org' './dist/**/*.html'
-      - name: Push to Cachix
-        run: |
-          [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
+          # the GitHub token is to avoid rate limiting
+          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Rebuild Nix Store Cache
         run: |
           rm -rf nix-store-cache || true
           nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
-      - name: Publish manual to GH Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./result
-          destination_dir: ./doc
-        if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - id: deploy-info
         name: Compute Deployment Metadata
         run: |

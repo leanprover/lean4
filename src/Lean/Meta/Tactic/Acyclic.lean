@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Simp.Main
 
@@ -13,7 +14,7 @@ private def isTarget (lhs rhs : Expr) : MetaM Bool := do
   if !lhs.isFVar || !lhs.occurs rhs then
     return false
   else
-    return (← whnf rhs).isConstructorApp (← getEnv)
+    isConstructorApp' rhs
 
 /--
   Close the given goal if `h` is a proof for an equality such as `as = a :: as`.

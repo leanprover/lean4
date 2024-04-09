@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
@@ -218,7 +219,7 @@ def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat)
   unless max == 0 do
     let numHeartbeats ← IO.getNumHeartbeats
     if numHeartbeats - (← read).initHeartbeats > max then
-      throwMaxHeartbeat moduleName optionName max
+      throwMaxHeartbeat (.mkSimple moduleName) optionName max
 
 def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
   checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats
@@ -287,6 +288,9 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 /-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
+
+/-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
+def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
 
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
@@ -362,7 +366,7 @@ def Exception.isRuntime (ex : Exception) : Bool :=
 
 /--
 Custom `try-catch` for all monads based on `CoreM`. We don't want to catch "runtime exceptions"
-in these monads, but on `CommandElabM`. See issues #2775 and #2744
+in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `MonadAlwayExcept`.
 -/
 @[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try

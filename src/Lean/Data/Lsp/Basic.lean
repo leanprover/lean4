@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Lean.Data.Json
 import Lean.Data.JsonRpc
 
@@ -51,7 +52,7 @@ instance : LE Range := leOfOrd
 structure Location where
   uri : DocumentUri
   range : Range
-  deriving Inhabited, BEq, ToJson, FromJson
+  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 structure LocationLink where
   originSelectionRange? : Option Range

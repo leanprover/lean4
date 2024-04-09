@@ -39,8 +39,75 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-`intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
-hypotheses until goal is not of a function type.
+Introduces zero or more hypotheses, optionally naming them.
+
+- `intros` is equivalent to repeatedly applying `intro`
+  until the goal is not an obvious candidate for `intro`, which is to say
+  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
+  the `intros` tactic will introduce an anonymous hypothesis.
+  This tactic does not unfold definitions.
+
+- `intros x y ...` is equivalent to `intro x y ...`,
+  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
+  Each argument can be either an identifier or a `_`.
+  An identifier indicates a name to use for the corresponding introduced hypothesis,
+  and a `_` indicates that the hypotheses should be introduced anonymously.
+
+## Examples
+
+Basic properties:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+-- Introduces the two obvious hypotheses automatically
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
+
+-- Introduces exactly two hypotheses, naming only the first
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros g _
+  /- Tactic state
+     g : Nat → Nat
+     a✝ : AllEven g
+     ⊢ AllEven fun k => g (k + 1) -/
+  sorry
+
+-- Introduces exactly three hypotheses, which requires unfolding `AllEven`
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros f h n
+  /- Tactic state
+     f : Nat → Nat
+     h : AllEven f
+     n : Nat
+     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
+  apply h
+```
+
+Implications:
+```lean
+example (p q : Prop) : p → q → p := by
+  intros
+  /- Tactic state
+     a✝¹ : p
+     a✝ : q
+     ⊢ p      -/
+  assumption
+```
+
+Let bindings:
+```lean
+example : let n := 1; let k := 2; n + k = 3 := by
+  intros
+  /- n✝ : Nat := 1
+     k✝ : Nat := 2
+     ⊢ n✝ + k✝ = 3 -/
+  rfl
+```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
 
@@ -106,6 +173,19 @@ example (x : Nat) (h : x ≠ x) : p := by contradiction
 syntax (name := contradiction) "contradiction" : tactic
 
 /--
+Changes the goal to `False`, retaining as much information as possible:
+
+* If the goal is `False`, do nothing.
+* If the goal is an implication or a function type, introduce the argument and restart.
+  (In particular, if the goal is `x ≠ y`, introduce `x = y`.)
+* Otherwise, for a propositional goal `P`, replace it with `¬ ¬ P`
+  (attempting to find a `Decidable` instance, but otherwise falling back to working classically)
+  and introduce `¬ P`.
+* For a non-propositional goal use `False.elim`.
+-/
+syntax (name := falseOrByContra) "false_or_by_contra" : tactic
+
+/--
 `apply e` tries to match the current goal against the conclusion of `e`'s type.
 If it succeeds, then the tactic returns as many subgoals as the number of premises that
 have not been fixed by type inference or type class resolution.
@@ -134,11 +214,36 @@ and implicit parameters are also converted into new goals.
 -/
 syntax (name := refine') "refine' " term : tactic
 
+/-- `exfalso` converts a goal `⊢ tgt` into `⊢ False` by applying `False.elim`. -/
+macro "exfalso" : tactic => `(tactic| refine False.elim ?_)
+
 /--
 If the main goal's target type is an inductive type, `constructor` solves it with
 the first matching constructor, or else fails.
 -/
 syntax (name := constructor) "constructor" : tactic
+
+/--
+Applies the first constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example : True ∨ False := by
+  left
+  trivial
+```
+-/
+syntax (name := left) "left" : tactic
+
+/--
+Applies the second constructor when
+the goal is an inductive type with exactly two constructors, or fails otherwise.
+```
+example {p q : Prop} (h : q) : p ∨ q := by
+  right
+  exact h
+```
+-/
+syntax (name := right) "right" : tactic
 
 /--
 * `case tag => tac` focuses on the goal with case name `tag` and solves it using `tac`,
@@ -249,6 +354,9 @@ macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
     with_annotate_state $tk skip
     all_goals $y:tactic)
 
+/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
+syntax (name := fail) "fail" (ppSpace str)? : tactic
+
 /-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
 syntax (name := eqRefl) "eq_refl" : tactic
 
@@ -256,8 +364,26 @@ syntax (name := eqRefl) "eq_refl" : tactic
 `rfl` tries to close the current goal using reflexivity.
 This is supposed to be an extensible tactic and users can add their own support
 for new reflexive relations.
+
+Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
+reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| eq_refl)
+macro "rfl" : tactic => `(tactic| fail "The rfl tactic failed. Possible reasons:
+- The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
+- The arguments of the relation are not equal.
+Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")
+
+macro_rules | `(tactic| rfl) => `(tactic| eq_refl)
+macro_rules | `(tactic| rfl) => `(tactic| exact HEq.rfl)
+
+/--
+This tactic applies to a goal whose target has the form `x ~ x`,
+where `~` is a reflexive relation other than `=`,
+that is, a relation which has a reflexive lemma tagged with the attribute @[refl].
+-/
+syntax (name := applyRfl) "apply_rfl" : tactic
+
+macro_rules | `(tactic| rfl) => `(tactic| apply_rfl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
@@ -304,7 +430,7 @@ syntax locationWildcard := " *"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (ppSpace colGt term:max)+ ppSpace patternIgnore( atomic("|" noWs "-") <|> "⊢")?
+syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -365,12 +491,16 @@ syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
 /--
 `rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
-macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
+macro (name := rwSeq) "rw " c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
     `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
+
+/-- `rwa` calls `rw`, then closes any remaining goals using `assumption`. -/
+macro "rwa " rws:rwRuleSeq loc:(location)? : tactic =>
+  `(tactic| (rw $rws:rwRuleSeq $[$loc:location]?; assumption))
 
 /--
 The `injection` tactic is based on the fact that constructors of inductive data
@@ -453,6 +583,89 @@ syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 
 /--
+A `simpArg` is either a `*`, `-lemma` or a simp lemma specification
+(which includes the `↑` `↓` `←` specifications for pre, post, reverse rewriting).
+-/
+def simpArg := simpStar.binary `orelse (simpErase.binary `orelse simpLemma)
+
+/-- A simp args list is a list of `simpArg`. This is the main argument to `simp`. -/
+syntax simpArgs := " [" simpArg,* "]"
+
+/--
+A `dsimpArg` is similar to `simpArg`, but it does not have the `simpStar` form
+because it does not make sense to use hypotheses in `dsimp`.
+-/
+def dsimpArg := simpErase.binary `orelse simpLemma
+
+/-- A dsimp args list is a list of `dsimpArg`. This is the main argument to `dsimp`. -/
+syntax dsimpArgs := " [" dsimpArg,* "]"
+
+/-- The common arguments of `simp?` and `simp?!`. -/
+syntax simpTraceArgsRest := (config)? (discharger)? (&" only")? (simpArgs)? (ppSpace location)?
+
+/--
+`simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
+that would be sufficient to close the goal. This is useful for reducing the size of the simp
+set in a local invocation to speed up processing.
+```
+example (x : Nat) : (if True then x + 2 else 3) = x + 2 := by
+  simp? -- prints "Try this: simp only [ite_true]"
+```
+
+This command can also be used in `simp_all` and `dsimp`.
+-/
+syntax (name := simpTrace) "simp?" "!"? simpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp?!" rest:simpTraceArgsRest : tactic => `(tactic| simp?%$tk ! $rest)
+
+/-- The common arguments of `simp_all?` and `simp_all?!`. -/
+syntax simpAllTraceArgsRest := (config)? (discharger)? (&" only")? (dsimpArgs)?
+
+@[inherit_doc simpTrace]
+syntax (name := simpAllTrace) "simp_all?" "!"? simpAllTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"simp_all?!" rest:simpAllTraceArgsRest : tactic => `(tactic| simp_all?%$tk ! $rest)
+
+/-- The common arguments of `dsimp?` and `dsimp?!`. -/
+syntax dsimpTraceArgsRest := (config)? (&" only")? (dsimpArgs)? (ppSpace location)?
+
+@[inherit_doc simpTrace]
+syntax (name := dsimpTrace) "dsimp?" "!"? dsimpTraceArgsRest : tactic
+
+@[inherit_doc simpTrace]
+macro tk:"dsimp?!" rest:dsimpTraceArgsRest : tactic => `(tactic| dsimp?%$tk ! $rest)
+
+/-- The arguments to the `simpa` family tactics. -/
+syntax simpaArgsRest := (config)? (discharger)? &" only "? (simpArgs)? (" using " term)?
+
+/--
+This is a "finishing" tactic modification of `simp`. It has two forms.
+
+* `simpa [rules, ⋯] using e` will simplify the goal and the type of
+  `e` using `rules`, then try to close the goal using `e`.
+
+  Simplifying the type of `e` makes it more likely to match the goal
+  (which has also been simplified). This construction also tends to be
+  more robust under changes to the simp lemma set.
+
+* `simpa [rules, ⋯]` will simplify the goal and the type of a
+  hypothesis `this` if present in the context, then try to close the goal using
+  the `assumption` tactic.
+-/
+syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+@[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaArgsRest)
+
+@[inherit_doc simpa] macro "simpa?" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaArgsRest)
+
+@[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaArgsRest)
+
+/--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
 This is a low-level tactic, it will expose how recursive definitions have been
 compiled by Lean.
@@ -476,12 +689,13 @@ It makes sure the "continuation" `?_` is the main goal after refining.
 macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
-`have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term
-of type `t`.
-* If `t` is omitted, it will be inferred.
-* If `h` is omitted, the name `this` is used.
-* The variant `have pattern := e` is equivalent to `match e with | pattern => _`,
-  and it is convenient for types that have only one applicable constructor.
+The `have` tactic is for adding hypotheses to the local context of the main goal.
+* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.
+* `have h := e` uses the type of `e` for `t`.
+* `have : t := e` and `have := e` use `this` for the name of the hypothesis.
+* `have pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that have only one applicable constructor.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
@@ -496,12 +710,15 @@ If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
 /--
-`let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
-If `t` is omitted, it will be inferred.
-The variant `let pattern := e` is equivalent to `match e with | pattern => _`,
-and it is convenient for types that have only applicable constructor.
-Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses
-`h₁ : p`, `h₂ : q`, and `h₃ : r`.
+The `let` tactic is for adding definitions to the local context of the main goal.
+* `let x : t := e` adds the definition `x : t := e` if `e` is a term of type `t`.
+* `let x := e` uses the type of `e` for `t`.
+* `let : t := e` and `let := e` use `this` for the name of the hypothesis.
+* `let pat := e` for a pattern `pat` is equivalent to `match e with | pat => _`,
+  where `_` stands for the tactics that follow this one.
+  It is convenient for types that let only one applicable constructor.
+  For example, given `p : α × β × γ`, `let ⟨x, y, z⟩ := p` produces the
+  local variables `x : α`, `y : β`, and `z : γ`.
 -/
 macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--
@@ -698,9 +915,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 -/
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
-/-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
-syntax (name := fail) "fail" (ppSpace str)? : tactic
-
 /--
 `checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
 and if the file is re-elaborated and the input matches, the tactic is not re-run and
@@ -749,6 +963,402 @@ while `congr 2` produces the intended `⊢ x + y = y + x`.
 -/
 syntax (name := congr) "congr" (ppSpace num)? : tactic
 
+
+/--
+In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
+```
+by_cases h : t
+· tac1
+· tac2
+```
+It performs case distinction on `h : t` or `h : ¬t` and `tac1` and `tac2` are the subproofs.
+
+You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
+if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
+by the end of the block.
+-/
+syntax (name := tacDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+/--
+In tactic mode, `if t then tac1 else tac2` is alternative syntax for:
+```
+by_cases t
+· tac1
+· tac2
+```
+It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous
+hypothesis, and `tac1` and `tac2` are the subproofs. (It doesn't actually use
+nondependent `if`, since this wouldn't add anything to the context and hence would be
+useless for proving theorems. To actually insert an `ite` application use
+`refine if t then ?_ else ?_`.)
+-/
+syntax (name := tacIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+/--
+The tactic `nofun` is shorthand for `exact nofun`: it introduces the assumptions, then performs an
+empty pattern match, closing the goal if the introduced pattern is impossible.
+-/
+macro "nofun" : tactic => `(tactic| exact nofun)
+
+/--
+The tactic `nomatch h` is shorthand for `exact nomatch h`.
+-/
+macro "nomatch " es:term,+ : tactic =>
+  `(tactic| exact nomatch $es:term,*)
+
+/--
+Acts like `have`, but removes a hypothesis with the same name as
+this one if possible. For example, if the state is:
+
+```lean
+f : α → β
+h : α
+⊢ goal
+```
+
+Then after `replace h := f h` the state will be:
+
+```lean
+f : α → β
+h : β
+⊢ goal
+```
+
+whereas `have h := f h` would result in:
+
+```lean
+f : α → β
+h† : α
+h : β
+⊢ goal
+```
+
+This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+-/
+syntax (name := replace) "replace" haveDecl : tactic
+
+/--
+`repeat' tac` runs `tac` on all of the goals to produce a new list of goals,
+then runs `tac` again on all of those goals, and repeats until `tac` fails on all remaining goals.
+-/
+syntax (name := repeat') "repeat' " tacticSeq : tactic
+
+/--
+`repeat1' tac` applies `tac` to main goal at least once. If the application succeeds,
+the tactic is applied recursively to the generated subgoals until it eventually fails.
+-/
+syntax (name := repeat1') "repeat1' " tacticSeq : tactic
+
+/-- `and_intros` applies `And.intro` until it does not make progress. -/
+syntax "and_intros" : tactic
+macro_rules | `(tactic| and_intros) => `(tactic| repeat' refine And.intro ?_ ?_)
+
+/--
+`subst_eq` repeatedly substitutes according to the equality proof hypotheses in the context,
+replacing the left side of the equality with the right, until no more progress can be made.
+-/
+syntax (name := substEqs) "subst_eqs" : tactic
+
+/-- The `run_tac doSeq` tactic executes code in `TacticM Unit`. -/
+syntax (name := runTac) "run_tac " doSeq : tactic
+
+/-- `haveI` behaves like `have`, but inlines the value instead of producing a `let_fun` term. -/
+macro "haveI" d:haveDecl : tactic => `(tactic| refine_lift haveI $d:haveDecl; ?_)
+
+/-- `letI` behaves like `let`, but inlines the value instead of producing a `let_fun` term. -/
+macro "letI" d:haveDecl : tactic => `(tactic| refine_lift letI $d:haveDecl; ?_)
+
+/--
+The `omega` tactic, for resolving integer and natural linear arithmetic problems.
+
+It is not yet a full decision procedure (no "dark" or "grey" shadows),
+but should be effective on many problems.
+
+We handle hypotheses of the form `x = y`, `x < y`, `x ≤ y`, and `k ∣ x` for `x y` in `Nat` or `Int`
+(and `k` a literal), along with negations of these statements.
+
+We decompose the sides of the inequalities as linear combinations of atoms.
+
+If we encounter `x / k` or `x % k` for literal integers `k` we introduce new auxiliary variables
+and the relevant inequalities.
+
+On the first pass, we do not perform case splits on natural subtraction.
+If `omega` fails, we recursively perform a case split on
+a natural subtraction appearing in a hypothesis, and try again.
+
+The options
+```
+omega (config :=
+  { splitDisjunctions := true, splitNatSub := true, splitNatAbs := true, splitMinMax := true })
+```
+can be used to:
+* `splitDisjunctions`: split any disjunctions found in the context,
+  if the problem is not otherwise solvable.
+* `splitNatSub`: for each appearance of `((a - b : Nat) : Int)`, split on `a ≤ b` if necessary.
+* `splitNatAbs`: for each appearance of `Int.natAbs a`, split on `0 ≤ a` if necessary.
+* `splitMinMax`: for each occurrence of `min a b`, split on `min a b = a ∨ min a b = b`
+Currently, all of these are on by default.
+-/
+syntax (name := omega) "omega" (config)? : tactic
+
+/--
+`bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
+Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
+`bv_toNat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
+-/
+macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
+
+/-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
+syntax (name := normCast0) "norm_cast0" (location)? : tactic
+
+/-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
+using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
+each hypothesis to move casts as far outwards as possible, so it can be used
+in more situations.
+
+Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
+normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
+macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
+
+/--
+The `norm_cast` family of tactics is used to normalize casts inside expressions.
+It is basically a `simp` tactic with a specific set of lemmas to move casts
+upwards in the expression.
+Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
+`norm_cast` is considered safe.
+It also has special handling of numerals.
+
+For instance, given an assumption
+```lean
+a b : ℤ
+h : ↑a + ↑b < (10 : ℚ)
+```
+
+writing `norm_cast at h` will turn `h` into
+```lean
+h : a + b < 10
+```
+
+There are also variants of `exact`, `apply`, `rw`, and `assumption` that
+work modulo `norm_cast` - in other words, they apply `norm_cast` to make
+them more flexible. They are called `exact_mod_cast`, `apply_mod_cast`,
+`rw_mod_cast`, and `assumption_mod_cast`, respectively.
+Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize casts
+in the goal and `h` before using `exact h` or `apply h`.
+Writing `assumption_mod_cast` will normalize casts in the goal and, for
+every hypothesis `h` in the context, it will try to normalize casts in `h` and use
+`exact h`.
+`rw_mod_cast` acts like the `rw` tactic but it applies `norm_cast` between steps.
+
+See also `push_cast`, which moves casts inwards rather than lifting them outwards.
+-/
+macro "norm_cast" loc:(location)? : tactic =>
+  `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+
+/--
+`push_cast` rewrites the goal to move casts inward, toward the leaf nodes.
+This uses `norm_cast` lemmas in the forward direction.
+For example, `↑(a + b)` will be written to `↑a + ↑b`.
+It is equivalent to `simp only with push_cast`.
+It can also be used at hypotheses with `push_cast at h`
+and with extra simp lemmas with `push_cast [int.add_zero]`.
+
+```lean
+example (a b : ℕ) (h1 : ((a + b : ℕ) : ℤ) = 10) (h2 : ((a + b + 0 : ℕ) : ℤ) = 10) :
+  ((a + b : ℕ) : ℤ) = 10 :=
+begin
+  push_cast,
+  push_cast at h1,
+  push_cast [int.add_zero] at h2,
+end
+```
+-/
+syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
+  (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+
+/--
+`norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
+-/
+syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+
+/--
+* `symm` applies to a goal whose target has the form `t ~ u` where `~` is a symmetric relation,
+  that is, a relation which has a symmetry lemma tagged with the attribute [symm].
+  It replaces the target with `u ~ t`.
+* `symm at h` will rewrite a hypothesis `h : t ~ u` to `h : u ~ t`.
+-/
+syntax (name := symm) "symm" (location)? : tactic
+
+/-- For every hypothesis `h : a ~ b` where a `@[symm]` lemma is available,
+add a hypothesis `h_symm : b ~ a`. -/
+syntax (name := symmSaturate) "symm_saturate" : tactic
+
+namespace SolveByElim
+
+/-- Syntax for omitting a local hypothesis in `solve_by_elim`. -/
+syntax erase := "-" term:max
+/-- Syntax for including all local hypotheses in `solve_by_elim`. -/
+syntax star := "*"
+/-- Syntax for adding or removing a term, or `*`, in `solve_by_elim`. -/
+syntax arg := star <|> erase <|> term
+/-- Syntax for adding and removing terms in `solve_by_elim`. -/
+syntax args := " [" SolveByElim.arg,* "]"
+/-- Syntax for using all lemmas labelled with an attribute in `solve_by_elim`. -/
+syntax using_ := " using " ident,*
+
+end SolveByElim
+
+section SolveByElim
+open SolveByElim (args using_)
+
+/--
+`solve_by_elim` calls `apply` on the main goal to find an assumption whose head matches
+and then repeatedly calls `apply` on the generated subgoals until no subgoals remain,
+performing at most `maxDepth` (defaults to 6) recursive steps.
+
+`solve_by_elim` discharges the current goal or fails.
+
+`solve_by_elim` performs backtracking if subgoals can not be solved.
+
+By default, the assumptions passed to `apply` are the local context, `rfl`, `trivial`,
+`congrFun` and `congrArg`.
+
+The assumptions can be modified with similar syntax as for `simp`:
+* `solve_by_elim [h₁, h₂, ..., hᵣ]` also applies the given expressions.
+* `solve_by_elim only [h₁, h₂, ..., hᵣ]` does not include the local context,
+  `rfl`, `trivial`, `congrFun`, or `congrArg` unless they are explicitly included.
+* `solve_by_elim [-h₁, ... -hₙ]` removes the given local hypotheses.
+* `solve_by_elim using [a₁, ...]` uses all lemmas which have been labelled
+  with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`solve_by_elim*` tries to solve all goals together, using backtracking if a solution for one goal
+makes other goals impossible.
+(Adding or removing local hypotheses may not be well-behaved when starting with multiple goals.)
+
+Optional arguments passed via a configuration argument as `solve_by_elim (config := { ... })`
+- `maxDepth`: number of attempts at discharging generated subgoals
+- `symm`: adds all hypotheses derived by `symm` (defaults to `true`).
+- `exfalso`: allow calling `exfalso` and trying again if `solve_by_elim` fails
+  (defaults to `true`).
+- `transparency`: change the transparency mode when calling `apply`. Defaults to `.default`,
+  but it is often useful to change to `.reducible`,
+  so semireducible definitions will not be unfolded when trying to apply a lemma.
+
+See also the doc-comment for `Std.Tactic.BacktrackConfig` for the options
+`proc`, `suspend`, and `discharge` which allow further customization of `solve_by_elim`.
+Both `apply_assumption` and `apply_rules` are implemented via these hooks.
+-/
+syntax (name := solveByElim)
+  "solve_by_elim" "*"? (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_assumption` looks for an assumption of the form `... → ∀ _, ... → head`
+where `head` matches the current goal.
+
+You can specify additional rules to apply using `apply_assumption [...]`.
+By default `apply_assumption` will also try `rfl`, `trivial`, `congrFun`, and `congrArg`.
+If you don't want these, or don't want to use all hypotheses, use `apply_assumption only [...]`.
+You can use `apply_assumption [-h]` to omit a local hypothesis.
+You can use `apply_assumption using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+`apply_assumption` will use consequences of local hypotheses obtained via `symm`.
+
+If `apply_assumption` fails, it will call `exfalso` and try again.
+Thus if there is an assumption of the form `P → ¬ Q`, the new tactic state
+will have two goals, `P` and `Q`.
+
+You can pass a further configuration via the syntax `apply_rules (config := {...}) lemmas`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+-/
+syntax (name := applyAssumption)
+  "apply_assumption" (config)? (&" only")? (args)? (using_)? : tactic
+
+/--
+`apply_rules [l₁, l₂, ...]` tries to solve the main goal by iteratively
+applying the list of lemmas `[l₁, l₂, ...]` or by applying a local hypothesis.
+If `apply` generates new goals, `apply_rules` iteratively tries to solve those goals.
+You can use `apply_rules [-h]` to omit a local hypothesis.
+
+`apply_rules` will also use `rfl`, `trivial`, `congrFun` and `congrArg`.
+These can be disabled, as can local hypotheses, by using `apply_rules only [...]`.
+
+You can use `apply_rules using [a₁, ...]` to use all lemmas which have been labelled
+with the attributes `aᵢ` (these attributes must be created using `register_label_attr`).
+
+You can pass a further configuration via the syntax `apply_rules (config := {...})`.
+The options supported are the same as for `solve_by_elim` (and include all the options for `apply`).
+
+`apply_rules` will try calling `symm` on hypotheses and `exfalso` on the goal as needed.
+This can be disabled with `apply_rules (config := {symm := false, exfalso := false})`.
+
+You can bound the iteration depth using the syntax `apply_rules (config := {maxDepth := n})`.
+
+Unlike `solve_by_elim`, `apply_rules` does not perform backtracking, and greedily applies
+a lemma from the list until it gets stuck.
+-/
+syntax (name := applyRules) "apply_rules" (config)? (&" only")? (args)? (using_)? : tactic
+end SolveByElim
+
+/--
+Searches environment for definitions or theorems that can solve the goal using `exact`
+with conditions resolved by `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used by `exact?` when closing the goal.  This is most useful if there are multiple
+ways to resolve the goal, and one wants to guide which lemma is used.
+-/
+syntax (name := exact?) "exact?" (" using " (colGt ident),+)? : tactic
+
+/--
+Searches environment for definitions or theorems that can refine the goal using `apply`
+with conditions resolved when possible with `solve_by_elim`.
+
+The optional `using` clause provides identifiers in the local context that must be
+used when closing the goal.
+-/
+syntax (name := apply?) "apply?" (" using " (colGt term),+)? : tactic
+
+/--
+Syntax for excluding some names, e.g. `[-my_lemma, -my_theorem]`.
+-/
+syntax rewrites_forbidden := " [" (("-" ident),*,?) "]"
+
+/--
+`rw?` tries to find a lemma which can rewrite the goal.
+
+`rw?` should not be left in proofs; it is a search tool, like `apply?`.
+
+Suggestions are printed as `rw [h]` or `rw [← h]`.
+
+You can use `rw? [-my_lemma, -my_theorem]` to prevent `rw?` using the named lemmas.
+-/
+syntax (name := rewrites?) "rw?" (ppSpace location)? (rewrites_forbidden)? : tactic
+
+/--
+`show_term tac` runs `tac`, then prints the generated term in the form
+"exact X Y Z" or "refine X ?_ Z" if there are remaining subgoals.
+
+(For some tactics, the printed term will not be human readable.)
+-/
+syntax (name := showTerm) "show_term " tacticSeq : tactic
+
+/--
+`show_term e` elaborates `e`, then prints the generated term.
+-/
+macro (name := showTermElab) tk:"show_term " t:term : term =>
+  `(term| no_implicit_lambda% (show_term_elab%$tk $t))
+
+/--
+The command `by?` will print a suggestion for replacing the proof block with a proof term
+using `show_term`.
+-/
+macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+
 end Tactic
 
 namespace Attr
@@ -796,6 +1406,59 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+
+/-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
+syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"
+
+/--
+The `norm_cast` attribute should be given to lemmas that describe the
+behaviour of a coercion with respect to an operator, a relation, or a particular
+function.
+
+It only concerns equality or iff lemmas involving `↑`, `⇑` and `↥`, describing the behavior of
+the coercion functions.
+It does not apply to the explicit functions that define the coercions.
+
+Examples:
+```lean
+@[norm_cast] theorem coe_nat_inj' {m n : ℕ} : (↑m : ℤ) = ↑n ↔ m = n
+
+@[norm_cast] theorem coe_int_denom (n : ℤ) : (n : ℚ).denom = 1
+
+@[norm_cast] theorem cast_id : ∀ n : ℚ, ↑n = n
+
+@[norm_cast] theorem coe_nat_add (m n : ℕ) : (↑(m + n) : ℤ) = ↑m + ↑n
+
+@[norm_cast] theorem cast_coe_nat (n : ℕ) : ((n : ℤ) : α) = n
+
+@[norm_cast] theorem cast_one : ((1 : ℚ) : α) = 1
+```
+
+Lemmas tagged with `@[norm_cast]` are classified into three categories: `move`, `elim`, and
+`squash`. They are classified roughly as follows:
+
+* elim lemma:   LHS has 0 head coes and ≥ 1 internal coe
+* move lemma:   LHS has 1 head coe and 0 internal coes,    RHS has 0 head coes and ≥ 1 internal coes
+* squash lemma: LHS has ≥ 1 head coes and 0 internal coes, RHS has fewer head coes
+
+`norm_cast` uses `move` and `elim` lemmas to factor coercions toward the root of an expression
+and to cancel them from both sides of an equation or relation. It uses `squash` lemmas to clean
+up the result.
+
+It is typically not necessary to specify these categories, as `norm_cast` lemmas are
+automatically classified by default. The automatic classification can be overridden by
+giving an optional `elim`, `move`, or `squash` parameter to the attribute.
+
+```lean
+@[simp, norm_cast elim] lemma nat_cast_re (n : ℕ) : (n : ℂ).re = n := by
+  rw [← of_real_nat_cast, of_real_re]
+```
+
+Don't do this unless you understand what you are doing.
+-/
+syntax (name := norm_cast) "norm_cast" (ppSpace normCastLabel)? (ppSpace num)? : attr
+
 end Attr
 
 end Parser
@@ -815,13 +1478,14 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith`
+where `i < arr.size` is in the context) and `simp_arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
 
-macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| omega)
 macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| simp (config := { arith := true }); done)
+macro_rules | `(tactic| get_elem_tactic_trivial) => `(tactic| trivial)
 
 /--
 `get_elem_tactic` is the tactic automatically called by the notation `arr[i]`
@@ -832,6 +1496,24 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
+      /-
+      Recall that `macro_rules` are tried in reverse order.
+      We want `assumption` to be tried first.
+      This is important for theorems such as
+      ```
+      [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
+      a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
+      ```
+      There is a proof embedded in the right-hand-side, and we want it to be just `hi`.
+      If `omega` is used to "fill" this proof, we will have a more complex proof term that
+      cannot be inferred by unification.
+      We hardcoded `assumption` here to ensure users cannot accidentaly break this IF
+      they add new `macro_rules` for `get_elem_tactic_trivial`.
+
+      TODO: Implement priorities for `macro_rules`.
+      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      -/
+    | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
@@ -840,10 +1522,16 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
-@[inherit_doc getElem]
-syntax:max term noWs "[" withoutPosition(term) "]" : term
-macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
+/--
+Searches environment for definitions or theorems that can be substituted in
+for `exact?% to solve the goal.
+ -/
+syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
 
-@[inherit_doc getElem]
-syntax term noWs "[" withoutPosition(term) "]'" term:max : term
-macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)
+set_option linter.unusedVariables.funArgs false in
+/--
+  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
+  the given tactic.
+  Like `optParam`, this gadget only affects elaboration.
+  For example, the tactic will *not* be invoked during type class resolution. -/
+abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α

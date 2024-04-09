@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Location
-// Imports: Init Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm
+// Imports: Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1335,7 +1335,6 @@ x_15 = l_Lean_Elab_Tactic_withLocation___lambda__2(x_1, x_14, x_3, x_4, x_5, x_6
 return x_15;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1343,9 +1342,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Location(uint8_t builtin, l
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

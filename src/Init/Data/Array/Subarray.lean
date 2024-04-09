@@ -32,6 +32,8 @@ def get (s : Subarray α) (i : Fin s.size) : α :=
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
 
+instance : LawfulGetElem (Subarray α) Nat α fun xs i => i < xs.size where
+
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
   if h : i < s.size then s.get ⟨i, h⟩ else v₀
 
@@ -143,6 +145,7 @@ def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Suba
      else
        { as := as, start := as.size, stop := as.size, h₁ := Nat.le_refl _, h₂ := Nat.le_refl _ }
 
+@[coe]
 def ofSubarray (s : Subarray α) : Array α := Id.run do
   let mut as := mkEmpty (s.stop - s.start)
   for a in s do

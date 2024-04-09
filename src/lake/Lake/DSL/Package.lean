@@ -37,6 +37,11 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attrs := #[attr] ++ expandAttrs attrs?
   mkConfigDecl packageDeclName doc? attrs ty sig
 
+abbrev PackageDecl := TSyntax ``packageDecl
+
+instance : Coe PackageDecl Command where
+  coe x := ⟨x.raw⟩
+
 
 /--
 Declare a post-`lake update` hook for the package.

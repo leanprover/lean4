@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Exception
-// Imports: Init Lean.Message Lean.InternalExceptionId Lean.Data.Options Lean.Util.MonadCache
+// Imports: Lean.Message Lean.InternalExceptionId Lean.Data.Options Lean.Util.MonadCache
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1782,7 +1782,6 @@ return x_53;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_InternalExceptionId(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
@@ -1792,9 +1791,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Message(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

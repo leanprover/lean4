@@ -33,7 +33,9 @@
       echo -n 'lines C: ' &&
       find ${BUILD:-build/release}/stage2/lib/temp -name '*.c' -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
       echo -n 'lines C++: ' &&
-      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1
+      find src \( -name '*.h' -o -name '*.cpp' \) -print0 | wc -l --files0-from=- | tail -1 | cut -d' ' -f 1 &&
+      echo -n 'max dynamic symbols: ' &&
+      find ${BUILD:-build/release}/stage2/lib/lean -name '*.so' -exec bash -c 'nm --dynamic --defined-only {} | wc -l' \; | sort | head -n1
       "
     max_runs: 1
     runner: output
@@ -224,6 +226,12 @@
       ulimit -s unlimited
       lake self-check
       "
+- attributes:
+    description: language server startup
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dlinter.all=false --run server_startup.lean
 - attributes:
     description: liasolver
     tags: [fast, suite]

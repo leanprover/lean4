@@ -188,7 +188,7 @@ example : Nat → Nat → Nat := by
       --^ textDocument/hover
 
 def g (n : Nat) : Nat := g 0
-termination_by n => n
+termination_by n
 decreasing_by have n' := n; admit
                        --^ textDocument/hover
 

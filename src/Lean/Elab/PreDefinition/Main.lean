@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.SCC
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
@@ -104,6 +105,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       See issue #2321
       -/
       let preDef ← eraseRecAppSyntax preDefs[0]!
+      ensureEqnReservedNamesAvailable preDef.declName
       if preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else
@@ -120,8 +122,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       preDefs.forM (·.termination.ensureNone "partial")
     else
       try
-        let hasHints := preDefs.any  fun preDef =>
-          preDef.termination.decreasing_by?.isSome || preDef.termination.termination_by?.isSome
+        let hasHints := preDefs.any fun preDef => preDef.termination.isNotNone
         if hasHints then
           wfRecursion preDefs
         else

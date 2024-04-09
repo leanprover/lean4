@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
@@ -84,6 +85,10 @@ def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
 
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)
+
+/-- Gets the LSP range from a `String.Range`. -/
+def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
+  { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
 
 end FileMap
 end Lean

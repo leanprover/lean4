@@ -3,12 +3,13 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.LinearArith.Basic
 import Lean.Meta.Tactic.LinearArith.Nat.Simp
 
 namespace Lean.Meta.Linear
 
-private def parentIsTarget (parent? : Option Expr) : Bool :=
+def parentIsTarget (parent? : Option Expr) : Bool :=
   match parent? with
   | none => false
   | some parent => isLinearTerm parent || isLinearCnstr parent

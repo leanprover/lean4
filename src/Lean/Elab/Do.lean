@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
 import Lean.Elab.PatternVar
@@ -62,8 +63,9 @@ private def letDeclHasBinders (letDecl : Syntax) : Bool :=
 /-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
 private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   let k := stx.getKind
+  -- TODO: make this extensible in the future.
   if k == ``Parser.Term.fun || k == ``Parser.Term.matchAlts ||
-     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec  then
+     k == ``Parser.Term.doLetRec || k == ``Parser.Term.letrec then
      -- It is never ok to lift over this kind of binder
     true
   -- The following kinds of `let`-expressions require extra checks to decide whether they contain binders or not
@@ -76,12 +78,15 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else
     false
 
+-- TODO: we must track whether we are inside a quotation or not.
 private partial def hasLiftMethod : Syntax → Bool
   | Syntax.node _ k args =>
     if liftMethodDelimiter k then false
     -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
     -- bit slower
     else if k == ``Parser.Term.liftMethod then true
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasLiftMethod args[1]!
     else args.any hasLiftMethod
   | _ => false
 
@@ -130,11 +135,30 @@ abbrev Var := Syntax  -- TODO: should be `Ident`
 
 /-- A `doMatch` alternative. `vars` is the array of variables declared by `patterns`. -/
 structure Alt (σ : Type) where
-  ref : Syntax
-  vars : Array Var
+  ref      : Syntax
+  vars     : Array Var
   patterns : Syntax
-  rhs : σ
+  rhs      : σ
   deriving Inhabited
+
+/-- A `doMatchExpr` alternative. -/
+structure AltExpr (σ : Type) where
+  ref     : Syntax
+  var?    : Option Var
+  funName : Syntax
+  pvars   : Array Syntax
+  rhs     : σ
+  deriving Inhabited
+
+def AltExpr.vars (alt : AltExpr σ) : Array Var := Id.run do
+  let mut vars := #[]
+  if let some var := alt.var? then
+    vars := vars.push var
+  for pvar in alt.pvars do
+    match pvar with
+    | `(_) => pure ()
+    | _ => vars := vars.push pvar
+  return vars
 
 /--
   Auxiliary datastructure for representing a `do` code block, and compiling "reassignments" (e.g., `x := x + 1`).
@@ -197,6 +221,7 @@ inductive Code where
   /-- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
   | ite          (ref : Syntax) (h? : Option Var) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
   | match        (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
+  | matchExpr    (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr Code)) (elseBranch : Code)
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
@@ -211,6 +236,7 @@ def Code.getRef? : Code → Option Syntax
   | .return ref _        => ref
   | .ite ref ..          => ref
   | .match ref ..        => ref
+  | .matchExpr ref ..    => ref
   | .jmp ref ..          => ref
 
 abbrev VarSet := RBMap Name Syntax Name.cmp
@@ -242,19 +268,28 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | .match _ _ ds _ alts   =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
+    | .matchExpr _ meta d alts elseCode =>
+      let r := m!"match_expr {if meta then "" else "(meta := false)"} {d} with"
+      let r := r ++ alts.foldl (init := m!"") fun acc alt =>
+            let acc := acc ++ m!"\n| {if let some var := alt.var? then m!"{var}@" else ""}"
+            let acc := acc ++ m!"{alt.funName}"
+            let acc := acc ++ alt.pvars.foldl (init := m!"") fun acc pvar => acc ++ m!" {pvar}"
+            acc ++ m!" => {loop alt.rhs}"
+      r ++ m!"| _ => {loop elseCode}"
   loop codeBlock.code
 
 /-- Return true if the give code contains an exit point that satisfies `p` -/
 partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   let rec loop : Code → Bool
-    | .decl _ _ k         => loop k
-    | .reassign _ _ k     => loop k
-    | .joinpoint _ _ b k  => loop b || loop k
-    | .seq _ k            => loop k
-    | .ite _ _ _ _ t e    => loop t || loop e
-    | .match _ _ _ _ alts => alts.any (loop ·.rhs)
-    | .jmp ..             => false
-    | c                   => p c
+    | .decl _ _ k             => loop k
+    | .reassign _ _ k         => loop k
+    | .joinpoint _ _ b k      => loop b || loop k
+    | .seq _ k                => loop k
+    | .ite _ _ _ _ t e        => loop t || loop e
+    | .match _ _ _ _ alts     => alts.any (loop ·.rhs)
+    | .matchExpr _ _ _ alts e => alts.any (loop ·.rhs) || loop e
+    | .jmp ..                 => false
+    | c                       => p c
   loop c
 
 def hasExitPoint (c : Code) : Bool :=
@@ -299,13 +334,18 @@ partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array V
     | .joinpoint n ps b k    => return .joinpoint n ps (← loop b) (← loop k)
     | .seq e k               => return .seq e (← loop k)
     | .ite ref x? h c t e    => return .ite ref x? h c (← loop t) (← loop e)
-    | .match ref g ds t alts => return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
     | .action e              => mkAuxDeclFor e fun y =>
       let ref := e
       -- We jump to `jp` with xs **and** y
       let jmpArgs := xs.push y
       return Code.jmp ref jp jmpArgs
-    | c                            => return c
+    | .match ref g ds t alts =>
+      return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
+    | .matchExpr ref meta d alts e => do
+      let alts ← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) }
+      let e ← loop e
+      return .matchExpr ref meta d alts e
+    | c => return c
   loop code
 
 structure JPDecl where
@@ -371,14 +411,13 @@ def mkJmp (ref : Syntax) (rs : VarSet) (val : Syntax) (mkJPBody : Syntax → Mac
   return Code.jmp ref jp args
 
 /-- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
-partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code :=
+partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl) TermElabM Code := do
   match c with
   | .decl xs stx k         => return .decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
   | .reassign xs stx k     => return .reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
   | .joinpoint j ps b k    => return .joinpoint j ps (← pullExitPointsAux rs b) (← pullExitPointsAux rs k)
   | .seq e k               => return .seq e (← pullExitPointsAux rs k)
   | .ite ref x? o c t e    => return .ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
-  | .match ref g ds t alts => return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
   | .jmp ..                => return  c
   | .break ref             => mkSimpleJmp ref rs (.break ref)
   | .continue ref          => mkSimpleJmp ref rs (.continue ref)
@@ -388,6 +427,13 @@ partial def pullExitPointsAux (rs : VarSet) (c : Code) : StateRefT (Array JPDecl
     mkAuxDeclFor e fun y =>
       let ref := e
       mkJmp ref rs y (fun yFresh => return .action (← ``(Pure.pure $yFresh)))
+  | .match ref g ds t alts =>
+    let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
+    return .match ref g ds t alts
+  | .matchExpr ref meta d alts e =>
+    let alts ← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) }
+    let e ← pullExitPointsAux rs e
+    return .matchExpr ref meta d alts e
 
 /--
 Auxiliary operation for adding new variables to the collection of updated variables in a CodeBlock.
@@ -456,6 +502,14 @@ partial def extendUpdatedVarsAux (c : Code) (ws : VarSet) : TermElabM Code :=
         pullExitPoints c
       else
         return .match ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
+    | .matchExpr ref meta d alts e =>
+      if alts.any fun alt => alt.vars.any fun x => ws.contains x.getId then
+        -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
+        pullExitPoints c
+      else
+        let alts ← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) }
+        let e ← update e
+        return .matchExpr ref meta d alts e
     | .ite ref none o c t e => return .ite ref none o c (← update t) (← update e)
     | .ite ref (some h) o cond t e =>
       if ws.contains h.getId then
@@ -568,6 +622,16 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
     let rhs ← extendUpdatedVars alt.rhs ws
     return { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
   return { code := .match ref genParam discrs optMotive alts, uvars := ws }
+
+def mkMatchExpr (ref : Syntax) (meta : Bool) (discr : Syntax) (alts : Array (AltExpr CodeBlock)) (elseBranch : CodeBlock) : TermElabM CodeBlock := do
+  -- nary version of homogenize
+  let ws := alts.foldl (union · ·.rhs.uvars) {}
+  let ws := union ws elseBranch.uvars
+  let alts ← alts.mapM fun alt => do
+    let rhs ← extendUpdatedVars alt.rhs ws
+    return { alt with rhs := rhs.code : AltExpr Code }
+  let elseBranch ← extendUpdatedVars elseBranch ws
+  return { code := .matchExpr ref meta discr alts elseBranch.code, uvars := ws }
 
 /-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
@@ -704,6 +768,19 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
       eIsSeq := false
     return some e
   | _ => pure none
+
+/--
+  If the given syntax is a `doLetExpr` or `doLetMetaExpr`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
+private def expandDoLetExpr? (stx : Syntax) (doElems : List Syntax) : MacroM (Option Syntax) := match stx with
+  | `(doElem| let_expr $pat:matchExprPat := $discr:term | $elseBranch:doSeq) =>
+    return some (← `(doElem| match_expr (meta := false) $discr:term with
+                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | _ => $elseBranch))
+  | `(doElem| let_expr $pat:matchExprPat ← $discr:term | $elseBranch:doSeq) =>
+    return some (← `(doElem| match_expr $discr:term with
+                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
+                             | _ => $elseBranch))
+  | _ => return none
 
 structure DoIfView where
   ref        : Syntax
@@ -1076,10 +1153,26 @@ where
       let mut termAlts := #[]
       for alt in alts do
         let rhs ← toTerm alt.rhs
-        let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", mkNullNode #[alt.patterns], mkAtomFrom alt.ref "=>", rhs]
+        let termAlt := mkNode ``Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", mkNullNode #[alt.patterns], mkAtomFrom alt.ref "=>", rhs]
         termAlts := termAlts.push termAlt
-      let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
-      return mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
+      let termMatchAlts := mkNode ``Parser.Term.matchAlts #[mkNullNode termAlts]
+      return mkNode ``Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
+    | .matchExpr ref meta d alts elseBranch => withFreshMacroScope do
+      let d' ← `(discr)
+      let mut termAlts := #[]
+      for alt in alts do
+        let rhs ← `(($(← toTerm alt.rhs) : $((← read).m) _))
+        let optVar := if let some var := alt.var? then mkNullNode #[var, mkAtomFrom var "@"] else mkNullNode #[]
+        let pat := mkNode ``Parser.Term.matchExprPat #[optVar, alt.funName, mkNullNode alt.pvars]
+        let termAlt := mkNode ``Parser.Term.matchExprAlt #[mkAtomFrom alt.ref "|", pat, mkAtomFrom alt.ref "=>", rhs]
+        termAlts := termAlts.push termAlt
+      let elseBranch := mkNode ``Parser.Term.matchExprElseAlt #[mkAtomFrom ref "|", mkHole ref, mkAtomFrom ref "=>", (← toTerm elseBranch)]
+      let termMatchExprAlts := mkNode ``Parser.Term.matchExprAlts #[mkNullNode termAlts, elseBranch]
+      let body := mkNode ``Parser.Term.matchExpr #[mkAtomFrom ref "match_expr", d', mkAtomFrom ref "with", termMatchExprAlts]
+      if meta then
+        `(Bind.bind (instantiateMVarsIfMVarApp $d) fun discr => $body)
+      else
+        `(let discr := $d; $body)
 
 def run (code : Code) (m : Syntax) (returnType : Syntax) (uvars : Array Var := #[]) (kind := Kind.regular) : MacroM Syntax :=
   toTerm code { m, returnType, kind, uvars }
@@ -1232,6 +1325,12 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return .node i k (alts.map (·.1))
     else if liftMethodDelimiter k then
       return stx
+    -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
+    else if args.size >= 2 && (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
+      let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
+      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]!
+      let args := args.set! 1 arg1
+      return Syntax.node i k args
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
@@ -1532,6 +1631,24 @@ mutual
     let matchCode ← mkMatch ref genParam discrs optMotive alts
     concatWith matchCode doElems
 
+  /-- Generate `CodeBlock` for `doMatchExpr; doElems` -/
+  partial def doMatchExprToCode (doMatchExpr : Syntax) (doElems: List Syntax) : M CodeBlock := do
+    let ref       := doMatchExpr
+    let meta      := doMatchExpr[1].isNone
+    let discr     := doMatchExpr[2]
+    let alts      := doMatchExpr[4][0].getArgs -- Array of `doMatchExprAlt`
+    let alts ← alts.mapM fun alt => do
+      let pat      := alt[1]
+      let var?     := if pat[0].isNone then none else some pat[0][0]
+      let funName  := pat[1]
+      let pvars    := pat[2].getArgs
+      let rhs      := alt[3]
+      let rhs ← doSeqToCode (getDoSeqElems rhs)
+      pure { ref, var?, funName, pvars, rhs }
+    let elseBranch ← doSeqToCode (getDoSeqElems doMatchExpr[4][1][3])
+    let matchCode ← mkMatchExpr ref meta discr alts elseBranch
+    concatWith matchCode doElems
+
   /--
     Generate `CodeBlock` for `doTry; doElems`
     ```
@@ -1602,6 +1719,9 @@ mutual
       match (← liftMacroM <| expandDoIf? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>
+      match (← liftMacroM <| expandDoLetExpr? doElem doElems) with
+      | some doElem => doSeqToCode [doElem]
+      | none =>
         let (liftedDoElems, doElem) ← expandLiftMethod doElem
         if !liftedDoElems.isEmpty then
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
@@ -1639,6 +1759,8 @@ mutual
             doForToCode doElem doElems
           else if k == ``Parser.Term.doMatch then
             doMatchToCode doElem doElems
+          else if k == ``Parser.Term.doMatchExpr then
+            doMatchExprToCode doElem doElems
           else if k == ``Parser.Term.doTry then
             doTryToCode doElem doElems
           else if k == ``Parser.Term.doBreak then

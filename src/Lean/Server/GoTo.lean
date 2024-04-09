@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich, Lars König, Wojciech Nawrocki
 -/
+prelude
 import Lean.Data.Json.FromToJson
 import Lean.Util.Path
 import Lean.Server.Utils
@@ -16,13 +17,22 @@ inductive GoToKind
   | declaration | definition | type
   deriving BEq, ToJson, FromJson
 
-def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name) : IO (Option DocumentUri) := do
+/-- Finds the URI corresponding to `modName` in `searchSearchPath`. -/
+def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name)
+    : IO (Option DocumentUri) := do
   let some modFname ← srcSearchPath.findModuleWithExt "lean" modName
     | pure none
   -- resolve symlinks (such as `src` in the build dir) so that files are opened
   -- in the right folder
   let modFname ← IO.FS.realPath modFname
   return some <| System.Uri.pathToUri modFname
+
+/-- Finds the module name corresponding to `uri` in `srcSearchPath`. -/
+def moduleFromDocumentUri (srcSearchPath : SearchPath) (uri : DocumentUri)
+    : IO (Option Name) := do
+  let some modFname := System.Uri.fileUriToPath? uri
+    | return none
+  searchModuleNameOfFileName modFname srcSearchPath
 
 open Elab in
 def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : Name)

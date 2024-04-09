@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
@@ -26,8 +27,9 @@ where
       let rhs ← if isProof then
         `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
+        let sameCtor ← mkSameCtorRhs todo
         `(if h : @$a = @$b then
-           by subst h; exact $(← mkSameCtorRhs todo):term
+           by subst h; exact $sameCtor:term
           else
            isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then

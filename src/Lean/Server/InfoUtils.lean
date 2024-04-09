@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+prelude
 import Lean.PrettyPrinter
 
 namespace Lean.Elab
@@ -84,7 +85,28 @@ where go ctx? a
       | none => a
       | some ctx => f ctx i a
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
-  | _ => a
+  | hole _ => a
+
+/--
+Fold an info tree as follows, while ensuring that the correct `ContextInfo` is supplied at each stage:
+
+ * Nodes are combined with the initial value `init` using `f`, and the result is then combined with the children using a left fold
+ * On InfoTree holes, we just return the initial value.
+
+This is like `InfoTree.foldInfo`, but it also passes the whole node to `f` instead of just the head.
+-/
+partial def InfoTree.foldInfoTree (init : α) (f : ContextInfo → InfoTree → α → α) : InfoTree → α :=
+  go none init
+where
+  /-- `foldInfoTree.go` is like `foldInfoTree` but with an additional outer context parameter `ctx?`. -/
+  go ctx? a
+  | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
+  | t@(node i ts) =>
+    let a := match ctx? with
+      | none => a
+      | some ctx => f ctx t a
+    ts.foldl (init := a) (go <| i.updateContext? ctx?)
+  | hole _ => a
 
 def Info.isTerm : Info → Bool
   | ofTermInfo _ => true
@@ -112,11 +134,13 @@ def Info.stx : Info → Syntax
   | ofUserWidgetInfo i     => i.stx
   | ofFVarAliasInfo _      => .missing
   | ofFieldRedeclInfo i    => i.stx
+  | ofOmissionInfo i       => i.stx
 
 def Info.lctx : Info → LocalContext
-  | Info.ofTermInfo i  => i.lctx
-  | Info.ofFieldInfo i => i.lctx
-  | _                  => LocalContext.empty
+  | Info.ofTermInfo i     => i.lctx
+  | Info.ofFieldInfo i    => i.lctx
+  | Info.ofOmissionInfo i => i.lctx
+  | _                     => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (canonicalOnly := true)
@@ -142,10 +166,10 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
-  let tailPos ← i.tailPos?
-  guard (tailPos ≤ hoverPos)
-  return hoverPos - tailPos
+def Info.occursDirectlyBefore (i : Info) (hoverPos : String.Pos) : Bool := Id.run do
+  let some tailPos := i.tailPos?
+    | return false
+  return tailPos == hoverPos
 
 def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let headPos ← i.pos?
@@ -210,14 +234,15 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with
-  | Info.ofTermInfo ti => Meta.inferType ti.expr
-  | Info.ofFieldInfo fi => Meta.inferType fi.val
+  | Info.ofTermInfo ti     => Meta.inferType ti.expr
+  | Info.ofFieldInfo fi    => Meta.inferType fi.val
+  | Info.ofOmissionInfo oi => Meta.inferType oi.expr
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | Info.ofTermInfo ti =>
+  | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
       return ← findDocString? env n
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
@@ -227,6 +252,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
+  | .ofOmissionInfo { reason := s, .. } => return s -- Show the omission reason for the docstring.
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
@@ -370,12 +396,14 @@ partial def InfoTree.hasSorry : InfoTree → IO Bool :=
 where go ci?
   | .context ci t => go (ci.mergeIntoOuter? ci?) t
   | .node i cs =>
-    if let (some ci, .ofTermInfo ti) := (ci?, i) then do
+    match ci?, i with
+    | some ci, .ofTermInfo ti
+    | some ci, .ofOmissionInfo { toTermInfo := ti, .. } => do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well
-    else
+    | _, _ =>
       cs.anyM (go ci?)
   | _ => return false
 

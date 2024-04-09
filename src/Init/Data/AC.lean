@@ -106,7 +106,7 @@ def norm [info : ContextInformation α] (ctx : α) (e : Expr) : List Nat :=
   let xs := if info.isComm ctx then sort xs else xs
   if info.isIdem ctx then mergeIdem xs else xs
 
-theorem List.two_step_induction
+noncomputable def List.two_step_induction
   {motive : List Nat → Sort u}
   (l : List Nat)
   (empty : motive [])
@@ -150,18 +150,18 @@ theorem Context.evalList_mergeIdem (ctx : Context α) (h : ContextInformation.is
       rfl
     | cons z zs =>
       by_cases h₂ : x = y
-      case inl =>
+      case pos =>
         rw [h₂, mergeIdem_head, ih]
         simp [evalList, ←ctx.assoc.1, h.1, EvalInformation.evalOp]
-      case inr =>
+      case neg =>
         rw [mergeIdem_head2]
         by_cases h₃ : y = z
-        case inl =>
+        case pos =>
           simp [mergeIdem_head, h₃, evalList]
           cases h₄ : mergeIdem (z :: zs) with
           | nil => apply absurd h₄; apply mergeIdem_nonEmpty; simp
           | cons u us => simp_all [mergeIdem, mergeIdem.loop, evalList]
-        case inr =>
+        case neg =>
           simp [mergeIdem_head2, h₃, evalList] at *
           rw [ih]
         assumption

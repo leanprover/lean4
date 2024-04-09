@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Congr
 import Lean.Elab.Tactic.Conv.Basic
@@ -101,16 +102,45 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
   selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
+/-- Implementation of `arg 0` -/
+def congrFunN (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let (lhs, rhs) ← getLhsRhsCore mvarId
+  let lhs := (← instantiateMVars lhs).cleanupAnnotations
+  unless lhs.isApp do
+    throwError "invalid 'arg 0' conv tactic, application expected{indentExpr lhs}"
+  lhs.withApp fun f xs => do
+    let (g, mvarNew) ← mkConvGoalFor f
+    mvarId.assign (← xs.foldlM (fun mvar a => Meta.mkCongrFun mvar a) mvarNew)
+    let rhs' := mkAppN g xs
+    unless ← isDefEqGuarded rhs rhs' do
+      throwError "invalid 'arg 0' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    return mvarNew.mvarId!
+
 @[builtin_tactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
   match stx with
   | `(conv| arg $[@%$tk?]? $i:num) =>
     let i := i.getNat
     if i == 0 then
-      throwError "invalid 'arg' conv tactic, index must be greater than 0"
-    let i := i - 1
-    let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
-    selectIdx "arg" mvarIds i
+      replaceMainGoal [← congrFunN (← getMainGoal)]
+    else
+      let i := i - 1
+      let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
+      selectIdx "arg" mvarIds i
   | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.«fun»] def evalFun : Tactic := fun _ => do
+  let mvarId ← getMainGoal
+  mvarId.withContext do
+    let (lhs, rhs) ← getLhsRhsCore mvarId
+    let lhs := (← instantiateMVars lhs).cleanupAnnotations
+    let .app f a := lhs
+      | throwError "invalid 'fun' conv tactic, application expected{indentExpr lhs}"
+    let (g, mvarNew) ← mkConvGoalFor f
+    mvarId.assign (← Meta.mkCongrFun mvarNew a)
+    let rhs' := .app g a
+    unless ← isDefEqGuarded rhs rhs' do
+      throwError "invalid 'fun' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+    replaceMainGoal [mvarNew.mvarId!]
 
 def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
   match lhs with

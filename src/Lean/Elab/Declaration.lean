@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Util.CollectLevelParams
 import Lean.Elab.DeclUtil
 import Lean.Elab.DefView
@@ -41,7 +42,7 @@ private def isNamedDef (stx : Syntax) : Bool :=
     let decl := stx[1]
     let k := decl.getKind
     k == ``Lean.Parser.Command.abbrev ||
-    k == ``Lean.Parser.Command.def ||
+    k == ``Lean.Parser.Command.definition ||
     k == ``Lean.Parser.Command.theorem ||
     k == ``Lean.Parser.Command.opaque ||
     k == ``Lean.Parser.Command.axiom ||
@@ -94,7 +95,7 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
   let scpView := extractMacroScopes name
   match scpView.name with
   | .str .anonymous _ => return none
-  | .str pre shortName => return some (pre, setDefName stx { scpView with name := shortName }.review)
+  | .str pre shortName => return some (pre, setDefName stx { scpView with name := .mkSimple shortName }.review)
   | _ => return none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
@@ -165,7 +166,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let computedFields ← (decl[5].getOptional?.map (·[1].getArgs) |>.getD #[]).mapM fun cf => withRef cf do
     return { ref := cf, modifiers := cf[0], fieldId := cf[1].getId, type := ⟨cf[3]⟩, matchAlts := ⟨cf[4]⟩ }
-  let classes ← getOptDerivingClasses decl[6]
+  let classes ← liftCoreM <| getOptDerivingClasses decl[6]
   return {
     ref             := decl
     shortDeclName   := name
@@ -346,7 +347,21 @@ def elabMutual : CommandElab := fun stx => do
   let attrs ← elabAttrs attrInsts
   let idents := stx[4].getArgs
   for ident in idents do withRef ident <| liftTermElabM do
-    let declName ← resolveGlobalConstNoOverloadWithInfo ident
+    /-
+    HACK to allow `attribute` command to disable builtin simprocs.
+    TODO: find a better solution. Example: have some "fake" declaration
+    for builtin simprocs.
+    -/
+    let declNames ←
+       try
+         realizeGlobalConst ident
+       catch _ =>
+         let name := ident.getId.eraseMacroScopes
+         if (← Simp.isBuiltinSimproc name) then
+           pure [name]
+         else
+           throwUnknownConstant name
+    let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do
       Attribute.erase declName attrName

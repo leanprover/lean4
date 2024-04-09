@@ -51,3 +51,23 @@ example : boo x ↔ (3 : Fin 8) ≥ 2 := by
   simp
   trace_state
   trivial
+
+example (h : x = false) : x = ((3 : Fin 8) == 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : x = true) : x = ((3 : Fin 8) != 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : ¬x) : x = ((3 : Fin 8) = 4) := by
+  simp
+  trace_state
+  assumption
+
+example (h : x) : x = ((3 : Fin 8) ≠ 4) := by
+  simp
+  trace_state
+  assumption

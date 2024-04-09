@@ -12,14 +12,14 @@ instance : LawfulCommIdentity HMul.hMul 1 where right_id := Nat.mul_one
   ⟨Nat.le_of_succ_le_succ, Nat.succ_le_succ⟩
 
 @[simp] theorem add_le_add_right_iff {x y z : Nat} : x + z ≤ y + z ↔ x ≤ y := by
-  induction z <;> simp_all [Nat.add_succ]
+  induction z <;> simp_all [← Nat.add_assoc]
 
 set_option linter.unusedVariables false in
 theorem le_ext : ∀ {x y : Nat} (h : ∀ z, z ≤ x ↔ z ≤ y), x = y
   | 0, 0, _ => rfl
-  | x+1, y+1, h => congrArg (· + 1) <| le_ext fun z => have := h (z + 1); by simp_all
+  | x+1, y+1, h => congrArg (· + 1) <| le_ext fun z => have := h (z + 1); by simp at this; assumption
   | 0, y+1, h => have := h 1; by clear h; simp_all
-  | x+1, 0, h => have := h 1; by simp_all
+  | x+1, 0, h => have := h 1; by simp at this
 
 theorem le_or_le : ∀ (a b : Nat), a ≤ b ∨ b ≤ a
   | x+1, y+1 => by simp [le_or_le x y]
@@ -34,12 +34,6 @@ theorem le_of_not_le {a b : Nat} (h : ¬ a ≤ b) : b ≤ a :=
   · exact Iff.intro .inr fun | .inl xy => Nat.le_trans ‹_› ‹_› | .inr xz => ‹_›
   · exact Iff.intro .inl fun | .inl xy => ‹_› | .inr xz => Nat.le_trans ‹_› (le_of_not_le ‹_›)
 
-theorem or_assoc : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := by
-  by_cases p <;> by_cases q <;> by_cases r <;> simp_all
-
-theorem or_comm : p ∨ q ↔ q ∨ p := by
-  by_cases p <;> by_cases q <;> simp_all
-
 theorem max_assoc (n m k : Nat) : max (max n m) k = max n (max m k) :=
   le_ext (by simp [or_assoc])
 
@@ -47,10 +41,6 @@ theorem max_comm (n m : Nat) : max n m = max m n :=
   le_ext (by simp [or_comm])
 
 theorem max_idem (n : Nat) : max n n = n := le_ext (by simp)
-
-theorem Nat.zero_max (n : Nat) : max 0 n = n := by simp [Nat.max_def]
-
-theorem Nat.max_zero (n : Nat) : max n 0 = n := by rw [max_comm, Nat.zero_max]
 
 instance : Associative (α := Nat) max := ⟨max_assoc⟩
 instance : Commutative (α := Nat) max := ⟨max_comm⟩

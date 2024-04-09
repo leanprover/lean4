@@ -15,10 +15,12 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instCoeT__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOTC__2___rarg(lean_object*);
+static lean_object* l_coeFunNotation___closed__4;
 static lean_object* l_coeNotation___closed__11;
 LEAN_EXPORT lean_object* l_instCoeOTC(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Internal_coeM___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_coeFunNotation___closed__1;
 LEAN_EXPORT lean_object* l_subtypeCoe___rarg___boxed(lean_object*);
 static lean_object* l_coeNotation___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,9 +35,12 @@ LEAN_EXPORT lean_object* l_instCoeHTCT__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeT__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTC__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeT__1___rarg___boxed(lean_object*);
+static lean_object* l_coeSortNotation___closed__4;
 static lean_object* l_coeNotation___closed__2;
+LEAN_EXPORT lean_object* l_coeSortNotation;
 LEAN_EXPORT lean_object* l_instCoeOTC__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTC__1(lean_object*, lean_object*);
+static lean_object* l_coeFunNotation___closed__6;
 LEAN_EXPORT lean_object* l_subtypeCoe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOTC__2(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTC__2(lean_object*);
@@ -46,34 +51,42 @@ LEAN_EXPORT lean_object* l_Lean_Internal_coeM(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_instCoeOTC__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCT__2(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeT__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_coeFunNotation___closed__5;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_decPropToBool___rarg(uint8_t);
+static lean_object* l_coeFunNotation___closed__3;
 static lean_object* l_coeNotation___closed__4;
 static lean_object* l_coeNotation___closed__8;
 LEAN_EXPORT lean_object* l_instCoeTC__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOTC__2___rarg___boxed(lean_object*);
+static lean_object* l_coeSortNotation___closed__3;
 LEAN_EXPORT lean_object* l_instCoeT__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTC__2___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCT__2___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTC__2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOut___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCT__1(lean_object*, lean_object*);
+static lean_object* l_coeSortNotation___closed__6;
 LEAN_EXPORT lean_object* l_decPropToBool___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTCT__1___rarg(lean_object*, lean_object*);
+static lean_object* l_coeSortNotation___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTC(lean_object*, lean_object*, lean_object*);
+static lean_object* l_coeSortNotation___closed__1;
 LEAN_EXPORT lean_object* l_instCoeHTCT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__1;
 static lean_object* l_coeNotation___closed__3;
 LEAN_EXPORT lean_object* l_instCoeOut__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOut__1___rarg(lean_object*, lean_object*);
+static lean_object* l_coeFunNotation___closed__2;
 static lean_object* l_coeNotation___closed__9;
 LEAN_EXPORT lean_object* l_instCoeOTC___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_optionCoe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_subtypeCoe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeOut(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__5;
+static lean_object* l_coeSortNotation___closed__2;
 LEAN_EXPORT lean_object* l_instCoeT__2(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTC__2___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeHTC__2___rarg(lean_object*);
@@ -82,6 +95,7 @@ static lean_object* l_coeNotation___closed__10;
 LEAN_EXPORT lean_object* l_instCoeHTC__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeTC__2(lean_object*);
 static lean_object* l_coeNotation___closed__6;
+LEAN_EXPORT lean_object* l_coeFunNotation;
 LEAN_EXPORT lean_object* l_instCoeTC___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -535,6 +549,150 @@ x_1 = l_coeNotation___closed__11;
 return x_1;
 }
 }
+static lean_object* _init_l_coeFunNotation___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("coeFunNotation", 14);
+return x_1;
+}
+}
+static lean_object* _init_l_coeFunNotation___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_coeFunNotation___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_coeFunNotation___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("⇑", 3);
+return x_1;
+}
+}
+static lean_object* _init_l_coeFunNotation___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_coeFunNotation___closed__3;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_coeFunNotation___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_coeNotation___closed__4;
+x_2 = l_coeFunNotation___closed__4;
+x_3 = l_coeNotation___closed__9;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_coeFunNotation___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_coeFunNotation___closed__2;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_coeFunNotation___closed__5;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_coeFunNotation() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_coeFunNotation___closed__6;
+return x_1;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("coeSortNotation", 15);
+return x_1;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_coeSortNotation___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("↥", 3);
+return x_1;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_coeSortNotation___closed__3;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_coeNotation___closed__4;
+x_2 = l_coeSortNotation___closed__4;
+x_3 = l_coeNotation___closed__9;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_coeSortNotation___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_coeSortNotation___closed__2;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_coeSortNotation___closed__5;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_coeSortNotation() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_coeSortNotation___closed__6;
+return x_1;
+}
+}
 static lean_object* _init_l_boolToProp() {
 _start:
 {
@@ -704,6 +862,34 @@ l_coeNotation___closed__11 = _init_l_coeNotation___closed__11();
 lean_mark_persistent(l_coeNotation___closed__11);
 l_coeNotation = _init_l_coeNotation();
 lean_mark_persistent(l_coeNotation);
+l_coeFunNotation___closed__1 = _init_l_coeFunNotation___closed__1();
+lean_mark_persistent(l_coeFunNotation___closed__1);
+l_coeFunNotation___closed__2 = _init_l_coeFunNotation___closed__2();
+lean_mark_persistent(l_coeFunNotation___closed__2);
+l_coeFunNotation___closed__3 = _init_l_coeFunNotation___closed__3();
+lean_mark_persistent(l_coeFunNotation___closed__3);
+l_coeFunNotation___closed__4 = _init_l_coeFunNotation___closed__4();
+lean_mark_persistent(l_coeFunNotation___closed__4);
+l_coeFunNotation___closed__5 = _init_l_coeFunNotation___closed__5();
+lean_mark_persistent(l_coeFunNotation___closed__5);
+l_coeFunNotation___closed__6 = _init_l_coeFunNotation___closed__6();
+lean_mark_persistent(l_coeFunNotation___closed__6);
+l_coeFunNotation = _init_l_coeFunNotation();
+lean_mark_persistent(l_coeFunNotation);
+l_coeSortNotation___closed__1 = _init_l_coeSortNotation___closed__1();
+lean_mark_persistent(l_coeSortNotation___closed__1);
+l_coeSortNotation___closed__2 = _init_l_coeSortNotation___closed__2();
+lean_mark_persistent(l_coeSortNotation___closed__2);
+l_coeSortNotation___closed__3 = _init_l_coeSortNotation___closed__3();
+lean_mark_persistent(l_coeSortNotation___closed__3);
+l_coeSortNotation___closed__4 = _init_l_coeSortNotation___closed__4();
+lean_mark_persistent(l_coeSortNotation___closed__4);
+l_coeSortNotation___closed__5 = _init_l_coeSortNotation___closed__5();
+lean_mark_persistent(l_coeSortNotation___closed__5);
+l_coeSortNotation___closed__6 = _init_l_coeSortNotation___closed__6();
+lean_mark_persistent(l_coeSortNotation___closed__6);
+l_coeSortNotation = _init_l_coeSortNotation();
+lean_mark_persistent(l_coeSortNotation);
 l_boolToProp = _init_l_boolToProp();
 l_boolToSort = _init_l_boolToSort();
 return lean_io_result_mk_ok(lean_box(0));

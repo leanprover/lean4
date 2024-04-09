@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
 prelude
-import Init.Control.EState
 import Init.Control.Reader
 import Init.Data.String
 import Init.Data.ByteArray

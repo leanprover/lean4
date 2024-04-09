@@ -3,17 +3,17 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
+import Lean.Meta.ArgsPacker
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
-import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
 namespace Lean.Elab.WF
@@ -77,34 +77,16 @@ where
     | Expr.proj n i e => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if let some matcherApp ← matcherApp.addArg? F then
-          if !(← Structural.refinedArgType matcherApp F) then
-            processApp F e
-          else
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-              lambdaTelescope alt fun xs altBody => do
-                unless xs.size >= numParams do
-                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let FAlt := xs[numParams - 1]!
-                mkLambdaFVars xs (← loop FAlt altBody)
-            return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-        else
-          processApp F e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
-          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
+          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               unless xs.size >= numParams do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams]!
+                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let FAlt := xs[numParams - 1]!
               mkLambdaFVars xs (← loop FAlt altBody)
-          return { casesOnApp with
-                   alts      := altsNew
-                   remaining := (← casesOnApp.remaining.mapM (loop F)) }.toExpr
+          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
         else
           processApp F e
       | none => processApp F e
@@ -190,26 +172,28 @@ know which function is making the call.
 The close coupling with how arguments are packed and termination goals look like is not great,
 but it works for now.
 -/
-def groupGoalsByFunction (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
+def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
   let mut r := mkArray numFuncs #[]
   for goal in goals do
-    let (.mdata _ (.app _ param)) ← goal.getType
-        | throwError "MVar does not look like like a recursive call"
-    let (funidx, _) ← unpackMutualArg numFuncs param
+    let type ← goal.getType
+    let (.mdata _ (.app _ param)) := type
+        | throwError "MVar does not look like a recursive call:{indentExpr type}"
+    let (funidx, _) ← argsPacker.unpack param
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (argsPacker : ArgsPacker) (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
-  let goalss ← groupGoalsByFunction decrTactics.size goals
+  let goalss ← groupGoalsByFunction argsPacker decrTactics.size goals
   for goals in goalss, decrTactic? in decrTactics do
     Lean.Elab.Term.TermElabM.run' do
     match decrTactic? with
     | none => do
       for goal in goals do
+        let type ← goal.getType
         let some ref := getRecAppSyntax? (← goal.getType)
-          | throwError "MVar does not look like like a recursive call"
+          | throwError "MVar not annotated as a recursive call:{indentExpr type}"
         withRef ref <| applyDefaultDecrTactic goal
     | some decrTactic => withRef decrTactic.ref do
       unless goals.isEmpty do -- unlikely to be empty
@@ -223,8 +207,8 @@ def solveDecreasingGoals (decrTactics : Array (Option DecreasingBy)) (value : Ex
           Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
-def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)
-    (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
+def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (argsPacker : ArgsPacker)
+    (wfRel : Expr) (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -247,7 +231,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
         processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
-      let val ← solveDecreasingGoals decrTactics val
+      let val ← solveDecreasingGoals argsPacker decrTactics val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

@@ -66,6 +66,16 @@ public:
     expr const & get_expr() const { return m_expr; }
 };
 
+class theorem_type_is_not_prop : public kernel_exception {
+    name m_name;
+    expr m_type;
+public:
+    theorem_type_is_not_prop(environment const & env, name const & n, expr const & type):
+        kernel_exception(env), m_name(n), m_type(type) {}
+    name const & get_decl_name() const { return m_name; }
+    expr const & get_type() const { return m_type; }
+};
+
 class kernel_exception_with_lctx : public kernel_exception {
     local_ctx m_lctx;
 public:
@@ -185,21 +195,24 @@ object * catch_kernel_exceptions(std::function<A()> const & f) {
     } catch (invalid_proj_exception & ex) {
         // 10 | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
         return mk_cnstr(0, mk_cnstr(10, ex.env(), ex.get_local_ctx(), ex.get_proj())).steal();
+    } catch (theorem_type_is_not_prop & ex) {
+        // 11 | thmTypeIsNotProp (env : Environment) (name : Name) (type : Expr)
+        return mk_cnstr(0, mk_cnstr(11, ex.env(), ex.get_decl_name(), ex.get_type())).steal();
     } catch (exception & ex) {
-        // 11 | other            (msg : String)
-        return mk_cnstr(0, mk_cnstr(11, string_ref(ex.what()))).steal();
+        // 12 | other            (msg : String)
+        return mk_cnstr(0, mk_cnstr(12, string_ref(ex.what()))).steal();
     } catch (heartbeat_exception & ex) {
-        // 12 | deterministicTimeout
-        return mk_cnstr(0, box(12)).steal();
-    } catch (memory_exception & ex) {
-        // 13 | excessiveMemory
+        // 13 | deterministicTimeout
         return mk_cnstr(0, box(13)).steal();
-    } catch (stack_space_exception & ex) {
-        // 14 | deepRecursion
+    } catch (memory_exception & ex) {
+        // 14 | excessiveMemory
         return mk_cnstr(0, box(14)).steal();
-    } catch (interrupted & ex) {
-        // 15 | interrupted
+    } catch (stack_space_exception & ex) {
+        // 15 | deepRecursion
         return mk_cnstr(0, box(15)).steal();
+    } catch (interrupted & ex) {
+        // 16 | interrupted
+        return mk_cnstr(0, box(16)).steal();
     }
 }
 }

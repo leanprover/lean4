@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.FindMVar
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
@@ -1034,7 +1035,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName _ _ =>
-      let fullName := `Function ++ fieldName
+      let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()
@@ -1059,9 +1060,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName fieldName then
+      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
         return LValResolution.const baseStructName structName fullName
-      else if let some (structName', fullName) := findMethodAlias? env structName fieldName then
+      else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
         return LValResolution.const structName' structName' fullName
       else
         throwLValError e eType
@@ -1148,7 +1149,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
 private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
   if baseName == `Function then
     return (← whnfR type).isForall
-  else if type.consumeMData.isAppOf baseName then
+  else if type.cleanupAnnotations.isAppOf baseName then
     return true
   else
     return (← whnfR type).isAppOf baseName
@@ -1198,8 +1199,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
-      addDotCompletionInfo targetStx f expectedType? fieldStx
+    if let LVal.fieldName (fullRef := fullRef) .. := lval then
+      addDotCompletionInfo fullRef f expectedType?
     let hasArgs := !namedArgs.isEmpty || !args.isEmpty
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
@@ -1339,7 +1340,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
-        LVal.fieldName comp comp.getId.getString! none e
+        LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"

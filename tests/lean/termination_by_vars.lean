@@ -117,3 +117,19 @@ def foo6 (v : Nat) := 5
     decreasing_by apply dec1_lt
 
 end InLetRec
+
+namespace ManyTooMany
+
+def tooManyVars (n : Nat) : Nat := tooManyVars (dec1 n)
+  termination_by x y z => x -- Error
+  decreasing_by apply dec1_lt
+
+end ManyTooMany
+
+namespace WithHelpfulComment
+
+def foo (n : Nat) : Nat := foo (dec1 n)
+  termination_by foo n => n -- Error
+  decreasing_by apply dec1_lt
+
+end WithHelpfulComment

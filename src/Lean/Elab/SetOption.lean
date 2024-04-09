@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Log
 import Lean.Elab.InfoTree
 namespace Lean.Elab
@@ -14,7 +15,7 @@ def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
-  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:2]))
+  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:3]))
   let optionName := id.getId.eraseMacroScopes
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }

@@ -9,10 +9,15 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "0",
    "label": "trace.PrettyPrinter.format",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -21,9 +26,30 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "1",
    "label": "format.indent",
    "kind": 10,
-   "detail": "(2), indentation"},
+   "detail": "(2), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}}},
+   "sortText": "2",
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -32,9 +58,14 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "3",
    "label": "format.unicode",
    "kind": 10,
-   "detail": "(true), unicode characters"},
+   "detail": "(true), unicode characters",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -43,9 +74,14 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "4",
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"},
+   "detail": "(120), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -54,10 +90,15 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "5",
    "label": "trace.PrettyPrinter.format.backtrack",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -66,10 +107,15 @@
     "insert":
     {"start": {"line": 1, "character": 11},
      "end": {"line": 1, "character": 17}}},
+   "sortText": "6",
    "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 1, "character": 17}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 4, "character": 20}}
@@ -82,9 +128,30 @@
     "insert":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}}},
+   "sortText": "0",
    "label": "format.indent",
    "kind": 10,
-   "detail": "(2), indentation"},
+   "detail": "(2), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 4, "character": 20}}}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 20}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 20}}},
+   "sortText": "1",
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 4, "character": 20}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
@@ -93,10 +160,15 @@
     "insert":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 20}}},
+   "sortText": "2",
    "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 4, "character": 20}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 7, "character": 23}}
@@ -109,10 +181,15 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "sortText": "0",
    "label": "trace.pp.analyze",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 7, "character": 23}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -121,10 +198,15 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "sortText": "1",
    "label": "trace.pp.analyze.annotate",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 7, "character": 23}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -133,10 +215,15 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "sortText": "2",
    "label": "trace.pp.analyze.error",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 7, "character": 23}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -145,10 +232,15 @@
     "insert":
     {"start": {"line": 7, "character": 11},
      "end": {"line": 7, "character": 23}}},
+   "sortText": "3",
    "label": "trace.pp.analyze.tryUnify",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 7, "character": 23}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 10, "character": 27}}
@@ -161,10 +253,15 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "sortText": "0",
    "label": "trace.pp.analyze",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 10, "character": 27}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -173,10 +270,15 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "sortText": "1",
    "label": "trace.pp.analyze.annotate",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 10, "character": 27}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -185,10 +287,15 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "sortText": "2",
    "label": "trace.pp.analyze.error",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 10, "character": 27}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -197,10 +304,15 @@
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 27}}},
+   "sortText": "3",
    "label": "trace.pp.analyze.tryUnify",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 10, "character": 27}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 13, "character": 17}}
@@ -213,10 +325,15 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "0",
    "label": "trace.PrettyPrinter.format",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -225,9 +342,30 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "1",
    "label": "format.indent",
    "kind": 10,
-   "detail": "(2), indentation"},
+   "detail": "(2), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
+   "sortText": "2",
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -236,9 +374,14 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "3",
    "label": "format.unicode",
    "kind": 10,
-   "detail": "(true), unicode characters"},
+   "detail": "(true), unicode characters",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -247,9 +390,14 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "4",
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"},
+   "detail": "(120), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -258,10 +406,15 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "5",
    "label": "trace.PrettyPrinter.format.backtrack",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -270,10 +423,15 @@
     "insert":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 17}}},
+   "sortText": "6",
    "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 13, "character": 17}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 16, "character": 18}}
@@ -286,9 +444,30 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "sortText": "0",
    "label": "format.indent",
    "kind": 10,
-   "detail": "(2), indentation"},
+   "detail": "(2), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
+    "newText": "format.inputWidth",
+    "insert":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
+   "sortText": "1",
+   "label": "format.inputWidth",
+   "kind": 10,
+   "detail": "(100), ideal input width",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -297,9 +476,14 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "sortText": "2",
    "label": "format.unicode",
    "kind": 10,
-   "detail": "(true), unicode characters"},
+   "detail": "(true), unicode characters",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -308,9 +492,14 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "sortText": "3",
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"},
+   "detail": "(120), indentation",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -319,10 +508,15 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "sortText": "4",
    "label": "trace.PrettyPrinter.format.backtrack",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -331,8 +525,13 @@
     "insert":
     {"start": {"line": 16, "character": 11},
      "end": {"line": 16, "character": 18}}},
+   "sortText": "5",
    "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionOption.lean"},
+     "position": {"line": 16, "character": 18}}}}],
  "isIncomplete": true}

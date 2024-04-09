@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
@@ -122,6 +123,17 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
       return mkApp6 (mkConst ``Eq.trans [u]) α a b c h₁ h₂
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
+
+/--
+Similar to `mkEqTrans`, but arguments can be `none`.
+`none` is treated as a reflexivity proof.
+-/
+def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
+  match h₁?, h₂? with
+  | none, none       => return none
+  | none, some h     => return h
+  | some h, none     => return h
+  | some h₁, some h₂ => mkEqTrans h₁ h₂
 
 /-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
@@ -322,7 +334,7 @@ private def withAppBuilderTrace [ToMessageData α] [ToMessageData β]
   Remark:
   ``mkAppM `arbitrary #[α]`` returns `@arbitrary.{u} α` without synthesizing
   the implicit argument occurring after `α`.
-  Given a `x : (([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`
+  Given a `x : ([Decidable p] → Bool) × Nat`, ``mkAppM `Prod.fst #[x]`` returns `@Prod.fst ([Decidable p] → Bool) Nat x`.
 -/
 def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
   withAppBuilderTrace constName xs do withNewMCtxDepth do
@@ -644,6 +656,27 @@ def mkIffOfEq (h : Expr) : MetaM Expr := do
     return h.appArg!
   else
     mkAppM ``Iff.of_eq #[h]
+
+/--
+Given proofs of `P₁`, …, `Pₙ`, returns a proof of `P₁ ∧ … ∧ Pₙ`.
+If `n = 0` returns a proof of `True`.
+If `n = 1` returns the proof of `P₁`.
+-/
+def mkAndIntroN : Array Expr → MetaM Expr
+| #[] => return mkConst ``True.intro []
+| #[e] => return e
+| es => es.foldrM (start := es.size - 1) (fun a b => mkAppM ``And.intro #[a,b]) es.back
+
+
+/-- Given a proof of `P₁ ∧ … ∧ Pᵢ ∧ … ∧ Pₙ`, return the proof of `Pᵢ` -/
+def mkProjAndN (n i : Nat) (e : Expr) : Expr := Id.run do
+  let mut value := e
+  for _ in [:i] do
+      value := mkProj ``And 1 value
+  if i + 1 < n then
+      value := mkProj ``And 0 value
+  return value
+
 
 builtin_initialize do
   registerTraceClass `Meta.appBuilder

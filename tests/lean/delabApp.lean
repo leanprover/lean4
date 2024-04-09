@@ -12,6 +12,18 @@ def foo (α : Type) [Inhabited α] (x : α := default) : α := x
 #check foo Nat 1
 
 /-!
+Check that optional value omission is aware of unfolding.
+-/
+def Ty := (x : Nat := 1) → Fin (x + 1)
+
+def f (y : Nat := 2) : Ty := fun x => 0
+
+#check f 3 4
+#check f 3
+#check (f)
+
+
+/-!
 Check that overapplied projections pretty print using projection notation.
 -/
 

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
@@ -67,8 +68,6 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
     throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
-  if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isUnsafe then
-    throwError "'noncomputable unsafe' is not allowed"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then
     throwError "'noncomputable partial' is not allowed"
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
@@ -213,7 +212,7 @@ private def expandWhereStructInst : Macro
         `(structInstField|$id:ident := $val)
       | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
       | _ => Macro.throwUnsupported
-    let body ← `({ $structInstFields,* })
+    let body ← `(structInst| { $structInstFields,* })
     match whereDecls? with
     | some whereDecls => expandWhereDecls whereDecls body
     | none => return body
@@ -531,8 +530,8 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
       let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
     | .ldecl _ _ userName type val _ k =>
-      let zetaFVarIds ← getZetaFVarIds
-      if !zetaFVarIds.contains fvarId then
+      let zetaDeltaFVarIds ← getZetaDeltaFVarIds
+      if !zetaDeltaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
         let toProcess ← pushLocalDecl toProcess fvarId userName type .default k
         mkClosureForAux toProcess
@@ -642,9 +641,12 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
     let termination ← declValToTerminationHint header.valueStx
-    let termination ← termination.checkVars header.numParams mainVals[i]!
+    let termination := termination.rememberExtraParams header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
+    if header.kind.isTheorem then
+      unless (← isProp type) do
+        throwErrorAt header.ref "type of theorem '{header.declName}' is not a proposition{indentExpr type}"
     return preDefs.push {
       ref         := getDeclarationSelectionRef header.ref
       kind        := header.kind
@@ -658,10 +660,14 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
   letRecClosures.foldlM (init := preDefs) fun preDefs c => do
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
-    -- Convert any proof let recs inside a `def` to `theorem` kind
     let kind ← if kind.isDefOrAbbrevOrOpaque then
+      -- Convert any proof let recs inside a `def` to `theorem` kind
       withLCtx c.toLift.lctx c.toLift.localInstances do
         return if (← inferType c.toLift.type).isProp then .theorem else kind
+    else if kind.isTheorem then
+      -- Convert any non-proof let recs inside a `theorem` to `def` kind
+      withLCtx c.toLift.lctx c.toLift.localInstances do
+        return if (← inferType c.toLift.type).isProp then .theorem else .def
     else
       pure kind
     return preDefs.push {
@@ -696,8 +702,8 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
   let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
   let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  resetZetaFVarIds
-  withTrackingZeta do
+  resetZetaDeltaFVarIds
+  withTrackingZetaDelta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
     let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
       Meta.check toLift.type
@@ -827,7 +833,7 @@ where
     for header in headers, view in views do
       if let some classNamesStx := view.deriving? then
         for classNameStx in classNamesStx do
-          let className ← resolveGlobalConstNoOverload classNameStx
+          let className ← realizeGlobalConstNoOverload classNameStx
           withRef classNameStx do
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"

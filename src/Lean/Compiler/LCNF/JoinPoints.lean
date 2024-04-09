@@ -3,6 +3,7 @@ Copyright (c) 2022 Henrik Böving. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PullFunDecls
@@ -345,7 +346,7 @@ We call this whenever we enter a new local function. It clears both the
 current join point and the list of candidates since we can't lift join
 points outside of functions as explained in `mergeJpContextIfNecessary`.
 -/
-def withNewFunScope (decl : FunDecl) (x : ExtendM α): ExtendM α := do
+def withNewFunScope (x : ExtendM α): ExtendM α := do
   withReader (fun ctx => { ctx with currentJp? := none, candidates := {} }) do
     withNewScope do
       x
@@ -411,7 +412,7 @@ where
       withNewCandidate decl.fvarId do
         return Code.updateFun! code decl (← go k)
     | .fun decl k =>
-      let decl ← withNewFunScope decl do
+      let decl ← withNewFunScope do
         decl.updateValue (← go decl.value)
       withNewCandidate decl.fvarId do
         return Code.updateFun! code decl (← go k)

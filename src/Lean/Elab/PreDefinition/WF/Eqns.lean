@@ -3,10 +3,12 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Meta.ArgsPacker.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -16,6 +18,7 @@ structure EqnInfo extends EqnInfoCore where
   declNames       : Array Name
   declNameNonRec  : Name
   fixedPrefixSize : Nat
+  argsPacker      : ArgsPacker
   deriving Inhabited
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
@@ -44,19 +47,18 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
 def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
   mvarId.withContext do
     let target ← instantiateMVars (← mvarId.getType)
-    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre })
+    let discharge? ← mvarId.withContext do SplitIf.mkDischarge?
+    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? })
     let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
     if mvarId != mvarIdNew then return some mvarIdNew else return none
 where
   pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
+    let some app ← matchMatcherApp? e
+      | return Simp.Step.continue
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    =>
-      match (← Simp.simpMatchCore? app.matcherName e SplitIf.discharge?) with
-      | some r => return r
-      | none => return Simp.Step.visit { expr := e }
+    | none    => Simp.simpMatchCore app.matcherName e
 
 /--
   Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
@@ -107,8 +109,8 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
-  let baseName := mkPrivateName (← getEnv) declName
-  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
+  let baseName := declName
+  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
@@ -117,7 +119,7 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
     trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
-    let name := baseName ++ (`_eq).appendIndexAfter (i+1)
+    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type
     let (type, value) ← removeUnusedEqnHypotheses type value
@@ -129,7 +131,9 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
+    (argsPacker : ArgsPacker) : MetaM Unit := do
+  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
   Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare
@@ -140,7 +144,8 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       let declNames := preDefs.map (·.declName)
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
-          eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec, fixedPrefixSize }
+          eqnInfoExt.insert env preDef.declName { preDef with
+            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

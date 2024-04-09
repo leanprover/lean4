@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: E.W.Ayers
 -/
+prelude
 import Lean.Meta.PPGoal
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
@@ -205,7 +206,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
      this indicates that something like `rewrite at` has hit it. -/
   for (ppName, fvid) in Array.zip h₁.names h₁.fvarIds do
     if !(ctx₀.contains fvid) then
-      if let some decl₀ := ctx₀.findFromUserName? ppName then
+      if let some decl₀ := ctx₀.findFromUserName? (.mkSimple ppName) then
         -- on ctx₀ there is an fvar with the same name as this one.
         let t₀ := decl₀.type
         return ← withTypeDiff t₀ h₁

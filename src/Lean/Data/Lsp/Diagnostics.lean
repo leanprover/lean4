@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Lean.Data.Json
 import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.Utf16
@@ -24,7 +25,7 @@ open Json
 
 inductive DiagnosticSeverity where
   | error | warning | information | hint
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Ord
 
 instance : FromJson DiagnosticSeverity := ⟨fun j =>
   match j.getNat? with
@@ -44,7 +45,7 @@ instance : ToJson DiagnosticSeverity := ⟨fun
 inductive DiagnosticCode where
   | int (i : Int)
   | string (s : String)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Ord
 
 instance : FromJson DiagnosticCode := ⟨fun
   | num (i : Int) => return DiagnosticCode.int i
@@ -61,7 +62,7 @@ inductive DiagnosticTag where
   | unnecessary
   /-- Deprecated or obsolete code. Rendered with a strike-through. -/
   | deprecated
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Ord
 
 instance : FromJson DiagnosticTag := ⟨fun j =>
   match j.getNat? with
@@ -79,7 +80,7 @@ instance : ToJson DiagnosticTag := ⟨fun
 structure DiagnosticRelatedInformation where
   location : Location
   message : String
-  deriving Inhabited, BEq, ToJson, FromJson
+  deriving Inhabited, BEq, ToJson, FromJson, Ord
 
 /-- Represents a diagnostic, such as a compiler error or warning. Diagnostic objects are only valid in the scope of a resource.
 
@@ -111,6 +112,29 @@ structure DiagnosticWith (α : Type) where
 
 def DiagnosticWith.fullRange (d : DiagnosticWith α) : Range :=
   d.fullRange?.getD d.range
+
+local instance [Ord α] : Ord (Array α) := Ord.arrayOrd
+
+/-- Restriction of `DiagnosticWith` to properties that are displayed to users in the InfoView. -/
+private structure DiagnosticWith.UserVisible (α : Type) where
+  range               : Range
+  fullRange?          : Option Range
+  severity?           : Option DiagnosticSeverity
+  code?               : Option DiagnosticCode
+  source?             : Option String
+  message             : α
+  tags?               : Option (Array DiagnosticTag)
+  relatedInformation? : Option (Array DiagnosticRelatedInformation)
+  deriving Ord
+
+/-- Extracts user-visible properties from the given `DiagnosticWith`. -/
+private def DiagnosticWith.UserVisible.ofDiagnostic (d : DiagnosticWith α)
+    : DiagnosticWith.UserVisible α :=
+  { d with }
+
+/-- Compares `DiagnosticWith` instances modulo non-user-facing properties. -/
+def compareByUserVisible [Ord α] (a b : DiagnosticWith α) : Ordering :=
+  compare (DiagnosticWith.UserVisible.ofDiagnostic a) (DiagnosticWith.UserVisible.ofDiagnostic b)
 
 abbrev Diagnostic := DiagnosticWith String
 

@@ -7,3 +7,5 @@ prelude
 import Init.Data.List.Basic
 import Init.Data.List.BasicAux
 import Init.Data.List.Control
+import Init.Data.List.Lemmas
+import Init.Data.List.Impl

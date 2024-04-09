@@ -28,12 +28,12 @@ attribute [simp] g
 attribute [simp] h
 attribute [simp] f
 
-#check g._eq_1
-#check g._eq_2
+#check g.eq_1
+#check g.eq_2
 
-#check h._eq_1
+#check h.eq_1
 
-#check f._eq_1
+#check f.eq_1
 
 end Ex1
 
@@ -51,14 +51,14 @@ decreasing_by all_goals sorry
 theorem ex1 : g 0 = 0 := by
   rw [g]
 
-#check g._eq_1
-#check g._eq_2
+#check g.eq_1
+#check g.eq_2
 
 theorem ex2 : g 0 = 0 := by
   unfold g
   simp
 
-#check g._unfold
+#check g.eq_def
 
 
 end Ex2

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Meta.Tactic.Util
 import Lean.Util.ForEachExpr
 import Lean.Util.OccursCheck
@@ -293,8 +294,10 @@ mutual
   Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
 
   The `tacticCode` syntax comprises the whole `by ...` expression.
+
+  If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
-  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := withoutAutoBoundImplicit do
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-
@@ -320,9 +323,12 @@ mutual
             evalTactic code
         synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
-        reportUnsolvedGoals remainingGoals
+        if report then
+          reportUnsolvedGoals remainingGoals
+        else
+          throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
     catch ex =>
-      if (← read).errToSorry then
+      if report && (← read).errToSorry then
         for mvarId in (← getMVars (mkMVar mvarId)) do
           mvarId.admit
         logException ex

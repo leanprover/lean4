@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
+import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
@@ -352,8 +354,8 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
   /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
-  `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+  `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref
@@ -663,7 +665,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
+    (f? : Option Expr := none) (_extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:
@@ -792,10 +794,10 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
     | _            => throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
 
 /--
-  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions.
+If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
 
-  Argument `f?` is used only for generating error messages. -/
+Argument `f?` is used only for generating error messages when inserting coercions fails.
+-/
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
@@ -864,6 +866,12 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
   let some expectedType ← tryPostponeIfHasMVars? expectedType? |
     throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
+
+def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType?
+    | throwError "expected type must be known"
+  x expectedType
 
 /--
   Save relevant context for term elaboration postponement.
@@ -1401,9 +1409,9 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     trace[Elab.step.result] result
     pure result
 
-/-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
-def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (field? := field?) (expectedType? := expectedType?)
+/-- Store in the `InfoTree` that `e` is a "dot"-completion target. `stx` should cover the entire term. -/
+def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) : TermElabM Unit := do
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1425,9 +1433,22 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
   withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
 
+/--
+Similar to `Lean.Elab.Term.elabTerm`, but ensures that the type of the elaborated term is `expectedType?`
+by inserting coercions if necessary.
+
+If `errToSorry` is true, then if coercion insertion fails, this function returns `sorry` and logs the error.
+Otherwise, it throws the error.
+-/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
-  withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  try
+    withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  catch ex =>
+    if (← read).errToSorry && ex matches .error .. then
+      exceptionToSorry ex expectedType?
+    else
+      throw ex
 
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions were thrown. Otherwise, return `none`. -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
@@ -1633,7 +1654,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← resolveGlobalName n)
+    process (← realizeGlobalName n)
   else
     process preresolved
 where

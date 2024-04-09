@@ -1,0 +1,6 @@
+partialSyntaxTraces.lean:6:0: error: unexpected end of input; expected ':=', 'where' or '|'
+[Elab.command] [Error pretty printing syntax: parenthesize: uncaught backtrack exception. Falling back to raw printer.]
+    (Command.declaration
+     (Command.declModifiers [] [] [] [] [] [])
+     (Command.definition "def" (Command.declId `f []) (Command.optDeclSig [] []) (Command.whereStructInst <missing>)))
+[Elab.command] 

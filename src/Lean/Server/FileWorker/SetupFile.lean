@@ -3,6 +3,7 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Marc Huisinga
 -/
+prelude
 import Init.System.IO
 import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
@@ -51,15 +52,24 @@ partial def runLakeSetupFile
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩
 
+/-- Categorizes possible outcomes of running `lake setup-file`. -/
 inductive FileSetupResultKind where
+  /-- File configuration loaded and dependencies updated successfully. -/
   | success
+  /-- No Lake project found, no setup was done. -/
   | noLakefile
+  /-- Imports must be rebuilt but `--no-build` was specified. -/
   | importsOutOfDate
+  /-- Other error during Lake invocation. -/
   | error (msg : String)
 
+/-- Result of running `lake setup-file`. -/
 structure FileSetupResult where
+  /-- Kind of outcome. -/
   kind          : FileSetupResultKind
+  /-- Search path from successful setup, or else empty. -/
   srcSearchPath : SearchPath
+  /-- Additional options from successful setup, or else empty. -/
   fileOptions   : Options
 
 def FileSetupResult.ofSuccess (pkgSearchPath : SearchPath) (fileOptions : Options)
@@ -86,11 +96,6 @@ def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
   srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
 }
-
-def FileSetupResult.addGlobalOptions (result : FileSetupResult) (globalOptions : Options)
-    : FileSetupResult :=
-  let fileOptions := globalOptions.mergeBy (fun _ _ fileOpt => fileOpt) result.fileOptions
-  { result with fileOptions := fileOptions }
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for

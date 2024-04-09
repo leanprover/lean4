@@ -9,7 +9,7 @@ def f (h : Nat → ({α : Type} → α → α) × Bool) : Nat :=
 def tst : Nat :=
 f fun n => (fun x => x, true)
 
-theorem ex : id (Nat → Nat) :=
+def ex : id (Nat → Nat) :=
 by {
   intro;
   assumption

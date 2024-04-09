@@ -1,11 +1,12 @@
+unfold1.lean:22:4-22:8: error: simp made no progress
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ (match 2 * Nat.succ x with
+⊢ (match 2 * (x + 1) with
     | 0 => true
-    | Nat.succ n => isOdd n) =
+    | n.succ => isOdd n) =
     true
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ isEven (Nat.add (2 * x) 0) = true
+⊢ isEven (2 * x) = true

@@ -6,18 +6,18 @@
 {"textDocument": {"uri": "file:///infoIssues.lean"},
  "position": {"line": 13, "character": 33}}
 {"rendered":
- "```lean\np : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + (0 + Nat.succ n✝)\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + Nat.succ n✝\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = Nat.succ n✝\n```",
+ "```lean\np : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (0 + (n✝ + 1))\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (n✝ + 1)\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ n✝ + 1 = n✝ + 1\n```",
  "goals":
- ["p : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + (0 + Nat.succ n✝)",
-  "p : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + Nat.succ n✝",
-  "p : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = Nat.succ n✝"]}
+ ["p : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (0 + (n✝ + 1))",
+  "p : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (n✝ + 1)",
+  "p : Prop\nn✝ : Nat\n⊢ n✝ + 1 = n✝ + 1"]}
 {"textDocument": {"uri": "file:///infoIssues.lean"},
  "position": {"line": 13, "character": 36}}
 {"rendered":
- "```lean\np : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + (0 + Nat.succ n✝)\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + Nat.succ n✝\n```",
+ "```lean\np : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (0 + (n✝ + 1))\n```\n---\n```lean\np : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (n✝ + 1)\n```",
  "goals":
- ["p : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + (0 + Nat.succ n✝)",
-  "p : Prop\nn✝ : Nat\n⊢ Nat.succ n✝ = 0 + Nat.succ n✝"]}
+ ["p : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (0 + (n✝ + 1))",
+  "p : Prop\nn✝ : Nat\n⊢ n✝ + 1 = 0 + (n✝ + 1)"]}
 {"textDocument": {"uri": "file:///infoIssues.lean"},
  "position": {"line": 15, "character": 2}}
 {"rendered": "```lean\ncase right\np : Prop\nx : Nat\n⊢ p\n```",

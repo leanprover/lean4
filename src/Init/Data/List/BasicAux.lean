@@ -5,8 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
-import Init.Data.List.Basic
-import Init.Util
 
 universe u
 
@@ -206,5 +204,43 @@ if the result of each `f a` is a pointer equal value `a`.
 
 def mapMono (as : List α) (f : α → α) : List α :=
   Id.run <| as.mapMonoM f
+
+/--
+Monadic generalization of `List.partition`.
+
+This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+-/
+@[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
+  go l #[] #[]
+where
+  /-- Auxiliary for `partitionM`:
+  `partitionM.go p l acc₁ acc₂` returns `(acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionM p l` returns `(left, right)`. -/
+  @[specialize] go : List α → Array α → Array α → m (List α × List α)
+  | [], acc₁, acc₂ => pure (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ => do
+    if ← p x then
+      go xs (acc₁.push x) acc₂
+    else
+      go xs acc₁ (acc₂.push x)
+
+/--
+Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`
+whilst partitioning the result it into a pair of lists, `List β × List γ`,
+partitioning the `.inl _` into the left list, and the `.inr _` into the right List.
+```
+partitionMap (id : Nat ⊕ Nat → Nat ⊕ Nat) [inl 0, inr 1, inl 2] = ([0, 2], [1])
+```
+-/
+@[inline] def partitionMap (f : α → β ⊕ γ) (l : List α) : List β × List γ := go l #[] #[] where
+  /-- Auxiliary for `partitionMap`:
+  `partitionMap.go f l acc₁ acc₂ = (acc₁.toList ++ left, acc₂.toList ++ right)`
+  if `partitionMap f l = (left, right)`. -/
+  @[specialize] go : List α → Array β → Array γ → List β × List γ
+  | [], acc₁, acc₂ => (acc₁.toList, acc₂.toList)
+  | x :: xs, acc₁, acc₂ =>
+    match f x with
+    | .inl a => go xs (acc₁.push a) acc₂
+    | .inr b => go xs acc₁ (acc₂.push b)
 
 end List

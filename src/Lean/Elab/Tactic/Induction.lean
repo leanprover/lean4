@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Util.CollectFVars
 import Lean.AuxRecursor
 import Lean.Parser.Term
@@ -58,7 +59,7 @@ def evalAlt (mvarId : MVarId) (alt : Syntax) (addInfo : TermElabM Unit) (remaini
   withCaseRef (getAltDArrow alt) rhs do
     if isHoleRHS rhs then
       addInfo
-      let gs' ← mvarId.withContext <| withRef rhs do
+      let gs' ← mvarId.withContext <| withTacticInfoContext rhs do
         let mvarDecl ← mvarId.getDecl
         let val ← elabTermEnsuringType rhs mvarDecl.type
         mvarId.assign val
@@ -79,11 +80,7 @@ namespace ElimApp
 structure Alt where
   /-- The short name of the alternative, used in `| foo =>` cases -/
   name      : Name
-  /-- A declaration corresponding to the inductive constructor.
-  (For custom recursors, the alternatives correspond to parameter names in the
-  recursor, so we may not have a declaration to point to.)
-  This is used for go-to-definition on the alternative name. -/
-  declName? : Option Name
+  info      : ElimAltInfo
   /-- The subgoal metavariable for the alternative. -/
   mvarId    : MVarId
   deriving Inhabited
@@ -163,8 +160,8 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
           let arg ← mkFreshExprSyntheticOpaqueMVar (← getArgExpectedType) (tag := appendTag tag binderName)
           let x   ← getBindingName
           modify fun s =>
-            let declName? := elimInfo.altsInfo[s.alts.size]!.declName?
-            { s with alts := s.alts.push ⟨x, declName?, arg.mvarId!⟩ }
+            let info := elimInfo.altsInfo[s.alts.size]!
+            { s with alts := s.alts.push ⟨x, info, arg.mvarId!⟩ }
           addNewArg arg
       loop
     | _ =>
@@ -286,7 +283,7 @@ where
     let mut usedWildcard := false
     let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
     let mut altsSyntax := altsSyntax
-    for { name := altName, declName?, mvarId := altMVarId } in alts do
+    for { name := altName, info, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
       let mut isWildcard := false
       let altStx? ←
@@ -307,7 +304,11 @@ where
         match (← Cases.unifyEqs? numEqs altMVarId {}) with
         | none   => pure () -- alternative is not reachable
         | some (altMVarId', subst) =>
-          (_, altMVarId) ← altMVarId'.introNP numGeneralized
+          altMVarId ← if info.provesMotive then
+            (_, altMVarId) ← altMVarId'.introNP numGeneralized
+            pure altMVarId
+          else
+            pure altMVarId'
           for fvarId in toClear do
             altMVarId ← altMVarId.tryClear fvarId
           altMVarId.withContext do
@@ -333,7 +334,7 @@ where
           -- inside tacticInfo for the current alternative (in `evalAlt`)
           let addInfo : TermElabM Unit := do
             if (← getInfoState).enabled then
-              if let some declName := declName? then
+              if let some declName := info.declName? then
                 addConstInfo (getAltNameStx altStx) declName
               saveAltVarsInfo altMVarId altStx fvarIds
           let unusedAlt := do
@@ -345,7 +346,11 @@ where
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', subst) =>
-            (_, altMVarId) ← altMVarId'.introNP numGeneralized
+            altMVarId ← if info.provesMotive then
+              (_, altMVarId) ← altMVarId'.introNP numGeneralized
+              pure altMVarId
+            else
+              pure altMVarId'
             for fvarId in toClear do
               altMVarId ← altMVarId.tryClear fvarId
             altMVarId.withContext do
@@ -528,11 +533,19 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
     else
       return e
 
+register_builtin_option tactic.customEliminators : Bool := {
+  defValue := true
+  group    := "tactic"
+  descr    := "enable using custom eliminators in the 'induction' and 'cases' tactics \
+    defined using the '@[induction_eliminator]' and '@[cases_eliminator]' attributes"
+}
+
 -- `optElimId` is of the form `("using" term)?`
-private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
+private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool) : TacticM ElimInfo := do
   if optElimId.isNone then
-    if let some elimName ← getCustomEliminator? targets then
-      return ← getElimInfo elimName
+    if tactic.customEliminators.get (← getOptions) then
+      if let some elimName ← getCustomEliminator? targets induction then
+        return ← getElimInfo elimName
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor targets[0]!

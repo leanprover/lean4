@@ -3,11 +3,11 @@ theorem ex1 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
   match h with
   | HEq.refl _ => rfl
 
-theorem ex2 {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≅ b) : motive b :=
+def ex2 {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≅ b) : motive b :=
   match h, m with
   | HEq.refl _, m => m
 
-theorem ex3 {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
+def ex3 {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
   match h₁, h₂ with
   | HEq.refl _, h₂ => h₂
 

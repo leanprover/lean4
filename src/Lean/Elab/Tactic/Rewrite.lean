@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Location
@@ -50,11 +51,13 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
             x symm term
           else
             -- Try to get equation theorems for `id`.
-            let declName ← try resolveGlobalConstNoOverload id catch _ => return (← x symm term)
+            let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
             let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
             let rec go : List Name →  TacticM Unit
               | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
-              | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
+              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
+              -- See test: `rwPrioritizesLCtxOverEnv.lean`
+              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
             go eqThms.toList
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with

@@ -8,16 +8,6 @@ import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
 import Init.Data.List.BasicAux
 
-theorem List.sizeOf_get_lt [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
-  match as, i with
-  | [],    i      => apply Fin.elim0 i
-  | a::as, ⟨0, _⟩ => simp_arith [get]
-  | a::as, ⟨i+1, h⟩ =>
-    simp [get]
-    have h : i < as.length := Nat.lt_of_succ_lt_succ h
-    have ih := sizeOf_get_lt as ⟨i, h⟩
-    exact Nat.lt_of_lt_of_le ih (Nat.le_add_left ..)
-
 namespace Array
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
@@ -28,10 +18,6 @@ structure Mem (a : α) (as : Array α) : Prop where
 
 instance : Membership α (Array α) where
   mem a as := Mem a as
-
-theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
-  cases as with | _ as =>
-  exact Nat.lt_trans (List.sizeOf_get_lt as i) (by simp_arith)
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   cases as with | _ as =>

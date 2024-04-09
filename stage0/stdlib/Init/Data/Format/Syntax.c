@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Syntax_formatStxAux___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
@@ -1369,10 +1369,11 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToStringSyntax___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Std_Format_defWidth;
-x_3 = lean_format_pretty(x_1, x_2);
-return x_3;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Syntax_instToStringSyntax___lambda__2(lean_object* x_1) {
@@ -1459,7 +1460,7 @@ x_3 = 0;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Syntax_formatStxAux(x_2, x_3, x_4, x_1);
 x_6 = l_Std_Format_defWidth;
-x_7 = lean_format_pretty(x_5, x_6);
+x_7 = lean_format_pretty(x_5, x_6, x_4, x_4);
 return x_7;
 }
 }

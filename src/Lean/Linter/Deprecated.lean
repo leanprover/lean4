@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Linter.Basic
 import Lean.Attributes
 import Lean.Elab.InfoTree.Main
@@ -22,7 +23,7 @@ builtin_initialize deprecatedAttr : ParametricAttribute (Option Name) ←
      match stx with
      | `(attr| deprecated $[$id?]?) =>
        let some id := id? | return none
-       let declNameNew ← Elab.resolveGlobalConstNoOverloadWithInfo id
+       let declNameNew ← Elab.realizeGlobalConstNoOverloadWithInfo id
        return some declNameNew
      | _  => throwError "invalid `[deprecated]` attribute"
   }

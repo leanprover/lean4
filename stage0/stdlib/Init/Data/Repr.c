@@ -15,7 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Prod_repr(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-lean_object* lean_format_pretty(lean_object*, lean_object*);
+lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprPUnit___closed__2;
 LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprPos___boxed(lean_object*, lean_object*);
@@ -287,7 +287,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = lean_apply_2(x_1, x_2, x_3);
 x_5 = l_Std_Format_defWidth;
-x_6 = lean_format_pretty(x_4, x_5);
+x_6 = lean_format_pretty(x_4, x_5, x_3, x_3);
 return x_6;
 }
 }

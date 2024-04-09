@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+prelude
 import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
 import Lean.Server.InfoUtils
@@ -80,9 +81,11 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     if explicit then
       withOptionAtCurrPos pp.tagAppFns.name true do
       withOptionAtCurrPos pp.explicit.name true do
+      withOptionAtCurrPos pp.mvars.name true do
         delabApp
     else
-      delab
+      withOptionAtCurrPos pp.proofs.name true do
+        delab
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {

@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Parser.Command
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
@@ -22,6 +23,13 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
       view.scopes.foldl Name.mkNum (view.name ++ view.imported)
     else
       view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
+
+/--
+Two names are from the same lexical scope if their scoping information modulo `MacroScopesView.name`
+is equal.
+-/
+def MacroScopesView.equalScope (a b : MacroScopesView) : Bool :=
+  a.scopes == b.scopes && a.mainModule == b.mainModule && a.imported == b.imported
 
 namespace Elab
 

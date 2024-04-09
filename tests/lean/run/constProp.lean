@@ -8,8 +8,11 @@ inductive Val where
 instance : Coe Bool Val where
   coe b := .bool b
 
-instance : Coe Int Val where
-  coe i := .int i
+instance : NatCast Val where
+  natCast i := .int i
+
+instance : IntCast Val where
+  intCast i := .int i
 
 instance : OfNat Val n where
   ofNat := .int n
@@ -526,11 +529,7 @@ theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x
       simp [*] at he
       assumption
     next =>
-      by_cases hxy : x = y <;> simp [*]
-      next => intros; assumption
-      next =>
-        intro he' ih
-        exact ih he'
+      by_cases hxy : x = y <;> simp_all
 
 theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   induction e with simp [*]

@@ -41,7 +41,7 @@
         has unused arguments, reduced type
           ∀ (b : β), IsSmooth (f b)
         Transformer
-          fun redf a b => redf b
+          fun redf a => redf
     [Meta.synthInstance] new goal ∀ (b : β), IsSmooth (f b)
       [Meta.synthInstance.instances] #[inst✝]
   [Meta.synthInstance] ❌ apply inst✝ to ∀ (b : β), IsSmooth (f b)
@@ -74,7 +74,7 @@
         has unused arguments, reduced type
           ∀ (b : β), IsSmooth (f b)
         Transformer
-          fun redf a a b => redf b
+          fun redf a a => redf
   [Meta.synthInstance] ❌ apply @comp to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a✝) a ≟ IsSmooth fun a_1 => ?m a✝ a (?m a✝ a a_1)
   [Meta.synthInstance] ✅ apply @parm to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1

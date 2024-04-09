@@ -13,7 +13,7 @@ end
 theorem isEven_double (x : Nat) : isEven (2 * x) = true := by
   induction x with
   | zero => simp
-  | succ x ih => simp [Nat.mul_succ, Nat.add_succ, ih]
+  | succ x ih => simp [Nat.mul_succ, ih]
 
 def f (x : Nat) : Nat :=
   match x with

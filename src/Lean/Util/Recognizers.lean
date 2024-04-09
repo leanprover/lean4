@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Environment
 
 namespace Lean
@@ -104,51 +105,5 @@ def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 /-- Recognize `α × β` -/
 def prod? (e : Expr) : Option (Expr × Expr) :=
   e.app2? ``Prod
-
-private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal :=
-  match env.find? ctorName with
-  | some (ConstantInfo.ctorInfo v) => v
-  | _                              => none
-
-def isConstructorApp? (env : Environment) (e : Expr) : Option ConstructorVal :=
-  match e with
-  | Expr.lit (Literal.natVal n) => if n == 0 then getConstructorVal? env `Nat.zero else getConstructorVal? env `Nat.succ
-  | _ =>
-    match e.getAppFn with
-    | Expr.const n _ => match getConstructorVal? env n with
-      | some v => if v.numParams + v.numFields == e.getAppNumArgs then some v else none
-      | none   => none
-    | _ => none
-
-def isConstructorApp (env : Environment) (e : Expr) : Bool :=
-  e.isConstructorApp? env |>.isSome
-
-/--
-If `e` is a constructor application, return a pair containing the corresponding `ConstructorVal` and the constructor
-application arguments.
-This function treats numerals as constructors. For example, if `e` is the numeral `2`, the result pair
-is `ConstructorVal` for `Nat.succ`, and the array `#[1]`. The parameter `useRaw` controls how the resulting
-numeral is represented. If `useRaw := false`, then `mkNatLit` is used, otherwise `mkRawNatLit`.
-Recall that `mkNatLit` uses the `OfNat.ofNat` application which is the canonical way of representing numerals
-in the elaborator and tactic framework. We `useRaw := false` in the compiler (aka code generator).
--/
-def constructorApp? (env : Environment) (e : Expr) (useRaw := false) : Option (ConstructorVal × Array Expr) := do
-  match e with
-  | Expr.lit (Literal.natVal n) =>
-    if n == 0 then do
-      let v ← getConstructorVal? env `Nat.zero
-      pure (v, #[])
-    else do
-      let v ← getConstructorVal? env `Nat.succ
-      pure (v, #[if useRaw then mkRawNatLit (n-1) else mkNatLit (n-1)])
-  | _ =>
-    match e.getAppFn with
-    | Expr.const n _ => do
-      let v ← getConstructorVal? env n
-      if v.numParams + v.numFields == e.getAppNumArgs then
-        pure (v, e.getAppArgs)
-      else
-        none
-    | _ => none
 
 end Lean.Expr

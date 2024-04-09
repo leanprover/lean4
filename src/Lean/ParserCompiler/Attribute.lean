@@ -3,7 +3,7 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-
+prelude
 import Lean.Attributes
 import Lean.Compiler.InitAttr
 import Lean.ToExpr
@@ -30,7 +30,7 @@ def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by
     descr := descr,
     add   := fun decl stx _ => do
       let env ← getEnv
-      let parserDeclName ← Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
+      let parserDeclName ← Elab.realizeGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
       setEnv <| ext.addEntry env (parserDeclName, decl)
   }
   registerBuiltinAttribute attrImpl

@@ -1,10 +1,10 @@
-import Lean.Util.LeanOptions
-
 /-
 Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Util.LeanOptions
+
 namespace Lake
 
 /--
@@ -61,7 +61,24 @@ inductive Backend
   Use the default backend. Can be overridden by more specific configuration.
   -/
   | default
-deriving Inhabited, Repr, DecidableEq
+deriving Repr, DecidableEq
+
+instance : Inhabited Backend := ⟨.default⟩
+
+def Backend.ofString? (s : String) : Option Backend :=
+  match s with
+  | "c" => some .c
+  | "llvm" => some .llvm
+  | "default" => some .default
+  | _ => none
+
+protected def Backend.toString (bt : Backend) : String :=
+  match bt with
+  | .c => "c"
+  | .llvm => "llvm"
+  | .default => "default"
+
+instance : ToString Backend := ⟨Backend.toString⟩
 
 /--
 If the left backend is default, choose the right one.
@@ -74,13 +91,29 @@ def Backend.orPreferLeft : Backend → Backend → Backend
 | .default, b => b
 | b, _ => b
 
-
 /-- The arguments to pass to `leanc` based on the build type. -/
 def BuildType.leancArgs : BuildType → Array String
 | debug => #["-Og", "-g"]
 | relWithDebInfo => #["-O3", "-g", "-DNDEBUG"]
 | minSizeRel => #["-Os", "-DNDEBUG"]
 | release => #["-O3", "-DNDEBUG"]
+
+def BuildType.ofString? (s : String) : Option BuildType :=
+  match s with
+  | "debug" => some .debug
+  | "relWithDebInfo" => some .relWithDebInfo
+  | "minSizeRel" => some .minSizeRel
+  | "release" => some .release
+  | _ => none
+
+protected def BuildType.toString (bt : BuildType) : String :=
+  match bt with
+  | .debug => "debug"
+  | .relWithDebInfo => "relWithDebInfo"
+  | .minSizeRel => "minSizeRel"
+  | .release => "release"
+
+instance : ToString BuildType := ⟨BuildType.toString⟩
 
 /-- Option that is used by Lean as if it was passed using `-D`. -/
 structure LeanOption where
@@ -157,10 +190,31 @@ structure LeanConfig where
   They come *before* `moreLinkArgs`.
   -/
   weakLinkArgs : Array String := #[]
-
   /--
-    Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
-    Defaults to `C`.
+  Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
+  Defaults to `C`.
   -/
   backend : Backend := .default
+  /--
+  Asserts whether Lake should assume Lean modules are platform-independent.
+
+  * If `false`, Lake will add `System.Platform.target` to the module traces
+  within the code unit (e.g., package or library). This will force Lean code
+  to be re-elaborated on different platforms.
+
+  * If `true`, Lake will exclude platform-dependent elements
+  (e.g., precompiled modules, external libraries) from a module's trace,
+  preventing re-elaboration on different platforms. Note that this will not
+  effect  modules outside the code unit in question. For example, a
+  platform-independent package which depends on a platform-dependent library
+  will still be platform-dependent.
+
+  * If `none`, Lake will construct traces as natural. That is, it will include
+  platform-dependent artifacts in the trace if they module depends on them,
+  but otherwise not force modules to be platform-dependent.
+
+  There is no check  for correctness here, so a configuration can lie
+  and Lake will not catch it. Defaults to `none`.
+  -/
+  platformIndependent : Option Bool := none
 deriving Inhabited, Repr

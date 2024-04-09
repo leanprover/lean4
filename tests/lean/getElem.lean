@@ -42,3 +42,10 @@ def withTwoRanges (xs : Array Nat) : Option Nat := Id.run do
       if xs[i] == xs[j] then
         return i
   return none
+
+def palindromeNeedsOmega (xs : Array Nat) : Bool := Id.run do
+  for h : i in [:xs.size/2] do
+    have : i < xs.size/2 := h.2 -- omega does not understand range yet
+    if xs[xs.size - 1 - i] ≠ xs[i] then
+      return false
+  return true

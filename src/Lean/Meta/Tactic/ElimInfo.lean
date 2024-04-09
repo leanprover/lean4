@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.Check
 import Lean.ScopedEnvExtension
@@ -11,8 +12,15 @@ namespace Lean.Meta
 
 structure ElimAltInfo where
   name      : Name
+  /-- A declaration corresponding to the inductive constructor.
+  (For custom recursors, the alternatives correspond to parameter names in the
+  recursor, so we may not have a declaration to point to.)
+  This is used for go-to-definition on the alternative name. -/
   declName? : Option Name
   numFields : Nat
+  /-- If `provesMotive := true`, then this alternative has `motive` as its conclusion.
+  Only for those alternatives the `induction` tactic should introduce reverted hypotheses.  -/
+  provesMotive : Bool
   deriving Repr, Inhabited
 
 /--
@@ -28,6 +36,15 @@ structure ElimInfo where
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
   deriving Repr, Inhabited
+
+
+/-- Given the type `t` of an alternative, determines the number of parameters
+(.forall and .let)-bound, and whether the conclusion is a `motive`-application.  -/
+def altArity (motive : Expr) (n : Nat) : Expr → Nat × Bool
+  | .forallE _ _ b _ => altArity motive (n+1) b
+  | .letE _ _ _ b _ => altArity motive (n+1) b
+  | conclusion => (n, conclusion.getAppFn == motive)
+
 
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
@@ -56,13 +73,13 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
       if x != motive && !targets.contains x then
         let xDecl ← x.fvarId!.getDecl
         if xDecl.binderInfo.isExplicit then
-          let numFields ← forallTelescopeReducing xDecl.type fun args _ => pure args.size
+          let (numFields, provesMotive) := altArity motive 0 xDecl.type
           let name := xDecl.userName
           let declName? := do
             let base ← baseDeclName?
             let altDeclName := base ++ name
             if env.contains altDeclName then some altDeclName else none
-          altsInfo := altsInfo.push { name, declName?, numFields }
+          altsInfo := altsInfo.push { name, declName?, numFields, provesMotive }
     pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
 
 def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
@@ -106,17 +123,18 @@ where
       return (implicits, targets')
 
 structure CustomEliminator where
+  induction : Bool
   typeNames : Array Name
   elimName  : Name -- NB: Do not store the ElimInfo, it can contain MVars
   deriving Inhabited, Repr
 
 structure CustomEliminators where
-  map : SMap (Array Name) Name := {}
+  map : SMap (Bool × Array Name) Name := {}
   deriving Inhabited, Repr
 
 def addCustomEliminatorEntry (es : CustomEliminators) (e : CustomEliminator) : CustomEliminators :=
   match es with
-  | { map := map } => { map := map.insert e.typeNames e.elimName }
+  | { map := map } => { map := map.insert (e.induction, e.typeNames) e.elimName }
 
 builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminator CustomEliminators ←
   registerSimpleScopedEnvExtension {
@@ -125,7 +143,7 @@ builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminat
     finalizeImport := fun { map := map } => { map := map.switch }
   }
 
-def mkCustomEliminator (elimName : Name) : MetaM CustomEliminator := do
+def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomEliminator := do
   let elimInfo ← getElimInfo elimName
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
@@ -147,29 +165,46 @@ def mkCustomEliminator (elimName : Name) : MetaM CustomEliminator := do
         let xType ← inferType x
         let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
         typeNames := typeNames.push typeName
-    return { typeNames, elimName}
+    return { induction, typeNames, elimName }
 
-def addCustomEliminator (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  let e ← mkCustomEliminator declName
+def addCustomEliminator (declName : Name) (attrKind : AttributeKind) (induction : Bool) : MetaM Unit := do
+  let e ← mkCustomEliminator declName induction
   customEliminatorExt.add e attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `eliminator
-    descr := "custom eliminator for `cases` and `induction` tactics"
+    name  := `induction_eliminator
+    descr := "custom `rec`-like eliminator for the `induction` tactic"
     add   := fun declName _ attrKind => do
-      discard <| addCustomEliminator declName attrKind |>.run {} {}
+      discard <| addCustomEliminator declName attrKind (induction := true) |>.run {} {}
   }
 
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `cases_eliminator
+    descr := "custom `casesOn`-like eliminator for the `cases` tactic"
+    add   := fun declName _ attrKind => do
+      discard <| addCustomEliminator declName attrKind (induction := false) |>.run {} {}
+  }
+
+/-- Gets all the eliminators defined using the `@[induction_eliminator]` and `@[cases_eliminator]` attributes. -/
 def getCustomEliminators : CoreM CustomEliminators := do
   return customEliminatorExt.getState (← getEnv)
 
-def getCustomEliminator? (targets : Array Expr) : MetaM (Option Name) := do
+/--
+Gets an eliminator appropriate for the provided array of targets.
+If `induction` is `true` then returns a matching eliminator defined using the `@[induction_eliminator]` attribute
+and otherwise returns one defined using the `@[cases_eliminator]` attribute.
+
+The `@[induction_eliminator]` attribute is for the `induction` tactic
+and the `@[cases_eliminator]` attribute is for the `cases` tactic.
+-/
+def getCustomEliminator? (targets : Array Expr) (induction : Bool) : MetaM (Option Name) := do
   let mut key := #[]
   for target in targets do
     let targetType := (← instantiateMVars (← inferType target)).headBeta
     let .const declName .. := targetType.getAppFn | return none
     key := key.push declName
-  return customEliminatorExt.getState (← getEnv) |>.map.find? key
+  return customEliminatorExt.getState (← getEnv) |>.map.find? (induction, key)
 
 end Lean.Meta

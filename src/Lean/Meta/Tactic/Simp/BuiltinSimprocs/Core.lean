@@ -3,38 +3,36 @@ Copyright (c) 2023 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Simproc
 import Lean.Meta.Tactic.Simp.Simproc
 
 open Lean Meta Simp
 
-builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity ``ite 5)
-  let c := e.getArg! 1
+builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
+  let_expr f@ite α c i tb eb ← e | return .continue
   let r ← simp c
-  if r.expr.isConstOf ``True then
-    let eNew  := e.getArg! 3
-    let pr    := mkApp (mkAppN (mkConst ``ite_cond_eq_true e.getAppFn.constLevels!) e.getAppArgs) (← r.getProof)
-    return .visit { expr := eNew, proof? := pr }
-  if r.expr.isConstOf ``False then
-    let eNew  := e.getArg! 4
-    let pr    := mkApp (mkAppN (mkConst ``ite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) (← r.getProof)
-    return .visit { expr := eNew, proof? := pr }
-  failure
+  if r.expr.isTrue then
+    let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_true f.constLevels!) α c i tb eb) (← r.getProof)
+    return .visit { expr := tb, proof? := pr }
+  if r.expr.isFalse then
+    let pr    := mkApp (mkApp5 (mkConst ``ite_cond_eq_false f.constLevels!) α c i tb eb) (← r.getProof)
+    return .visit { expr := eb, proof? := pr }
+  return .continue
 
-builtin_simproc ↓ reduceDite (dite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity ``dite 5)
-  let c := e.getArg! 1
+builtin_simproc ↓ [simp, seval] reduceDite (dite _ _ _) := fun e => do
+  let_expr f@dite α c i tb eb ← e | return .continue
   let r ← simp c
-  if r.expr.isConstOf ``True then
+  if r.expr.isTrue then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_true) c pr
-    let eNew  := mkApp (e.getArg! 3) h |>.headBeta
-    let prNew := mkApp (mkAppN (mkConst ``dite_cond_eq_true e.getAppFn.constLevels!) e.getAppArgs) pr
+    let eNew  := mkApp tb h |>.headBeta
+    let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_true f.constLevels!) α c i tb eb) pr
     return .visit { expr := eNew, proof? := prNew }
-  if r.expr.isConstOf ``False then
+  if r.expr.isFalse then
     let pr    ← r.getProof
     let h     := mkApp2 (mkConst ``of_eq_false) c pr
-    let eNew  := mkApp (e.getArg! 4) h |>.headBeta
-    let prNew := mkApp (mkAppN (mkConst ``dite_cond_eq_false e.getAppFn.constLevels!) e.getAppArgs) pr
+    let eNew  := mkApp eb h |>.headBeta
+    let prNew := mkApp (mkApp5 (mkConst ``dite_cond_eq_false f.constLevels!) α c i tb eb) pr
     return .visit { expr := eNew, proof? := prNew }
-  failure
+  return .continue

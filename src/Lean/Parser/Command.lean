@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Term
 import Lean.Parser.Do
 
@@ -17,6 +18,21 @@ namespace Parser
 
 namespace Command
 
+/-- Skip input until the next character that satisfies the predicate, then skip whitespace -/
+private def skipUntil (pred : Char → Bool) : Parser where
+  fn :=
+    andthenFn
+      (takeUntilFn pred)
+      (takeWhileFn Char.isWhitespace)
+
+/-- Skip input until the next whitespace character (used for error recovery for certain tokens) -/
+private def skipUntilWs : Parser := skipUntil Char.isWhitespace
+
+/-- Skip input until the next whitespace character or delimiter (used for error recovery for certain
+    tokens, especially names that occur in signatures) -/
+private def skipUntilWsOrDelim : Parser := skipUntil fun c =>
+  c.isWhitespace || c == '(' || c == ')' || c == ':' || c == '{' || c == '}' || c == '|'
+
 /--
 Syntax quotation for (sequences of) commands.
 The identical syntax for term quotations takes priority,
@@ -27,7 +43,6 @@ but a single command will not (so that you can directly
 match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
-
 
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
@@ -67,7 +82,7 @@ def declModifiers (inline : Bool) := leading_parser
   optional («partial» <|> «nonrec»)
 /-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
 def declId           := leading_parser
-  ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+  ident >> optional (".{" >> sepBy1 (recover ident (skipUntil (fun c => c.isWhitespace || c ∈ [',', '}']))) ", " >> "}")
 /-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
 def declSig          := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
@@ -98,19 +113,19 @@ def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
-def «def»            := leading_parser
-  "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving
+def definition     := leading_parser
+  "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
-  "theorem " >> declId >> ppIndent declSig >> declVal
+  "theorem " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
-  "opaque " >> declId >> ppIndent declSig >> optional declValSimple
+  "opaque " >> recover declId skipUntilWsOrDelim >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space
   if we put `ppSpace` in the optional fragments. -/
 def «instance»       := leading_parser
   Term.attrKind >> "instance" >> optNamedPrio >>
   optional (ppSpace >> declId) >> ppIndent declSig >> declVal
 def «axiom»          := leading_parser
-  "axiom " >> declId >> ppIndent declSig
+  "axiom " >> recover declId skipUntilWsOrDelim >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser
   "example" >> ppIndent optDeclSig >> declVal
@@ -143,11 +158,11 @@ or an element `head : α` followed by a list `tail : List α`.
 For more information about [inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html).
 -/
 def «inductive»      := leading_parser
-  "inductive " >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
+  "inductive " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
-  declId >> ppIndent optDeclSig >>
+  recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >>
   optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
 def structExplicitBinder := leading_parser
   atomic (declModifiers true >> "(") >>
@@ -174,28 +189,30 @@ def classTk              := leading_parser
 def «extends»            := leading_parser
   " extends " >> sepBy1 termParser ", "
 def «structure»          := leading_parser
-    (structureTk <|> classTk) >> declId >>
+    (structureTk <|> classTk) >>
+    -- Note: no error recovery here due to clashing with the `class abbrev` syntax
+    declId >>
     ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
   declModifiers false >>
-  («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
+  («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
+  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section" >> optional (ppSpace >> ident)
+  "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «section»      := leading_parser
-  "section" >> optional (ppSpace >> ident)
+  "section" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «namespace»    := leading_parser
-  "namespace " >> ident
+  "namespace " >> checkColGt >> ident
 @[builtin_command_parser] def «end»          := leading_parser
-  "end" >> optional (ppSpace >> ident)
+  "end" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser
-  "variable" >> many1 (ppSpace >> Term.bracketedBinder)
+  "variable" >> many1 (ppSpace >> checkColGt >> Term.bracketedBinder)
 @[builtin_command_parser] def «universe»     := leading_parser
-  "universe" >> many1 (ppSpace >> ident)
+  "universe" >> many1 (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
@@ -212,11 +229,13 @@ def «structure»          := leading_parser
   "#print " >> (ident <|> strLit)
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
+@[builtin_command_parser] def printEqns      := leading_parser
+  "#print " >> (nonReservedSymbol "equations " <|> nonReservedSymbol "eqns ") >> ident
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 @[builtin_command_parser] def «set_option»   := leading_parser
-  "set_option " >> ident >> ppSpace >> optionValue
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
 def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser
@@ -304,7 +323,7 @@ It makes the given namespaces available in the term `e`.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
 @[builtin_term_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
@@ -316,7 +335,7 @@ but it opens a namespace only within the tactics `tacs`. -/
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
 @[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
-  "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
+  "set_option " >> identWithPartialTrailingDot >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 
 end Parser

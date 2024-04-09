@@ -3,10 +3,12 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.KAbstract
 import Lean.Meta.Check
+import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Apply
 
 namespace Lean.Meta
@@ -52,6 +54,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let u2 ← getLevel eType
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
+            (synthAssignedInstances := !tactic.skipAssignedInstances.get (← getOptions))
           let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed eqPrf
           let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)

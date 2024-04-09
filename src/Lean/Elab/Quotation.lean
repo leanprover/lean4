@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
 hygiene workings and data types. -/
+prelude
 import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term

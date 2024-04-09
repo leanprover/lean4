@@ -4,12 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Except
 import Init.Data.ByteArray
-import Init.SimpLemmas
-import Init.Data.Nat.Linear
-import Init.Util
-import Init.WFTactics
 
 namespace String
 
@@ -66,5 +61,41 @@ namespace Iterator
     (init, it)
 
 end Iterator
+
+private def findLeadingSpacesSize (s : String) : Nat :=
+  let it := s.iter
+  let it := it.find (· == '\n') |>.next
+  consumeSpaces it 0 s.length
+where
+  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else if it.curr == '\n' then findNextLine it.next min
+    else findNextLine it.next (Nat.min curr min)
+  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == '\n' then consumeSpaces it.next 0 min
+    else findNextLine it.next min
+
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.iter ""
+where
+  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if it.atEnd then r
+       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       else saveLine it r
+  termination_by (it, 1)
+  saveLine (it : String.Iterator) (r : String) : String :=
+    if it.atEnd then r
+    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
+    else saveLine it.next (r.push it.curr)
+  termination_by (it, 0)
+
+def removeLeadingSpaces (s : String) : String :=
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
 
 end String

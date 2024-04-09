@@ -1,34 +1,38 @@
-ppProofs.lean:3:47-3:48: error: don't know how to synthesize placeholder
+ppProofs.lean:8:47-8:48: error: don't know how to synthesize placeholder
 context:
 α β : Sort u_1
 b : β
 a : α
 h : α = β
 ⊢ h ▸ a = b
-ppProofs.lean:4:50-4:51: error: don't know how to synthesize placeholder
-context:
-α β : Sort u_1
-b : β
-a : α
-h : α = β
-⊢ (_ : α = β) ▸ a = b
-ppProofs.lean:5:50-5:98: error: unsolved goals
-α β : Sort ?u
-b : β
-a : α
-h : α = β
-⊢ (_ : α = β) ▸ a = b
-ppProofs.lean:7:50-7:51: error: don't know how to synthesize placeholder
-context:
-α β : Sort u_1
-b : β
-a : α
-h : α = β
-⊢ _ ▸ a = b
 ppProofs.lean:9:50-9:51: error: don't know how to synthesize placeholder
 context:
 α β : Sort u_1
 b : β
 a : α
 h : α = β
+⊢ ⋯ ▸ a = b
+ppProofs.lean:10:50-10:98: error: unsolved goals
+α β : Sort ?u
+b : β
+a : α
+h : α = β
+⊢ ⋯ ▸ a = b
+ppProofs.lean:12:50-12:51: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
+⊢ ⋯ ▸ a = b
+ppProofs.lean:14:50-14:51: error: don't know how to synthesize placeholder
+context:
+α β : Sort u_1
+b : β
+a : α
+h : α = β
 ⊢ id h ▸ a = b
+let x := ⋯;
+0 : Nat
+let x := Nat.le_succ 1;
+0 : Nat

@@ -4,14 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-import Lean.Data.RBTree
+prelude
+import Init.Data.List.Control
+import Init.Data.Range
+import Init.Data.OfScientific
+import Init.Data.Hashable
+import Lean.Data.RBMap
+import Init.Data.ToString.Macro
+
 namespace Lean
 
 -- mantissa * 10^-exponent
 structure JsonNumber where
   mantissa : Int
   exponent : Nat
-  deriving DecidableEq
+  deriving DecidableEq, Hashable
 
 namespace JsonNumber
 
@@ -98,7 +105,7 @@ protected def toString : JsonNumber → String
     -- grow exponentially in the value of exponent.
     let exp : Int := 9 + countDigits m - (e : Int)
     let exp := if exp < 0 then exp else 0
-    let e' := (10 : Int) ^ (e - exp.natAbs)
+    let e' := 10 ^ (e - exp.natAbs)
     let left := (m / e').repr
     if m % e' = 0 && exp = 0 then
       s!"{sign}{left}"
@@ -200,6 +207,19 @@ private partial def beq' : Json → Json → Bool
 
 instance : BEq Json where
   beq := beq'
+
+private partial def hash' : Json → UInt64
+  | null   => 11
+  | bool b => mixHash 13 <| hash b
+  | num n  => mixHash 17 <| hash n
+  | str s  => mixHash 19 <| hash s
+  | arr elems =>
+    mixHash 23 <| elems.foldl (init := 7) fun r a => mixHash r (hash' a)
+  | obj kvPairs =>
+    mixHash 29 <| kvPairs.fold (init := 7) fun r k v => mixHash r <| mixHash (hash k) (hash' v)
+
+instance : Hashable Json where
+  hash := hash'
 
 -- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
 def mkObj (o : List (String × Json)) : Json :=

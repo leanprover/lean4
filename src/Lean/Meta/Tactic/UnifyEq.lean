@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Injection
 
 namespace Lean.Meta
@@ -69,8 +70,7 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else
             throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
         let rec injection (a b : Expr) := do
-          let env ← getEnv
-          if a.isConstructorApp env && b.isConstructorApp env then
+          if (← isConstructorApp a <&&> isConstructorApp b) then
             /- ctor_i ... = ctor_j ... -/
             match (← injectionCore mvarId eqFVarId) with
             | InjectionResultCore.solved                   => return none -- this alternative has been solved

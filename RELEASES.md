@@ -8,62 +8,367 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.6.0 (development in progress)
+v4.8.0 (development in progress)
+---------
+
+* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
+
+  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+
+  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+
+* Lean now generates an error if the type of a theorem is **not** a proposition.
+
+* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+
+* Funcitonal induction principles.
+
+  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+
+  For example from:
+  ```
+  def ackermann : Nat → Nat → Nat
+    | 0, m => m + 1
+    | n+1, 0 => ackermann n 1
+    | n+1, m+1 => ackermann n (ackermann (n + 1) m)
+  ```
+  we get
+  ```
+  ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
+    (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
+    (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
+    (x x : Nat) : motive x x
+  ```
+
+  It can be used in the `induction` tactic using the `using` syntax:
+  ```
+  induction n, m using ackermann.induct
+  ```
+
+* The termination checker now recognizes more recursion patterns without an
+  explicit `termination_by`. In particular the idiom of counting up to an upper
+  bound, as in
+  ```
+  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
+    if _ : i < arr.size then
+      Array.sum arr (i+1) (acc + arr[i])
+    else
+      acc
+  ```
+  is recognized without having to say `termination_by arr.size - i`.
+
+* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
+  rather than `{a := x, b := y, c := z}`.
+  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
+
+* Now structure instances pretty print with parent structures' fields inlined.
+  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
+  Setting option `pp.structureInstances.flatten` to false turns this off.
+
+* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
+  to enable pretty printing function applications using generalized field notation (defaults to true).
+  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
+
+* Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
+  When `pp.mvars` is false, metavariables pretty print as `?_`,
+  and when `pp.mvars.withType` is true, metavariables pretty print with a type ascription.
+  These can be set when using `#guard_msgs` to make tests not rely on the unique ids assigned to anonymous metavariables.
+  [#3798](https://github.com/leanprover/lean4/pull/3798).
+
+* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
+  for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
+  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
+  rather than `Nat.zero` and `Nat.succ n`.
+  Added option `tactic.customEliminators` to control whether to use custom eliminators.
+  [#3629](https://github.com/leanprover/lean4/pull/3629) and
+  [#3655](https://github.com/leanprover/lean4/pull/3655).
+
+Breaking changes:
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+```
+def fact : Nat → Nat
+  | 0 => 1
+  | n+1 => (n+1) * fact n
+
+theorem ex : fact 0 = 1 := by unfold fact; decide
+
+#check fact.eq_1
+-- fact.eq_1 : fact 0 = 1
+
+#check fact.eq_2
+-- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
+
+#check fact.def
+/-
+fact.def :
+  ∀ (x : Nat),
+    fact x =
+      match x with
+      | 0 => 1
+      | Nat.succ n => (n + 1) * fact n
+-/
+```
+
+* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+
+v4.7.0
+---------
+
+* `simp` and `rw` now use instance arguments found by unification,
+  rather than always resynthesizing. For backwards compatibility, the original behaviour is
+  available via `set_option tactic.skipAssignedInstances false`.
+  [#3507](https://github.com/leanprover/lean4/pull/3507) and
+  [#3509](https://github.com/leanprover/lean4/pull/3509).
+
+* When the `pp.proofs` is false, now omitted proofs use `⋯` rather than `_`,
+  which gives a more helpful error message when copied from the Infoview.
+  The `pp.proofs.threshold` option lets small proofs always be pretty printed.
+  [#3241](https://github.com/leanprover/lean4/pull/3241).
+
+* `pp.proofs.withType` is now set to false by default to reduce noise in the info view.
+
+* The pretty printer for applications now handles the case of over-application itself when applying app unexpanders.
+  In particular, the ``| `($_ $a $b $xs*) => `(($a + $b) $xs*)`` case of an `app_unexpander` is no longer necessary.
+  [#3495](https://github.com/leanprover/lean4/pull/3495).
+
+* New `simp` (and `dsimp`) configuration option: `zetaDelta`. It is `false` by default.
+  The `zeta` option is still `true` by default, but their meaning has changed.
+  - When `zeta := true`, `simp` and `dsimp` reduce terms of the form
+    `let x := val; e[x]` into `e[val]`.
+  - When `zetaDelta := true`, `simp` and `dsimp` will expand let-variables in
+    the context. For example, suppose the context contains `x := val`. Then,
+    any occurrence of `x` is replaced with `val`.
+
+  See [issue #2682](https://github.com/leanprover/lean4/pull/2682) for additional details. Here are some examples:
+  ```
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp
+    /-
+    New goal:
+    h : z = 9; x := 5 |- x + 4 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    -- Using both `zeta` and `zetaDelta`.
+    simp (config := { zetaDelta := true })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp [x] -- asks `simp` to unfold `x`
+    /-
+    New goal:
+    h : z = 9; x := 5 |- 9 = z
+    -/
+    rw [h]
+
+  example (h : z = 9) : let x := 5; let y := 4; x + y = z := by
+    intro x
+    simp (config := { zetaDelta := true, zeta := false })
+    /-
+    New goal:
+    h : z = 9; x := 5 |- let y := 4; 5 + y = z
+    -/
+    rw [h]
+  ```
+
+* When adding new local theorems to `simp`, the system assumes that the function application arguments
+  have been annotated with `no_index`. This modification, which addresses [issue #2670](https://github.com/leanprover/lean4/issues/2670),
+  restores the Lean 3 behavior that users expect. With this modification, the following examples are now operational:
+  ```
+  example {α β : Type} {f : α × β → β → β} (h : ∀ p : α × β, f p p.2 = p.2)
+    (a : α) (b : β) : f (a, b) b = b := by
+    simp [h]
+
+  example {α β : Type} {f : α × β → β → β}
+    (a : α) (b : β) (h : f (a,b) (a,b).2 = (a,b).2) : f (a, b) b = b := by
+    simp [h]
+  ```
+  In both cases, `h` is applicable because `simp` does not index f-arguments anymore when adding `h` to the `simp`-set.
+  It's important to note, however, that global theorems continue to be indexed in the usual manner.
+
+* Improved the error messages produced by the `decide` tactic. [#3422](https://github.com/leanprover/lean4/pull/3422)
+
+* Improved auto-completion performance. [#3460](https://github.com/leanprover/lean4/pull/3460)
+
+* Improved initial language server startup performance. [#3552](https://github.com/leanprover/lean4/pull/3552)
+
+* Changed call hierarchy to sort entries and strip private header from names displayed in the call hierarchy. [#3482](https://github.com/leanprover/lean4/pull/3482)
+
+* There is now a low-level error recovery combinator in the parsing framework, primarily intended for DSLs. [#3413](https://github.com/leanprover/lean4/pull/3413)
+
+* You can now write `termination_by?` after a declaration to see the automatically inferred
+  termination argument, and turn it into a `termination_by …` clause using the “Try this” widget or a code action. [#3514](https://github.com/leanprover/lean4/pull/3514)
+
+* A large fraction of `Std` has been moved into the Lean repository.
+  This was motivated by:
+  1. Making universally useful tactics such as `ext`, `by_cases`, `change at`,
+    `norm_cast`, `rcases`, `simpa`, `simp?`, `omega`, and `exact?`
+    available to all users of Lean, without imports.
+  2. Minimizing the syntactic changes between plain Lean and Lean with `import Std`.
+  3. Simplifying the development process for the basic data types
+     `Nat`, `Int`, `Fin` (and variants such as `UInt64`), `List`, `Array`,
+     and `BitVec` as we begin making the APIs and simp normal forms for these types
+     more complete and consistent.
+  4. Laying the groundwork for the Std roadmap, as a library focused on
+     essential datatypes not provided by the core langauge (e.g. `RBMap`)
+     and utilities such as basic IO.
+  While we have achieved most of our initial aims in `v4.7.0-rc1`,
+  some upstreaming will continue over the coming months.
+
+* The `/` and `%` notations in `Int` now use `Int.ediv` and `Int.emod`
+  (i.e. the rounding conventions have changed).
+  Previously `Std` overrode these notations, so this is no change for users of `Std`.
+  There is now kernel support for these functions.
+  [#3376](https://github.com/leanprover/lean4/pull/3376).
+
+* `omega`, our integer linear arithmetic tactic, is now availabe in the core langauge.
+  * It is supplemented by a preprocessing tactic `bv_omega` which can solve goals about `BitVec`
+    which naturally translate into linear arithmetic problems.
+    [#3435](https://github.com/leanprover/lean4/pull/3435).
+  * `omega` now has support for `Fin` [#3427](https://github.com/leanprover/lean4/pull/3427),
+    the `<<<` operator [#3433](https://github.com/leanprover/lean4/pull/3433).
+  * During the port `omega` was modified to no longer identify atoms up to definitional equality
+    (so in particular it can no longer prove `id x ≤ x`). [#3525](https://github.com/leanprover/lean4/pull/3525).
+    This may cause some regressions.
+    We plan to provide a general purpose preprocessing tactic later, or an `omega!` mode.
+  * `omega` is now invoked in Lean's automation for termination proofs
+    [#3503](https://github.com/leanprover/lean4/pull/3503) as well as in
+    array indexing proofs [#3515](https://github.com/leanprover/lean4/pull/3515).
+    This automation will be substantially revised in the medium term,
+    and while `omega` does help automate some proofs, we plan to make this much more robust.
+
+* The library search tactics `exact?` and `apply?` that were originally in
+  Mathlib are now available in Lean itself.  These use the implementation using
+  lazy discrimination trees from `Std`, and thus do not require a disk cache but
+  have a slightly longer startup time.  The order used for selection lemmas has
+  changed as well to favor goals purely based on how many terms in the head
+  pattern match the current goal.
+
+* The `solve_by_elim` tactic has been ported from `Std` to Lean so that library
+  search can use it.
+
+* New `#check_tactic` and `#check_simp` commands have been added.  These are
+  useful for checking tactics (particularly `simp`) behave as expected in test
+  suites.
+
+* Previously, app unexpanders would only be applied to entire applications. However, some notations produce
+  functions, and these functions can be given additional arguments. The solution so far has been to write app unexpanders so that they can take an arbitrary number of additional arguments. However this leads to misleading hover information in the Infoview. For example, while `HAdd.hAdd f g 1` pretty prints as `(f + g) 1`, hovering over `f + g` shows `f`. There is no way to fix the situation from within an app unexpander; the expression position for `HAdd.hAdd f g` is absent, and app unexpanders cannot register TermInfo.
+
+  This commit changes the app delaborator to try running app unexpanders on every prefix of an application, from longest to shortest prefix. For efficiency, it is careful to only try this when app delaborators do in fact exist for the head constant, and it also ensures arguments are only delaborated once. Then, in `(f + g) 1`, the `f + g` gets TermInfo registered for that subexpression, making it properly hoverable.
+
+  [#3375](https://github.com/leanprover/lean4/pull/3375)
+
+Breaking changes:
+* `Lean.withTraceNode` and variants got a stronger `MonadAlwaysExcept` assumption to
+  fix trace trees not being built on elaboration runtime exceptions. Instances for most elaboration
+  monads built on `EIO Exception` should be synthesized automatically.
+* The `match ... with.` and `fun.` notations previously in Std have been replaced by
+  `nomatch ...` and `nofun`. [#3279](https://github.com/leanprover/lean4/pull/3279) and [#3286](https://github.com/leanprover/lean4/pull/3286)
+
+
+Other improvements:
+* several bug fixes for `simp`:
+  * we should not crash when `simp` loops [#3269](https://github.com/leanprover/lean4/pull/3269)
+  * `simp` gets stuck on `autoParam` [#3315](https://github.com/leanprover/lean4/pull/3315)
+  * `simp` fails when custom discharger makes no progress [#3317](https://github.com/leanprover/lean4/pull/3317)
+  * `simp` fails to discharge `autoParam` premises even when it can reduce them to `True` [#3314](https://github.com/leanprover/lean4/pull/3314)
+  * `simp?` suggests generated equations lemma names, fixes [#3547](https://github.com/leanprover/lean4/pull/3547) [#3573](https://github.com/leanprover/lean4/pull/3573)
+* fixes for `match` expressions:
+  * fix regression with builtin literals [#3521](https://github.com/leanprover/lean4/pull/3521)
+  * accept `match` when patterns cover all cases of a `BitVec` finite type [#3538](https://github.com/leanprover/lean4/pull/3538)
+  * fix matching `Int` literals [#3504](https://github.com/leanprover/lean4/pull/3504)
+  * patterns containing int values and constructors [#3496](https://github.com/leanprover/lean4/pull/3496)
+* improve `termination_by` error messages [#3255](https://github.com/leanprover/lean4/pull/3255)
+* fix `rename_i` in macros, fixes [#3553](https://github.com/leanprover/lean4/pull/3553) [#3581](https://github.com/leanprover/lean4/pull/3581)
+* fix excessive resource usage in `generalize`, fixes [#3524](https://github.com/leanprover/lean4/pull/3524) [#3575](https://github.com/leanprover/lean4/pull/3575)
+* an equation lemma with autoParam arguments fails to rewrite, fixing [#2243](https://github.com/leanprover/lean4/pull/2243) [#3316](https://github.com/leanprover/lean4/pull/3316)
+* `add_decl_doc` should check that declarations are local [#3311](https://github.com/leanprover/lean4/pull/3311)
+* instantiate the types of inductives with the right parameters, closing [#3242](https://github.com/leanprover/lean4/pull/3242) [#3246](https://github.com/leanprover/lean4/pull/3246)
+* New simprocs for many basic types. [#3407](https://github.com/leanprover/lean4/pull/3407)
+
+Lake fixes:
+* Warn on fetch cloud release failure [#3401](https://github.com/leanprover/lean4/pull/3401)
+* Cloud release trace & `lake build :release` errors [#3248](https://github.com/leanprover/lean4/pull/3248)
+
+v4.6.1
+---------
+* Backport of [#3552](https://github.com/leanprover/lean4/pull/3552) fixing a performance regression
+  in server startup.
+
+v4.6.0
 ---------
 
 * Add custom simplification procedures (aka `simproc`s) to `simp`. Simprocs can be triggered by the simplifier on a specified term-pattern. Here is an small example:
-```lean
-import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+  ```lean
+  import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
-def foo (x : Nat) : Nat :=
-  x + 10
+  def foo (x : Nat) : Nat :=
+    x + 10
 
-/--
-The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
--/
-simproc reduceFoo (foo _) :=
-  /- A term of type `Expr → SimpM (Option Step) -/
-  fun e => OptionT.run do
-    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
-    guard (e.isAppOfArity ``foo 1)
-    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
-    let n ← Nat.fromExpr? e.appArg!
+  /--
+  The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
+  -/
+  simproc reduceFoo (foo _) :=
+    /- A term of type `Expr → SimpM Step -/
+    fun e => do
+      /-
+      The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
+      * The constructor `.done` instructs `simp` that the result does
+        not need to be simplied further.
+      * The constructor `.visit` instructs `simp` to visit the resulting expression.
+      * The constructor `.continue` instructs `simp` to try other simplification procedures.
+
+      All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+      `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
+       If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
+      -/
+      /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+      unless e.isAppOfArity ``foo 1 do
+        return .continue
+      /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+      let some n ← Nat.fromExpr? e.appArg!
+        | return .continue
+      return .done { expr := Lean.mkNatLit (n+10) }
+  ```
+  We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
+  Simprocs can be scoped, manually added to `simp` commands, and suppressed using `-`. They are also supported by `simp?`. `simp only` does not execute any `simproc`. Here are some examples for the `simproc` defined above.
+  ```lean
+  example : x + foo 2 = 12 + x := by
+    set_option simprocs false in
+      /- This `simp` command does not make progress since `simproc`s are disabled. -/
+      fail_if_success simp
+    simp_arith
+
+  example : x + foo 2 = 12 + x := by
+    /- `simp only` must not use the default simproc set. -/
+    fail_if_success simp only
+    simp_arith
+
+  example : x + foo 2 = 12 + x := by
     /-
-    The `Step` type has two constructors: `.done` and `.visit`.
-    * The constructor `.done` instructs `simp` that the result does
-      not need to be simplied further.
-    * The constructor `.visit` instructs `simp` to visit the resulting expression.
+    `simp only` does not use the default simproc set,
+    but we can provide simprocs as arguments. -/
+    simp only [reduceFoo]
+    simp_arith
 
-    If the result holds definitionally as in this example, the field `proof?` can be omitted.
-    -/
-    return .done { expr := Lean.mkNatLit (n+10) }
-```
-We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
-Simprocs can be scoped, manually added to `simp` commands, and suppressed using `-`. They are also supported by `simp?`. `simp only` does not execute any `simproc`. Here are some examples for the `simproc` defined above.
-```lean
-example : x + foo 2 = 12 + x := by
-  set_option simprocs false in
-    /- This `simp` command does not make progress since `simproc`s are disabled. -/
-    fail_if_success simp
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /- `simp only` must not use the default simproc set. -/
-  fail_if_success simp only
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /-
-  `simp only` does not use the default simproc set,
-  but we can provide simprocs as arguments. -/
-  simp only [reduceFoo]
-  simp_arith
-
-example : x + foo 2 = 12 + x := by
-  /- We can use `-` to disable `simproc`s. -/
-  fail_if_success simp [-reduceFoo]
-  simp_arith
-```
+  example : x + foo 2 = 12 + x := by
+    /- We can use `-` to disable `simproc`s. -/
+    fail_if_success simp [-reduceFoo]
+    simp_arith
+  ```
+  The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
+  ```lean
+  simproc [my_simp] reduceFoo (foo _) := ...
+  ```
 
 * The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
 
@@ -196,6 +501,39 @@ example : x + foo 2 = 12 + x := by
 
 * Add language server support for [call hierarchy requests](https://www.youtube.com/watch?v=r5LA7ivUb2c) ([PR #3082](https://github.com/leanprover/lean4/pull/3082)). The change to the .ilean format in this PR means that projects must be fully rebuilt once in order to generate .ilean files with the new format before features like "find references" work correctly again.
 
+* Structure instances with multiple sources (for example `{a, b, c with x := 0}`) now have their fields filled from these sources
+  in strict left-to-right order. Furthermore, the structure instance elaborator now aggressively use sources to fill in subobject
+  fields, which prevents unnecessary eta expansion of the sources,
+  and hence greatly reduces the reliance on costly structure eta reduction. This has a large impact on mathlib,
+  reducing total CPU instructions by 3% and enabling impactful refactors like leanprover-community/mathlib4#8386
+  which reduces the build time by almost 20%.
+  See [PR #2478](https://github.com/leanprover/lean4/pull/2478) and [RFC #2451](https://github.com/leanprover/lean4/issues/2451).
+
+* Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
+
+* Add pretty printer options `pp.numeralTypes` and `pp.natLit`.
+  When `pp.numeralTypes` is true, then natural number literals, integer literals, and rational number literals
+  are pretty printed with type ascriptions, such as `(2 : Rat)`, `(-2 : Rat)`, and `(-2 / 3 : Rat)`.
+  When `pp.natLit` is true, then raw natural number literals are pretty printed as `nat_lit 2`.
+  [PR #2933](https://github.com/leanprover/lean4/pull/2933) and [RFC #3021](https://github.com/leanprover/lean4/issues/3021).
+
+Lake updates:
+* improved platform information & control [#3226](https://github.com/leanprover/lean4/pull/3226)
+* `lake update` from unsupported manifest versions [#3149](https://github.com/leanprover/lean4/pull/3149)
+
+Other improvements:
+* make `intro` be aware of `let_fun` [#3115](https://github.com/leanprover/lean4/pull/3115)
+* produce simpler proof terms in `rw` [#3121](https://github.com/leanprover/lean4/pull/3121)
+* fuse nested `mkCongrArg` calls in proofs generated by `simp` [#3203](https://github.com/leanprover/lean4/pull/3203)
+* `induction using` followed by a general term [#3188](https://github.com/leanprover/lean4/pull/3188)
+* allow generalization in `let` [#3060](https://github.com/leanprover/lean4/pull/3060), fixing [#3065](https://github.com/leanprover/lean4/issues/3065)
+* reducing out-of-bounds `swap!` should return `a`, not `default`` [#3197](https://github.com/leanprover/lean4/pull/3197), fixing [#3196](https://github.com/leanprover/lean4/issues/3196)
+* derive `BEq` on structure with `Prop`-fields [#3191](https://github.com/leanprover/lean4/pull/3191), fixing [#3140](https://github.com/leanprover/lean4/issues/3140)
+* refine through more `casesOnApp`/`matcherApp` [#3176](https://github.com/leanprover/lean4/pull/3176), fixing [#3175](https://github.com/leanprover/lean4/pull/3175)
+* do not strip dotted components from lean module names [#2994](https://github.com/leanprover/lean4/pull/2994), fixing [#2999](https://github.com/leanprover/lean4/issues/2999)
+* fix `deriving` only deriving the first declaration for some handlers [#3058](https://github.com/leanprover/lean4/pull/3058), fixing [#3057](https://github.com/leanprover/lean4/issues/3057)
+* do not instantiate metavariables in kabstract/rw for disallowed occurrences [#2539](https://github.com/leanprover/lean4/pull/2539), fixing [#2538](https://github.com/leanprover/lean4/issues/2538)
+* hover info for `cases h : ...` [#3084](https://github.com/leanprover/lean4/pull/3084)
 
 v4.5.0
 ---------

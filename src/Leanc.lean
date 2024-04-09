@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Ullrich
+-/
 import Lean.Compiler.FFI
 
 open Lean.Compiler.FFI
@@ -28,7 +33,8 @@ Interesting options:
     | none   => #[("MACOSX_DEPLOYMENT_TARGET", "99.0")]
 
   -- let compileOnly := args.contains "-c"
-  let linkStatic := !args.contains "-shared"
+  let linkStatic := !(args.contains "-shared" || args.contains "-leanshared")
+  let args := args.erase "-leanshared"
 
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := getCFlags root

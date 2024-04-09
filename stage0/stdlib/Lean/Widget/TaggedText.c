@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.TaggedText
-// Imports: Init Lean.Data.Json.FromToJson Lean.Server.Rpc.Basic
+// Imports: Lean.Data.Json.FromToJson Lean.Server.Rpc.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_Tagge
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_x27(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__5___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedTaggedText(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_map(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -39,6 +38,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_inst
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___at_Lean_Widget_TaggedText_prettyTagged___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Widget_TaggedText_0__Lean_Widget_beqTaggedText____x40_Lean_Widget_TaggedText___hyg_76____rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____rarg___lambda__1___closed__1;
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_233____rarg___closed__10;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__8___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -1431,7 +1431,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_19 = l_Lean_instInhabitedJson;
-x_20 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_20 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 lean_inc(x_3);
 x_21 = lean_apply_1(x_3, x_20);
 if (lean_obj_tag(x_21) == 0)
@@ -1474,7 +1474,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
 lean_dec(x_15);
-x_32 = l___private_Init_Util_0__outOfBounds___rarg(x_19);
+x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_19);
 x_33 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____rarg(x_3, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -1647,7 +1647,7 @@ if (x_81 == 0)
 lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 lean_dec(x_15);
 x_82 = l_Lean_instInhabitedJson;
-x_83 = l___private_Init_Util_0__outOfBounds___rarg(x_82);
+x_83 = l___private_Init_GetElem_0__outOfBounds___rarg(x_82);
 x_84 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____rarg(x_3, x_83);
 if (lean_obj_tag(x_84) == 0)
 {
@@ -1832,7 +1832,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 lean_dec(x_14);
 x_18 = l_Lean_instInhabitedJson;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = l_Lean_Json_getStr_x3f(x_19);
 lean_dec(x_19);
 if (lean_obj_tag(x_20) == 0)
@@ -2024,7 +2024,7 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; 
 lean_dec(x_14);
 x_18 = l_Lean_instInhabitedJson;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 if (lean_obj_tag(x_19) == 4)
 {
 lean_object* x_20; lean_object* x_21; size_t x_22; size_t x_23; lean_object* x_24; 
@@ -2206,7 +2206,7 @@ if (x_74 == 0)
 lean_object* x_75; lean_object* x_76; 
 lean_dec(x_71);
 x_75 = l_Lean_instInhabitedJson;
-x_76 = l___private_Init_Util_0__outOfBounds___rarg(x_75);
+x_76 = l___private_Init_GetElem_0__outOfBounds___rarg(x_75);
 if (lean_obj_tag(x_76) == 4)
 {
 lean_object* x_77; lean_object* x_78; size_t x_79; size_t x_80; lean_object* x_81; 
@@ -4024,7 +4024,7 @@ if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_18 = l_Lean_instInhabitedJson;
-x_19 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_19 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_dec_lt(x_20, x_15);
 lean_dec(x_15);
@@ -4032,7 +4032,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
 lean_dec(x_14);
-x_22 = l___private_Init_Util_0__outOfBounds___rarg(x_18);
+x_22 = l___private_Init_GetElem_0__outOfBounds___rarg(x_18);
 x_23 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__5(x_22);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -4169,7 +4169,7 @@ if (x_62 == 0)
 lean_object* x_63; lean_object* x_64; lean_object* x_65; 
 lean_dec(x_14);
 x_63 = l_Lean_instInhabitedJson;
-x_64 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
+x_64 = l___private_Init_GetElem_0__outOfBounds___rarg(x_63);
 x_65 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_414____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__5(x_64);
 if (lean_obj_tag(x_65) == 0)
 {
@@ -4344,7 +4344,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_dec(x_13);
 x_17 = l_Lean_instInhabitedJson;
-x_18 = l___private_Init_Util_0__outOfBounds___rarg(x_17);
+x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
 x_19 = l_Lean_Json_getStr_x3f(x_18);
 lean_dec(x_18);
 if (lean_obj_tag(x_19) == 0)
@@ -4509,7 +4509,7 @@ if (x_16 == 0)
 lean_object* x_17; lean_object* x_18; 
 lean_dec(x_13);
 x_17 = l_Lean_instInhabitedJson;
-x_18 = l___private_Init_Util_0__outOfBounds___rarg(x_17);
+x_18 = l___private_Init_GetElem_0__outOfBounds___rarg(x_17);
 if (lean_obj_tag(x_18) == 4)
 {
 lean_object* x_19; lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
@@ -4689,7 +4689,7 @@ if (x_73 == 0)
 lean_object* x_74; lean_object* x_75; 
 lean_dec(x_70);
 x_74 = l_Lean_instInhabitedJson;
-x_75 = l___private_Init_Util_0__outOfBounds___rarg(x_74);
+x_75 = l___private_Init_GetElem_0__outOfBounds___rarg(x_74);
 if (lean_obj_tag(x_75) == 4)
 {
 lean_object* x_76; lean_object* x_77; size_t x_78; size_t x_79; lean_object* x_80; 
@@ -8885,7 +8885,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Widget_TaggedText_stripTags___rarg), 1, 
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -8893,9 +8892,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin, lean
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json_FromToJson(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

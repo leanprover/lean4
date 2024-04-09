@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Rpc.Basic
-// Imports: Init Lean.Data.Json
+// Imports: Init.Dynamic Lean.Data.Json
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -76,6 +76,7 @@ static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRef___rarg(lean_object*);
 static lean_object* l_Lean_Lsp_instBEqRpcRef___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instHashableRpcRef;
+lean_object* l_Array_feraseIdx___rarg(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableProd(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at_Lean_Server_rpcReleaseRef___spec__2(lean_object*, size_t, size_t);
@@ -189,7 +190,6 @@ lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Server_instRpcEncodableArray___rarg___lambda__2___closed__1;
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcGetRef___boxed(lean_object*, lean_object*);
-lean_object* l_Array_eraseIdx_x27___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateT_pure___at_Lean_Server_instRpcEncodableStateMRpcObjectStore___spec__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableOption(lean_object*);
@@ -2196,9 +2196,9 @@ lean_dec(x_142);
 x_143 = lean_ctor_get(x_136, 0);
 lean_inc(x_143);
 lean_dec(x_136);
-x_144 = l_Array_eraseIdx_x27___rarg(x_133, x_143);
-x_145 = l_Array_eraseIdx_x27___rarg(x_134, x_143);
-lean_dec(x_143);
+lean_inc(x_143);
+x_144 = l_Array_feraseIdx___rarg(x_133, x_143);
+x_145 = l_Array_feraseIdx___rarg(x_134, x_143);
 lean_ctor_set(x_1, 1, x_145);
 lean_ctor_set(x_1, 0, x_144);
 x_146 = 1;
@@ -2215,9 +2215,9 @@ lean_dec(x_1);
 x_149 = lean_ctor_get(x_136, 0);
 lean_inc(x_149);
 lean_dec(x_136);
-x_150 = l_Array_eraseIdx_x27___rarg(x_133, x_149);
-x_151 = l_Array_eraseIdx_x27___rarg(x_134, x_149);
-lean_dec(x_149);
+lean_inc(x_149);
+x_150 = l_Array_feraseIdx___rarg(x_133, x_149);
+x_151 = l_Array_feraseIdx___rarg(x_134, x_149);
 x_152 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_152, 0, x_150);
 lean_ctor_set(x_152, 1, x_151);
@@ -3804,14 +3804,14 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Server_instRpcEncodableWithRpcRef___rarg
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Dynamic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Dynamic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());

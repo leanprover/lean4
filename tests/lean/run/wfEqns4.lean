@@ -37,12 +37,12 @@ end
 #eval f 5 'a' 'b'
 
 #eval tst ``f
-#check @f._eq_1
-#check @f._eq_2
-#check @f._unfold
+#check @f.eq_1
+#check @f.eq_2
+#check @f.eq_def
 
 
 #eval tst ``h
-#check @h._eq_1
-#check @h._eq_2
-#check @h._unfold
+#check @h.eq_1
+#check @h.eq_2
+#check @h.eq_def

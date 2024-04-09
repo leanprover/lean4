@@ -4,8 +4,8 @@ theorem Array.sizeOf_lt_of_mem' [DecidableEq α] [SizeOf α] {as : Array α} (h 
     unfold anyM.loop
     intro h
     split at h
-    · simp [Bind.bind, pure] at h; split at h
-      next he => subst a; apply sizeOf_get_lt
+    · simp only [bind, decide_eq_true_eq, pure] at h; split at h
+      next he => subst a; apply sizeOf_get
       next => have ih := aux (j+1) h; assumption
     · contradiction
     termination_by as.size - j

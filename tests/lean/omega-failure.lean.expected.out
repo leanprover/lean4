@@ -1,5 +1,5 @@
 omega-failure.lean:5:22-5:27: error: omega could not prove the goal:
-it is trivially false
+it is false
 omega-failure.lean:7:32-7:37: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   x₁ ≥ 0
@@ -35,3 +35,49 @@ where
   x₄ := ↑(sizeOf x.fst)
   x₅ := ↑(sizeOf x.snd)
   x₆ := ↑(sizeOf xs)
+omega-failure.lean:23:67-23:72: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  x₃ ≥ 0
+  x₁ - x₂ - x₃ ≥ 0
+  x₂ ≥ 0
+  x₁ ≥ 0
+where
+  x₁ := ↑reallyreallyreallyreally
+  x₂ := ↑longlonglonglong
+  x₃ := ↑namenamename
+omega-failure.lean:26:76-26:81: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  x₈ ≥ 0
+  x₁₁ ≥ 0
+  x₆ ≥ 0
+  x₁₃ ≥ 0
+  x₁₂ ≥ 0
+  x₁₅ ≥ 0
+  x₁₀ ≥ 0
+  x₁ ≥ 0
+  x₁₆ ≥ 0
+  x₃ ≥ 0
+  x₁₄ ≥ 0
+  x₅ ≥ 0
+  x₄ ≥ 0
+  x₁ + x₂ + x₃ + x₄ + x₅ + x₆ + x₇ + x₈ + x₉ + x₁₀ + x₁₁ + x₁₂ + x₁₃ + x₁₄ + x₁₅ + x₁₆ ≥ 100
+  x₇ ≥ 0
+  x₂ ≥ 0
+  x₉ ≥ 0
+where
+  x₁ := ↑a
+  x₂ := ↑b
+  x₃ := ↑c
+  x₄ := ↑d
+  x₅ := ↑e
+  x₆ := ↑f
+  x₇ := ↑g
+  x₈ := ↑h
+  x₉ := ↑i
+  x₁₀ := ↑j
+  x₁₁ := ↑k
+  x₁₂ := ↑l
+  x₁₃ := ↑m
+  x₁₄ := ↑n
+  x₁₅ := ↑o
+  x₁₆ := ↑p

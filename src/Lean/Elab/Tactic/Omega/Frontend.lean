@@ -532,10 +532,12 @@ Helpful error message when omega cannot find a solution
 def formatErrorMessage (p : Problem) : OmegaM MessageData := do
   if p.possible then
     if p.isEmpty then
-      return m!"it is trivially false"
+      return m!"it is false"
     else
       let mask ← mentioned p.constraints
-      return m!"a possible counterexample may satisfy the constraints\n{prettyConstraints p.constraints}\nwhere\n{← prettyAtoms mask}"
+      return m!"a possible counterexample may satisfy the constraints\n" ++
+        m!"{prettyConstraints p.constraints}\nwhere\n" ++
+        (← prettyAtoms mask)
   else
     -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"
@@ -549,7 +551,7 @@ where
       |> "\n".intercalate
 
   prettyConstraint (e : String) : Constraint → String
-    | ⟨none, none⟩ => s!"{e} is unconstrainted" -- should not happen in error messages
+    | ⟨none, none⟩ => s!"{e} is unconstrained" -- should not happen in error messages
     | ⟨none, some y⟩ => s!"{e} ≤ {y}"
     | ⟨some x, none⟩ => s!"{e} ≥ {x}"
     | ⟨some x, some y⟩ =>

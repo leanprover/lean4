@@ -17,3 +17,10 @@ theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeO
   have := List.sizeOf_lt_of_mem h
   have : sizeOf x = 1 + sizeOf x.1 + sizeOf x.2 := rfl
   omega
+
+
+example (reallyreallyreallyreally longlonglonglong namenamename : Nat) :
+  reallyreallyreallyreally < longlonglonglong + namenamename := by omega
+
+example (a b c d e f g h i j k l m n o p : Nat) :
+  a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p < 100 := by omega

@@ -535,9 +535,9 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
       return m!"it is trivially false"
     else
       let mask ← mentioned p.constraints
-      return m!"a possible counterexample may satisfy the constraints\n{prettyConstraints p.constraints}where\n{← prettyAtoms mask}"
+      return m!"a possible counterexample may satisfy the constraints\n{prettyConstraints p.constraints}\nwhere\n{← prettyAtoms mask}"
   else
-    -- formatErrorMessage should not be used in this case case
+    -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"
 where
   var (n : Nat) : String :=
@@ -545,8 +545,16 @@ where
 
   prettyConstraints (constraints : HashMap Coeffs Fact) : String :=
     constraints.toList
-      |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => s!"{prettyCoeffs coeffs} ∈ {cst}\n")
-      |> String.join
+      |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => "  " ++ prettyConstraint (prettyCoeffs coeffs) cst)
+      |> "\n".intercalate
+
+  prettyConstraint (e : String) : Constraint → String
+    | ⟨none, none⟩ => s!"{e} is unconstrainted" -- should not happen in error messages
+    | ⟨none, some y⟩ => s!"{e} ≤ {y}"
+    | ⟨some x, none⟩ => s!"{e} ≥ {x}"
+    | ⟨some x, some y⟩ =>
+      if y < x then "∅" else -- should not happen in error messages
+      s!"{x} ≤ {e} ≤ {y}"
 
   prettyCoeffs (coeffs : Coeffs) : String :=
     coeffs.toList.enum
@@ -566,7 +574,7 @@ where
   prettyAtoms (mask : Array Bool) : OmegaM MessageData := do
     return (← atoms).toList.enum
       |>.filter (fun (i, _) => mask.getD i false)
-      |>.map (fun (i, a) => m!"{var i} := {a}")
+      |>.map (fun (i, a) => m!"  {var i} := {a}")
       |> m!"\n".joinSep
 
 

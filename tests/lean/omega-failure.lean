@@ -6,7 +6,9 @@ example : 0 < 0 := by omega
 
 example (x : Nat) : x < 0 := by omega
 
-example (x : Nat) : x < y := by omega
+example (x : Nat) (y : Int) : x < y := by omega
+
+example (x y : Int) : 5 < x ∧ x < 10 → y > 0 := by omega
 
 theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeOf β] {x : α × β} {xs : List (α × β)} :
   x ∈ xs → sizeOf x.snd < 1 + sizeOf xs

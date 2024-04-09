@@ -2,30 +2,36 @@ omega-failure.lean:5:22-5:27: error: omega could not prove the goal:
 it is trivially false
 omega-failure.lean:7:32-7:37: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-x₁ ∈ [0, ∞)
+  x₁ ≥ 0
 where
-x₁ := ↑x
-omega-failure.lean:9:32-9:37: error: omega could not prove the goal:
+  x₁ := ↑x
+omega-failure.lean:9:42-9:47: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-x₁ - x₂ ∈ [0, ∞)
-x₂ ∈ [0, ∞)
-x₁ ∈ [0, ∞)
+  x₁ - x₂ ≥ 0
+  x₁ ≥ 0
 where
-x₁ := ↑x
-x₂ := ↑y
-omega-failure.lean:17:2-17:7: error: omega could not prove the goal:
+  x₁ := ↑x
+  x₂ := y
+omega-failure.lean:11:51-11:56: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-x₅ - x₆ ∈ [1, ∞)
-x₆ ∈ [0, ∞)
-x₅ ∈ [0, ∞)
-x₁ - x₂ ∈ [1, ∞)
-x₄ ∈ [0, ∞)
-x₂ ∈ [0, ∞)
-x₁ ∈ [0, ∞)
-x₄ + x₅ ∈ [-1, ∞)
+  x₂ ≤ 0
+  6 ≤ x₁ ≤ 9
 where
-x₁ := ↑(sizeOf xs)
-x₂ := ↑(sizeOf x)
-x₄ := ↑(sizeOf x.fst)
-x₅ := ↑(sizeOf x.snd)
-x₆ := ↑(sizeOf xs)
+  x₁ := x
+  x₂ := y
+omega-failure.lean:19:2-19:7: error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  x₅ - x₆ ≥ 1
+  x₆ ≥ 0
+  x₅ ≥ 0
+  x₁ - x₂ ≥ 1
+  x₄ ≥ 0
+  x₂ ≥ 0
+  x₁ ≥ 0
+  x₄ + x₅ ≥ -1
+where
+  x₁ := ↑(sizeOf xs)
+  x₂ := ↑(sizeOf x)
+  x₄ := ↑(sizeOf x.fst)
+  x₅ := ↑(sizeOf x.snd)
+  x₆ := ↑(sizeOf xs)

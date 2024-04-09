@@ -25,6 +25,12 @@ def fromExpr? (e : Expr) : SimpM (Option Int) :=
   let some v₂ ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op v₁ v₂)
 
+def reduceBinIntNatOp (name : Name) (op : Int → Nat → Int) (e : Expr) : SimpM DStep := do
+  unless e.isAppOfArity name 2 do return .continue
+  let some v₁ ← getIntValue? e.appFn!.appArg! | return .continue
+  let some v₂ ← getNatValue? e.appArg! | return .continue
+  return .done <| toExpr (op v₁ v₂)
+
 @[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Int → Int → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
@@ -65,6 +71,12 @@ builtin_dsimproc [simp, seval] reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMu
 builtin_dsimproc [simp, seval] reduceSub ((_ - _ : Int)) := reduceBin ``HSub.hSub 6 (· - ·)
 builtin_dsimproc [simp, seval] reduceDiv ((_ / _ : Int)) := reduceBin ``HDiv.hDiv 6 (· / ·)
 builtin_dsimproc [simp, seval] reduceMod ((_ % _ : Int)) := reduceBin ``HMod.hMod 6 (· % ·)
+builtin_dsimproc [simp, seval] reduceTDiv (div  _ _) := reduceBin ``Int.div 2 Int.div
+builtin_dsimproc [simp, seval] reduceTMod (mod  _ _) := reduceBin ``Int.mod 2 Int.mod
+builtin_dsimproc [simp, seval] reduceFDiv (fdiv _ _) := reduceBin ``Int.fdiv 2 Int.fdiv
+builtin_dsimproc [simp, seval] reduceFMod (fmod _ _) := reduceBin ``Int.fmod 2 Int.fmod
+builtin_dsimproc [simp, seval] reduceBdiv (bdiv _ _) := reduceBinIntNatOp ``bdiv bdiv
+builtin_dsimproc [simp, seval] reduceBmod (bmod _ _) := reduceBinIntNatOp ``bmod bmod
 
 builtin_dsimproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
   let_expr HPow.hPow _ _ _ _ a b ← e | return .continue

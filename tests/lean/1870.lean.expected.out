@@ -5,12 +5,12 @@ has type
 but is expected to have type
   OfNat.ofNat 0 = OfNat.ofNat 1 : Prop
 1870.lean:24:2-24:16: error: tactic 'apply' failed, failed to unify
-  OfNat.ofNat 0 = OfNat.ofNat 0
+  ?f ?a₁ = ?f ?a₂
 with
   OfNat.ofNat 0 = OfNat.ofNat 1
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1
 1870.lean:29:2-29:16: error: tactic 'apply' failed, failed to unify
-  OfNat.ofNat 0 = OfNat.ofNat 0
+  ?f ?a₁ = ?f ?a₂
 with
   OfNat.ofNat 0 = OfNat.ofNat 1
 ⊢ OfNat.ofNat 0 = OfNat.ofNat 1

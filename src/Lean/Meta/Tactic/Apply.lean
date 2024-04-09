@@ -51,15 +51,23 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 
+def _root_.Lean.Meta.MetaM.asThunk (m : MetaM α) : MetaM (Thunk (Except Exception α)) := do
+  let ctx ← readThe Meta.Context
+  let state ← saveState
+  let coreState ← getThe Core.State
+  let coreCtxt ← readThe Core.Context
+  BaseIO.asThunk do
+    MetaM.run' (do restoreState state; m) (ctx := ctx) |>.run' coreCtxt coreState |>.toBaseIO
+
+def MessageData.ofMetaMThunk (m : MetaM MessageData) : MetaM MessageData :=
+  return .thunk <| (← m.asThunk).map fun
+    | .ok m => m
+    | .error _ => m!"(error)"
+
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let explanation : MessageData := .ofPPFormat { pp := fun
-    | some ctx => ctx.runMetaM do
-        let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-        let ⟨eTypeF, _infos1⟩ ← ppExprWithInfos eType
-        let ⟨targetTypeF, _infos2⟩ ← ppExprWithInfos targetType
-        return f!"{Format.nest 2 (Format.line ++ eTypeF)}\nwith{Format.nest 2 (Format.line ++ targetTypeF)}"
-    | none     => return f!"(no context?)"  -- should never happen
-  }
+  let explanation ← MessageData.ofMetaMThunk do
+      let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
+      return m!"{indentExpr eType}\nwith{indentExpr targetType}"
   throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)

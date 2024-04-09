@@ -135,6 +135,14 @@ where
       BaseIO.bindTask t (fun a => go ts (a :: as)) prio sync
     | [], as => f as.reverse |>.asTask prio
 
+private unsafe def asThunk_impl (f : BaseIO α) : BaseIO (Thunk α) := do
+  return Thunk.mk (fun () => unsafeBaseIO f)
+
+@[implemented_by asThunk_impl]
+def asThunk (f : BaseIO α) : BaseIO (Thunk α) := do
+  let x ← f
+  return Thunk.mk (fun () => x)
+
 end BaseIO
 
 namespace EIO

@@ -13,11 +13,24 @@ open Sum Subtype Nat
 
 open Std
 
+/--
+A typeclass that specifies the standard way of turning values of some type into `Format`.
+
+When rendered this `Format` should be as close as possible to something that can be parsed as the
+input value.
+-/
 class Repr (α : Type u) where
+  /--
+  Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
+  to avoid parenthesis if they are not necessary.
+  -/
   reprPrec : α → Nat → Format
 
 export Repr (reprPrec)
 
+/--
+Turn `a` into `Format` using its `Repr` instance. The precedence level is initially set to 0.
+-/
 abbrev repr [Repr α] (a : α) : Format :=
   reprPrec a 0
 

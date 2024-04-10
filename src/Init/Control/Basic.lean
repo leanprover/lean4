@@ -20,8 +20,21 @@ def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α)
 
 export Functor (discard)
 
+/--
+An `Alternative` functor is an `Applicative` functor that has a notion of “emptyness” or “failure”
+and a binary operation `<|>` with a notion of “collecting valures” or “left-most success”.
+
+Important instances include
+* `Option`, where `failure := .none` and `<|>` returns the left-most `.some`.
+* Parser combinators typically provide an `Applicative` instance for error-handling and
+  backtracking.
+-/
+-- NB: List instance is in mathlib. Once upstreamed, add
+-- * `List`, where `failure` is the empty list and `<|>` concatenates.
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
+  /-- See `Alternative`. -/
   failure : {α : Type u} → f α
+  /-- See `Alternative`. Can be writen using `<|>`.  -/
   orElse  : {α : Type u} → f α → (Unit → f α) → f α
 
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
@@ -30,9 +43,15 @@ variable {f : Type u → Type v} [Alternative f] {α : Type u}
 
 export Alternative (failure)
 
+/--
+If the proposition `p` holds, does nothing, else fails (using `failure`).
+-/
 @[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
+/--
+Returns `some x` if `f` succeeds with value `x`, else returns `none`.
+-/
 @[always_inline, inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 

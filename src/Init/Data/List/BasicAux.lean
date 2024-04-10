@@ -26,7 +26,7 @@ def get! [Inhabited α] : (as : List α) → (i : Nat) → α
 /--
 Returns the `i`-th element in the list (zero-based).
 
-If the index is out of bounds (`i ≥ as.length`), this function returns `.none`
+If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
 Also see `getD` and `get!`.
 -/
 def get? : (as : List α) → (i : Nat) → Option α

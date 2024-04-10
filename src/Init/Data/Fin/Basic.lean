@@ -13,17 +13,40 @@ namespace Fin
 instance coeToNat : CoeOut (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
+/--
+From the empty type `Fin 0`, any desired result `α` can be derived. This is simlar to `Empty.elim`.
+-/
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (not_lt_zero _)
 
+/--
+Returns the successor of the argument.
+
+The bound in the result type is increased:
+```
+(2 : Fin 3).succ = (3 : Fin 4)
+```
+This differs from addition, which wraps around:
+```
+(2 : Fin 3) + 1 = (0 : Fin 3)
+```
+-/
 def succ : Fin n → Fin n.succ
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
 
+/--
+Returns `a` modulo `n + 1` as a `Fin n.succ`.
+-/
 protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
   ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
+/--
+Returns `a` modulo `n` as a `Fin n`.
+
+The assumptions `n > 0` ensures that `Fin n` is nonempty.
+-/
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.mod_lt _ h⟩
 
@@ -33,12 +56,15 @@ private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
     have : n > 0 := Nat.lt_trans (Nat.zero_lt_succ _) h;
     Nat.mod_lt _ this
 
+/-- Addition modulo `n` -/
 protected def add : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + b) % n, mlt h⟩
 
+/-- Multiplication modulo `n` -/
 protected def mul : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, mlt h⟩
 
+/-- Subtraction modulo `n` -/
 protected def sub : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
 

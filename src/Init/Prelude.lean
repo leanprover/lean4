@@ -1820,6 +1820,8 @@ It is the "canonical type with `n` elements".
 -/
 @[pp_using_anonymous_constructor]
 structure Fin (n : Nat) where
+  /-- Creates a `Fin n` from `i : Nat` and a proof that `i < n`. -/
+  mk ::
   /-- If `i : Fin n`, then `i.val : ℕ` is the described number. It can also be
   written as `i.1` or just `i` when the target type is known. -/
   val  : Nat

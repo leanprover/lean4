@@ -9,7 +9,18 @@ import Init.Data.Nat.Basic
 
 universe u v
 
+/--
+`Acc` is the accessibility predicate. Given some relation `r` (e.g. `<`) and a value `x`,
+`Acc r x` means that `x` is accessible through `r`:
+
+`x` is accessible if there exists no infinite sequence `... < y₂ < y₁ < y₀ < x`.
+-/
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
+  /--
+  A value is accessible if for all `y` such that `r y x`, `y` is also accessible.
+  Note that if there exists no `y` such that `r y x`, `x` is accessible, such an `x` is called a
+  base case.
+  -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
 noncomputable abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
@@ -31,6 +42,13 @@ def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
 
 end Acc
 
+/--
+A relation `r` is `WellFounded` if all elements of `α` are accessible within `r`.
+If a relation is `WellFounded`, it does not allow for an infinite descent along the relation.
+
+This is used to prove that a recursive function, where the arguments of the recursive calls
+decrease according to a well founded relation, terminates.
+-/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 

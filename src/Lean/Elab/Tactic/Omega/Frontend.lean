@@ -542,8 +542,7 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
     -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"
 where
-  var (n : Nat) : String :=
-    "x" ++ ((toString (n+1)).map fun c => .ofNat (c.toNat - '0'.toNat + '₀'.toNat))
+  var (n : Nat) : String := s!"x{n.succ.toSubscriptString}"
 
   prettyConstraints (constraints : HashMap Coeffs Fact) : String :=
     constraints.toList

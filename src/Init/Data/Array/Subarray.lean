@@ -15,14 +15,14 @@ structure Subarray (α : Type u)  where
   start_le_stop : start ≤ stop
   stop_le_array_size : stop ≤ array.size
 
-@[deprecated]
-def Subarray.as (s : Subarray α) : Array α := s.array
+@[deprecated Subarray.array]
+abbrev Subarray.as (s : Subarray α) : Array α := s.array
 
-@[deprecated]
-def Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
+@[deprecated Subarray.start_le_stop]
+theorem Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
 
-@[deprecated]
-def Subarray.h₂ (s : Subarray α) : s.stop ≤ s.array.size := s.stop_le_array_size
+@[deprecated Subarray.stop_le_array_size]
+theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.as.size := s.stop_le_array_size
 
 namespace Subarray
 

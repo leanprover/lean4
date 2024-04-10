@@ -44,6 +44,11 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
+/--
+`/-! <text> -/` defines a *module docstring* that can be displayed by documentation generation
+tools. The string is associated with the corresponding position in the file. It can be used
+multiple times in the same file.
+-/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
   "/-!" >> commentBody >> ppLine

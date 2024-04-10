@@ -203,10 +203,34 @@ def «structure»          := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover ident skip) ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
   "noncomputable " >> "section" >> optional (ppSpace >> checkColGt >> ident)
+/--
+A `section`/`end` pair delimits the scope of `variable`, `open`, `set_option`, and `local` commands.
+Sections can be nested. `section <id>` provides a label to the section that has to appear with the
+matching `end`. In either case, the `end` can be omitted, in which case the section is closed at the
+end of the file.
+-/
 @[builtin_command_parser] def «section»      := leading_parser
   "section" >> optional (ppSpace >> checkColGt >> ident)
+/--
+`namespace <id>` opens a section with label `<id>` that influences naming and name resolution inside
+the section:
+* Declarations names are prefixed: `def seventeen : ℕ := 17` inside a namespace `Nat` is given the
+  full name `Nat.seventeen`.
+* Names introduced by `export` declarations are also prefixed by the identifier.
+* All names starting with `<id>` become available in the namespace without the prefix. These names
+  are preferred over names introduced by outer namespaces or `open`.
+* Within a namespace, declarations can be `protected`, which excludes them from the effects of
+  opening the namespace.
+
+As with `section`, namespaces can be nested and the scope of a namespace is terminated by a
+corresponding `end <id>` or the end of the file.
+-/
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident
+/--
+`end` closes a `section` or `namespace` scope. If the scope is named `<id>`, it has to be closed
+with `end <id>`.
+-/
 @[builtin_command_parser] def «end»          := leading_parser
   "end" >> optional (ppSpace >> checkColGt >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser

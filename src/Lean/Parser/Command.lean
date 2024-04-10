@@ -277,6 +277,26 @@ def initializeKeyword := leading_parser
 @[builtin_command_parser] def «in»  := trailing_parser
   withOpen (ppDedent (" in " >> commandParser))
 
+/--
+Adds a docstring to an existing declaration, replacing any existing docstring.
+The provided docstring should be written as a docstring for the `add_decl_doc` command, as in
+```
+/-- My new docstring -/
+add_decl_doc oldDeclaration
+```
+
+This is useful for auto-generated declarations
+for which there is no place to write a docstring in the source code.
+
+Parent projections in structures are an example of this:
+```
+structure Triple (α β γ : Type) extends Prod α β where
+  thrd : γ
+
+/-- Extracts the first two projections of a triple. -/
+add_decl_doc Triple.toProd
+```
+-/
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident
 

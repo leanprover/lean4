@@ -27,7 +27,7 @@ def get! [Inhabited α] : (as : List α) → (i : Nat) → α
 Returns the `i`-th element in the list (zero-based).
 
 If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
-Also see `getD` and `get!`.
+Also see `get`, `getD` and `get!`.
 -/
 def get? : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
@@ -121,7 +121,7 @@ def getLast : ∀ (as : List α), as ≠ [] → α
 Returns the last element in the list.
 
 If the the list is empty, this function panics when executed, and returns `default`.
-See `last` and `lastD` for safer alternatives.
+See `getLast` and `getLastD` for safer alternatives.
 -/
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
@@ -131,7 +131,7 @@ def getLast! [Inhabited α] : List α → α
 Returns the last element in the list.
 
 If the the list is empty, this function returns `.none`.
-Also see `lastD` and `last!`.
+Also see `getLastD` and `getLast!`.
 -/
 def getLast? : List α → Option α
   | []    => none
@@ -141,7 +141,7 @@ def getLast? : List α → Option α
 Returns the last element in the list.
 
 If the the list is empty, this function returns `a₀`.
-Also see `last?` and `last!`.
+Also see `getLast?` and `getLast!`.
 -/
 def getLastD : (as : List α) → (a₀ : α) → α
   | [],   a₀ => a₀

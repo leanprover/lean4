@@ -114,7 +114,18 @@ by `cmp₂` to break the tie.
 @[inline] def compareLex (cmp₁ cmp₂ : α → β → Ordering) (a : α) (b : β) : Ordering :=
   (cmp₁ a b).then (cmp₂ a b)
 
+/--
+`Ord α` provides a computable total order on `α`, in terms of the
+`compare : α → α → Ordering` function.
+
+Typically instances will be transitive, reflexive, and antisymmetric,
+but this is not enforced by the typeclass.
+
+There is a derive handler, so appending `deriving Ord` to an inductive type or structure
+will attempt to create an `Ord` instance.
+-/
 class Ord (α : Type u) where
+  /-- Compare two elements in `α` using the comparator contained in an `[Ord α]` instance. -/
   compare : α → α → Ordering
 
 export Ord (compare)

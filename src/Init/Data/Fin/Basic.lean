@@ -45,7 +45,7 @@ protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
 /--
 Returns `a` modulo `n` as a `Fin n`.
 
-The assumptions `n > 0` ensures that `Fin n` is nonempty.
+The assumption `n > 0` ensures that `Fin n` is nonempty.
 -/
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.mod_lt _ h⟩

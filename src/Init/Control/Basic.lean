@@ -22,7 +22,7 @@ export Functor (discard)
 
 /--
 An `Alternative` functor is an `Applicative` functor that has a notion of “emptyness” or “failure”
-and a binary operation `<|>` with a notion of “collecting valures” or “left-most success”.
+and a binary operation `<|>` with a notion of “collecting values” or “left-most success”.
 
 Important instances include
 * `Option`, where `failure := .none` and `<|>` returns the left-most `.some`.

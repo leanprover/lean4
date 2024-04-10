@@ -21,7 +21,7 @@ The definition provided here is the logical model
 
 The GCD of two natural numbers is the largest natural number
 that divides both arguments.
-In particular, the GCD of a number and `0` is the number itself.
+In particular, the GCD of a number and `0` is the number itself:
 ```
 example : Nat.gcd 10 15 = 5 := rfl
 example : Nat.gcd 0 5 = 5 := rfl

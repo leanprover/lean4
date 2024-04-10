@@ -62,6 +62,8 @@ NB: If `m` is also a `Monad`, then using `mapM` can be more efficient.
 
 See `List.forA` for the variant that discards the results.
 See `List.mapM` for the variant that works with `Monad`.
+
+**Warning**: this function is not tail-recursive, meaning that it may fail with stack overflow on long lists.
 -/
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)

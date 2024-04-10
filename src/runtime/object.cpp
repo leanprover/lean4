@@ -1629,6 +1629,10 @@ object * mk_string(std::string const & s) {
     return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
+object * mk_ascii_string(std::string const & s) {
+    return lean_mk_string_core(s.data(), s.size(), s.size());
+}
+
 std::string string_to_std(b_obj_arg o) {
     lean_assert(string_size(o) > 0);
     return std::string(w_string_cstr(o), lean_string_size(o) - 1);
@@ -1997,6 +2001,38 @@ extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
     usize sz = lean_string_size(s) - 1;
     char const * str = lean_string_cstr(s);
     return hash_str(sz, (unsigned char const *) str, 11);
+}
+
+#if 1000000000000000000 < LEAN_MAX_SMALL_NAT
+#define LEAN_MAX_SMALL_POWER_OF_10 1000000000000000000
+#define LEAN_MAX_SMALL_POWER_OF_10_DIGITS 18
+#elif 1000000000 < LEAN_MAX_SMALL_NAT
+#define LEAN_MAX_SMALL_POWER_OF_10 1000000000
+#define LEAN_MAX_SMALL_POWER_OF_10_DIGITS 9
+#else
+#error "Cannot find suitable LEAN_MAX_SMALL_POWER_OF_10"
+#endif
+
+extern "C" LEAN_EXPORT obj_res lean_string_of_nat(b_obj_arg n) {
+    if (lean_is_scalar(n)) {
+        return mk_ascii_string(std::to_string(lean_unbox(n)));
+    } else {
+        object * s = lean_mk_string("");
+        while (true) {
+            lean_inc(n);
+            object * d = lean_nat_mod(n, lean_box(LEAN_MAX_SMALL_POWER_OF_10));
+            lean_assert(lean_is_scalar(d));
+            n = lean_nat_div(n, lean_box(LEAN_MAX_SMALL_POWER_OF_10));
+            if (lean_unbox(n) == 0) {
+                return lean_string_append(mk_ascii_string(std::to_string(lean_unbox(d))), s);
+            } else {
+                std::string ss = std::to_string(lean_unbox(d));
+                // pad to LEAN_MAX_SMALL_POWER_OF_10_DIGITS digits
+                ss.insert(0, LEAN_MAX_SMALL_POWER_OF_10_DIGITS - ss.length(), '0');
+                s = lean_string_append(mk_ascii_string(ss), s);
+            }
+        }
+    }
 }
 
 // =======================================

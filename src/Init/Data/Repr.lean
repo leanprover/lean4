@@ -103,29 +103,16 @@ instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
 
 namespace Nat
 
-def digitChar (n : Nat) : Char :=
-  if n = 0 then '0' else
-  if n = 1 then '1' else
-  if n = 2 then '2' else
-  if n = 3 then '3' else
-  if n = 4 then '4' else
-  if n = 5 then '5' else
-  if n = 6 then '6' else
-  if n = 7 then '7' else
-  if n = 8 then '8' else
-  if n = 9 then '9' else
-  if n = 0xa then 'a' else
-  if n = 0xb then 'b' else
-  if n = 0xc then 'c' else
-  if n = 0xd then 'd' else
-  if n = 0xe then 'e' else
-  if n = 0xf then 'f' else
-  '*'
+def digitChars : Array Char :=
+  -- Array syntax not available yet
+  Array.mk ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+
+def digitChar (n : Nat) : Char := digitChars.getD n '*'
 
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
   | 0,      _, ds => ds
   | fuel+1, n, ds =>
-    let d  := digitChar <| n % base;
+    let d  := digitChar (n % base)
     let n' := n / base;
     if n' = 0 then d::ds
     else toDigitsCore base fuel n' (d::ds)
@@ -133,7 +120,8 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
-protected def repr (n : Nat) : String :=
+@[extern "lean_string_of_nat"]
+protected def repr (n : @& Nat) : String :=
   (toDigits 10 n).asString
 
 def superDigitChar (n : Nat) : Char :=

@@ -55,6 +55,8 @@ attribute [simp] map_pure seq_pure
 The `Monad` typeclass only contains the operations of a monad.
 `LawfulMonad` further asserts that these operations satisfy the laws of a monad,
 including associativity and identity laws for `bind`.
+
+`LawfulMonad.mk'` is an alternative constructor containing useful defaults for many fields.
 -/
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
   bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x

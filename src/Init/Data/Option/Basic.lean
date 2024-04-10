@@ -17,11 +17,11 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[inline] def toBool : Option α → Bool
+@[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
-@[inline] def isSome : Option α → Bool
+@[deprecated isSome, inline] def toBool : Option α → Bool
   | some _ => true
   | none   => false
 

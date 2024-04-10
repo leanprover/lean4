@@ -84,7 +84,7 @@ private partial def mkKey (e : Expr) : CanonM Key := do
     let key ← match e with
       | .sort .. | .fvar .. | .bvar .. | .lit .. =>
         pure { e := (← shareCommon e) }
-      | .const n us =>
+      | .const n _us =>
         pure { e := (← shareCommon (.const n [])) }
       | .mvar .. =>
         -- We instantiate assigned metavariables because the

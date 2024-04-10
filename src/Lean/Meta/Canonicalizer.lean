@@ -82,8 +82,10 @@ private partial def mkKey (e : Expr) : CanonM Key := do
     return key
   else
     let key ← match e with
-      | .sort .. | .fvar .. | .bvar .. | .const .. | .lit .. =>
+      | .sort .. | .fvar .. | .bvar .. | .lit .. =>
         pure { e := (← shareCommon e) }
+      | .const n ls =>
+        pure { e := (← shareCommon (.const n (List.replicate ls.length levelZero))) }
       | .mvar .. =>
         -- We instantiate assigned metavariables because the
         -- pretty-printer also instantiates them.

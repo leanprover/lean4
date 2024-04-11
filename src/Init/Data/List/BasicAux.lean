@@ -121,7 +121,7 @@ def getLast : ∀ (as : List α), as ≠ [] → α
 /--
 Returns the last element in the list.
 
-If the the list is empty, this function panics when executed, and returns `default`.
+If the list is empty, this function panics when executed, and returns `default`.
 See `getLast` and `getLastD` for safer alternatives.
 -/
 def getLast! [Inhabited α] : List α → α

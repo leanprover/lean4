@@ -18,8 +18,8 @@ universe u v
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   /--
   A value is accessible if for all `y` such that `r y x`, `y` is also accessible.
-  Note that if there exists no `y` such that `r y x`, `x` is accessible, such an `x` is called a
-  base case.
+  Note that if there exists no `y` such that `r y x`, then `x` is accessible. Such an `x` is called a
+  _base case_.
   -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
@@ -46,8 +46,8 @@ end Acc
 A relation `r` is `WellFounded` if all elements of `α` are accessible within `r`.
 If a relation is `WellFounded`, it does not allow for an infinite descent along the relation.
 
-This is used to prove that a recursive function, where the arguments of the recursive calls
-decrease according to a well founded relation, terminates.
+If the arguments of the recursive calls in a function definition decrease according to
+a well founded relation, then the function terminates.
 -/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r

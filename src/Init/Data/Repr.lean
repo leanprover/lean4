@@ -22,7 +22,7 @@ input value.
 class Repr (α : Type u) where
   /--
   Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
-  to avoid parenthesis if they are not necessary.
+  to avoid parentheses if they are not necessary.
   -/
   reprPrec : α → Nat → Format
 

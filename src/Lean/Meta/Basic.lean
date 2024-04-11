@@ -303,20 +303,20 @@ structure Context where
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
-construction and manipulation, of expressions (`Lean.Expr`) within Lean.
+construction and manipulation of expressions (`Lean.Expr`) within Lean.
 
 It builds on top of `CoreM` and additionally provides:
 - A `LocalContext` for managing free variables.
-- A `MetavarContext` for managing meta variables.
-- A `Cache` for chaching results of the key `MetaM` operations.
+- A `MetavarContext` for managing metavariables.
+- A `Cache` for caching results of the key `MetaM` operations.
 
 The key operations provided by `MetaM` are:
-- `inferType`, it attempts to automatically infer the type of a given expression.
-- `whnf`, it reduces an expression to the point where the outermost part is no longer reducible
+- `inferType`, which attempts to automatically infer the type of a given expression.
+- `whnf`, which reduces an expression to the point where the outermost part is no longer reducible
   but the inside may still contain unreduced expression.
-- `isDefEq`, it determines whether two expressions are definitionally equal, possibly assigning
+- `isDefEq`, which determines whether two expressions are definitionally equal, possibly assigning
   meta variables in the process.
-- `forallTelescope` and `lambdaTelescope`, they make it possible to automatically move into
+- `forallTelescope` and `lambdaTelescope`, which make it possible to automatically move into
   (nested) binders while updating the local context.
 
 The following is a small example that demonstrates how to obtain and manipulate the type of a

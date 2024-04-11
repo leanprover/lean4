@@ -63,7 +63,7 @@ NB: If `m` is also a `Monad`, then using `mapM` can be more efficient.
 See `List.forA` for the variant that discards the results.
 See `List.mapM` for the variant that works with `Monad`.
 
-**Warning**: this function is not tail-recursive, meaning that it may fail with stack overflow on long lists.
+**Warning**: this function is not tail-recursive, meaning that it may fail with a stack overflow on long lists.
 -/
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
@@ -104,21 +104,21 @@ def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) :
     filterAuxM f t (cond b (h :: acc) acc)
 
 /--
-Applies the monadic predicate `f` on every element in the list, left-to-right, and returns those
-elements `x` for which `f x` returns `true`.
+Applies the monadic predicate `p` on every element in the list, left-to-right, and returns those
+elements `x` for which `p x` returns `true`.
 -/
 @[inline]
-def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) := do
-  let as ← filterAuxM f as []
+def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) := do
+  let as ← filterAuxM p as []
   pure as.reverse
 
 /--
-Applies the monadic predicate `f` on every element in the list, right-to-left, and returns those
-elements `x` for which `f x` returns `true`.
+Applies the monadic predicate `p` on every element in the list, right-to-left, and returns those
+elements `x` for which `p x` returns `true`.
 -/
 @[inline]
-def filterRevM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
-  filterAuxM f as.reverse []
+def filterRevM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) :=
+  filterAuxM p as.reverse []
 
 /--
 Applies the monadic function `f` on every element `x` in the list, left-to-right, and returns those

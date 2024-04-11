@@ -122,7 +122,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if let some b := bkt.find? a then
-      (m, some b)
+      (⟨size, buckets⟩, some b)
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h

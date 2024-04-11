@@ -34,7 +34,10 @@ Important instances include
 class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1) v) where
   /-- See `Alternative`. -/
   failure : {α : Type u} → f α
-  /-- See `Alternative`. Can be writen using `<|>`.  -/
+  /--
+  Depending on the `Alternative` instance, collects values or recovers from `failure`s by
+  returning the leftmost success. Can be written using the `<|>` operator syntax.
+  -/
   orElse  : {α : Type u} → f α → (Unit → f α) → f α
 
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩

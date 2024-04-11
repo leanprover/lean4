@@ -58,11 +58,11 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
 where
   go ctorVal us := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
-      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
+      trace[isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
     else
       if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+        trace[isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
@@ -78,9 +78,9 @@ where
                 -- `args[i]!` have the same type, so they're defeq in any case.
                 -- See comment at `isAbstractedUnassignedMVar`.
                 continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]!}"
+            trace[isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]!}"
             unless (← isDefEq proj args[i]!) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]!}"
+              trace[isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]!}"
               return false
           return true
       else
@@ -248,7 +248,7 @@ private def isDefEqArgsFirstPass
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
     if info.dependsOnHigherOrderOutParam || info.higherOrderOutParam then
-      trace[Meta.isDefEq] "found messy {a₁} =?= {a₂}"
+      trace[isDefEq] "found messy {a₁} =?= {a₂}"
       postponedHO := postponedHO.push i
     else if info.isExplicit then
       if info.isProp then
@@ -361,7 +361,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
-      trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
+      trace[isDefEq.assign.checkTypes] "metavariable expected"
       return false
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
@@ -982,7 +982,7 @@ private partial def processAssignmentFOApprox (mvar : Expr) (args : Array Expr) 
     if !cfg.foApprox then
       pure false
     else
-      trace[Meta.isDefEq.foApprox] "{mvar} {args} := {v}"
+      trace[isDefEq.foApprox] "{mvar} {args} := {v}"
       let v := v.headBeta
       if (← checkpointDefEq <| processAssignmentFOApproxAux mvar args v) then
         pure true
@@ -1019,7 +1019,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
       match (← checkAssignment mvar.mvarId! #[] v) with
       | none   => pure false
       | some v =>
-        trace[Meta.isDefEq.constApprox] "{mvar} := {v}"
+        trace[isDefEq.constApprox] "{mvar} := {v}"
         checkTypesAndAssign mvar v
 
 /--
@@ -1038,7 +1038,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
   That is, after the longest prefix is found, we solve the constraint as the lhs was a pattern. See the definition of "pattern" above.
 -/
 private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patternVarPrefix : Nat) (v : Expr) : MetaM Bool := do
-  trace[Meta.isDefEq.constApprox] "{mvar} {args} := {v}"
+  trace[isDefEq.constApprox] "{mvar} {args} := {v}"
   let rec defaultCase : MetaM Bool := assignConst mvar args.size v
   let cfg ← getConfig
   let mvarId := mvar.mvarId!
@@ -1058,7 +1058,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
       else
         let some v ← mkLambdaFVarsWithLetDeps xs v | defaultCase
         let rec go (argsPrefix : Array Expr) (v : Expr) : MetaM Bool := do
-          trace[Meta.isDefEq] "processConstApprox.go {mvar} {argsPrefix} := {v}"
+          trace[isDefEq] "processConstApprox.go {mvar} {argsPrefix} := {v}"
           let rec cont : MetaM Bool := do
             if argsPrefix.isEmpty then
               defaultCase
@@ -1111,7 +1111,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           match (← checkAssignment mvarId args v) with
           | none   => useFOApprox args
           | some v => do
-            trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
+            trace[isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
             let some v ← mkLambdaFVarsWithLetDeps args v | return false
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
@@ -1119,7 +1119,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
               if (← isTypeCorrect v) then
                 checkTypesAndAssign mvar v
               else
-                trace[Meta.isDefEq.assign.typeError] "{mvar} := {v}"
+                trace[isDefEq.assign.typeError] "{mvar} := {v}"
                 useFOApprox args
             else
               checkTypesAndAssign mvar v
@@ -1160,17 +1160,17 @@ private def isListLevelDefEq (us vs : List Level) : MetaM LBool :=
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeft (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldLeft] fn
+  trace[isDefEq.delta.unfoldLeft] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqRight (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldRight] fn
+  trace[isDefEq.delta.unfoldRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Auxiliary method for isDefEqDelta -/
 private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
-  trace[Meta.isDefEq.delta.unfoldLeftRight] fn
+  trace[isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
@@ -1587,7 +1587,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       let tAssign? ← isAssignable tFn
       let sAssign? ← isAssignable sFn
       let assignableMsg (b : Bool) := if b then "[assignable]" else "[nonassignable]"
-      trace[Meta.isDefEq] "{t} {assignableMsg tAssign?} =?= {s} {assignableMsg sAssign?}"
+      trace[isDefEq] "{t} {assignableMsg tAssign?} =?= {s} {assignableMsg sAssign?}"
       if tAssign? && !sAssign? then
         toLBoolM <| processAssignment' t s
       else if !tAssign? && sAssign? then
@@ -1639,7 +1639,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
           if tFn.isMVar || sFn.isMVar then
             let ctx ← read
             if ctx.config.isDefEqStuckEx then do
-              trace[Meta.isDefEq.stuck] "{t} =?= {s}"
+              trace[isDefEq.stuck] "{t} =?= {s}"
               Meta.throwIsDefEqStuck
             else
               return LBool.false
@@ -1675,7 +1675,7 @@ end
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
   | some mvarId =>
-    trace[Meta.isDefEq.stuckMVar] "found stuck MVar {mkMVar mvarId} : {← inferType (mkMVar mvarId)}"
+    trace[isDefEq.stuckMVar] "found stuck MVar {mkMVar mvarId} : {← inferType (mkMVar mvarId)}"
     if (← Meta.synthPending mvarId) then
       let e ← instantiateMVars e
       successK e
@@ -1920,37 +1920,38 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     let k ← mkCacheKey t s
     match (← getCachedResult k) with
     | .true  =>
-      trace[Meta.isDefEq.cache] "cache hit 'true' for {t} =?= {s}"
+      trace[isDefEq.cache] "cache hit 'true' for {t} =?= {s}"
       return true
     | .false =>
-      trace[Meta.isDefEq.cache] "cache hit 'false' for {t} =?= {s}"
+      trace[isDefEq.cache] "cache hit 'false' for {t} =?= {s}"
       return false
     | .undef =>
       let result ← isExprDefEqExpensive t s
       if numPostponed == (← getNumPostponed) then
-        trace[Meta.isDefEq.cache] "cache {result} for {t} =?= {s}"
+        trace[isDefEq.cache] "cache {result} for {t} =?= {s}"
         cacheResult k result
       return result
 
 builtin_initialize
-  registerTraceClass `Meta.isDefEq
-  registerTraceClass `Meta.isDefEq.stuck
-  registerTraceClass `Meta.isDefEq.stuckMVar (inherited := true)
-  registerTraceClass `Meta.isDefEq.cache
-  registerTraceClass `Meta.isDefEq.foApprox (inherited := true)
-  registerTraceClass `Meta.isDefEq.onFailure (inherited := true)
-  registerTraceClass `Meta.isDefEq.constApprox (inherited := true)
-  registerTraceClass `Meta.isDefEq.delta
-  registerTraceClass `Meta.isDefEq.delta.unfoldLeft (inherited := true)
-  registerTraceClass `Meta.isDefEq.delta.unfoldRight (inherited := true)
-  registerTraceClass `Meta.isDefEq.delta.unfoldLeftRight (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign
-  registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign.typeError (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
-  registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
-  registerTraceClass `Meta.isDefEq.eta.struct
+  let base := "definitional equality"
+  registerTraceClass `isDefEq (descr := base)
+  registerTraceClass `isDefEq.stuck (descr := s!"{base} stuck case")
+  registerTraceClass `isDefEq.stuckMVar (inherited := true) (descr := s!"{base} stuck at meta-variable case")
+  registerTraceClass `isDefEq.cache (descr := s!"{base} cache")
+  registerTraceClass `isDefEq.foApprox (inherited := true) (descr := s!"{base} firsr-order approximation")
+  registerTraceClass `isDefEq.onFailure (inherited := true) (descr := s!"{base} on failure case")
+  registerTraceClass `isDefEq.constApprox (inherited := true) (descr := s!"{base} constant approximation")
+  registerTraceClass `isDefEq.delta (descr := s!"{base} delta reduction (aka unfolding)")
+  registerTraceClass `isDefEq.delta.unfoldLeft (inherited := true) (descr := s!"{base} unfold left")
+  registerTraceClass `isDefEq.delta.unfoldRight (inherited := true) (descr := s!"{base} unfold right")
+  registerTraceClass `isDefEq.delta.unfoldLeftRight (inherited := true) (descr := s!"{base} unfold left and right")
+  registerTraceClass `isDefEq.assign (descr := s!"{base} assignment")
+  registerTraceClass `isDefEq.assign.checkTypes (inherited := true) (descr := s!"{base} type checking at assignment")
+  registerTraceClass `isDefEq.assign.outOfScopeFVar (inherited := true) (descr := s!"{base} variable out of scope")
+  registerTraceClass `isDefEq.assign.beforeMkLambda (inherited := true) (descr := s!"{base} before make lambda")
+  registerTraceClass `isDefEq.assign.typeError (inherited := true) (descr := s!"{base} type error")
+  registerTraceClass `isDefEq.assign.occursCheck (inherited := true) (descr := s!"{base} occurs check")
+  registerTraceClass `isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true) (descr := s!"{base} read-only meta-variable with a bigger local context")
+  registerTraceClass `isDefEq.eta.struct (descr := s!"{base} eta for structures")
 
 end Lean.Meta

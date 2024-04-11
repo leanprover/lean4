@@ -17,15 +17,15 @@ import Lean.Meta.Tactic.Simp.Attr
 
 namespace Lean
 
-builtin_initialize registerTraceClass `Meta.Tactic.simp
-builtin_initialize registerTraceClass `Meta.Tactic.simp.congr (inherited := true)
-builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge (inherited := true)
-builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite (inherited := true)
-builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true)
-builtin_initialize registerTraceClass `Meta.Tactic.simp.ground (inherited := true)
-builtin_initialize registerTraceClass `Meta.Tactic.simp.numSteps
-builtin_initialize registerTraceClass `Meta.Tactic.simp.heads
-builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp
-builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp.congr (inherited := true)
+builtin_initialize registerTacticTraceClass `simp
+builtin_initialize registerTraceClass `simp.congr (inherited := true) (descr := "the `simp` tactic congruence rules")
+builtin_initialize registerTraceClass `simp.discharge (inherited := true) (descr := "the `simp` tactic discharger")
+builtin_initialize registerTraceClass `simp.rewrite (inherited := true) (descr := "the `simp` tactic rewrite step")
+builtin_initialize registerTraceClass `simp.unify (inherited := true) (descr := "the `simp` tactic unifier")
+builtin_initialize registerTraceClass `simp.ground (inherited := true) (descr := "the `simp` tactic ground evaluator")
+builtin_initialize registerTraceClass `simp.numSteps (descr := "the `simp` tactic number of steps")
+builtin_initialize registerTraceClass `simp.heads (descr := "the `simp` tactic head symbols")
+builtin_initialize registerTraceClass `simp.debug (descr := "the `simp` tactic debugger")
+builtin_initialize registerTraceClass `simp.debug.congr (inherited := true) (descr := "the `simp` tactic congruence rule debugger")
 
 end Lean

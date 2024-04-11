@@ -244,16 +244,19 @@ that is, `set_option trace.foo true` does not imply `set_option trace.foo.bar tr
 Calling ``registerTraceClass `foo.bar (inherited := true)`` enables this inheritance
 on an opt-in basis.
 -/
-def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
+def registerTraceClass (traceClassName : Name) (inherited := false) (descr := "the given module and submodules") (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
     declName := ref
     group := "trace"
     defValue := false
-    descr := "enable/disable tracing for the given module and submodules"
+    descr := if inherited then s!"enable trace for {descr} (implied by `{traceClassName.getPrefix}`)" else s!"enable trace for {descr}"
   }
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
+
+def registerTacticTraceClass (traceClassName : Name) (inherited := false) (descr := s!"the `{traceClassName}` tactic") (ref : Name := by exact decl_name%) : IO Unit :=
+  registerTraceClass traceClassName inherited descr ref
 
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))

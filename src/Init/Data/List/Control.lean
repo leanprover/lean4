@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Init.Control.Basic
 import Init.Data.List.Basic
+import Init.Data.Nat.Log2
 
 namespace List
 universe u v w u₁ u₂
@@ -48,9 +49,15 @@ def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α �
   loop as []
 
 @[specialize]
-def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-  | []    => pure []
-  | a::as => List.cons <$> f a <*> mapA f as
+def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
+  let rec @[specialize] go : List α → Nat → List α × m (List β → List β)
+    | [],    _   => ([], pure id)
+    | a::as, 0   => (as, List.cons <$> f a)
+    | as,    n+1 =>
+      let (as, f₁) := go as n
+      let (as, f₂) := go as n
+      (as, Function.comp <$> f₁ <*> f₂)
+  (· []) <$> (go as as.length.log2).2
 
 @[specialize]
 protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=

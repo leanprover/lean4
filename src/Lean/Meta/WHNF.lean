@@ -582,7 +582,7 @@ partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
 where
   go (e : Expr) : MetaM Expr :=
     whnfEasyCases e (config := config) fun e => do
-      trace[Meta.whnf] e
+      trace[whnf] e
       match e with
       | .const ..  => pure e
       | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
@@ -877,8 +877,7 @@ def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
 
 def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
-  withNatValue b fun b => do
-  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
+  withNatValue b fun b =>
   return mkRawNatLit <| f a b
 
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
@@ -979,7 +978,6 @@ def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
     | _ => pure none
 
 builtin_initialize
-  registerTraceClass `Meta.whnf
-  registerTraceClass `Meta.isDefEq.whnf.reduceBinOp
+  registerTraceClass `whnf (descr := s!"weak head normal form")
 
 end Lean.Meta

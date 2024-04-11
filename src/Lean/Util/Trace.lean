@@ -250,7 +250,7 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (descr := "t
     declName := ref
     group := "trace"
     defValue := false
-    descr := if inherited then s!"enable trace for {descr} (implied by `{traceClassName.getPrefix}`)" else s!"enable trace for {descr}"
+    descr := if inherited then s!"enable trace for {descr} (implied by `trace.{traceClassName.getPrefix}`)" else s!"enable trace for {descr}"
   }
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)

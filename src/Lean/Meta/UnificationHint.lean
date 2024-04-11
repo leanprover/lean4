@@ -95,7 +95,7 @@ builtin_initialize
   }
 
 def tryUnificationHints (t s : Expr) : MetaM Bool := do
-  trace[Meta.isDefEq.hint] "{t} =?= {s}"
+  trace[isDefEq.hint] "{t} =?= {s}"
   unless (← read).config.unificationHints do
     return false
   if t.isMVar then
@@ -129,7 +129,7 @@ where
       match hint? with
       | none      => return false
       | some hint =>
-        trace[Meta.isDefEq.hint] "{candidate} succeeded, applying constraints"
+        trace[isDefEq.hint] "{candidate} succeeded, applying constraints"
         for c in hint.constraints do
           unless (← Meta.isExprDefEqAux c.lhs c.rhs) do
             return false
@@ -141,6 +141,6 @@ where
         return true
 
 builtin_initialize
-  registerTraceClass `Meta.isDefEq.hint
+  registerTraceClass `isDefEq.hint (descr := s!"definitional equality unification hints")
 
 end Lean.Meta

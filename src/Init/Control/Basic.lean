@@ -21,7 +21,7 @@ def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α)
 export Functor (discard)
 
 /--
-An `Alternative` functor is an `Applicative` functor that has a notion of “emptyness” or “failure”
+An `Alternative` functor is an `Applicative` functor that can "fail" or be "empty"
 and a binary operation `<|>` with a notion of “collecting values” or “left-most success”.
 
 Important instances include

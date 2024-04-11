@@ -15,4 +15,17 @@ for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do
         cp $f stage0/$f
     fi
 done
+
+for f in $(git ls-files 'src/lake/*'); do
+    if [[ $f == *.lean ]]; then
+        f=${f#src/Lake}
+        f=${f%.lean}.c
+        mkdir -p $(dirname stage0/stdlib/$f)
+        cp ${CP_C_PARAMS:-} $CSRCS/$f stage0/stdlib/$f
+    else
+        mkdir -p $(dirname stage0/$f)
+        cp $f stage0/$f
+    fi
+done
+
 git add stage0

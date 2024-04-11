@@ -1,0 +1,32 @@
+# This file allows lake to build Lean, Init, and Lake as Lean libraries.
+#
+# It is not yet possible to build the compiler and other tooling executables with Lake; to build
+# them, please consult the instructions in doc/dev/index.md.
+
+name = "lean4"
+
+srcDir = "src"
+
+defaultTargets = ["Init", "Lean", "Lake"]
+
+# The root of all the compiler output directories
+buildDir = "build/release/stage1"
+
+# Destination C files and other intermediate representations
+irDir = "lib/temp"
+
+# Destination for olean files
+libDir = "lib/lean"
+
+# Destination for dynamic libraries
+nativeLibDir = "lib/lean"
+
+[[lean_lib]]
+name = "Init"
+
+[[lean_lib]]
+name = "Lean"
+
+[[lean_lib]]
+name = "Lake"
+srcDir = "lake"

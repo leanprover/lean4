@@ -37,11 +37,11 @@ def get? : (as : List α) → (i : Nat) → Option α
 /--
 Returns the `i`-th element in the list (zero-based).
 
-If the index is out of bounds (`i ≥ as.length`), this function returns `a₀`.
-Also see `get?` and `get!`.
+If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
+See also `get?` and `get!`.
 -/
-def getD (as : List α) (i : Nat) (a₀ : α) : α :=
-  (as.get? i).getD a₀
+def getD (as : List α) (i : Nat) (fallback : α) : α :=
+  (as.get? i).getD fallback
 
 /--
 Returns the first element in the list.
@@ -56,7 +56,7 @@ def head! [Inhabited α] : List α → α
 /--
 Returns the first element in the list.
 
-If the the list is empty, this function returns `.none`.
+If the the list is empty, this function returns `none`.
 Also see `headD` and `head!`.
 -/
 def head? : List α → Option α
@@ -66,11 +66,11 @@ def head? : List α → Option α
 /--
 Returns the first element in the list.
 
-If the the list is empty, this function returns `a₀`.
+If the the list is empty, this function returns `fallback`.
 Also see `head?` and `head!`.
 -/
-def headD : (as : List α) → (a₀ : α) → α
-  | [],   a₀ => a₀
+def headD : (as : List α) → (fallback : α) → α
+  | [],   fallback => fallback
   | a::_, _  => a
 
 /--
@@ -92,7 +92,7 @@ def tail! : List α → List α
 /--
 Drops the first element of the list.
 
-If the the list is empty, this function returns `.none`.
+If the the list is empty, this function returns `none`.
 Also see `tailD` and `tail!`.
 -/
 def tail? : List α → Option (List α)
@@ -102,12 +102,13 @@ def tail? : List α → Option (List α)
 /--
 Drops the first element of the list.
 
-If the the list is empty, this function returns `as₀`.
+If the the list is empty, this function returns `fallback`.
 Also see `head?` and `head!`.
 -/
-def tailD : List α → List α → List α
-  | [],   as₀ => as₀
-  | _::as, _  => as
+def tailD (list fallback : List α) : List α :=
+  match list with
+  | [] => fallback
+  | _ :: tl => tl
 
 /--
 Returns the last element of a non-empty list.
@@ -130,7 +131,7 @@ def getLast! [Inhabited α] : List α → α
 /--
 Returns the last element in the list.
 
-If the the list is empty, this function returns `.none`.
+If the the list is empty, this function returns `none`.
 Also see `getLastD` and `getLast!`.
 -/
 def getLast? : List α → Option α
@@ -140,10 +141,10 @@ def getLast? : List α → Option α
 /--
 Returns the last element in the list.
 
-If the the list is empty, this function returns `a₀`.
+If the the list is empty, this function returns `fallback`.
 Also see `getLast?` and `getLast!`.
 -/
-def getLastD : (as : List α) → (a₀ : α) → α
+def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 

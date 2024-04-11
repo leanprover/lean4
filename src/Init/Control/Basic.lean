@@ -25,7 +25,7 @@ An `Alternative` functor is an `Applicative` functor that can "fail" or be "empt
 and a binary operation `<|>` that “collects values” or finds the “left-most success”.
 
 Important instances include
-* `Option`, where `failure := .none` and `<|>` returns the left-most `.some`.
+* `Option`, where `failure := none` and `<|>` returns the left-most `some`.
 * Parser combinators typically provide an `Applicative` instance for error-handling and
   backtracking.
 -/

@@ -44,7 +44,7 @@ variable {f : Type u → Type v} [Alternative f] {α : Type u}
 export Alternative (failure)
 
 /--
-If the proposition `p` holds, does nothing, else fails (using `failure`).
+If the proposition `p` is true, does nothing, else fails (using `failure`).
 -/
 @[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure

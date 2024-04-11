@@ -1068,6 +1068,9 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
 theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
 
+theorem add_bmod (a b : Int) (n : Nat) : (a + b).bmod n = (a.bmod n + b.bmod n).bmod n := by
+  simp
+
 theorem emod_bmod {x : Int} {m : Nat} : bmod (x % m) m = bmod x m := by
   simp [bmod]
 

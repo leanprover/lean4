@@ -77,7 +77,7 @@ See also `Lean.Meta.Simp.neutralConfig`.
 structure Config where
   /--
   The maximum number of subexpressions to visit when performing simplification.
-  The default is large number, but not infinite.
+  The default is 100000.
   -/
   maxSteps          : Nat  := defaultMaxSteps
   /--
@@ -156,6 +156,7 @@ structure Config where
   If `ground` is `true` (default: `false`), then ground terms are reduced.
   A term is ground when it does not contain free or meta variables.
   Reduction is interrupted at a function application `f ...` if `f` is marked to not be unfolded.
+  Ground term reduction applies `@[seval]` lemmas.
   -/
   ground            : Bool := false
   /--

@@ -162,6 +162,6 @@ def toMono : Pass where
   phaseOut := .mono
 
 builtin_initialize
-  registerTraceClass `Compiler.toMono (inherited := true)
+  registerTraceClass `compiler.toMono (inherited := true)
 
 end Lean.Compiler.LCNF

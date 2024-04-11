@@ -1,4 +1,4 @@
-set_option trace.Compiler.saveBase true in
+set_option trace.compiler.saveBase true in
 def f1 (c : Bool) (a b : Nat) :=
   let k d y z :=
     match d with
@@ -8,7 +8,7 @@ def f1 (c : Bool) (a b : Nat) :=
   | true => k false a b
   | false => k true b a
 
-set_option trace.Compiler.saveBase true in
+set_option trace.compiler.saveBase true in
 def f2 (c : Bool) (a b : Nat) :=
   let k y d z :=
     match d with
@@ -21,7 +21,7 @@ def f2 (c : Bool) (a b : Nat) :=
 inductive C where
   | c1 | c2 | c3 | c4
 
-set_option trace.Compiler.saveBase true in
+set_option trace.compiler.saveBase true in
 def f3 (c c' : C) (a b : Nat) :=
   let k y (d : C) z :=
     match d with
@@ -33,7 +33,7 @@ def f3 (c c' : C) (a b : Nat) :=
   | .c3 => k b c' a
   | .c4 => k a c' a
 
-set_option trace.Compiler.saveBase true in
+set_option trace.compiler.saveBase true in
 def f4 (c c' : C) (a b : Nat) :=
   let k y z (d : C) :=
     match d with

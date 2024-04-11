@@ -246,7 +246,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
           inductionCasesOn mvarId majorFVarId givenNames ctx
         else
           let s₁ ← generalizeIndices mvarId majorFVarId
-          trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
+          trace[cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
           let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
           let s₂ ← elimAuxIndices s₁ s₂
           unifyCasesEqs s₁.numEqs s₂
@@ -316,6 +316,6 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
     throwError "'byCases' tactic failed, unexpected number of subgoals"
   return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
-builtin_initialize registerTraceClass `Meta.Tactic.cases
+builtin_initialize registerTacticTraceClass `cases
 
 end Lean.Meta

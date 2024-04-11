@@ -1,7 +1,7 @@
 private axiom test_sorry : ∀ {α}, α
 
 -- To see the (sorted) list of lemmas that `rw?` will try rewriting by, use:
--- set_option trace.Tactic.rewrites.lemmas true
+-- set_option trace.rewrites.lemmas true
 
 /--
 info: Try this: rw [@List.map_append]

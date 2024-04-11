@@ -191,7 +191,7 @@ def eagerLambdaLifting : Pass where
         return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
 
 builtin_initialize
-  registerTraceClass `Compiler.eagerLambdaLifting (inherited := true)
-  registerTraceClass `Compiler.lambdaLifting (inherited := true)
+  registerTraceClass `compiler.eagerLambdaLifting (inherited := true)
+  registerTraceClass `compiler.lambdaLifting (inherited := true)
 
 end Lean.Compiler.LCNF

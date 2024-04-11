@@ -120,8 +120,8 @@ builtin_initialize
   }
 
 builtin_initialize
-  registerTraceClass `Compiler.saveBase (inherited := true)
-  registerTraceClass `Compiler.saveMono (inherited := true)
-  registerTraceClass `Compiler.trace (inherited := true)
+  registerTraceClass `compiler.saveBase (inherited := true)
+  registerTraceClass `compiler.saveMono (inherited := true)
+  registerTraceClass `compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

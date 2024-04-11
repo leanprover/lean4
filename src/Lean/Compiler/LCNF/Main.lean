@@ -44,11 +44,11 @@ where
 /--
 A checkpoint in code generation to print all declarations in between
 compiler passes in order to ease debugging.
-The trace can be viewed with `set_option trace.Compiler.step true`.
+The trace can be viewed with `set_option trace.compiler.step true`.
 -/
 def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
   for decl in decls do
-    trace[Compiler.stat] "{decl.name} : {decl.size}"
+    trace[compiler.stat] "{decl.name} : {decl.size}"
     withOptions (fun opts => opts.setBool `pp.motives.pi false) do
       let clsName := `Compiler ++ stepName
       if (← Lean.isTracingEnabledFor clsName) then
@@ -73,14 +73,14 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   decls := markRecDecls decls
   let manager ← getPassManager
   for pass in manager.passes do
-    decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
+    decls ← withTraceNode `compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
       withPhase pass.phase <| pass.run decls
     withPhase pass.phaseOut <| checkpoint pass.name decls
-  if (← Lean.isTracingEnabledFor `Compiler.result) then
+  if (← Lean.isTracingEnabledFor `compiler.result) then
     for decl in decls do
       -- We display the declaration saved in the environment because the names have been normalized
       let some decl' ← getDeclAt? decl.name .mono | unreachable!
-      Lean.addTrace `Compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
+      Lean.addTrace `compiler.result m!"size: {decl.size}\n{← ppDecl' decl'}"
   return decls
 
 end PassManager
@@ -95,13 +95,13 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
 @[export lean_lcnf_compile_decls]
 def main (declNames : List Name) : CoreM Unit := do
   profileitM Exception "compilation new" (← getOptions) do
-    withTraceNode `Compiler (fun _ => return m!"compiling new: {declNames}") do
+    withTraceNode `compiler (fun _ => return m!"compiling new: {declNames}") do
       CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
-  registerTraceClass `Compiler.init (inherited := true)
-  registerTraceClass `Compiler.test (inherited := true)
-  registerTraceClass `Compiler.result (inherited := true)
-  registerTraceClass `Compiler.jp
+  registerTraceClass `compiler.init (inherited := true)
+  registerTraceClass `compiler.test (inherited := true)
+  registerTraceClass `compiler.result (inherited := true)
+  registerTraceClass `compiler.jp
 
 end Lean.Compiler.LCNF

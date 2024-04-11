@@ -1,4 +1,4 @@
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 
 def Iff.elim1.{u} {a b : Prop} {motive : Sort u} (t : a ↔ b) (h : (mp : a → b) → (mpr : b → a) → motive) : motive :=
   match t with | ⟨hab, hba⟩ => h hab hba

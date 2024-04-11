@@ -180,6 +180,6 @@ def pullFunDecls : Pass :=
   .mkPerDeclaration `pullFunDecls Decl.pullFunDecls .base
 
 builtin_initialize
-  registerTraceClass `Compiler.pullFunDecls (inherited := true)
+  registerTraceClass `compiler.pullFunDecls (inherited := true)
 
 namespace Lean.Compiler.LCNF

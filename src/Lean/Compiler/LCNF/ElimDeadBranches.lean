@@ -537,7 +537,7 @@ Use the information produced by the abstract interpreter to:
 - Eliminate values that we know have to be constants.
 -/
 partial def elimDead (assignment : Assignment) (decl : Decl) : CompilerM Decl := do
-  trace[Compiler.elimDeadBranches] s!"Eliminating {decl.name} with {repr (← assignment.toArray |>.mapM (fun (name, val) => do return (toString (← getBinderName name), val)))}"
+  trace[compiler.elimDeadBranches] s!"Eliminating {decl.name} with {repr (← assignment.toArray |>.mapM (fun (name, val) => do return (toString (← getBinderName name), val)))}"
   return { decl with value := (← go decl.value) }
 where
   go (code : Code) : CompilerM Code := do
@@ -567,7 +567,7 @@ where
             else
               return alt.updateCode (← go body)
           else
-            trace[Compiler.elimDeadBranches] s!"Threw away cases {← getBinderName cs.discr} branch {ctor}"
+            trace[compiler.elimDeadBranches] s!"Threw away cases {← getBinderName cs.discr} branch {ctor}"
             eraseCode alt.getCode
             return alt.updateCode <| .unreach typ
         | .default body => return alt.updateCode (← go body)
@@ -603,6 +603,6 @@ def elimDeadBranches : Pass :=
   { name := `elimDeadBranches, run := Decl.elimDeadBranches, phase := .mono }
 
 builtin_initialize
-  registerTraceClass `Compiler.elimDeadBranches (inherited := true)
+  registerTraceClass `compiler.elimDeadBranches (inherited := true)
 
 end Lean.Compiler.LCNF

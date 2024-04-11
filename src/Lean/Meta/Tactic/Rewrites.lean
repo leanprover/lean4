@@ -17,8 +17,8 @@ namespace Lean.Meta.Rewrites
 open Lean.Meta.LazyDiscrTree (InitEntry MatchResult)
 open Lean.Meta.SolveByElim
 
-builtin_initialize registerTraceClass `Tactic.rewrites
-builtin_initialize registerTraceClass `Tactic.rewrites.lemmas
+builtin_initialize registerTacticTraceClass `rewrites
+builtin_initialize registerTacticTraceClass `rewrites.lemmas
 
 /-- Extract the lemma, with arguments, that was used to produce a `RewriteResult`. -/
 -- This assumes that `r.eqProof` was constructed as:
@@ -177,7 +177,7 @@ def rwLemma (ctx : MetavarContext) (goal : MVarId) (target : Expr) (side : SideC
     | .inl hyp => pure (some hyp)
     | .inr lem => some <$> mkConstWithFreshMVarLevels lem <|> pure none)
       | return none
-    trace[Tactic.rewrites] m!"considering {if symm then "← " else ""}{expr}"
+    trace[rewrites] m!"considering {if symm then "← " else ""}{expr}"
     let some result ← some <$> goal.rewrite target expr symm <|> pure none
       | return none
     if result.mvarIds.isEmpty then
@@ -265,7 +265,7 @@ def rewriteCandidates (hyps : Array (Expr × Bool × Nat))
         deduped := deduped.push (l, s, w)
         forward := forward.insert l
 
-  trace[Tactic.rewrites.lemmas] m!"Candidate rewrite lemmas:\n{deduped}"
+  trace[rewrites.lemmas] m!"Candidate rewrite lemmas:\n{deduped}"
 
   let hyps := hyps.map fun ⟨hyp, symm, weight⟩ => (Sum.inl hyp, symm, weight)
   let lemmas := deduped.map fun ⟨lem, symm, weight⟩ => (Sum.inr lem, symm, weight)

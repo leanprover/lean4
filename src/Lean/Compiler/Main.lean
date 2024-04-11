@@ -15,7 +15,7 @@ def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "co
   discard <| LCNF.compile declNames
 
 builtin_initialize
-  registerTraceClass `Compiler
-  registerTraceClass `Compiler.stat
+  registerTraceClass `compiler
+  registerTraceClass `compiler.stat
 
 end Lean.Compiler

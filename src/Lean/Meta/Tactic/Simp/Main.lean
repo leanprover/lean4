@@ -199,7 +199,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
-    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
+    trace[simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
     return e'
   | none => foldRawNatLit e
@@ -297,13 +297,13 @@ def simpLambda (e : Expr) : SimpM Result :=
       return { expr := eNew, proof? := p }
 
 def simpArrow (e : Expr) : SimpM Result := do
-  trace[Debug.Meta.Tactic.simp] "arrow {e}"
+  trace[simp.debug] "arrow {e}"
   let p := e.bindingDomain!
   let q := e.bindingBody!
   let rp ← simp p
-  trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
+  trace[simp.debug] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
   if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
-    trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
+    trace[simp.debug] "ctx arrow {rp.expr} -> {q}"
     withLocalDeclD e.bindingName! rp.expr fun h => do
       let s ← getSimpTheorems
       let s ← s.addTheorem (.fvar h.fvarId!) h
@@ -332,7 +332,7 @@ def simpArrow (e : Expr) : SimpM Result := do
     mkImpCongr e rp (← simp q)
 
 def simpForall (e : Expr) : SimpM Result := withParent e do
-  trace[Debug.Meta.Tactic.simp] "forall {e}"
+  trace[simp.debug] "forall {e}"
   if e.isArrow then
     simpArrow e
   else if (← isProp e) then
@@ -512,7 +512,7 @@ def processCongrHypothesis (h : Expr) : SimpM Bool := do
 
 /-- Try to rewrite `e` children using the given congruence theorem -/
 def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
-  trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
+  trace[simp.debug.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
   if c.hypothesesPos.any (· ≥ xs.size) then
@@ -535,15 +535,15 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
         if (← processCongrHypothesis x) then
           modified := true
       catch _ =>
-        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+        trace[simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
         -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
         -- does not catch runtime exceptions by default.
         return none
     unless modified do
-      trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
+      trace[simp.congr] "{c.theoremName} not modified"
       return none
     unless (← synthesizeArgs (.decl c.theoremName) bis xs) do
-      trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
+      trace[simp.congr] "{c.theoremName} synthesizeArgs failed"
       return none
     let eNew ← instantiateMVars rhs
     let mut proof ← instantiateMVars (mkAppN thm xs)
@@ -551,7 +551,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
       try proof ← mkAppM ``propext #[proof]
       catch _ => return none
     if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
-      trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
+      trace[simp.congr] "{c.theoremName} has unassigned metavariables"
       return none
     congrArgs { expr := eNew, proof? := proof } extraArgs
   else
@@ -642,7 +642,7 @@ where
       let cache := (← get).cache
       if let some result := cache.find? e then
         return result
-    trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
+    trace[simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
 @[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
@@ -654,7 +654,7 @@ def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Met
     try
       withoutCatchingRuntimeEx do
         let (r, s) ← simp e methods.toMethodsRef ctx |>.run { usedTheorems := usedSimps }
-        trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+        trace[simp.numSteps] "{s.numSteps}"
         return (r, s.usedTheorems)
     catch ex =>
       if ex.isRuntime then throwNestedTacticEx `simp ex else throw ex

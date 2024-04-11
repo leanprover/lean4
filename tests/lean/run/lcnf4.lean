@@ -18,7 +18,7 @@ def xyz : BaseIO UInt32 := do
   ref.set 10
   ref.get
 
--- set_option trace.Compiler.simp true in
+-- set_option trace.compiler.simp true in
 #eval Lean.Compiler.compile #[``xyz]
 
 @[extern "f_imp"]
@@ -46,10 +46,10 @@ def boo (ty ty' : Ty) (a b : Nat) :=
   | _ => f b * f (b + 1) + f (a*2) + f (a*3)
   g e d e + g d d d
 
--- set_option trace.Compiler.simp.step true in
--- set_option trace.Compiler.simp.inline true in
--- set_option trace.Compiler.simp.inline.stats true in
--- set_option trace.Compiler.simp true in
+-- set_option trace.compiler.simp.step true in
+-- set_option trace.compiler.simp.inline true in
+-- set_option trace.compiler.simp.inline.stats true in
+-- set_option trace.compiler.simp true in
 #eval Lean.Compiler.compile #[``boo]
 
 def f' (x y : Nat) :=
@@ -57,11 +57,11 @@ def f' (x y : Nat) :=
   let y := s.2
   y + s.2
 
--- set_option trace.Compiler.simp true in
+-- set_option trace.compiler.simp true in
 #eval Lean.Compiler.compile #[``f']
 
 #eval Lean.Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
 
 set_option trace.Meta.debug true
-set_option trace.Compiler true
+set_option trace.compiler true
 #eval Lean.Compiler.compile #[``Lean.MetavarContext.MkBinding.collectForwardDeps]

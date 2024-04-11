@@ -195,7 +195,7 @@ then the join point is eliminated as dead code.
 partial def simpJpCases? (code : Code) : CompilerM (Option Code) := do
   let map ← collectJpCasesInfo code
   unless map.isCandidate do return none
-  traceM `Compiler.simp.jpCases do
+  traceM `compiler.simp.jpCases do
     let mut msg : MessageData := "candidates"
     for (fvarId, info) in map.toList do
       msg := msg ++ indentD m!"{mkFVar fvarId} ↦ {info.ctorNames.toList}"
@@ -297,7 +297,6 @@ where
 end Simp
 
 builtin_initialize
-  registerTraceClass `Compiler.simp.jpCases
+  registerTraceClass `compiler.simp.jpCases
 
 end Lean.Compiler.LCNF
-

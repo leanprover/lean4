@@ -22,7 +22,7 @@ private def isTarget (lhs rhs : Expr) : MetaM Bool := do
 -/
 def acyclic (mvarId : MVarId) (h : Expr) : MetaM Bool := mvarId.withContext do
   let type ← whnfD (← inferType h)
-  trace[Meta.Tactic.acyclic] "type: {type}"
+  trace[acyclic] "type: {type}"
   let some (_, lhs, rhs) := type.eq? | return false
   if (← isTarget lhs rhs) then
     go h lhs rhs
@@ -45,13 +45,13 @@ where
         let hlt_self ← mkAppM ``Nat.lt_of_lt_of_eq #[hlt, heq]
         let hlt_irrelf ← mkAppM ``Nat.lt_irrefl #[sizeOf_lhs]
         mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp hlt_irrelf hlt_self))
-        trace[Meta.Tactic.acyclic] "succeeded"
+        trace[acyclic] "succeeded"
         return true
     catch ex =>
-      trace[Meta.Tactic.acyclic] "failed with\n{ex.toMessageData}"
+      trace[acyclic] "failed with\n{ex.toMessageData}"
       return false
 
 builtin_initialize
-  registerTraceClass `Meta.Tactic.acyclic
+  registerTacticTraceClass `acyclic
 
 end Lean.MVarId

@@ -125,7 +125,7 @@ private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) :
 
 def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.withContext do
-    trace[Meta.Tactic.induction] "initial\n{MessageData.ofGoal mvarId}"
+    trace[induction] "initial\n{MessageData.ofGoal mvarId}"
     mvarId.checkNotAssigned `induction
     let majorLocalDecl ← majorFVarId.getDecl
     let recursorInfo ← mkRecursorInfo recursorName
@@ -169,7 +169,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
           subst := subst.insert index.fvarId! (mkFVar indices'[i]!)
           i     := i + 1
         pure subst
-      trace[Meta.Tactic.induction] "after revert&intro\n{MessageData.ofGoal mvarId}"
+      trace[induction] "after revert&intro\n{MessageData.ofGoal mvarId}"
       -- Update indices and major
       let indices := indices'.map mkFVar
       let majorFVarId := majorFVarId'
@@ -211,6 +211,6 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.induction majorFVarId recursorName givenNames
 
-builtin_initialize registerTraceClass `Meta.Tactic.induction
+builtin_initialize registerTacticTraceClass `induction
 
 end Lean.Meta

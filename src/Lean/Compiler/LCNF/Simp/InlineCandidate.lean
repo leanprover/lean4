@@ -107,4 +107,4 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
     return none
 
 builtin_initialize
-  registerTraceClass `Compiler.simp.inline
+  registerTraceClass `compiler.simp.inline

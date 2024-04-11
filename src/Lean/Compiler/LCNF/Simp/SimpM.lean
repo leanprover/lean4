@@ -131,7 +131,7 @@ Otherwise, do not change the `inlineStack`.
     x
 where
   check (declName : Name) : SimpM Nat := do
-    trace[Compiler.simp.inline] "{declName}"
+    trace[compiler.simp.inline] "{declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
     let inlineIfReduce ← if let some decl ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false

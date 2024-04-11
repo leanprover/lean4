@@ -18,5 +18,5 @@ open Lean.Compiler
 set_option pp.explicit true
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 #eval Lean.Compiler.compile #[``Erased.mk]

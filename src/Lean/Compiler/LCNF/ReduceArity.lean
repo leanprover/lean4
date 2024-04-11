@@ -150,7 +150,7 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
   if used.size == decl.params.size then
     return #[decl] -- Declarations uses all parameters
   else
-    trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
+    trace[compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
     let mask   := decl.params.map fun param => used.contains param.fvarId
     let auxName   := decl.name ++ `_redArg
     let mkAuxDecl : CompilerM Decl := do
@@ -185,6 +185,6 @@ def reduceArity : Pass where
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.reduceArity)
 
 builtin_initialize
-  registerTraceClass `Compiler.reduceArity (inherited := true)
+  registerTraceClass `compiler.reduceArity (inherited := true)
 
 end Lean.Compiler.LCNF

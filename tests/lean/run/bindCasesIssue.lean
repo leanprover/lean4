@@ -8,5 +8,5 @@ def bar : ReaderM Unit Unit :=
   else
     pure ()
 
-set_option trace.Compiler true
+set_option trace.compiler true
 #eval Lean.Compiler.compile #[``bar]

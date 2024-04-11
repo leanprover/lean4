@@ -28,8 +28,8 @@ example : Nat := by exact?
 
 namespace Lean.Meta.LibrarySearch
 
-builtin_initialize registerTraceClass `Tactic.librarySearch
-builtin_initialize registerTraceClass `Tactic.librarySearch.lemmas
+builtin_initialize registerTacticTraceClass `librarySearch
+builtin_initialize registerTacticTraceClass `librarySearch.lemmas
 
 open SolveByElim
 

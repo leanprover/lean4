@@ -1,4 +1,4 @@
-set_option trace.Compiler.floatLetIn true in
+set_option trace.compiler.floatLetIn true in
 def provokeFloatLet (x y : Nat) (cond : Bool) : Nat :=
   let a := x ^ y
   let b := x + y

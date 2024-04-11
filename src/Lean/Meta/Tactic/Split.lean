@@ -125,7 +125,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let some matcherApp ← matchMatcherApp? e | return .continue
           for matcherDiscr in matcherApp.discrs, discr in discrs do
             unless matcherDiscr == discr do
-              trace[Meta.Tactic.split] "discr mismatch {matcherDiscr} != {discr}"
+              trace[split] "discr mismatch {matcherDiscr} != {discr}"
               return .continue
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
@@ -156,7 +156,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
         throwError "'applyMatchSplitter' failed, failed to generalize target"
       return (targetNew, rfls)
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
-    trace[Meta.Tactic.split] "targetNew:\n{mvarNew.mvarId!}"
+    trace[split] "targetNew:\n{mvarNew.mvarId!}"
     mvarId.assign (mkAppN (mkAppN mvarNew discrs) rfls)
     let (discrs', mvarId') ← mvarNew.mvarId!.introNP discrs.size
     let (discrEqs, mvarId') ← mvarId'.introNP discrs.size
@@ -214,15 +214,15 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   -- and we only care about the `motiveType` arguments, and not the resulting `Sort u`.
   let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
-  trace[Meta.Tactic.split] "applyMatchSplitter\n{mvarId}"
+  trace[split] "applyMatchSplitter\n{mvarId}"
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
-  trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
+  trace[split] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
-  mvarId.withContext do trace[Meta.Tactic.split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
-  trace[Meta.Tactic.split] "after generalize\n{mvarId}"
+  mvarId.withContext do trace[split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
+  trace[split] "after generalize\n{mvarId}"
   let numEqs := discrs.size
   let (discrFVarIdsNew, mvarId) ← mvarId.introN discrs.size
-  trace[Meta.Tactic.split] "after introN\n{mvarId}"
+  trace[split] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
   let mvarType ← mvarId.getType
   let elimUniv ← mvarId.withContext <| getLevel mvarType
@@ -237,18 +237,18 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     let motive ← mkLambdaFVars discrsNew mvarType
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
-    trace[Meta.Tactic.split] "after check splitter"
+    trace[split] "after check splitter"
     let mvarIds ← mvarId.apply splitter
     unless mvarIds.length == matchEqns.size do
       throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]!
       let (_, mvarId) ← mvarId.introN numParams
-      trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
+      trace[split] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
-        trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"
+        trace[split] "after unifyEqs\n{mvarId}"
         let mvarId ← substDiscrEqs mvarId fvarSubst discrEqs
         return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
@@ -310,7 +310,7 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (L
         catch _ =>
           go (badCases.insert e)
     else
-      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      trace[split] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
 
@@ -328,6 +328,6 @@ def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MV
     else
       return none
 
-builtin_initialize registerTraceClass `Meta.Tactic.split
+builtin_initialize registerTacticTraceClass `split
 
 end Lean.Meta

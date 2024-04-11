@@ -17,8 +17,7 @@ A full description of the tactic, and the use of each theorem category, can be f
 namespace Lean.Elab.Tactic.NormCast
 open Lean Meta Simp NormCast
 
--- TODO: trace name consistency
-builtin_initialize registerTraceClass `Tactic.norm_cast
+builtin_initialize registerTacticTraceClass `norm_cast
 
 /-- Proves `a = b` using the given simp set. -/
 def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) := do

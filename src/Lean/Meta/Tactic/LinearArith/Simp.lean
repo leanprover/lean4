@@ -19,7 +19,7 @@ def simp? (e : Expr) (parent? : Option Expr) : MetaM (Option (Expr × Expr)) := 
   if isLinearCnstr e then
     Nat.simpCnstr? e
   else if isLinearTerm e && !parentIsTarget parent? then
-    trace[Meta.Tactic.simp] "arith expr: {e}"
+    trace[simp] "arith expr: {e}"
     Nat.simpExpr? e
   else
     return none

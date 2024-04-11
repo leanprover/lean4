@@ -390,7 +390,7 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
     let mut i := 0
     for arg in args do
       if h : i < infos.size then
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+        trace[simp.debug] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
         if cfg.ground && info.isInstImplicit then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
@@ -516,7 +516,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
         match (← trySynthInstance clsNew) with
         | LOption.some val => pure val
         | _ =>
-          trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
+          trace[simp.congr] "failed to synthesize instance{indentExpr clsNew}"
           return none
       proof := mkApp proof instNew
       subst := subst.push instNew

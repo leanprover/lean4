@@ -6,8 +6,8 @@ This test demonstrates two things:
 2. We communicate correctly to the constant folder that the `n` and `m`
    are always 0 and can thus collapse the computation.
 -/
-set_option trace.Compiler.elimDeadBranches true in
-set_option trace.Compiler.result true in
+set_option trace.compiler.elimDeadBranches true in
+set_option trace.compiler.result true in
 def addSomeVal (x : Nat) :=
   match someVal x, someVal x with
   | some n, some m => some (n + m)
@@ -28,8 +28,8 @@ an `Except.error` it will drop the branch where we jump to the continuation.
 This will in turn allow the simplifier to drop the join point that represents
 the continuation, saving us more code size.
 -/
-set_option trace.Compiler.elimDeadBranches true in
-set_option trace.Compiler.result true in
+set_option trace.compiler.elimDeadBranches true in
+set_option trace.compiler.result true in
 def monadic (x y : Nat) : Except String Nat := do
   if let some m := addSomeVal x then
     if let some n := addSomeVal y then

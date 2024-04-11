@@ -12,5 +12,5 @@ open Lean Compiler LCNF in
 @[cpass] def simpInline : PassInstaller :=
   Testing.assertDoesNotContainConstAfter ``inline "simp did not inline `inline`" |>.install `simp `simpInlinesInline
 
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 #eval Lean.Compiler.compile #[``h]

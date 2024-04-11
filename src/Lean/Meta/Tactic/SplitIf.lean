@@ -44,7 +44,7 @@ def getSimpContext : MetaM Simp.Context :=
 -/
 private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge := fun prop => do
   let prop ← instantiateMVars prop
-  trace[Meta.Tactic.splitIf] "discharge? {prop}, {prop.notNot?}"
+  trace[splitIf] "discharge? {prop}, {prop.notNot?}"
   if useDecide then
     let prop ← instantiateMVars prop
     if !prop.hasFVar && !prop.hasMVar then
@@ -83,7 +83,7 @@ def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Opti
     let hName ← match hName? with
       | none       => mkFreshUserName `h
       | some hName => pure hName
-    trace[Meta.Tactic.splitIf] "splitting on {cond}"
+    trace[splitIf] "splitting on {cond}"
     return some (←  mvarId.byCases cond hName)
   else
     return none
@@ -129,6 +129,6 @@ def splitIfLocalDecl? (mvarId : MVarId) (fvarId : FVarId) (hName? : Option Name 
     else
       return none
 
-builtin_initialize registerTraceClass `Meta.Tactic.splitIf
+builtin_initialize registerTacticTraceClass `splitIf
 
 end Lean.Meta

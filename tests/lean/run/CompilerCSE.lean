@@ -15,5 +15,5 @@ def cseFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `cse `cs
 def cseSizeTest : PassInstaller :=
   Testing.assertReducesOrPreservesSize "CSE increased size of declaration" |>.install `cse `cseSizeLeq
 
-set_option trace.Compiler.test true in
+set_option trace.compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

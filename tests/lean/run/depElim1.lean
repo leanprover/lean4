@@ -211,8 +211,5 @@ def ex3 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
 := default
 
--- set_option trace.Meta.EqnCompiler.match true
--- set_option trace.Meta.EqnCompiler.matchDebug true
-
 #eval test `ex3 2 `elimTest3
 #print elimTest3

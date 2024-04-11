@@ -23,13 +23,13 @@ open Simp
 
 def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   updateFunDeclInfo decl.value
-  traceM `Compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
-  traceM `Compiler.simp.step do ppDecl decl
+  traceM `compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
+  traceM `compiler.simp.step do ppDecl decl
   let value ← simp decl.value
   let s ← get
   let value ← value.applyRenaming s.binderRenaming
-  traceM `Compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
-  trace[Compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
+  traceM `compiler.simp.step.new do return m!"{decl.name} :=\n{← ppCode value}"
+  trace[compiler.simp.stat] "{decl.name}, size: {value.size}, # visited: {s.visited}, # inline: {s.inline}, # inline local: {s.inlineLocal}"
   if let some value ← simpJpCases? value then
     let decl := { decl with value }
     decl.reduceJpArity
@@ -78,7 +78,7 @@ def simp (config : Config := {}) (occurrence : Nat := 0) (phase := Phase.base) :
   .mkPerDeclaration `simp (Decl.simp · config) phase (occurrence := occurrence)
 
 builtin_initialize
-  registerTraceClass `Compiler.simp (inherited := true)
-  registerTraceClass `Compiler.simp.stat
-  registerTraceClass `Compiler.simp.step
-  registerTraceClass `Compiler.simp.step.new
+  registerTraceClass `compiler.simp (inherited := true)
+  registerTraceClass `compiler.simp.stat
+  registerTraceClass `compiler.simp.step
+  registerTraceClass `compiler.simp.step.new

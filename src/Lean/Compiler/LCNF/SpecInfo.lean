@@ -185,14 +185,14 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
       let decl := decls[i]!
       let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
-      trace[Compiler.specialize.info] "{decl.name} {mask}"
+      trace[compiler.specialize.info] "{decl.name} {mask}"
       paramsInfo := paramsInfo.zipWith mask fun info fixed => if fixed || info matches .user then info else .other
       for j in [:paramsInfo.size] do
         let mut info  := paramsInfo[j]!
         if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
           paramsInfo := paramsInfo.set! j .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
-        trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"
+        trace[compiler.specialize.info] "{decl.name} {paramsInfo}"
         modifyEnv fun env => specExtension.addEntry env { declName := decl.name, paramsInfo }
 
 def getSpecParamInfoCore? (env : Environment) (declName : Name) : Option (Array SpecParamInfo) :=
@@ -211,7 +211,6 @@ def isSpecCandidate [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   return getSpecParamInfoCore? (← getEnv) declName |>.isSome
 
 builtin_initialize
-  registerTraceClass `Compiler.specialize.info
+  registerTraceClass `compiler.specialize.info
 
 end Lean.Compiler.LCNF
-

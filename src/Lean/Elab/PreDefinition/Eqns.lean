@@ -98,7 +98,7 @@ partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Opti
       catch _ =>
         go (badCases.insert e)
     else
-      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      trace[split] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
 

@@ -216,7 +216,7 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
-    trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
+    trace[simp.debug] "no {tag}-simprocs found for {e}"
     return .continue
   else
     let mut e  := e
@@ -228,15 +228,15 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
         let s ← simprocEntry.try numExtraArgs e
         match s with
         | .visit r =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
+          trace[simp.debug] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           return .visit (← mkEqTransOptProofResult proof? cache r)
         | .done r =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
+          trace[simp.debug] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           return .done (← mkEqTransOptProofResult proof? cache r)
         | .continue (some r) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
+          trace[simp.debug] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           e := r.expr
           proof? ← mkEqTrans? proof? r.proof?
@@ -253,7 +253,7 @@ def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : E
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
-    trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
+    trace[simp.debug] "no {tag}-simprocs found for {e}"
     return .continue
   else
     let mut e  := e
@@ -263,15 +263,15 @@ def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : E
         let s ← simprocEntry.tryD numExtraArgs e
         match s with
         | .visit eNew =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          trace[simp.debug] "simproc result {e} => {eNew}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           return .visit eNew
         | .done eNew =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          trace[simp.debug] "simproc result {e} => {eNew}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           return .done eNew
         | .continue (some eNew) =>
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {eNew}"
+          trace[simp.debug] "simproc result {e} => {eNew}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           e := eNew
           found := true

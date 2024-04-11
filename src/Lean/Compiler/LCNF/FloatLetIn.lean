@@ -288,7 +288,7 @@ where
       let altMapper alt := do
         let decision := .ofAlt alt
         let newCode := res.newArms.find! decision
-        trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
+        trace[compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)
         return alt.updateCode fused
@@ -307,6 +307,6 @@ def floatLetIn (phase := Phase.base) (occurrence := 0) : Pass :=
   .mkPerDeclaration `floatLetIn Decl.floatLetIn phase occurrence
 
 builtin_initialize
-  registerTraceClass `Compiler.floatLetIn (inherited := true)
+  registerTraceClass `compiler.floatLetIn (inherited := true)
 
 end Lean.Compiler.LCNF

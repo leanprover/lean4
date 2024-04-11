@@ -191,11 +191,11 @@ def toPass [ToString β] (probe : Probe Decl β) (phase : Phase) : Pass where
   name := `probe
   run := fun decls => do
     let res ← probe decls
-    trace[Compiler.probe] s!"{res}"
+    trace[compiler.probe] s!"{res}"
     return decls
 
 builtin_initialize
-  registerTraceClass `Compiler.probe (inherited := true)
+  registerTraceClass `compiler.probe (inherited := true)
 
 end Probe
 

@@ -13,7 +13,7 @@ def pullInstancesFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.instal
 
 @[cpass]
 def pullInstancesSizeTest : PassInstaller :=
-  Testing.assertPreservesSize "Pulling instances changed size" |>.install `pullInstances `pullInstancesSizeEq 
+  Testing.assertPreservesSize "Pulling instances changed size" |>.install `pullInstances `pullInstancesSizeEq
 
-set_option trace.Compiler.test true in
+set_option trace.compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

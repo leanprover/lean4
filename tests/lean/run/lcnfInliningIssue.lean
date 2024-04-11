@@ -29,6 +29,6 @@ def isZero : Nat → Bool
 
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 def succNeqZero (n : Nat) : Nat.succ n = 0 → Empty :=
 λ h => ffNeqTt (map isZero h)

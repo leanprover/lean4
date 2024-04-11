@@ -102,10 +102,10 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
-      trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
+      trace[simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
@@ -118,7 +118,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       else
         let proof ← instantiateMVars (mkAppN val xs)
         if (← hasAssignableMVar proof) then
-          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
+          trace[simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
@@ -130,9 +130,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         See issue #1815
         -/
         if !(← acLt rhs e .reduceSimpleOnly) then
-          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
+          trace[simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
+      trace[simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
       recordSimpTheorem thm.origin
       return some { expr := rhs, proof? }
     else
@@ -140,7 +140,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
         -- TODO: reconsider if we want thms such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{← ppSimpTheorem thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
+        trace[simp.unify] "{← ppSimpTheorem thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
       return none
   /- Check whether we need something more sophisticated here.
      This simple approach was good enough for Mathlib 3 -/
@@ -154,7 +154,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   | none => return none
   | some r =>
     if (← hasAssignableMVar r.expr) then
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
+      trace[simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
     r.addExtraArgs extraArgs
 
@@ -190,14 +190,14 @@ Remark: the parameter tag is used for creating trace messages. It is irrelevant 
 def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
-    trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
+    trace[simp.debug] "no theorems found for {tag}-rewriting {e}"
     return none
   else
     let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (thm, numExtraArgs) in candidates do
       unless inErasedSet thm || (rflOnly && !thm.rfl) do
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then
-          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          trace[simp.debug] "rewrite result {e} => {result.expr}"
           return some result
     return none
 where
@@ -372,7 +372,7 @@ def sevalGround : Simproc := fun e => do
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
       if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
-        trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
+        trace[simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue
   -- `declName` does not have equation theorems associated with it.
@@ -384,7 +384,7 @@ def sevalGround : Simproc := fun e => do
   unless info.hasValue && info.levelParams.length == lvls.length do return .continue
   let fBody ← instantiateValueLevelParams info lvls
   let eNew := fBody.betaRev e.getAppRevArgs (useZeta := true)
-  trace[Meta.Tactic.simp.ground] "delta, {e} => {eNew}"
+  trace[simp.ground] "delta, {e} => {eNew}"
   return .visit { expr := eNew }
 
 partial def preSEval (s : SimprocsArray) : Simproc :=

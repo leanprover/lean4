@@ -1,4 +1,4 @@
-set_option trace.Compiler.result true in
+set_option trace.compiler.result true in
 def mulDivShift (a : Nat) (b : UInt8) (c : UInt16) (d : UInt32) (e : UInt64) : Nat :=
   let a1 := a / 32
   let a2 := a * 32

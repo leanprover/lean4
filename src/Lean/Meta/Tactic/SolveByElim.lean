@@ -35,7 +35,7 @@ open Lean Meta Elab Tactic
 
 namespace Lean.Meta.SolveByElim
 
-initialize registerTraceClass `Meta.Tactic.solveByElim
+initialize registerTacticTraceClass `solveByElim
 
 /--
 `applyTactics lemmas goal` will return an iterator that applies the

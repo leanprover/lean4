@@ -14,5 +14,5 @@ def findJoinPointFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.instal
 def cseSizeTest : PassInstaller :=
   Testing.assertReducesOrPreservesSize "findJoinPoints increased size of declaration" |>.install `findJoinPoints `findJoinPointsSizeLeq
 
-set_option trace.Compiler.test true in
+set_option trace.compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo, ``Lean.MetavarContext.MkBinding.collectForwardDeps]

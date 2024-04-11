@@ -268,21 +268,21 @@ mutual
     let some paramsInfo ← getSpecParamInfo? declName | return none
     unless (← shouldSpecialize paramsInfo args) do return none
     let some decl ← getDecl? declName | return none
-    trace[Compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
+    trace[compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
     let (argMask, params, decls) ← Collector.collect paramsInfo args
     let keyBody := .const declName us (argMask.filterMap id)
     let (key, levelParamsNew) ← mkKey params decls keyBody
-    trace[Compiler.specialize.candidate] "key: {key}"
+    trace[compiler.specialize.candidate] "key: {key}"
     assert! !key.hasLooseBVars
     assert! !key.hasFVar
     let usNew := levelParamsNew.map mkLevelParam
     let argsNew := params.map (.fvar ·.fvarId) ++ getRemainingArgs paramsInfo args
     if let some declName ← findSpecCache? key then
-      trace[Compiler.specialize.step] "cached: {declName}"
+      trace[compiler.specialize.step] "cached: {declName}"
       return some (.const declName usNew argsNew)
     else
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
-      trace[Compiler.specialize.step] "new: {specDecl.name}"
+      trace[compiler.specialize.step] "new: {specDecl.name}"
       cacheSpec key specDecl.name
       specDecl.saveBase
       let specDecl ← specDecl.etaExpand
@@ -342,8 +342,8 @@ def specialize : Pass where
     decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.specialize)
 
 builtin_initialize
-  registerTraceClass `Compiler.specialize (inherited := true)
-  registerTraceClass `Compiler.specialize.candidate
-  registerTraceClass `Compiler.specialize.step
+  registerTraceClass `compiler.specialize (inherited := true)
+  registerTraceClass `compiler.specialize.candidate
+  registerTraceClass `compiler.specialize.step
 
 end Lean.Compiler.LCNF

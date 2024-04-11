@@ -15,5 +15,5 @@ def simpFixTest : PassInstaller := Testing.assertIsAtFixPoint |>.install `simp `
 def simpReaderTest : PassInstaller :=
   Testing.assertDoesNotContainConstAfter `ReaderT.bind "simp did not inline ReaderT.bind" |>.install `simp `simpInlinesBinds
 
-set_option trace.Compiler.test true in
+set_option trace.compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

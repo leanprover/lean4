@@ -113,6 +113,6 @@ def pullInstances : Pass :=
   .mkPerDeclaration `pullInstances Decl.pullInstances .base
 
 builtin_initialize
-  registerTraceClass `Compiler.pullInstances (inherited := true)
+  registerTraceClass `compiler.pullInstances (inherited := true)
 
 end Lean.Compiler.LCNF

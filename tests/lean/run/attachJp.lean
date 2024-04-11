@@ -11,5 +11,5 @@ def f (x : Nat) (b : Bool) :=
     Nat.succ y
   x == k b
 
-set_option trace.Compiler.simp true
+set_option trace.compiler.simp true
 #eval Lean.Compiler.compile #[``f]

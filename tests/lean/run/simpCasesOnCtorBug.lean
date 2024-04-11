@@ -19,6 +19,6 @@ def test2 (y : Nat) : Nat :=
 
 #eval Lean.Compiler.compile #[``test2]
 
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 #eval Lean.Compiler.compile #[``test1]
 #eval Lean.Compiler.compile #[``test2]

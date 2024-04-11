@@ -6,6 +6,6 @@
 @[noinline] def print (x : Nat) : IO Unit :=
   IO.println x
 
-set_option trace.Compiler.saveMono true
+set_option trace.compiler.saveMono true
 def foo (b : Bool) : IO Unit :=
   bind (f b) fun x => print x

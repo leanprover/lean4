@@ -53,13 +53,13 @@ instance : MonadBacktrack SavedState M where
 
 partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
   if (← get) == 0 then
-    trace[Meta.Tactic.contradiction] "elimEmptyInductive out-of-fuel"
+    trace[contradiction] "elimEmptyInductive out-of-fuel"
     return false
   modify (· - 1)
   -- We only consider inductives with no constructors and indexed families
   commitWhen do
-    let subgoals ← try mvarId.cases fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false
-    trace[Meta.Tactic.contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
+    let subgoals ← try mvarId.cases fvarId catch ex => trace[contradiction] "{ex.toMessageData}"; return false
+    trace[contradiction] "elimEmptyInductive, number subgoals: {subgoals.size}"
     for subgoal in subgoals do
       -- If one of the fields is uninhabited, then we are done
       let found ← subgoal.mvarId.withContext do
@@ -230,6 +230,6 @@ def _root_.Lean.MVarId.contradiction (mvarId : MVarId) (config : Contradiction.C
 def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
   mvarId.contradiction config
 
-builtin_initialize registerTraceClass `Meta.Tactic.contradiction
+builtin_initialize registerTacticTraceClass `contradiction
 
 end Lean.Meta

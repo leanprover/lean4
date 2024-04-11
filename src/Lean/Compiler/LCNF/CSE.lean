@@ -109,6 +109,6 @@ def cse (phase : Phase := .base) (occurrence := 0) : Pass :=
   .mkPerDeclaration `cse Decl.cse phase occurrence
 
 builtin_initialize
-  registerTraceClass `Compiler.cse (inherited := true)
+  registerTraceClass `compiler.cse (inherited := true)
 
 end Lean.Compiler.LCNF

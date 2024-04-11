@@ -17,7 +17,7 @@ def SF.step [Monad m] (sa: as): SF as bs → SF' m as bs × bs
 | fan => sorry
 
 open Lean.Compiler
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 set_option pp.funBinderTypes true
 set_option pp.letVarTypes true
 #eval Lean.Compiler.compile #[``SF.step]

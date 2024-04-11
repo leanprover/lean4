@@ -606,14 +606,14 @@ their definitions and call sites with `jp`/`jmp`.
 -/
 def Decl.findJoinPoints (decl : Decl) : CompilerM Decl := do
   let findResult ← JoinPointFinder.find decl
-  trace[Compiler.findJoinPoints] "Found: {findResult.candidates.size} jp candidates"
+  trace[compiler.findJoinPoints] "Found: {findResult.candidates.size} jp candidates"
   JoinPointFinder.replace decl findResult
 
 def findJoinPoints : Pass :=
   .mkPerDeclaration `findJoinPoints Decl.findJoinPoints .base
 
 builtin_initialize
-  registerTraceClass `Compiler.findJoinPoints (inherited := true)
+  registerTraceClass `compiler.findJoinPoints (inherited := true)
 
 def Decl.extendJoinPointContext (decl : Decl) : CompilerM Decl := do
   JoinPointContextExtender.extend decl
@@ -622,7 +622,7 @@ def extendJoinPointContext (occurrence : Nat := 0) (phase := Phase.mono) (_h : p
   .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext phase (occurrence := occurrence)
 
 builtin_initialize
-  registerTraceClass `Compiler.extendJoinPointContext (inherited := true)
+  registerTraceClass `compiler.extendJoinPointContext (inherited := true)
 
 def Decl.commonJoinPointArgs (decl : Decl) : CompilerM Decl := do
   JoinPointCommonArgs.reduce decl
@@ -631,6 +631,6 @@ def commonJoinPointArgs : Pass :=
   .mkPerDeclaration `commonJoinPointArgs Decl.commonJoinPointArgs .mono
 
 builtin_initialize
-  registerTraceClass `Compiler.commonJoinPointArgs (inherited := true)
+  registerTraceClass `compiler.commonJoinPointArgs (inherited := true)
 
 end Lean.Compiler.LCNF

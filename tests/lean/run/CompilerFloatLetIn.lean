@@ -16,5 +16,5 @@ open Lean.Compiler.LCNF
 def floatLetInSizeTest : PassInstaller :=
   Testing.assertReducesOrPreservesSize "FloatLetIn increased size of declaration" |>.install `floatLetIn `floatLetInSizeEq
 
-set_option trace.Compiler.test true in
+set_option trace.compiler.test true in
 #eval Compiler.compile #[``Lean.Meta.synthInstance, ``Lean.Elab.Term.Do.elabDo]

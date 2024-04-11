@@ -91,7 +91,7 @@ private partial def loop : M Bool := do
            We must use `mkExpectedTypeHint` because `inferType proofNew` may not be equal to `typeNew` when
            we have theorems marked with `rfl`.
         -/
-        trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
+        trace[simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
         let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
         let idNew ← mkFreshId
         simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)

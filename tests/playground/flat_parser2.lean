@@ -349,9 +349,6 @@ takeUntil (= '\n')
 def whitespace : parserM Unit :=
 takeUntil (λ c, !c.isWhitespace)
 
--- setOption Trace.Compiler.boxed True
---- setOption pp.implicit True
-
 def strAux (cfg : ParserConfig) (str : String) (error : String) : Nat → resultOk → pos → Result Unit
 | 0     r j := mkError r error
 | (n+1) r j :=

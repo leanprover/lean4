@@ -25,5 +25,5 @@ def explode (x : Nat) : IO Unit := do
 
 #eval Lean.Compiler.compile #[``explode]
 
-set_option trace.Compiler.result true
+set_option trace.compiler.result true
 #eval Lean.Compiler.compile #[``explode]

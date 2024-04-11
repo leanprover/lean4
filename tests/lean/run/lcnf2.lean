@@ -10,7 +10,7 @@ def f (x : Nat) : Nat :=
   | 0 => 2
   | z+1 => z + y + 2
 
-set_option trace.Compiler true
+set_option trace.compiler true
 
 def g (x : Nat) : Bool :=
   let pred? := match x with

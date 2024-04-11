@@ -1,7 +1,7 @@
 -- Enable this option for tracing:
--- set_option trace.Tactic.stdLibrarySearch true
+-- set_option trace.librarySearch true
 -- And this option to trace all candidate lemmas before application.
--- set_option trace.Tactic.stdLibrarySearch.lemmas true
+-- set_option trace.librarySearch.lemmas true
 
 -- Many of the tests here are quite volatile,
 -- and when changes are made to `solve_by_elim` or `exact?`,

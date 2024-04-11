@@ -75,6 +75,6 @@ def reduceJpArity (phase := Phase.base) : Pass :=
   .mkPerDeclaration `reduceJpArity Decl.reduceJpArity phase
 
 builtin_initialize
-  registerTraceClass `Compiler.reduceJpArity (inherited := true)
+  registerTraceClass `compiler.reduceJpArity (inherited := true)
 
 end Lean.Compiler.LCNF

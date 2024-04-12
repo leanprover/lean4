@@ -34,7 +34,7 @@ structure BitVec (w : Nat) where
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
 
-@[deprecated] abbrev Std.BitVec := _root_.BitVec
+@[deprecated] protected abbrev Std.BitVec := _root_.BitVec
 
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we

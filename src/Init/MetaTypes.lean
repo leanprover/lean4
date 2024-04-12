@@ -130,7 +130,7 @@ structure Config where
   -/
   proj              : Bool := true
   /--
-  When `true` (default: `true`), rewrites a proposition `p` to `True` or `False` by inferring
+  When `true` (default: `false`), rewrites a proposition `p` to `True` or `False` by inferring
   a `Decidable p` instance and reducing it.
   -/
   decide            : Bool := false

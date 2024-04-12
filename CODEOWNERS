@@ -21,3 +21,4 @@
 /src/Lean/Server/ @mhuisi
 /src/Lean/Widget/ @Vtec234
 /src/runtime/io.cpp @joehendrix
+/src/Init/Data/Array/Subarray.lean @david-christiansen

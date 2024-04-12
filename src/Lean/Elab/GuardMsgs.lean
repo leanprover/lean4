@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
+import Lean.Elab.Notation
 import Lean.Server.CodeActions.Attr
 
 /-! `#guard_msgs` command for testing commands

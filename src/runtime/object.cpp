@@ -2003,16 +2003,6 @@ extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
     return hash_str(sz, (unsigned char const *) str, 11);
 }
 
-#if 1000000000000000000 < LEAN_MAX_SMALL_NAT
-#define LEAN_MAX_SMALL_POWER_OF_10 1000000000000000000
-#define LEAN_MAX_SMALL_POWER_OF_10_DIGITS 18
-#elif 1000000000 < LEAN_MAX_SMALL_NAT
-#define LEAN_MAX_SMALL_POWER_OF_10 1000000000
-#define LEAN_MAX_SMALL_POWER_OF_10_DIGITS 9
-#else
-#error "Cannot find suitable LEAN_MAX_SMALL_POWER_OF_10"
-#endif
-
 extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
     return mk_ascii_string(std::to_string(n));
 }

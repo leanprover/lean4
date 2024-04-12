@@ -571,11 +571,7 @@ else()
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
 
-if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
-    message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
-  endif()
-
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
@@ -588,6 +584,10 @@ if(PREV_STAGE)
     COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
+
+  add_custom_target(update-stage0-commit
+    COMMAND git commit -m "chore: update stage0"
+    DEPENDS update-stage0)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution

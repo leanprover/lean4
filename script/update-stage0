@@ -18,7 +18,7 @@ done
 
 for f in $(git ls-files 'src/lake/*'); do
     if [[ $f == *.lean ]]; then
-        f=${f#src/Lake}
+        f=${f#src/lake}
         f=${f%.lean}.c
         mkdir -p $(dirname stage0/stdlib/$f)
         cp ${CP_C_PARAMS:-} $CSRCS/$f stage0/stdlib/$f

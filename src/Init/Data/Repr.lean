@@ -120,15 +120,17 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
-@[extern "lean_string_of_nat"]
-private opaque reprFastAux (n : @& Nat) : String
+@[extern "lean_string_of_usize"]
+protected def _root_.USize.repr (n : @& USize) : String :=
+  (toDigits 10 n.toNat).asString
 
 private def reprArray : Array String := Id.run do
-  List.range 128 |>.map Nat.reprFastAux |> Array.mk
+  List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
 private def reprFast (n : Nat) : String :=
   if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else
-  Nat.reprFastAux n
+  if h : n < USize.size then (USize.ofNatCore n h).repr
+  else (toDigits 10 n).asString
 
 @[implemented_by reprFast]
 protected def repr (n : Nat) : String :=

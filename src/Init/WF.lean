@@ -48,6 +48,7 @@ If a relation is `WellFounded`, it does not allow for an infinite descent along 
 
 If the arguments of the recursive calls in a function definition decrease according to
 a well founded relation, then the function terminates.
+Well-founded relations are sometimes called _Artinian_ or said to satisfy the “descending chain condition”.
 -/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r

@@ -66,7 +66,7 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     if let some spec := spec? then
       match spec with
       | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
-      | _ => throwErrorAt spec "Invalid #guard_msgs specification"
+      | _ => throwUnsupportedSyntax
     else
       pure #[]
   let mut whitespace : WhitespaceMode := .normalized
@@ -88,7 +88,7 @@ def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
     | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
     | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
     | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
-    | _ => throwErrorAt elt "Invalid #guard_msgs specification element"
+    | _ => throwUnsupportedSyntax
   return (whitespace, ordering, p?.getD fun _ => .check)
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,

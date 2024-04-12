@@ -112,8 +112,10 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   | ⟨ size, buckets ⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
-    if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
-    else m
+    if bkt.contains a then
+      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+    else
+      ⟨size, buckets⟩
 
 inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop where
   | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)

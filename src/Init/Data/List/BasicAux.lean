@@ -46,7 +46,7 @@ def getD (as : List α) (i : Nat) (fallback : α) : α :=
 /--
 Returns the first element in the list.
 
-If the the list is empty, this function panics when executed, and returns `default`.
+If the list is empty, this function panics when executed, and returns `default`.
 See `head` and `headD` for safer alternatives.
 -/
 def head! [Inhabited α] : List α → α

@@ -100,7 +100,7 @@ protected def neg (n : @& Int) : Int :=
   ```
 -/
 @[default_instance mid]
-instance : Neg Int where
+instance instNegInt : Neg Int where
   neg := Int.neg
 
 /-- Subtraction of two natural numbers. -/
@@ -173,13 +173,13 @@ inductive NonNeg : Int → Prop where
 /-- Definition of `a ≤ b`, encoded as `b - a ≥ 0`. -/
 protected def le (a b : Int) : Prop := NonNeg (b - a)
 
-instance : LE Int where
+instance instLEInt : LE Int where
   le := Int.le
 
 /-- Definition of `a < b`, encoded as `a + 1 ≤ b`. -/
 protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : LT Int where
+instance instLTInt : LT Int where
   lt := Int.lt
 
 set_option bootstrap.genMatcherCode false in

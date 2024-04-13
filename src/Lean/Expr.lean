@@ -2025,43 +2025,43 @@ def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 /-! Constants for Nat typeclasses. -/
 namespace Nat
 
-def natType : Expr := mkConst ``Nat
+protected def mkType : Expr := mkConst ``Nat
 
-def instAdd : Expr := mkConst ``instAddNat
-def instHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) natType instAdd
+def mkInstAdd : Expr := mkConst ``instAddNat
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Nat.mkType mkInstAdd
 
-def instSub : Expr := mkConst ``instSubNat
-def instHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) natType instSub
+def mkInstSub : Expr := mkConst ``instSubNat
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Nat.mkType mkInstSub
 
-def instMul : Expr := mkConst ``instMulNat
-def instHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) natType instMul
+def mkInstMul : Expr := mkConst ``instMulNat
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType mkInstMul
 
-def instDiv : Expr := mkConst ``Nat.instDivNat
-def instHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) natType instDiv
+def mkInstDiv : Expr := mkConst ``Nat.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Nat.mkType mkInstDiv
 
-def instMod : Expr := mkConst ``Nat.instModNat
-def instHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) natType instMod
+def mkInstMod : Expr := mkConst ``Nat.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Nat.mkType mkInstMod
 
-def instNatPow : Expr := mkConst ``instNatPowNat
-def instPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) natType instNatPow
-def instHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) natType natType instPow
+def mkInstNatPow : Expr := mkConst ``instNatPowNat
+def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Nat.mkType mkInstNatPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Nat.mkType Nat.mkType mkInstPow
 
-def instLT : Expr := mkConst ``instLTNat
-def instLE : Expr := mkConst ``instLENat
+def mkInstLT : Expr := mkConst ``instLTNat
+def mkInstLE : Expr := mkConst ``instLENat
 
 end Nat
 
 private def natAddFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.instHAdd
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.instHSub
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
 
 private def natMulFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.instHMul
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2080,7 +2080,7 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.instLE
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=

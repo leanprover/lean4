@@ -950,7 +950,8 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
-      return eqnInfo.declNames.size > 1
+      if h : eqnInfo.declNames.size > 1 then
+        return eqnInfo.declNames[0] = p
     return false
   | _ => return false
 

@@ -82,7 +82,7 @@ def head : (as : List α) → as ≠ [] → α
 /--
 Drops the first element of the list.
 
-If the the list is empty, this function panics when executed, and returns the empty list.
+If the list is empty, this function panics when executed, and returns the empty list.
 See `tail` and `tailD` for safer alternatives.
 -/
 def tail! : List α → List α

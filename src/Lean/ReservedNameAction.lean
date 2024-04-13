@@ -33,6 +33,9 @@ Note that the handler can throw an exception.
 def executeReservedNameAction (name : Name) : CoreM Unit := do
   for act in (← reservedNameActionsRef.get) do
     if (← act name) then
+      unless (← getEnv).contains name do
+        throwError m!"Name {name} is a reserved name, but the reserved name action did not add " ++
+          "it to the environment."
       return ()
 
 /--

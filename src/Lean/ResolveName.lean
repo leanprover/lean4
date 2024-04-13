@@ -363,8 +363,8 @@ def ensureNonAmbiguous [Monad m] [MonadError m] (id : Syntax) (cs : List Name) :
 constant name. If there are multiple possible interpretations it will throw.
 
 Consider using `realizeGlobalConstNoOverload` if you need to handle reserved names, and
-`resolveGlobalConstNoOverloadWithInfo` resp. `realizeGlobalConstNoOverloadWithInfo` if you
-want the syntax to have hover.
+`realizeGlobalConstNoOverloadWithInfo` if you
+want the syntax to show the resulting name's info on hover.
 
 ## Example:
 ```

@@ -56,7 +56,7 @@ def head! [Inhabited α] : List α → α
 /--
 Returns the first element in the list.
 
-If the the list is empty, this function returns `none`.
+If the list is empty, this function returns `none`.
 Also see `headD` and `head!`.
 -/
 def head? : List α → Option α
@@ -66,7 +66,7 @@ def head? : List α → Option α
 /--
 Returns the first element in the list.
 
-If the the list is empty, this function returns `fallback`.
+If the list is empty, this function returns `fallback`.
 Also see `head?` and `head!`.
 -/
 def headD : (as : List α) → (fallback : α) → α
@@ -92,7 +92,7 @@ def tail! : List α → List α
 /--
 Drops the first element of the list.
 
-If the the list is empty, this function returns `none`.
+If the list is empty, this function returns `none`.
 Also see `tailD` and `tail!`.
 -/
 def tail? : List α → Option (List α)
@@ -102,7 +102,7 @@ def tail? : List α → Option (List α)
 /--
 Drops the first element of the list.
 
-If the the list is empty, this function returns `fallback`.
+If the list is empty, this function returns `fallback`.
 Also see `head?` and `head!`.
 -/
 def tailD (list fallback : List α) : List α :=
@@ -131,7 +131,7 @@ def getLast! [Inhabited α] : List α → α
 /--
 Returns the last element in the list.
 
-If the the list is empty, this function returns `none`.
+If the list is empty, this function returns `none`.
 Also see `getLastD` and `getLast!`.
 -/
 def getLast? : List α → Option α
@@ -141,7 +141,7 @@ def getLast? : List α → Option α
 /--
 Returns the last element in the list.
 
-If the the list is empty, this function returns `fallback`.
+If the list is empty, this function returns `fallback`.
 Also see `getLast?` and `getLast!`.
 -/
 def getLastD : (as : List α) → (fallback : α) → α

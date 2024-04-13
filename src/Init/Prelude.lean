@@ -477,6 +477,8 @@ and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
 For more information: [Constructors with Arguments](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
 -/
 structure Prod (α : Type u) (β : Type v) where
+  /-- Constructs a pair from two terms. -/
+  mk ::
   /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
   fst : α
   /-- The second projection out of a pair. if `p : α × β` then `p.2 : β`. -/

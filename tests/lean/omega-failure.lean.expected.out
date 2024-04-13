@@ -48,18 +48,18 @@ where
 omega-failure.lean:29:72-29:77: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   x ≥ 0
-  a1 ≥ 0
+  a_1 ≥ 0
   v ≥ 0
-  c1 ≥ 0
-  b1 ≥ 0
-  e1 ≥ 0
+  c_1 ≥ 0
+  b_1 ≥ 0
+  e_1 ≥ 0
   z ≥ 0
   q ≥ 0
   s ≥ 0
-  d1 ≥ 0
+  d_1 ≥ 0
   u ≥ 0
   t ≥ 0
-  q + r + s + t + u + v + w + x + y + z + a1 + b1 + c1 + d1 + e1 ≥ 100
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
   w ≥ 0
   r ≥ 0
   y ≥ 0
@@ -74,8 +74,8 @@ where
  x := ↑i
  y := ↑j
  z := ↑k
- a1 := ↑l
- b1 := ↑m
- c1 := ↑n
- d1 := ↑o
- e1 := ↑p
+ a_1 := ↑l
+ b_1 := ↑m
+ c_1 := ↑n
+ d_1 := ↑o
+ e_1 := ↑p

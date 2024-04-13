@@ -545,7 +545,7 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
 where
   varNameOf (i : Nat) : String :=
     let c : Char := .ofNat ('a'.toNat + (i % 26))
-    let suffix := if i < 26 then "" else (i / 26).repr
+    let suffix := if i < 26 then "" else s!"_{i / 26}"
     s!"{c}{suffix}"
 
   inScope (s : String) : MetaM Bool := do

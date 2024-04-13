@@ -83,6 +83,11 @@ v4.8.0 (development in progress)
   [#3629](https://github.com/leanprover/lean4/pull/3629) and
   [#3655](https://github.com/leanprover/lean4/pull/3655).
 
+* The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
+  For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
+  and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
+  PR [#3883](https://github.com/leanprover/lean4/pull/3883).
+
 Breaking changes:
 
 * Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:

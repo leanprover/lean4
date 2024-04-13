@@ -632,7 +632,11 @@ run_meta do
   logInfo e -- Nat.succ ?m.773
   mvar1.mvarId!.assign (mkNatLit 42)
   let e' ← instantiateMVars e
-  logInfo e' -- Nat.succ 42
+  -- e is `Nat.succ ?m.773`, `?m.773` is unassigned
+  mvar1.mvarId!.assign (mkNatLit 42)
+  -- e is `Nat.succ ?m.773`, `?m.773` is assigned to `42`
+  let e' ← instantiateMVars e
+  -- e' is `Nat.succ 42`, `?m.773` is assigned to `42`
 ```
 -/
 def instantiateMVars [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do

@@ -943,10 +943,16 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
 def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
-  unless s = "induct" do return false
-  if (WF.eqnInfoExt.find? env p).isSome then return true
-  if (Structural.eqnInfoExt.find? env p).isSome then return true
-  return false
+  match s with
+  | "induct" =>
+    if (WF.eqnInfoExt.find? env p).isSome then return true
+    if (Structural.eqnInfoExt.find? env p).isSome then return true
+    return false
+  | "mutual_induct" =>
+    if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      return eqnInfo.declNames.size > 1
+    return false
+  | _ => return false
 
 builtin_initialize
   registerReservedNamePredicate isFunInductName

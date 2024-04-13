@@ -80,8 +80,10 @@ v4.8.0 (development in progress)
   Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
   rather than `Nat.zero` and `Nat.succ n`.
   Added option `tactic.customEliminators` to control whether to use custom eliminators.
-  [#3629](https://github.com/leanprover/lean4/pull/3629) and
-  [#3655](https://github.com/leanprover/lean4/pull/3655).
+  Added a hack for `rcases`/`rintro`/`obtain` to use the custom eliminator for `Nat`.
+  [#3629](https://github.com/leanprover/lean4/pull/3629),
+  [#3655](https://github.com/leanprover/lean4/pull/3655), and
+  [#3747](https://github.com/leanprover/lean4/pull/3747).
 
 * The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
   For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,

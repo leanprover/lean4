@@ -296,6 +296,8 @@ structure Triple (α β γ : Type) extends Prod α β where
 /-- Extracts the first two projections of a triple. -/
 add_decl_doc Triple.toProd
 ```
+
+Documentation can only be added to declarations in the same module.
 -/
 @[builtin_command_parser] def addDocString := leading_parser
   docComment >> "add_decl_doc " >> ident

@@ -437,11 +437,12 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
 
-def mkInputContext (input : String) (fileName : String) : InputContext := {
-  input    := input,
-  fileName := fileName,
-  fileMap  := input.toFileMap
-}
+-- Note: `crlfToLf` preserves logical line and column numbers for each character.
+def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) : InputContext :=
+  let input' := if normalizeLineEndings then input.crlfToLf else input
+  { input    := input',
+    fileName := fileName,
+    fileMap  := input'.toFileMap }
 
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }

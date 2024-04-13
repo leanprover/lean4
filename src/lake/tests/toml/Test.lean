@@ -30,7 +30,7 @@ nonrec def loadToml (tomlFile : FilePath) : BaseIO TomlOutcome := do
     match (← IO.FS.readBinFile tomlFile |>.toBaseIO) with
     | .ok bytes =>
       if let some input := String.fromUTF8? bytes then
-        pure (crlf2lf input)
+        pure input.crlfToLf
       else
         return .fail <| MessageLog.empty.add
           {fileName, pos := ⟨1,0⟩, data := m!"file contains invalid characters"}

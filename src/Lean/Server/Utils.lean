@@ -98,7 +98,7 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   let «end» := text.lspPosToUtf8Pos r.«end»
   let pre := text.source.extract 0 start
   let post := text.source.extract «end» text.source.endPos
-  (pre ++ newText ++ post).toFileMap
+  (pre ++ newText.crlfToLf ++ post).toFileMap
 
 open IO
 
@@ -125,7 +125,7 @@ def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentC
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
     replaceLspRange oldText range newText
   | TextDocumentContentChangeEvent.fullChange (newText : String) =>
-    newText.toFileMap
+    newText.crlfToLf.toFileMap
 
 /-- Returns the document contents with all changes applied. -/
 def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=

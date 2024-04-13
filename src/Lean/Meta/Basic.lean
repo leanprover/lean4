@@ -350,6 +350,34 @@ instance : MonadBacktrack SavedState MetaM where
 instance [MetaEval α] : MetaEval (MetaM α) :=
   ⟨fun env opts x _ => MetaEval.eval env opts x.run' true⟩
 
+/--
+Saves the current state and context of the `MetaM` (and `CoreM`) monad in a `PPContext`.
+-/
+def MetaM.savePPContext : MetaM PPContext := do
+  let env ← getEnv
+  let mctx ← getMCtx
+  let lctx ← getLCtx
+  let opts ← getOptions
+  let { currNamespace, openDecls, .. } ← readThe Core.Context
+  return { env, mctx, lctx, opts, currNamespace, openDecls }
+
+/--
+Runs a `CoreM` action in the context stored in the `ppCtxt`, typically for pretty-printing.
+Changes to the state are discarded.
+-/
+def _root_.Lean.PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
+  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace,
+                        openDecls := ppCtx.openDecls, fileName := "<PrettyPrinter>",
+                        fileMap := default }
+                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
+
+/--
+Runs a `MetaM` action in the context stored in the `ppCtxt`, typically for pretty-printing.
+Changes to the state are discarded.
+-/
+def _root_.Lean.PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
+  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+
 protected def throwIsDefEqStuck : MetaM α :=
   throw <| Exception.internal isDefEqStuckExceptionId
 
@@ -1551,12 +1579,9 @@ Runs the `MetaM` action lazily, when the resulting `Thunk` is forced.
 This forks the state of the `MetaM` and `CoreM` monad, and discards changes to that state.
 Caveats of `BaseIO.asThunk` apply.
 -/
-def MetaM.asThunk (m : MetaM α) : MetaM (Thunk (Except Exception α)) := do
-  let ctx ← readThe Meta.Context
-  let state ← saveState
-  let coreState ← getThe Core.State
-  let coreCtxt ← readThe Core.Context
-  (do restoreState state; m).run' (ctx := ctx) |>.run' coreCtxt coreState |>.toBaseIO.asThunk
+def MetaM.asThunk (m : MetaM α) : MetaM (Thunk (Except IO.Error α)) := do
+  let ppCtx ← savePPContext
+  BaseIO.asThunk (ppCtx.runMetaM m |>.toBaseIO)
 
 /--
 Delays computation of `MessageData` until the message is used. This can be used to avoid constructing
@@ -1565,7 +1590,7 @@ a complex error message when it woudn’t be shown anyways.
 def _root_.MessageData.ofMetaMThunk (m : MetaM MessageData) : MetaM MessageData :=
   return .thunk <| (← m.asThunk).map fun
     | .ok m => m
-    | .error e => m!"Exception while constructing message:\n{e.toMessageData}"
+    | .error e => m!"Exception while constructing message:\n{e}"
 
 /--
   Sort free variables using an order `x < y` iff `x` was defined before `y`.

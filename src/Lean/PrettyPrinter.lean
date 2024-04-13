@@ -10,16 +10,7 @@ import Lean.PrettyPrinter.Formatter
 import Lean.Parser.Module
 import Lean.ParserCompiler
 
-namespace Lean
-
-def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
-  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace, openDecls := ppCtx.openDecls, fileName := "<PrettyPrinter>", fileMap := default }
-                      { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
-
-def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
-
-namespace PrettyPrinter
+namespace Lean.PrettyPrinter
 
 def ppCategory (cat : Name) (stx : Syntax) : CoreM Format := do
   let opts ← getOptions
@@ -100,5 +91,4 @@ unsafe def registerParserCompilers : IO Unit := do
   ParserCompiler.registerParserCompiler ⟨`parenthesizer, parenthesizerAttribute, combinatorParenthesizerAttribute⟩
   ParserCompiler.registerParserCompiler ⟨`formatter, formatterAttribute, combinatorFormatterAttribute⟩
 
-end PrettyPrinter
-end Lean
+end Lean.PrettyPrinter

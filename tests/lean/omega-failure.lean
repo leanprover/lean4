@@ -22,5 +22,8 @@ theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeO
 example (reallyreallyreallyreally longlonglonglong namenamename : Nat) :
   reallyreallyreallyreally < longlonglonglong + namenamename := by omega
 
-example (a b c d e f g h i j k l m n o p : Nat) :
-  a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p < 100 := by omega
+
+def a := 1
+
+example (b c d e f g h i j k l m n o p : Nat) :
+  b + c + d + e + f + g + h + i + j + k + l + m + n + o + p < 100 := by omega

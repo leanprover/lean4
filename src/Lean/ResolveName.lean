@@ -326,8 +326,7 @@ This should be used instead of `resolveGlobalConstCore` for identifiers taken fr
 because `Syntax` objects may have names that have already been resolved.
 
 Consider using `realizeGlobalConst` if you need to handle reserved names, and
-`resolveGlobalConstWithInfo` resp. `realizeGlobalConstWithInfo` if you want the syntax to have
-hover.
+`realizeGlobalConstWithInfo` if you want the syntax to show the resulting name's info on hover.
 
 ## Example:
 ```

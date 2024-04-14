@@ -148,6 +148,15 @@ def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 
+/--
+`O(n)`. Rotates the elements of `xs` to the left such that the element at
+`xs[i]` rotates to `xs[(i - n) % l.length]`.
+
+`n` defaults to `1`.
+* `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
+* `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
+-/
 def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -158,6 +167,15 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
+/--
+`O(n)`. Rotates the elements of `xs` to the right such that the element at
+`xs[i]` rotates to `xs[(i + n) % l.length]`.
+
+`n` defaults to `1`.
+* `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
+* `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
+-/
 def rotateRight (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -288,6 +306,15 @@ def mapMono (as : List α) (f : α → α) : List α :=
 Monadic generalization of `List.partition`.
 
 This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+```
+def posOrNeg? (x : Int) : Option Bool :=
+  if x > 0 then true
+  else if x < 0 then false
+  else none
+
+partitionM posOrNeg? [-1, 2, 3] = some ([2, 3], [-1])
+partitionM posOrNeg? [0, 2, 3] = none
+```
 -/
 @[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
   go l #[] #[]

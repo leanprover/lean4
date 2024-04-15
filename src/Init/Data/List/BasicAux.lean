@@ -151,8 +151,6 @@ def getLastD : (as : List α) → (fallback : α) → α
 /--
 `O(n)`. Rotates the elements of `xs` to the left such that the element at
 `xs[i]` rotates to `xs[(i - n) % l.length]`.
-
-`n` defaults to `1`.
 * `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
 * `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
 * `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
@@ -170,8 +168,6 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
 /--
 `O(n)`. Rotates the elements of `xs` to the right such that the element at
 `xs[i]` rotates to `xs[(i + n) % l.length]`.
-
-`n` defaults to `1`.
 * `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
 * `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
 * `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`

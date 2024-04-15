@@ -1168,7 +1168,7 @@ This uses `norm_cast` lemmas in the forward direction.
 For example, `↑(a + b)` will be written to `↑a + ↑b`.
 - `push_cast` moves casts inward in the goal.
 - `push_cast at h` moves casts inward in the hypothesis `h`.
-It can be used with extra simp lemmas with, for example, `push_cast [int.add_zero]`.
+It can be used with extra simp lemmas with, for example, `push_cast [Int.add_zero]`.
 
 Example:
 ```lean

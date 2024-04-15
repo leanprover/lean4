@@ -1,11 +1,18 @@
+/-
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: David Thrane Christiansen
+-/
+
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Array.Subarray
 import Init.Omega
 
 /-
-This module contains splitting operations on subarrays that crucially rely on `omega` for proof automation. Placing them in another module breaks an import cycle, because
-`omega` itself uses the array library.
+This module contains splitting operations on subarrays that crucially rely on `omega` for proof
+automation. Placing them in another module breaks an import cycle, because `omega` itself uses the
+array library.
 -/
 
 namespace Subarray

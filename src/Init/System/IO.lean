@@ -135,6 +135,17 @@ where
       BaseIO.bindTask t (fun a => go ts (a :: as)) prio sync
     | [], as => f as.reverse |>.asTask prio
 
+/--
+Stores an `BaseIO` action in a thunk so that the action is executed when the thunk is forced
+(using `Thunk.get`) the first time. This is a possibly unsafe operations, as `Thunk.get` has a pure
+function type, but its evaluation can control whether and when the side effects occur.
+This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO).
+-/
+@[extern "lean_io_as_thunk"]
+opaque asThunk (f : BaseIO α) : BaseIO (Thunk α) := do
+  let x ← f
+  return Thunk.pure x
+
 end BaseIO
 
 namespace EIO

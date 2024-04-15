@@ -1033,6 +1033,20 @@ extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg p
     return io_result_mk_ok(t2);
 }
 
+/* {α : Type} (act : BaseIO α) : Unit → α */
+static obj_res lean_io_as_thunk_fn(obj_arg act, obj_arg) {
+    object_ref r(apply_1(act, io_mk_world()));
+    return object_ref(io_result_get_value(r.raw()), true).steal();
+}
+
+/* BaseIO.asThunk {α : Type} (act : BaseIO α) : BaseIO (Thunk α) */
+extern "C" LEAN_EXPORT obj_res lean_io_as_thunk(obj_arg act, obj_arg) {
+    object * c = lean_alloc_closure((void*)lean_io_as_thunk_fn, 2, 1);
+    lean_closure_set(c, 0, act);
+    object * t = lean_mk_thunk(c);
+    return io_result_mk_ok(t);
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_check_canceled(obj_arg) {
     return io_result_mk_ok(box(lean_io_check_canceled_core()));
 }

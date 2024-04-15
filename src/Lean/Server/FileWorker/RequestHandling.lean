@@ -447,6 +447,41 @@ def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
     |>.insert "stop" .leanSorryLike
     |>.insert "#exit" .leanSorryLike
 
+structure InlayHintParams extends WorkDoneProgressParams where
+  /- The text document. -/
+  textDocument: TextDocumentIdentifier
+
+  /- The visible document range for which inlay hints should be computed. -/
+  range: Range
+deriving FromJson
+
+instance : FileSource InlayHintParams :=
+  ⟨fun i => i.textDocument.uri⟩  -- TOOD: completion broke
+
+structure InlayHint where
+  position: Lsp.Position
+  label: String
+deriving ToJson
+
+partial def handleInlayHints (p : InlayHintParams) : RequestM (RequestTask (Array InlayHint)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let beginPos := text.lspPosToUtf8Pos p.range.start
+  let endPos := text.lspPosToUtf8Pos p.range.end
+  let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
+  mapTask t fun (snaps, _) => do
+    let (_, s) ← StateT.run (s := #[]) do
+      for s in snaps do
+        if s.endPos <= beginPos then
+          continue
+        s.infoTree.visitM'
+          (postNode := fun _ i _ => do
+            let .ofCustomInfo ci := i | pure ()
+            let some ihi := ci.value.get? Elab.Term.InlayHintInfo | pure ()
+            modify (·.push { position := text.utf8PosToLspPos ihi.pos, label := ihi.getString })
+          )
+    return s
+
 partial def handleSemanticTokens (beginPos : String.Pos) (endPos? : Option String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
@@ -693,6 +728,11 @@ builtin_initialize
     SemanticTokensRangeParams
     SemanticTokens
     handleSemanticTokensRange
+  registerLspRequestHandler
+    "textDocument/inlayHint"
+    InlayHintParams
+    (Array InlayHint)
+    handleInlayHints
   registerLspRequestHandler
     "textDocument/foldingRange"
     FoldingRangeParams

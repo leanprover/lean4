@@ -156,7 +156,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               type ← cleanupOfNat type
             let (binderIds, xs) := xs.unzip
             -- TODO: add forbidden predicate using `shortDeclName` from `views`
-            let xs ← addAutoBoundImplicits xs
+            let xs ← addAutoBoundImplicits xs (binderPos? := view.binders.getPos?)
             type ← mkForallFVars' xs type
             type ← instantiateMVars type
             let levelNames ← getLevelNames

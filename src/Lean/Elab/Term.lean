@@ -1565,6 +1565,11 @@ where
         else
           go (mvarIdsNew.toList ++ mvarId :: mvarIds) result visited
 
+structure InlayHintInfo where
+  pos : String.Pos
+  getString : String
+deriving TypeName
+
 /--
   Return `autoBoundImplicits ++ xs`
   This method throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
@@ -1574,13 +1579,22 @@ where
   Remark: we cannot simply replace every occurrence of `addAutoBoundImplicitsOld` with this one because a particular
   use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
-def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+def addAutoBoundImplicits (xs : Array Expr) (binderPos? : Option String.Pos := none) :
+    TermElabM (Array Expr) := do
   let autos := (← read).autoBoundImplicits
   go autos.toList #[]
 where
   go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
     match todo with
-    | [] =>
+    | [] => do
+      if let some pos := binderPos? then
+        let s := s!"\{{" ".intercalate (← autos.mapM (toString <$> ·.fvarId!.getUserName)).toList}} "
+        pushInfoLeaf <| .ofCustomInfo {
+          stx := .missing
+          value := Dynamic.mk
+            { pos, getString := s : InlayHintInfo }
+        }
+
       for auto in autos do
         if auto.isFVar then
           let localDecl ← auto.fvarId!.getDecl

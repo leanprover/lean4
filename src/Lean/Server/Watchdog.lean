@@ -1039,6 +1039,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     resolveProvider? := true,
     codeActionKinds? := some #["quickfix", "refactor"]
   }
+  inlayHintProvider? := some {}
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do

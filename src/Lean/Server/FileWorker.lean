@@ -73,6 +73,11 @@ structure WorkerContext where
   maxDocVersionRef     : IO.Ref Int
   freshRequestIdRef    : IO.Ref Int
   /--
+  Channel that receives a message for every a `$/lean/fileProgress` notification, indicating whether
+  the notification suggests that the file is currently being processed.
+  -/
+  chanIsProcessing     : IO.Channel Bool
+  /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
   stickyDiagnosticsRef : IO.Ref StickyDiagnostics
@@ -314,8 +319,9 @@ section Initialization
     catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef 0
+    let chanIsProcessing ← IO.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
-    let chanOut ← mkLspOutputChannel maxDocVersionRef
+    let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
 
     let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
@@ -333,6 +339,7 @@ section Initialization
       clientHasWidgets
       maxDocVersionRef
       freshRequestIdRef
+      chanIsProcessing
       cmdlineOpts := opts
       stickyDiagnosticsRef
     }
@@ -355,7 +362,7 @@ section Initialization
         the output FS stream after discarding outdated notifications. This is the only component of
         the worker with access to the output stream, so we can synchronize messages from parallel
         elaboration tasks here. -/
-    mkLspOutputChannel maxDocVersion : IO (IO.Channel JsonRpc.Message) := do
+    mkLspOutputChannel maxDocVersion chanIsProcessing : IO (IO.Channel JsonRpc.Message) := do
       let chanOut ← IO.Channel.new
       let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
@@ -374,6 +381,9 @@ section Initialization
           -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
           -- as that would allow outdated messages to be reported until the delay is over
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
+        if let .notification "$/lean/fileProgress" (some params) := msg then
+          if let some (params : LeanFileProgressParams) := fromJson? (toJson params) |>.toOption then
+            chanIsProcessing.send (! params.processing.isEmpty)
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
@@ -667,8 +677,15 @@ def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
   let ctx ← read
   IO.asTask do
     while ! (←IO.checkCanceled) do
+      let pastProcessingStates ← ctx.chanIsProcessing.recvAllCurrent
+      if pastProcessingStates.isEmpty then
+        -- Processing progress has not changed since we last sent out a refresh request
+        -- => do not send out another one for now so that we do not make the client spam
+        --    semantic token requests while idle and already having received an up-to-date state
+        IO.sleep 1000
+        continue
       sendServerRequest ctx "workspace/semanticTokens/refresh" (none : Option Nat)
-      IO.sleep 2000
+      IO.sleep 5000
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i

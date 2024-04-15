@@ -19,7 +19,7 @@ SWIFTC_FLAGS = -O -whole-module-optimization
 TEMCI_FLAGS = --settings cross.yaml
 
 TEMCI ?= temci
-LEAN_BIN ?= ../../bin
+LEAN_BIN ?= ../../build/release/stage1/bin
 GHC ?= ghc
 OCAML ?= ocamlopt.opt
 MLTON_BIN ?= /usr/bin

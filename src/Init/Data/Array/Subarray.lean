@@ -29,6 +29,12 @@ namespace Subarray
 def size (s : Subarray α) : Nat :=
   s.stop - s.start
 
+theorem size_le_array_size {s : Subarray α} : s.size ≤ s.array.size := by
+  let {array, start, stop, start_le_stop, stop_le_array_size} := s
+  simp [size]
+  apply Nat.le_trans (Nat.sub_le stop start)
+  assumption
+
 def get (s : Subarray α) (i : Fin s.size) : α :=
   have : s.start + i.val < s.array.size := by
    apply Nat.lt_of_lt_of_le _ s.stop_le_array_size

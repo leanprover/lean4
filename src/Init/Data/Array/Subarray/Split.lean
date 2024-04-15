@@ -46,9 +46,11 @@ subarray is empty.
 -/
 def drop (arr : Subarray α) (i : Nat) : Subarray α where
   array := arr.array
-  start := if arr.start + i ≤ arr.stop then arr.start + i else arr.stop
+  start := min (arr.start + i) arr.stop
   stop := arr.stop
-  start_le_stop := by split <;> simp only [Nat.le_refl, *]
+  start_le_stop := by
+    rw [Nat.min_def]
+    split <;> simp only [Nat.le_refl, *]
   stop_le_array_size := arr.stop_le_array_size
 
 /--
@@ -58,11 +60,12 @@ subarray is empty.
 def take (arr : Subarray α) (i : Nat) : Subarray α where
   array := arr.array
   start := arr.start
-  stop := if i ≤ arr.stop - arr.start then arr.start + i else arr.stop
+  stop := min (arr.start + i) arr.stop
   start_le_stop := by
     have := arr.start_le_stop
+    rw [Nat.min_def]
     split <;> omega
   stop_le_array_size := by
-    have := arr.start_le_stop
     have := arr.stop_le_array_size
+    rw [Nat.min_def]
     split <;> omega

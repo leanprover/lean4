@@ -75,8 +75,8 @@ private partial def noContext : MessageData → MessageData
   | MessageData.group msg  => MessageData.group (noContext msg)
   | MessageData.compose msg₁ msg₂ => MessageData.compose (noContext msg₁) (noContext msg₂)
   | MessageData.tagged tag msg => MessageData.tagged tag (noContext msg)
-  | MessageData.trace cls header children collapsed =>
-    MessageData.trace cls (noContext header) (children.map noContext) collapsed
+  | MessageData.trace data header children =>
+    MessageData.trace data (noContext header) (children.map noContext)
   | msg => msg
 
 -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error

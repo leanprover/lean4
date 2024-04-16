@@ -164,7 +164,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
-/-- Given `h : HEq a b`, returns a proof of `Eq a b`. -/
+/-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
 def mkEqOfHEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -174,7 +174,7 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
     let u ← getLevel α
     return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
-    throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
+    throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
 /--
 If `e` is `@Eq.refl α a`, return `a`.

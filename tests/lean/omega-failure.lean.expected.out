@@ -19,23 +19,21 @@ a possible counterexample may satisfy the constraints
 where
  a := x
  b := y
-omega-failure.lean:19:2-19:7: error: omega could not prove the goal:
+omega-failure.lean:22:2-22:7: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
-  d - e ≥ 1
-  e ≥ 0
   d ≥ 0
   a - b ≥ 1
   c ≥ 0
+  a - d ≤ -1
   b ≥ 0
   a ≥ 0
   c + d ≥ -1
 where
  a := ↑(sizeOf xs)
- b := ↑(sizeOf x)
+ b := ↑(sizeOf y)
  c := ↑(sizeOf x.fst)
  d := ↑(sizeOf x.snd)
- e := ↑(sizeOf xs)
-omega-failure.lean:23:67-23:72: error: omega could not prove the goal:
+omega-failure.lean:26:67-26:72: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   c ≥ 0
   a - b - c ≥ 0
@@ -45,7 +43,7 @@ where
  a := ↑reallyreallyreallyreally
  b := ↑longlonglonglong
  c := ↑namenamename
-omega-failure.lean:29:72-29:77: error: omega could not prove the goal:
+omega-failure.lean:32:72-32:77: error: omega could not prove the goal:
 a possible counterexample may satisfy the constraints
   x ≥ 0
   a_1 ≥ 0
@@ -59,8 +57,8 @@ a possible counterexample may satisfy the constraints
   d_1 ≥ 0
   u ≥ 0
   t ≥ 0
-  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
   w ≥ 0
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
   r ≥ 0
   y ≥ 0
 where

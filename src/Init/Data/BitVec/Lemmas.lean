@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix
+Authors: Joe Hendrix, Harun Khan
 -/
 prelude
 import Init.Data.Bool
@@ -875,6 +875,15 @@ theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   have y_toNat_le := Nat.le_of_lt y.toNat_lt
   rw [toNat_sub, toNat_add, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
     Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
+
+theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
+  rw [sub_toAdd, BitVec.add_assoc, BitVec.add_comm _ y,
+      ← BitVec.add_assoc, ← sub_toAdd, add_sub_cancel]
+
+theorem eq_sub_iff_add_eq {x y z : BitVec w} : x = z - y ↔ x + y = z := by
+  apply Iff.intro <;> intro h
+  · simp [h, sub_add_cancel]
+  · simp [←h, add_sub_cancel]
 
 theorem negOne_eq_allOnes : -1#w = allOnes w := by
   apply eq_of_toNat_eq

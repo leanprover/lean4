@@ -159,4 +159,43 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
+/-! ### Negation -/
+
+/-- Bitwise 1's complement implemented via `iunfoldr`. -/
+def bit_not (x : BitVec w) : BitVec w :=
+  ((iunfoldr fun (i : Fin w) c => (c, !(x.getLsb i))) ()).snd
+
+/-- Bitwise 2's complement implemented via `iunfoldr`. -/
+def bit_neg (x : BitVec w) : BitVec w := (adc (bit_not x) (BitVec.ofNat w 1) false).snd
+
+theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
+  getLsb (bit_not x) i.val = !(getLsb x i.val) := by
+  simp only [bit_not]
+  apply iunfoldr_getLsb (fun _ => ()) i (by simp)
+
+theorem bit_not_add_self (x : BitVec w) : bit_not x + x  = -1 := by
+  simp only [bit_not, add_eq_adc]
+  apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
+  intro i; simp only [ BitVec.not, adcb, testBit_toNat]
+  rw [iunfoldr_replace_snd (fun _ => ()) (bit_not x) () rfl (by simp [bit_not_testBit])]
+  simp only [bit_not_testBit]
+  simp only [← testBit_toNat, ofNat_eq_ofNat, toNat_neg, toNat_ofNat]
+  cases w
+  case zero => have := Fin.size_pos i; simp at this
+  case succ w =>
+    rw [Nat.mod_eq_of_lt (Nat.one_lt_two_pow (succ_ne_zero w))]
+    simp [Nat.mod_eq_of_lt (Nat.sub_lt (Nat.two_pow_pos _) (Nat.zero_lt_one)),
+          testBit_two_pow_sub_one]
+
+theorem bit_not_eq_not (x : BitVec w) : bit_not x = ~~~ x := by
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+
+
+theorem bit_neg_eq_neg (x : BitVec w) : bit_neg x = -x := by
+  simp only [bit_neg, bit_not, ← add_eq_adc]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (bit_not x) _ rfl]
+  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
+    simp [← sub_toAdd, BitVec.sub_add_cancel]
+  · simp [bit_not_testBit x _]
+
 end BitVec

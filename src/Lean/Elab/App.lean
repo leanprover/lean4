@@ -1194,6 +1194,17 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
           argIdx := argIdx + 1
     throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with a unique name"
 
+/-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
+private def addProjTermInfo
+    (stx            : Syntax)
+    (e              : Expr)
+    (expectedType?  : Option Expr := none)
+    (lctx?          : Option LocalContext := none)
+    (elaborator     : Name := Name.anonymous)
+    (isBinder force : Bool := false)
+    : TermElabM Expr :=
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force
+
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
@@ -1214,7 +1225,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         if isPrivateNameFromImportedModule (← getEnv) info.projFn then
           throwError "field '{fieldName}' from structure '{structName}' is private"
         let projFn ← mkConst info.projFn
-        let projFn ← addTermInfo lval.getRef projFn
+        let projFn ← addProjTermInfo lval.getRef projFn
         if lvals.isEmpty then
           let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
           elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
@@ -1226,7 +1237,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
-      let projFn ← addTermInfo lval.getRef projFn
+      let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let projFnType ← inferType projFn
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
@@ -1235,7 +1246,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
-      let fvar ← addTermInfo lval.getRef fvar
+      let fvar ← addProjTermInfo lval.getRef fvar
       if lvals.isEmpty then
         let fvarType ← inferType fvar
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType

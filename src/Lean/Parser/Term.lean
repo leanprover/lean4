@@ -746,6 +746,17 @@ is short for accessing the `i`-th field (1-indexed) of `e` if it is of a structu
 @[builtin_term_parser] def arrow    := trailing_parser
   checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
+/--
+Syntax kind for syntax nodes representing the field of a projection in the `InfoTree`.
+Specifically, the `InfoTree` node for a projection `s.f` contains a child `InfoTree` node
+with syntax ``(Syntax.node .none identProjKind #[`f])``.
+
+This is necessary because projection syntax cannot always be detected purely syntactically
+(`s.f` may refer to either the identifier `s.f` or a projection `s.f` depending on
+the evailable context).
+-/
+def identProjKind := `Lean.Parser.Term.identProj
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent

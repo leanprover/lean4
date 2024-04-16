@@ -178,18 +178,10 @@ theorem bit_not_add_self (x : BitVec w) : bit_not x + x  = -1 := by
   apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
   intro i; simp only [ BitVec.not, adcb, testBit_toNat]
   rw [iunfoldr_replace_snd (fun _ => ()) (bit_not x) () rfl (by simp [bit_not_testBit])]
-  simp only [bit_not_testBit]
-  simp only [← testBit_toNat, ofNat_eq_ofNat, toNat_neg, toNat_ofNat]
-  cases w
-  case zero => have := Fin.size_pos i; simp at this
-  case succ w =>
-    rw [Nat.mod_eq_of_lt (Nat.one_lt_two_pow (succ_ne_zero w))]
-    simp [Nat.mod_eq_of_lt (Nat.sub_lt (Nat.two_pow_pos _) (Nat.zero_lt_one)),
-          testBit_two_pow_sub_one]
+  simp [bit_not_testBit, negOne_eq_allOnes, getLsb_allOnes]
 
 theorem bit_not_eq_not (x : BitVec w) : bit_not x = ~~~ x := by
   simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
-
 
 theorem bit_neg_eq_neg (x : BitVec w) : bit_neg x = -x := by
   simp only [bit_neg, bit_not, ← add_eq_adc]

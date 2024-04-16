@@ -150,6 +150,7 @@ structure CommandParsedSnapshotData extends Snapshot where
   elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Cache for `save`; to be replaced with incrementality. -/
   tacticCache : IO.Ref Tactic.Cache
 deriving Nonempty
 

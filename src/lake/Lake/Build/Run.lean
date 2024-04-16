@@ -39,32 +39,33 @@ def FetchM.run (x : FetchM α) : RecBuildM α :=
 def monitorBuildJobs
   (ctx : BuildContext) (out : IO.FS.Stream) (spawner : CoreBuildM α)
 : IO (Option α) := do
-  print "[?/?] Computing build jobs"
+  out.putStr "[?/?] Computing build jobs"
   let (io, a?, log) ← IO.FS.withIsolatedStreams (spawner.run ctx).captureLog
   if io.isEmpty && log.isEmpty then
     resetLine
   else
-    print "\n"
-    unless log.isEmpty do
+    out.putStr "\n"
+    if log.hasVisibleEntries ctx.verbosity then
       log.replay (logger := MonadLog.stream out ctx.verbosity)
     unless io.isEmpty do
       out.putStr "stdout/stderr:\n"
       out.putStr io
+  out.flush
   let jobs ← ctx.buildJobs.get
   let numJobs := jobs.size
   numJobs.forM fun i => do
     let (caption, job) := jobs[i]!
-    print s!"[{i+1}/{numJobs}] {caption}"
+    out.putStr s!"[{i+1}/{numJobs}] {caption}"
     let log := (← IO.wait job.task).state
-    if log.isEmpty then
+    if !log.hasVisibleEntries ctx.verbosity then
       resetLine
     else
-      print "\n"
+      out.putStr "\n"
       log.replay (logger := MonadLog.stream out ctx.verbosity)
+    out.flush
   return a?
 where
-  print s := out.putStr s
-  resetLine := print "\n" --"\x1B[2K\r"
+  resetLine := do if (← out.isTty) then out.putStr "\x1B[2K\r" else out.putStr "\n"
 
 /-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
 def lockFileName : String :=

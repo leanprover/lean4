@@ -8,6 +8,14 @@ import Lake.Util.EStateT
 
 namespace Lake
 
+inductive Verbosity
+| quiet
+| normal
+| verbose
+deriving Repr, DecidableEq, Ord
+
+instance : Inhabited Verbosity := ⟨.normal⟩
+
 inductive LogLevel
 | trace
 | info
@@ -23,13 +31,11 @@ protected def LogLevel.toString : LogLevel → String
 
 instance : ToString LogLevel := ⟨LogLevel.toString⟩
 
-inductive Verbosity
-| quiet
-| normal
-| verbose
-deriving Repr, DecidableEq, Ord
-
-instance : Inhabited Verbosity := ⟨.normal⟩
+def LogLevel.visibleAtVerbosity (self : LogLevel) (verbosity : Verbosity) : Bool :=
+  match self with
+  | .trace => verbosity == .verbose
+  | .info => verbosity != .quiet
+  | _ => true
 
 structure LogEntry where
   level : LogLevel
@@ -162,6 +168,12 @@ instance : ToString Log := ⟨Log.toString⟩
 @[inline] def filter (f : LogEntry → Bool) (log : Log) : Log :=
   .mk <| log.entries.filter f
 
+def filterByVerbosity (log : Log) (verbosity := Verbosity.normal) : Log :=
+  log.filter (·.level.visibleAtVerbosity verbosity)
+
+def hasVisibleEntries (log : Log) (verbosity := Verbosity.normal) : Bool :=
+  log.entries.any (·.level.visibleAtVerbosity verbosity)
+
 end Log
 
 abbrev LogT (m : Type → Type) :=
@@ -205,12 +217,6 @@ instance [Monad m] : MonadError (ELogT m) := ⟨ELogT.error⟩
   match (← self log) with
   | .error n log => let (h,t) := log.split n; f h t
   | .ok a log => return (a, log)
-
-def filterByVerbosity (log : Log) (verbosity := Verbosity.normal) : Log := log.filter fun e =>
-  match e.level with
-  | .trace => verbosity == .verbose
-  | .info => verbosity != .quiet
-  | _ => true
 
 @[inline] def captureLog [Monad m] (self : ELogT m α) : m (Option α × Log) := do
  match (← self {}) with

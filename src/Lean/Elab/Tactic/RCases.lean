@@ -348,7 +348,7 @@ partial def rcasesCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (e 
           pure ([(n, ps)], #[⟨⟨g, #[mkFVar v], fs'⟩, n⟩])
       | ConstantInfo.inductInfo info, _ => do
         let (altVarNames, r) ← processConstructors pat.ref info.numParams #[] info.ctors pat.asAlts
-        (r, ·) <$> g.cases e.fvarId! altVarNames
+        (r, ·) <$> g.cases e.fvarId! altVarNames (useNatCasesAuxOn := true)
       | _, _ => failK ()
     (·.2) <$> subgoals.foldlM (init := (r, a)) fun (r, a) ⟨goal, ctorName⟩ => do
       let rec

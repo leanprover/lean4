@@ -46,6 +46,18 @@ structure PPFormat where
   /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
   hasSyntheticSorry : MetavarContext → Bool := fun _ => false
 
+structure TraceData where
+  /-- Trace class, e.g. `Elab.step`. -/
+  cls       : Name
+  /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  startTime : Float := 0
+  /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  stopTime  : Float := startTime
+  /-- Whether trace node defaults to collapsed in the infoview. -/
+  collapsed : Bool := true
+  /-- Optional tag shown in `trace.profiler.output` output after the trace class name. -/
+  tag       : String := ""
+
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
   /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
@@ -64,8 +76,8 @@ inductive MessageData where
   |  compose           : MessageData → MessageData → MessageData
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
-  | tagged             : Name → MessageData → MessageData
-  | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
+  | tagged            : Name → MessageData → MessageData
+  | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
   /-- Lazy message data production. The `Dymamic` is expected to be `MessageData`, we
   use this to work around the positivity restriction. -/
   | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
@@ -107,7 +119,7 @@ partial def hasTag : MessageData → Bool
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
   | tagged n msg            => p n || hasTag msg
-  | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
+  | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
 /-- An empty message. -/
@@ -150,7 +162,7 @@ where
   | group msg               => visit mctx? msg
   | compose msg₁ msg₂       => visit mctx? msg₁ || visit mctx? msg₂
   | tagged _ msg            => visit mctx? msg
-  | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
+  | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
@@ -164,8 +176,11 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       trace cls header children _ => do
-    let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
+  | nCtx, ctx,       trace data header children => do
+    let mut msg := f!"[{data.cls}]"
+    if data.startTime != 0 then
+      msg := f!"{msg} [{data.stopTime - data.startTime}]"
+    msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::children.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do

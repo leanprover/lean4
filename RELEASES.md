@@ -21,7 +21,7 @@ v4.8.0 (development in progress)
 
 * Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
 
-* Funcitonal induction principles.
+* Functional induction principles.
 
   Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
 
@@ -57,6 +57,15 @@ v4.8.0 (development in progress)
   ```
   is recognized without having to say `termination_by arr.size - i`.
 
+* Shorter instances names. There is a new algorithm for generating names for anonymous instances.
+  Across Std and Mathlib, the median ratio between lengths of new names and of old names is about 72%.
+  With the old algorithm, the longest name was 1660 characters, and now the longest name is 202 characters.
+  The new algorithm's 95th percentile name length is 67 characters, versus 278 for the old algorithm.
+  While the new algorithm produces names that are 1.2% less unique,
+  it avoids cross-project collisions by adding a module-based suffix
+  when it does not refer to declarations from the same "project" (modules that share the same root).
+  PR [#3089](https://github.com/leanprover/lean4/pull/3089).
+
 * Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
   rather than `{a := x, b := y, c := z}`.
   This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
@@ -80,8 +89,15 @@ v4.8.0 (development in progress)
   Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
   rather than `Nat.zero` and `Nat.succ n`.
   Added option `tactic.customEliminators` to control whether to use custom eliminators.
-  [#3629](https://github.com/leanprover/lean4/pull/3629) and
-  [#3655](https://github.com/leanprover/lean4/pull/3655).
+  Added a hack for `rcases`/`rintro`/`obtain` to use the custom eliminator for `Nat`.
+  [#3629](https://github.com/leanprover/lean4/pull/3629),
+  [#3655](https://github.com/leanprover/lean4/pull/3655), and
+  [#3747](https://github.com/leanprover/lean4/pull/3747).
+
+* The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
+  For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
+  and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
+  PR [#3883](https://github.com/leanprover/lean4/pull/3883).
 
 Breaking changes:
 
@@ -111,6 +127,10 @@ fact.def :
 ```
 
 * The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
+
+* The `Subarray` fields `as`, `h₁` and `h₂` have been renamed to `array`, `start_le_stop`, and `stop_le_array_size`, respectively. This more closely follows standard Lean conventions. Deprecated aliases for the field projections were added; these will be removed in a future release.
+
+* The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
 
 v4.7.0
 ---------

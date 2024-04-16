@@ -39,3 +39,5 @@
 /src/Lean/Elab/Tactic/Guard.lean @digama0
 /src/Init/Guard.lean @digama0
 /src/Lean/Server/CodeActions/ @digama0
+/src/Init/Data/Array/Subarray.lean @david-christiansen
+

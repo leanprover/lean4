@@ -13,11 +13,24 @@ open Sum Subtype Nat
 
 open Std
 
+/--
+A typeclass that specifies the standard way of turning values of some type into `Format`.
+
+When rendered this `Format` should be as close as possible to something that can be parsed as the
+input value.
+-/
 class Repr (α : Type u) where
+  /--
+  Turn a value of type `α` into `Format` at a given precedence. The precedence value can be used
+  to avoid parentheses if they are not necessary.
+  -/
   reprPrec : α → Nat → Format
 
 export Repr (reprPrec)
 
+/--
+Turn `a` into `Format` using its `Repr` instance. The precedence level is initially set to 0.
+-/
 abbrev repr [Repr α] (a : α) : Format :=
   reprPrec a 0
 
@@ -161,6 +174,32 @@ def toSuperDigits (n : Nat) : List Char :=
 
 def toSuperscriptString (n : Nat) : String :=
   (toSuperDigits n).asString
+
+def subDigitChar (n : Nat) : Char :=
+  if n = 0 then '₀' else
+  if n = 1 then '₁' else
+  if n = 2 then '₂' else
+  if n = 3 then '₃' else
+  if n = 4 then '₄' else
+  if n = 5 then '₅' else
+  if n = 6 then '₆' else
+  if n = 7 then '₇' else
+  if n = 8 then '₈' else
+  if n = 9 then '₉' else
+  '*'
+
+partial def toSubDigitsAux : Nat → List Char → List Char
+  | n, ds =>
+    let d  := subDigitChar <| n % 10;
+    let n' := n / 10;
+    if n' = 0 then d::ds
+    else toSubDigitsAux n' (d::ds)
+
+def toSubDigits (n : Nat) : List Char :=
+  toSubDigitsAux n []
+
+def toSubscriptString (n : Nat) : String :=
+  (toSubDigits n).asString
 
 end Nat
 

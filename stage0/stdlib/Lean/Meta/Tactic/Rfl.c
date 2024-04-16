@@ -129,6 +129,7 @@ lean_object* l_Lean_Meta_SavedState_restore(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRfl___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_102____spec__1___closed__14;
 lean_object* l_Lean_Elab_goalsToMessageData(lean_object*);
+lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_matchesInstance___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_102____lambda__3___closed__6;
 LEAN_EXPORT lean_object* l_Lean_MVarId_liftReflToEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRfl___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,7 +172,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hy
 static lean_object* l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_102____closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRfl___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_19_(lean_object*);
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Rfl_initFn____x40_Lean_Meta_Tactic_Rfl___hyg_102____spec__1___closed__7;
 lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2687,7 +2687,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-x_15 = l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(x_13, x_14, x_8, x_9, x_10, x_11, x_12);
+x_15 = l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_matchesInstance___spec__1___rarg(x_13, x_14, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; uint8_t x_17; 

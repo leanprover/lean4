@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_term___x3e_x3e_x3e_____closed__3;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__termWithout__expected__type____1___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x2f____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x5c_x2f____1___closed__7;
@@ -34,6 +35,8 @@ static lean_object* l_term___x3e_x3e_____closed__6;
 static lean_object* l_term___x7c_x3e_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7b___x3a___x2f_x2f___x7d__1___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__6;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__13;
+static lean_object* l_Lean_guardMsgsWhitespace___closed__7;
 static lean_object* l_prec_x28___x29___closed__4;
 static lean_object* l_term___x2a_x3e_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__stx_x21____1___closed__2;
@@ -51,6 +54,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1__
 static lean_object* l___aux__Init__Notation______macroRules__term___u2209____1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__5;
 static lean_object* l_Lean_builtin__command__code__action___closed__1;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsWhitespace;
 static lean_object* l_Lean_guardMsgsSpec___closed__3;
 static lean_object* l_stx___x3c_x7c_x3e_____closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Or__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -65,13 +69,16 @@ static lean_object* l_termDepIfThenElse___closed__20;
 static lean_object* l_Lean_guardMsgsCmd___closed__20;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__not__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_guardMsgsOrdering___closed__3;
 LEAN_EXPORT lean_object* l_term___x3a_x3a__;
 LEAN_EXPORT lean_object* l_prioMid;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__19;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsOrderingArg;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__16;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HShiftLeft__hShiftLeft__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x2a____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1___closed__1;
 LEAN_EXPORT lean_object* l_term___x3c_x3d__;
 static lean_object* l_term_x21_____closed__3;
@@ -82,7 +89,6 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e_
 static lean_object* l_term___x5e_x5e_x5e_____closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__3;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__19;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__7;
 static lean_object* l_boolIfThenElse___closed__3;
 static lean_object* l_term___x2a_____closed__1;
@@ -123,6 +129,7 @@ static lean_object* l_term___u2264_____closed__1;
 static lean_object* l_termIfLet___closed__8;
 static lean_object* l_term___x3c_x3d_____closed__4;
 static lean_object* l_Lean_guardMsgsCmd___closed__13;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_command;
 static lean_object* l_term___x26_x26_x26_____closed__2;
 static lean_object* l_termDepIfThenElse___closed__21;
@@ -143,10 +150,12 @@ LEAN_EXPORT lean_object* l_term___x2b_x2b__;
 static lean_object* l_prioDefault___closed__4;
 static lean_object* l_prioHigh___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__2;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__18;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__14;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsFilterSeverity;
 static lean_object* l_term___x2f_____closed__4;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HAppend__hAppend__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__12;
+static lean_object* l_Lean_guardMsgsFilter___closed__2;
 static lean_object* l_term___x3d_____closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1(lean_object*, lean_object*, lean_object*);
@@ -192,6 +201,7 @@ static lean_object* l_term___x5e_x5e_x5e_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__2;
 static lean_object* l_Lean_rawStx_quot___closed__9;
 static lean_object* l_Lean_byElab___closed__2;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__15;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term_x21____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_rawStx;
 static lean_object* l_Lean_guardMsgsSpecElt___closed__5;
@@ -204,7 +214,6 @@ LEAN_EXPORT lean_object* l_stx___x2b;
 static lean_object* l_Lean_Attr_coe___closed__5;
 static lean_object* l_term___u2218_____closed__5;
 static lean_object* l_Lean_rawStx_quot___closed__3;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__13;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__19;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___xd7____1(lean_object*, lean_object*, lean_object*);
@@ -228,12 +237,12 @@ static lean_object* l_term___x24_______closed__9;
 static lean_object* l_term___x2b_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_caseArg___closed__4;
 static lean_object* l_termIfLet___closed__18;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__25;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Complement__complement__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c_x7c____2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsFilter___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3e_x3e_____closed__1;
 static lean_object* l_termMax__prec___closed__2;
@@ -299,6 +308,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e_
 static lean_object* l_term___x5e_x5e_x5e_____closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e____1___closed__6;
 static lean_object* l_Lean_byElab___closed__7;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__16;
 static lean_object* l_term___x2f_x5c_____closed__4;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HShiftRight__hShiftRight__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_precLead___closed__3;
@@ -312,6 +322,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2a_x3e____1
 static lean_object* l_termIfThenElse___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5c_x2f____1___closed__1;
 static lean_object* l_term___u2264_____closed__6;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__15;
 static lean_object* l_term___x3d_x3d_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__boolIfThenElse__1___closed__3;
 static lean_object* l_precArg___closed__1;
@@ -355,12 +366,15 @@ static lean_object* l_term___x3c_x2a_____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_checkSimp;
 static lean_object* l_Lean_Parser_checkTactic___closed__8;
 LEAN_EXPORT lean_object* l_term___x5e_x5e_x5e__;
+static lean_object* l_Lean_guardMsgsOrdering___closed__4;
 static lean_object* l_term___x3d_____closed__3;
 static lean_object* l_prec_x28___x29___closed__10;
 LEAN_EXPORT lean_object* l_Lean_guardMsgsSpecElt;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__2;
 static lean_object* l_termDepIfThenElse___closed__23;
 static lean_object* l_Lean_guardMsgsCmd___closed__23;
 static lean_object* l_term___x7c_x7c_____closed__1;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsOrdering;
 static lean_object* l_stx___x2b___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26_x26____1___closed__4;
@@ -379,12 +393,14 @@ LEAN_EXPORT lean_object* l_term___x7c_x7c_x7c__;
 LEAN_EXPORT lean_object* l_term___xd7__;
 static lean_object* l_term___x3e_____closed__4;
 static lean_object* l_term___x3e_____closed__3;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__9;
 static lean_object* l_Lean_Parser_checkTactic___closed__14;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Prod__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_binderIdent___closed__2;
 static lean_object* l_term___u2265_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Category_tactic;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__18;
 static lean_object* l_termDepIfThenElse___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__4;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__7;
@@ -414,11 +430,11 @@ static lean_object* l_Lean_Parser_Syntax_addPrio___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__and__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x2f_____closed__6;
 static lean_object* l_term_xac_____closed__7;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__4;
 static lean_object* l_term___x3e_x3d_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3e____1___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__termWithout__expected__type____1___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__precMax__1___closed__3;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__11;
 static lean_object* l_stx_x21_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x25____1___closed__4;
 static lean_object* l_Lean_Parser_Syntax_subPrec___closed__5;
@@ -446,14 +462,17 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e_
 static lean_object* l_precMin___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x2f____2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__13;
 static lean_object* l_term___x2d_____closed__3;
 static lean_object* l_term___x3c_x7c_____closed__1;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__5;
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__8;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__4;
 static lean_object* l_term___u2223_____closed__4;
+static lean_object* l_Lean_guardMsgsWhitespace___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c____1___closed__3;
 static lean_object* l_Lean_guardMsgsSpec___closed__4;
 static lean_object* l_stx___x3f___closed__4;
@@ -463,6 +482,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d
 static lean_object* l_termIfThenElse___closed__12;
 static lean_object* l_termDepIfThenElse___closed__28;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__GT__gt__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__6;
 LEAN_EXPORT lean_object* l_term___x3d__;
 static lean_object* l_term___x3c_x7c_x3e_____closed__4;
 static lean_object* l_stx___x2c_x2b___closed__2;
@@ -491,10 +511,10 @@ static lean_object* l_Lean_command__code__action___closed__1;
 static lean_object* l_Lean_runCmd___closed__4;
 static lean_object* l_prec_x28___x29___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___xd7____1___closed__7;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__10;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__15;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet__1___closed__4;
+static lean_object* l_Lean_guardMsgsOrdering___closed__6;
 static lean_object* l_stx___x2c_x2a_x2c_x3f___closed__5;
 static lean_object* l_term___x3e_x3e_x3e_____closed__5;
 static lean_object* l_Lean_Parser_checkSimpFailure___closed__1;
@@ -517,7 +537,6 @@ static lean_object* l___aux__Init__Notation______macroRules__termIfLet__1___clos
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3d____2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_term_x7b___x3a___x2f_x2f___x7d;
 static lean_object* l___aux__Init__Notation______macroRules__precArg__1___closed__1;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c_x7c____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1___closed__6;
@@ -563,11 +582,10 @@ static lean_object* l_term___x26_x26_x26_____closed__7;
 lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Prod__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termIfThenElse___closed__9;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__9;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3d____1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____2___closed__1;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__12;
 static lean_object* l_Lean_runElab___closed__2;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__20;
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet__1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__7;
 static lean_object* l_term_x7e_x7e_x7e_____closed__3;
@@ -590,7 +608,6 @@ static lean_object* l_precArg___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1___closed__7;
 static lean_object* l_stx___x2c_x2a___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____2___closed__3;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__14;
 static lean_object* l_termIfThenElse___closed__6;
 LEAN_EXPORT lean_object* l_term___x7c_x3e__;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2a__1___closed__1;
@@ -615,6 +632,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___c
 static lean_object* l___aux__Init__Notation______macroRules__term___u2208____1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Syntax_subPrio;
 static lean_object* l_term___x3c_____closed__2;
+static lean_object* l_Lean_guardMsgsWhitespace___closed__5;
 static lean_object* l_Lean_guardMsgsCmd___closed__19;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26_x26____1___closed__2;
 static lean_object* l_stx_x21_____closed__6;
@@ -634,8 +652,8 @@ static lean_object* l_term___x3a_x3a_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__3;
 static lean_object* l_term_x2d_____closed__5;
 static lean_object* l_term___x3c_x24_x3e_____closed__2;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__12;
 LEAN_EXPORT lean_object* l_prio_x28___x29;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__boolIfThenElse__1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e____2___closed__2;
@@ -661,12 +679,11 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x5e____
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1___closed__1;
 static lean_object* l_term___u2209_____closed__3;
 LEAN_EXPORT lean_object* l_term___x2d__;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__7;
 static lean_object* l_term___x2f_____closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e____1___closed__7;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__8;
 static lean_object* l_term___x7c_x7c_x7c_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__9;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__24;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termDepIfThenElse___closed__13;
 static lean_object* l_Lean_guardMsgsSpec___closed__1;
@@ -674,6 +691,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__termMax__prec_
 static lean_object* l_stx___x3c_x7c_x3e_____closed__6;
 static lean_object* l_boolIfThenElse___closed__7;
 static lean_object* l_term___x2f_____closed__5;
+static lean_object* l_Lean_guardMsgsFilter___closed__6;
 static lean_object* l_prioMid___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Attr_coe;
 static lean_object* l_stx___x2c_x2b___closed__3;
@@ -720,6 +738,7 @@ LEAN_EXPORT lean_object* l_term___u2264__;
 static lean_object* l_Lean_Parser_checkSimp___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term_x7b___x3a___x2f_x2f___x7d__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_checkTactic___closed__5;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__3;
 static lean_object* l_term___x3e_x3e_x3d_____closed__6;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HMul__hMul__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__5;
@@ -766,6 +785,7 @@ static lean_object* l_prioLow___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e____1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_command__code__action;
 static lean_object* l_Lean_guardMsgsCmd___closed__3;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__6;
 LEAN_EXPORT lean_object* l_term___x2a_x3e__;
 static lean_object* l_termDepIfThenElse___closed__24;
 static lean_object* l_term___x3c_____closed__3;
@@ -809,9 +829,9 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2b____1___c
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_precMax;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HOr__hOr__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__14;
 static lean_object* l_stx___x3c_x7c_x3e_____closed__3;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__16;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__17;
 static lean_object* l___aux__Init__Notation______macroRules__termIfLet__1___closed__7;
 static lean_object* l_term___x3e_x3e_x3e_____closed__2;
 static lean_object* l_term___x3e_x3e_____closed__2;
@@ -835,7 +855,6 @@ static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b____1___closed__6;
 static lean_object* l_term___x3d_____closed__6;
 static lean_object* l_term___x2a_x3e_____closed__5;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__21;
 static lean_object* l___aux__Init__Notation______macroRules__boolIfThenElse__1___closed__4;
 static lean_object* l_term___x2b_x2b_____closed__3;
 static lean_object* l_prioDefault___closed__5;
@@ -843,9 +862,11 @@ static lean_object* l_Lean_guardMsgsSpec___closed__6;
 static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__11;
 LEAN_EXPORT lean_object* l_Lean_runCmd;
 static lean_object* l_Lean_Parser_checkTactic___closed__4;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__11;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__1;
 static lean_object* l_Lean_rawStx_quot___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__6;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_deprecated;
 static lean_object* l_term_xac_____closed__3;
 static lean_object* l_termIfLet___closed__19;
@@ -878,10 +899,12 @@ static lean_object* l_term___u2209_____closed__6;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__stx___x2a__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e____1___closed__4;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__8;
 static lean_object* l_term___x7c_x7c_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d____1___closed__3;
 static lean_object* l_stx___x3c_x7c_x3e_____closed__7;
 static lean_object* l_Lean_Parser_checkTacticFailure___closed__8;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__16;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1___closed__10;
 static lean_object* l_termDepIfThenElse___closed__8;
@@ -919,6 +942,7 @@ static lean_object* l_term___x24_______closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____1___closed__5;
 static lean_object* l_termMax__prec___closed__3;
 static lean_object* l_Lean_Parser_checkSimpFailure___closed__4;
+static lean_object* l_Lean_guardMsgsOrdering___closed__1;
 static lean_object* l_Lean_guardMsgsCmd___closed__17;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1___closed__5;
 static lean_object* l_Lean_Parser_checkTactic___closed__10;
@@ -928,8 +952,10 @@ static lean_object* l_term___x3c_x3d_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__4;
 static lean_object* l_Lean_Parser_checkSimpFailure___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2228____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__1;
 static lean_object* l_term___x7c_x3e_____closed__6;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__12;
 static lean_object* l_Lean_guardMsgsSpec___closed__7;
 static lean_object* l_term___x3c_x7c_____closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__termWithout__expected__type____1___closed__3;
@@ -966,7 +992,6 @@ static lean_object* l_term___x26_x26_____closed__7;
 static lean_object* l_Lean_Parser_checkTacticFailure___closed__5;
 static lean_object* l_Lean_Parser_Syntax_subPrec___closed__4;
 static lean_object* l_termIfLet___closed__16;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__27;
 static lean_object* l_term___x7c_x7c_x7c_____closed__4;
 static lean_object* l_term___x3c_x3c_x3c_____closed__3;
 static lean_object* l_term___x24_______closed__13;
@@ -1001,13 +1026,16 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26_x26_
 static lean_object* l_stx___x3c_x7c_x3e_____closed__9;
 static lean_object* l_term___u2209_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a_x2c_x3f__1___closed__1;
+static lean_object* l_Lean_guardMsgsOrdering___closed__7;
 static lean_object* l_termDepIfThenElse___closed__32;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2b__1___closed__2;
 static lean_object* l_term___x25_____closed__3;
 LEAN_EXPORT lean_object* l_term___u2228__;
+static lean_object* l_Lean_guardMsgsFilter___closed__3;
 static lean_object* l_Lean_Parser_Tactic_caseArg___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__SeqLeft__seqLeft__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_builtin__command__code__action;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__19;
 static lean_object* l_term___xd7_____closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term_xac____1___closed__5;
@@ -1033,6 +1061,7 @@ static lean_object* l_termWithout__expected__type_____closed__6;
 static lean_object* l_term_x7e_x7e_x7e_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x7c_x3e____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsFilter___closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prioLow__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x5e_____closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term_x2d____1(lean_object*, lean_object*, lean_object*);
@@ -1041,18 +1070,21 @@ static lean_object* l_Lean_includeStr___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d____1___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e____1___closed__5;
 static lean_object* l___aux__Init__Notation______unexpand__Function__comp__1___closed__1;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__15;
+static lean_object* l_Lean_guardMsgsOrdering___closed__5;
 static lean_object* l_stx_x21_____closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term_xac____1___closed__4;
 LEAN_EXPORT lean_object* l_term___x5e__;
 static lean_object* l_term___x3a_x3a_____closed__6;
+static lean_object* l_Lean_guardMsgsOrderingArg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instCoeSyntaxNodeKindSyntaxNodeKinds(lean_object*);
 static lean_object* l_term___x3e_x3e_x3d_____closed__1;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__22;
 static lean_object* l_precArg___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3d____1___closed__7;
 LEAN_EXPORT lean_object* l_term___x2f__;
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__4;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__2;
 static lean_object* l_term___x3e_x3d_____closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__termIfThenElse__1___closed__2;
 static lean_object* l_term___xd7_____closed__2;
@@ -1066,6 +1098,8 @@ static lean_object* l_term___xd7_____closed__3;
 LEAN_EXPORT lean_object* l_precLead;
 static lean_object* l_term___x25_____closed__1;
 static lean_object* l_termMax__prec___closed__5;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__7;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsWhitespaceArg;
 static lean_object* l_term___x3a_x3a_____closed__2;
 LEAN_EXPORT lean_object* l_term___x3c_x3c_x3c__;
 static lean_object* l_Lean_includeStr___closed__3;
@@ -1102,9 +1136,11 @@ static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__6;
 static lean_object* l_Lean_Parser_Syntax_subPrec___closed__2;
 static lean_object* l_Lean_guardMsgsCmd___closed__1;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__11;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HXor__hXor__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_stx___x3f___closed__2;
+static lean_object* l_Lean_guardMsgsWhitespace___closed__6;
 static lean_object* l_Lean_runMeta___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c____1___closed__5;
 static lean_object* l_Lean_Attr_coe___closed__3;
@@ -1118,6 +1154,7 @@ static lean_object* l_prio_x28___x29___closed__5;
 static lean_object* l_termDepIfThenElse___closed__27;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____1___closed__6;
 static lean_object* l_boolIfThenElse___closed__1;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__2;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2218_____closed__7;
 static lean_object* l_precMin___closed__5;
@@ -1125,6 +1162,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_checkSimpFailure;
 static lean_object* l_prio_x28___x29___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x2d_____closed__3;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__17;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Seq__seq__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3c_x3c____1___closed__5;
 static lean_object* l_Lean_guardMsgsCmd___closed__24;
@@ -1140,6 +1178,7 @@ static lean_object* l_term___x7c_x7c_____closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e_x5e____1___closed__1;
 static lean_object* l_term_x7e_x7e_x7e_____closed__5;
 static lean_object* l_term___x3e_x3d_____closed__1;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HDiv__hDiv__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__7;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__1;
@@ -1149,6 +1188,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x5e_x5e
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__precMin__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__3;
 static lean_object* l_Lean_Parser_checkTactic___closed__17;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__4;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__precLead__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_rawStx_quot___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term_x21____1___closed__6;
@@ -1166,7 +1206,9 @@ static lean_object* l_term___x7c_x3e_____closed__7;
 static lean_object* l_termIfLet___closed__15;
 static lean_object* l_stx_x21_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1___closed__6;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__10;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prioDefault__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__8;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c_x7c____1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instCoeSyntaxTSyntaxConsSyntaxNodeKindMkStr1Nil___boxed(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___xd7____1___closed__3;
@@ -1179,16 +1221,16 @@ static lean_object* l_term___x5e_x5e_x5e_____closed__1;
 static lean_object* l_stx___x2a___closed__4;
 static lean_object* l_Lean_command__code__action___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f____1___closed__6;
+static lean_object* l_Lean_guardMsgsFilter___closed__4;
 static lean_object* l_term___u2227_____closed__4;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__26;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__3;
 static lean_object* l_Lean_byElab___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1___closed__2;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__16;
 LEAN_EXPORT lean_object* l_term___x2a__;
 static lean_object* l_Lean_Parser_Tactic_caseArg___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____1___closed__4;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__precMin1__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsWhitespace___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x3d____1___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__BEq__beq__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_caseArg;
@@ -1251,15 +1293,18 @@ static lean_object* l_term_x7b___x3a___x2f_x2f___x7d___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b____1___closed__1;
 LEAN_EXPORT lean_object* l_term___u2265__;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f____1___closed__5;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__21;
 static lean_object* l_Lean_Parser_checkTactic___closed__15;
 static lean_object* l_term___x26_x26_____closed__3;
 static lean_object* l_Lean_rawStx_quot___closed__12;
 static lean_object* l_term___x3e_x3d_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__2;
+static lean_object* l_Lean_guardMsgsWhitespace___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term_x2d____2___closed__3;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__23;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e____1___closed__12;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__23;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2265____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsWhitespace___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3e____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_command__code__action___closed__3;
@@ -1272,6 +1317,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3d____1___c
 static lean_object* l_Lean_Parser_checkTactic___closed__12;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__3;
 static lean_object* l_Lean_Parser_checkTacticFailure___closed__2;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__20;
 static lean_object* l_term___u2227_____closed__5;
 static lean_object* l_term___x7c_x7c_x7c_____closed__7;
 static lean_object* l_termDepIfThenElse___closed__26;
@@ -1286,6 +1332,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a_x3e_
 static lean_object* l_Lean_command__code__action___closed__5;
 static lean_object* l_term___x3e_x3e_____closed__4;
 static lean_object* l_stx___x2c_x2b_x2c_x3f___closed__1;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__4;
 static lean_object* l_term___x7c_x3e_____closed__1;
 static lean_object* l_term___u2264_____closed__4;
 static lean_object* l_precMax___closed__3;
@@ -1297,12 +1344,12 @@ static lean_object* l_prioMid___closed__2;
 static lean_object* l_term_x21_____closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2c_x2a__1___closed__6;
 static lean_object* l_Lean_Parser_Syntax_addPrec___closed__6;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__17;
 static lean_object* l_Lean_Parser_Tactic_caseArg___closed__10;
 static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__1___closed__7;
 static lean_object* l_term_x7e_x7e_x7e_____closed__6;
 static lean_object* l_Lean_Attr_coe___closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__Or__1___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_guardMsgsSpecElt___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x25____1___closed__5;
 static lean_object* l_term___x2b_x2b_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c____1___closed__7;
@@ -1333,6 +1380,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___u2218____1__
 static lean_object* l___aux__Init__Notation______macroRules__term___x2b_x2b____1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__1;
 static lean_object* l_Lean_Parser_Syntax_addPrio___closed__1;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__8;
 LEAN_EXPORT lean_object* l_term___x5c_x2f__;
 static lean_object* l___aux__Init__Notation______macroRules__term___xd7____1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__2;
@@ -1367,7 +1415,6 @@ static lean_object* l_termIfLet___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e____2___closed__1;
 static lean_object* l_Lean_modCast___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e____1___closed__2;
-static lean_object* l_Lean_guardMsgsSpecElt___closed__22;
 static lean_object* l_termDepIfThenElse___closed__7;
 static lean_object* l_Lean_deprecated___closed__5;
 static lean_object* l_Lean_runCmd___closed__1;
@@ -1394,6 +1441,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2223__
 static lean_object* l_prio_x28___x29___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x26_x26____1___closed__3;
 LEAN_EXPORT lean_object* l_term_xac__;
+static lean_object* l_Lean_guardMsgsFilter___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term___xd7____1___closed__5;
 static lean_object* l_Lean_runMeta___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3a_x3a____1___closed__1;
@@ -1418,6 +1466,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a____1
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__SeqRight__seqRight__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withAnnotateTerm___closed__3;
 static lean_object* l_term___x24_______closed__4;
+static lean_object* l_Lean_guardMsgsFilterSeverity___closed__5;
 static lean_object* l_Lean_runElab___closed__5;
 static lean_object* l___aux__Init__Notation______macroRules__term_x7e_x7e_x7e____1___closed__7;
 static lean_object* l_Lean_Parser_Syntax_subPrio___closed__2;
@@ -1447,6 +1496,7 @@ static lean_object* l_term___x2b_____closed__5;
 lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__1;
 static lean_object* l_term___x3c_x3d_____closed__6;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2223____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c_x7c____1___closed__3;
@@ -1462,11 +1512,13 @@ static lean_object* l_term___x3c_x7c_____closed__6;
 static lean_object* l_term___u2208_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2227____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_guardMsgsOrdering___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__stx_x21____1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2223____1___closed__5;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HMod__hMod__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x2a____1___closed__4;
 static lean_object* l_Lean_rawStx_quot___closed__1;
+static lean_object* l_Lean_guardMsgsWhitespaceArg___closed__9;
 static lean_object* l_Lean_guardMsgsCmd___closed__2;
 static lean_object* l_term___x26_x26_x26_____closed__1;
 static lean_object* l_term___u2227_____closed__3;
@@ -1490,6 +1542,7 @@ static lean_object* l_precArg___closed__3;
 static lean_object* l_termIfThenElse___closed__3;
 static lean_object* l_Lean_Parser_checkSimp___closed__6;
 LEAN_EXPORT lean_object* l_term___x3e_x3e_x3d__;
+LEAN_EXPORT lean_object* l_Lean_guardMsgsFilter;
 static lean_object* l_term___x7c_x7c_x7c_____closed__1;
 static lean_object* l_term___u2209_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2209____1___closed__1;
@@ -23804,6 +23857,832 @@ x_1 = l_Lean_runMeta___closed__6;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsFilterSeverity", 23);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("token", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("info", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__4;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__6() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__4;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__4;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__5;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__8() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("warning", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__8;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__10() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__8;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__8;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__9;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__10;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__12() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("error", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__12;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__14() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__12;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__12;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__13;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__14;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__16() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("all", 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__16;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__18() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__16;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__19() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__16;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__17;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__18;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__15;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__19;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__21() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__11;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__20;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__22() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__7;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__21;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity___closed__23() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__1;
+x_2 = l_Lean_guardMsgsFilterSeverity___closed__2;
+x_3 = l_Lean_guardMsgsFilterSeverity___closed__22;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilterSeverity() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__23;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsFilter", 15);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsFilter___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("drop", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilter___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
+x_2 = l_Lean_guardMsgsFilter___closed__4;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_guardMsgsFilter___closed__5;
+x_3 = l_Lean_guardMsgsFilterSeverity;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsFilter___closed__1;
+x_2 = l_Lean_guardMsgsFilter___closed__2;
+x_3 = l_Lean_guardMsgsFilter___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsFilter() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsFilter___closed__7;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsWhitespaceArg", 22);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("exact", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__3;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__5() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__3;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__4;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__5;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("normalized", 10);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__7;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__9() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__7;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__7;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__8;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__9;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("lax", 3);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__11;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__13() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__11;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__11;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__12;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__13;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__10;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__14;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__6;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__15;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__1;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__2;
+x_3 = l_Lean_guardMsgsWhitespaceArg___closed__16;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespaceArg() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsWhitespaceArg___closed__17;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsWhitespace", 19);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsWhitespace___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("whitespace", 10);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsWhitespace___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_guardMsgsWhitespace___closed__4;
+x_3 = l_termIfLet___closed__8;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_guardMsgsWhitespace___closed__5;
+x_3 = l_Lean_guardMsgsWhitespaceArg;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsWhitespace___closed__1;
+x_2 = l_Lean_guardMsgsWhitespace___closed__2;
+x_3 = l_Lean_guardMsgsWhitespace___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsWhitespace() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsWhitespace___closed__7;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsOrderingArg", 20);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsOrderingArg___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("sorted", 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsFilterSeverity___closed__3;
+x_2 = l_Lean_guardMsgsOrderingArg___closed__3;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__5() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsOrderingArg___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsOrderingArg___closed__3;
+x_2 = l_Lean_guardMsgsOrderingArg___closed__4;
+x_3 = l_Lean_guardMsgsOrderingArg___closed__5;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsWhitespaceArg___closed__6;
+x_3 = l_Lean_guardMsgsOrderingArg___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsOrderingArg___closed__1;
+x_2 = l_Lean_guardMsgsOrderingArg___closed__2;
+x_3 = l_Lean_guardMsgsOrderingArg___closed__7;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrderingArg() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsOrderingArg___closed__8;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("guardMsgsOrdering", 17);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_guardMsgsOrdering___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("ordering", 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_guardMsgsOrdering___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_guardMsgsOrdering___closed__4;
+x_3 = l_termIfLet___closed__8;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_guardMsgsOrdering___closed__5;
+x_3 = l_Lean_guardMsgsOrderingArg;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_guardMsgsOrdering___closed__1;
+x_2 = l_Lean_guardMsgsOrdering___closed__2;
+x_3 = l_Lean_guardMsgsOrdering___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_guardMsgsOrdering() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_guardMsgsOrdering___closed__7;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__1() {
 _start:
 {
@@ -23825,282 +24704,38 @@ return x_3;
 static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("drop", 4);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsWhitespace;
+x_3 = l_Lean_guardMsgsOrdering;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__4() {
 _start:
 {
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__3;
-x_2 = 0;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
+x_2 = l_Lean_guardMsgsFilter;
+x_3 = l_Lean_guardMsgsSpecElt___closed__3;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3f__1___closed__3;
-x_2 = l_Lean_guardMsgsSpecElt___closed__4;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("token", 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("info", 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__6;
-x_2 = l_Lean_guardMsgsSpecElt___closed__7;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__9() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__7;
-x_2 = 0;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__7;
-x_2 = l_Lean_guardMsgsSpecElt___closed__8;
-x_3 = l_Lean_guardMsgsSpecElt___closed__9;
-x_4 = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__11() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("warning", 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__6;
-x_2 = l_Lean_guardMsgsSpecElt___closed__11;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__13() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__11;
-x_2 = 0;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__14() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__11;
-x_2 = l_Lean_guardMsgsSpecElt___closed__12;
-x_3 = l_Lean_guardMsgsSpecElt___closed__13;
-x_4 = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__15() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("error", 5);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__16() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__6;
-x_2 = l_Lean_guardMsgsSpecElt___closed__15;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__17() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__15;
-x_2 = 0;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__18() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__15;
-x_2 = l_Lean_guardMsgsSpecElt___closed__16;
-x_3 = l_Lean_guardMsgsSpecElt___closed__17;
-x_4 = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__19() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("all", 3);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__20() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__6;
-x_2 = l_Lean_guardMsgsSpecElt___closed__19;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__21() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__19;
-x_2 = 0;
-x_3 = lean_alloc_ctor(6, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__22() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__19;
-x_2 = l_Lean_guardMsgsSpecElt___closed__20;
-x_3 = l_Lean_guardMsgsSpecElt___closed__21;
-x_4 = lean_alloc_ctor(9, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__23() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
-x_2 = l_Lean_guardMsgsSpecElt___closed__18;
-x_3 = l_Lean_guardMsgsSpecElt___closed__22;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__24() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
-x_2 = l_Lean_guardMsgsSpecElt___closed__14;
-x_3 = l_Lean_guardMsgsSpecElt___closed__23;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__25() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__5;
-x_2 = l_Lean_guardMsgsSpecElt___closed__10;
-x_3 = l_Lean_guardMsgsSpecElt___closed__24;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__26() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
-x_2 = l_Lean_guardMsgsSpecElt___closed__5;
-x_3 = l_Lean_guardMsgsSpecElt___closed__25;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_guardMsgsSpecElt___closed__27() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_guardMsgsSpecElt___closed__1;
 x_2 = l_Lean_guardMsgsSpecElt___closed__2;
-x_3 = l_Lean_guardMsgsSpecElt___closed__26;
+x_3 = l_Lean_guardMsgsSpecElt___closed__4;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -24112,7 +24747,7 @@ static lean_object* _init_l_Lean_guardMsgsSpecElt() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_guardMsgsSpecElt___closed__27;
+x_1 = l_Lean_guardMsgsSpecElt___closed__5;
 return x_1;
 }
 }
@@ -27339,6 +27974,156 @@ l_Lean_runMeta___closed__6 = _init_l_Lean_runMeta___closed__6();
 lean_mark_persistent(l_Lean_runMeta___closed__6);
 l_Lean_runMeta = _init_l_Lean_runMeta();
 lean_mark_persistent(l_Lean_runMeta);
+l_Lean_guardMsgsFilterSeverity___closed__1 = _init_l_Lean_guardMsgsFilterSeverity___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__1);
+l_Lean_guardMsgsFilterSeverity___closed__2 = _init_l_Lean_guardMsgsFilterSeverity___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__2);
+l_Lean_guardMsgsFilterSeverity___closed__3 = _init_l_Lean_guardMsgsFilterSeverity___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__3);
+l_Lean_guardMsgsFilterSeverity___closed__4 = _init_l_Lean_guardMsgsFilterSeverity___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__4);
+l_Lean_guardMsgsFilterSeverity___closed__5 = _init_l_Lean_guardMsgsFilterSeverity___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__5);
+l_Lean_guardMsgsFilterSeverity___closed__6 = _init_l_Lean_guardMsgsFilterSeverity___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__6);
+l_Lean_guardMsgsFilterSeverity___closed__7 = _init_l_Lean_guardMsgsFilterSeverity___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__7);
+l_Lean_guardMsgsFilterSeverity___closed__8 = _init_l_Lean_guardMsgsFilterSeverity___closed__8();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__8);
+l_Lean_guardMsgsFilterSeverity___closed__9 = _init_l_Lean_guardMsgsFilterSeverity___closed__9();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__9);
+l_Lean_guardMsgsFilterSeverity___closed__10 = _init_l_Lean_guardMsgsFilterSeverity___closed__10();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__10);
+l_Lean_guardMsgsFilterSeverity___closed__11 = _init_l_Lean_guardMsgsFilterSeverity___closed__11();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__11);
+l_Lean_guardMsgsFilterSeverity___closed__12 = _init_l_Lean_guardMsgsFilterSeverity___closed__12();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__12);
+l_Lean_guardMsgsFilterSeverity___closed__13 = _init_l_Lean_guardMsgsFilterSeverity___closed__13();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__13);
+l_Lean_guardMsgsFilterSeverity___closed__14 = _init_l_Lean_guardMsgsFilterSeverity___closed__14();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__14);
+l_Lean_guardMsgsFilterSeverity___closed__15 = _init_l_Lean_guardMsgsFilterSeverity___closed__15();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__15);
+l_Lean_guardMsgsFilterSeverity___closed__16 = _init_l_Lean_guardMsgsFilterSeverity___closed__16();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__16);
+l_Lean_guardMsgsFilterSeverity___closed__17 = _init_l_Lean_guardMsgsFilterSeverity___closed__17();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__17);
+l_Lean_guardMsgsFilterSeverity___closed__18 = _init_l_Lean_guardMsgsFilterSeverity___closed__18();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__18);
+l_Lean_guardMsgsFilterSeverity___closed__19 = _init_l_Lean_guardMsgsFilterSeverity___closed__19();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__19);
+l_Lean_guardMsgsFilterSeverity___closed__20 = _init_l_Lean_guardMsgsFilterSeverity___closed__20();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__20);
+l_Lean_guardMsgsFilterSeverity___closed__21 = _init_l_Lean_guardMsgsFilterSeverity___closed__21();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__21);
+l_Lean_guardMsgsFilterSeverity___closed__22 = _init_l_Lean_guardMsgsFilterSeverity___closed__22();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__22);
+l_Lean_guardMsgsFilterSeverity___closed__23 = _init_l_Lean_guardMsgsFilterSeverity___closed__23();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity___closed__23);
+l_Lean_guardMsgsFilterSeverity = _init_l_Lean_guardMsgsFilterSeverity();
+lean_mark_persistent(l_Lean_guardMsgsFilterSeverity);
+l_Lean_guardMsgsFilter___closed__1 = _init_l_Lean_guardMsgsFilter___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__1);
+l_Lean_guardMsgsFilter___closed__2 = _init_l_Lean_guardMsgsFilter___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__2);
+l_Lean_guardMsgsFilter___closed__3 = _init_l_Lean_guardMsgsFilter___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__3);
+l_Lean_guardMsgsFilter___closed__4 = _init_l_Lean_guardMsgsFilter___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__4);
+l_Lean_guardMsgsFilter___closed__5 = _init_l_Lean_guardMsgsFilter___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__5);
+l_Lean_guardMsgsFilter___closed__6 = _init_l_Lean_guardMsgsFilter___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__6);
+l_Lean_guardMsgsFilter___closed__7 = _init_l_Lean_guardMsgsFilter___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsFilter___closed__7);
+l_Lean_guardMsgsFilter = _init_l_Lean_guardMsgsFilter();
+lean_mark_persistent(l_Lean_guardMsgsFilter);
+l_Lean_guardMsgsWhitespaceArg___closed__1 = _init_l_Lean_guardMsgsWhitespaceArg___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__1);
+l_Lean_guardMsgsWhitespaceArg___closed__2 = _init_l_Lean_guardMsgsWhitespaceArg___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__2);
+l_Lean_guardMsgsWhitespaceArg___closed__3 = _init_l_Lean_guardMsgsWhitespaceArg___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__3);
+l_Lean_guardMsgsWhitespaceArg___closed__4 = _init_l_Lean_guardMsgsWhitespaceArg___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__4);
+l_Lean_guardMsgsWhitespaceArg___closed__5 = _init_l_Lean_guardMsgsWhitespaceArg___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__5);
+l_Lean_guardMsgsWhitespaceArg___closed__6 = _init_l_Lean_guardMsgsWhitespaceArg___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__6);
+l_Lean_guardMsgsWhitespaceArg___closed__7 = _init_l_Lean_guardMsgsWhitespaceArg___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__7);
+l_Lean_guardMsgsWhitespaceArg___closed__8 = _init_l_Lean_guardMsgsWhitespaceArg___closed__8();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__8);
+l_Lean_guardMsgsWhitespaceArg___closed__9 = _init_l_Lean_guardMsgsWhitespaceArg___closed__9();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__9);
+l_Lean_guardMsgsWhitespaceArg___closed__10 = _init_l_Lean_guardMsgsWhitespaceArg___closed__10();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__10);
+l_Lean_guardMsgsWhitespaceArg___closed__11 = _init_l_Lean_guardMsgsWhitespaceArg___closed__11();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__11);
+l_Lean_guardMsgsWhitespaceArg___closed__12 = _init_l_Lean_guardMsgsWhitespaceArg___closed__12();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__12);
+l_Lean_guardMsgsWhitespaceArg___closed__13 = _init_l_Lean_guardMsgsWhitespaceArg___closed__13();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__13);
+l_Lean_guardMsgsWhitespaceArg___closed__14 = _init_l_Lean_guardMsgsWhitespaceArg___closed__14();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__14);
+l_Lean_guardMsgsWhitespaceArg___closed__15 = _init_l_Lean_guardMsgsWhitespaceArg___closed__15();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__15);
+l_Lean_guardMsgsWhitespaceArg___closed__16 = _init_l_Lean_guardMsgsWhitespaceArg___closed__16();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__16);
+l_Lean_guardMsgsWhitespaceArg___closed__17 = _init_l_Lean_guardMsgsWhitespaceArg___closed__17();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg___closed__17);
+l_Lean_guardMsgsWhitespaceArg = _init_l_Lean_guardMsgsWhitespaceArg();
+lean_mark_persistent(l_Lean_guardMsgsWhitespaceArg);
+l_Lean_guardMsgsWhitespace___closed__1 = _init_l_Lean_guardMsgsWhitespace___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__1);
+l_Lean_guardMsgsWhitespace___closed__2 = _init_l_Lean_guardMsgsWhitespace___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__2);
+l_Lean_guardMsgsWhitespace___closed__3 = _init_l_Lean_guardMsgsWhitespace___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__3);
+l_Lean_guardMsgsWhitespace___closed__4 = _init_l_Lean_guardMsgsWhitespace___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__4);
+l_Lean_guardMsgsWhitespace___closed__5 = _init_l_Lean_guardMsgsWhitespace___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__5);
+l_Lean_guardMsgsWhitespace___closed__6 = _init_l_Lean_guardMsgsWhitespace___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__6);
+l_Lean_guardMsgsWhitespace___closed__7 = _init_l_Lean_guardMsgsWhitespace___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace___closed__7);
+l_Lean_guardMsgsWhitespace = _init_l_Lean_guardMsgsWhitespace();
+lean_mark_persistent(l_Lean_guardMsgsWhitespace);
+l_Lean_guardMsgsOrderingArg___closed__1 = _init_l_Lean_guardMsgsOrderingArg___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__1);
+l_Lean_guardMsgsOrderingArg___closed__2 = _init_l_Lean_guardMsgsOrderingArg___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__2);
+l_Lean_guardMsgsOrderingArg___closed__3 = _init_l_Lean_guardMsgsOrderingArg___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__3);
+l_Lean_guardMsgsOrderingArg___closed__4 = _init_l_Lean_guardMsgsOrderingArg___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__4);
+l_Lean_guardMsgsOrderingArg___closed__5 = _init_l_Lean_guardMsgsOrderingArg___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__5);
+l_Lean_guardMsgsOrderingArg___closed__6 = _init_l_Lean_guardMsgsOrderingArg___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__6);
+l_Lean_guardMsgsOrderingArg___closed__7 = _init_l_Lean_guardMsgsOrderingArg___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__7);
+l_Lean_guardMsgsOrderingArg___closed__8 = _init_l_Lean_guardMsgsOrderingArg___closed__8();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg___closed__8);
+l_Lean_guardMsgsOrderingArg = _init_l_Lean_guardMsgsOrderingArg();
+lean_mark_persistent(l_Lean_guardMsgsOrderingArg);
+l_Lean_guardMsgsOrdering___closed__1 = _init_l_Lean_guardMsgsOrdering___closed__1();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__1);
+l_Lean_guardMsgsOrdering___closed__2 = _init_l_Lean_guardMsgsOrdering___closed__2();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__2);
+l_Lean_guardMsgsOrdering___closed__3 = _init_l_Lean_guardMsgsOrdering___closed__3();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__3);
+l_Lean_guardMsgsOrdering___closed__4 = _init_l_Lean_guardMsgsOrdering___closed__4();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__4);
+l_Lean_guardMsgsOrdering___closed__5 = _init_l_Lean_guardMsgsOrdering___closed__5();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__5);
+l_Lean_guardMsgsOrdering___closed__6 = _init_l_Lean_guardMsgsOrdering___closed__6();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__6);
+l_Lean_guardMsgsOrdering___closed__7 = _init_l_Lean_guardMsgsOrdering___closed__7();
+lean_mark_persistent(l_Lean_guardMsgsOrdering___closed__7);
+l_Lean_guardMsgsOrdering = _init_l_Lean_guardMsgsOrdering();
+lean_mark_persistent(l_Lean_guardMsgsOrdering);
 l_Lean_guardMsgsSpecElt___closed__1 = _init_l_Lean_guardMsgsSpecElt___closed__1();
 lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__1);
 l_Lean_guardMsgsSpecElt___closed__2 = _init_l_Lean_guardMsgsSpecElt___closed__2();
@@ -27349,50 +28134,6 @@ l_Lean_guardMsgsSpecElt___closed__4 = _init_l_Lean_guardMsgsSpecElt___closed__4(
 lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__4);
 l_Lean_guardMsgsSpecElt___closed__5 = _init_l_Lean_guardMsgsSpecElt___closed__5();
 lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__5);
-l_Lean_guardMsgsSpecElt___closed__6 = _init_l_Lean_guardMsgsSpecElt___closed__6();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__6);
-l_Lean_guardMsgsSpecElt___closed__7 = _init_l_Lean_guardMsgsSpecElt___closed__7();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__7);
-l_Lean_guardMsgsSpecElt___closed__8 = _init_l_Lean_guardMsgsSpecElt___closed__8();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__8);
-l_Lean_guardMsgsSpecElt___closed__9 = _init_l_Lean_guardMsgsSpecElt___closed__9();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__9);
-l_Lean_guardMsgsSpecElt___closed__10 = _init_l_Lean_guardMsgsSpecElt___closed__10();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__10);
-l_Lean_guardMsgsSpecElt___closed__11 = _init_l_Lean_guardMsgsSpecElt___closed__11();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__11);
-l_Lean_guardMsgsSpecElt___closed__12 = _init_l_Lean_guardMsgsSpecElt___closed__12();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__12);
-l_Lean_guardMsgsSpecElt___closed__13 = _init_l_Lean_guardMsgsSpecElt___closed__13();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__13);
-l_Lean_guardMsgsSpecElt___closed__14 = _init_l_Lean_guardMsgsSpecElt___closed__14();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__14);
-l_Lean_guardMsgsSpecElt___closed__15 = _init_l_Lean_guardMsgsSpecElt___closed__15();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__15);
-l_Lean_guardMsgsSpecElt___closed__16 = _init_l_Lean_guardMsgsSpecElt___closed__16();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__16);
-l_Lean_guardMsgsSpecElt___closed__17 = _init_l_Lean_guardMsgsSpecElt___closed__17();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__17);
-l_Lean_guardMsgsSpecElt___closed__18 = _init_l_Lean_guardMsgsSpecElt___closed__18();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__18);
-l_Lean_guardMsgsSpecElt___closed__19 = _init_l_Lean_guardMsgsSpecElt___closed__19();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__19);
-l_Lean_guardMsgsSpecElt___closed__20 = _init_l_Lean_guardMsgsSpecElt___closed__20();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__20);
-l_Lean_guardMsgsSpecElt___closed__21 = _init_l_Lean_guardMsgsSpecElt___closed__21();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__21);
-l_Lean_guardMsgsSpecElt___closed__22 = _init_l_Lean_guardMsgsSpecElt___closed__22();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__22);
-l_Lean_guardMsgsSpecElt___closed__23 = _init_l_Lean_guardMsgsSpecElt___closed__23();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__23);
-l_Lean_guardMsgsSpecElt___closed__24 = _init_l_Lean_guardMsgsSpecElt___closed__24();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__24);
-l_Lean_guardMsgsSpecElt___closed__25 = _init_l_Lean_guardMsgsSpecElt___closed__25();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__25);
-l_Lean_guardMsgsSpecElt___closed__26 = _init_l_Lean_guardMsgsSpecElt___closed__26();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__26);
-l_Lean_guardMsgsSpecElt___closed__27 = _init_l_Lean_guardMsgsSpecElt___closed__27();
-lean_mark_persistent(l_Lean_guardMsgsSpecElt___closed__27);
 l_Lean_guardMsgsSpecElt = _init_l_Lean_guardMsgsSpecElt();
 lean_mark_persistent(l_Lean_guardMsgsSpecElt);
 l_Lean_guardMsgsSpec___closed__1 = _init_l_Lean_guardMsgsSpec___closed__1();

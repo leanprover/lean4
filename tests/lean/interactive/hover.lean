@@ -229,6 +229,9 @@ def my_intro : Nat := 1
                     --v textDocument/hover
 example : α → α := by my_intro _; assumption
 
+attribute [simp] my_intro
+               --^ textDocument/hover
+
 example : Nat → True := by
   intro x
       --^ textDocument/hover

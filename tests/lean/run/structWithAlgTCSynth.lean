@@ -1311,7 +1311,7 @@ instance : Semiring (Quot_r R M) :=
   RingQuot.instSemiring _
 
 instance {S : Type w} [CommRing S] : CommRing (Quot_r S M) :=
-  RingQuot.instCommRingRingQuotToSemiringToCommSemiring _
+  RingQuot.instCommRing _
 
 instance instAlgebra
     {R A M} [CommSemiring R] [CommRing A] [Algebra R A] :

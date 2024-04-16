@@ -21,3 +21,23 @@
 /src/Lean/Server/ @mhuisi
 /src/Lean/Widget/ @Vtec234
 /src/runtime/io.cpp @joehendrix
+/src/Lean/Elab/Tactic/RCases.lean @digama0
+/src/Init/RCases.lean @digama0
+/src/Lean/Elab/Tactic/Ext.lean @digama0
+/src/Init/Ext.lean @digama0
+/src/Lean/Elab/Tactic/Simpa.lean @digama0
+/src/Lean/Elab/Tactic/NormCast.lean @digama0
+/src/Lean/Meta/Tactic/NormCast.lean @digama0
+/src/Lean/Meta/Tactic/TryThis.lean @digama0
+/src/Lean/Elab/Tactic/SimpTrace.lean @digama0
+/src/Lean/Elab/Tactic/NoMatch.lean @digama0
+/src/Lean/Elab/Tactic/ShowTerm.lean @digama0
+/src/Lean/Elab/Tactic/Repeat.lean @digama0
+/src/Lean/Meta/Tactic/Repeat.lean @digama0
+/src/Lean/Meta/CoeAttr.lean @digama0
+/src/Lean/Elab/GuardMsgs.lean @digama0
+/src/Lean/Elab/Tactic/Guard.lean @digama0
+/src/Init/Guard.lean @digama0
+/src/Lean/Server/CodeActions/ @digama0
+/src/Init/Data/Array/Subarray.lean @david-christiansen
+

@@ -7,6 +7,7 @@ prelude
 import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
+import Lean.Util.Profiler
 
 namespace Lean.Elab.Frontend
 
@@ -108,6 +109,7 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
+  let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   if /- Lean #lang? -/ true then
@@ -119,6 +121,7 @@ def runFrontend
     let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
     let env := env.setMainModule mainModuleName
     let mut commandState := Command.mkState env messages opts
+    let elabStartTime := (← IO.monoNanosNow).toFloat / 1000000000
 
     if ileanFileName?.isSome then
       -- Collect InfoTrees so we can later extract and export their info to the ilean file
@@ -134,6 +137,19 @@ def runFrontend
         Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
       let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
+
+    if let some out := trace.profiler.output.get? opts then
+      let traceState := s.commandState.traceState
+      -- importing does not happen in an elaboration monad, add now
+      let traceState := { traceState with
+        traces := #[{
+          ref := .missing,
+          msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
+            (.ofFormat "importing") #[]
+        }].toPArray' ++ traceState.traces
+      }
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+      IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 

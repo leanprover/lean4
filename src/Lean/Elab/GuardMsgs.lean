@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kyle Miller
 -/
 prelude
+import Lean.Elab.Notation
 import Lean.Server.CodeActions.Attr
 
 /-! `#guard_msgs` command for testing commands
@@ -40,31 +41,55 @@ inductive SpecResult
   /-- Do not capture the message. -/
   | passthrough
 
+/-- The method to use when normalizing whitespace, after trimming. -/
+inductive WhitespaceMode
+  /-- Exact equality. -/
+  | exact
+  /-- Equality after normalizing newlines into spaces. -/
+  | normalized
+  /-- Equality after collapsing whitespace into single spaces. -/
+  | lax
+
+/-- Method to use when combining multiple messages. -/
+inductive MessageOrdering
+  /-- Use the exact ordering of the produced messages. -/
+  | exact
+  /-- Sort the produced messages. -/
+  | sorted
+
 /-- Parses a `guardMsgsSpec`.
 - No specification: check everything.
 - With a specification: interpret the spec, and if nothing applies pass it through. -/
 def parseGuardMsgsSpec (spec? : Option (TSyntax ``guardMsgsSpec)) :
-    CommandElabM (Message → SpecResult) := do
-  if let some spec := spec? then
-    match spec with
-    | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => do
-      let mut p : Message → SpecResult := fun _ => .passthrough
-      let pushP (s : MessageSeverity) (drop : Bool) (p : Message → SpecResult)
-          (msg : Message) : SpecResult :=
-        if msg.severity == s then if drop then .drop else .check
-        else p msg
-      for elt in elts.reverse do
-        match elt with
-        | `(guardMsgsSpecElt| $[drop%$drop?]? info)    => p := pushP .information drop?.isSome p
-        | `(guardMsgsSpecElt| $[drop%$drop?]? warning) => p := pushP .warning drop?.isSome p
-        | `(guardMsgsSpecElt| $[drop%$drop?]? error)   => p := pushP .error drop?.isSome p
-        | `(guardMsgsSpecElt| $[drop%$drop?]? all) =>
-          p := fun _ => if drop?.isSome then .drop else .check
-        | _ => throwErrorAt elt "Invalid #guard_msgs specification element"
-      return p
-    | _ => throwErrorAt spec "Invalid #guard_msgs specification"
-  else
-    return fun _ => .check
+    CommandElabM (WhitespaceMode × MessageOrdering × (Message → SpecResult)) := do
+  let elts ←
+    if let some spec := spec? then
+      match spec with
+      | `(guardMsgsSpec| ($[$elts:guardMsgsSpecElt],*)) => pure elts
+      | _ => throwUnsupportedSyntax
+    else
+      pure #[]
+  let mut whitespace : WhitespaceMode := .normalized
+  let mut ordering : MessageOrdering := .exact
+  let mut p? : Option (Message → SpecResult) := none
+  let pushP (s : MessageSeverity) (drop : Bool) (p? : Option (Message → SpecResult))
+      (msg : Message) : SpecResult :=
+    let p := p?.getD fun _ => .passthrough
+    if msg.severity == s then if drop then .drop else .check
+    else p msg
+  for elt in elts.reverse do
+    match elt with
+    | `(guardMsgsSpecElt| $[drop%$drop?]? info)     => p? := pushP .information drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? warning)  => p? := pushP .warning drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? error)    => p? := pushP .error drop?.isSome p?
+    | `(guardMsgsSpecElt| $[drop%$drop?]? all)      => p? := some fun _ => if drop?.isSome then .drop else .check
+    | `(guardMsgsSpecElt| whitespace := exact)      => whitespace := .exact
+    | `(guardMsgsSpecElt| whitespace := normalized) => whitespace := .normalized
+    | `(guardMsgsSpecElt| whitespace := lax)        => whitespace := .lax
+    | `(guardMsgsSpecElt| ordering := exact)        => ordering := .exact
+    | `(guardMsgsSpecElt| ordering := sorted)       => ordering := .sorted
+    | _ => throwUnsupportedSyntax
+  return (whitespace, ordering, p?.getD fun _ => .check)
 
 /-- An info tree node corresponding to a failed `#guard_msgs` invocation,
 used for code action support. -/
@@ -86,16 +111,27 @@ def removeTrailingWhitespaceMarker (s : String) : String :=
   s.replace "⏎\n" "\n"
 
 /--
-Strings are compared up to newlines, to allow users to break long lines.
+Applies a whitespace normalization mode.
 -/
-def equalUpToNewlines (exp res : String) : Bool :=
-  exp.replace "\n" " " == res.replace "\n" " "
+def WhitespaceMode.apply (mode : WhitespaceMode) (s : String) : String :=
+  match mode with
+  | .exact => s
+  | .normalized => s.replace "\n" " "
+  | .lax => String.intercalate " " <| (s.split Char.isWhitespace).filter (!·.isEmpty)
+
+/--
+Applies a message ordering mode.
+-/
+def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List String :=
+  match mode with
+  | .exact => msgs
+  | .sorted => msgs |>.toArray.qsort (· < ·) |>.toList
 
 @[builtin_command_elab Lean.guardMsgsCmd] def elabGuardMsgs : CommandElab
   | `(command| $[$dc?:docComment]? #guard_msgs%$tk $(spec?)? in $cmd) => do
     let expected : String := (← dc?.mapM (getDocStringText ·)).getD ""
         |>.trim |> removeTrailingWhitespaceMarker
-    let specFn ← parseGuardMsgsSpec spec?
+    let (whitespace, ordering, specFn) ← parseGuardMsgsSpec spec?
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     elabCommandTopLevel cmd
     let msgs := (← get).messages
@@ -106,8 +142,10 @@ def equalUpToNewlines (exp res : String) : Bool :=
       | .check       => toCheck := toCheck.add msg
       | .drop        => pure ()
       | .passthrough => toPassthrough := toPassthrough.add msg
-    let res := "---\n".intercalate (← toCheck.toList.mapM (messageToStringWithoutPos ·)) |>.trim
-    if equalUpToNewlines expected res then
+    let strings ← toCheck.toList.mapM (messageToStringWithoutPos ·)
+    let strings := ordering.apply strings
+    let res := "---\n".intercalate strings |>.trim
+    if whitespace.apply expected == whitespace.apply res then
       -- Passed. Only put toPassthrough messages back on the message log
       modify fun st => { st with messages := initMsgs ++ toPassthrough }
     else

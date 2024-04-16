@@ -353,14 +353,14 @@ def elabMutual : CommandElab := fun stx => do
     for builtin simprocs.
     -/
     let declNames ←
-       try
-         realizeGlobalConst ident
-       catch _ =>
-         let name := ident.getId.eraseMacroScopes
-         if (← Simp.isBuiltinSimproc name) then
-           pure [name]
-         else
-           throwUnknownConstant name
+      try
+        realizeGlobalConstWithInfos ident
+      catch _ =>
+        let name := ident.getId.eraseMacroScopes
+        if (← Simp.isBuiltinSimproc name) then
+          pure [name]
+        else
+          throwUnknownConstant name
     let declName ← ensureNonAmbiguous ident declNames
     Term.applyAttributes declName attrs
     for attrName in toErase do

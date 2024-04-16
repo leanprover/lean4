@@ -210,6 +210,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_
 LEAN_EXPORT lean_object* l_Lean_Meta_simpDtConfig;
 LEAN_EXPORT lean_object* l_Lean_Meta_Origin_key(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_SimpTheoremsArray_isDeclToUnfold(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_matchesInstance___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instToFormatSimpTheorem___closed__1;
 static lean_object* l_Lean_Meta_SimpTheorem_getValue___closed__4;
 static lean_object* l_Lean_Meta_SimpTheorems_pre___default___closed__1;
@@ -280,7 +281,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SimpTheorems_toUnfold___default;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocess_go___lambda__3___closed__5;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binInsertM___at_Lean_Meta_addSimpTheoremEntry___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isRflTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_mkSimpTheorems___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SimpTheorems_erase___rarg___closed__3;
@@ -11066,7 +11066,7 @@ lean_closure_set(x_25, 5, x_23);
 lean_closure_set(x_25, 6, x_1);
 lean_closure_set(x_25, 7, x_24);
 x_26 = 0;
-x_27 = l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_isDefEqOffset___spec__1___rarg(x_25, x_26, x_8, x_9, x_10, x_11, x_21);
+x_27 = l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_matchesInstance___spec__1___rarg(x_25, x_26, x_8, x_9, x_10, x_11, x_21);
 return x_27;
 }
 else

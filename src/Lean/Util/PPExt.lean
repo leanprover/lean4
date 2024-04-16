@@ -43,39 +43,8 @@ abbrev PrettyPrinter.InfoPerPos := RBMap Nat Elab.Info compare
 structure FormatWithInfos where
   fmt : Format
   infos : PrettyPrinter.InfoPerPos
-deriving Inhabited
-
 instance : Coe Format FormatWithInfos where
   coe fmt := { fmt, infos := ∅ }
-
-/-- Adds `offset` to each tag in the `Format` -/
--- We could make this a constructor so that repated shifting is more efficient
-def _root_.Std.Format.shiftTag (offset : Nat) : Format → Format
-  | .tag tag fmt => .tag (tag + offset) (shiftTag offset fmt)
-  | .nest i fmt  => .nest i (shiftTag offset fmt)
-  | .group fmt b => .group (shiftTag offset fmt) b
-  | .append x y  => .append (shiftTag offset x) (shiftTag offset y)
-  | fmt => fmt
-
-def FormatWithInfos.append : FormatWithInfos → FormatWithInfos → FormatWithInfos
-  | ⟨fmt1, infos1⟩, ⟨fmt2, infos2⟩ => Id.run do
-    if infos1.isEmpty then return ⟨fmt1 ++ fmt2, infos2⟩
-    if infos2.isEmpty then return ⟨fmt1 ++ fmt2, infos1⟩
-    let (offset, _) := infos1.max!
-    let fmt2' := fmt2.shiftTag offset
-    let infos2' := infos2.mapKeysMono (· + offset)
-      (by intros; simp [compare, compareOfLessAndEq]
-          all_goals repeat (split <;> ((try rfl); try omega)))
-    ⟨fmt1 ++ fmt2', .mergeBy (fun _ _ _ => panic! "disjoint maps overlap") infos1 infos2'⟩
-
-instance AppendFormatWithInfos : Append FormatWithInfos where
-  append := FormatWithInfos.append
-
-def FormatWithInfos.nestD : FormatWithInfos → FormatWithInfos
-  | ⟨fmt, infos⟩ => ⟨fmt.nestD, infos⟩
-
-def FormatWithInfos.indentD : FormatWithInfos → FormatWithInfos
-  | ⟨fmt, infos⟩ => ⟨fmt.indentD, infos⟩
 
 structure PPFns where
   ppExprWithInfos : PPContext → Expr → IO FormatWithInfos

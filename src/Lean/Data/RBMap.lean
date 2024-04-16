@@ -100,7 +100,6 @@ def isBlack : RBNode α β → Bool
   | node black .. => true
   | _             => false
 
-
 section Insert
 
 variable (cmp : α → α → Ordering)

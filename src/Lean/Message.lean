@@ -64,10 +64,7 @@ inductive MessageData where
   |  compose           : MessageData → MessageData → MessageData
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
-  | tagged             : Name → MessageData → MessageData
-  /-- A lazy message data. This can be used to delay possibly costly computations of `MessageData`
-    that may not be used in the end, such as a `throwError` in a tactic inside `try`.  -/
-  | thunk              : Thunk MessageData → MessageData
+  | tagged            : Name → MessageData → MessageData
   | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
   deriving Inhabited
 
@@ -150,7 +147,6 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       thunk t                  => formatAux nCtx ctx t.get
   | nCtx, ctx,       trace cls header children _ => do
     let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)

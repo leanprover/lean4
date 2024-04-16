@@ -454,7 +454,7 @@ LEAN_EXPORT void lean_dealloc(lean_object * o);
 /*
 An object `o` satisfies `lean_is_ctor` if it is a member of an inductive type, barring the exceptions
 listed at https://lean-lang.org/lean4/doc/dev/ffi.html#translating-types-from-lean-to-c.
-One notable exception is that inductive types where all constructors have no parameters (also called _enumeration types_) is represented more efficiently, so their values do not satisfy `lean_is_ctor`. 
+One notable exception is that inductive types where all constructors have no parameters (also called _enumeration types_) are represented more efficiently, so their values do not satisfy `lean_is_ctor`. 
 Behind the scenes, structure types are inductive types with a single constructor (whose parameters are the structure's fields), so values of structure types typically satisfy `lean_is_ctor`.
 
 Accessing the fields of such an object `o` works differently depending on the type of the field.
@@ -535,7 +535,6 @@ static inline void lean_set_non_heap_header_for_big(lean_object * o, unsigned ta
 
 /*
 Returns the number of non-scalar parameters of a given ctor-object. 
-
 For example, let `o` be a value of the following structure in Lean:
 
 ```
@@ -573,10 +572,7 @@ static inline lean_object * lean_alloc_ctor(unsigned tag, unsigned num_objs, uns
 }
 
 /*
-Returns the `i`th non-scalar parameter of a given ctor-object. Notably,
-the index `i` does not index the entire list of parameters of a given 
-constructor, but rather only the non-scalar ones.
-
+Returns the `i`th non-scalar parameter of a given ctor-object. 
 For example, let `o` be a value of the following structure in Lean:
 
 ```
@@ -594,6 +590,9 @@ Then
 * `lean_ctor_get(o, 2)` returns the object representing `e`
 
 To get the number of non-scalar parameters use `lean_ctor_num_objs`.
+
+For a more complete description of how inductive types' values are layed out,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
     assert(i < lean_ctor_num_objs(o));
@@ -624,38 +623,8 @@ static inline size_t lean_ctor_get_usize(b_lean_obj_arg o, unsigned i) {
 
 /*
 Given a ctor-object, returns a scalar parameter of type `uint8_t` at a given offset. 
-
-The offset does *not* represent an index into the list of parameters of an inductive 
-type constructor, but is instead only a byte offset. To access a specific constructor 
-parameter, construct the correct byte offset as follows:
-
-All scalar parameters of a ctor-object are represented in a contiguous block following
-the non-scalar parameters. Thus, the base offset required to access a scalar parameter
-of a ctor-object `o` is `lean_ctor_num_objs(o) * sizeof(void*)` (see the documentation 
-for `lean_ctor_num_objs` for more details). Then, to locate the desired scalar parameter, 
-add the sizes of all scalar parameters preceding the target parameter. For example, 
-let `o` be a value of the following structure in Lean:
-
-```
-structure S where
-  a : String
-  b : Bool
-  c : UInt64
-  e : Array Nat
-  d : UInt8
-```
-
-Then 
-* the base offset is `base_offset := 3 * sizeof(void*)`.
-* as `b` is the first scalar parameter, its offset is exactly the `base_offset`.
-* the offset for `c` is `base_offset + sizeof(uint8_t)`, where `sizeof(uint8_t)` 
-  is the number of bytes used by the preceding parameter `b`. 
-* the offset for `d` is `base_offset + sizeof(uint8_t) + sizeof(uint64_t)` where
-  `sizeof(uint8_t) + sizeof(uint64_t)` are the number of bytes used by the preceeding
-  parameters `b` and `c`.
-
-Thus, `lean_ctor_get_uint8(o, 3 * sizeof(void*) + sizeof(uint8_t) + sizeof(uint64_t))`
-returns the value of `d`.
+For a description of how to compute the correct offset for accessing a specific parameter,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline uint8_t lean_ctor_get_uint8(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
@@ -664,7 +633,8 @@ static inline uint8_t lean_ctor_get_uint8(b_lean_obj_arg o, unsigned offset) {
 
 /*
 Given a ctor-object, returns a scalar parameter of type `uint16_t` at a given offset. 
-For an explanation of the offset, see the documentation for `lean_ctor_get_uint8`.
+For a description of how to compute the correct offset for accessing a specific parameter,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline uint16_t lean_ctor_get_uint16(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
@@ -673,7 +643,8 @@ static inline uint16_t lean_ctor_get_uint16(b_lean_obj_arg o, unsigned offset) {
 
 /*
 Given a ctor-object, returns a scalar parameter of type `uint32_t` at a given offset. 
-For an explanation of the offset, see the documentation for `lean_ctor_get_uint8`.
+For a description of how to compute the correct offset for accessing a specific parameter,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline uint32_t lean_ctor_get_uint32(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
@@ -682,7 +653,8 @@ static inline uint32_t lean_ctor_get_uint32(b_lean_obj_arg o, unsigned offset) {
 
 /*
 Given a ctor-object, returns a scalar parameter of type `uint64_t` at a given offset. 
-For an explanation of the offset, see the documentation for `lean_ctor_get_uint8`.
+For a description of how to compute the correct offset for accessing a specific parameter,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline uint64_t lean_ctor_get_uint64(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
@@ -691,7 +663,8 @@ static inline uint64_t lean_ctor_get_uint64(b_lean_obj_arg o, unsigned offset) {
 
 /*
 Given a ctor-object, returns a scalar parameter of type `float` at a given offset. 
-For an explanation of the offset, see the documentation for `lean_ctor_get_uint8`.
+For a description of how to compute the correct offset for accessing a specific parameter,
+see https://lean-lang.org/lean4/doc/dev/ffi.html#inductive-types.
 */
 static inline double lean_ctor_get_float(b_lean_obj_arg o, unsigned offset) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));

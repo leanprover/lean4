@@ -162,11 +162,11 @@ theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
 /-! ### Negation -/
 
 /-- Bitwise 1's complement implemented via `iunfoldr`. -/
-def bit_not (x : BitVec w) : BitVec w :=
+abbrev bit_not (x : BitVec w) : BitVec w :=
   ((iunfoldr fun (i : Fin w) c => (c, !(x.getLsb i))) ()).snd
 
 /-- Bitwise 2's complement implemented via `iunfoldr`. -/
-def bit_neg (x : BitVec w) : BitVec w := (adc (bit_not x) (BitVec.ofNat w 1) false).snd
+abbrev bit_neg (x : BitVec w) : BitVec w := (adc (bit_not x) (BitVec.ofNat w 1) false).snd
 
 theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
   getLsb (bit_not x) i.val = !(getLsb x i.val) := by

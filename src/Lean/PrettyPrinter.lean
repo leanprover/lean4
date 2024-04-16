@@ -109,11 +109,11 @@ Uses the `pp.tagAppFns` option to annotate constants with terminfo, which is nec
 -/
 def ofFormatWithInfos
     (fmt : MetaM FormatWithInfos)
-    (noContext : Thunk Format := "<no context, could not generate MessageData>") : MessageData :=
+    (noContext : Unit → Format := fun _ => "<no context, could not generate MessageData>") : MessageData :=
   .ofPPFormat
   { pp := fun
       | some ctx => ctx.runMetaM <| withOptions (pp.tagAppFns.set · true) fmt
-      | none => return noContext.get }
+      | none => return noContext () }
 
 /-- Pretty print a const expression using `delabConst` and generate terminfo.
 This function avoids inserting `@` if the constant is for a function whose first
@@ -121,13 +121,13 @@ argument is implicit, which is what the default `toMessageData` for `Expr` does.
 Panics if `e` is not a constant. -/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
-    .ofFormatWithInfos (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) (.mk fun _ => f!"{e}")
+    .ofFormatWithInfos (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) fun _ => f!"{e}"
   else
     panic! "not a constant"
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=
-  .ofFormatWithInfos (PrettyPrinter.ppSignature c) (.mk fun _ => f!"{c}")
+  .ofFormatWithInfos (PrettyPrinter.ppSignature c) fun _ => f!"{c}"
 
 end MessageData
 

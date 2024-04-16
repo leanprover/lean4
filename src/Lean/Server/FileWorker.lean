@@ -223,7 +223,8 @@ This option can only be set on the command line, not in the lakefile or via `set
       | t::ts => do
         let mut st := st
         unless (← IO.hasFinished t.task) do
-          ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta t.range.start
+          if let some range := t.range? then
+            ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta range.start
           if !st.hasBlocked then
             publishDiagnostics ctx doc
             st := { st with hasBlocked := true }

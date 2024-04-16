@@ -95,3 +95,37 @@ bar
 -/
 #guard_msgs in
 run_meta Lean.logInfo "foo ⏎\nbar"
+
+/-!
+Lax whitespace
+-/
+
+/-- error: failed to synthesize DecidableEq (Nat → Nat) -/
+#guard_msgs (whitespace := lax) in
+#synth DecidableEq (Nat → Nat)
+
+/-- error: failed to synthesize
+
+DecidableEq (Nat → Nat) -/
+#guard_msgs (whitespace := lax) in
+#synth DecidableEq (Nat → Nat)
+
+/-!
+Sorting
+-/
+
+/--
+info: A
+---
+info: B
+-/
+#guard_msgs (ordering := sorted) in
+run_meta do Lean.logInfo "B"; Lean.logInfo "A"
+
+/--
+info: B
+---
+info: A
+-/
+#guard_msgs in
+run_meta do Lean.logInfo "B"; Lean.logInfo "A"

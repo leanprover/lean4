@@ -24,10 +24,10 @@ def isInstMulNat (e : Expr) : MetaM Bool := do
   let_expr instMulNat ← e | return false
   return true
 def isInstDivNat (e : Expr) : MetaM Bool := do
-  let_expr Nat.instDivNat ← e | return false
+  let_expr Nat.instDiv ← e | return false
   return true
 def isInstModNat (e : Expr) : MetaM Bool := do
-  let_expr Nat.instModNat ← e | return false
+  let_expr Nat.instMod ← e | return false
   return true
 def isInstNatPowNat (e : Expr) : MetaM Bool := do
   let_expr instNatPowNat ← e | return false

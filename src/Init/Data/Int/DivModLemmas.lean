@@ -1055,18 +1055,35 @@ theorem emod_add_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n + y) n = Int.bmo
   rw [←Int.mul_neg, Int.add_right_comm,  Int.bmod_add_mul_cancel]
 
 @[simp]
+theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmod (x * y) n := by
+  simp [Int.emod_def, Int.sub_eq_add_neg]
+  rw [←Int.mul_neg, Int.add_mul, Int.mul_assoc, Int.bmod_add_mul_cancel]
+
+@[simp]
 theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
+  rw [bmod_def x n]
+  split
+  case inl p =>
+    simp only [emod_add_bmod_congr]
+  case inr p =>
+    rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
+    simp
+
+@[simp] theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
+  rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
+
+@[simp]
+theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
   rw [bmod_def x n]
   split
   case inl p =>
     simp
   case inr p =>
-    rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
+    rw [Int.sub_mul, Int.sub_eq_add_neg, ← Int.mul_neg]
     simp
 
-@[simp]
-theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
-  rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
+@[simp] theorem mul_bmod_bmod : Int.bmod (x * Int.bmod y n) n = Int.bmod (x * y) n := by
+  rw [Int.mul_comm x, bmod_mul_bmod, Int.mul_comm x]
 
 theorem emod_bmod {x : Int} {m : Nat} : bmod (x % m) m = bmod x m := by
   simp [bmod]

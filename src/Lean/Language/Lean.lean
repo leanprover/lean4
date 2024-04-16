@@ -150,6 +150,8 @@ structure CommandParsedSnapshotData extends Snapshot where
   elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Cache for `save`; to be replaced with incrementality. -/
+  tacticCache : IO.Ref Tactic.Cache
 deriving Nonempty
 
 /-- State after a command has been parsed. -/
@@ -405,6 +407,7 @@ where
         diagnostics := .empty, stx := .missing, parserState
         elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
         finishedSnap := .pure { diagnostics := .empty, cmdState }
+        tacticCache := (← IO.mkRef {})
       }
 
     let unchanged old : BaseIO CommandParsedSnapshot :=
@@ -443,9 +446,12 @@ where
 
       -- definitely resolved in `doElab` task
       let elabPromise ← IO.Promise.new
+      let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
       let finishedSnap ←
         doElab stx cmdState msgLog.hasErrors beginPos
-          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise } ctx
+          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
+          tacticCache
+          ctx
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
@@ -457,10 +463,11 @@ where
         parserState
         elabSnap := { range? := finishedSnap.range?, task := elabPromise.result }
         finishedSnap
+        tacticCache
       }
 
   doElab (stx : Syntax) (cmdState : Command.State) (hasParseError : Bool) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) :
+      (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
 
@@ -469,9 +476,16 @@ where
     SnapshotTask.ofIO (stx.getRange?.getD ⟨beginPos, beginPos⟩) do
       let scope := cmdState.scopes.head!
       let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
+      /-
+      The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
+      has exclusive access to the cache, we create a fresh reference here. Before this change, the
+      following `tacticCache.modify` would reset the tactic post cache while another snapshot was
+      still using it.
+      -/
+      let tacticCacheNew ← IO.mkRef (← tacticCache.get)
       let cmdCtx : Elab.Command.Context := { ctx with
         cmdPos       := beginPos
-        tacticCache? := none
+        tacticCache? := some tacticCacheNew
         snap?        := some snap
       }
       let (output, _) ←
@@ -480,6 +494,8 @@ where
             Elab.Command.catchExceptions
               (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
               cmdCtx cmdStateRef
+      let postNew := (← tacticCacheNew.get).post
+      tacticCache.modify fun _ => { pre := postNew, post := {} }
       let cmdState ← cmdStateRef.get
       let mut messages := cmdState.messages
       -- `stx.hasMissing` should imply `hasParseError`, but the latter should be cheaper to check in

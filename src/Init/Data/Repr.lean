@@ -175,6 +175,32 @@ def toSuperDigits (n : Nat) : List Char :=
 def toSuperscriptString (n : Nat) : String :=
   (toSuperDigits n).asString
 
+def subDigitChar (n : Nat) : Char :=
+  if n = 0 then '₀' else
+  if n = 1 then '₁' else
+  if n = 2 then '₂' else
+  if n = 3 then '₃' else
+  if n = 4 then '₄' else
+  if n = 5 then '₅' else
+  if n = 6 then '₆' else
+  if n = 7 then '₇' else
+  if n = 8 then '₈' else
+  if n = 9 then '₉' else
+  '*'
+
+partial def toSubDigitsAux : Nat → List Char → List Char
+  | n, ds =>
+    let d  := subDigitChar <| n % 10;
+    let n' := n / 10;
+    if n' = 0 then d::ds
+    else toSubDigitsAux n' (d::ds)
+
+def toSubDigits (n : Nat) : List Char :=
+  toSubDigitsAux n []
+
+def toSubscriptString (n : Nat) : String :=
+  (toSubDigits n).asString
+
 end Nat
 
 instance : Repr Nat where

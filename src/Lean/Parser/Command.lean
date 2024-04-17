@@ -217,7 +217,7 @@ the section:
 * Declarations names are prefixed: `def seventeen : ℕ := 17` inside a namespace `Nat` is given the
   full name `Nat.seventeen`.
 * Names introduced by `export` declarations are also prefixed by the identifier.
-* All names starting with `<id>` become available in the namespace without the prefix. These names
+* All names starting with `<id>.` become available in the namespace without the prefix. These names
   are preferred over names introduced by outer namespaces or `open`.
 * Within a namespace, declarations can be `protected`, which excludes them from the effects of
   opening the namespace.

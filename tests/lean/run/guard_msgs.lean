@@ -129,3 +129,16 @@ info: A
 -/
 #guard_msgs in
 run_meta do Lean.logInfo "B"; Lean.logInfo "A"
+
+/-!
+Linter suppression
+-/
+
+/-- warning: unused variable `n` [linter.unusedVariables] -/
+#guard_msgs in
+example (n : Nat) : True := trivial
+
+/-- warning: unused variable `n` [linter.unusedVariables] -/
+#guard_msgs in
+#guard_msgs (info) in
+example (n : Nat) : True := trivial

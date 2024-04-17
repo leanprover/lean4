@@ -116,6 +116,11 @@ instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
 
 namespace Nat
 
+/-
+We have pure functions for calculating the decimal representation of a `Nat` (`toDigits`), but also
+a fast variant that handles small numbers (`USize`) via C code (`lean_string_of_usize`).
+-/
+
 def digitChar (n : Nat) : Char :=
   if n = 0 then '0' else
   if n = 1 then '1' else
@@ -146,6 +151,20 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
+@[extern "lean_string_of_usize"]
+protected def _root_.USize.repr (n : @& USize) : String :=
+  (toDigits 10 n.toNat).asString
+
+/-- We statically allocate and memoize reprs for small natural numbers. -/
+private def reprArray : Array String := Id.run do
+  List.range 128 |>.map (·.toUSize.repr) |> Array.mk
+
+private def reprFast (n : Nat) : String :=
+  if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else
+  if h : n < USize.size then (USize.ofNatCore n h).repr
+  else (toDigits 10 n).asString
+
+@[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
   (toDigits 10 n).asString
 

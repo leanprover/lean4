@@ -234,26 +234,6 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
           Term.addLocalVarInfo altVars[i]! (mkFVar fvarId)
           i := i + 1
 
-/--
-  If `altsSyntax` is not empty we reorder `alts` using the order the alternatives have been provided
-  in `altsSyntax`. Motivations:
-
-  1- It improves the effectiveness of the `checkpoint` and `save` tactics. Consider the following example:
-  ```lean
-  example (h₁ : p ∨ q) (h₂ : p → x = 0) (h₃ : q → y = 0) : x * y = 0 := by
-    cases h₁ with
-    | inr h =>
-      sleep 5000 -- sleeps for 5 seconds
-      save
-      have : y = 0 := h₃ h
-      -- We can comfortably work here
-    | inl h => stop ...
-  ```
-  If we do reorder, the `inl` alternative will be executed first. Moreover, as we type in the `inr` alternative,
-  type errors will "swallow" the `inl` alternative and affect the tactic state at `save` making it ineffective.
-
-  2- The errors are produced in the same order the appear in the code above. This is not super important when using IDEs.
--/
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
@@ -269,47 +249,75 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (alts
   else go
 where
   go := do
+    -- initial sanity checks: named cases should be known, wildcards should be last
     checkAltNames alts altsSyntax
     let hasAlts := altsSyntax.size > 0
-    -- when alternatives are not provided (missing or holes), we accumulate subgoals here
     let mut alts := alts
+
+    /-
+    First process `altsSyntax` in order, removing covered alternatives from `alts`. Previously we
+    did one loop through `alts`, looking up suitable alternatives from `altsSyntax`.
+    Motivations for the change:
+
+    1- It improves the effectiveness of incremental reuse. Consider the following example:
+    ```lean
+    example (h₁ : p ∨ q) (h₂ : p → x = 0) (h₃ : q → y = 0) : x * y = 0 := by
+      cases h₁ with
+      | inr h =>
+        sleep 5000 -- sleeps for 5 seconds
+        save
+        have : y = 0 := h₃ h
+        -- We can comfortably work here
+      | inl h => stop ...
+    ```
+    If we iterated through `alts` instead of `altsSyntax`, the `inl` alternative would be executed
+    first, making partial reuse in `inr` impossible (without support for reuse with position
+    adjustments).
+
+    2- The errors are produced in the same order the appear in the code above. This is not super
+    important when using IDEs.
+    -/
     for altStxIdx in [0:altsSyntax.size] do
       let altStx := altsSyntax[altStxIdx]!
       let altName := getAltName altStx
       if let some i := alts.findIdx? (·.1 == altName) then
+        -- cover named alternative
         applyAltStx altStxIdx altStx alts[i]!
         alts := alts.eraseIdx i
       else if !alts.isEmpty && isWildcard altStx then
+        -- cover all alternatives
         for alt in alts do
           applyAltStx altStxIdx altStx alt
         alts := #[]
       else
         throwError "unused alternative '{altName}'"
+
+    -- now process remaining alternatives; these might either be unreachable or we're in `induction`
+    -- without `with`. In all other cases, remaining alternatives are flagged as errors.
     for { name := altName, info, mvarId := altMVarId } in alts do
       let numFields ← getAltNumFields elimInfo altName
       let mut (_, altMVarId) ← altMVarId.introN numFields
-      match (← Cases.unifyEqs? numEqs altMVarId {}) with
-      | none   => pure () -- alternative is not reachable
-      | some (altMVarId', subst) =>
-        altMVarId ← if info.provesMotive then
-          (_, altMVarId) ← altMVarId'.introNP numGeneralized
-          pure altMVarId
-        else
-          pure altMVarId'
-        for fvarId in toClear do
-          altMVarId ← altMVarId.tryClear fvarId
-        altMVarId.withContext do
-          for (stx, fvar) in toTag do
-            Term.addLocalVarInfo stx (subst.get fvar)
-        let altMVarIds ← applyPreTac altMVarId
-        if !hasAlts then
-          -- User did not provide alternatives using `|`
-          setGoals <| (← getGoals) ++ altMVarIds
-        else if altMVarIds.isEmpty then
-          pure ()
-        else
-          logError m!"alternative '{altName}' has not been provided"
-          altMVarIds.forM fun mvarId => admitGoal mvarId
+      let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
+        | continue  -- alternative is not reachable
+      altMVarId ← if info.provesMotive then
+        (_, altMVarId) ← altMVarId'.introNP numGeneralized
+        pure altMVarId
+      else
+        pure altMVarId'
+      for fvarId in toClear do
+        altMVarId ← altMVarId.tryClear fvarId
+      altMVarId.withContext do
+        for (stx, fvar) in toTag do
+          Term.addLocalVarInfo stx (subst.get fvar)
+      let altMVarIds ← applyPreTac altMVarId
+      if !hasAlts then
+        -- User did not provide alternatives using `|`
+        setGoals <| (← getGoals) ++ altMVarIds
+      else if !altMVarIds.isEmpty then
+        logError m!"alternative '{altName}' has not been provided"
+        altMVarIds.forM fun mvarId => admitGoal mvarId
+
+  /-- Applies syntactic alternative to alternative goal. -/
   applyAltStx altStxIdx altStx alt := withRef altStx do
     let { name := altName, info, mvarId := altMVarId } := alt
     -- also checks for unknown alternatives
@@ -355,6 +363,8 @@ where
           -- disable reuse if rhs is run multiple times, also for any rhs but the last
           Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx || altStxIdx < altsSyntax.size - 1) do
             evalAlt altMVarId' altStx addInfo
+
+  /-- Applies `induction .. with $preTac | ..`, if any, to an alternative goal. -/
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
       return [mvarId]

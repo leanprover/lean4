@@ -134,6 +134,8 @@ run_meta do Lean.logInfo "B"; Lean.logInfo "A"
 Linter suppression
 -/
 
+set_option linter.unusedVariables true
+
 /-- warning: unused variable `n` [linter.unusedVariables] -/
 #guard_msgs in
 example (n : Nat) : True := trivial

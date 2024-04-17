@@ -14,12 +14,12 @@ deriving instance DecidableEq for Option
 deriving instance BEq for Option
 
 /-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
-def toAlternative [Alternative m] : Option α → m α
+def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[deprecated toAlternative] def toMonad [Monad m] [Alternative m] : Option α → m α :=
-  toAlternative
+@[deprecated getM] def toMonad [Monad m] [Alternative m] : Option α → m α :=
+  getM
 
 @[inline] def toBool : Option α → Bool
   | some _ => true

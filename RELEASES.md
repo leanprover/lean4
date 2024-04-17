@@ -131,7 +131,8 @@ fact.def :
 * The `Subarray` fields `as`, `h₁` and `h₂` have been renamed to `array`, `start_le_stop`, and `stop_le_array_size`, respectively. This more closely follows standard Lean conventions. Deprecated aliases for the field projections were added; these will be removed in a future release.
 
 * The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
-* `Option.toMonad` has been renamed to `Option.toAlternative` and the unneeded `[Monad m]` instance argument has been removed.
+
+* `Option.toMonad` has been renamed to `Option.getM` and the unneeded `[Monad m]` instance argument has been removed.
 
 v4.7.0
 ---------

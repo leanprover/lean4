@@ -132,6 +132,8 @@ fact.def :
 
 * The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
 
+* `Option.toMonad` has been renamed to `Option.getM` and the unneeded `[Monad m]` instance argument has been removed.
+
 v4.7.0
 ---------
 

@@ -224,6 +224,8 @@ the section:
 
 As with `section`, namespaces can be nested and the scope of a namespace is terminated by a
 corresponding `end <id>` or the end of the file.
+
+`namespace` also acts like `section` in delimiting the scope of `variable`, `open`, and other scoped commands.
 -/
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> checkColGt >> ident

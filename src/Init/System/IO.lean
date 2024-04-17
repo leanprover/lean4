@@ -311,7 +311,8 @@ Note that EOF does not actually close a stream, so further reads may block and r
   -/
   getLine : IO String
   putStr  : String → IO Unit
-  isatty  : BaseIO Bool
+  /-- Returns true if a stream refers to a Windows console or Unix terminal. -/
+  isTty   : BaseIO Bool
   deriving Inhabited
 
 open FS
@@ -362,7 +363,7 @@ Will succeed even if no lock has been acquired.
 @[extern "lean_io_prim_handle_unlock"] opaque unlock (h : @& Handle) : IO Unit
 
 /-- Returns true if a handle refers to a Windows console or Unix terminal. -/
-@[extern "lean_io_prim_handle_isatty"] opaque isatty (h : @& Handle) : BaseIO Bool
+@[extern "lean_io_prim_handle_is_tty"] opaque isTty (h : @& Handle) : BaseIO Bool
 
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /-- Rewinds the read/write cursor to the beginning of the handle. -/
@@ -753,7 +754,7 @@ def ofHandle (h : Handle) : Stream where
   write   := Handle.write h
   getLine := Handle.getLine h
   putStr  := Handle.putStr h
-  isatty  := Handle.isatty h
+  isTty   := Handle.isTty h
 
 structure Buffer where
   data : ByteArray := ByteArray.empty
@@ -776,7 +777,7 @@ def ofBuffer (r : Ref Buffer) : Stream where
   putStr  := fun s => r.modify fun b =>
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
-  isatty  := pure false
+  isTty   := pure false
 
 end Stream
 

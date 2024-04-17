@@ -302,14 +302,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
 #ifdef LEAN_WINDOWS
 
 static inline HANDLE win_handle(FILE * fp) {
-// Windows CE requires a different approach.
-// We may be able to ignore this, as we may not otherwise support WinCE?
-// https://stackoverflow.com/a/3989842
-#ifdef q4_WCE
-    return (HANDLE)_fileno(fp);
-#else
     return (HANDLE)_get_osfhandle(_fileno(fp));
-#endif
 }
 
 /* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
@@ -394,14 +387,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /
 
 #endif
 
-/* Handle.isatty : (@& Handle) → BaseIO Bool */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_isatty(b_obj_arg h, obj_arg /* w */) {
+/* Handle.isTty : (@& Handle) → BaseIO Bool */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
 #ifdef LEAN_WINDOWS
     /*
     On Windows, there are two approaches for detecting a console.
     1)  _isatty(_fileno(fp)) != 0
-        This checks whether the the file descriptor is is a *character device*,
+        This checks whether the file descriptor is a *character device*,
         not just a terminal (unlike Unix's isatty). Thus, it produces a false
         positive in some edge cases (such as NUL).
         https://stackoverflow.com/q/3648711
@@ -411,7 +404,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_isatty(b_obj_arg h, obj_arg /
         which is not implemented as a Windows-recognized console on
         old Windows versions (e.g., pre-Windows 10, pre-ConPTY).
         https://github.com/msys2/MINGW-packages/issues/14087
-    We choose to use GetConsoleMode as that seems like the more modern approach.
+    We choose to use GetConsoleMode as that seems like the more modern approach,
+    and Lean does not support pre-Windows 10.
     */
     DWORD mode;
     return io_result_mk_ok(box(GetConsoleMode(win_handle(fp), &mode) != 0));

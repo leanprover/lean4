@@ -15,7 +15,11 @@ open Function
 /--
 The `Functor` typeclass only contains the operations of a functor.
 `LawfulFunctor` further asserts that these operations satisfy the laws of a functor,
-including the preservation of the identity and composition laws.
+including the preservation of the identity and composition laws:
+```
+id <$> x = x
+(h ∘ g) <$> x = h <$> g <$> x
+```
 -/
 class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
   map_const          : (Functor.mapConst : α → f β → f α) = Functor.map ∘ const β
@@ -31,7 +35,13 @@ attribute [simp] id_map
 
 /--
 The `Applicative` typeclass only contains the operations of an applicative functor.
-`LawfulApplicative` further asserts that these operations satisfy the laws of an applicative functor.
+`LawfulApplicative` further asserts that these operations satisfy the laws of an applicative functor:
+```
+pure id <*> v = v
+pure (·∘·) <*> u <*> v <*> w = u <*> (v <*> w)
+pure f <*> pure x = pure (f x)
+u <*> pure y = pure (· y) <*> u
+```
 -/
 class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFunctor f : Prop where
   seqLeft_eq  (x : f α) (y : f β)     : x <* y = const β <$> x <*> y
@@ -54,7 +64,12 @@ attribute [simp] map_pure seq_pure
 /--
 The `Monad` typeclass only contains the operations of a monad.
 `LawfulMonad` further asserts that these operations satisfy the laws of a monad,
-including associativity and identity laws for `bind`.
+including associativity and identity laws for `bind`:
+```
+pure x >>= f = f x
+x >>= pure = x
+x >>= f >>= g = x >>= (fun x => f x >>= g)
+```
 
 `LawfulMonad.mk'` is an alternative constructor containing useful defaults for many fields.
 -/

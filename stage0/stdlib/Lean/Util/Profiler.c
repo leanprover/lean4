@@ -253,7 +253,6 @@ static lean_object* l_Lean_Firefox_Profile_export___closed__1;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonCategory____x40_Lean_Util_Profiler___hyg_42____closed__5;
 double lean_float_add(double, double);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonFuncTable____x40_Lean_Util_Profiler___hyg_1531____spec__2___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_instInhabitedString;
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__13(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonStackTable____x40_Lean_Util_Profiler___hyg_779____closed__29;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__11___boxed(lean_object*, lean_object*);
@@ -345,6 +344,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJson
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__23(uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonSamplesTable____x40_Lean_Util_Profiler___hyg_1131____closed__15;
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonStackTable____x40_Lean_Util_Profiler___hyg_779____closed__12;
+extern lean_object* l_String_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at___private_Lean_Util_Profiler_0__Lean_Firefox_addTrace_go___spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonCategory____x40_Lean_Util_Profiler___hyg_42____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Profiler_0__Lean_Firefox_fromJsonResourceTable____x40_Lean_Util_Profiler___hyg_2565____closed__3;
@@ -19438,7 +19438,7 @@ if (x_252 == 0)
 {
 lean_object* x_253; lean_object* x_254; 
 lean_dec(x_251);
-x_253 = l_String_instInhabitedString;
+x_253 = l_String_instInhabited;
 x_254 = l___private_Init_GetElem_0__outOfBounds___rarg(x_253);
 x_79 = x_254;
 goto block_236;
@@ -19463,7 +19463,7 @@ if (x_257 == 0)
 {
 lean_object* x_258; lean_object* x_259; 
 lean_dec(x_256);
-x_258 = l_String_instInhabitedString;
+x_258 = l_String_instInhabited;
 x_259 = l___private_Init_GetElem_0__outOfBounds___rarg(x_258);
 x_79 = x_259;
 goto block_236;

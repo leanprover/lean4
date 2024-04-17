@@ -36,6 +36,7 @@ static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_400____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_add_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____closed__23;
+extern lean_object* l_Int_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instReprAssumptionId;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4195____closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Linear_getBestBound_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,7 +44,6 @@ LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableEqJustification(lean_object*
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Linear_Poly_eval_x3f___spec__1___closed__1;
 static lean_object* l_Lean_Meta_Linear_instInhabitedJustification___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_State_currVar___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableLtVarInstLTVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instBEqCnstrKind;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_eval_x3f___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_2817____boxed(lean_object*, lean_object*);
@@ -81,6 +81,7 @@ static lean_object* l_Lean_Meta_Linear_pickAssignment_x3f___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Meta_Linear_CnstrKind_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_combine(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Rat_instDecidableLe(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____closed__7;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____closed__3;
 static lean_object* l_Lean_Meta_Linear_instReprPoly___closed__1;
@@ -135,17 +136,16 @@ static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____closed__16;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_ordVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_23_(lean_object*, lean_object*);
 lean_object* l_Lean_Rat_inv(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableLtVar(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Poly_getMaxVarCoeff___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instOrdVar;
 static lean_object* l_Lean_Meta_Linear_Poly_add_go___closed__1;
-lean_object* l_Int_instDecidableEqInt___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____closed__11;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3826_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_instInhabitedCnstr___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3366____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_pickAssignment_x3f(lean_object*, uint8_t, lean_object*, uint8_t);
-uint8_t l_Array_instDecidableEqArray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3826____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_instReprCnstrKind___closed__1;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____spec__3(lean_object*, lean_object*);
@@ -217,6 +217,7 @@ static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_shrink(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632_(uint8_t, lean_object*);
 lean_object* lean_string_length(lean_object*);
+lean_object* l_Int_instDecidableEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableEqAssumptionId(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_instBEqCnstr___closed__1;
@@ -247,6 +248,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_getBestBound_x3f___boxed(lean_object
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____closed__21;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4195____boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+uint8_t l_Array_instDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableEqAssumptionId___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprAssumptionId____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_2728____boxed(lean_object*, lean_object*);
@@ -270,13 +272,11 @@ LEAN_EXPORT lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____closed__18;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Linear_Poly_eval_x3f___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-uint8_t l_Lean_Rat_instDecidableLeRatInstLERat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_get_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_162____closed__13;
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Rat_isInt(lean_object*);
-extern lean_object* l_Int_instInhabitedInt;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4195____closed__6;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqAssumptionId____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_2639_(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____spec__2___closed__9;
@@ -289,6 +289,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____closed__11;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3632____boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableLtVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_eval_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_ofNat___boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____closed__13;
@@ -297,7 +298,6 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____spec__2___closed__3;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_add_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableLtVarInstLTVar(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Assignment_val___default;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprJustification____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3366____closed__3;
@@ -314,11 +314,11 @@ static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4195____closed__7;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Poly_getMaxVar___boxed(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_beqCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4086____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_363____spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_beqCnstrKind____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_3616____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_CnstrKind_toCtorIdx(uint8_t);
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprCnstr____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_4195____closed__9;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_73____boxed(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Meta_Linear_instInhabitedVar() {
@@ -551,7 +551,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_3 = l_Nat_repr(x_1);
+x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_4 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 x_5 = l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_162____closed__7;
@@ -617,7 +617,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableLtVarInstLTVar(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_Linear_instDecidableLtVar(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -625,11 +625,11 @@ x_3 = lean_nat_dec_lt(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableLtVarInstLTVar___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_instDecidableLtVar___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Meta_Linear_instDecidableLtVarInstLTVar(x_1, x_2);
+x_3 = l_Lean_Meta_Linear_instDecidableLtVar(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -1265,7 +1265,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_instDecidableEqInt___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Int_instDecidableEq___boxed), 2, 0);
 return x_1;
 }
 }
@@ -1294,7 +1294,7 @@ _start:
 {
 lean_object* x_3; uint8_t x_4; 
 x_3 = l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_decEqPoly____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_400____closed__3;
-x_4 = l_Array_instDecidableEqArray___rarg(x_3, x_1, x_2);
+x_4 = l_Array_instDecidableEq___rarg(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -1349,7 +1349,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Poly_getMaxVarCoeff___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Int_instInhabitedInt;
+x_1 = l_Int_instInhabited;
 x_2 = l_Lean_Meta_Linear_instInhabitedVar;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -2517,7 +2517,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_3 = l_Nat_repr(x_1);
+x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_4 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 x_5 = l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lean_Meta_Linear_reprVar____x40_Lean_Meta_Tactic_LinearArith_Solver___hyg_162____closed__7;
@@ -4362,7 +4362,7 @@ x_30 = lean_unsigned_to_nat(1u);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_Rat_instDecidableLeRatInstLERat(x_28, x_31);
+x_32 = l_Lean_Rat_instDecidableLe(x_28, x_31);
 if (x_32 == 0)
 {
 uint8_t x_33; lean_object* x_34; 

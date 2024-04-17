@@ -28,6 +28,7 @@ static lean_object* l_panic___at_Lean_Lsp_Ipc_shutdown___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__2;
+lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__60;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__41;
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readMessage(lean_object*, lean_object*);
@@ -65,7 +66,6 @@ lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_stdout(lean_object*, lean_object*);
 lean_object* l_IO_FS_Stream_writeLspRequest___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__2;
-lean_object* l_EStateM_instInhabitedEStateM___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collectDiagnostics___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspRequest___at_Lean_Lsp_Ipc_collectDiagnostics___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdown___spec__2(lean_object*);
@@ -153,7 +153,7 @@ static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__42;
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__3;
 static lean_object* l_Lean_Lsp_Ipc_collectDiagnostics___closed__1;
 static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_shutdown___spec__2___closed__2;
-lean_object* l_Nat_repr(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readRequestAs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_Ipc_readResponseAs___closed__29;
@@ -360,7 +360,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_IO_instInhabitedError;
-x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabitedEStateM___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -701,7 +701,7 @@ lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_32 = l_Nat_repr(x_1);
+x_32 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_33 = l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__8;
 x_34 = lean_string_append(x_33, x_32);
 lean_dec(x_32);
@@ -880,7 +880,7 @@ lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
-x_77 = l_Nat_repr(x_1);
+x_77 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_78 = l_Lean_Loop_forIn_loop___at_Lean_Lsp_Ipc_shutdown___spec__5___closed__8;
 x_79 = lean_string_append(x_78, x_77);
 lean_dec(x_77);

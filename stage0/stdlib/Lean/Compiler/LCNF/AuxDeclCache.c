@@ -31,10 +31,10 @@ lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lea
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_instHashableDecl;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_AuxDeclCache___hyg_9____closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__2(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__5___closed__1;
+lean_object* l_Lean_PersistentHashMap_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_5341_(lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -843,7 +843,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_instBEqDecl;
 x_2 = l_Lean_Compiler_LCNF_instHashableDecl;
-x_3 = l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }

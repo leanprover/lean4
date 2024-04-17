@@ -1629,6 +1629,10 @@ object * mk_string(std::string const & s) {
     return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
+object * mk_ascii_string(std::string const & s) {
+    return lean_mk_string_core(s.data(), s.size(), s.size());
+}
+
 std::string string_to_std(b_obj_arg o) {
     lean_assert(string_size(o) > 0);
     return std::string(w_string_cstr(o), lean_string_size(o) - 1);
@@ -1997,6 +2001,10 @@ extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
     usize sz = lean_string_size(s) - 1;
     char const * str = lean_string_cstr(s);
     return hash_str(sz, (unsigned char const *) str, 11);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
+    return mk_ascii_string(std::to_string(n));
 }
 
 // =======================================

@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__8(lean_object*, size_
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___lambda__2___closed__1;
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_wfRecursion___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_varyingVarNames___closed__2;
 lean_object* l_Lean_Elab_addAndCompilePartialRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,14 +106,13 @@ uint8_t l_Lean_Expr_isLambda(lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_wfRecursion___lambda__7___closed__1;
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instApplicativeReaderT___rarg(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Elab_applyAttributesOf(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instMonadControlTOfMonadControl___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WF_preprocess___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instMonadControlT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___spec__1___closed__3;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__11___closed__1;
@@ -158,6 +156,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spe
 LEAN_EXPORT lean_object* l_Lean_Elab_withEnableInfoTree___at_Lean_Elab_wfRecursion___spec__4(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* l_ReaderT_instApplicativeOfMonad___rarg(lean_object*);
 static lean_object* l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec__8___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withCommonTelescope___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withCommonTelescope_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,6 +208,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_withCommonTelesco
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_getFixedPrefix___spec__7___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instMonadControlTOfPure___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withCommonTelescope_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_getFixedPrefix___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_binderInfo(lean_object*);
@@ -227,7 +227,6 @@ static lean_object* l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec__8___c
 static lean_object* l_Array_mapIdxM_map___at_Lean_Elab_wfRecursion___spec__8___closed__2;
 lean_object* l_Lean_Elab_WF_guessLex(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instMonadControlT__1___rarg(lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 lean_object* l_Lean_Elab_WF_elabWFRel___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__1;
@@ -314,13 +313,14 @@ static lean_object* l_Lean_Elab_getFixedPrefix___lambda__2___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_getFixedPrefix___spec__7___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__6;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_wfRecursion___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_2773____closed__16;
-lean_object* l_Nat_repr(lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_wfRecursion___lambda__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit___at_Lean_Elab_getFixedPrefix___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_2773____closed__10;
@@ -4709,7 +4709,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Core_instMonadCoreM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -4718,7 +4718,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__4;
-x_2 = l_ReaderT_instApplicativeReaderT___rarg(x_1);
+x_2 = l_ReaderT_instApplicativeOfMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -4729,7 +4729,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3;
 x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__5;
 x_2 = lean_ctor_get(x_1, 1);
 lean_inc(x_2);
-x_3 = l_instMonadControlT__1___rarg(x_2);
+x_3 = l_instMonadControlTOfPure___rarg(x_2);
 return x_3;
 }
 }
@@ -4739,7 +4739,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__3;
 x_2 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__6;
-x_3 = l_instMonadControlT___rarg(x_1, x_2);
+x_3 = l_instMonadControlTOfMonadControl___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -4749,7 +4749,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__3;
 x_2 = l_Array_forInUnsafe_loop___at_Lean_Elab_getFixedPrefix___spec__14___lambda__3___closed__7;
-x_3 = l_instMonadControlT___rarg(x_1, x_2);
+x_3 = l_instMonadControlTOfMonadControl___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -8849,7 +8849,7 @@ x_92 = lean_ctor_get(x_76, 1);
 lean_inc(x_92);
 lean_dec(x_76);
 lean_inc(x_73);
-x_93 = l_Nat_repr(x_73);
+x_93 = l___private_Init_Data_Repr_0__Nat_reprFast(x_73);
 x_94 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
 x_95 = lean_alloc_ctor(0, 1, 0);

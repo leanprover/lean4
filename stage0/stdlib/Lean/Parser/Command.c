@@ -127,6 +127,7 @@ static lean_object* l_Lean_Parser_Command_initFn____x40_Lean_Parser_Command___hy
 lean_object* l_Lean_Parser_takeUntilFn___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_synth___closed__1;
 static lean_object* l_Lean_Parser_Command_set__option___closed__10;
+lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_open___closed__7;
 static lean_object* l___regBuiltin_Lean_Parser_Command_unsafe_parenthesizer___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_eoi;
@@ -3159,7 +3160,6 @@ static lean_object* l___regBuiltin_Lean_Parser_Command_open_parenthesizer___clos
 static lean_object* l_Lean_Parser_Command_initialize_parenthesizer___closed__8;
 static lean_object* l_Lean_Parser_Command_universe_parenthesizer___closed__5;
 static lean_object* l_Lean_Parser_Command_structCtor_formatter___closed__7;
-lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_export_formatter___closed__5;
 static lean_object* l___regBuiltin_Lean_Parser_Command_computedField_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Command_mutual_parenthesizer___closed__5;
@@ -6911,7 +6911,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Command_declId___lambda__1___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instBEq___rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

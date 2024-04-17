@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Expr_bindingName_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_BinderInfo_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__33;
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__22;
 LEAN_EXPORT lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_updateFVar_x21___closed__1;
@@ -66,7 +65,6 @@ LEAN_EXPORT lean_object* lean_expr_mk_app(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseChildren___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Expr_0__Lean_beqMVarId____x40_Lean_Expr___hyg_1860_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Nat_mkInstLT;
-static lean_object* l_Lean_Expr_instHashableExpr___closed__1;
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_415____closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkSimpleThunk(lean_object*);
@@ -75,7 +73,6 @@ static lean_object* l_Lean_Nat_mkInstHSub___closed__2;
 static lean_object* l_Lean_Expr_mkAppData___closed__4;
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_liftLooseBVars___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_ExprStructEq_instHashableExprStructEq___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVarId___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_appFn_x21___closed__3;
 static lean_object* l_Lean_mkOr___closed__1;
@@ -179,6 +176,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_patternRefAnnotationKey;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedExprStructEq;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_getAppArgsN_loop___spec__1(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+static lean_object* l_Lean_ExprStructEq_instBEq___closed__1;
 static lean_object* l_Lean_instReprData__1___lambda__2___closed__2;
 static lean_object* l_Lean_Expr_appArg_x21_x27___closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -208,6 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getAppNumArgs___boxed(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_letE___override___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_instBEq;
 LEAN_EXPORT lean_object* l_Lean_Expr_setAppPPExplicit(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateMData_x21Impl___closed__2;
 static lean_object* l_Lean_instBEqBinderInfo___closed__1;
@@ -226,6 +225,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_projIdx_x21___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasLevelMVarEx___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_Data_hasExprMVar(uint64_t);
+static lean_object* l_Lean_Expr_instToString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_getForallBodyMaxDepth___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprData__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getRevArg_x21___closed__1;
@@ -257,7 +257,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_updateSort_x21Impl__
 LEAN_EXPORT lean_object* l_Lean_Expr_getForallBody___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 LEAN_EXPORT uint32_t l_Lean_Expr_approxDepth(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_instToStringExpr;
 static lean_object* l___private_Lean_Expr_0__Lean_natAddFn___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_litValue_x21___spec__1(lean_object*);
@@ -281,7 +280,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_E
 static lean_object* l___private_Lean_Expr_0__Lean_natLEPred___closed__2;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_expr_mk_forall(lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l___private_Lean_Expr_0__Lean_reprMVarId____x40_Lean_Expr___hyg_1952____closed__13;
 LEAN_EXPORT lean_object* l_Lean_isLHSGoal_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Nat_mkInstDiv;
@@ -343,6 +341,7 @@ LEAN_EXPORT lean_object* l_Lean_patternAnnotation_x3f___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isLambda(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNatAdd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkApp6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToString___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprMVarId____x40_Lean_Expr___hyg_1952____closed__10;
 size_t lean_ptr_addr(lean_object*);
 static lean_object* l_Lean_Expr_mvarId_x21___closed__1;
@@ -405,7 +404,6 @@ static lean_object* l_Lean_Literal_type___closed__6;
 LEAN_EXPORT lean_object* l_Lean_instReprData__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isProp___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_31____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToStringExprStructEq(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLambda___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_expr_has_mvar(lean_object*);
 static lean_object* l_Lean_mkNatLit___closed__7;
@@ -456,6 +454,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_letType_x21(lean_object*);
 static lean_object* l_Lean_instBEqMVarId___closed__1;
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Expr_mkDataForBinder___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_instToString;
 LEAN_EXPORT uint8_t lean_expr_has_level_mvar(lean_object*);
 static lean_object* l_Lean_Nat_mkInstHMod___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_projIdx_x21(lean_object*);
@@ -485,7 +484,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_MVarIdMap_insert___spec__3_
 static lean_object* l_Lean_Expr_projExpr_x21___closed__3;
 static lean_object* l_Lean_Nat_mkInstMul___closed__2;
 static lean_object* l___private_Lean_Expr_0__Lean_natEqPred___closed__4;
-LEAN_EXPORT lean_object* l_Lean_instDecidableLtLiteralInstLTLiteral___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Nat_mkInstLT___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_isSort___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_mkDataForLet(uint64_t, lean_object*, uint32_t, uint8_t, uint8_t, uint8_t, uint8_t);
@@ -536,7 +534,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_MVarIdMap_insert___spec_
 LEAN_EXPORT lean_object* l_Lean_mkNatSub(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getAppArgs___closed__1;
 LEAN_EXPORT lean_object* l_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____spec__2(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT lean_object* l_Lean_Expr_inferImplicit___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__24;
@@ -581,6 +578,7 @@ LEAN_EXPORT lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_bindingDomain_x21___boxed(lean_object*);
 static lean_object* l_Lean_instReprData__1___closed__2;
 uint8_t lean_uint64_to_uint8(uint64_t);
+static lean_object* l_Lean_ExprStructEq_instHashable___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_appFn_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isFalse___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_updateFVar_x21(lean_object*, lean_object*);
@@ -680,7 +678,6 @@ static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateLet_x21Impl___close
 LEAN_EXPORT lean_object* l_Lean_Expr_withApp(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_mkData___spec__1___boxed__const__1;
 LEAN_EXPORT uint8_t l_Lean_BinderInfo_isImplicit(uint8_t);
-lean_object* l_Lean_RBMap_instForInRBMapProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Nat_mkInstHPow___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Expr_getOptParamDefault_x3f(lean_object*);
 static lean_object* l_Lean_Expr_getAppArgsN_loop___closed__2;
@@ -708,7 +705,6 @@ LEAN_EXPORT lean_object* l_Lean_FVarIdMap_insert___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Expr_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_natSubFn;
 static lean_object* l_Lean_Nat_mkInstHMod___closed__3;
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instBEqExprStructEq;
 static lean_object* l_Lean_Nat_mkInstMul___closed__1;
 static lean_object* l_Lean_Expr_ctorName___closed__4;
 LEAN_EXPORT uint8_t l_Lean_Expr_Data_hasFVar(uint64_t);
@@ -724,6 +720,7 @@ static lean_object* l_Lean_instReprData__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_hasAnyFVar_visit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getRevArg_x21___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getAppArgsN_loop___closed__1;
+LEAN_EXPORT uint8_t l_Lean_instDecidableLtLiteral(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkOr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_eta(lean_object*);
 static lean_object* l_Lean_Expr_getRevArg_x21_x27___closed__2;
@@ -740,6 +737,7 @@ LEAN_EXPORT uint8_t l_Lean_Expr_isAutoParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFVarIdHashSetEmptyCollection;
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_415____closed__23;
 LEAN_EXPORT lean_object* l_Lean_instReprData__1___lambda__5(lean_object*, uint64_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToString(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isFVarOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_lit_type(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_containsFVar___boxed(lean_object*, lean_object*);
@@ -758,6 +756,7 @@ static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateMData_x21Impl___clo
 LEAN_EXPORT lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_mkAppData___closed__5;
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateConst_x21Impl___closed__1;
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instHashable;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_mkAppRev___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Expr_setAppPPExplicitForExposingMVars___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Nat_mkInstPow___closed__2;
@@ -773,7 +772,6 @@ static lean_object* l_Lean_Expr_bindingInfo_x21___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Nat_mkInstHMul;
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_mkAppRevRangeAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_replaceFVars(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_ExprStructEq_instBEqExprStructEq___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_isTrue___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiate___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_letType_x21___closed__2;
@@ -808,6 +806,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_getAppPrefix(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_appArg_x21___closed__2;
 static lean_object* l___private_Lean_Expr_0__Lean_natSubFn___closed__3;
+static lean_object* l_Lean_Expr_instBEq___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_mkData___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isProj(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRawNatLit(lean_object*);
@@ -832,6 +831,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_getRevArgD(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_mkAppRangeAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_mkAnd(lean_object*, lean_object*);
+lean_object* l_Lean_RBMap_instForInProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_lam___override___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint16_dec_le(uint16_t, uint16_t);
 LEAN_EXPORT lean_object* l_Lean_patternWithRef_x3f(lean_object*);
@@ -868,15 +868,16 @@ static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hy
 LEAN_EXPORT lean_object* l_Lean_mkForall___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Nat_mkInstNatPow;
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateProj_x21Impl___closed__1;
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instBEq;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_setOption___at_Lean_Expr_setPPExplicit___spec__1(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_annotation_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_instHashable;
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_natEqPred;
 LEAN_EXPORT lean_object* l_Lean_Expr_approxDepth___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_betaRev___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_natAddFn___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Expr_mkDataForLet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_instDecidableLtLiteralInstLTLiteral(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_expr_binder_info(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_reprMVarId____x40_Lean_Expr___hyg_1952____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_mkDecIsFalse___closed__3;
@@ -894,6 +895,7 @@ static lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr__
 LEAN_EXPORT uint8_t l_Lean_Expr_isProp(lean_object*);
 static lean_object* l_Lean_Expr_appFn_x21_x27___closed__2;
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
+LEAN_EXPORT lean_object* l_Lean_instDecidableLtLiteral___boxed(lean_object*, lean_object*);
 static uint64_t l_Lean_Expr_mkAppData___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Expr_isApp___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_Expr_updateSort_x21Impl___closed__1;
@@ -1037,10 +1039,10 @@ LEAN_EXPORT lean_object* l_Lean_MVarIdMap_insert(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isMData(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isBinding(lean_object*);
 lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_990_(lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_instHashable___closed__1;
 static lean_object* l_Lean_Expr_constName_x21___closed__1;
 LEAN_EXPORT lean_object* lean_expr_mk_sort(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Expr_traverseApp___spec__1___rarg___closed__1;
-static lean_object* l_Lean_Expr_instToStringExpr___closed__1;
 static lean_object* l___private_Lean_Expr_0__Lean_natMulFn___closed__5;
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_bindingInfo_x21___spec__1(lean_object*);
@@ -1116,6 +1118,7 @@ static lean_object* l_panic___at_Lean_Expr_getAppArgsN_loop___spec__1___closed__
 static lean_object* l_Lean_Expr_bvarIdx_x21___closed__3;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Nat_mkInstSub___closed__2;
 static lean_object* l_Lean_Expr_ctorName___closed__6;
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____spec__4(lean_object*, lean_object*, lean_object*);
@@ -1130,11 +1133,9 @@ static lean_object* l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr____x40
 static lean_object* l_Lean_Nat_mkInstPow___closed__3;
 LEAN_EXPORT uint8_t l_Lean_instBEqData__1(uint64_t, uint64_t);
 static lean_object* l___private_Lean_Expr_0__Lean_reprMVarId____x40_Lean_Expr___hyg_1952____closed__11;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_415____closed__20;
 static lean_object* l_Lean_Expr_bvarIdx_x21___closed__2;
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToStringExprStructEq___boxed(lean_object*);
 LEAN_EXPORT uint64_t lean_expr_hash(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__36;
 LEAN_EXPORT uint8_t l___private_Lean_Expr_0__Lean_beqLiteral____x40_Lean_Expr___hyg_31_(lean_object*, lean_object*);
@@ -1156,7 +1157,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_updateMData_x21Impl(
 LEAN_EXPORT lean_object* l_Lean_Expr_letBody_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getNumHeadLambdas(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshFVarId(lean_object*);
-static lean_object* l_Lean_Expr_instBEqExpr___closed__1;
 static lean_object* l_Lean_Expr_isSemiOutParam___closed__2;
 static lean_object* l_Lean_Expr_ctorName___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Expr_getRevArg_x21_x27___boxed(lean_object*, lean_object*);
@@ -1336,7 +1336,7 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(1024u);
 x_5 = lean_nat_dec_le(x_4, x_2);
-x_6 = l_Nat_repr(x_3);
+x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_117____closed__3;
@@ -1547,7 +1547,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_instDecidableLtLiteralInstLTLiteral(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_instDecidableLtLiteral(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -1555,11 +1555,11 @@ x_3 = l_Lean_Literal_lt(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instDecidableLtLiteralInstLTLiteral___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instDecidableLtLiteral___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_instDecidableLtLiteralInstLTLiteral(x_1, x_2);
+x_3 = l_Lean_instDecidableLtLiteral(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -3039,7 +3039,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_o
 x_8 = l_Lean_instReprData__1___lambda__5___closed__1;
 x_9 = lean_string_append(x_3, x_8);
 x_10 = lean_uint8_to_nat(x_5);
-x_11 = l_Nat_repr(x_10);
+x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
 x_12 = lean_string_append(x_9, x_11);
 lean_dec(x_11);
 x_13 = l_Lean_instReprData__1___lambda__2___closed__3;
@@ -3079,7 +3079,7 @@ _start:
 uint64_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint32_t x_8; uint32_t x_9; uint8_t x_10; 
 x_3 = l_Lean_Expr_Data_hash(x_1);
 x_4 = lean_uint64_to_nat(x_3);
-x_5 = l_Nat_repr(x_4);
+x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
 x_6 = l_Lean_instReprData__1___closed__1;
 x_7 = lean_string_append(x_6, x_5);
 lean_dec(x_5);
@@ -3092,7 +3092,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = l_Lean_instReprData__1___closed__2;
 x_12 = lean_string_append(x_7, x_11);
 x_13 = lean_uint32_to_nat(x_8);
-x_14 = l_Nat_repr(x_13);
+x_14 = l___private_Init_Data_Repr_0__Nat_reprFast(x_13);
 x_15 = lean_string_append(x_12, x_14);
 lean_dec(x_14);
 x_16 = l_Lean_instReprData__1___lambda__2___closed__3;
@@ -18121,7 +18121,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_instForInFVarIdSetFVarId___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_RBMap_instForInRBMapProd___boxed), 5, 4);
+x_2 = lean_alloc_closure((void*)(l_Lean_RBMap_instForInProd___boxed), 5, 4);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));
 lean_closure_set(x_2, 2, x_1);
@@ -20729,7 +20729,7 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(1024u);
 x_5 = lean_nat_dec_le(x_4, x_2);
-x_6 = l_Nat_repr(x_3);
+x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__3;
@@ -21372,7 +21372,7 @@ x_262 = lean_box(1);
 x_263 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_263, 0, x_261);
 lean_ctor_set(x_263, 1, x_262);
-x_264 = l_Nat_repr(x_255);
+x_264 = l___private_Init_Data_Repr_0__Nat_reprFast(x_255);
 x_265 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_265, 0, x_264);
 x_266 = lean_alloc_ctor(5, 2, 0);
@@ -21654,7 +21654,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Expr_instHashableExpr___closed__1() {
+static lean_object* _init_l_Lean_Expr_instHashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -21662,11 +21662,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Expr_hash___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Expr_instHashableExpr() {
+static lean_object* _init_l_Lean_Expr_instHashable() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Expr_instHashableExpr___closed__1;
+x_1 = l_Lean_Expr_instHashable___closed__1;
 return x_1;
 }
 }
@@ -22832,7 +22832,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Expr_instBEqExpr___closed__1() {
+static lean_object* _init_l_Lean_Expr_instBEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -22840,11 +22840,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Expr_eqv___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Expr_instBEqExpr() {
+static lean_object* _init_l_Lean_Expr_instBEq() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Expr_instBEqExpr___closed__1;
+x_1 = l_Lean_Expr_instBEq___closed__1;
 return x_1;
 }
 }
@@ -26623,7 +26623,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Expr_instToStringExpr___closed__1() {
+static lean_object* _init_l_Lean_Expr_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26631,11 +26631,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Expr_dbgToString___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Expr_instToStringExpr() {
+static lean_object* _init_l_Lean_Expr_instToString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Expr_instToStringExpr___closed__1;
+x_1 = l_Lean_Expr_instToString___closed__1;
 return x_1;
 }
 }
@@ -26841,7 +26841,7 @@ x_3 = lean_box_uint64(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_ExprStructEq_instBEqExprStructEq___closed__1() {
+static lean_object* _init_l_Lean_ExprStructEq_instBEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26849,15 +26849,15 @@ x_1 = lean_alloc_closure((void*)(l_Lean_ExprStructEq_beq___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_ExprStructEq_instBEqExprStructEq() {
+static lean_object* _init_l_Lean_ExprStructEq_instBEq() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_ExprStructEq_instBEqExprStructEq___closed__1;
+x_1 = l_Lean_ExprStructEq_instBEq___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_ExprStructEq_instHashableExprStructEq___closed__1() {
+static lean_object* _init_l_Lean_ExprStructEq_instHashable___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -26865,15 +26865,15 @@ x_1 = lean_alloc_closure((void*)(l_Lean_ExprStructEq_hash___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_ExprStructEq_instHashableExprStructEq() {
+static lean_object* _init_l_Lean_ExprStructEq_instHashable() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_ExprStructEq_instHashableExprStructEq___closed__1;
+x_1 = l_Lean_ExprStructEq_instHashable___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToStringExprStructEq(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -26881,11 +26881,11 @@ x_2 = lean_expr_dbg_to_string(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToStringExprStructEq___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_ExprStructEq_instToString___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_ExprStructEq_instToStringExprStructEq(x_1);
+x_2 = l_Lean_ExprStructEq_instToString(x_1);
 lean_dec(x_1);
 return x_2;
 }
@@ -33474,10 +33474,10 @@ l_Lean_Expr_ctorName___closed__11 = _init_l_Lean_Expr_ctorName___closed__11();
 lean_mark_persistent(l_Lean_Expr_ctorName___closed__11);
 l_Lean_Expr_ctorName___closed__12 = _init_l_Lean_Expr_ctorName___closed__12();
 lean_mark_persistent(l_Lean_Expr_ctorName___closed__12);
-l_Lean_Expr_instHashableExpr___closed__1 = _init_l_Lean_Expr_instHashableExpr___closed__1();
-lean_mark_persistent(l_Lean_Expr_instHashableExpr___closed__1);
-l_Lean_Expr_instHashableExpr = _init_l_Lean_Expr_instHashableExpr();
-lean_mark_persistent(l_Lean_Expr_instHashableExpr);
+l_Lean_Expr_instHashable___closed__1 = _init_l_Lean_Expr_instHashable___closed__1();
+lean_mark_persistent(l_Lean_Expr_instHashable___closed__1);
+l_Lean_Expr_instHashable = _init_l_Lean_Expr_instHashable();
+lean_mark_persistent(l_Lean_Expr_instHashable);
 l_Lean_Literal_type___closed__1 = _init_l_Lean_Literal_type___closed__1();
 lean_mark_persistent(l_Lean_Literal_type___closed__1);
 l_Lean_Literal_type___closed__2 = _init_l_Lean_Literal_type___closed__2();
@@ -33518,10 +33518,10 @@ l_Lean_mkNatLit___closed__8 = _init_l_Lean_mkNatLit___closed__8();
 lean_mark_persistent(l_Lean_mkNatLit___closed__8);
 l_Lean_mkNatLit___closed__9 = _init_l_Lean_mkNatLit___closed__9();
 lean_mark_persistent(l_Lean_mkNatLit___closed__9);
-l_Lean_Expr_instBEqExpr___closed__1 = _init_l_Lean_Expr_instBEqExpr___closed__1();
-lean_mark_persistent(l_Lean_Expr_instBEqExpr___closed__1);
-l_Lean_Expr_instBEqExpr = _init_l_Lean_Expr_instBEqExpr();
-lean_mark_persistent(l_Lean_Expr_instBEqExpr);
+l_Lean_Expr_instBEq___closed__1 = _init_l_Lean_Expr_instBEq___closed__1();
+lean_mark_persistent(l_Lean_Expr_instBEq___closed__1);
+l_Lean_Expr_instBEq = _init_l_Lean_Expr_instBEq();
+lean_mark_persistent(l_Lean_Expr_instBEq);
 l_Lean_Expr_appFn_x21___closed__1 = _init_l_Lean_Expr_appFn_x21___closed__1();
 lean_mark_persistent(l_Lean_Expr_appFn_x21___closed__1);
 l_Lean_Expr_appFn_x21___closed__2 = _init_l_Lean_Expr_appFn_x21___closed__2();
@@ -33660,10 +33660,10 @@ l_Lean_Expr_getRevArg_x21_x27___closed__2 = _init_l_Lean_Expr_getRevArg_x21_x27_
 lean_mark_persistent(l_Lean_Expr_getRevArg_x21_x27___closed__2);
 l_Lean_Expr_replaceFVar___closed__1 = _init_l_Lean_Expr_replaceFVar___closed__1();
 lean_mark_persistent(l_Lean_Expr_replaceFVar___closed__1);
-l_Lean_Expr_instToStringExpr___closed__1 = _init_l_Lean_Expr_instToStringExpr___closed__1();
-lean_mark_persistent(l_Lean_Expr_instToStringExpr___closed__1);
-l_Lean_Expr_instToStringExpr = _init_l_Lean_Expr_instToStringExpr();
-lean_mark_persistent(l_Lean_Expr_instToStringExpr);
+l_Lean_Expr_instToString___closed__1 = _init_l_Lean_Expr_instToString___closed__1();
+lean_mark_persistent(l_Lean_Expr_instToString___closed__1);
+l_Lean_Expr_instToString = _init_l_Lean_Expr_instToString();
+lean_mark_persistent(l_Lean_Expr_instToString);
 l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();
 lean_mark_persistent(l_Lean_mkDecIsTrue___closed__1);
 l_Lean_mkDecIsTrue___closed__2 = _init_l_Lean_mkDecIsTrue___closed__2();
@@ -33680,14 +33680,14 @@ l_Lean_mkDecIsFalse___closed__3 = _init_l_Lean_mkDecIsFalse___closed__3();
 lean_mark_persistent(l_Lean_mkDecIsFalse___closed__3);
 l_Lean_instInhabitedExprStructEq = _init_l_Lean_instInhabitedExprStructEq();
 lean_mark_persistent(l_Lean_instInhabitedExprStructEq);
-l_Lean_ExprStructEq_instBEqExprStructEq___closed__1 = _init_l_Lean_ExprStructEq_instBEqExprStructEq___closed__1();
-lean_mark_persistent(l_Lean_ExprStructEq_instBEqExprStructEq___closed__1);
-l_Lean_ExprStructEq_instBEqExprStructEq = _init_l_Lean_ExprStructEq_instBEqExprStructEq();
-lean_mark_persistent(l_Lean_ExprStructEq_instBEqExprStructEq);
-l_Lean_ExprStructEq_instHashableExprStructEq___closed__1 = _init_l_Lean_ExprStructEq_instHashableExprStructEq___closed__1();
-lean_mark_persistent(l_Lean_ExprStructEq_instHashableExprStructEq___closed__1);
-l_Lean_ExprStructEq_instHashableExprStructEq = _init_l_Lean_ExprStructEq_instHashableExprStructEq();
-lean_mark_persistent(l_Lean_ExprStructEq_instHashableExprStructEq);
+l_Lean_ExprStructEq_instBEq___closed__1 = _init_l_Lean_ExprStructEq_instBEq___closed__1();
+lean_mark_persistent(l_Lean_ExprStructEq_instBEq___closed__1);
+l_Lean_ExprStructEq_instBEq = _init_l_Lean_ExprStructEq_instBEq();
+lean_mark_persistent(l_Lean_ExprStructEq_instBEq);
+l_Lean_ExprStructEq_instHashable___closed__1 = _init_l_Lean_ExprStructEq_instHashable___closed__1();
+lean_mark_persistent(l_Lean_ExprStructEq_instHashable___closed__1);
+l_Lean_ExprStructEq_instHashable = _init_l_Lean_ExprStructEq_instHashable();
+lean_mark_persistent(l_Lean_ExprStructEq_instHashable);
 l_Lean_Expr_getOptParamDefault_x3f___closed__1 = _init_l_Lean_Expr_getOptParamDefault_x3f___closed__1();
 lean_mark_persistent(l_Lean_Expr_getOptParamDefault_x3f___closed__1);
 l_Lean_Expr_getOptParamDefault_x3f___closed__2 = _init_l_Lean_Expr_getOptParamDefault_x3f___closed__2();

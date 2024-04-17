@@ -17,6 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_exceptOptionEmoji___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateRefT_x27_instMonadExceptOf___rarg(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1603____closed__3;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instMonadAlwaysExceptEIO___closed__1;
@@ -45,10 +46,10 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__12___boxed(lean_o
 LEAN_EXPORT lean_object* l_Lean_shouldEnableNestedTrace___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1421____closed__1;
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_StateT_instMonadExceptOf___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__18;
 LEAN_EXPORT lean_object* l_Lean_shouldProfile(lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__10(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -108,7 +109,6 @@ static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2915____closed__7;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_withTraceNode_x27___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_instMonadExceptOfStateT___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__41;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__9;
@@ -128,6 +128,7 @@ static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2915____closed__23;
 uint8_t lean_float_decLt(double, double);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__19;
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__23;
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__3___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_printTraces___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -194,7 +195,6 @@ static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__2;
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___rarg___lambda__6___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Trace___hyg_1512____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -234,7 +234,6 @@ static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doEle
 static lean_object* l_Lean_withTraceNodeBefore___rarg___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_printTraces(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg(lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l_Lean_setTraceState___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*);
@@ -330,6 +329,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Trace_0
 LEAN_EXPORT lean_object* l_Lean_traceM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__3___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__5;
+lean_object* l_IO_println___at_Lean_instEvalOfRepr___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_TraceState_traces___default___closed__1;
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__49;
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__1;
@@ -341,6 +341,7 @@ static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doEle
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__5___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_registerTraceClass___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2915____closed__24;
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__18;
 LEAN_EXPORT lean_object* l_Lean_trace___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__24;
@@ -405,8 +406,6 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__43;
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace(lean_object*, lean_object*);
-lean_object* l_IO_println___at_Lean_instEval__1___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__3;
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__37;
 LEAN_EXPORT lean_object* l_Lean_shouldEnableNestedTrace(lean_object*);
@@ -468,6 +467,7 @@ static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__11;
 LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptStateRefT_x27___rarg(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2915____closed__22;
 static lean_object* l_Lean_registerTraceClass___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode_x27(lean_object*, lean_object*);
@@ -483,6 +483,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace(lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__19;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_printTraces___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__42;
+lean_object* l_ReaderT_instMonadExceptOf___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_withTraceNode_x27___spec__1___rarg___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__35;
 lean_object* l_String_toSubstring_x27(lean_object*);
@@ -494,7 +495,6 @@ static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doEle
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1512____closed__2;
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__17;
 static lean_object* l___auto____x40_Lean_Util_Trace___hyg_2915____closed__14;
-lean_object* l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_trace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_1421____closed__5;
 LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -678,7 +678,7 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -690,13 +690,13 @@ x_6 = lean_apply_2(x_2, lean_box(0), x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 lean_inc(x_1);
 lean_inc(x_2);
-x_3 = lean_alloc_closure((void*)(l_Lean_instMonadTrace___rarg___lambda__1), 3, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_instMonadTraceOfMonadLift___rarg___lambda__1), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 x_4 = lean_ctor_get(x_2, 1);
@@ -709,11 +709,11 @@ lean_ctor_set(x_6, 1, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadTrace(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadTraceOfMonadLift(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_instMonadTrace___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_instMonadTraceOfMonadLift___rarg), 2, 0);
 return x_3;
 }
 }
@@ -954,7 +954,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_alloc_closure((void*)(l_IO_println___at_Lean_instEval__1___spec__1), 2, 1);
+x_5 = lean_alloc_closure((void*)(l_IO_println___at_Lean_instEvalOfRepr___spec__1), 2, 1);
 lean_closure_set(x_5, 0, x_4);
 x_6 = lean_apply_2(x_1, lean_box(0), x_5);
 x_7 = lean_alloc_closure((void*)(l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__4___rarg___lambda__2___boxed), 2, 1);
@@ -3282,7 +3282,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptStateT___rarg(lean_object* 
 _start:
 {
 lean_object* x_5; 
-x_5 = l_StateT_instMonadExceptOfStateT___rarg(x_1, lean_box(0), x_4);
+x_5 = l_StateT_instMonadExceptOf___rarg(x_1, lean_box(0), x_4);
 return x_5;
 }
 }
@@ -3298,7 +3298,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptStateRefT_x27___rarg(lean_o
 _start:
 {
 lean_object* x_2; 
-x_2 = l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(x_1);
+x_2 = l_StateRefT_x27_instMonadExceptOf___rarg(x_1);
 return x_2;
 }
 }
@@ -3314,7 +3314,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptReaderT___rarg(lean_object*
 _start:
 {
 lean_object* x_2; 
-x_2 = l_ReaderT_instMonadExceptOfReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonadExceptOf___rarg(x_1);
 return x_2;
 }
 }
@@ -3330,7 +3330,7 @@ LEAN_EXPORT lean_object* l_Lean_instMonadAlwaysExceptMonadCacheT___rarg(lean_obj
 _start:
 {
 lean_object* x_5; 
-x_5 = l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(x_1);
+x_5 = l_StateRefT_x27_instMonadExceptOf___rarg(x_1);
 return x_5;
 }
 }

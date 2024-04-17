@@ -58,7 +58,6 @@ LEAN_EXPORT lean_object* lean_is_level_def_eq(lean_object*, lean_object*, lean_o
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSelfMax___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_LevelDefEq___hyg_1364____closed__4;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_LevelDefEq___hyg_1364____closed__7;
 extern lean_object* l_Lean_levelZero;
@@ -108,6 +107,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_mkMaxArgs
 LEAN_EXPORT lean_object* l_Lean_Meta_isLevelDefEqAuxImpl___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__1;
 uint8_t l_Lean_Level_isMVar(lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_LevelDefEq___hyg_1364____closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_isMVarWithGreaterDepth___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1820,7 +1820,7 @@ lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Meta_instMonadMetaM;
 x_2 = l_instInhabitedBool;
 x_3 = lean_box(x_2);
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 return x_4;
 }
 }

@@ -279,7 +279,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldI
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfoTree_go___spec__19(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedRange;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTrailingSize(lean_object*);
 uint8_t l_Lean_Syntax_isMissing(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_InfoTree_hasSorry_go___spec__21(lean_object*, lean_object*, lean_object*);
@@ -360,7 +359,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Info_docString_x3f(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_collectNodesBottomUp(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableRelLeLeOfOrd___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__43___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__4___closed__3;
@@ -439,11 +437,13 @@ lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_Elab_InfoTree_hasSorry_go___spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfoTree_go___spec__6(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Elab_InfoTree_foldInfoTree_go___spec__15___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfoTree_go___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___at_Lean_getOptionDecl___spec__1(lean_object*, lean_object*);
+extern lean_object* l_Id_instMonad;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__17(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfoTree_go___spec__25(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f___lambda__1___boxed(lean_object*);
@@ -493,7 +493,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Info_docString_x3f___lambda__2(lean_object*
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__49___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Id_instMonadId;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__44___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Info_isSmaller(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
@@ -507,6 +506,7 @@ LEAN_EXPORT lean_object* l_Array_getMax_x3f___at_Lean_Elab_InfoTree_smallestInfo
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__20___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__55___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_pos_x3f(lean_object*);
@@ -591,7 +591,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_box(0);
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -1042,8 +1042,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Id_instMonadId;
-x_3 = l_instInhabited___rarg(x_2, x_1);
+x_2 = l_Id_instMonad;
+x_3 = l_instInhabitedOfMonad___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -7016,7 +7016,7 @@ lean_dec(x_4);
 lean_inc(x_5);
 lean_inc(x_3);
 lean_inc(x_1);
-x_7 = l_instDecidableRelLeLeOfOrd___rarg(x_1, x_3, x_5);
+x_7 = l_instDecidableRelLe___rarg(x_1, x_3, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_5);
@@ -7144,7 +7144,7 @@ lean_dec(x_4);
 lean_inc(x_5);
 lean_inc(x_3);
 lean_inc(x_1);
-x_7 = l_instDecidableRelLeLeOfOrd___rarg(x_1, x_3, x_5);
+x_7 = l_instDecidableRelLe___rarg(x_1, x_3, x_5);
 if (x_7 == 0)
 {
 lean_dec(x_5);

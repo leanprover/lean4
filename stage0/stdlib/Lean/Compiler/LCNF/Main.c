@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_div(double, double);
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__28;
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__2___lambda__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -58,6 +59,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_PassMana
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__8;
 lean_object* l_Lean_Compiler_LCNF_PassManager_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_PassManager_run___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 extern lean_object* l_Lean_casesOnSuffix;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__20;
 lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -77,7 +79,6 @@ static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main__
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_checkpoint___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_lcnf_compile_decls(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__24;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -124,7 +125,6 @@ uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrCore
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7___lambda__1___closed__16;
-extern lean_object* l_Lean_Expr_instHashableExpr;
 static lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__2___lambda__3___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_checkpoint___spec__1___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__10;
@@ -198,6 +198,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_checkpoint_
 lean_object* l_Lean_Compiler_LCNF_CompilerM_run___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__8;
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__4;
+extern lean_object* l_Lean_Expr_instHashable;
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__14;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Compiler_LCNF_PassManager_run___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,7 +206,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_checkpoint_
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__15;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7___lambda__1___closed__17;
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__29;
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_checkpoint___spec__1___lambda__2___closed__10;
 lean_object* l_Lean_Compiler_LCNF_Decl_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__2___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -236,6 +236,7 @@ static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__16;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__11;
 uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_main___lambda__1___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__17;
@@ -249,7 +250,6 @@ static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main__
 lean_object* l_Lean_Compiler_LCNF_getDeclAt_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_compile___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__18;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__13;
@@ -258,6 +258,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Compiler_LCNF_PassManager_run___spec__3___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManager_run___spec__2___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7___lambda__1___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__5;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -265,7 +266,6 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Compiler_LCNF_PassManage
 static lean_object* l_Lean_Compiler_LCNF_PassManager_run___lambda__2___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7___lambda__1___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___closed__5;
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_shouldGenerateCode___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Main___hyg_1408____closed__14;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_run___spec__7___lambda__1___closed__5;
@@ -961,7 +961,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__16()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_shouldGenerateCode___closed__18;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1000,7 +1000,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_shouldGenerateCode___closed__19;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -1030,7 +1030,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_shouldGenerateCode___closed__22;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -1053,7 +1053,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__25()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -1064,7 +1064,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_shouldGenerateCode___closed__26()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -1512,7 +1512,7 @@ lean_inc(x_35);
 lean_dec(x_33);
 lean_inc(x_2);
 x_36 = l_Lean_Compiler_LCNF_Decl_size(x_2);
-x_37 = l_Nat_repr(x_36);
+x_37 = l___private_Init_Data_Repr_0__Nat_reprFast(x_36);
 x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(0, 1, 0);
@@ -1747,7 +1747,7 @@ lean_inc(x_99);
 lean_dec(x_97);
 lean_inc(x_2);
 x_100 = l_Lean_Compiler_LCNF_Decl_size(x_2);
-x_101 = l_Nat_repr(x_100);
+x_101 = l___private_Init_Data_Repr_0__Nat_reprFast(x_100);
 x_102 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_102, 0, x_101);
 x_103 = lean_alloc_ctor(0, 1, 0);
@@ -2040,7 +2040,7 @@ lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 lean_inc(x_13);
 x_44 = l_Lean_Compiler_LCNF_Decl_size(x_13);
-x_45 = l_Nat_repr(x_44);
+x_45 = l___private_Init_Data_Repr_0__Nat_reprFast(x_44);
 x_46 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_46, 0, x_45);
 x_47 = lean_alloc_ctor(0, 1, 0);
@@ -4039,7 +4039,7 @@ x_38 = lean_ctor_get(x_36, 1);
 lean_inc(x_38);
 lean_dec(x_36);
 x_39 = l_Lean_Compiler_LCNF_Decl_size(x_13);
-x_40 = l_Nat_repr(x_39);
+x_40 = l___private_Init_Data_Repr_0__Nat_reprFast(x_39);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_alloc_ctor(0, 1, 0);
@@ -4305,7 +4305,7 @@ x_38 = lean_ctor_get(x_36, 1);
 lean_inc(x_38);
 lean_dec(x_36);
 x_39 = l_Lean_Compiler_LCNF_Decl_size(x_13);
-x_40 = l_Nat_repr(x_39);
+x_40 = l___private_Init_Data_Repr_0__Nat_reprFast(x_39);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_alloc_ctor(0, 1, 0);

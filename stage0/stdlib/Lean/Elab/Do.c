@@ -727,7 +727,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Do_0__L
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___lambda__3___closed__24;
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_liftMethodDelimiter___closed__4;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__11;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_expandDoLetExpr_x3f___closed__3;
 static lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_ensureInsideFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1303,6 +1302,7 @@ static lean_object* l_Lean_Elab_Term_Do_getDoLetArrowVars___closed__4;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_toTerm_go___closed__1;
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_breakToTerm___closed__16;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_ToCodeBlock_expandLiftMethodAux(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_actionTerminalToTerm___closed__21;
 extern lean_object* l_Lean_instInhabitedSyntax;
@@ -18763,7 +18763,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_destructTuple_destruct___spec__1___closed__1;
 x_2 = l_Lean_instInhabitedSyntax;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -26557,7 +26557,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_panic___at___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_destructTuple_destruct___spec__1___closed__1;
-x_3 = l_instInhabited___rarg(x_2, x_1);
+x_3 = l_instInhabitedOfMonad___rarg(x_2, x_1);
 return x_3;
 }
 }

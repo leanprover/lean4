@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_getParserAliasInfo_
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_4229____closed__3;
-LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForAllParserParserAliasValue__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__6(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_4516____closed__2;
@@ -223,7 +222,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_builtinParserCategoriesRef;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_5935____lambda__1___closed__1;
 static lean_object* l_Lean_Parser_withOpenDeclFnCore___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_mkParserState___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForAllParserParserAliasValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_addParser(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3698____closed__8;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__5(lean_object*, lean_object*, lean_object*);
@@ -343,6 +341,7 @@ static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_84__
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6159____closed__2;
 static lean_object* l_Lean_Parser_categoryParserFnImpl___closed__4;
 static lean_object* l_Lean_Parser_mkParserState___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForallParserForallParserAliasValue(lean_object*);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__4___closed__3;
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_addTokenConfig___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_resolveParserName___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -521,6 +520,7 @@ static lean_object* l_Lean_Parser_ParserExtension_addEntryImpl___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_addBuiltinLeadingParser(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_findDeclarationRangesCore_x3f___at___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___spec__3___closed__1;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6090____closed__4;
+LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForallParserParserAliasValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_registerParserCategory___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_declareTrailingBuiltinParser___closed__2;
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_3698____closed__3;
@@ -531,6 +531,7 @@ uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_throwParserCategoryAlreadyDefined___rarg___closed__2;
 static lean_object* l___auto____x40_Lean_Parser_Extension___hyg_5828____closed__24;
 static uint8_t l_Lean_Parser_isValidSyntaxNodeKind___closed__1;
+extern lean_object* l_Id_instMonad;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Parser_withOpenDeclFnCore___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Parser_addToken___spec__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -605,7 +606,6 @@ static lean_object* l_Lean_Parser_registerAlias___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_parserAliasesRef;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Parser_instReprParserName___closed__1;
-extern lean_object* l_Id_instMonadId;
 lean_object* l_Lean_Parser_TokenMap_insert___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAntiquot(lean_object*, lean_object*, uint8_t, uint8_t);
 static lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2___closed__7;
@@ -5096,7 +5096,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForAllParserParserAliasValue(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForallParserParserAliasValue(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -5105,7 +5105,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForAllParserParserAliasValue__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Parser_instCoeForallParserForallParserAliasValue(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -15751,7 +15751,7 @@ static lean_object* _init_l_Lean_Parser_parserOfStackFn___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Id_instMonadId;
+x_1 = l_Id_instMonad;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = lean_ctor_get(x_2, 1);
@@ -15796,7 +15796,7 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_3);
-x_10 = l_Id_instMonadId;
+x_10 = l_Id_instMonad;
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 x_12 = l_Lean_Parser_parserOfStackFn___closed__1;
@@ -15807,7 +15807,7 @@ else
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
 lean_dec(x_5);
-x_14 = l_Id_instMonadId;
+x_14 = l_Id_instMonad;
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_15, 1);

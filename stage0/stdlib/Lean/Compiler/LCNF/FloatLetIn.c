@@ -49,7 +49,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FloatLetIn_instHashableDecision;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goFVar___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_FloatLetIn_initialNewArms___spec__1___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_FloatLetIn___hyg_2248____closed__3;
@@ -125,7 +124,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FloatLet
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FloatLetIn_0__Lean_Compiler_LCNF_FloatLetIn_reprDecision____x40_Lean_Compiler_LCNF_FloatLetIn___hyg_160_(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goAlt___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_FloatLetIn_instInhabitedDecision___closed__1;
 lean_object* l_Lean_Compiler_LCNF_FloatLetIn_floatLetIn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -253,6 +251,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Compiler_LCNF_FloatLetIn_instBEqDecision___closed__1;
 lean_object* l_Lean_Compiler_LCNF_FloatLetIn_withNewCandidate(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_forFVarM___at_Lean_Compiler_LCNF_FloatLetIn_dontFloat___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_FloatLetIn___hyg_2248____closed__13;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goFVar___spec__7(lean_object*, lean_object*);
@@ -281,9 +280,10 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Float
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goAlt___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Compiler_LCNF_FloatLetIn_initialNewArms___spec__7(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_FloatLetIn_floatLetIn_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goCases___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_FloatLetIn_Decision_ofAlt(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Compiler_LCNF_FloatLetIn_initialNewArms___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -1757,7 +1757,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_instMonadCompilerM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -1766,7 +1766,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goAlt___spec__3___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -1776,7 +1776,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_FloatLetIn_initialDecisions_goAlt___spec__3___closed__2;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -10550,7 +10550,7 @@ x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
 x_39 = l_List_lengthTRAux___rarg(x_18, x_14);
-x_40 = l_Nat_repr(x_39);
+x_40 = l___private_Init_Data_Repr_0__Nat_reprFast(x_39);
 x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_alloc_ctor(0, 1, 0);

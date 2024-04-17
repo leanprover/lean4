@@ -45,6 +45,7 @@ lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 static lean_object* l_Lean_Meta_tryUnificationHints___lambda__2___closed__2;
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_UnificationHints_add___spec__1___closed__2;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -64,6 +65,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_deco
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_UnificationHints_add___spec__13(lean_object*);
 lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
+lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 static lean_object* l_Lean_Meta_tryUnificationHints_tryCandidate___lambda__1___closed__3;
 static lean_object* l_List_forM___at___private_Lean_Meta_UnificationHint_0__Lean_Meta_validateHint___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,6 +78,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_78
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints___spec__1___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 static lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decodeConstraint___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_format___at_Lean_Meta_instToFormatUnificationHints___spec__1___closed__2;
@@ -104,7 +107,6 @@ uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x4
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____lambda__2___closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____closed__6;
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -182,7 +184,6 @@ static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_DiscrTree_Key_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____closed__18;
-extern lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT lean_object* l_Lean_Meta_addUnificationHint___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_UnificationHints_add___spec__1___closed__3;
 static lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___closed__1;
@@ -257,7 +258,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_tryUnificationHints_
 lean_object* l_id___rarg___boxed(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__2___closed__2;
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
-lean_object* l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Meta_instToFormatUnificationHints___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___spec__4___closed__4;
@@ -275,11 +275,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Trie_format___at_Lean_Meta_instTo
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Meta_instToFormatUnificationHints___spec__3___closed__8;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__4___closed__1;
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_98____closed__3;
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_tryUnificationHints___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -317,6 +317,7 @@ static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationH
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_UnificationHints_add___spec__3(lean_object*, size_t, lean_object*);
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____lambda__1___closed__11;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____closed__2;
@@ -332,7 +333,6 @@ uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_UnificationHints_add___spec__3___closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_787____closed__15;
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_UnificationHints_config;
 lean_object* l_Lean_Meta_setPostponed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -2295,7 +2295,7 @@ static lean_object* _init_l_panic___at_Lean_Meta_UnificationHints_add___spec__13
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_box(0));
+x_1 = l_Lean_Meta_DiscrTree_instInhabited(lean_box(0));
 return x_1;
 }
 }
@@ -3282,7 +3282,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnific
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -3311,7 +3311,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationHint___spec__1___closed__6;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3321,7 +3321,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationHint___spec__1___closed__7;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -3351,7 +3351,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationHint___spec__1___closed__10;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -3374,7 +3374,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnific
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -3385,7 +3385,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnific
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);

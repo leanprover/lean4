@@ -44,7 +44,6 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_Compiler_LCNF_Simp_withInlining(lean_object*);
 lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 size_t lean_usize_mul(size_t, size_t);
-lean_object* l_ReaderT_instFunctorReaderT___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_updateFunDeclInfo(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,7 +60,6 @@ lean_object* l_Lean_Compiler_LCNF_Simp_withIncRecDepth(lean_object*);
 static double l_Lean_addTrace___at_Lean_Compiler_LCNF_Simp_withInlining_check___spec__6___closed__1;
 lean_object* l_Lean_Compiler_LCNF_Simp_betaReduce___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_shouldInlineLocal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_addMustInline___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_add___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Simp_withInlining_check___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -88,7 +86,6 @@ lean_object* l_Lean_Compiler_LCNF_Simp_FunDeclInfoMap_update(lean_object*, lean_
 static lean_object* l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__2___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda__2___closed__4;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instApplicativeReaderT___rarg(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_withInlining_check___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_Simp_withInlining___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -110,6 +107,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_C
 lean_object* l_Lean_Compiler_LCNF_Simp_betaReduce(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_State_inlineLocal___default;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_ReaderT_instApplicativeOfMonad___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_addFunHoOcc___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_State_funDeclInfoMap___default;
 lean_object* l_Lean_Compiler_LCNF_Simp_addFVarSubst___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -159,6 +157,7 @@ lean_object* l_Lean_Compiler_LCNF_Simp_incInline___rarg(lean_object*, lean_objec
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withInlining_check___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Compiler_LCNF_Simp_withInlining___spec__3(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instFunctorOfMonad___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_instMonadSimpM___closed__6;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,10 +217,11 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withInli
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_Context_inlineStackOccs___default___closed__3;
 lean_object* l_Lean_Compiler_LCNF_Simp_addFVarSubst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__3(lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___rarg___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Simp_Context_config___default___closed__1;
@@ -446,7 +446,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_instMonadCompilerM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -455,7 +455,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_Simp_instMonadSimpM___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -464,7 +464,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_Simp_instMonadSimpM___closed__2;
-x_2 = l_ReaderT_instFunctorReaderT___rarg(x_1);
+x_2 = l_ReaderT_instFunctorOfMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -473,7 +473,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_Simp_instMonadSimpM___closed__2;
-x_2 = l_ReaderT_instApplicativeReaderT___rarg(x_1);
+x_2 = l_ReaderT_instApplicativeOfMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -2523,7 +2523,7 @@ lean_ctor_set(x_34, 1, x_33);
 x_35 = lean_ctor_get(x_28, 2);
 lean_inc(x_35);
 lean_dec(x_28);
-x_36 = l_Nat_repr(x_35);
+x_36 = l___private_Init_Data_Repr_0__Nat_reprFast(x_35);
 x_37 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 x_38 = lean_alloc_ctor(0, 1, 0);
@@ -2600,7 +2600,7 @@ lean_ctor_set(x_59, 1, x_58);
 x_60 = lean_ctor_get(x_53, 2);
 lean_inc(x_60);
 lean_dec(x_53);
-x_61 = l_Nat_repr(x_60);
+x_61 = l___private_Init_Data_Repr_0__Nat_reprFast(x_60);
 x_62 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
 x_63 = lean_alloc_ctor(0, 1, 0);

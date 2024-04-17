@@ -43,6 +43,7 @@ LEAN_EXPORT lean_object* l_List_firstM___at_Lean_MVarId_applySymm___spec__1(lean
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____closed__15;
 uint8_t lean_usize_dec_le(size_t, size_t);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____closed__14;
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_List_firstM___at_Lean_Expr_applySymm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -51,6 +52,7 @@ static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
+lean_object* l_Lean_Meta_DiscrTree_instInhabited(lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____closed__2;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____closed__5;
@@ -58,6 +60,7 @@ lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_MVarId_symmSaturate___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____spec__7(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_applySymm___closed__2;
@@ -74,7 +77,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____closed__10;
 uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_99_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__1___closed__2;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -140,7 +142,6 @@ lean_object* l_Lean_MVarId_note(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____closed__5;
 uint8_t l_Lean_Meta_DiscrTree_Key_lt(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____spec__1___closed__5;
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__1___closed__6;
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -195,7 +196,6 @@ lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____closed__21;
 lean_object* l_id___rarg___boxed(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____spec__9___closed__1;
-lean_object* l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_applySymm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__2___closed__1;
@@ -210,11 +210,11 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate_
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_reduce(lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertAt_x21___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_getSymmLems___closed__1;
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate___spec__9___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -240,6 +240,7 @@ lean_object* l_Lean_MVarId_setTag(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____spec__1___closed__13;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_19____spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_symmSaturate___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -252,7 +253,6 @@ static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_1
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__1___closed__9;
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__1___closed__8;
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____lambda__1___closed__1;
@@ -1456,7 +1456,7 @@ static lean_object* _init_l_panic___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_instInhabitedDiscrTree(lean_box(0));
+x_1 = l_Lean_Meta_DiscrTree_instInhabited(lean_box(0));
 return x_1;
 }
 }
@@ -1833,7 +1833,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_init
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -1862,7 +1862,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____spec__1___closed__6;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1872,7 +1872,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____spec__1___closed__7;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -1902,7 +1902,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_102____spec__1___closed__10;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -1925,7 +1925,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_init
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -1936,7 +1936,7 @@ static lean_object* _init_l_Lean_ScopedEnvExtension_add___at_Lean_Meta_Symm_init
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);

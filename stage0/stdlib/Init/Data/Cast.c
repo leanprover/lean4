@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_instCoeHTCTNat(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instCoeTailNat(lean_object*);
-LEAN_EXPORT lean_object* l_instCoeHTCTNat___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instNatCastNat(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast(lean_object*);
+LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast(lean_object*);
 LEAN_EXPORT lean_object* l_instNatCastNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instCoeTailNat___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast(lean_object*);
 LEAN_EXPORT lean_object* l_instNatCastNat(lean_object* x_1) {
 _start:
 {
@@ -53,7 +53,7 @@ x_2 = lean_alloc_closure((void*)(l_Nat_cast___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeTailNat___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -62,15 +62,15 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeTailNat(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeTailNatOfNatCast(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instCoeTailNat___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instCoeTailNatOfNatCast___rarg), 1, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeHTCTNat___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -79,11 +79,11 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instCoeHTCTNat(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instCoeHTCTNatOfNatCast(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instCoeHTCTNat___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instCoeHTCTNatOfNatCast___rarg), 1, 0);
 return x_2;
 }
 }

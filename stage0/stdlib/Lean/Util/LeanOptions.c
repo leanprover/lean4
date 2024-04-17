@@ -139,9 +139,9 @@ static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValu
 lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_521____spec__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instToJsonLeanOptions(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_521____spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LeanOptionValue_ofDataValue_x3f___boxed(lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_40____closed__3;
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_40____closed__1;
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_40____closed__5;
@@ -535,7 +535,7 @@ lean_inc(x_31);
 lean_dec(x_1);
 x_32 = lean_unsigned_to_nat(1024u);
 x_33 = lean_nat_dec_le(x_32, x_2);
-x_34 = l_Nat_repr(x_31);
+x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_31);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_40____closed__25;
@@ -961,7 +961,7 @@ lean_object* x_9; lean_object* x_10;
 x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
-x_10 = l_Nat_repr(x_9);
+x_10 = l___private_Init_Data_Repr_0__Nat_reprFast(x_9);
 return x_10;
 }
 }

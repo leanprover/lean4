@@ -59,7 +59,6 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_InferType_inferLitValueType___boxed(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedAltCore___rarg(lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__1;
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_mkCasesResultType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -130,7 +129,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferTyp
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferConstType___closed__1;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_InferType_getLevel_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -223,6 +221,7 @@ lean_object* l_Lean_Compiler_LCNF_inferType(lean_object*, lean_object*, lean_obj
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_InferType_inferProjType___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_InferType_getType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Compiler_LCNF_InferType_withLocalDecl___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -254,6 +253,7 @@ lean_object* l_Lean_Compiler_LCNF_InferType_inferAppTypeCore___lambda__1___boxed
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_mkCasesResultType___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_mkCasesResultType___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__5;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -1320,7 +1320,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Core_instMonadCoreM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -1330,7 +1330,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_InferType_inferType___spec__1___closed__1;
 x_2 = l_Lean_instInhabitedExpr;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -11400,7 +11400,7 @@ lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_panic___at_Lean_Compiler_LCNF_InferType_inferType___spec__1___closed__1;
 x_2 = l_instInhabitedBool;
 x_3 = lean_box(x_2);
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 return x_4;
 }
 }

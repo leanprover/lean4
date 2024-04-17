@@ -156,6 +156,7 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_anal
 static lean_object* l_Lean_withTraceNode___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__2___lambda__4___closed__2;
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 static lean_object* l_Lean_getPPAnalysisHole___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeProj___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_hBinOpHeuristic___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -167,7 +168,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___l
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_applyFunBinderHeuristic_core___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isType2Type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__5___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeMData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isNonConstFun(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -218,7 +218,6 @@ static lean_object* l_Lean_withTraceNode___at_Lean_PrettyPrinter_Delaborator_top
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHigherOrder___closed__1;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__34(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_86____closed__3;
@@ -334,6 +333,7 @@ extern lean_object* l_Lean_SubExpr_Pos_typeCoord;
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_Context_inBottomUp___default;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_analyzeArg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_437____closed__1;
+lean_object* l_ReaderT_instMonadLift(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeProj___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__1___closed__3;
@@ -347,7 +347,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_PrettyPrinter_Delaborator_topDownAnalyze___spec__2___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_Lean_instInhabitedBinderInfo;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectBottomUps___lambda__1___boxed(lean_object*);
-lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__23;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_canBottomUp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -391,12 +390,10 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnal
 extern lean_object* l_Lean_SubExpr_Pos_root;
 static lean_object* l_Lean_getPPAnalysisNoDot___closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeApp___closed__2;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_instMonadWithReaderOfSubExprAnalyzeM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__54;
 lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubstLike___closed__3;
-extern lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__30(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -438,7 +435,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_PrettyPrinter_De
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_collectHigherOrders___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTrivialBottomUp___closed__2;
-lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_applyFunBinderHeuristic___spec__3___boxed(lean_object**);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_10693____closed__19;
@@ -554,6 +550,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnal
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_hBinOpHeuristic___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__1;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubstLike___closed__4;
+lean_object* l_StateT_instMonad___rarg(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__52;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_descend___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__50;
@@ -651,6 +648,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___lambd
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_47____closed__5;
+extern lean_object* l_Lean_Expr_instHashable;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLam___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_203____closed__2;
@@ -729,6 +727,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___lambd
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeProj___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static double l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__4___closed__1;
 extern lean_object* l_Lean_trace_profiler;
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeAppStaged___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -855,6 +854,7 @@ static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownA
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeAppStaged___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__33(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getPPAnalyzeTrustKnownFOType2TypeHOFuns___boxed(lean_object*);
 static lean_object* l_Lean_getPPAnalysisSkip___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5185,7 +5185,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_PrettyPrinter_De
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -5196,7 +5196,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_PrettyPrinter_De
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -21526,7 +21526,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_instMonadMetaM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -21536,7 +21536,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___spec__1___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -23401,7 +23401,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___spec__1___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -23410,7 +23410,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23421,7 +23421,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23432,7 +23432,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23443,7 +23443,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23454,7 +23454,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23465,7 +23465,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23476,7 +23476,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23487,7 +23487,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23569,7 +23569,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23580,7 +23580,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23591,7 +23591,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23809,7 +23809,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23820,7 +23820,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23831,7 +23831,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23842,7 +23842,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23853,7 +23853,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23864,7 +23864,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23875,7 +23875,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23886,7 +23886,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23947,7 +23947,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23958,7 +23958,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -23969,7 +23969,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24158,7 +24158,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24169,7 +24169,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24180,7 +24180,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24191,7 +24191,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24202,7 +24202,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24213,7 +24213,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24224,7 +24224,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24235,7 +24235,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24246,7 +24246,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24257,7 +24257,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24268,7 +24268,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24774,7 +24774,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24785,7 +24785,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24796,7 +24796,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24807,7 +24807,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24818,7 +24818,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24829,7 +24829,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24840,7 +24840,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24851,7 +24851,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24862,7 +24862,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24873,7 +24873,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -24884,7 +24884,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25104,7 +25104,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25115,7 +25115,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25126,7 +25126,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25137,7 +25137,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25148,7 +25148,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25159,7 +25159,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25170,7 +25170,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25181,7 +25181,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25192,7 +25192,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25203,7 +25203,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -25214,7 +25214,7 @@ _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_10 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_11 = l_instInhabited___rarg(x_10, x_1);
+x_11 = l_instInhabitedOfMonad___rarg(x_10, x_1);
 x_12 = lean_panic_fn(x_11, x_2);
 x_13 = lean_apply_7(x_12, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_13;
@@ -28557,7 +28557,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2___closed__1;
-x_2 = l_StateT_instMonadStateT___rarg(x_1);
+x_2 = l_StateT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -28566,7 +28566,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -28574,7 +28574,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLiftReaderT), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLift), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;

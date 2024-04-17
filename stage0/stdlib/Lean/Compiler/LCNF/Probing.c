@@ -106,7 +106,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_Probe_runOnMo
 static lean_object* l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler_LCNF_Probing___hyg_2857____closed__3;
 lean_object* l_Lean_Compiler_LCNF_Probe_filterByReturn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Compiler_LCNF_Probe_countUniqueSorted___spec__1(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Probe_filterByUnreach_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_sortedBySize___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -120,6 +119,7 @@ static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elamb
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByFunDecl___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Probe_getLetValues___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -232,7 +232,6 @@ lean_object* l_Lean_Compiler_LCNF_Probe_sortedBySize___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Probe_filterByFunDecl_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Probe_initFn____x40_Lean_Compiler_LCNF_Probing___hyg_2857____closed__17;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByUnreach___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_instBEqName;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Probe_filterByJmp_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Probe_filterByFunDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -247,6 +246,7 @@ lean_object* l_Lean_Compiler_LCNF_Probe_filterByJmp(lean_object*, lean_object*, 
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Probe_toPass___elambda__1___spec__2___closed__6;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__7;
+extern lean_object* l_Lean_Name_instBEq;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Probe_toPass___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Compiler_LCNF_Probe_countUniqueSorted___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -7193,9 +7193,9 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Name_instBEqName;
+x_1 = l_Lean_Name_instBEq;
 x_2 = l_Lean_instHashableName;
-x_3 = l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }

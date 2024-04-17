@@ -32,6 +32,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_CodeAction_findInfoT
 static lean_object* l_panic___at_Lean_CodeAction_cmdCodeActionProvider___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_visit___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
@@ -67,7 +68,6 @@ lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__11;
-lean_object* l_EStateM_instInhabitedEStateM___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_holeCodeActionProvider___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findInfoTree_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3819,7 +3819,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Server_instInhabitedRequestError;
-x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabitedEStateM___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

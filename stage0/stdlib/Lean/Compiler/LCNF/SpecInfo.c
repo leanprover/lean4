@@ -66,7 +66,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Compiler_LCNF
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__17___lambda__2___closed__2;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_hasFwdDeps___spec__1___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__17___lambda__1___closed__3;
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_SpecInfo___hyg_2175____closed__7;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__17___lambda__2(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,7 +148,6 @@ LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCN
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__3;
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getSpecParamInfo_x3f___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_isTypeFormerType(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____boxed(lean_object*, lean_object*);
@@ -261,6 +259,7 @@ lean_object* l_Lean_Compiler_LCNF_isSpecCandidate___rarg___lambda__1(lean_object
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_reprSpecParamInfo____x40_Lean_Compiler_LCNF_SpecInfo___hyg_15____closed__16;
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,6 +296,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Compiler_LCNF_SpecInfo_0__Lean_Compiler_LCNF_sortEntries___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_SpecParamInfo_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instInhabitedSpecEntry;
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Compiler_LCNF_SpecState_addEntry___spec__2___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__1___boxed(lean_object*, lean_object*);
@@ -3342,7 +3342,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Core_instMonadCoreM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -3352,7 +3352,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__8___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }

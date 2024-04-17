@@ -61,6 +61,7 @@ lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__21;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_NormCast_evalNormCast0___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,6 +92,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0_declR
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsingDown(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_numeralToCoe___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalPushCast___closed__2;
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__8___closed__2;
@@ -134,7 +136,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0___clo
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_prove___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_Simp_discharge_x3f_x27___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_elabModCast___closed__3;
 static lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_splittingProcedure___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -238,7 +239,6 @@ static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_N
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Simp_congrArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_splittingProcedure___spec__2___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_numeralToCoe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 lean_object* l_Lean_Meta_Simp_Result_mkCast(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_mono_nanos_now(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_isNumeral_x3f___closed__4;
@@ -376,6 +376,7 @@ static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__8___closed__6;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_NormCast___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_evalConvNormCast(lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_proveEqUsingDown___lambda__1___closed__2;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
@@ -386,7 +387,6 @@ lean_object* l_Lean_Meta_Simp_mkCongr(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_NormCast_normCastTarget___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalConvNormCast___closed__1;
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__10;
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_prove___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_NormCast___hyg_6____closed__9;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
@@ -440,6 +440,7 @@ lean_object* l_Lean_Meta_Simp_mkDefaultMethods(lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Elab_Tactic_NormCast_derive___lambda__8___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_evalNormCast0_declRange___closed__4;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_proveEqUsingDown___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_mkCoe___closed__1;
 static lean_object* l_Lean_Elab_Tactic_NormCast_initFn____x40_Lean_Elab_Tactic_NormCast___hyg_6____closed__11;
@@ -461,7 +462,6 @@ uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_proveEqUsingDown___spec__1___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_NormCast_evalNormCast0___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__4;
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_NormCast_prove___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__23;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_NormCast_elabAddElim_declRange___closed__6;
@@ -15786,7 +15786,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__17()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -15815,7 +15815,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__19;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -15825,7 +15825,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__20;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -15855,7 +15855,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__23;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -15878,7 +15878,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__26()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -15889,7 +15889,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_NormCast_elabAddElim___closed__27()
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);

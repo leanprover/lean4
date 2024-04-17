@@ -230,8 +230,8 @@ static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___lambda__1___cl
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__4___closed__4;
 lean_object* l_String_toSubstring_x27(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__5;
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
@@ -1670,7 +1670,7 @@ x_23 = lean_st_ref_get(x_14, x_22);
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = l_Nat_repr(x_2);
+x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
 x_26 = lean_box(2);
 x_27 = l_Lean_Syntax_mkNumLit(x_25, x_26);
 x_28 = lean_ctor_get(x_1, 1);

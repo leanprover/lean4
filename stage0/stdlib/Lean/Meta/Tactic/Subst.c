@@ -273,9 +273,9 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_substSomeVar_x3
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_substVar___spec__5___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_substSomeVar_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substCore___lambda__2___closed__5;
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_subst_substEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_substCore___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -792,7 +792,7 @@ lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean
 x_33 = lean_ctor_get(x_27, 1);
 lean_inc(x_33);
 lean_dec(x_27);
-x_34 = l_Nat_repr(x_19);
+x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = lean_alloc_ctor(0, 1, 0);
@@ -1269,7 +1269,7 @@ lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean
 x_33 = lean_ctor_get(x_27, 1);
 lean_inc(x_33);
 lean_dec(x_27);
-x_34 = l_Nat_repr(x_19);
+x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = lean_alloc_ctor(0, 1, 0);
@@ -1682,7 +1682,7 @@ lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean
 x_33 = lean_ctor_get(x_27, 1);
 lean_inc(x_33);
 lean_dec(x_27);
-x_34 = l_Nat_repr(x_19);
+x_34 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = lean_alloc_ctor(0, 1, 0);

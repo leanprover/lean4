@@ -23,6 +23,7 @@ static lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at_Lean_Tactic_FunInd_buildInductionCase___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed__11;
+lean_object* l_StateRefT_x27_instMonadExceptOf___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__10(lean_object*);
 lean_object* l_Lean_registerReservedNameAction(lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___closed__1;
@@ -33,7 +34,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_buildInd
 lean_object* l_Lean_Meta_getElimExprInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__3___closed__5;
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__19;
-lean_object* l_ReaderT_instMonadFunctorReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__9(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__13___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__17___boxed(lean_object**);
@@ -111,6 +111,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunIn
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Tactic_FunInd_buildInductionBody___spec__11___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_revertAfter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -161,6 +162,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatcherApp_Transform_0__Lean_Meta_MatcherApp_forallAltTelescope_x27___at_Lean_Tactic_FunInd_buildInductionBody___spec__42___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__16___closed__3;
 extern lean_object* l_Lean_Elab_Structural_instInhabitedEqnInfo;
+lean_object* l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_assertIHs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__4___closed__4;
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
@@ -177,6 +179,7 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__13(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__21(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_mapForallTelescope_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Tactic_FunInd_substVarAfter___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -256,7 +259,6 @@ LEAN_EXPORT lean_object* l_StateT_pure___at_Lean_Tactic_FunInd_buildInductionBod
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_buildInductionBody___spec__9(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__37___lambda__4(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__3___closed__1;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__18___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -373,13 +375,13 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryIn
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__13___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__17(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__6(lean_object*);
+lean_object* l_ReaderT_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_findRecursor___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__2___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_buildInductionCase___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__14(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecls_loop___at_Lean_Tactic_FunInd_abstractIndependentMVars___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__37___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__18(lean_object*);
@@ -416,18 +418,19 @@ static lean_object* l_Lean_Tactic_FunInd_isPProdProj___closed__6;
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Tactic_FunInd_buildInductionBody___spec__39(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_isPProdProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__17___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Tactic_FunInd_buildInductionBody___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_buildInductionBody___spec__38___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__8___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assign___at_Lean_Tactic_FunInd_abstractIndependentMVars___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonadLift(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_numAlts(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_removeLamda___rarg___lambda__2___closed__2;
-lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__10(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__37___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -438,7 +441,6 @@ lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__45(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__9___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__43___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -481,7 +483,6 @@ lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__37___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__15(lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Tactic_FunInd_buildInductionBody___spec__4___closed__4;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackMutualInduction___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -489,7 +490,6 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Tactic_FunInd_buildInduction
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__12___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackMutualInduction___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__14(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -542,7 +542,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryIn
 static lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__7___closed__2;
 lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_clear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -681,12 +680,13 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductio
 lean_object* l_Lean_Meta_mkLetFun(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__21___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__8;
-lean_object* l_Lean_instMonadQuotation___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__21___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__37___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__13(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instAddErrorMessageContextOfAddMessageContextOfMonad___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_findRecursor_err___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveInduction(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_abstractIndependentMVars___boxed__const__1;
@@ -700,7 +700,6 @@ static lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__6___clos
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__16___closed__2;
 static lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__10;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__14(lean_object*);
-lean_object* l_Lean_instAddErrorMessageContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__2___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatcherApp_Transform_0__Lean_Meta_MatcherApp_forallAltTelescope_x27___at_Lean_Tactic_FunInd_buildInductionBody___spec__42(lean_object*);
@@ -792,6 +791,7 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_isFunInductName___lambda__1___boxe
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecls___at_Lean_Tactic_FunInd_abstractIndependentMVars___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__12(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 lean_object* l___private_Lean_Meta_Tactic_Cleanup_0__Lean_Meta_cleanupCore(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Tactic_FunInd_collectIHs___spec__6(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -813,7 +813,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductio
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunInd_buildInductionBody___spec__26___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_unpackMutualInduction___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_cleanPackedArgs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -880,6 +879,7 @@ LEAN_EXPORT uint8_t l_Lean_Tactic_FunInd_isFunInductName___lambda__1(lean_object
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Tactic_FunInd_mkLambdaFVarsMasked___spec__1___closed__1;
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__2___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__8(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -926,6 +926,7 @@ static lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__4___clos
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__28;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_deriveUnpackedInduction___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Tactic_FunInd_buildInductionBody___spec__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -966,8 +967,8 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__11___boxed(le
 lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_deriveUnpackedInduction___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_substVarAfter___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonadExceptOf___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__17___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__32(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_collectIHs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -995,19 +996,18 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunInd_buildInductionBody___spec__26___lambda__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__16(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__12___closed__1;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed__13;
-lean_object* l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Tactic_FunInd_buildInductionBody___spec__2___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_isFunInductName___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__11___closed__1;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__4___boxed(lean_object**);
 static lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__9;
@@ -10430,7 +10430,7 @@ lean_dec(x_26);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_add(x_16, x_29);
 lean_dec(x_16);
-x_31 = l_Nat_repr(x_30);
+x_31 = l___private_Init_Data_Repr_0__Nat_reprFast(x_30);
 x_32 = l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_33 = lean_string_append(x_32, x_31);
 lean_dec(x_31);
@@ -10545,7 +10545,7 @@ lean_dec(x_54);
 x_57 = lean_unsigned_to_nat(1u);
 x_58 = lean_nat_add(x_16, x_57);
 lean_dec(x_16);
-x_59 = l_Nat_repr(x_58);
+x_59 = l___private_Init_Data_Repr_0__Nat_reprFast(x_58);
 x_60 = l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_61 = lean_string_append(x_60, x_59);
 lean_dec(x_59);
@@ -10713,7 +10713,7 @@ lean_dec(x_91);
 x_94 = lean_unsigned_to_nat(1u);
 x_95 = lean_nat_add(x_82, x_94);
 lean_dec(x_82);
-x_96 = l_Nat_repr(x_95);
+x_96 = l___private_Init_Data_Repr_0__Nat_reprFast(x_95);
 x_97 = l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_assertIHs___spec__1___closed__1;
 x_98 = lean_string_append(x_97, x_96);
 lean_dec(x_96);
@@ -14423,7 +14423,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_instMonadMetaM;
-x_2 = l_StateT_instMonadStateT___rarg(x_1);
+x_2 = l_StateT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -14433,7 +14433,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Tactic_FunInd_buildInductionBody___spec__6___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -16311,7 +16311,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Tactic_FunInd_buildInductionBody___spec__6___closed__1;
 x_2 = l_Lean_instInhabitedExpr;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -26021,7 +26021,7 @@ lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_16 = l_Nat_repr(x_5);
+x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_5);
 x_17 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = lean_alloc_ctor(0, 1, 0);
@@ -33921,7 +33921,7 @@ x_11 = lean_array_fget(x_2, x_4);
 x_12 = lean_nat_add(x_4, x_9);
 lean_dec(x_4);
 lean_inc(x_12);
-x_13 = l_Nat_repr(x_12);
+x_13 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
 x_14 = l_Array_mapIdxM_map___at_Lean_Tactic_FunInd_abstractIndependentMVars___spec__2___closed__1;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
@@ -38646,7 +38646,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-x_44 = l_Nat_repr(x_18);
+x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_18);
 x_45 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
 x_46 = lean_alloc_ctor(0, 1, 0);
@@ -38660,7 +38660,7 @@ x_50 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_49);
 x_51 = lean_array_to_list(lean_box(0), x_8);
-x_52 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_51, x_7);
+x_52 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_51, x_7);
 x_53 = l_Lean_MessageData_ofList(x_52);
 lean_dec(x_52);
 x_54 = lean_alloc_ctor(7, 2, 0);
@@ -41035,7 +41035,7 @@ lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_array_to_list(lean_box(0), x_2);
 x_18 = lean_box(0);
-x_19 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_17, x_18);
+x_19 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_17, x_18);
 x_20 = l_Lean_MessageData_ofList(x_19);
 lean_dec(x_19);
 x_21 = lean_alloc_ctor(7, 2, 0);
@@ -42977,7 +42977,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_instMonadExceptOfExceptionCoreM;
-x_2 = l_StateRefT_x27_instMonadExceptOfStateRefT_x27___rarg(x_1);
+x_2 = l_StateRefT_x27_instMonadExceptOf___rarg(x_1);
 return x_2;
 }
 }
@@ -42986,7 +42986,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__1;
-x_2 = l_ReaderT_instMonadExceptOfReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonadExceptOf___rarg(x_1);
 return x_2;
 }
 }
@@ -42994,7 +42994,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctorReaderT), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctor), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
@@ -43004,7 +43004,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLiftReaderT), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLift), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
@@ -43028,7 +43028,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__3;
 x_2 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__5;
 x_3 = l_Lean_Core_instMonadQuotationCoreM;
-x_4 = l_Lean_instMonadQuotation___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -43039,7 +43039,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__3;
 x_2 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__4;
 x_3 = l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__6;
-x_4 = l_Lean_instMonadQuotation___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -43049,7 +43049,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_instAddMessageContextMetaM;
 x_2 = l_Lean_Meta_instMonadMetaM;
-x_3 = lean_alloc_closure((void*)(l_Lean_instAddErrorMessageContext___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_Lean_instAddErrorMessageContextOfAddMessageContextOfMonad___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -44855,7 +44855,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_Fu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -44884,7 +44884,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__18;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -44894,7 +44894,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__19;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -44924,7 +44924,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_FunInd___hyg_11889____lambda__2___closed__22;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -44947,7 +44947,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_Fu
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -44958,7 +44958,7 @@ static lean_object* _init_l_Lean_Tactic_FunInd_initFn____x40_Lean_Meta_Tactic_Fu
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);

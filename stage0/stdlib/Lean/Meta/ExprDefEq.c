@@ -33,7 +33,6 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0_
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther___lambda__2___closed__1;
 static lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_5704____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther___lambda__2(uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadFunctorReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Meta_CheckAssignment_checkFVar___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__13___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__13(lean_object*, lean_object*, lean_object*);
@@ -61,6 +60,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_isAbstractedUnassignedMVar___boxed(lean_obj
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass___spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqBindingAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_checkMVar___spec__14(lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonadLift___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckAssignment_checkMVar___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at_Lean_Meta_CheckAssignment_checkMVar___spec__52___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___lambda__1___closed__6;
@@ -80,7 +80,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVa
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_CheckAssignment_findCached_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignmentQuick_check_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadTrace___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__50___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNodeBefore___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___spec__1___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_occursCheck_visitMVar___at_Lean_Meta_checkAssignment___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,7 +169,7 @@ static lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__6;
 uint8_t l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickOther___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLeftRight(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadLiftReaderT___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqStringLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
@@ -195,6 +194,7 @@ lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_Meta_CheckAssignment_checkMVar___spec__31(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_addLetDeps___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__15;
@@ -246,6 +246,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__33___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instMonadLiftT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_moveEntries___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit___spec__12(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
@@ -256,7 +257,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAss
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_checkAssignment___spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_5723____closed__1;
 static lean_object* l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__10;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_hasLetDeclsInBetween___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___lambda__3___closed__5;
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -367,6 +367,7 @@ static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processConstApp
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit___spec__8___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___lambda__2___closed__6;
+lean_object* l_ReaderT_instMonadFunctor(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_checkAssignment___spec__6___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickMVarMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___spec__7(lean_object*, lean_object*);
@@ -377,7 +378,6 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Meta_CheckAssignment_c
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDepsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom___spec__2(lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__11;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkFVar___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -404,8 +404,10 @@ LEAN_EXPORT lean_object* l_Lean_LocalContext_foldlM___at_Lean_Meta_CheckAssignme
 lean_object* l_Lean_Meta_getStuckMVar_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit___spec__13(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_CheckAssignment_addAssignmentInfo___closed__1;
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__37(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__9(lean_object*, lean_object*, size_t, size_t);
+lean_object* l_ReaderT_instMonadLift(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_simpAssignmentArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -426,7 +428,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypes
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEqCache_update___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkMVar___spec__40___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_expandDelayedAssigned_x3f___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignment_process___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -468,7 +469,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_consumeLet
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickMVarMVar___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_tryHeuristic___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignmentQuick_check_visit___spec__2(lean_object*, lean_object*, size_t, size_t);
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_cacheResult(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -619,7 +619,6 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_pro
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlMAux___at_Lean_Meta_CheckAssignment_checkMVar___spec__61___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_assignToConstFun___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadQuotation___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__45(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_withStartStopSeconds___at_Lean_Meta_processPostponed___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_isSubPrefixOf(lean_object*, lean_object*, lean_object*);
@@ -730,7 +729,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkM
 LEAN_EXPORT lean_object* l_Lean_getExprMVarAssignment_x3f___at_Lean_Meta_checkAssignment___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_checkMVar___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_foldlM___at_Lean_Meta_CheckAssignment_checkMVar___spec__52(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instMonadLiftT__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 static lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_CheckAssignment_checkFVar___spec__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_checkMVar___spec__12___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqQuickMVarMVar___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -747,7 +746,6 @@ LEAN_EXPORT lean_object* lean_is_expr_def_eq(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isAssignable___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isDefEqStringLit___closed__1;
-lean_object* l_instMonadLiftT___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_checkAssignment___spec__7(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProj_isDefEqSingleton___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -881,6 +879,7 @@ extern lean_object* l_Lean_Meta_instAddMessageContextMetaM;
 lean_object* l_Lean_Meta_isDefEqOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_elem___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeclsFrom_visit___spec__10___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_instMonadTraceOfMonadLift___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_CheckAssignment_checkMVar___spec__63___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProj(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMCtxMetaM;
@@ -899,6 +898,7 @@ uint8_t l_Lean_Expr_isConst(lean_object*);
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__16;
+lean_object* l_instMonadLiftTOfMonadLift___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_CheckAssignment_checkMVar___spec__67___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProjInst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -923,6 +923,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqLef
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitApp___at_Lean_Meta_CheckAssignment_checkMVar___spec__21(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqProjInst___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_mkLambdaFVarsWithLetDeps_collectLetDeps___spec__1(lean_object*);
 lean_object* l_Lean_Meta_getPostponed___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -936,7 +937,6 @@ lean_object* l_Lean_LocalContext_findFVar_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_processAssignmentFOApprox_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DefEqCacheKind_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1344,7 +1344,7 @@ return x_24;
 else
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
-x_25 = l_Nat_repr(x_3);
+x_25 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
@@ -1598,7 +1598,7 @@ x_30 = l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_is
 x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Nat_repr(x_8);
+x_32 = l___private_Init_Data_Repr_0__Nat_reprFast(x_8);
 x_33 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 x_34 = lean_alloc_ctor(0, 1, 0);
@@ -2200,7 +2200,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_E
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -2211,7 +2211,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at___private_Lean_Meta_E
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -17452,7 +17452,7 @@ x_19 = lean_ctor_get(x_2, 2);
 lean_inc(x_19);
 x_20 = lean_array_to_list(lean_box(0), x_19);
 x_21 = lean_box(0);
-x_22 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_20, x_21);
+x_22 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_20, x_21);
 x_23 = l_Lean_MessageData_ofList(x_22);
 lean_dec(x_22);
 x_24 = lean_alloc_ctor(7, 2, 0);
@@ -54120,7 +54120,7 @@ lean_ctor_set(x_33, 1, x_32);
 lean_inc(x_2);
 x_34 = lean_array_to_list(lean_box(0), x_2);
 x_35 = lean_box(0);
-x_36 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_34, x_35);
+x_36 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_34, x_35);
 x_37 = l_Lean_MessageData_ofList(x_36);
 lean_dec(x_36);
 x_38 = lean_alloc_ctor(7, 2, 0);
@@ -55191,7 +55191,7 @@ lean_ctor_set(x_25, 1, x_24);
 lean_inc(x_6);
 x_26 = lean_array_to_list(lean_box(0), x_6);
 x_27 = lean_box(0);
-x_28 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
+x_28 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_26, x_27);
 x_29 = l_Lean_MessageData_ofList(x_28);
 lean_dec(x_28);
 x_30 = lean_alloc_ctor(7, 2, 0);
@@ -55847,7 +55847,7 @@ lean_ctor_set(x_22, 1, x_21);
 lean_inc(x_2);
 x_23 = lean_array_to_list(lean_box(0), x_2);
 x_24 = lean_box(0);
-x_25 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_23, x_24);
+x_25 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_23, x_24);
 x_26 = l_Lean_MessageData_ofList(x_25);
 lean_dec(x_25);
 x_27 = lean_alloc_ctor(7, 2, 0);
@@ -56626,7 +56626,7 @@ lean_ctor_set(x_52, 1, x_51);
 lean_inc(x_4);
 x_53 = lean_array_to_list(lean_box(0), x_4);
 x_54 = lean_box(0);
-x_55 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_53, x_54);
+x_55 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(x_53, x_54);
 x_56 = l_Lean_MessageData_ofList(x_55);
 lean_dec(x_55);
 x_57 = lean_alloc_ctor(7, 2, 0);
@@ -67792,7 +67792,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLiftReaderT), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadLift), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
@@ -67832,7 +67832,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__6;
-x_2 = lean_alloc_closure((void*)(l_ReaderT_instMonadLiftReaderT___rarg___boxed), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_ReaderT_instMonadLift___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -67841,7 +67841,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instMonadLiftT__1), 2, 1);
+x_1 = lean_alloc_closure((void*)(l_instMonadLiftT), 2, 1);
 lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
@@ -67860,7 +67860,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__9;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__8;
-x_3 = lean_alloc_closure((void*)(l_instMonadLiftT___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -67872,7 +67872,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__4;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__10;
-x_3 = lean_alloc_closure((void*)(l_instMonadLiftT___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -67884,7 +67884,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__3;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__11;
-x_3 = lean_alloc_closure((void*)(l_instMonadLiftT___rarg), 4, 2);
+x_3 = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -67896,7 +67896,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__4;
 x_2 = l_Lean_Core_instMonadTraceCoreM;
-x_3 = l_Lean_instMonadTrace___rarg(x_1, x_2);
+x_3 = l_Lean_instMonadTraceOfMonadLift___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -67906,7 +67906,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__3;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__13;
-x_3 = l_Lean_instMonadTrace___rarg(x_1, x_2);
+x_3 = l_Lean_instMonadTraceOfMonadLift___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -67914,7 +67914,7 @@ static lean_object* _init_l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctorReaderT), 3, 2);
+x_1 = lean_alloc_closure((void*)(l_ReaderT_instMonadFunctor), 3, 2);
 lean_closure_set(x_1, 0, lean_box(0));
 lean_closure_set(x_1, 1, lean_box(0));
 return x_1;
@@ -67927,7 +67927,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__15;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__4;
 x_3 = l_Lean_Core_instMonadQuotationCoreM;
-x_4 = l_Lean_instMonadQuotation___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -67938,7 +67938,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__15;
 x_2 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__3;
 x_3 = l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__16;
-x_4 = l_Lean_instMonadQuotation___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_instMonadQuotationOfMonadFunctorOfMonadLift___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }

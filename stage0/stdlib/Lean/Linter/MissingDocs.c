@@ -26,6 +26,7 @@ static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingD
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Linter_MissingDocs_checkDecl___spec__7___at_Lean_Linter_MissingDocs_checkDecl___spec__8(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_handleMutual___closed__3;
+lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkDecl___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBuiltinOption___closed__1;
@@ -413,7 +414,6 @@ static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingD
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkMixfix___closed__4;
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_declModifiersPubNoDoc___closed__2;
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSimpLike___closed__5;
@@ -458,11 +458,11 @@ LEAN_EXPORT lean_object* l_List_replace___at_Lean_Linter_MissingDocs_checkDecl__
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkDecl___closed__3;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_lint___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Linter_MissingDocs_checkDecl___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkMixfix(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____lambda__1___closed__2;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_791____closed__9;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkInit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_builtinHandlersRef;
@@ -1769,7 +1769,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
-x_5 = l_Nat_repr(x_4);
+x_5 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
 x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_362____lambda__6___closed__2;
@@ -5612,7 +5612,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Linter_MissingDocs_checkDecl___lambda__1___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instBEq___rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

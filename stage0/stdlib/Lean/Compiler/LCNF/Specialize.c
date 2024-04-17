@@ -63,12 +63,12 @@ lean_object* l_Lean_Compiler_LCNF_Specialize_isGround___at_Lean_Compiler_LCNF_Sp
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Specialize___hyg_4184____closed__2;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_visitCode___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_LCNF_Specialize_withLetDecl___spec__5___closed__3;
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_isGround___at_Lean_Compiler_LCNF_Specialize_shouldSpecialize___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__5___closed__4;
@@ -90,7 +90,6 @@ static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Specia
 lean_object* l_Lean_Compiler_LCNF_allFVarM___at_Lean_Compiler_LCNF_Specialize_shouldSpecialize___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Specialize_mkSpecDecl_go___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_shouldSpecialize___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_initFn____x40_Lean_Compiler_LCNF_Specialize___hyg_46____closed__4;
 lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
@@ -137,7 +136,6 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_Specialize_Colle
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Specialize___hyg_4184____closed__13;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_specialize___elambda__1___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_SMap_instInhabitedSMap___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_allFVarM___at_Lean_Compiler_LCNF_Specialize_isGround___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashMapImp_contains___at_Lean_Compiler_LCNF_Specialize_Collector_collect___spec__1(lean_object*, lean_object*);
@@ -172,11 +170,9 @@ lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_isTemplateLike(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_specialize___elambda__1___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_ToExpr_withParams_go___at_Lean_Compiler_LCNF_Specialize_mkKey___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Specialize_withLetDecl___spec__6___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_shouldSpecialize___closed__1;
-extern lean_object* l_Lean_Expr_instHashableExpr;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__4___closed__2;
 lean_object* l_Lean_Compiler_LCNF_Closure_collectArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,6 +215,7 @@ static lean_object* l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_LCNF_S
 lean_object* l_Lean_Compiler_LCNF_Specialize_mkKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__5___closed__1;
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
+lean_object* l_OptionT_instMonad___rarg(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Specialize_mkSpecDecl_go___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM;
@@ -266,9 +263,11 @@ static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Specialize___hyg_4184____closed__1;
 lean_object* l_Lean_Compiler_LCNF_Arg_toExpr(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_mkSpecDecl_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_instMonad;
 lean_object* l_Lean_Compiler_LCNF_CodeDecl_fvarId(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_Specialize_isGround___rarg___lambda__1(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_instMonadScopeSpecializeM;
 uint8_t l_Lean_Compiler_LCNF_allFVarM___at_Lean_Compiler_LCNF_Specialize_shouldSpecialize___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_allFVarM_go___at_Lean_Compiler_LCNF_allFVar___spec__2(lean_object*, lean_object*);
@@ -280,7 +279,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 static lean_object* l_Lean_Compiler_LCNF_Specialize_Collector_collect___closed__1;
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_OptionT_instMonadOptionT___rarg(lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* lean_expr_instantiate_rev(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_instMonadScopeSpecializeM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -295,7 +293,6 @@ size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_instMonadScopeSpecializeM___closed__3;
 lean_object* l_Lean_Compiler_LCNF_Specialize_mkKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasFVar(lean_object*);
-extern lean_object* l_Id_instMonadId;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_State_decls___default;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_withParams___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -304,7 +301,9 @@ lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_withLetDecl(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_visitCode___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Specialize_getRemainingArgs___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_SMap_instInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_Lean_Compiler_LCNF_Specialize_Collector_collect___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_LCNF_Specialize_withLetDecl___spec__5___closed__4;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsNoCache(lean_object*, lean_object*, lean_object*);
@@ -348,6 +347,7 @@ lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__7(lean_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Specialize_expandCodeDecls___spec__1(size_t, size_t, lean_object*);
 lean_object* lean_expr_abstract_range(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Specialize_Collector_collect___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_specialize;
 static lean_object* l_Lean_Compiler_LCNF_Specialize_Collector_collect___closed__2;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -846,9 +846,9 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Specialize_findSpecCache_x3f___cl
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Expr_instBEqExpr;
-x_2 = l_Lean_Expr_instHashableExpr;
-x_3 = l_Lean_SMap_instInhabitedSMap___rarg(x_1, x_2);
+x_1 = l_Lean_Expr_instBEq;
+x_2 = l_Lean_Expr_instHashable;
+x_3 = l_Lean_SMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -1128,8 +1128,8 @@ static lean_object* _init_l_Lean_Compiler_LCNF_allFVarM___at_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_instMonadId;
-x_2 = l_OptionT_instMonadOptionT___rarg(x_1);
+x_1 = l_Id_instMonad;
+x_2 = l_OptionT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -1251,7 +1251,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_allFVarM___at_Lean_Compiler_LCNF_Specialize_isGround___spec__1___rarg___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -5125,7 +5125,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_instMonadCompilerM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -5135,7 +5135,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_panic___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__6___closed__1;
-x_3 = l_instInhabited___rarg(x_2, x_1);
+x_3 = l_instInhabitedOfMonad___rarg(x_2, x_1);
 return x_3;
 }
 }

@@ -16,81 +16,88 @@ extern "C" {
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipString(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_pure___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__8;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parsec_notFollowedBy___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__10;
 static lean_object* l_Lean_Parsec_pchar___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec;
+static lean_object* l_Lean_Parsec_instInhabited___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternative___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_peek_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__8;
 static lean_object* l_Lean_Parsec_satisfy___closed__1;
+static lean_object* l_Lean_Parsec_instMonad___closed__1;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__11;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad;
 lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_ws(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__9;
-static lean_object* l_Lean_Parsec_instAlternativeParsec___closed__1;
 lean_object* l_String_Iterator_next(lean_object*);
 uint8_t l___private_Init_Data_String_Basic_0__String_decEqIterator____x40_Init_Data_String_Basic___hyg_3474_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_orElse___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_anyChar(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_unexpectedEndOfInput;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec(lean_object*);
 static lean_object* l_Lean_Parsec_pchar___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternative___lambda__1(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Parsec_notFollowedBy(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44_(lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__7;
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Parsec_pstring(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternative;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCharsCore(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_extract(lean_object*, lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parsec_digit___closed__1;
 static lean_object* l_Lean_Parsec_unexpectedEndOfInput___closed__1;
-static lean_object* l_Lean_Parsec_instAlternativeParsec___closed__3;
+static lean_object* l_Lean_Parsec_instAlternative___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parsec_hexDigit(lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_skip(lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__3;
 static lean_object* l_Lean_Parsec_run___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instReprParseResult___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabited___rarg(lean_object*);
 uint8_t l_String_Iterator_hasNext(lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__7;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__8;
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__9;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__15;
 static lean_object* l_Lean_Parsec_pstring___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_many1___rarg(lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__3;
 static lean_object* l_Lean_Parsec_many1___rarg___closed__1;
+static lean_object* l_Lean_Parsec_instMonad___closed__9;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parsec_pstring___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_expectedEndOfInput;
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Parsec_asciiLetter(lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__2;
+static lean_object* l_Lean_Parsec_instAlternative___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_run___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_run(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipWs(lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Iterator_forward(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__14;
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipChar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_pure(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__5;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Parsec_orElse(lean_object*);
@@ -99,45 +106,38 @@ LEAN_EXPORT lean_object* l_Lean_Parsec_many___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_fail(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_many1(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec;
 LEAN_EXPORT lean_object* l_Lean_Parsec_eof(lean_object*);
-static lean_object* l_Lean_Parsec_instAlternativeParsec___closed__2;
+static lean_object* l_Lean_Parsec_instMonad___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parsec_attempt___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_many(lean_object*);
 static lean_object* l_Lean_Parsec_hexDigit___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__4;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyChars(lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_instReprParseResult(lean_object*);
 static lean_object* l_Lean_Parsec_expectedEndOfInput___closed__1;
 static lean_object* l_Lean_Parsec_asciiLetter___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_pchar(uint32_t, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parsec_pchar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_bind(lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__1;
 static lean_object* l_Lean_Parsec_many___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parsec_bind___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Parsec_instMonadParsec___closed__6;
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__2;
 lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parsec_instAlternative___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parsec_digit(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_satisfy(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipString___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_peek_x21(lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parsec_instMonad___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parsec_fail___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_attempt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_manyCore(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parsec_skipChar(uint32_t, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Parsec_run___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__12;
 static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__1() {
 _start:
@@ -346,7 +346,7 @@ x_16 = l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_D
 x_17 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = l_Nat_repr(x_11);
+x_18 = l___private_Init_Data_Repr_0__Nat_reprFast(x_11);
 x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__9;
@@ -441,7 +441,7 @@ x_55 = l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_D
 x_56 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
-x_57 = l_Nat_repr(x_50);
+x_57 = l___private_Init_Data_Repr_0__Nat_reprFast(x_50);
 x_58 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_59 = l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__9;
@@ -514,7 +514,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Parsec_instReprParseResult___rarg), 1, 0
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instInhabitedParsec___rarg___closed__1() {
+static lean_object* _init_l_Lean_Parsec_instInhabited___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -522,22 +522,22 @@ x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabited___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_2 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabitedParsec(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Parsec_instInhabitedParsec___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parsec_instInhabited___rarg), 1, 0);
 return x_2;
 }
 }
@@ -608,7 +608,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Parsec_bind___rarg), 3, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -665,7 +665,7 @@ return x_17;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -719,7 +719,7 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -729,7 +729,7 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -820,7 +820,7 @@ return x_25;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -908,7 +908,7 @@ return x_22;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__6(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -948,7 +948,7 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instMonadParsec___lambda__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instMonad___lambda__7(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -989,75 +989,75 @@ return x_13;
 }
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__1() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__1), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__1), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__2() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__2), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__2), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__3() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parsec_instMonadParsec___closed__1;
-x_2 = l_Lean_Parsec_instMonadParsec___closed__2;
+x_1 = l_Lean_Parsec_instMonad___closed__1;
+x_2 = l_Lean_Parsec_instMonad___closed__2;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__4() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__3), 3, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__3), 3, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__5() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__4), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__4), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__6() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__5), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__5), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__7() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__6), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__6), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__8() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Parsec_instMonadParsec___closed__3;
-x_2 = l_Lean_Parsec_instMonadParsec___closed__4;
-x_3 = l_Lean_Parsec_instMonadParsec___closed__5;
-x_4 = l_Lean_Parsec_instMonadParsec___closed__6;
-x_5 = l_Lean_Parsec_instMonadParsec___closed__7;
+x_1 = l_Lean_Parsec_instMonad___closed__3;
+x_2 = l_Lean_Parsec_instMonad___closed__4;
+x_3 = l_Lean_Parsec_instMonad___closed__5;
+x_4 = l_Lean_Parsec_instMonad___closed__6;
+x_5 = l_Lean_Parsec_instMonad___closed__7;
 x_6 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);
@@ -1067,31 +1067,31 @@ lean_ctor_set(x_6, 4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__9() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonadParsec___lambda__7), 5, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instMonad___lambda__7), 5, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec___closed__10() {
+static lean_object* _init_l_Lean_Parsec_instMonad___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parsec_instMonadParsec___closed__8;
-x_2 = l_Lean_Parsec_instMonadParsec___closed__9;
+x_1 = l_Lean_Parsec_instMonad___closed__8;
+x_2 = l_Lean_Parsec_instMonad___closed__9;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instMonadParsec() {
+static lean_object* _init_l_Lean_Parsec_instMonad() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parsec_instMonadParsec___closed__10;
+x_1 = l_Lean_Parsec_instMonad___closed__10;
 return x_1;
 }
 }
@@ -1273,18 +1273,18 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Parsec_attempt___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec___lambda__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternative___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_3 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_4 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternativeParsec___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Parsec_instAlternative___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -1373,31 +1373,31 @@ return x_21;
 }
 }
 }
-static lean_object* _init_l_Lean_Parsec_instAlternativeParsec___closed__1() {
+static lean_object* _init_l_Lean_Parsec_instAlternative___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instAlternativeParsec___lambda__1), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instAlternative___lambda__1), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instAlternativeParsec___closed__2() {
+static lean_object* _init_l_Lean_Parsec_instAlternative___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instAlternativeParsec___lambda__2), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Parsec_instAlternative___lambda__2), 4, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instAlternativeParsec___closed__3() {
+static lean_object* _init_l_Lean_Parsec_instAlternative___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parsec_instMonadParsec;
+x_1 = l_Lean_Parsec_instMonad;
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
-x_3 = l_Lean_Parsec_instAlternativeParsec___closed__1;
-x_4 = l_Lean_Parsec_instAlternativeParsec___closed__2;
+x_3 = l_Lean_Parsec_instAlternative___closed__1;
+x_4 = l_Lean_Parsec_instAlternative___closed__2;
 x_5 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_5, 0, x_2);
 lean_ctor_set(x_5, 1, x_3);
@@ -1405,11 +1405,11 @@ lean_ctor_set(x_5, 2, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Parsec_instAlternativeParsec() {
+static lean_object* _init_l_Lean_Parsec_instAlternative() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parsec_instAlternativeParsec___closed__3;
+x_1 = l_Lean_Parsec_instAlternative___closed__3;
 return x_1;
 }
 }
@@ -1459,7 +1459,7 @@ lean_dec(x_5);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Nat_repr(x_10);
+x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
 x_12 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_12, 0, x_11);
 x_13 = l_Std_Format_defWidth;
@@ -1471,7 +1471,7 @@ x_17 = l_Lean_Parsec_run___rarg___closed__2;
 x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_string_append(x_18, x_9);
 lean_dec(x_9);
-x_20 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_20 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_21 = lean_string_append(x_19, x_20);
 x_22 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -1949,7 +1949,7 @@ LEAN_EXPORT lean_object* l_Lean_Parsec_manyChars(lean_object* x_1, lean_object* 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_3 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_4 = l_Lean_Parsec_manyCharsCore(x_1, x_3, x_2);
 return x_4;
 }
@@ -1968,7 +1968,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_6 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_7 = lean_unbox_uint32(x_5);
 lean_dec(x_5);
 x_8 = lean_string_push(x_6, x_7);
@@ -2024,7 +2024,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 x_7 = l_Lean_Parsec_pstring___closed__1;
 x_8 = lean_string_append(x_7, x_1);
-x_9 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_9 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_2);
@@ -2201,7 +2201,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_6);
-x_9 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_9 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_10 = lean_string_push(x_9, x_1);
 x_11 = l_Lean_Parsec_pchar___closed__1;
 x_12 = lean_string_append(x_11, x_10);
@@ -2261,7 +2261,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_6);
-x_9 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_9 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_10 = lean_string_push(x_9, x_1);
 x_11 = l_Lean_Parsec_pchar___closed__1;
 x_12 = lean_string_append(x_11, x_10);
@@ -2741,7 +2741,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_dec(x_5);
 x_6 = lean_ctor_get(x_3, 0);
 lean_dec(x_6);
-x_7 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_7 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 lean_ctor_set_tag(x_3, 1);
 lean_ctor_set(x_3, 1, x_7);
 lean_ctor_set(x_3, 0, x_2);
@@ -2751,7 +2751,7 @@ else
 {
 lean_object* x_8; lean_object* x_9; 
 lean_dec(x_3);
-x_8 = l_Lean_Parsec_instInhabitedParsec___rarg___closed__1;
+x_8 = l_Lean_Parsec_instInhabited___rarg___closed__1;
 x_9 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_8);
@@ -2987,38 +2987,38 @@ l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Par
 lean_mark_persistent(l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__15);
 l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__16 = _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__16();
 lean_mark_persistent(l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseResult____x40_Lean_Data_Parsec___hyg_44____rarg___closed__16);
-l_Lean_Parsec_instInhabitedParsec___rarg___closed__1 = _init_l_Lean_Parsec_instInhabitedParsec___rarg___closed__1();
-lean_mark_persistent(l_Lean_Parsec_instInhabitedParsec___rarg___closed__1);
-l_Lean_Parsec_instMonadParsec___closed__1 = _init_l_Lean_Parsec_instMonadParsec___closed__1();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__1);
-l_Lean_Parsec_instMonadParsec___closed__2 = _init_l_Lean_Parsec_instMonadParsec___closed__2();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__2);
-l_Lean_Parsec_instMonadParsec___closed__3 = _init_l_Lean_Parsec_instMonadParsec___closed__3();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__3);
-l_Lean_Parsec_instMonadParsec___closed__4 = _init_l_Lean_Parsec_instMonadParsec___closed__4();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__4);
-l_Lean_Parsec_instMonadParsec___closed__5 = _init_l_Lean_Parsec_instMonadParsec___closed__5();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__5);
-l_Lean_Parsec_instMonadParsec___closed__6 = _init_l_Lean_Parsec_instMonadParsec___closed__6();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__6);
-l_Lean_Parsec_instMonadParsec___closed__7 = _init_l_Lean_Parsec_instMonadParsec___closed__7();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__7);
-l_Lean_Parsec_instMonadParsec___closed__8 = _init_l_Lean_Parsec_instMonadParsec___closed__8();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__8);
-l_Lean_Parsec_instMonadParsec___closed__9 = _init_l_Lean_Parsec_instMonadParsec___closed__9();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__9);
-l_Lean_Parsec_instMonadParsec___closed__10 = _init_l_Lean_Parsec_instMonadParsec___closed__10();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec___closed__10);
-l_Lean_Parsec_instMonadParsec = _init_l_Lean_Parsec_instMonadParsec();
-lean_mark_persistent(l_Lean_Parsec_instMonadParsec);
-l_Lean_Parsec_instAlternativeParsec___closed__1 = _init_l_Lean_Parsec_instAlternativeParsec___closed__1();
-lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec___closed__1);
-l_Lean_Parsec_instAlternativeParsec___closed__2 = _init_l_Lean_Parsec_instAlternativeParsec___closed__2();
-lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec___closed__2);
-l_Lean_Parsec_instAlternativeParsec___closed__3 = _init_l_Lean_Parsec_instAlternativeParsec___closed__3();
-lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec___closed__3);
-l_Lean_Parsec_instAlternativeParsec = _init_l_Lean_Parsec_instAlternativeParsec();
-lean_mark_persistent(l_Lean_Parsec_instAlternativeParsec);
+l_Lean_Parsec_instInhabited___rarg___closed__1 = _init_l_Lean_Parsec_instInhabited___rarg___closed__1();
+lean_mark_persistent(l_Lean_Parsec_instInhabited___rarg___closed__1);
+l_Lean_Parsec_instMonad___closed__1 = _init_l_Lean_Parsec_instMonad___closed__1();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__1);
+l_Lean_Parsec_instMonad___closed__2 = _init_l_Lean_Parsec_instMonad___closed__2();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__2);
+l_Lean_Parsec_instMonad___closed__3 = _init_l_Lean_Parsec_instMonad___closed__3();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__3);
+l_Lean_Parsec_instMonad___closed__4 = _init_l_Lean_Parsec_instMonad___closed__4();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__4);
+l_Lean_Parsec_instMonad___closed__5 = _init_l_Lean_Parsec_instMonad___closed__5();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__5);
+l_Lean_Parsec_instMonad___closed__6 = _init_l_Lean_Parsec_instMonad___closed__6();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__6);
+l_Lean_Parsec_instMonad___closed__7 = _init_l_Lean_Parsec_instMonad___closed__7();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__7);
+l_Lean_Parsec_instMonad___closed__8 = _init_l_Lean_Parsec_instMonad___closed__8();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__8);
+l_Lean_Parsec_instMonad___closed__9 = _init_l_Lean_Parsec_instMonad___closed__9();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__9);
+l_Lean_Parsec_instMonad___closed__10 = _init_l_Lean_Parsec_instMonad___closed__10();
+lean_mark_persistent(l_Lean_Parsec_instMonad___closed__10);
+l_Lean_Parsec_instMonad = _init_l_Lean_Parsec_instMonad();
+lean_mark_persistent(l_Lean_Parsec_instMonad);
+l_Lean_Parsec_instAlternative___closed__1 = _init_l_Lean_Parsec_instAlternative___closed__1();
+lean_mark_persistent(l_Lean_Parsec_instAlternative___closed__1);
+l_Lean_Parsec_instAlternative___closed__2 = _init_l_Lean_Parsec_instAlternative___closed__2();
+lean_mark_persistent(l_Lean_Parsec_instAlternative___closed__2);
+l_Lean_Parsec_instAlternative___closed__3 = _init_l_Lean_Parsec_instAlternative___closed__3();
+lean_mark_persistent(l_Lean_Parsec_instAlternative___closed__3);
+l_Lean_Parsec_instAlternative = _init_l_Lean_Parsec_instAlternative();
+lean_mark_persistent(l_Lean_Parsec_instAlternative);
 l_Lean_Parsec_run___rarg___closed__1 = _init_l_Lean_Parsec_run___rarg___closed__1();
 lean_mark_persistent(l_Lean_Parsec_run___rarg___closed__1);
 l_Lean_Parsec_run___rarg___closed__2 = _init_l_Lean_Parsec_run___rarg___closed__2();

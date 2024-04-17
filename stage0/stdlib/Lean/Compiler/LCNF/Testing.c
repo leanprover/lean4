@@ -206,8 +206,8 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_Testin
 lean_object* l_Lean_Compiler_LCNF_Testing_assertAfterEachOccurrence(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Testing_assertForEachDeclAfter___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler_LCNF_Testing_assertAfterTest___elambda__1___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertPreservesSize___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___closed__1;
@@ -1346,7 +1346,7 @@ lean_ctor_set(x_31, 1, x_30);
 x_32 = lean_ctor_get(x_3, 0);
 lean_inc(x_32);
 lean_dec(x_3);
-x_33 = l_Nat_repr(x_32);
+x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(0, 1, 0);
@@ -1517,7 +1517,7 @@ lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = lean_ctor_get(x_2, 0);
 lean_inc(x_28);
-x_29 = l_Nat_repr(x_28);
+x_29 = l___private_Init_Data_Repr_0__Nat_reprFast(x_28);
 x_30 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
@@ -2236,7 +2236,7 @@ lean_ctor_set(x_35, 1, x_34);
 x_36 = lean_ctor_get(x_1, 0);
 lean_inc(x_36);
 lean_dec(x_1);
-x_37 = l_Nat_repr(x_36);
+x_37 = l___private_Init_Data_Repr_0__Nat_reprFast(x_36);
 x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(0, 1, 0);
@@ -2405,7 +2405,7 @@ lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = lean_ctor_get(x_2, 0);
 lean_inc(x_28);
-x_29 = l_Nat_repr(x_28);
+x_29 = l___private_Init_Data_Repr_0__Nat_reprFast(x_28);
 x_30 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
@@ -3429,7 +3429,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Nat_repr(x_1);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -3494,7 +3494,7 @@ block_56:
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
 lean_inc(x_30);
-x_31 = l_Nat_repr(x_30);
+x_31 = l___private_Init_Data_Repr_0__Nat_reprFast(x_30);
 x_32 = lean_string_append(x_29, x_31);
 lean_dec(x_31);
 x_33 = l_Lean_Compiler_LCNF_Testing_assertSize___lambda__1___closed__2;
@@ -3542,7 +3542,7 @@ lean_inc(x_49);
 x_50 = lean_apply_2(x_2, x_30, x_49);
 x_51 = lean_unbox(x_50);
 lean_dec(x_50);
-x_52 = l_Nat_repr(x_49);
+x_52 = l___private_Init_Data_Repr_0__Nat_reprFast(x_49);
 x_53 = lean_string_append(x_34, x_52);
 lean_dec(x_52);
 x_54 = lean_string_append(x_53, x_26);

@@ -98,6 +98,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_MkTableKey_State_lmap___defau
 static lean_object* l_Lean_Meta_synthInstance_x3f___lambda__6___closed__3;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_insertionSort_swapLoop___at_Lean_Meta_SynthInstance_getInstances___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_resume___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateT_get___at_Lean_Meta_SynthInstance_MkTableKey_instMonadMCtxM___spec__1(lean_object*);
@@ -143,6 +144,7 @@ lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_mkTableKey___rarg___lambda__1___boxed(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 lean_object* l_Lean_Meta_forallTelescope___at_Lean_Meta_mapForallTelescope_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_getInstances___spec__7___closed__3;
@@ -201,7 +203,6 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_tryRe
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_State_tableEntries___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_mkTableKeyFor___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_synthInstance_x3f___spec__9(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Meta_SynthInstance_newSubgoal___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_generate___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -356,7 +357,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_instInhabitedAnswer;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_SynthInstance_newSubgoal___spec__11___rarg___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_SynthInstance_newSubgoal___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_tryResolve___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Meta_SynthInstance_getInstances___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -582,6 +582,7 @@ uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_SynthInstance_getInstances___spec__9___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_tryResolve___spec__2___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_generate___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_addAnswer___lambda__1___closed__2;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Meta_synthInstance_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -716,7 +717,6 @@ uint8_t l_Lean_Exception_isRuntime(lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_9390____closed__4;
 static lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__1;
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_MkTableKey_normExpr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_addAnswer___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -738,6 +738,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getResult(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_SynthInstance_getInstances___spec__9___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_getInstances___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_mkTableKeyFor___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_SynthInstance_newSubgoal___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -746,7 +747,6 @@ static lean_object* l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___close
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_tryAnswer___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__16___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_SynthInstance_addAnswer___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Meta_SynthInstance_getInstances___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10668,7 +10668,7 @@ lean_inc(x_18);
 lean_dec(x_12);
 x_19 = lean_ctor_get(x_2, 4);
 lean_inc(x_19);
-x_20 = l_Nat_repr(x_19);
+x_20 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_21 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = lean_alloc_ctor(0, 1, 0);
@@ -12441,7 +12441,7 @@ x_46 = l_Lean_Meta_SynthInstance_addAnswer___lambda__4___closed__8;
 x_47 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Nat_repr(x_11);
+x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_11);
 x_49 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 x_50 = lean_alloc_ctor(0, 1, 0);
@@ -12455,7 +12455,7 @@ lean_ctor_set(x_53, 0, x_51);
 lean_ctor_set(x_53, 1, x_52);
 x_54 = lean_ctor_get(x_3, 0);
 lean_inc(x_54);
-x_55 = l_Nat_repr(x_54);
+x_55 = l___private_Init_Data_Repr_0__Nat_reprFast(x_54);
 x_56 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
 x_57 = lean_alloc_ctor(0, 1, 0);
@@ -18890,7 +18890,7 @@ else
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 x_18 = lean_ctor_get(x_1, 2);
 x_19 = lean_nat_add(x_2, x_18);
-x_20 = l_Nat_repr(x_19);
+x_20 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_21 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = lean_alloc_ctor(0, 1, 0);
@@ -23299,7 +23299,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_synthInstance_x3f___spec__7___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -23309,7 +23309,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_synthInstance_x3f___spec__7___closed__2;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -23339,7 +23339,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_synthInstance_x3f___spec__7___closed__5;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);

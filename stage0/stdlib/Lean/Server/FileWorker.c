@@ -493,7 +493,6 @@ static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_ini
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_workerMain___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_FileWorker_runRefreshTask___spec__2(lean_object*);
-lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_617____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__3(lean_object*);
 static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_FileWorker_runRefreshTask___spec__2___closed__2;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -527,6 +526,7 @@ lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHead
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Server_FileWorker_handleRpcConnect___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupImports___closed__1;
+lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_617____at_Lean_Widget_TaggedText_instRpcEncodable___spec__3(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_initializeWorker___closed__2;
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_Lean_Server_FileWorker_handleRequest___spec__3(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonLeanFileProgressParams____x40_Lean_Data_Lsp_Extra___hyg_827_(lean_object*);
@@ -15978,7 +15978,7 @@ if (lean_is_exclusive(x_15)) {
  lean_dec_ref(x_15);
  x_18 = lean_box(0);
 }
-x_19 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_617____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__3(x_16);
+x_19 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_617____at_Lean_Widget_TaggedText_instRpcEncodable___spec__3(x_16);
 x_102 = lean_ctor_get(x_1, 6);
 lean_inc(x_102);
 if (lean_obj_tag(x_102) == 0)

@@ -47,7 +47,6 @@ lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getBaseDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Decl_save___closed__3;
 lean_object* l_Lean_Compiler_LCNF_getDeclCore_x3f(lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_getExt___spec__1___closed__1;
@@ -93,11 +92,11 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_57____closed__8;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_forEachModuleDecl___closed__4;
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Decl_save___spec__1___closed__2;
 lean_object* l_Lean_instInhabitedPersistentEnvExtension(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_forEachDecl___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_57____closed__2;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -107,7 +106,6 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Compiler_LCNF_Ph
 lean_object* l_Lean_Compiler_LCNF_Decl_saveMono___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_mkDeclExt___closed__6;
 static lean_object* l_Lean_Compiler_LCNF_forEachModuleDecl___closed__1;
@@ -188,10 +186,10 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_LCNF_PhaseExt_0__Lean_Compiler_LCNF_findAtSorted_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Compiler_LCNF_forEachDecl___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getMonoDecl_x3f___closed__1;
-extern lean_object* l_Lean_Name_instBEqName;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Compiler_LCNF_getExt___closed__1;
 lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lambda__5(lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,6 +198,7 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at___private_Lean_Compiler_LCNF_Ph
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_57____closed__24;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Compiler_LCNF_mkDeclExt___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_forEachDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_instBEq;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_57____closed__5;
 lean_object* l_Lean_Compiler_LCNF_getExt(uint8_t);
@@ -223,6 +222,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Compiler_LCNF_forEachDecl___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkDeclExt___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getMonoDecl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 extern lean_object* l_Lean_instHashableName;
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PhaseExt___hyg_57____closed__20;
@@ -1775,9 +1775,9 @@ static lean_object* _init_l_Lean_Compiler_LCNF_getDeclCore_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Name_instBEqName;
+x_1 = l_Lean_Name_instBEq;
 x_2 = l_Lean_instHashableName;
-x_3 = l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -2231,7 +2231,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Core_instMonadCoreM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -2241,7 +2241,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_Decl_save___spec__1___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }

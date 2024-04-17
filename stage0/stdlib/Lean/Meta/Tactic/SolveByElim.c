@@ -67,7 +67,6 @@ uint8_t l_List_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Meta_SolveByElim_mkAssumptionSet___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_applyRules___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_SolveByElim_SolveByElimConfig_intro___default;
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeSolveByElimConfigBacktrackConfig___boxed(lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_requireUsingAll(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_applyRules___closed__2;
@@ -91,7 +90,6 @@ lean_object* l_Lean_observing_x3f___at___private_Lean_Meta_Tactic_Backtrack_0__L
 static lean_object* l_Lean_Meta_repeat_x27Core___at_Lean_Meta_SolveByElim_solveByElim_run___spec__2___closed__1;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__17;
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeSolveByElimConfigBacktrackConfig(lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__4;
 LEAN_EXPORT uint8_t l_Lean_Meta_SolveByElim_ApplyRulesConfig_exfalso___default;
@@ -142,6 +140,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___closed__6;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Meta_SolveByElim_mkAssumptionSet___spec__7(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_SolveByElim_SolveByElimConfig_constructor___default;
+LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig(lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_solveByElim___lambda__3___closed__1;
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__16;
 static lean_object* l_Lean_Meta_SolveByElim_solveByElim___lambda__1___closed__2;
@@ -196,6 +195,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SolveByElim_so
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Meta_SolveByElim_mkAssumptionSet___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_constructorAfter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig___boxed(lean_object*);
 static lean_object* l_Lean_Meta_repeat1_x27___at_Lean_Meta_SolveByElim_solveByElim_run___spec__1___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__1;
@@ -1230,7 +1230,7 @@ x_1 = 1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeSolveByElimConfigBacktrackConfig(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -1240,11 +1240,11 @@ lean_inc(x_3);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeSolveByElimConfigBacktrackConfig___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeSolveByElimConfigBacktrackConfig(x_1);
+x_2 = l_Lean_Meta_SolveByElim_SolveByElimConfig_instCoeBacktrackConfig(x_1);
 lean_dec(x_1);
 return x_2;
 }

@@ -96,6 +96,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_u
 lean_object* l_Lean_Compiler_LCNF_AltCore_forCodeM(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqLitValue____x40_Lean_Compiler_LCNF_Basic___hyg_257_(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* l_instInhabitedForall__1___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_LetValue_updateFVarImp___closed__1;
 lean_object* l_Lean_Compiler_LCNF_Code_sizeLe_go___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Decl_getArity(lean_object*);
@@ -226,7 +227,6 @@ lean_object* l_Lean_Compiler_LCNF_Decl_getArity___boxed(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_attachCodeDecls(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isInstance(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_hashArg____x40_Lean_Compiler_LCNF_Basic___hyg_553____boxed(lean_object*);
-lean_object* l_instInhabitedForAll__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_updateReturnImp(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_size_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_hashLetValue____x40_Lean_Compiler_LCNF_Basic___hyg_1088____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8534,7 +8534,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_panic___at___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_collectType___spec__1___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instInhabitedForAll__1___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_instInhabitedForall__1___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

@@ -39,6 +39,7 @@ static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_for
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__33;
 lean_object* l_Lean_initSrcSearchPath(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonWorkspaceSymbolParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_3339_(lean_object*);
+lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Server_Watchdog_ImportData_update___spec__11___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Watchdog_handleCallHierarchyIncomingCalls___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -530,7 +531,6 @@ static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_for
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_findWorkerPath___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__2;
 static lean_object* l_Lean_Server_Watchdog_handleNotification___closed__6;
-uint8_t l_instDecidableRelLeLeOfOrd___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_fromJsonCallHierarchyItemData____x40_Lean_Server_Watchdog___hyg_3896____closed__13;
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleRequest(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -646,6 +646,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Server_Watchdog_han
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Server_Watchdog_handleCallHierarchyIncomingCalls_collapseSameIncomingCalls___spec__8(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_fromJsonCallHierarchyItemData____x40_Lean_Server_Watchdog___hyg_3896____closed__2;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_Watchdog_initAndRunWatchdog___spec__2___closed__9;
+uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__12;
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_fromJsonCallHierarchyItemData____x40_Lean_Server_Watchdog___hyg_3896____closed__18;
 lean_object* l_String_toName(lean_object*);
@@ -741,7 +742,6 @@ static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__24;
 uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_ordRequestID____x40_Lean_Data_JsonRpc___hyg_130_(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_handleReference___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l_IO_FS_Stream_putStrLn(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_handleCallHierarchyOutgoingCalls_collapseSameOutgoingCalls___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25752,7 +25752,7 @@ x_13 = lean_ctor_get(x_10, 1);
 x_14 = l_Lean_Lsp_instOrdPosition;
 lean_inc(x_6);
 lean_inc(x_13);
-x_15 = l_instDecidableRelLeLeOfOrd___rarg(x_14, x_13, x_6);
+x_15 = l_instDecidableRelLe___rarg(x_14, x_13, x_6);
 if (x_15 == 0)
 {
 lean_dec(x_7);
@@ -25796,7 +25796,7 @@ lean_dec(x_10);
 x_25 = l_Lean_Lsp_instOrdPosition;
 lean_inc(x_6);
 lean_inc(x_24);
-x_26 = l_instDecidableRelLeLeOfOrd___rarg(x_25, x_24, x_6);
+x_26 = l_instDecidableRelLe___rarg(x_25, x_24, x_6);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -28337,7 +28337,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Server_Watchdog_handleRename___lambda__1___closed__1;
-x_2 = lean_alloc_closure((void*)(l_instBEq___rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

@@ -283,7 +283,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabAttr_declRange___closed
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declRange___closed__3;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualPreamble_declRange___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange___at_Lean_Elab_Command_elabAxiom___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandInitialize___lambda__5___closed__5;
@@ -521,6 +520,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_elabDeclaration___spec__4___closed__2;
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Declaration___hyg_7884____closed__8;
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_isMutualPreambleCommand___closed__2;
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_ensureValidNamespace___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedSyntax;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -6626,7 +6626,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Elab_Command_expandMutualNamespace___spec__2___closed__1;
 x_2 = l_Lean_instInhabitedSyntax;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -8433,7 +8433,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_Term_instMonadTermElabM;
 x_2 = l_Lean_instInhabitedName;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }

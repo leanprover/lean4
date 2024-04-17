@@ -98,7 +98,6 @@ static lean_object* l_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___lambda__5___close
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Result_getProof_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs___spec__3___closed__3;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at_Lean_Meta_Simp_recordSimpTheorem___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Meta_Simp_State_congrCache___default___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Simprocs_pre___default;
@@ -202,7 +201,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs_
 lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkCongrArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec___boxed(lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Context_simpTheorems___default___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Simp_congrArgs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -364,6 +362,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Methods_dpre___default___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpTheorems___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Context_congrTheorems___default___closed__3;
 static lean_object* l_Lean_Meta_Simp_instInhabitedSimprocOLeanEntry___closed__1;
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Meta_Simp_mkCongrSimp_x3f___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
@@ -403,6 +402,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getMethods___boxed(lean_object*, lean_
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_Meta_Simp_mkCongrSimp_x3f___spec__4(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_panic___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__5___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Result_cache___default;
 static lean_object* l_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___lambda__5___closed__4;
@@ -411,11 +411,11 @@ lean_object* lean_simp(lean_object*, lean_object*, lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_State_cache___default;
 static lean_object* l_Lean_Meta_Simp_instInhabitedResult___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedMethods___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkEqTransOptProofResult___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getContext___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_containsAux___at_Lean_Meta_Simp_recordSimpTheorem___spec__2___closed__2;
 static lean_object* l_Lean_Meta_Simp_instInhabitedMethods___closed__4;
+lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Meta_Simp_instInhabitedContext___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10088,7 +10088,7 @@ x_105 = lean_ctor_get(x_93, 1);
 lean_inc(x_105);
 lean_dec(x_93);
 lean_inc(x_27);
-x_106 = l_Nat_repr(x_27);
+x_106 = l___private_Init_Data_Repr_0__Nat_reprFast(x_27);
 x_107 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_107, 0, x_106);
 x_108 = lean_alloc_ctor(0, 1, 0);
@@ -10101,7 +10101,7 @@ x_111 = l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_congrArgs___spec__3___close
 x_112 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_112, 0, x_110);
 lean_ctor_set(x_112, 1, x_111);
-x_113 = l_Nat_repr(x_30);
+x_113 = l___private_Init_Data_Repr_0__Nat_reprFast(x_30);
 x_114 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_114, 0, x_113);
 x_115 = lean_alloc_ctor(0, 1, 0);
@@ -11619,7 +11619,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_instMonadMetaM;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
+x_2 = l_ReaderT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -11629,7 +11629,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__1___closed__1;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -20522,7 +20522,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l_panic___at_Lean_Meta_Simp_tryAutoCongrTheorem_x3f___spec__1___closed__1;
-x_3 = l_instInhabited___rarg(x_2, x_1);
+x_3 = l_instInhabitedOfMonad___rarg(x_2, x_1);
 return x_3;
 }
 }

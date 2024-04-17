@@ -141,7 +141,6 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___at_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1273____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_logAt___at_Lean_Elab_Command_runLinters___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_941____lambda__1___closed__8;
-lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_593____lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1187____lambda__1___closed__10;
 uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
@@ -154,6 +153,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_378____lambda__6___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1273____lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__11(lean_object*);
+lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_insertObjImpl(lean_object*);
 lean_object* l_Lean_PersistentArray_toList___rarg(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2636____lambda__1___closed__5;
@@ -9431,7 +9431,7 @@ static lean_object* _init_l_panic___at_Lean_Linter_UnusedVariables_collectRefere
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
+x_1 = l_EStateM_instMonad(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -14972,7 +14972,7 @@ if (lean_is_exclusive(x_11)) {
  lean_dec_ref(x_11);
  x_14 = lean_box(0);
 }
-x_15 = lean_ctor_get(x_12, 7);
+x_15 = lean_ctor_get(x_12, 6);
 lean_inc(x_15);
 lean_dec(x_12);
 x_16 = lean_ctor_get(x_15, 1);

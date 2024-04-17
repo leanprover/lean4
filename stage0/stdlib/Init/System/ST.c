@@ -29,9 +29,9 @@ LEAN_EXPORT lean_object* l_instMonadST(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modify(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_take___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_get___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_set(lean_object*, lean_object*);
+lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_get(lean_object*, lean_object*);
@@ -79,7 +79,7 @@ static lean_object* _init_l_instMonadEST___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
+x_1 = l_EStateM_instMonad(lean_box(0), lean_box(0));
 return x_1;
 }
 }

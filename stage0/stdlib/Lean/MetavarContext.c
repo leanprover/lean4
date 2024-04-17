@@ -374,7 +374,6 @@ LEAN_EXPORT lean_object* l_Lean_MetavarDecl_numScopeArgs___default;
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_MkBinding_mkBinding___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_instantiateLCtxMVars___spec__13___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_localDeclDependsOn_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_instantiateExprMVars___spec__44___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_localDeclDependsOn___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -415,6 +414,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_Persisten
 LEAN_EXPORT lean_object* l_Lean_MetavarKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_instantiateLCtxMVars___spec__9(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_setMVarUserName(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MetavarContext_MkBinding_instMonadMCtxM___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isExprMVarAssigned___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_MetavarContext_MkBinding_collectForwardDeps___spec__84___boxed(lean_object*, lean_object*, lean_object*);
@@ -51616,7 +51616,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_isLevelMVarAssignable___rarg___lambda__1___closed__1;
 x_2 = l_Lean_MetavarContext_getLevelDepth___closed__1;
-x_3 = lean_unsigned_to_nat(909u);
+x_3 = lean_unsigned_to_nat(925u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_MetavarContext_getDecl___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -74868,7 +74868,7 @@ static lean_object* _init_l_Lean_MetavarContext_MkBinding_mkBinding___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
+x_1 = l_EStateM_instMonad(lean_box(0), lean_box(0));
 return x_1;
 }
 }

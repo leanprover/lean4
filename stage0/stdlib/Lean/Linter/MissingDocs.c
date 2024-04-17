@@ -5662,7 +5662,7 @@ lean_inc(x_65);
 x_66 = lean_ctor_get(x_64, 1);
 lean_inc(x_66);
 lean_dec(x_64);
-x_67 = lean_ctor_get(x_65, 7);
+x_67 = lean_ctor_get(x_65, 6);
 lean_inc(x_67);
 lean_dec(x_65);
 x_68 = lean_ctor_get(x_67, 1);

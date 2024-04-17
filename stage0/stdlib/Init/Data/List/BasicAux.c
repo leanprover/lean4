@@ -219,13 +219,14 @@ return x_1;
 static lean_object* _init_l_List_get_x21___rarg___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_get_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(18u);
-x_4 = l_List_get_x21___rarg___closed__3;
-x_5 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
-return x_5;
+x_3 = lean_unsigned_to_nat(24u);
+x_4 = lean_unsigned_to_nat(18u);
+x_5 = l_List_get_x21___rarg___closed__3;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_List_get_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -399,7 +400,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_head_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(29u);
+x_3 = lean_unsigned_to_nat(53u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -572,7 +573,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_tail_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(44u);
+x_3 = lean_unsigned_to_nat(89u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -744,7 +745,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_getLast_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(61u);
+x_3 = lean_unsigned_to_nat(128u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

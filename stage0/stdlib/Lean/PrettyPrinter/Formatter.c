@@ -220,6 +220,7 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Format
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_getStack___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Formatter_State_mustBeGrouped___default;
 static lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__2;
+static double l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushWhitespace___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -346,6 +347,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_setStack___boxed(lean_ob
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parserOfStack_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_takeWhileAux___at_Substring_trimLeft___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkColEq_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_instMonadTraverserFormatterM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
@@ -4678,6 +4680,16 @@ x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_PrettyPrinter_Formatte
 return x_3;
 }
 }
+static double _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; double x_3; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = 0;
+x_3 = l_Float_ofScientific(x_1, x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -4698,103 +4710,117 @@ lean_dec(x_12);
 x_15 = !lean_is_exclusive(x_13);
 if (x_15 == 0)
 {
-lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+lean_object* x_16; double x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
 x_16 = lean_ctor_get(x_13, 3);
-x_17 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_17 = l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1;
 x_18 = 0;
-x_19 = lean_alloc_ctor(9, 3, 1);
-lean_ctor_set(x_19, 0, x_1);
-lean_ctor_set(x_19, 1, x_10);
-lean_ctor_set(x_19, 2, x_17);
-lean_ctor_set_uint8(x_19, sizeof(void*)*3, x_18);
-lean_inc(x_8);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_8);
+x_19 = l_Lean_PrettyPrinter_Formatter_State_leadWord___default___closed__1;
+x_20 = lean_alloc_ctor(0, 2, 17);
+lean_ctor_set(x_20, 0, x_1);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_PersistentArray_push___rarg(x_16, x_20);
-lean_ctor_set(x_13, 3, x_21);
-x_22 = lean_st_ref_set(x_6, x_13, x_14);
-x_23 = !lean_is_exclusive(x_22);
-if (x_23 == 0)
+lean_ctor_set_float(x_20, sizeof(void*)*2, x_17);
+lean_ctor_set_float(x_20, sizeof(void*)*2 + 8, x_17);
+lean_ctor_set_uint8(x_20, sizeof(void*)*2 + 16, x_18);
+x_21 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_22 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_10);
+lean_ctor_set(x_22, 2, x_21);
+lean_inc(x_8);
+x_23 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_23, 0, x_8);
+lean_ctor_set(x_23, 1, x_22);
+x_24 = l_Lean_PersistentArray_push___rarg(x_16, x_23);
+lean_ctor_set(x_13, 3, x_24);
+x_25 = lean_st_ref_set(x_6, x_13, x_14);
+x_26 = !lean_is_exclusive(x_25);
+if (x_26 == 0)
 {
-lean_object* x_24; lean_object* x_25; 
-x_24 = lean_ctor_get(x_22, 0);
-lean_dec(x_24);
-x_25 = lean_box(0);
-lean_ctor_set(x_22, 0, x_25);
-return x_22;
+lean_object* x_27; lean_object* x_28; 
+x_27 = lean_ctor_get(x_25, 0);
+lean_dec(x_27);
+x_28 = lean_box(0);
+lean_ctor_set(x_25, 0, x_28);
+return x_25;
 }
 else
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_22, 1);
-lean_inc(x_26);
-lean_dec(x_22);
-x_27 = lean_box(0);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-return x_28;
+lean_object* x_29; lean_object* x_30; lean_object* x_31; 
+x_29 = lean_ctor_get(x_25, 1);
+lean_inc(x_29);
+lean_dec(x_25);
+x_30 = lean_box(0);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_29);
+return x_31;
 }
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_29 = lean_ctor_get(x_13, 0);
-x_30 = lean_ctor_get(x_13, 1);
-x_31 = lean_ctor_get(x_13, 2);
-x_32 = lean_ctor_get(x_13, 3);
-x_33 = lean_ctor_get(x_13, 4);
-x_34 = lean_ctor_get(x_13, 5);
-x_35 = lean_ctor_get(x_13, 6);
+lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; double x_39; uint8_t x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
+x_32 = lean_ctor_get(x_13, 0);
+x_33 = lean_ctor_get(x_13, 1);
+x_34 = lean_ctor_get(x_13, 2);
+x_35 = lean_ctor_get(x_13, 3);
+x_36 = lean_ctor_get(x_13, 4);
+x_37 = lean_ctor_get(x_13, 5);
+x_38 = lean_ctor_get(x_13, 6);
+lean_inc(x_38);
+lean_inc(x_37);
+lean_inc(x_36);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_inc(x_32);
-lean_inc(x_31);
-lean_inc(x_30);
-lean_inc(x_29);
 lean_dec(x_13);
-x_36 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
-x_37 = 0;
-x_38 = lean_alloc_ctor(9, 3, 1);
-lean_ctor_set(x_38, 0, x_1);
-lean_ctor_set(x_38, 1, x_10);
-lean_ctor_set(x_38, 2, x_36);
-lean_ctor_set_uint8(x_38, sizeof(void*)*3, x_37);
+x_39 = l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1;
+x_40 = 0;
+x_41 = l_Lean_PrettyPrinter_Formatter_State_leadWord___default___closed__1;
+x_42 = lean_alloc_ctor(0, 2, 17);
+lean_ctor_set(x_42, 0, x_1);
+lean_ctor_set(x_42, 1, x_41);
+lean_ctor_set_float(x_42, sizeof(void*)*2, x_39);
+lean_ctor_set_float(x_42, sizeof(void*)*2 + 8, x_39);
+lean_ctor_set_uint8(x_42, sizeof(void*)*2 + 16, x_40);
+x_43 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_44 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_44, 0, x_42);
+lean_ctor_set(x_44, 1, x_10);
+lean_ctor_set(x_44, 2, x_43);
 lean_inc(x_8);
-x_39 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_39, 0, x_8);
-lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_PersistentArray_push___rarg(x_32, x_39);
-x_41 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_41, 0, x_29);
-lean_ctor_set(x_41, 1, x_30);
-lean_ctor_set(x_41, 2, x_31);
-lean_ctor_set(x_41, 3, x_40);
-lean_ctor_set(x_41, 4, x_33);
-lean_ctor_set(x_41, 5, x_34);
-lean_ctor_set(x_41, 6, x_35);
-x_42 = lean_st_ref_set(x_6, x_41, x_14);
-x_43 = lean_ctor_get(x_42, 1);
-lean_inc(x_43);
-if (lean_is_exclusive(x_42)) {
- lean_ctor_release(x_42, 0);
- lean_ctor_release(x_42, 1);
- x_44 = x_42;
+x_45 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_45, 0, x_8);
+lean_ctor_set(x_45, 1, x_44);
+x_46 = l_Lean_PersistentArray_push___rarg(x_35, x_45);
+x_47 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_47, 0, x_32);
+lean_ctor_set(x_47, 1, x_33);
+lean_ctor_set(x_47, 2, x_34);
+lean_ctor_set(x_47, 3, x_46);
+lean_ctor_set(x_47, 4, x_36);
+lean_ctor_set(x_47, 5, x_37);
+lean_ctor_set(x_47, 6, x_38);
+x_48 = lean_st_ref_set(x_6, x_47, x_14);
+x_49 = lean_ctor_get(x_48, 1);
+lean_inc(x_49);
+if (lean_is_exclusive(x_48)) {
+ lean_ctor_release(x_48, 0);
+ lean_ctor_release(x_48, 1);
+ x_50 = x_48;
 } else {
- lean_dec_ref(x_42);
- x_44 = lean_box(0);
+ lean_dec_ref(x_48);
+ x_50 = lean_box(0);
 }
-x_45 = lean_box(0);
-if (lean_is_scalar(x_44)) {
- x_46 = lean_alloc_ctor(0, 2, 0);
+x_51 = lean_box(0);
+if (lean_is_scalar(x_50)) {
+ x_52 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_46 = x_44;
+ x_52 = x_50;
 }
-lean_ctor_set(x_46, 0, x_45);
-lean_ctor_set(x_46, 1, x_43);
-return x_46;
+lean_ctor_set(x_52, 0, x_51);
+lean_ctor_set(x_52, 1, x_49);
+return x_52;
 }
 }
 }
@@ -10459,103 +10485,117 @@ lean_dec(x_10);
 x_13 = !lean_is_exclusive(x_11);
 if (x_13 == 0)
 {
-lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
+lean_object* x_14; double x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_14 = lean_ctor_get(x_11, 3);
-x_15 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_15 = l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1;
 x_16 = 0;
-x_17 = lean_alloc_ctor(9, 3, 1);
-lean_ctor_set(x_17, 0, x_1);
-lean_ctor_set(x_17, 1, x_8);
-lean_ctor_set(x_17, 2, x_15);
-lean_ctor_set_uint8(x_17, sizeof(void*)*3, x_16);
-lean_inc(x_6);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_6);
+x_17 = l_Lean_PrettyPrinter_Formatter_State_leadWord___default___closed__1;
+x_18 = lean_alloc_ctor(0, 2, 17);
+lean_ctor_set(x_18, 0, x_1);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_PersistentArray_push___rarg(x_14, x_18);
-lean_ctor_set(x_11, 3, x_19);
-x_20 = lean_st_ref_set(x_4, x_11, x_12);
-x_21 = !lean_is_exclusive(x_20);
-if (x_21 == 0)
+lean_ctor_set_float(x_18, sizeof(void*)*2, x_15);
+lean_ctor_set_float(x_18, sizeof(void*)*2 + 8, x_15);
+lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 16, x_16);
+x_19 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_20 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_20, 0, x_18);
+lean_ctor_set(x_20, 1, x_8);
+lean_ctor_set(x_20, 2, x_19);
+lean_inc(x_6);
+x_21 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_21, 0, x_6);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = l_Lean_PersistentArray_push___rarg(x_14, x_21);
+lean_ctor_set(x_11, 3, x_22);
+x_23 = lean_st_ref_set(x_4, x_11, x_12);
+x_24 = !lean_is_exclusive(x_23);
+if (x_24 == 0)
 {
-lean_object* x_22; lean_object* x_23; 
-x_22 = lean_ctor_get(x_20, 0);
-lean_dec(x_22);
-x_23 = lean_box(0);
-lean_ctor_set(x_20, 0, x_23);
-return x_20;
+lean_object* x_25; lean_object* x_26; 
+x_25 = lean_ctor_get(x_23, 0);
+lean_dec(x_25);
+x_26 = lean_box(0);
+lean_ctor_set(x_23, 0, x_26);
+return x_23;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_20, 1);
-lean_inc(x_24);
-lean_dec(x_20);
-x_25 = lean_box(0);
-x_26 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_26, 0, x_25);
-lean_ctor_set(x_26, 1, x_24);
-return x_26;
+lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+x_27 = lean_ctor_get(x_23, 1);
+lean_inc(x_27);
+lean_dec(x_23);
+x_28 = lean_box(0);
+x_29 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_27);
+return x_29;
 }
 }
 else
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_27 = lean_ctor_get(x_11, 0);
-x_28 = lean_ctor_get(x_11, 1);
-x_29 = lean_ctor_get(x_11, 2);
-x_30 = lean_ctor_get(x_11, 3);
-x_31 = lean_ctor_get(x_11, 4);
-x_32 = lean_ctor_get(x_11, 5);
-x_33 = lean_ctor_get(x_11, 6);
+lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; double x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
+x_30 = lean_ctor_get(x_11, 0);
+x_31 = lean_ctor_get(x_11, 1);
+x_32 = lean_ctor_get(x_11, 2);
+x_33 = lean_ctor_get(x_11, 3);
+x_34 = lean_ctor_get(x_11, 4);
+x_35 = lean_ctor_get(x_11, 5);
+x_36 = lean_ctor_get(x_11, 6);
+lean_inc(x_36);
+lean_inc(x_35);
+lean_inc(x_34);
 lean_inc(x_33);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_inc(x_30);
-lean_inc(x_29);
-lean_inc(x_28);
-lean_inc(x_27);
 lean_dec(x_11);
-x_34 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
-x_35 = 0;
-x_36 = lean_alloc_ctor(9, 3, 1);
-lean_ctor_set(x_36, 0, x_1);
-lean_ctor_set(x_36, 1, x_8);
-lean_ctor_set(x_36, 2, x_34);
-lean_ctor_set_uint8(x_36, sizeof(void*)*3, x_35);
+x_37 = l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1;
+x_38 = 0;
+x_39 = l_Lean_PrettyPrinter_Formatter_State_leadWord___default___closed__1;
+x_40 = lean_alloc_ctor(0, 2, 17);
+lean_ctor_set(x_40, 0, x_1);
+lean_ctor_set(x_40, 1, x_39);
+lean_ctor_set_float(x_40, sizeof(void*)*2, x_37);
+lean_ctor_set_float(x_40, sizeof(void*)*2 + 8, x_37);
+lean_ctor_set_uint8(x_40, sizeof(void*)*2 + 16, x_38);
+x_41 = l_Lean_PrettyPrinter_Formatter_State_stack___default___closed__1;
+x_42 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_42, 0, x_40);
+lean_ctor_set(x_42, 1, x_8);
+lean_ctor_set(x_42, 2, x_41);
 lean_inc(x_6);
-x_37 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_37, 0, x_6);
-lean_ctor_set(x_37, 1, x_36);
-x_38 = l_Lean_PersistentArray_push___rarg(x_30, x_37);
-x_39 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_39, 0, x_27);
-lean_ctor_set(x_39, 1, x_28);
-lean_ctor_set(x_39, 2, x_29);
-lean_ctor_set(x_39, 3, x_38);
-lean_ctor_set(x_39, 4, x_31);
-lean_ctor_set(x_39, 5, x_32);
-lean_ctor_set(x_39, 6, x_33);
-x_40 = lean_st_ref_set(x_4, x_39, x_12);
-x_41 = lean_ctor_get(x_40, 1);
-lean_inc(x_41);
-if (lean_is_exclusive(x_40)) {
- lean_ctor_release(x_40, 0);
- lean_ctor_release(x_40, 1);
- x_42 = x_40;
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_6);
+lean_ctor_set(x_43, 1, x_42);
+x_44 = l_Lean_PersistentArray_push___rarg(x_33, x_43);
+x_45 = lean_alloc_ctor(0, 7, 0);
+lean_ctor_set(x_45, 0, x_30);
+lean_ctor_set(x_45, 1, x_31);
+lean_ctor_set(x_45, 2, x_32);
+lean_ctor_set(x_45, 3, x_44);
+lean_ctor_set(x_45, 4, x_34);
+lean_ctor_set(x_45, 5, x_35);
+lean_ctor_set(x_45, 6, x_36);
+x_46 = lean_st_ref_set(x_4, x_45, x_12);
+x_47 = lean_ctor_get(x_46, 1);
+lean_inc(x_47);
+if (lean_is_exclusive(x_46)) {
+ lean_ctor_release(x_46, 0);
+ lean_ctor_release(x_46, 1);
+ x_48 = x_46;
 } else {
- lean_dec_ref(x_40);
- x_42 = lean_box(0);
+ lean_dec_ref(x_46);
+ x_48 = lean_box(0);
 }
-x_43 = lean_box(0);
-if (lean_is_scalar(x_42)) {
- x_44 = lean_alloc_ctor(0, 2, 0);
+x_49 = lean_box(0);
+if (lean_is_scalar(x_48)) {
+ x_50 = lean_alloc_ctor(0, 2, 0);
 } else {
- x_44 = x_42;
+ x_50 = x_48;
 }
-lean_ctor_set(x_44, 0, x_43);
-lean_ctor_set(x_44, 1, x_41);
-return x_44;
+lean_ctor_set(x_50, 0, x_49);
+lean_ctor_set(x_50, 1, x_47);
+return x_50;
 }
 }
 }
@@ -11526,6 +11566,7 @@ l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe___closed__6 = _init_l_Lean
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe___closed__6);
 l_Lean_isTracingEnabledFor___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__1___closed__1 = _init_l_Lean_isTracingEnabledFor___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__1___closed__1();
 lean_mark_persistent(l_Lean_isTracingEnabledFor___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__1___closed__1);
+l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1 = _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__3___closed__1();
 l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__4___closed__1 = _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__4___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__4___closed__1);
 l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__4___closed__2 = _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__4___closed__2();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Basic
-// Imports: Lean.Compiler.NoncomputableAttr Lean.Util.CollectLevelParams Lean.Meta.AbstractNestedProofs Lean.Elab.RecAppSyntax Lean.Elab.DefView Lean.Elab.PreDefinition.WF.TerminationHint
+// Imports: Lean.Compiler.NoncomputableAttr Lean.Util.CollectLevelParams Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Elab.RecAppSyntax Lean.Elab.DefView Lean.Elab.PreDefinition.WF.TerminationHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -10193,6 +10193,7 @@ return x_8;
 lean_object* initialize_Lean_Compiler_NoncomputableAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_AbstractNestedProofs(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_ForEachExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_RecAppSyntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_DefView(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_WF_TerminationHint(uint8_t builtin, lean_object*);
@@ -10208,6 +10209,9 @@ res = initialize_Lean_Util_CollectLevelParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AbstractNestedProofs(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_ForEachExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_RecAppSyntax(builtin, lean_io_mk_world());

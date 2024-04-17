@@ -43,11 +43,11 @@ static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__14;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_Replay_throwKernelException___closed__6;
 lean_object* l_Lean_RBNode_balLeft___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Environment_find_x3f___spec__5(lean_object*, lean_object*);
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
 lean_object* l_Lean_RBNode_balRight___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_Replay_throwKernelException(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Environment_Replay_isTodo___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_Replay_replayConstant___closed__2;
@@ -1107,7 +1107,7 @@ static lean_object* _init_l_panic___at_Lean_Environment_Replay_replayConstant___
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
+x_1 = l_EStateM_instMonad(lean_box(0), lean_box(0));
 return x_1;
 }
 }

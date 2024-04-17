@@ -753,7 +753,7 @@ with syntax ``(Syntax.node .none identProjKind #[`f])``.
 
 This is necessary because projection syntax cannot always be detected purely syntactically
 (`s.f` may refer to either the identifier `s.f` or a projection `s.f` depending on
-the evailable context).
+the available context).
 -/
 def identProjKind := `Lean.Parser.Term.identProj
 

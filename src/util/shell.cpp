@@ -217,6 +217,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
     std::cout << "  --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
+    std::cout << "  --json             print messages as JSON objects (one per line)\n";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
     std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
@@ -230,6 +231,7 @@ static void display_help(std::ostream & out) {
 
 static int print_prefix = 0;
 static int print_libdir = 0;
+static int json_messages = 0;
 
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
@@ -260,6 +262,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"json",         no_argument,       &json_messages, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
@@ -346,6 +349,7 @@ extern "C" object * lean_run_frontend(
     object * main_module_name,
     uint32_t trust_level,
     object * ilean_filename,
+    uint8_t  messages_as_json,
     object * w
 );
 pair_ref<environment, object_ref> run_new_frontend(
@@ -353,7 +357,8 @@ pair_ref<environment, object_ref> run_new_frontend(
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
-    optional<std::string> const & ilean_file_name
+    optional<std::string> const & ilean_file_name,
+    uint8_t messages_as_json
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
@@ -366,6 +371,7 @@ pair_ref<environment, object_ref> run_new_frontend(
         main_module_name.to_obj_arg(),
         trust_level,
         oilean_file_name,
+        messages_as_json,
         io_mk_world()
     ));
 }
@@ -716,7 +722,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_messages);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 

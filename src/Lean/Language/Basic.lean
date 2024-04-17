@@ -142,14 +142,20 @@ register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
+/-- Report messages on stdout. If `messagesAsJson` is true, print messages as JSON (one per line). -/
+def reportMessages (msgLog : MessageLog) (opts : Options) (messagesAsJson := false) : IO Unit := do
+  if messagesAsJson then
+    msgLog.forM (·.toJson <&> (·.compress) >>= IO.println)
+  else
+    msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
   reported in tree preorder.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) : IO Unit := do
-  s.element.diagnostics.msgLog.forM
-    (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (messagesAsJson := false) : IO Unit := do
+  reportMessages s.element.diagnostics.msgLog opts messagesAsJson
   for t in s.children do
     t.get.runAndReport opts
 

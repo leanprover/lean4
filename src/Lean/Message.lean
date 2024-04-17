@@ -23,7 +23,7 @@ def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (en
 
 inductive MessageSeverity where
   | information | warning | error
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure MessageDataContext where
   env  : Environment
@@ -233,6 +233,16 @@ protected def toString (msg : Message) (includeEndPos := false) : IO String := d
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
+
+protected def toJson (msg : Message) : IO Json := do
+  return Json.mkObj [
+    ("severity", toJson msg.severity),
+    ("fileName", msg.fileName),
+    ("pos", toJson msg.pos),
+    ("endPos", toJson msg.endPos),
+    ("caption", msg.caption),
+    ("data", ← msg.data.toString),
+  ]
 
 end Message
 

@@ -107,6 +107,7 @@ def runFrontend
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
+    (messagesAsJson : Bool := false)
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
@@ -125,8 +126,7 @@ def runFrontend
       commandState := { commandState with infoState.enabled := true }
 
     let s ← IO.processCommands inputCtx parserState commandState
-    for msg in s.commandState.messages.toList do
-      IO.print (← msg.toString (includeEndPos := Language.printMessageEndPos.get opts))
+    Language.reportMessages s.commandState.messages opts messagesAsJson
 
     if let some ileanFileName := ileanFileName? then
       let trees := s.commandState.infoState.trees.toArray
@@ -141,7 +141,7 @@ def runFrontend
   let processor := Language.Lean.process
   let snap ← processor none ctx
   let snaps := Language.toSnapshotTree snap
-  snaps.runAndReport opts
+  snaps.runAndReport opts messagesAsJson
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)

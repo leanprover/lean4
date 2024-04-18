@@ -158,8 +158,8 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__37;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__7;
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabBinderPred___closed__1;
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMacroArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabBinderPred___spec__1(size_t x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -851,7 +851,7 @@ lean_inc(x_29);
 x_55 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_55, 0, x_29);
 lean_ctor_set(x_55, 1, x_54);
-x_56 = l_Nat_repr(x_3);
+x_56 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_57 = l_Lean_Syntax_mkNumLit(x_56, x_23);
 x_58 = l_Lean_Elab_Command_elabBinderPred___lambda__1___closed__18;
 lean_inc(x_50);

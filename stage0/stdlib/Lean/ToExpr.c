@@ -292,13 +292,13 @@ static lean_object* l_Lean_instToExprUInt64___lambda__1___closed__1;
 static lean_object* l_Lean_instToExprOption___rarg___lambda__1___closed__8;
 static lean_object* l_Lean_instToExprUInt8___closed__1;
 static lean_object* l_Lean_instToExprArray___rarg___lambda__1___closed__3;
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_instToExprString___closed__1;
 static lean_object* l_Lean_instToExprBool___lambda__1___closed__2;
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_Lean_instToExprUInt32___lambda__1___closed__4;
 static lean_object* l_Lean_instToExprString___closed__5;
 static lean_object* l_Lean_instToExprInt_mkNat___closed__8;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instToExprFin(lean_object*);
 static lean_object* l_Lean_instToExprUSize___closed__1;
@@ -1889,7 +1889,7 @@ switch (lean_obj_tag(x_1)) {
 case 0:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = l_Nat_repr(x_2);
+x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
 x_5 = l___private_Lean_ToExpr_0__Lean_Name_toExprAux_mkStr___closed__4;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);

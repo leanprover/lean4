@@ -498,13 +498,13 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
 def registerBuiltinParserAttribute (attrName declName : Name)
-    (behavior := LeadingIdentBehavior.default) : IO Unit := do
+    (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
   let .str ``Lean.Parser.Category s := declName
     | throw (IO.userError "`declName` should be in Lean.Parser.Category")
   let catName := Name.mkSimple s
   addBuiltinParserCategory catName declName behavior
   registerBuiltinAttribute {
-    ref             := declName
+    ref             := ref
     name            := attrName
     descr           := "Builtin parser"
     add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind

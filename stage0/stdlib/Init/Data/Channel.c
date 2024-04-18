@@ -47,6 +47,7 @@ lean_object* l_Std_Queue_empty(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_Sync_recv_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_IO_instForInSyncOfMonadLiftTBaseIO___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_forAsync(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_IO_Channel_close___spec__2___rarg(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
@@ -79,7 +80,7 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_IO_Channel_send___spec__2(lean_obje
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_send___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_recv_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_recvAllCurrent___rarg___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_instForInSync(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_instForInSyncOfMonadLiftTBaseIO(lean_object*, lean_object*);
 static lean_object* l_IO_Channel_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_close___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -101,7 +102,6 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_recv_x3f___spec__1(
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_IO_Channel_close___spec__3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_instForInSync___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_forAsync___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_send___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_IO_Channel_State_values___default___closed__1() {
@@ -2653,7 +2653,7 @@ x_4 = lean_alloc_closure((void*)(l___private_Init_Data_Channel_0__IO_Channel_Syn
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_IO_instForInSync___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_IO_instForInSyncOfMonadLiftTBaseIO___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
@@ -2661,11 +2661,11 @@ x_7 = l___private_Init_Data_Channel_0__IO_Channel_Sync_forIn___rarg(x_3, x_1, x_
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_IO_instForInSync(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_instForInSyncOfMonadLiftTBaseIO(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_IO_instForInSync___rarg), 6, 0);
+x_3 = lean_alloc_closure((void*)(l_IO_instForInSyncOfMonadLiftTBaseIO___rarg), 6, 0);
 return x_3;
 }
 }

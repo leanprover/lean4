@@ -229,8 +229,8 @@ static lean_object* l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwApplyEr
 lean_object* l_Lean_Meta_mkConstWithFreshMVarLevels(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1___closed__2;
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_MVarId_proofIrrelHeq___closed__1;
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_splitAndCore_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_propext___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_MVarId_nthConstructor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5146,13 +5146,13 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_5);
-x_16 = l_Nat_repr(x_2);
+x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
 x_17 = l_Lean_MVarId_nthConstructor___lambda__1___closed__1;
 x_18 = lean_string_append(x_17, x_16);
 lean_dec(x_16);
 x_19 = l_Lean_MVarId_nthConstructor___lambda__1___closed__2;
 x_20 = lean_string_append(x_18, x_19);
-x_21 = l_Nat_repr(x_14);
+x_21 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
 x_22 = lean_string_append(x_20, x_21);
 lean_dec(x_21);
 x_23 = l_Lean_MVarId_nthConstructor___lambda__1___closed__3;
@@ -5325,7 +5325,7 @@ x_38 = lean_string_append(x_37, x_36);
 lean_dec(x_36);
 x_39 = l_Lean_MVarId_nthConstructor___lambda__2___closed__4;
 x_40 = lean_string_append(x_38, x_39);
-x_41 = l_Nat_repr(x_30);
+x_41 = l___private_Init_Data_Repr_0__Nat_reprFast(x_30);
 x_42 = lean_string_append(x_40, x_41);
 lean_dec(x_41);
 x_43 = l_Lean_MVarId_nthConstructor___lambda__1___closed__3;

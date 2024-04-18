@@ -166,6 +166,30 @@ structure SnapshotBundle (α : Type) where
   new  : IO.Promise α
 
 /--
+Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
+-/
+def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (act : IO.Promise α → m Unit) : m Unit := do
+  let p ← IO.Promise.new
+  try
+    act p
+  finally
+    p.resolve default
+
+/--
+Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
+`act`.
+-/
+def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
+  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  try
+    act ps
+  finally
+    for p in ps do
+      p.resolve default
+
+/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this

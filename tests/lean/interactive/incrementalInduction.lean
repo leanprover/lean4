@@ -11,6 +11,19 @@ theorem basic (n : Nat) : True := by
     dbg_trace "b 2"
                 --^ insert: ".5"
 
+-- RESET
+theorem nonFirst (n : Nat) : True := by
+  induction n with
+  | zero =>
+    dbg_trace "n 0"
+    dbg_trace "n 1"
+                --^ sync
+                --^ insert: ".5"
+  | succ =>
+    dbg_trace "n 2"
+                --^ sync
+                --^ insert: ".5"
+
 /-! No reuse in cases where branch is run more than once -/
 
 -- RESET
@@ -29,3 +42,5 @@ theorem preTac (x : Nat × Nat × Nat) : True := by
     dbg_trace "p 0"
     dbg_trace "p 1"
                 --^ insert: ".5"
+
+set_option trace.Elab.reuse true

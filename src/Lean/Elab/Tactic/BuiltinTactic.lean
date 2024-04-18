@@ -28,18 +28,7 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
-/--
-Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act.
--/
--- TODO: see if this is the right abstraction, move
-private def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (act : IO.Promise α → m Unit) : m Unit := do
-  let p ← IO.Promise.new
-  try
-    act p
-  finally
-    p.resolve default
-
+open Language in
 /--
 Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
 children.

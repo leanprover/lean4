@@ -234,6 +234,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
           Term.addLocalVarInfo altVars[i]! (mkFVar fvarId)
           i := i + 1
 
+open Language in
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
@@ -249,8 +250,41 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (alts
   else go
 where
   go := do
+    let hasAlts := altsSyntax.size > 0
+
     -- initial sanity checks: named cases should be known, wildcards should be last
     checkAltNames alts altsSyntax
+
+    if hasAlts then
+      if let some tacSnap := (← readThe Term.Context).tacSnap? then
+        -- incrementality: create a new promise for each alternative, resolve current snapshot to
+        -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
+        withAlwaysResolvedPromise fun finished => do
+          withAlwaysResolvedPromises altsSyntax.size fun altPromises => do
+            tacSnap.new.resolve <| .mk {
+              -- save all relevant syntax here for comparison with next document version
+              stx := mkNullNode altsSyntax
+              diagnostics := .empty
+              finished := finished.result
+            } (altsSyntax.zipWith altPromises fun stx prom =>
+                { range? := stx.getRange?, task := prom.result })
+            go2 <| altPromises.mapIdx fun i prom => {
+              old? := do
+                let old ← tacSnap.old?
+                -- waiting is fine here: this is the old version of the snapshot resolved above
+                -- immediately at the beginning of the tactic
+                let old := old.val.get
+                -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
+                -- version and picked apart in `applyAltStx`
+                return ⟨old.data.stx, (← old.next[i]?)⟩
+              new := prom
+            }
+            finished.resolve { state? := (← saveState) }
+        return
+
+    go2 #[]
+
+  go2 (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) := do
     let hasAlts := altsSyntax.size > 0
     let mut alts := alts
 
@@ -282,12 +316,12 @@ where
       let altName := getAltName altStx
       if let some i := alts.findIdx? (·.1 == altName) then
         -- cover named alternative
-        applyAltStx altStxIdx altStx alts[i]!
+        applyAltStx tacSnaps altStxIdx altStx alts[i]!
         alts := alts.eraseIdx i
       else if !alts.isEmpty && isWildcard altStx then
         -- cover all alternatives
         for alt in alts do
-          applyAltStx altStxIdx altStx alt
+          applyAltStx tacSnaps altStxIdx altStx alt
         alts := #[]
       else
         throwError "unused alternative '{altName}'"
@@ -318,7 +352,7 @@ where
         altMVarIds.forM fun mvarId => admitGoal mvarId
 
   /-- Applies syntactic alternative to alternative goal. -/
-  applyAltStx altStxIdx altStx alt := withRef altStx do
+  applyAltStx tacSnaps altStxIdx altStx alt := withRef altStx do
     let { name := altName, info, mvarId := altMVarId } := alt
     -- also checks for unknown alternatives
     let numFields ← getAltNumFields elimInfo altName
@@ -355,13 +389,15 @@ where
       if altMVarIds.isEmpty then
         unusedAlt
       else
+        -- select corresponding snapshot bundle for incrementality of this alternative
+        withTheReader Term.Context ({ · with tacSnap? := tacSnaps[altStxIdx]? }) do
         -- all previous alternatives have to be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := mkNullNode altsSyntax) (argIdx := altStxIdx) fun altStx => do
         -- everything up to rhs has to be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
         for altMVarId' in altMVarIds do
-          -- disable reuse if rhs is run multiple times, also for any rhs but the last
-          Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx || altStxIdx < altsSyntax.size - 1) do
+          -- disable reuse if rhs is run multiple times
+          Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
             evalAlt altMVarId' altStx addInfo
 
   /-- Applies `induction .. with $preTac | ..`, if any, to an alternative goal. -/

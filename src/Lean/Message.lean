@@ -78,8 +78,8 @@ inductive MessageData where
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
-  /-- Lazy message data production. The `Dymamic` is expected to be `MessageData`, we
-  use this to work around the positivity restriction. -/
+  /-- Lazy message data production. The `Dynamic` is expected to be `MessageData`, which
+  is a workaround for the positivity restriction. -/
   | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
   deriving Inhabited, TypeName
 

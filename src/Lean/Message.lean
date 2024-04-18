@@ -205,9 +205,15 @@ instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr�
 
 end MessageData
 
-/-- A `Message` is a richly formatted piece of information emitted by Lean.
-They are rendered by client editors in the infoview and in diagnostic windows. -/
-structure Message where
+/--
+A `BaseMessage` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows.
+There are two varieties in the Lean core:
+* `Message`: Uses structured, effectful `MessageData` for formatting content.
+* `SerialMessage`: Stores pure `String` data. Obtained by running the effectful
+`Message.serialize`.
+-/
+structure BaseMessage (α : Type u) where
   fileName      : String
   pos           : Position
   endPos        : Option Position := none
@@ -216,33 +222,52 @@ structure Message where
   severity      : MessageSeverity := MessageSeverity.error
   caption       : String          := ""
   /-- The content of the message. -/
-  data          : MessageData
-  deriving Inhabited
+  data          : α
+  deriving Inhabited, ToJson, FromJson
 
-namespace Message
+/-- A `Message` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows. -/
+abbrev Message := BaseMessage MessageData
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
-  let mut str ← msg.data.toString
+/-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
+serialized and is thus appropriate for use in pure contexts where the effectful
+`MessageData.toString` cannot be used. -/
+abbrev SerialMessage := BaseMessage String
+
+namespace SerialMessage
+
+@[inline] def toMessage (msg : SerialMessage) : Message :=
+  {msg with data := msg.data}
+
+instance : Coe SerialMessage Message := ⟨SerialMessage.toMessage⟩
+
+protected def toString (msg : SerialMessage) (includeEndPos := false) : String := Id.run do
+  let mut str := msg.data
   let endPos := if includeEndPos then msg.endPos else none
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
-  | MessageSeverity.information => pure ()
-  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .information => pure ()
+  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
+  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
 
-protected def toJson (msg : Message) : IO Json := do
-  return Json.mkObj [
-    ("severity", toJson msg.severity),
-    ("fileName", msg.fileName),
-    ("pos", toJson msg.pos),
-    ("endPos", toJson msg.endPos),
-    ("caption", msg.caption),
-    ("data", ← msg.data.toString),
-  ]
+instance : ToString SerialMessage := ⟨SerialMessage.toString⟩
+
+end SerialMessage
+
+namespace Message
+
+@[inline] def serialize (msg : Message) : IO SerialMessage := do
+  return {msg with data := ← msg.data.toString}
+
+@[inline] protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+  return (← msg.serialize).toString includeEndPos
+
+@[inline] protected def toJson (msg : Message) : IO Json := do
+  return toJson (← msg.serialize)
 
 end Message
 

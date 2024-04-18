@@ -85,8 +85,16 @@ inductive MessageData where
 
 namespace MessageData
 
-def lazy (f : Option PPContext → IO MessageData) (hasSyntheticSorry : MetavarContext → Bool) : MessageData :=
-  .ofLazy (fun ctx => Dynamic.mk <$> f ctx) hasSyntheticSorry
+/--
+Lazy message data production, with access to the context as given by
+a surrounding `MessageData.withContext` (which is expected to exist).
+-/
+def lazy (f : PPContext → IO MessageData) (hasSyntheticSorry : MetavarContext → Bool) : MessageData :=
+  .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
+    let msg ← match ctx? with
+      | .none => pure (.ofFormat "(invalid MessageData.lazy, missing context)")
+      | .some ctx => f ctx
+    return Dynamic.mk msg
 
 /-- Lazily formatted text with Info annotations -/
 def ofPPFormat (f : PPFormat) : MessageData :=

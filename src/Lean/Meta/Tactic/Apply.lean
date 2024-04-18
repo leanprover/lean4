@@ -53,10 +53,7 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
 
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
   let explanation := MessageData.lazy
-    (f := fun
-      | none =>
-        return f!"{eType}\nwith{targetType}"
-      | some ppctxt => ppctxt.runMetaM do
+    (f := fun ppctxt => ppctxt.runMetaM do
         let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
         return m!"{indentExpr eType}\nwith{indentExpr targetType}")
     (hasSyntheticSorry := fun mvarctxt =>

@@ -392,14 +392,15 @@ where
         unusedAlt
       else
         -- select corresponding snapshot bundle for incrementality of this alternative
+        -- note that `tacSnaps[altStxIdx]?` is `none` if `tacSnap?` was `none` to begin with
         withTheReader Term.Context ({ · with tacSnap? := tacSnaps[altStxIdx]? }) do
         -- all previous alternatives have to be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
         -- everything up to rhs has to be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
-        for altMVarId' in altMVarIds do
-          -- disable reuse if rhs is run multiple times
-          Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
+        -- disable reuse if rhs is run multiple times
+        Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
+          for altMVarId' in altMVarIds do
             evalAlt altMVarId' altStx addInfo
 
   /-- Applies `induction .. with $preTac | ..`, if any, to an alternative goal. -/

@@ -202,7 +202,7 @@ builtin_initialize registerBuiltinIncrementalTactic ``cdot
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    Term.withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) stx
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]

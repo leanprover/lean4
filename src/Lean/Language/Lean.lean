@@ -63,37 +63,39 @@ we remain at "go two commands up" at this point.
 
 Because of Lean's use of persistent data structures, incremental reuse of fully elaborated commands
 is easy because we can simply snapshot the entire state after each command and then restart
-elaboration using the stored state at the point of change. However, incrementality within
-elaboration of a single command such as between tactic steps is much harder because we cannot simply
-return from those points to the language processor in a way that we can later resume from there.
-Instead, we exchange the need for continuations with some limited mutability: by allocating an
-`IO.Promise` "cell" in the language processor, we can both pass it to the elaborator to eventually
-fill it using `Promise.resolve` as well as convert it to a `Task` that will wait on that resolution
-using `Promise.result` and return it as part of the command snapshot created by the language
-processor. The elaborator can then create new promises itself and store their `result` when
-resolving an outer promise to create an arbitrary tree of promise-backed snapshot tasks. Thus, we
-can enable incremental reporting and reuse inside the elaborator using the same snapshot tree data
-structures as outside without having to change the elaborator's control flow.
+elaboration using the stored state at the next command above the point of change. However,
+incrementality *within* elaboration of a single command such as between tactic steps is much harder
+because the existing control flow does not allow us to simply return from those points to the
+language processor in a way that we can later resume from there. Instead, we exchange the need for
+continuations with some limited mutability: by allocating an `IO.Promise` "cell" in the language
+processor, we can both pass it to the elaborator to eventually fill it using `Promise.resolve` as
+well as convert it to a `Task` that will wait on that resolution using `Promise.result` and return
+it as part of the command snapshot created by the language processor. The elaborator can then in
+turn create new promises itself and store their `result` when resolving an outer promise to create
+an arbitrary tree of promise-backed snapshot tasks. Thus, we can enable incremental reporting and
+reuse inside the elaborator using the same snapshot tree data structures as outside without having
+to change the elaborator's control flow.
 
 While ideally we would decide what can be reused during command elaboration using strong hashes over
-the state and inputs, currently we rely on simpler syntactic checks: if all the syntax inspected up
-to a certain point is unchanged, we can assume that the old state can be reused.  The central
-`SnapshotBundle` type passed inwards through the elaborator for this purpose combines the following
-data:
+the full state and inputs, currently we rely on simpler syntactic checks: if all the syntax
+inspected up to a certain point is unchanged, we can assume that the old state can be reused. The
+central `SnapshotBundle` type passed inwards through the elaborator for this purpose combines the
+following data:
 * the `IO.Promise` to be resolved to an elaborator snapshot (whose type depends on the specific
-  elaborator part we're in, e.g. `)
+  elaborator part we're in, e.g. `TacticParsedSnapshot`, `BodyProcessedSnapshot`)
 * if there was a previous run:
   * a `SnapshotTask` holding the corresponding snapshot of the run
   * the relevant `Syntax` of the previous run to be compared before any reuse
 
 Note that as we do not wait for the previous run to finish before starting to elaborate the next
-one, the `SnapshotTask` task may not be finished yet. Indeed, if we do find that we can reuse the
-contained state, we will want to explicitly wait for it instead of redoing the work. On the other
-hand, the `Syntax` is not surrounded by a task so that we can immediately access it for comparisons,
-even if the snapshot task may, eventually, give access to the same syntax tree.
+one, the old `SnapshotTask` task may not be finished yet. Indeed, if we do find that we can reuse
+the contained state because of a successful syntax comparison, we always want to explicitly wait for
+the task instead of redoing the work. On the other hand, the `Syntax` is not surrounded by a task so
+that we can immediately access it for comparisons, even if the snapshot task may, eventually, give
+access to the same syntax tree.
 
 For the most part, inside an elaborator participating in incrementality, we just have to ensure that
-we do not forward the snapshot bundle as soon as we notice a relevant difference between old and new
+we stop forwarding the old run's data as soon as we notice a relevant difference between old and new
 syntax tree. For example, allowing incrementality inside the cdot tactic combinator is as simple as
 ```
 builtin_initialize registerBuiltinIncrementalTactic ``cdot
@@ -102,20 +104,20 @@ builtin_initialize registerBuiltinIncrementalTactic ``cdot
   closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     ...
-    Term.withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) stx
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx
 ```
 The `Term.withNarrowedArgTacticReuse` combinator will focus on the given argument of `stx`, which in
-this case is the nested tactic sequence, and run `evalTactic` on it. But crucially, it will also
+this case is the nested tactic sequence, and run `evalTactic` on it. But crucially, it will first
 compare all preceding arguments, in this case the cdot token itself, with the old syntax in the
 current snapshot bundle, which in the case of tactics is stored in `Term.Context.tacSnap?`. Indeed
 it is important here to check if the cdot token is identical because its position has been saved in
 the info tree, so it would be bad if we later restored some old state that uses a different position
 for it even if everything else is unchanged.  If there is any mismatch, the bundle's old value is
 set to `none` in order to prevent reuse from this point on. Note that in any case we still want to
-forward the "new" promise in order to provide incremental reporting and construct a snapshot tree
-for reuse in future document versions! Note also that we explicitly opted into incrementality using
-`registerBuiltinIncrementalTactic` as any tactic combinator not written with these concerns in mind
-would likely misbehave under incremental reuse.
+forward the "new" promise in order to provide incremental reporting as well as to construct a
+snapshot tree for reuse in future document versions! Note also that we explicitly opted into
+incrementality using `registerBuiltinIncrementalTactic` as any tactic combinator not written with
+these concerns in mind would likely misbehave under incremental reuse.
 
 While it is generally true that we can provide incremental reporting even without reuse, we
 generally want to avoid that when it would be confusing/annoying, e.g. when a tactic block is run
@@ -125,7 +127,19 @@ opted into incrementality because of other parts of the combinator. `induction` 
 this because there are some induction alternatives that are run multiple times, so we disable all of
 incrementality for them.
 
+Using `induction` as a more complex example than `cdot` as it calls into `evalTactic` multiple
+times, here is a summary of what it has to do to implement incrementality:
+* `Narrow` down to the syntax of alternatives, disabling reuse if anything before them changed
+* allocate one new promise for each given alternative, immediately resolve passed promise to a new
+  snapshot tree node holding them so that the language server can wait on them
+* when executing an alternative,
+  * we put the corresponding promise into the context
+  * we disable reuse if anything in front of the contained tactic block has changed, including
+    previous alternatives
+  * we disable reuse *and reporting* if the tactic block is run multiple times, e.g. in the case of
+    a wildcard pattern
 -/
+
 set_option linter.missingDocs true
 
 namespace Lean.Language.Lean

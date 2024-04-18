@@ -99,6 +99,9 @@ structure CodeActionOptions extends WorkDoneProgressOptions where
   resolveProvider? : Option Bool := none
   deriving ToJson, FromJson
 
+structure InlayHintOptions extends WorkDoneProgressOptions where
+deriving ToJson, FromJson
+
 /--  A code action represents a change that can be performed in code, e.g. to fix a problem or to refactor code.
 
 A CodeAction should set either `edit` and/or a `command`.

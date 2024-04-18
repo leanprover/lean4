@@ -81,6 +81,7 @@ structure ServerCapabilities where
   foldingRangeProvider      : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
+  inlayHintProvider?        : Option InlayHintOptions        := none
   deriving ToJson, FromJson
 
 end Lsp

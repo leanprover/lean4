@@ -1,5 +1,3 @@
-open Std
-
 example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_rfl
 
 example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_rfl

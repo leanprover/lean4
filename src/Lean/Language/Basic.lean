@@ -135,6 +135,11 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+/-- Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree preorder. -/
+@[specialize] partial def SnapshotTree.forM [Monad m] (s : SnapshotTree)
+    (f : Snapshot → m PUnit) : m PUnit := do
+  match s with | mk element children => f element; children.forM (·.get.forM f)
+
 /--
   Option for printing end position of each message in addition to start position. Used for testing
   message ranges in the test suite. -/
@@ -154,19 +159,12 @@ def reportMessages (msgLog : MessageLog) (opts : Options) (json := false) : IO U
   reported in tree preorder.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
-  reportMessages s.element.diagnostics.msgLog opts json
-  for t in s.children do
-    t.get.runAndReport opts
+def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
+  s.forM (reportMessages ·.diagnostics.msgLog opts json)
 
 /-- Waits on and returns all snapshots in the tree. -/
-partial def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  go s |>.run #[] |>.2
-where
-  go s : StateM (Array Snapshot) Unit := do
-    modify (·.push s.element)
-    for t in s.children do
-      go t.get
+def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
+  s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
 /-- Metadata that does not change during the lifetime of the language processing process. -/
 structure ModuleProcessingContext where
@@ -219,7 +217,7 @@ end Language
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-partial def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
+def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
     (ctx : ModuleProcessingContext) : BaseIO (Parser.InputContext → BaseIO InitSnap) := do
   let oldRef ← IO.mkRef none
   return fun ictx => do

@@ -186,7 +186,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData
-      | throw <| IO.userError "MessageData.ofLazy: expected MessageData in Dynamic"
+      | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
     formatAux nCtx ctx? msg
 
 protected def format (msgData : MessageData) : IO Format :=

@@ -147,8 +147,7 @@ checking if we can reuse `old?` if set or else redoing the corresponding elabora
 case, we derive new bundles for nested snapshots, if any, and finally `resolve` `new` to the result.
 
 Note that failing to `resolve` a created promise will block the language server indefinitely!
-Corresponding `IO.Promise.new` calls should come with a "definitely resolved in ..." comment
-explaining how this is avoided in each case.
+We use `withAlwaysResolvedPromise`/`withAlwaysResolvedPromises` to ensure this doesn't happen.
 
 In the future, the 1-element history `old?` may be replaced with a global cache indexed by strong
 hashes but the promise will still need to be passed through the elaborator.
@@ -167,6 +166,9 @@ structure SnapshotBundle (α : Type) where
 
 /--
 Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
 -/
 def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
     (act : IO.Promise α → m Unit) : m Unit := do
@@ -179,6 +181,9 @@ def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [
 /--
 Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
 `act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
 -/
 def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
     (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do

@@ -44,7 +44,9 @@ where
     Each `goEven` step creates three promises under incrementality and reuses their older versions
     where possible:
     * `finished` is resolved when `tac` finishes execution; if `tac` is wholly unchanged from the
-      previous version, its state is reused and `tac` execution is skipped.
+      previous version, its state is reused and `tac` execution is skipped. Note that this promise
+      is never turned into a `SnapshotTask` and added to the snapshot tree as incremental reporting
+      is already covered by the next two promises.
     * `inner` is passed to `tac` if it is marked as supporting incrementality and can be used for
       reporting and partial reuse inside of it; if the tactic is unsupported or `finished` is wholly
       reused, it is ignored.

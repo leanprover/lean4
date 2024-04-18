@@ -235,40 +235,38 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
           i := i + 1
 
 open Language in
-def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
+def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
-  let hasAlts := altsSyntax.size > 0
+  let hasAlts := altStxs.size > 0
   if hasAlts then
     -- default to initial state outside of alts
     -- HACK: because this node has the same span as the original tactic,
     -- we need to take all the info trees we have produced so far and re-nest them
     -- inside this node as well
     let treesSaved ← getResetInfoTrees
-    withInfoContext ((modifyInfoState fun s => { s with trees := treesSaved }) *> go) (pure initialInfo)
-  else go
+    withInfoContext ((modifyInfoState fun s => { s with trees := treesSaved }) *> goWithInfo) (pure initialInfo)
+  else goWithInfo
 where
-  go := do
-    let hasAlts := altsSyntax.size > 0
-
-    -- initial sanity checks: named cases should be known, wildcards should be last
-    checkAltNames alts altsSyntax
+  -- continuation in the correct info context
+  goWithInfo := do
+    let hasAlts := altStxs.size > 0
 
     if hasAlts then
       if let some tacSnap := (← readThe Term.Context).tacSnap? then
         -- incrementality: create a new promise for each alternative, resolve current snapshot to
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         withAlwaysResolvedPromise fun finished => do
-          withAlwaysResolvedPromises altsSyntax.size fun altPromises => do
+          withAlwaysResolvedPromises altStxs.size fun altPromises => do
             tacSnap.new.resolve <| .mk {
               -- save all relevant syntax here for comparison with next document version
-              stx := mkNullNode altsSyntax
+              stx := mkNullNode altStxs
               diagnostics := .empty
               finished := finished.result
-            } (altsSyntax.zipWith altPromises fun stx prom =>
+            } (altStxs.zipWith altPromises fun stx prom =>
                 { range? := stx.getRange?, task := prom.result })
-            go2 <| altPromises.mapIdx fun i prom => {
+            goWithIncremental <| altPromises.mapIdx fun i prom => {
               old? := do
                 let old ← tacSnap.old?
                 -- waiting is fine here: this is the old version of the snapshot resolved above
@@ -282,11 +280,15 @@ where
             finished.resolve { state? := (← saveState) }
         return
 
-    go2 #[]
+    goWithIncremental #[]
 
-  go2 (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) := do
-    let hasAlts := altsSyntax.size > 0
+  -- continuation in the correct incrementality context
+  goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) := do
+    let hasAlts := altStxs.size > 0
     let mut alts := alts
+
+    -- initial sanity checks: named cases should be known, wildcards should be last
+    checkAltNames alts altStxs
 
     /-
     First process `altsSyntax` in order, removing covered alternatives from `alts`. Previously we
@@ -311,8 +313,8 @@ where
     2- The errors are produced in the same order the appear in the code above. This is not super
     important when using IDEs.
     -/
-    for altStxIdx in [0:altsSyntax.size] do
-      let altStx := altsSyntax[altStxIdx]!
+    for altStxIdx in [0:altStxs.size] do
+      let altStx := altStxs[altStxIdx]!
       let altName := getAltName altStx
       if let some i := alts.findIdx? (·.1 == altName) then
         -- cover named alternative
@@ -392,7 +394,7 @@ where
         -- select corresponding snapshot bundle for incrementality of this alternative
         withTheReader Term.Context ({ · with tacSnap? := tacSnaps[altStxIdx]? }) do
         -- all previous alternatives have to be unchanged for reuse
-        Term.withNarrowedArgTacticReuse (stx := mkNullNode altsSyntax) (argIdx := altStxIdx) fun altStx => do
+        Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
         -- everything up to rhs has to be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
         for altMVarId' in altMVarIds do

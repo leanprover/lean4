@@ -74,3 +74,10 @@ def recBuildWithIndex : (info : BuildInfo) → FetchM (BuildData info.key)
   mkTargetFacetBuild ExternLib.sharedFacet lib.recBuildShared
 | .dynlibExternLib lib =>
   mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
+
+/--
+Run a recursive Lake build using the Lake build index
+and a topological / suspending scheduler.
+-/
+def FetchM.run (x : FetchM α) : RecBuildM α :=
+  x (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)

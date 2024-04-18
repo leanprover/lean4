@@ -9,12 +9,28 @@ import Lake.Util.EquipT
 import Lake.Build.Info
 import Lake.Build.Store
 
-/-! # Recursive Building  -/
+/-! # Recursive Building
+
+This module defines Lake's top-level build monad, `FetchM`, used
+for performing recursive builds. A recursive build is a build function
+which can fetch the results of other (recursive) builds. This is done
+using the `fetch` function defined in this module.
+-/
 
 namespace Lake
 
 /-- A recursive build of a Lake build store that may encounter a cycle. -/
 abbrev RecBuildM := CallStackT BuildKey <| StateT BuildStore <| CoreBuildM
+
+/-- Run a recursive build. -/
+@[inline] def RecBuildM.run
+  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
+: CoreBuildM (α × BuildStore) := do
+  build stack store
+
+/-- Run a recursive build in a fresh build store. -/
+@[inline] def RecBuildM.run' (build : RecBuildM α) : CoreBuildM α := do
+  (·.1) <$> build.run {} {}
 
 /-- Log build cycle and error. -/
 @[specialize] def buildCycleError [MonadError m] (cycle : Cycle BuildKey) : m α :=

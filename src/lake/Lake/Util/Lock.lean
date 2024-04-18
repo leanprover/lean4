@@ -4,6 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner, Sebastian Ullrich
 -/
 
+/-! # Lock File Utilities
+
+This module defines utilities to use a file to ensure mutual exclusions
+between processes manipulating some shared resource. Such a file is termed
+a "lock file".
+
+Lake does not currently use a lock file. Previously, Lake used one for builds,
+but this was removed in [lean4#2445][1]. Without an API for catching `Ctrl-C`
+during a build, the lock file was deemed too disruptive for users.
+
+[1]: https://github.com/leanprover/lean4/pull/2445
+-/
+
 open System
 namespace Lake
 

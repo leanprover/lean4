@@ -39,6 +39,9 @@ structure BuildContext extends BuildConfig, Context where
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
 
+instance [Pure m] : MonadLift LakeM (BuildT m) where
+  monadLift x := fun ctx => pure <| x.run ctx.toContext
+
 @[inline] def getLeanTrace [Monad m] : BuildT m BuildTrace :=
   (·.leanTrace) <$> readThe BuildContext
 
@@ -65,9 +68,3 @@ abbrev SpawnM := BuildT BaseIO
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
 @[deprecated SpawnM] abbrev SchedulerM := SpawnM
-
-instance [Pure m] : MonadLift LakeM (BuildT m) where
-  monadLift x := fun ctx => pure <| x.run ctx.toContext
-
-@[inline] def CoreBuildM.run (ctx : BuildContext) (self : CoreBuildM α) : LogIO α :=
-  self ctx

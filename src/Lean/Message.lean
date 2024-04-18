@@ -263,11 +263,13 @@ namespace Message
 @[inline] def serialize (msg : Message) : IO SerialMessage := do
   return {msg with data := ← msg.data.toString}
 
-@[inline] protected def toString (msg : Message) (includeEndPos := false) : IO String := do
-  return (← msg.serialize).toString includeEndPos
+protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+  -- Remark: We inline here to avoid a copy in the case were `msg` is shared
+  return inline <| (← msg.serialize).toString includeEndPos
 
-@[inline] protected def toJson (msg : Message) : IO Json := do
-  return toJson (← msg.serialize)
+protected def toJson (msg : Message) : IO Json := do
+  -- Remark: We inline here to avoid a copy in the case were `msg` is shared
+  return inline <| toJson (← msg.serialize)
 
 end Message
 

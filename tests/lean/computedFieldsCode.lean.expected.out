@@ -106,7 +106,6 @@ def Exp.hash._override._boxed (x_1 : obj) : obj :=
   dec x_1;
   let x_3 : obj := box x_2;
   ret x_3
-
 [result]
 def f._closed_1 : obj :=
   let x_1 : u32 := 10;
@@ -125,7 +124,6 @@ def f._closed_3 : u64 :=
 def f : u64 :=
   let x_1 : u64 := f._closed_3;
   ret x_1
-
 [result]
 def g (x_1 : @& obj) : u8 :=
   case x_1 : obj of
@@ -140,7 +138,6 @@ def g._boxed (x_1 : obj) : obj :=
   dec x_1;
   let x_3 : obj := box x_2;
   ret x_3
-
 [result]
 def hash' (x_1 : @& obj) : obj :=
   case x_1 : obj of
@@ -164,7 +161,6 @@ def hash'._boxed (x_1 : obj) : obj :=
   let x_2 : obj := hash' x_1;
   dec x_1;
   ret x_2
-
 [result]
 def getAppFn (x_1 : @& obj) : obj :=
   case x_1 : obj of
@@ -179,7 +175,6 @@ def getAppFn._boxed (x_1 : obj) : obj :=
   let x_2 : obj := getAppFn x_1;
   dec x_1;
   ret x_2
-
 [result]
 def Exp.f (x_1 : @& obj) : obj :=
   let x_2 : obj := getAppFn x_1;

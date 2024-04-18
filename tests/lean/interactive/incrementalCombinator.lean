@@ -10,7 +10,6 @@ def case (h : a ∨ b ∨ c) : True := by
       dbg_trace "c 2"
                   --^ sync
                   --^ insert: ".5"
-                  --^ sync
 
 -- RESET
 def case (h : a ∨ b) : True := by
@@ -20,5 +19,4 @@ def case (h : a ∨ b) : True := by
     dbg_trace "d 2"
                 --^ sync
                 --^ insert: ".5"
-                --^ sync
   dbg_trace "d 3"

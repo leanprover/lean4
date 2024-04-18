@@ -9,6 +9,7 @@ theorem basic (n : Nat) : True := by
     dbg_trace "b 0"
     dbg_trace "b 1"
     dbg_trace "b 2"
+                --^ sync
                 --^ insert: ".5"
 
 -- RESET
@@ -32,6 +33,7 @@ theorem wildcard (n : Nat) : True := by
   | _ =>
     dbg_trace "w 0"
     dbg_trace "w 1"
+                --^ sync
                 --^ insert: ".5"
 
 -- RESET
@@ -41,6 +43,7 @@ theorem preTac (x : Nat × Nat × Nat) : True := by
   | mk x =>
     dbg_trace "p 0"
     dbg_trace "p 1"
+                --^ sync
                 --^ insert: ".5"
 
 set_option trace.Elab.reuse true

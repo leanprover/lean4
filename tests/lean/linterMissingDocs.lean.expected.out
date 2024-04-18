@@ -1,37 +1,74 @@
-linterMissingDocs.lean:8:4-8:9: warning: missing doc string for public def noDoc [linter.missingDocs]
-linterMissingDocs.lean:13:14-13:20: warning: missing doc string for public def noDoc2 [linter.missingDocs]
-linterMissingDocs.lean:17:4-17:10: warning: missing doc string for public def openIn [linter.missingDocs]
-linterMissingDocs.lean:24:4-24:16: warning: missing doc string for public def setOptionIn1 [linter.missingDocs]
-linterMissingDocs.lean:39:4-39:11: warning: missing doc string for public def lintDoc [linter.missingDocs]
-linterMissingDocs.lean:41:10-41:13: warning: missing doc string for public inductive Ind [linter.missingDocs]
-linterMissingDocs.lean:42:4-42:8: warning: missing doc string for public constructor Ind.ind1 [linter.missingDocs]
-linterMissingDocs.lean:43:4-43:8: warning: missing doc string for public constructor Ind.ind2 [linter.missingDocs]
-linterMissingDocs.lean:46:20-46:25: warning: missing doc string for computed field Ind.field [linter.missingDocs]
-linterMissingDocs.lean:49:10-49:13: warning: missing doc string for public structure Foo [linter.missingDocs]
-linterMissingDocs.lean:50:2-50:5: warning: missing doc string for public field Foo.mk1 [linter.missingDocs]
-linterMissingDocs.lean:53:3-53:6: warning: missing doc string for public field Foo.mk4 [linter.missingDocs]
-linterMissingDocs.lean:53:7-53:10: warning: missing doc string for public field Foo.mk5 [linter.missingDocs]
-linterMissingDocs.lean:54:3-54:6: warning: missing doc string for public field Foo.mk6 [linter.missingDocs]
-linterMissingDocs.lean:54:7-54:10: warning: missing doc string for public field Foo.mk7 [linter.missingDocs]
-linterMissingDocs.lean:56:6-56:9: warning: missing doc string for public structure Bar [linter.missingDocs]
-linterMissingDocs.lean:57:3-57:6: warning: missing doc string for public field Bar.foo [linter.missingDocs]
-linterMissingDocs.lean:57:7-57:10: warning: missing doc string for public field Bar.bar [linter.missingDocs]
-linterMissingDocs.lean:59:6-59:10: warning: missing doc string for public structure Bar2 [linter.missingDocs]
-linterMissingDocs.lean:60:2-60:5: warning: missing doc string for public field Bar2.bar [linter.missingDocs]
-linterMissingDocs.lean:62:6-62:10: warning: missing doc string for public structure Bar3 [linter.missingDocs]
-linterMissingDocs.lean:64:7-64:10: warning: missing doc string for public field Bar3.baz [linter.missingDocs]
-linterMissingDocs.lean:70:11-70:15: warning: missing doc string for initializer init [linter.missingDocs]
-linterMissingDocs.lean:73:19-73:24: warning: missing doc string for syntax category myCat [linter.missingDocs]
-linterMissingDocs.lean:75:0-75:6: warning: missing doc string for syntax [linter.missingDocs]
-linterMissingDocs.lean:76:16-76:24: warning: missing doc string for syntax namedSyn [linter.missingDocs]
-linterMissingDocs.lean:77:0-77:6: warning: missing doc string for infixl [linter.missingDocs]
-linterMissingDocs.lean:78:19-78:29: warning: missing doc string for infixr namedInfix [linter.missingDocs]
-linterMissingDocs.lean:79:0-79:8: warning: missing doc string for notation [linter.missingDocs]
-linterMissingDocs.lean:80:21-80:30: warning: missing doc string for notation namedNota [linter.missingDocs]
-linterMissingDocs.lean:87:0-87:4: warning: missing doc string for elab [linter.missingDocs]
-linterMissingDocs.lean:88:0-88:5: warning: missing doc string for macro [linter.missingDocs]
-linterMissingDocs.lean:90:13-90:22: warning: missing doc string for class abbrev [anonymous] [linter.missingDocs]
-linterMissingDocs.lean:92:16-92:24: warning: missing doc string for option myOption [linter.missingDocs]
-linterMissingDocs.lean:94:14-94:19: warning: missing doc string for elab myCmd [linter.missingDocs]
-linterMissingDocs.lean:100:4-100:15: warning: missing doc string for public def handleMyCmd [linter.missingDocs]
-linterMissingDocs.lean:107:11-107:12: warning: missing doc string for my_command z [linter.missingDocs]
+linterMissingDocs.lean:8:4-8:9: warning: missing doc string for public def noDoc
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:13:14-13:20: warning: missing doc string for public def noDoc2
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:17:4-17:10: warning: missing doc string for public def openIn
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:24:4-24:16: warning: missing doc string for public def setOptionIn1
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:39:4-39:11: warning: missing doc string for public def lintDoc
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:41:10-41:13: warning: missing doc string for public inductive Ind
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:42:4-42:8: warning: missing doc string for public constructor Ind.ind1
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:43:4-43:8: warning: missing doc string for public constructor Ind.ind2
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:46:20-46:25: warning: missing doc string for computed field Ind.field
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:49:10-49:13: warning: missing doc string for public structure Foo
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:50:2-50:5: warning: missing doc string for public field Foo.mk1
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:53:3-53:6: warning: missing doc string for public field Foo.mk4
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:53:7-53:10: warning: missing doc string for public field Foo.mk5
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:54:3-54:6: warning: missing doc string for public field Foo.mk6
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:54:7-54:10: warning: missing doc string for public field Foo.mk7
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:56:6-56:9: warning: missing doc string for public structure Bar
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:57:3-57:6: warning: missing doc string for public field Bar.foo
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:57:7-57:10: warning: missing doc string for public field Bar.bar
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:59:6-59:10: warning: missing doc string for public structure Bar2
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:60:2-60:5: warning: missing doc string for public field Bar2.bar
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:62:6-62:10: warning: missing doc string for public structure Bar3
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:64:7-64:10: warning: missing doc string for public field Bar3.baz
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:70:11-70:15: warning: missing doc string for initializer init
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:73:19-73:24: warning: missing doc string for syntax category myCat
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:75:0-75:6: warning: missing doc string for syntax
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:76:16-76:24: warning: missing doc string for syntax namedSyn
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:77:0-77:6: warning: missing doc string for infixl
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:78:19-78:29: warning: missing doc string for infixr namedInfix
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:79:0-79:8: warning: missing doc string for notation
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:80:21-80:30: warning: missing doc string for notation namedNota
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:87:0-87:4: warning: missing doc string for elab
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:88:0-88:5: warning: missing doc string for macro
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:90:13-90:22: warning: missing doc string for class abbrev [anonymous]
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:92:16-92:24: warning: missing doc string for option myOption
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:94:14-94:19: warning: missing doc string for elab myCmd
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:100:4-100:15: warning: missing doc string for public def handleMyCmd
+note: this linter can be disabled with `set_option linter.missingDocs false`
+linterMissingDocs.lean:107:11-107:12: warning: missing doc string for my_command z
+note: this linter can be disabled with `set_option linter.missingDocs false`

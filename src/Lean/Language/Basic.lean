@@ -135,7 +135,9 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
-/-- Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree preorder. -/
+/--
+  Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree
+  preorder. -/
 @[specialize] partial def SnapshotTree.forM [Monad m] (s : SnapshotTree)
     (f : Snapshot → m PUnit) : m PUnit := do
   match s with | mk element children => f element; children.forM (·.get.forM f)

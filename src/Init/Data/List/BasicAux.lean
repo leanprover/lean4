@@ -303,13 +303,13 @@ Monadic generalization of `List.partition`.
 
 This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
 ```
-def posOrNeg? (x : Int) : Option Bool :=
-  if x > 0 then true
-  else if x < 0 then false
-  else none
+def posOrNeg (x : Int) : Except String Bool :=
+  if x > 0 then pure true
+  else if x < 0 then pure false
+  else throw "Zero is not positive or negative"
 
-partitionM posOrNeg? [-1, 2, 3] = some ([2, 3], [-1])
-partitionM posOrNeg? [0, 2, 3] = none
+partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
+partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
 ```
 -/
 @[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=

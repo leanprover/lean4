@@ -99,6 +99,10 @@ v4.8.0 (development in progress)
   and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
   PR [#3883](https://github.com/leanprover/lean4/pull/3883).
 
+* The `#guard_msgs` command now supports showing a diff between the expected and actual outputs. This feature is currently
+  disabled by default, but can be enabled with `set_option guard_msgs.diff true`. Depending on user feedback, this option
+  may default to `true` in a future version of Lean.
+
 Breaking changes:
 
 * Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:

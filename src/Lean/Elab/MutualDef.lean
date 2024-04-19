@@ -64,8 +64,6 @@ private def check (prevHeaders : Array DefViewElabHeader) (newHeader : DefViewEl
     throwError "'partial' theorems are not allowed, 'partial' is a code generation directive"
   if newHeader.kind.isTheorem && newHeader.modifiers.isNoncomputable then
     throwError "'theorem' subsumes 'noncomputable', code is not generated for theorems"
-  if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isUnsafe then
-    throwError "'noncomputable unsafe' is not allowed"
   if newHeader.modifiers.isNoncomputable && newHeader.modifiers.isPartial then
     throwError "'noncomputable partial' is not allowed"
   if newHeader.modifiers.isPartial && newHeader.modifiers.isUnsafe then
@@ -769,8 +767,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
     let kind ← if kind.isDefOrAbbrevOrOpaque then
-    -- Convert any proof let recs inside a `def` to `theorem` kind
-          withLCtx c.toLift.lctx c.toLift.localInstances do
+      -- Convert any proof let recs inside a `def` to `theorem` kind
+      withLCtx c.toLift.lctx c.toLift.localInstances do
         return if (← inferType c.toLift.type).isProp then .theorem else kind
     else if kind.isTheorem then
       -- Convert any non-proof let recs inside a `theorem` to `def` kind

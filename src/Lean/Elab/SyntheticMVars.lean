@@ -288,20 +288,6 @@ private def processPostponedUniverseContraints : TermElabM Unit := do
 private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
   modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
 
-/-
-def withNarrowedReuse [Monad m] [MonadExceptOf Exception m] (modify : Option (Language.SyntaxGuardedSnapshotBundle Tactic.TacticParsedSnapshot))
-    (parse : Syntax → Option (Syntax × TSyntax inner)) (act : TSyntax inner → m α) : Syntax → m α :=
-  fun stx => do
-    let some (outer, inner) := parse stx
-      | throwUnsupportedSyntax
-    withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
-      { tacSnap with old? := tacSnap.old?.bind fun old => do
-        let (oldOuter, oldInner) ← parse old.stx
-        guard <| outer.structRangeEq oldOuter
-        return { old with stx := oldInner }
-      }
-    }) (act inner)-/
-
 mutual
 
   /--

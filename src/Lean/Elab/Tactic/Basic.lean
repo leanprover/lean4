@@ -98,7 +98,7 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-betweeen elaboration runs, not for backtracking within a single run.
+between elaboration runs, not for backtracking within a single run.
 -/
 def SavedState.restoreFull (b : SavedState) : TacticM Unit := do
   b.term.restoreFull

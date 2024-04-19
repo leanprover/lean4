@@ -182,9 +182,11 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq1Indented
 @[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalSepTactics
 
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeqBracketed
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
@@ -271,6 +273,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq
 @[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 

@@ -104,7 +104,7 @@ def download  (url : String) (file : FilePath) : LogIO PUnit := do
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 def untar (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   IO.FS.createDirAll dir
-  let mut opts := "-xv"
+  let mut opts := "-xvv"
   if gzip then
     opts := opts.push 'z'
   proc (quiet := true) {
@@ -118,7 +118,7 @@ def tar
   (gzip := true) (excludePaths : Array FilePath := #[])
 : LogIO PUnit := do
   createParentDirs file
-  let mut args := #["-v", "-c"]
+  let mut args := #["-cvv"]
   if gzip then
     args := args.push "-z"
   for path in excludePaths do

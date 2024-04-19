@@ -133,7 +133,7 @@ end Job
   let job ← x
   let ctx ← read
   liftM (m := BaseIO) do
-  ctx.buildJobs.modify (·.push (caption, discard job))
+  ctx.registeredJobs.modify (·.push (caption, discard job))
   return job.clearLog
 
 /-- A Lake build job. -/

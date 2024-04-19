@@ -74,11 +74,12 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) : BuildConfig where
+def LakeOptions.mkBuildConfig (opts : LakeOptions) (useStdout := false) : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
   verbosity := opts.verbosity
+  useStdout := useStdout
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -298,8 +299,8 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config opts.updateDeps
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
-  let buildConfig := mkBuildConfig opts
-  ws.runBuild (buildSpecs specs) buildConfig (useStdout := true)
+  let buildConfig := mkBuildConfig opts (useStdout := true)
+  ws.runBuild (buildSpecs specs) buildConfig
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
@@ -417,7 +418,7 @@ protected def lean : CliM PUnit := do
     cmd := ws.lakeEnv.lean.lean.toString
     env := ws.augmentedEnvVars
   }
-  logProcCmd spawnArgs logVerbose
+  logVerbose (mkCmdLog spawnArgs)
   let rc ← IO.Process.spawn spawnArgs >>= (·.wait)
   exit rc
 

@@ -8,7 +8,7 @@ import Lake.Build.Index
 
 /-! # Build Runner
 
-This module defines the top-level functions to execute a
+This module defines the top-level functions used to execute a
 Lake build, monitor its progress, and await the result.
 -/
 
@@ -21,27 +21,24 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
   return {
     opaqueWs := ws,
     toBuildConfig := config,
-    buildJobs := ← IO.mkRef #[],
+    registeredJobs := ← IO.mkRef #[],
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
 /--
-Run a build function in the Workspace's context.
-Reports incremental build progress and build logs.
-Only shows failing build jobs in quiet mode
-(e.g., `-q` or non-verbose `--no-build`).
-If `useStdout`, outputs to `stdout`; otherwise, outputs to `stderr`.
+Run a build function in the Workspace's context using the provided configuration.
+Reports incremental build progress and build logs. In quiet mode, only reports
+failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 -/
 def Workspace.runFetchM
-  (ws : Workspace) (build : FetchM α)
-  (cfg : BuildConfig := {}) (useStdout := false)
+  (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
 : IO α := do
   let ctx ← mkBuildContext ws cfg
-  let out ← if useStdout then IO.getStdout else IO.getStderr
+  let out ← if cfg.useStdout then IO.getStdout else IO.getStderr
   let useANSI ← out.isTty
   let verbosity := cfg.verbosity
   let showProgress :=
-    (cfg.noBuild && verbosity != .verbose) ||
+    (cfg.noBuild && verbosity == .verbose) ||
     verbosity != .quiet
   let header := "[?/?] Computing build jobs"
   if showProgress then
@@ -59,14 +56,14 @@ def Workspace.runFetchM
       out.putStr "stdout/stderr:\n"
       out.putStr io
     out.flush
-  let jobs ← ctx.buildJobs.get
+  let jobs ← ctx.registeredJobs.get
   let numJobs := jobs.size
   numJobs.forM fun i => do
     let (caption, job) := jobs[i]!
     let header := s!"[{i+1}/{numJobs}] {caption}"
     if showProgress then
       out.putStr header; out.flush
-    let log := (← IO.wait job.task).state
+    let log := (← job.wait).state
     if !log.hasVisibleEntries verbosity then
       if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
     else
@@ -80,16 +77,14 @@ def Workspace.runFetchM
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild
-  (ws : Workspace) (build : FetchM (BuildJob α))
-  (cfg : BuildConfig := {}) (useStdout := false)
+  (ws : Workspace) (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
 : IO α := do
-  let job ← ws.runFetchM build cfg useStdout
+  let job ← ws.runFetchM build cfg
   let some a ← job.wait? | error "build failed"
   return a
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
 @[inline] def runBuild
-  (build : FetchM (BuildJob α))
-  (cfg : BuildConfig := {}) (useStdout := false)
+  (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
 : LakeT IO α := do
-  (← getWorkspace).runBuild build cfg useStdout
+  (← getWorkspace).runBuild build cfg

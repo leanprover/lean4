@@ -23,6 +23,8 @@ structure BuildConfig where
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
   verbosity : Verbosity := .normal
+  /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
+  useStdout : Bool := false
 
 abbrev JobResult α := EResult Nat Log α
 abbrev JobTask α := BaseIOTask (JobResult α)
@@ -34,7 +36,7 @@ structure Job (α : Type u)  where
 /-- A Lake context with a build configuration and additional build data. -/
 structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
-  buildJobs : IO.Ref (Array (String × Job Unit))
+  registeredJobs : IO.Ref (Array (String × Job Unit))
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
@@ -56,6 +58,15 @@ instance [Pure m] : MonadLift LakeM (BuildT m) where
 
 @[inline] def getNoBuild [Monad m] : BuildT m Bool :=
   (·.noBuild) <$> getBuildConfig
+
+@[inline] def getVerbosity [Monad m] : BuildT m Verbosity :=
+  (·.verbosity) <$> getBuildConfig
+
+@[inline] def getIsVerbose [Monad m] : BuildT m Bool :=
+  (· == .verbose) <$> getVerbosity
+
+@[inline] def getIsQuiet [Monad m] : BuildT m Bool :=
+  (· == .quiet) <$> getVerbosity
 
 /-- The internal core monad of Lake builds.  Not intended for user use. -/
 abbrev CoreBuildM := BuildT LogIO

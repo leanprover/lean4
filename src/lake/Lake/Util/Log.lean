@@ -171,8 +171,11 @@ instance : ToString Log := ⟨Log.toString⟩
 def filterByVerbosity (log : Log) (verbosity := Verbosity.normal) : Log :=
   log.filter (·.level.visibleAtVerbosity verbosity)
 
+@[inline] def any (f : LogEntry → Bool) (log : Log) : Bool :=
+  log.entries.any f
+
 def hasVisibleEntries (log : Log) (verbosity := Verbosity.normal) : Bool :=
-  log.entries.any (·.level.visibleAtVerbosity verbosity)
+  log.any (·.level.visibleAtVerbosity verbosity)
 
 end Log
 
@@ -198,6 +201,7 @@ namespace ELogT
 
 instance [Monad m] : MonadLog (ELogT m) := ⟨ELogT.log⟩
 
+/-- Performs `x` and groups all logs generated into an error block. -/
 @[inline] def withError [Monad m] (x : ELogT m α) : ELogT m β := fun s => do
   let iniSz := s.size
   match (← x.run s) with

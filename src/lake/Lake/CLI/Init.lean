@@ -248,6 +248,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (lang : Config
           "no known toolchain name for the current Elan/Lean/Lake"
   else
     if tmp = .math then
+      logInfo "downloading mathlib `lean-toolchain` file"
       download mathToolchainUrl toolchainFile
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"

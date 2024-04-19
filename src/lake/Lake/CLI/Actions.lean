@@ -11,13 +11,12 @@ namespace Lake
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
-def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
+def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
   let ws ← getWorkspace
-  if let some exe := ws.findLeanExe? name then
-    let exeFile ← ws.runBuild exe.fetch buildConfig
-    env exeFile.toString args
-  else
-    error s!"unknown executable `{name}`"
+  let some exe := ws.findLeanExe? name
+    | error s!"unknown executable `{name}`"
+  let exeFile ← ws.runBuild exe.fetch buildConfig
+  env exeFile.toString args
 
 def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   let mut args :=
@@ -29,7 +28,7 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   logInfo s!"uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
 
-def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
+def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
   let pkgName := pkg.name.toString (escape := false)
   if pkg.testRunner.isAnonymous then
     error s!"{pkgName}: no test runner script or executable"

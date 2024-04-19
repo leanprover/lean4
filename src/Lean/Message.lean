@@ -82,17 +82,6 @@ inductive MessageData where
 
 namespace MessageData
 
-/-- Determines whether the message contains any content. -/
-def isEmpty : MessageData → Bool
-  | ofFormat f => f.isEmpty
-  | withContext _ m => m.isEmpty
-  | withNamingContext _ m => m.isEmpty
-  | nest _ m => m.isEmpty
-  | group m => m.isEmpty
-  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
-  | tagged _ m => m.isEmpty
-  | _ => false
-
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
 partial def hasTag : MessageData → Bool

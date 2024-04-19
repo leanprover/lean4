@@ -744,6 +744,9 @@ instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 
+@[inline] def Ref.modifyM (r : Ref α) (f : α → BaseIO α) : BaseIO Unit := ST.Prim.Ref.modifyM r f
+@[inline] def Ref.modifyGetM (r : Ref α) (f : α → BaseIO (β × α)) : BaseIO β := ST.Prim.Ref.modifyGetM r f
+
 namespace FS
 namespace Stream
 

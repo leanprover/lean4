@@ -169,9 +169,9 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
 /-- Snapshot after elaboration of the entire command. -/
 structure CommandFinishedSnapshot extends Language.Snapshot where
   /-- Resulting elaboration state. -/
-  cmdState : State
+  cmdState : Command.State
 deriving Nonempty
-instance : Language.ToSnapshotTree CommandFinishedSnapshot where
+instance : ToSnapshotTree CommandFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
 
 /-- State after a command has been parsed. -/
@@ -187,6 +187,8 @@ structure CommandParsedSnapshotData extends Snapshot where
   elabSnap : SnapshotTask DynamicSnapshot
   /-- State after processing is finished. -/
   finishedSnap : SnapshotTask CommandFinishedSnapshot
+  /-- Cache for `save`; to be replaced with incrementality. -/
+  tacticCache : IO.Ref Tactic.Cache
 deriving Nonempty
 
 /-- State after a command has been parsed. -/
@@ -213,9 +215,9 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
 
 /-- Cancels all significant computations from this snapshot onwards. -/
 partial def CommandParsedSnapshot.cancel (snap : CommandParsedSnapshot) : BaseIO Unit := do
-  -- This is the only relevant computation right now
-  -- TODO: cancel additional elaboration tasks if we add them without switching to implicit
-  -- cancellation
+  -- This is the only relevant computation right now, everything else is promises
+  -- TODO: cancel additional elaboration tasks (which will be tricky with `DynamicSnapshot`) if we
+  -- add them without switching to implicit cancellation
   snap.data.finishedSnap.cancel
   if let some next := snap.next? then
     -- recurse on next command (which may have been spawned just before we cancelled above)
@@ -449,6 +451,7 @@ where
         diagnostics := .empty, stx := .missing, parserState
         elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
         finishedSnap := .pure { diagnostics := .empty, cmdState }
+        tacticCache := (← IO.mkRef {})
       }
 
     let unchanged old : BaseIO CommandParsedSnapshot :=
@@ -485,11 +488,14 @@ where
         -- on first change, make sure to cancel all further old tasks
         old.cancel
 
-      -- definitely assigned in `doElab` task
-      let headers ← IO.Promise.new
+      -- definitely resolved in `doElab` task
+      let elabPromise ← IO.Promise.new
+      let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
       let finishedSnap ←
         doElab stx cmdState msgLog.hasErrors beginPos
-          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := headers } ctx
+          { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
+          tacticCache
+          ctx
 
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
@@ -499,20 +505,28 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
-        elabSnap := { range? := none, task := headers.result }
+        elabSnap := { range? := finishedSnap.range?, task := elabPromise.result }
         finishedSnap
+        tacticCache
       }
 
   doElab (stx : Syntax) (cmdState : Command.State) (hasParseError : Bool) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) :
+      (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO (stx.getRange?.getD ⟨beginPos, beginPos⟩) do
       let scope := cmdState.scopes.head!
       let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
+      /-
+      The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
+      has exclusive access to the cache, we create a fresh reference here. Before this change, the
+      following `tacticCache.modify` would reset the tactic post cache while another snapshot was
+      still using it.
+      -/
+      let tacticCacheNew ← IO.mkRef (← tacticCache.get)
       let cmdCtx : Elab.Command.Context := { ctx with
         cmdPos       := beginPos
-        tacticCache? := none
+        tacticCache? := some tacticCacheNew
         snap?        := some snap
       }
       let (output, _) ←
@@ -543,8 +557,7 @@ where
           data     := output
         }
       let cmdState := { cmdState with messages }
-      -- only has an effect if actual `resolve` was skipped from fatal exception (caught by
-      -- `catchExceptions` above) or it not being a mutual def
+      -- definitely resolve eventually
       snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
       return {
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)

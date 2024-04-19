@@ -307,7 +307,7 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-betweeen elaboration runs, not for backtracking within a single run.
+between elaboration runs, not for backtracking within a single run.
 -/
 def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
   s.meta.restoreFull

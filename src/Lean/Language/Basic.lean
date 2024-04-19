@@ -17,11 +17,6 @@ set_option linter.missingDocs true
 
 namespace Lean.Language
 
-/-- Unique diagnostics ID type of `Snapshot.Diagnostics.id?`. -/
-structure Snapshot.Diagnostics.ID where
-  private id : Nat
-deriving Nonempty, BEq, Ord
-
 /-- `MessageLog` with interactive diagnostics. -/
 structure Snapshot.Diagnostics where
   /-- Non-interactive message log. -/
@@ -35,15 +30,6 @@ structure Snapshot.Diagnostics where
   -/
   interactiveDiagsRef? : Option (IO.Ref (Option Dynamic))
 deriving Inhabited
-
-/-- Next ID to be used for `Snapshot.Diagnostics.id?`. -/
--- As the `Nat` value is not observable outside of this  module, using a global ref should be
--- justified and simplifies reporting diagnostics from inside the elaborator
-private builtin_initialize nextDiagsIdRef : IO.Ref Nat ← IO.mkRef 0
-
-/-- Returns a new, unique diagnostics ID. -/
-def Snapshot.Diagnostics.ID.new : BaseIO ID :=
-  nextDiagsIdRef.modifyGet fun id => (⟨id⟩, id + 1)
 
 /-- The empty set of diagnostics. -/
 def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where

@@ -941,7 +941,7 @@ where
     for header in headers, view in views do
       if let some classNamesStx := view.deriving? then
         for classNameStx in classNamesStx do
-          let className ← resolveGlobalConstNoOverload classNameStx
+          let className ← realizeGlobalConstNoOverload classNameStx
           withRef classNameStx do
             unless (← processDefDeriving className header.declName) do
               throwError "failed to synthesize instance '{className}' for '{header.declName}'"

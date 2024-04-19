@@ -179,7 +179,7 @@ def restore (b : State) : CoreM Unit :=
 
 /--
 Restores full state including sources for unique identifiers. Only intended for incremental reuse
-betweeen elaboration runs, not for backtracking within a single run.
+between elaboration runs, not for backtracking within a single run.
 -/
 def restoreFull (b : State) : CoreM Unit :=
   set b

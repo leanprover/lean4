@@ -239,8 +239,6 @@ namespace SerialMessage
 @[inline] def toMessage (msg : SerialMessage) : Message :=
   {msg with data := msg.data}
 
-instance : Coe SerialMessage Message := ⟨SerialMessage.toMessage⟩
-
 protected def toString (msg : SerialMessage) (includeEndPos := false) : String := Id.run do
   let mut str := msg.data
   let endPos := if includeEndPos then msg.endPos else none
@@ -264,11 +262,11 @@ namespace Message
   return {msg with data := ← msg.data.toString}
 
 protected def toString (msg : Message) (includeEndPos := false) : IO String := do
-  -- Remark: We inline here to avoid a copy in the case were `msg` is shared
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| (← msg.serialize).toString includeEndPos
 
 protected def toJson (msg : Message) : IO Json := do
-  -- Remark: We inline here to avoid a copy in the case were `msg` is shared
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
   return inline <| toJson (← msg.serialize)
 
 end Message

@@ -140,7 +140,10 @@ export ToSnapshotTree (toSnapshotTree)
   preorder. -/
 @[specialize] partial def SnapshotTree.forM [Monad m] (s : SnapshotTree)
     (f : Snapshot → m PUnit) : m PUnit := do
-  match s with | mk element children => f element; children.forM (·.get.forM f)
+  match s with
+  | mk element children =>
+    f element
+    children.forM (·.get.forM f)
 
 /--
   Option for printing end position of each message in addition to start position. Used for testing

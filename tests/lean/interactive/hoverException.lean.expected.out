@@ -1,3 +1,8 @@
 {"textDocument": {"uri": "file:///hoverException.lean"},
  "position": {"line": 2, "character": 14}}
-null
+{"range":
+ {"start": {"line": 2, "character": 7}, "end": {"line": 2, "character": 18}},
+ "contents":
+ {"value":
+  "Explicit binder, like `(x y : A)` or `(x y)`.\nDefault values can be specified using `(x : A := v)` syntax, and tactics using `(x : A := by tac)`.\n",
+  "kind": "markdown"}}

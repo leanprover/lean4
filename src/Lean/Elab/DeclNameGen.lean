@@ -51,6 +51,8 @@ Expressions can also be replaced by `.bvar 0` if they shouldn't be mentioned.
 -/
 private partial def winnowExpr (e : Expr) : MetaM Expr := do
   let rec visit (e : Expr) : MonadCacheT Expr Expr MetaM Expr := checkCache e fun _ => do
+    if ← isProof e then
+      return .bvar 0
     match e with
     | .app .. =>
       if let some e' ← getParentProjArg e then

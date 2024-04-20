@@ -5,6 +5,7 @@ Authors: Kyle Miller
 -/
 prelude
 import Lean.Elab.Notation
+import Lean.Util.Diff
 import Lean.Server.CodeActions.Attr
 
 /-! `#guard_msgs` command for testing commands
@@ -14,6 +15,12 @@ See the docstring on the `#guard_msgs` command.
 -/
 
 open Lean Parser.Tactic Elab Command
+
+register_builtin_option guard_msgs.diff : Bool := {
+  defValue := false
+  descr := "When true, show a diff between expected and actual messages if they don't match. "
+}
+
 
 namespace Lean.Elab.Tactic.GuardMsgs
 
@@ -151,7 +158,12 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
     else
       -- Failed. Put all the messages back on the message log and add an error
       modify fun st => { st with messages := initMsgs ++ msgs }
-      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{res}"
+      let feedback :=
+        if (← getOptions).getBool `guard_msgs.diff false then
+          let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
+          Diff.linesToString diff
+        else res
+      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
       pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
   | _ => throwUnsupportedSyntax
 

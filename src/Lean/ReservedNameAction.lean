@@ -67,12 +67,18 @@ def realizeGlobalConstNoOverloadCore (n : Name) : CoreM Name := do
 
 /--
 Similar to `resolveGlobalConst`, but also executes reserved name actions.
+
+Consider using `realizeGlobalConstWithInfo` if you want the syntax to show the resulting name's info
+on hover.
 -/
 def realizeGlobalConst (stx : Syntax) : CoreM (List Name) :=
   withRef stx do preprocessSyntaxAndResolve stx realizeGlobalConstCore
 
 /--
 Similar to `realizeGlobalConstNoOverload`, but also executes reserved name actions.
+
+Consider using `realizeGlobalConstNoOverloadWithInfo` if you want the syntax to show the resulting
+name's info on hover.
 -/
 def realizeGlobalConstNoOverload (id : Syntax) : CoreM Name := do
   ensureNonAmbiguous id (← realizeGlobalConst id)

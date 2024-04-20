@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.SetOption
+import Lean.Language.Basic
 
 namespace Lean.Elab.Command
 
@@ -44,6 +45,16 @@ structure Context where
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
+  /--
+  Snapshot for incremental reuse and reporting of command elaboration. Currently unused in Lean
+  itself.
+
+  Definitely resolved in `Language.Lean.process.doElab`.
+
+  Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
+  old elaboration are identical.
+  -/
+  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -520,6 +531,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
       fileMap := ← getFileMap
       ref := ← getRef
       tacticCache? := none
+      snap? := none
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth

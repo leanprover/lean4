@@ -9,6 +9,7 @@ Authors: Sebastian Ullrich
 -/
 
 prelude
+import Init.System.Promise
 import Lean.Message
 import Lean.Parser.Types
 
@@ -58,23 +59,26 @@ deriving Inhabited
 -- cursor position. This may require starting the tasks suspended (e.g. in `Thunk`). The server may
 -- also need more dependency information for this in order to avoid priority inversion.
 structure SnapshotTask (α : Type) where
-  /-- Range that is marked as being processed by the server while the task is running. -/
-  range : String.Range
+  /--
+  Range that is marked as being processed by the server while the task is running. If `none`,
+  the range of the outer task if some or else the entire file is reported.
+  -/
+  range? : Option String.Range
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty
 
 /-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
-def SnapshotTask.ofIO (range : String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
+def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
   return {
-    range
+    range?
     task := (← BaseIO.asTask act)
   }
 
 /-- Creates a finished snapshot task. -/
 def SnapshotTask.pure (a : α) : SnapshotTask α where
   -- irrelevant when already finished
-  range := default
+  range? := none
   task := .pure a
 
 /--
@@ -84,23 +88,26 @@ def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
   IO.cancel t.task
 
 /-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range : String.Range := t.range)
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range? : Option String.Range := t.range?)
     (sync := false) : SnapshotTask β :=
-  { range, task := t.task.map (sync := sync) f }
+  { range?, task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
   the second task is discarded. -/
 def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
-    (range : String.Range := t.range) (sync := false) : SnapshotTask β :=
-  { range, task := t.task.bind (sync := sync) (act · |>.task) }
+    (range? : Option String.Range := t.range?) (sync := false) : SnapshotTask β :=
+  { range?, task := t.task.bind (sync := sync) (act · |>.task) }
 
 /--
   Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
   the second task is discarded. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (range : String.Range := t.range) (sync := false) : BaseIO (SnapshotTask β) :=
-  return { range, task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a)) }
+    (range? : Option String.Range := t.range?) (sync := false) : BaseIO (SnapshotTask β) :=
+  return {
+    range?
+    task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
+  }
 
 /-- Synchronously waits on the result of the task. -/
 def SnapshotTask.get (t : SnapshotTask α) : α :=
@@ -111,6 +118,40 @@ def SnapshotTask.get? (t : SnapshotTask α) : BaseIO (Option α) :=
   return if (← IO.hasFinished t.task) then some t.task.get else none
 
 /--
+Arbitrary value paired with a syntax that should be inspected when considering the value for reuse.
+-/
+structure SyntaxGuarded (α : Type) where
+  /-- Syntax to be inspected for reuse. -/
+  stx : Syntax
+  /-- Potentially reusable value. -/
+  val : α
+
+/--
+Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
+incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
+checking if we can reuse `old?` if set or else redoing the corresponding elaboration step. In either
+case, we derive new bundles for nested snapshots, if any, and finally `resolve` `new` to the result.
+
+Note that failing to `resolve` a created promise will block the language server indefinitely!
+Corresponding `IO.Promise.new` calls should come with a "definitely resolved in ..." comment
+explaining how this is avoided in each case.
+
+In the future, the 1-element history `old?` may be replaced with a global cache indexed by strong
+hashes but the promise will still need to be passed through the elaborator.
+-/
+structure SnapshotBundle (α : Type) where
+  /--
+  Snapshot task of corresponding elaboration in previous document version if any, paired with its
+  old syntax to be considered for reuse. Should be set to `none` as soon as reuse can be ruled out.
+  -/
+  old? : Option (SyntaxGuarded (SnapshotTask α))
+  /--
+  Promise of snapshot value for the current document. When resolved, the language server will
+  report its result even before the current elaborator invocation has finished.
+  -/
+  new  : IO.Promise α
+
+/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
@@ -118,7 +159,7 @@ def SnapshotTask.get? (t : SnapshotTask α) : BaseIO (Option α) :=
 inductive SnapshotTree where
   /-- Creates a snapshot tree node. -/
   | mk (element : Snapshot) (children : Array (SnapshotTask SnapshotTree))
-deriving Nonempty
+deriving Inhabited
 
 /-- The immediately available element of the snapshot tree node. -/
 abbrev SnapshotTree.element : SnapshotTree → Snapshot
@@ -134,6 +175,39 @@ class ToSnapshotTree (α : Type) where
   /-- Transforms a language-specific snapshot to a homogeneous snapshot tree. -/
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
+
+instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
+  toSnapshotTree
+    | some a => toSnapshotTree a
+    | none   => default
+
+/-- Snapshot type without child nodes. -/
+structure SnapshotLeaf extends Snapshot
+deriving Nonempty, TypeName
+
+instance : ToSnapshotTree SnapshotLeaf where
+  toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
+
+/-- Arbitrary snapshot type, used for extensibility. -/
+structure DynamicSnapshot where
+  /-- Concrete snapshot value as `Dynamic`. -/
+  val  : Dynamic
+  /-- Snapshot tree retrieved from `val` before erasure. -/
+  tree : SnapshotTree
+deriving Nonempty
+
+instance : ToSnapshotTree DynamicSnapshot where
+  toSnapshotTree s := s.tree
+
+/-- Creates a `DynamicSnapshot` from a typed snapshot value. -/
+def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : DynamicSnapshot where
+  val := .mk val
+  tree := ToSnapshotTree.toSnapshotTree val
+
+/-- Returns the original snapshot value if it is of the given type. -/
+def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
+    Option α :=
+  snap.val.get? α
 
 /--
   Option for printing end position of each message in addition to start position. Used for testing
@@ -187,7 +261,7 @@ Creates snapshot message log from non-interactive message log, also allocating a
 that can be used by the server to memorize interactive diagnostics derived from the log.
 -/
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
-    ProcessingM Snapshot.Diagnostics := do
+    BaseIO Snapshot.Diagnostics := do
   return { msgLog, interactiveDiagsRef? := some (← IO.mkRef none) }
 
 /-- Creates diagnostics from a single error message that should span the whole file. -/

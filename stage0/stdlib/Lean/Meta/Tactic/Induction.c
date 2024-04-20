@@ -235,8 +235,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_add
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__6___closed__8;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__5;
@@ -3133,7 +3133,7 @@ lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_add(x_2, x_44);
-x_46 = l_Nat_repr(x_45);
+x_46 = l___private_Init_Data_Repr_0__Nat_reprFast(x_45);
 x_47 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_47, 0, x_46);
 x_48 = lean_alloc_ctor(0, 1, 0);

@@ -63,7 +63,6 @@ static lean_object* l_Lean_Compiler_LCNF_normLevelParams___closed__2;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_normLevelParams(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__3;
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_NormLevelParam_State_map___default;
 extern lean_object* l_Lean_instInhabitedExpr;
@@ -72,7 +71,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Colle
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_simpLevelIMax_x27(lean_object*, lean_object*, lean_object*);
@@ -87,6 +85,7 @@ lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParam(lean_object*, le
 lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__8(lean_object*, lean_object*, lean_object*);
+lean_object* l_StateT_instMonad___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(lean_object*, lean_object*);
@@ -100,6 +99,7 @@ uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParams___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__5(lean_object*, lean_object*);
+extern lean_object* l_Id_instMonad;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normExpr(lean_object*, lean_object*);
@@ -110,9 +110,9 @@ lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
-extern lean_object* l_Id_instMonadId;
 uint8_t l_Lean_Expr_hasLevelParam(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitAlts___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_NormLevelParam_State_map___default___spec__1___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -543,8 +543,8 @@ static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLev
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Id_instMonadId;
-x_2 = l_StateT_instMonadStateT___rarg(x_1);
+x_1 = l_Id_instMonad;
+x_2 = l_StateT_instMonad___rarg(x_1);
 return x_2;
 }
 }
@@ -554,7 +554,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__9___closed__1;
 x_2 = l_Lean_instInhabitedLevel;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -1058,7 +1058,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__9___closed__1;
 x_2 = l_Lean_instInhabitedExpr;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }

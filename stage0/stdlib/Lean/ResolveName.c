@@ -21,7 +21,6 @@ static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_379____closed__1
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_ResolveName_resolveGlobalName_loop___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_ensureNoOverload___spec__3(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadResolveName___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +64,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ensureNonAmbiguous___rarg___closed__2;
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_addAliasEntry___spec__9___closed__1;
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadResolveName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal_unresolveNameCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_resolveUsingNamespace(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_filterTR_loop___at_Lean_getAliases___spec__1___closed__1;
@@ -129,7 +127,6 @@ LEAN_EXPORT lean_object* l_Lean_resolveUniqueNamespace___rarg___lambda__1(lean_o
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__6(lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDups___at_Lean_ResolveName_resolveGlobalName_loop___spec__1(lean_object*);
-lean_object* l_Lean_SMap_instInhabitedSMap___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -158,7 +155,6 @@ LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getAliasState___boxed(lean_object*);
 lean_object* lean_list_to_array(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_registerReservedNamePredicate___closed__1;
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_getAliases___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ensureNonAmbiguous(lean_object*);
@@ -210,6 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___rarg___lambda__3(lean_obj
 LEAN_EXPORT lean_object* l_Lean_getAliases___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveNamespace___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___at_Lean_addAliasEntry___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadResolveNameOfMonadLift(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_addAliasEntry___spec__17(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverloadCore(lean_object*);
@@ -285,16 +282,16 @@ LEAN_EXPORT lean_object* l_Lean_unresolveNameGlobal___rarg___lambda__2___boxed(l
 static lean_object* l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getRevAliases___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_ensureNonAmbiguous___spec__2(lean_object*, lean_object*);
-lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 LEAN_EXPORT lean_object* l_panic___at_Lean_ensureNonAmbiguous___spec__1(lean_object*);
-extern lean_object* l_Lean_Name_instBEqName;
 LEAN_EXPORT lean_object* l_Lean_resolveUniqueNamespace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ensureNoOverload___rarg___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_addAliasEntry___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_SMap_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_addAliasEntry___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_addAliasEntry___spec__9(lean_object*, size_t, size_t, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
@@ -308,6 +305,7 @@ LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_initFn____x40_Lean_ResolveNa
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_getRevAliases___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_instBEq;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_throwReservedNameNotAvailable___rarg___closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_119____closed__1;
@@ -317,6 +315,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
+lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at_Lean_getRevAliases___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_filterFieldList___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__1;
@@ -340,6 +339,7 @@ LEAN_EXPORT lean_object* l_Lean_ResolveName_resolveGlobalName_loop___boxed(lean_
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_unresolveNameGlobal_unresolveNameCore___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getAliases(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_instMonadResolveNameOfMonadLift___rarg(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_throwReservedNameNotAvailable___rarg___closed__1() {
 _start:
 {
@@ -2422,9 +2422,9 @@ static lean_object* _init_l_Lean_getAliasState___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Name_instBEqName;
+x_1 = l_Lean_Name_instBEq;
 x_2 = l_Lean_instHashableName;
-x_3 = l_Lean_SMap_instInhabitedSMap___rarg(x_1, x_2);
+x_3 = l_Lean_SMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -4097,7 +4097,7 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadResolveName___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadResolveNameOfMonadLift___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -4115,11 +4115,11 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadResolveName(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadResolveNameOfMonadLift(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_instMonadResolveName___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_instMonadResolveNameOfMonadLift___rarg), 2, 0);
 return x_3;
 }
 }
@@ -4629,7 +4629,7 @@ x_9 = lean_string_append(x_8, x_7);
 lean_dec(x_7);
 x_10 = l_Lean_resolveUniqueNamespace___rarg___lambda__1___closed__2;
 x_11 = lean_string_append(x_9, x_10);
-x_12 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_4);
+x_12 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1(x_4);
 x_13 = lean_string_append(x_11, x_12);
 lean_dec(x_12);
 x_14 = l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2;
@@ -4674,7 +4674,7 @@ x_28 = lean_string_append(x_27, x_26);
 lean_dec(x_26);
 x_29 = l_Lean_resolveUniqueNamespace___rarg___lambda__1___closed__2;
 x_30 = lean_string_append(x_28, x_29);
-x_31 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_4);
+x_31 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1(x_4);
 x_32 = lean_string_append(x_30, x_31);
 lean_dec(x_31);
 x_33 = l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2;
@@ -5568,7 +5568,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_Lean_instInhabitedName;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -5645,7 +5645,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__1;
 x_2 = l_Lean_ensureNonAmbiguous___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(354u);
+x_3 = lean_unsigned_to_nat(357u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

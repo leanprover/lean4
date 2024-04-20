@@ -526,6 +526,82 @@ def cases₂ (mvarId : MVarId) (p : Expr) (hName : Name := `h) :
     | throwError "'cases' tactic failed, unexpected new hypothesis"
   return ((s₁.mvarId, f₁), (s₂.mvarId, f₂))
 
+/--
+Helpful error message when omega cannot find a solution
+-/
+def formatErrorMessage (p : Problem) : OmegaM MessageData := do
+  if p.possible then
+    if p.isEmpty then
+      return m!"it is false"
+    else
+      let as ← atoms
+      let mask ← mentioned p.constraints
+      let names ← varNames mask
+      return m!"a possible counterexample may satisfy the constraints\n" ++
+        m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
+  else
+    -- formatErrorMessage should not be used in this case
+    return "it is trivially solvable"
+where
+  varNameOf (i : Nat) : String :=
+    let c : Char := .ofNat ('a'.toNat + (i % 26))
+    let suffix := if i < 26 then "" else s!"_{i / 26}"
+    s!"{c}{suffix}"
+
+  inScope (s : String) : MetaM Bool := do
+    let n := .mkSimple s
+    if (← resolveGlobalName n).isEmpty then
+      if ((← getLCtx).findFromUserName? n).isNone then
+        return false
+    return true
+
+  -- Assign ascending names a, b, c, …, z, a1 … to all atoms mentioned according to the mask
+  -- but avoid names in the local or global scope
+  varNames (mask : Array Bool) : MetaM (Array String) := do
+    let mut names := #[]
+    let mut next := 0
+    for h : i in [:mask.size] do
+      if mask[i] then
+        while ← inScope (varNameOf next) do next := next + 1
+        names := names.push (varNameOf next)
+        next := next + 1
+      else
+        names := names.push "(masked)"
+    return names
+
+  prettyConstraints (names : Array String) (constraints : HashMap Coeffs Fact) : String :=
+    constraints.toList
+      |>.map (fun ⟨coeffs, ⟨_, cst, _⟩⟩ => "  " ++ prettyConstraint (prettyCoeffs names coeffs) cst)
+      |> "\n".intercalate
+
+  prettyConstraint (e : String) : Constraint → String
+    | ⟨none, none⟩ => s!"{e} is unconstrained" -- should not happen in error messages
+    | ⟨none, some y⟩ => s!"{e} ≤ {y}"
+    | ⟨some x, none⟩ => s!"{e} ≥ {x}"
+    | ⟨some x, some y⟩ =>
+      if y < x then "∅" else -- should not happen in error messages
+      s!"{x} ≤ {e} ≤ {y}"
+
+  prettyCoeffs (names : Array String) (coeffs : Coeffs) : String :=
+    coeffs.toList.enum
+      |>.filter (fun (_,c) => c ≠ 0)
+      |>.enum
+      |>.map (fun (j, (i,c)) =>
+        (if j > 0 then if c > 0 then " + " else " - " else if c > 0 then "" else "- ") ++
+        (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
+      |> String.join
+
+  mentioned (constraints : HashMap Coeffs Fact) : OmegaM (Array Bool) := do
+    let initMask := Array.mkArray (← getThe State).atoms.size false
+    return constraints.fold (init := initMask) fun mask coeffs _ =>
+      coeffs.enum.foldl (init := mask) fun mask (i, c) =>
+        if c = 0 then mask else mask.set! i true
+
+  prettyAtoms (names : Array String) (atoms : Array Expr) (mask : Array Bool) : MessageData :=
+    (Array.zip names atoms).toList.enum
+      |>.filter (fun (i, _) => mask.getD i false)
+      |>.map (fun (_, (n, a)) => m!" {n} := {a}")
+      |> m!"\n".joinSep
 
 mutual
 
@@ -535,7 +611,7 @@ call `omegaImpl` in both branches.
 -/
 partial def splitDisjunction (m : MetaProblem) (g : MVarId) : OmegaM Unit := g.withContext do
   match m.disjunctions with
-    | [] => throwError "omega did not find a contradiction:\n{m.problem}"
+    | [] => throwError "omega could not prove the goal:\n{← formatErrorMessage m.problem}"
     | h :: t =>
       trace[omega] "Case splitting on {← inferType h}"
       let ctx ← getMCtx

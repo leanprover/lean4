@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Nat_instDivNat;
 LEAN_EXPORT lean_object* l_Nat_modCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mod_inductionOn(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_div_inductionOn(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instModNat;
 LEAN_EXPORT lean_object* l_Nat_div___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instMod;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instDvdNat;
 LEAN_EXPORT lean_object* l_Nat_div_inductionOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mod_inductionOn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instDvd;
+LEAN_EXPORT lean_object* l_Nat_instDiv;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-static lean_object* l_Nat_instModNat___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_Nat_instDivNat___closed__1;
+static lean_object* l_Nat_instMod___closed__1;
+static lean_object* l_Nat_instDiv___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
-static lean_object* _init_l_Nat_instDvdNat() {
+static lean_object* _init_l_Nat_instDvd() {
 _start:
 {
 lean_object* x_1; 
@@ -49,7 +49,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_instDivNat___closed__1() {
+static lean_object* _init_l_Nat_instDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -57,11 +57,11 @@ x_1 = lean_alloc_closure((void*)(l_Nat_div___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_instDivNat() {
+static lean_object* _init_l_Nat_instDiv() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_instDivNat___closed__1;
+x_1 = l_Nat_instDiv___closed__1;
 return x_1;
 }
 }
@@ -130,7 +130,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Nat_instModNat___closed__1() {
+static lean_object* _init_l_Nat_instMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -138,11 +138,11 @@ x_1 = lean_alloc_closure((void*)(l_Nat_mod___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Nat_instModNat() {
+static lean_object* _init_l_Nat_instMod() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Nat_instModNat___closed__1;
+x_1 = l_Nat_instMod___closed__1;
 return x_1;
 }
 }
@@ -179,16 +179,16 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Nat_instDvdNat = _init_l_Nat_instDvdNat();
-lean_mark_persistent(l_Nat_instDvdNat);
-l_Nat_instDivNat___closed__1 = _init_l_Nat_instDivNat___closed__1();
-lean_mark_persistent(l_Nat_instDivNat___closed__1);
-l_Nat_instDivNat = _init_l_Nat_instDivNat();
-lean_mark_persistent(l_Nat_instDivNat);
-l_Nat_instModNat___closed__1 = _init_l_Nat_instModNat___closed__1();
-lean_mark_persistent(l_Nat_instModNat___closed__1);
-l_Nat_instModNat = _init_l_Nat_instModNat();
-lean_mark_persistent(l_Nat_instModNat);
+l_Nat_instDvd = _init_l_Nat_instDvd();
+lean_mark_persistent(l_Nat_instDvd);
+l_Nat_instDiv___closed__1 = _init_l_Nat_instDiv___closed__1();
+lean_mark_persistent(l_Nat_instDiv___closed__1);
+l_Nat_instDiv = _init_l_Nat_instDiv();
+lean_mark_persistent(l_Nat_instDiv);
+l_Nat_instMod___closed__1 = _init_l_Nat_instMod___closed__1();
+lean_mark_persistent(l_Nat_instMod___closed__1);
+l_Nat_instMod = _init_l_Nat_instMod();
+lean_mark_persistent(l_Nat_instMod);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

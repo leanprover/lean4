@@ -1922,6 +1922,19 @@ static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }
 
+extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return false;
+    }
+    usize i = lean_unbox(i0);
+    usize sz = lean_string_size(s) - 1;
+    if (i > sz) return false;
+    if (i == sz) return true;
+    char const * str = lean_string_cstr(s);
+    return is_utf8_first_byte(str[i]);
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
     if (!lean_is_scalar(b0) || !lean_is_scalar(e0)) {
         /* See comment at string_utf8_get */

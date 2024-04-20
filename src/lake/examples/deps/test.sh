@@ -6,6 +6,7 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 ./clean.sh
 
 $LAKE -d bar build --update
+diff --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
 $LAKE -d foo build --update
 
 ./foo/.lake/build/bin/foo
@@ -29,6 +30,7 @@ test ! -d foo/.lake/build
 ./clean.sh
 
 $LAKE -d bar -f lakefile.toml build --update
+diff --strip-trailing-cr bar/lake-manifest.expected.json bar/lake-manifest.json
 $LAKE -d foo -f lakefile.toml build --update
 
 ./foo/.lake/build/bin/foo

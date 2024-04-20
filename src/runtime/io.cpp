@@ -37,6 +37,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <iomanip>
 #include <string>
 #include <cstdlib>
+#include <cstddef>
 #include <cctype>
 #include <sys/stat.h>
 #include "util/io.h"
@@ -487,34 +488,26 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
 
 /*
   Handle.getLine : (@& Handle) → IO Unit
-  The line returned by `lean_io_prim_handle_get_line`
-  is truncated at the first '\0' character and the
-  rest of the line is discarded. */
+  Include the newline character at the end, if found.
+  Null characters do not cause truncation.
+*/
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
-    const int buf_sz = 64;
-    char buf_str[buf_sz]; // NOLINT
-    std::string result;
-    bool first = true;
-    while (true) {
-        char * out = std::fgets(buf_str, buf_sz, fp);
-        if (out != nullptr) {
-            if (strlen(buf_str) < buf_sz-1 || buf_str[buf_sz-2] == '\n') {
-                if (first) {
-                    return io_result_mk_ok(mk_string(out));
-                } else {
-                    result.append(out);
-                    return io_result_mk_ok(mk_string(result));
-                }
-            }
-            result.append(out);
-        } else if (std::feof(fp)) {
-            clearerr(fp);
-            return io_result_mk_ok(mk_string(result));
-        } else {
-            return io_result_mk_error(decode_io_error(errno, nullptr));
+    std::string string;
+    for (;;) {
+        int c = std::fgetc(fp);
+        if (c != EOF) {
+            string.append(1, c);
+            if (c == '\n')
+                // Do not ungetc -> ignore newline in subsequent reads.
+                return io_result_mk_ok(mk_string(string));
+            continue;
         }
-        first = false;
+        if (std::ferror(fp))
+            return io_result_mk_error(decode_io_error(errno, nullptr));
+        if (std::feof(fp))
+            std::clearerr(fp);
+        return io_result_mk_ok(mk_string(string));
     }
 }
 

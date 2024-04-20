@@ -1618,6 +1618,28 @@ extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
     return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
+extern "C" LEAN_EXPORT uint8_t lean_bytearray_is_utf8(b_obj_arg a) {
+    auto s = reinterpret_cast<char const *>(lean_sarray_cptr(a));
+    size_t const n = lean_sarray_size(a);
+    for (size_t i = 0; i < n;) {
+        // Old value of `i`.
+        auto const j = i;
+        // Apply the following assumptions:
+        //  - If j + 1 == i ("i is incremented by 1") then
+        //      s[j] is either ASCII or does not begin a (valid) code point ("invalid").
+        //  - If s[j] is invalid then it's not ASCII.
+        //  - If invalid, i is incremented by 1.
+        //  - If ASCII, i is incremented by 1.
+        // Thus,
+        //  - s[j] is invalid if and only if i is incremented by 1 and not ASCII.
+        next_utf8(s, n, i);
+        if (j + 1 == i && (static_cast<unsigned char>(s[j]) & 0x80))
+            // Not ASCII -> invalid.
+            return false;
+    }
+    return true;
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
     size_t sz = lean_string_size(s) - 1;
     obj_res r = lean_alloc_sarray(1, sz, sz);

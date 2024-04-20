@@ -434,13 +434,14 @@ partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
   loop ByteArray.empty
 
 partial def Handle.readToEnd (h : Handle) : IO String := do
-  let rec loop (s : String) := do
-    let line ← h.getLine
-    if line.isEmpty then
-      return s
+  let s ← h.readBinToEnd
+  let s := if System.Platform.isWindows then
+      -- Remove carriage return (0x0d).
+      ByteArray.mk <| Array.filter (λ c => c != UInt8.mk 0x0d) (s.data)
     else
-      loop (s ++ line)
-  loop ""
+      s
+  -- TODO: Better panic?
+  if String.isUtf8 s then return String.fromUTF8Unchecked s else panic! "invalid UTF-8"
 
 def readBinFile (fname : FilePath) : IO ByteArray := do
   let h ← Handle.mk fname Mode.read

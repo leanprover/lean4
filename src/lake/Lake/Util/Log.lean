@@ -14,6 +14,11 @@ inductive Verbosity
 | verbose
 deriving Repr, DecidableEq, Ord
 
+instance : LT Verbosity := ltOfOrd
+instance : LE Verbosity := leOfOrd
+instance : Min Verbosity := minOfLe
+instance : Max Verbosity := maxOfLe
+
 instance : Inhabited Verbosity := ⟨.normal⟩
 
 inductive LogLevel
@@ -22,6 +27,11 @@ inductive LogLevel
 | warning
 | error
 deriving Inhabited, Repr, DecidableEq, Ord
+
+instance : LT LogLevel := ltOfOrd
+instance : LE LogLevel := leOfOrd
+instance : Min LogLevel := minOfLe
+instance : Max LogLevel := maxOfLe
 
 protected def LogLevel.toString : LogLevel → String
 | .trace => "trace"

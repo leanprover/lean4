@@ -40,7 +40,8 @@ def Workspace.runFetchM
   let showProgress :=
     (cfg.noBuild && verbosity == .verbose) ||
     verbosity != .quiet
-  let header := "[?/?] Computing build jobs"
+  let caption := "Computing build jobs"
+  let header := s!"[?/?] {caption}"
   if showProgress then
     out.putStr header; out.flush
   let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run.run'.run ctx).captureLog
@@ -56,14 +57,18 @@ def Workspace.runFetchM
       out.putStr "stdout/stderr:\n"
       out.putStr io
     out.flush
+  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
+  let failures := if log.any (·.level ≥ failLv) then #[caption] else #[]
   let jobs ← ctx.registeredJobs.get
   let numJobs := jobs.size
-  numJobs.forM fun i => do
+  let failures ← numJobs.foldM (init := failures) fun i s => Prod.snd <$> StateT.run (s := s) do
     let (caption, job) := jobs[i]!
     let header := s!"[{i+1}/{numJobs}] {caption}"
     if showProgress then
       out.putStr header; out.flush
     let log := (← job.wait).state
+    if log.any (·.level ≥ failLv) then
+      modify (·.push caption)
     if !log.hasVisibleEntries verbosity then
       if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
     else
@@ -72,8 +77,14 @@ def Workspace.runFetchM
       out.putStr "\n"
       log.replay (logger := MonadLog.stream out verbosity)
       out.flush
-  let some a := a? | error "build failed"
-  return a
+  if failures.isEmpty then
+    let some a := a?
+      | error "build failed"
+    return a
+  else
+    out.putStr "Some build steps logged failures:\n"
+    failures.forM (out.putStr s!"- {·}\n")
+    error "build failed"
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild

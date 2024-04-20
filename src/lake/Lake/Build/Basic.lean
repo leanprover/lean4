@@ -23,6 +23,13 @@ structure BuildConfig where
   /-- Early exit if a target has to be rebuilt. -/
   noBuild : Bool := false
   verbosity : Verbosity := .normal
+  /--
+  Fail the top-level build if warnings have been logged.
+  Unlike some build systems, this does **NOT** convert warnings to errors,
+  and it does not abort jobs when warnings are logged (i.e., dependent jobs
+  will still continue unimpeded).
+  -/
+  failIfWarnings : Bool := false
   /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
   useStdout : Bool := false
 

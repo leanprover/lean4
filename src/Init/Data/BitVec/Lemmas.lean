@@ -376,30 +376,6 @@ theorem msb_zeroExtend (x : BitVec w) : (x.zeroExtend v).msb = (decide (0 < v) &
 theorem msb_zeroExtend' (x : BitVec w) (h : w ≤ v) : (x.zeroExtend' h).msb = (decide (0 < v) && x.getLsb (v - 1)) := by
   rw [zeroExtend'_eq, msb_zeroExtend]
 
-/-! ## extractLsb -/
-
-@[simp]
-protected theorem extractLsb_ofFin {n} (x : Fin (2^n)) (hi lo : Nat) :
-  extractLsb hi lo (@BitVec.ofFin n x) = .ofNat (hi-lo+1) (x.val >>> lo) := rfl
-
-@[simp]
-protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
-  extractLsb hi lo x#n = .ofNat (hi - lo + 1) ((x % 2^n) >>> lo) := by
-  apply eq_of_getLsb_eq
-  intro ⟨i, _lt⟩
-  simp [BitVec.ofNat]
-
-@[simp] theorem extractLsb'_toNat (s m : Nat) (x : BitVec n) :
-  (extractLsb' s m x).toNat = (x.toNat >>> s) % 2^m := rfl
-
-@[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
-  (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
-
-@[simp] theorem getLsb_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
-    getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
-  unfold getLsb
-  simp [Nat.lt_succ]
-
 /-! ### allOnes -/
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by
@@ -655,6 +631,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem truncate_cons {x : BitVec w} : (cons a x).truncate w = x := by
   simp [cons]
 
+
 @[simp] theorem not_append {x : BitVec w} {y : BitVec v} : ~~~ (x ++ y) = (~~~ x) ++ (~~~ y) := by
   ext i
   simp only [getLsb_not, getLsb_append, cond_eq_if]
@@ -679,6 +656,96 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext i
   simp only [getLsb_append, cond_eq_if]
   split <;> simp [*]
+
+/-! ## flattenList -/
+
+@[simp] theorem getMsb_flattenList {w : Nat} (vs : List (BitVec w)) (i) :
+    (BitVec.flattenList vs).getMsb i = (vs[i / w]?.getD 0#w).getMsb (i % w) := by
+  by_cases p : 0 < w
+  · match vs with
+    | [] => simp
+    | x :: rest =>
+      simp only [BitVec.flattenList]
+      simp [cond_eq_if]
+      split <;> rename_i h
+      · obtain ⟨j, rfl⟩ := Nat.exists_eq_add_of_le h
+        rw [getMsb_flattenList]
+        simp [p, Nat.add_div_left, Nat.add_sub_cancel_left]
+      · have : i / w = 0 := by simp_all [Nat.div_eq_of_lt]
+        have : i % w = i := by simp_all [Nat.mod_eq_sub_mul_div]
+        simp_all
+  · simp at p
+    subst p
+    simp
+
+@[simp] theorem getLsb_flattenList {w : Nat} (vs : List (BitVec w)) (i) :
+    (BitVec.flattenList vs).getLsb i =
+      (decide (i < w * vs.length) && (vs[vs.length - 1 - i / w]?.getD 0#w).getLsb (i % w)) := by
+  by_cases p : 0 < w
+  · rw [getLsb_eq_getMsb, getMsb_flattenList, getLsb_eq_getMsb]
+    have h₁ : i % w < w := Nat.mod_lt i p
+    simp only [h₁, decide_True, Bool.true_and]
+    by_cases h₂ : i < w * vs.length
+    · simp only [h₂, decide_True, Bool.true_and]
+      congr
+      · rw [Nat.sub_sub, Nat.add_comm, Nat.mul_sub_div h₂, Nat.sub_sub, Nat.add_comm]
+      · rw [Nat.sub_sub, Nat.add_comm, Nat.mul_sub_mod h₂, Nat.sub_sub, Nat.add_comm]
+    · simp only [h₂, decide_False, Bool.false_and, Bool.false_eq]
+  · simp_all
+
+@[simp] theorem flattenList_zero_length (vs : List (BitVec 0)) : BitVec.flattenList vs = 0 := by
+  apply BitVec.eq_of_getLsb_eq
+  simp
+
+/-! ## extractLsb -/
+
+@[simp]
+protected theorem extractLsb_ofFin {n} (x : Fin (2^n)) (hi lo : Nat) :
+  extractLsb hi lo (@BitVec.ofFin n x) = .ofNat (hi-lo+1) (x.val >>> lo) := rfl
+
+@[simp]
+protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
+  extractLsb hi lo x#n = .ofNat (hi - lo + 1) ((x % 2^n) >>> lo) := by
+  apply eq_of_getLsb_eq
+  intro ⟨i, _lt⟩
+  simp [BitVec.ofNat]
+
+@[simp] theorem extractLsb'_toNat (s m : Nat) (x : BitVec n) :
+  (extractLsb' s m x).toNat = (x.toNat >>> s) % 2^m := rfl
+
+@[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
+  (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
+
+@[simp] theorem getLsb_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
+    getLsb (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsb x (lo+i)) := by
+  unfold getLsb
+  simp [Nat.lt_succ]
+
+/--
+Extracting a bitvector from `flattenList`, when we only extract from a single bitvector.
+-/
+theorem extractLsb_flattenList (hi lo : Nat) {w  : Nat} (vs : List (BitVec w))
+    (w₁ : lo ≤ hi) (w₂ : hi < w * vs.length) (h : hi / w = lo / w) :
+    extractLsb hi lo (BitVec.flattenList vs) =
+      BitVec.cast (by simp [Nat.mod_eq_sub_mul_div, h]; have := Nat.mul_div_le lo w; omega)
+        (extractLsb (hi % w) (lo % w) (vs[vs.length - 1 - hi / w]?.getD 0#w)) := by
+  by_cases p : 0 < w
+  · have t : w * (lo / w) ≤ lo := Nat.mul_div_le lo w
+    have t' : hi < w * (lo / w) + w := by rw [← h]; apply Nat.lt_mul_div_self_add p
+    apply BitVec.eq_of_getLsb_eq
+    intro i
+    have q : i ≤ hi - lo := by omega
+    have q' : i ≤ hi % w - lo % w := by simp [Nat.mod_eq_sub_mul_div, h]; omega
+    have q'' : lo + i < w * vs.length := by omega
+    have h₁ : (lo + i) / w = lo / w := by
+      apply Nat.div_eq_of_lt_le <;> rw [Nat.mul_comm]
+      · omega
+      · simp only [Nat.succ_eq_add_one, Nat.mul_add]; omega
+    have h₂ : (lo + i) % w = lo % w + i := by simp [Nat.mod_eq_sub_mul_div, h₁]; omega
+    simp only [getLsb_extractLsb, getLsb_flattenList, q, q', q'', h₁, h₂, h, getLsb_cast, decide_True, Bool.true_and]
+  · simp at p
+    subst p
+    simp
 
 /-! ### rev -/
 

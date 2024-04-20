@@ -131,7 +131,7 @@ static void io_eprint(obj_arg s) {
 }
 
 tout::~tout() {
-    io_eprint(mk_string(m_out.str()));
+    io_eprint(mk_utf8_string(m_out.str()));
 }
 
 std::ostream & operator<<(std::ostream & ios, tclass const & c) {

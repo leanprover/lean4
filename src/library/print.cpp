@@ -303,6 +303,6 @@ void init_default_print_fn() {
 extern "C" LEAN_EXPORT object * lean_expr_dbg_to_string(b_obj_arg e) {
     std::ostringstream out;
     out << expr(e, true);
-    return mk_string(out.str());
+    return mk_utf8_string(out.str());
 }
 }

@@ -355,12 +355,12 @@ extern "C" LEAN_EXPORT lean_object * lean_array_data(lean_obj_arg a) {
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_array_get_panic(lean_obj_arg def_val) {
-    return lean_panic_fn(def_val, lean_mk_string("Error: index out of bounds"));
+    return lean_panic_fn(def_val, lean_mk_ascii_string("Error: index out of bounds"));
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_array_set_panic(lean_obj_arg a, lean_obj_arg v) {
     lean_dec(v);
-    return lean_panic_fn(a, lean_mk_string("Error: index out of bounds"));
+    return lean_panic_fn(a, lean_mk_ascii_string("Error: index out of bounds"));
 }
 
 // =======================================
@@ -1561,9 +1561,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
     if (isnan(a))
         // override NaN because we don't want NaNs to be distinguishable
         // because the sign bit / payload bits can be architecture-dependent
-        return mk_string("NaN");
+        return mk_ascii_string("NaN");
     else
-        return mk_string(std::to_string(a));
+        return mk_ascii_string(std::to_string(a));
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
@@ -1620,7 +1620,21 @@ extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes(char const * s, size_t
 }
 
 extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
+    size_t len = strlen(s);
+    if (validate_utf8((const uint8_t *)s, len)) {
+        return lean_mk_string_from_bytes(s, len);
+    } else {
+        return lean_mk_string_core("", 0, 0);
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_utf8_string(char const * s) {
     return lean_mk_string_from_bytes(s, strlen(s));
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_ascii_string(char const * s) {
+    size_t len = strlen(s);
+    return lean_mk_string_core(s, len, len);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8(b_obj_arg a) {
@@ -1639,6 +1653,14 @@ extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
 }
 
 object * mk_string(std::string const & s) {
+    if (validate_utf8((const uint8_t *)s.data(), s.size())) {
+        return lean_mk_string_from_bytes(s.data(), s.size());
+    } else {
+        return lean_mk_string_core("", 0, 0);
+    }
+}
+
+object * mk_utf8_string(std::string const & s) {
     return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
@@ -1743,7 +1765,7 @@ static obj_res string_to_list_core(std::string const & s, bool reverse = false) 
 extern "C" LEAN_EXPORT obj_res lean_string_mk(obj_arg cs) {
     std::string s = list_as_string(cs);
     lean_dec(cs);
-    return mk_string(s);
+    return mk_utf8_string(s);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
@@ -1876,7 +1898,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_get_opt(b_obj_arg s, b_obj_arg i
 }
 
 static uint32 lean_string_utf8_get_panic() {
-    lean_panic_fn(lean_box(0), lean_mk_string("Error: invalid `String.Pos` at `String.get!`"));
+    lean_panic_fn(lean_box(0), lean_mk_ascii_string("Error: invalid `String.Pos` at `String.get!`"));
     return lean_char_default_value();
 }
 
@@ -1957,10 +1979,10 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b
     usize e = lean_unbox(e0);
     char const * str = lean_string_cstr(s);
     usize sz = lean_string_size(s) - 1;
-    if (b >= e || b >= sz) return lean_mk_string("");
+    if (b >= e || b >= sz) return lean_mk_string_core("", 0, 0);
     /* In the reference implementation if `b` is not pointing to a valid UTF8
        character start position, the result is the empty string. */
-    if (!is_utf8_first_byte(str[b])) return lean_mk_string("");
+    if (!is_utf8_first_byte(str[b])) return lean_mk_string_core("", 0, 0);
     if (e > sz) e = sz;
     lean_assert(b < e);
     lean_assert(e > 0);
@@ -2020,7 +2042,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_set(obj_arg s, b_obj_arg i0, uin
     std::string new_s = string_to_std(s);
     dec(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
-    return mk_string(new_s);
+    return mk_utf8_string(new_s);
 }
 
 extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
@@ -2319,7 +2341,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 
 extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
     if (!lean_is_scalar(a) && lean_is_shared(a)) {
-        io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
+        io_eprintln(mk_utf8_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
     return a;
 }

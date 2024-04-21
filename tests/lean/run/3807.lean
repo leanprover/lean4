@@ -2518,9 +2518,7 @@ theorem exists_algHom_adjoin_of_splits''' :
     · simp only [← SetLike.coe_subset_coe, coe_restrictScalars, adjoin_subset_adjoin_iff]
       exact ⟨subset_adjoin_of_subset_left S (F := L'.toSubfield) le_rfl, subset_adjoin _ _⟩
     · ext x
-      set_option trace.Meta.isDefEq true in
       exact (congrFun (congrArg (fun g : L' →ₐ[F] K => (g : L' → K)) hφ) _).trans (congrArg f <| AlgEquiv.symm_apply_apply _ _)
-
 
 end IntermediateField
 

@@ -1731,8 +1731,72 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
+/--
+Result type for `isDefEqDelta`
+-/
+inductive DeltaStepResult where
+  | eq | unknown
+  | cont (t s : Expr)
+  | diff (t s : Expr)
+
+/--
+Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
+It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
+in the kernel.
+-/
+private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => return .unknown
+  | some _,     none       => unfold t (return .unknown) (k · s)
+  | none,       some _     => unfold s (return .unknown) (k t ·)
+  | some tInfo, some sInfo =>
+    match compare tInfo.hints sInfo.hints with
+    | .lt => unfold t (return .unknown) (k · s)
+    | .gt => unfold s (return .unknown) (k t ·)
+    | .eq =>
+      unfold t
+        (unfold s (return .unknown) (k t ·))
+        (fun t => unfold s (k t s) (k t ·))
+where
+  k (t s : Expr) : MetaM DeltaStepResult := do
+    let t ← whnfCore t
+    let s ← whnfCore s
+    match (← isDefEqQuick t s) with
+    | .true  => return .eq
+    | .false => return .diff t s
+    | .undef => return .cont t s
+
+/--
+Helper function for solving contraints of the form `t.i =?= s.i`.
+-/
+private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
+  let t ← whnfCore t
+  let s ← whnfCore s
+  match (← isDefEqQuick t s) with
+  | .true  => return true
+  | .false | .undef  => loop t s
+where
+  loop (t s : Expr) : MetaM Bool := do
+    match (← isDefEqDeltaStep t s) with
+    | .cont t s => loop t s
+    | .eq => return true
+    | .unknown => tryReduceProjs t s
+    | .diff t s => tryReduceProjs t s
+
+  tryReduceProjs (t s : Expr) : MetaM Bool := do
+    match (← projectCore? t i), (← projectCore? s i) with
+    | some t, some s => Meta.isExprDefEqAux t s
+    | _, _ => Meta.isExprDefEqAux t s
+
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | .proj m i t, .proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+  | .proj m i t, .proj n j s =>
+    if i == j && m == n then
+      isDefEqProjDelta t s i
+    else
+      return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v
   | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false

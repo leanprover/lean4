@@ -1,3 +1,43 @@
+import Lean.Util.TestExtern
+
+instance : BEq ByteArray where
+  beq x y := x.data == y.data
+
+test_extern String.toUTF8 ""
+test_extern String.toUTF8 "\x00"
+test_extern String.toUTF8 "$£€𐍈"
+
+macro "test_extern'" t:term " => " v:term : command =>
+  `(test_extern $t
+    #guard $t == $v)
+
+def checkGet (s : String) (arr : Array UInt8) :=
+  (List.range s.utf8ByteSize).all fun i =>
+    let c := if h : _ then s.getUtf8Byte i h else unreachable!
+    c == arr.get! i
+
+macro "validate" arr:term " => ↯" : command =>
+  `(test_extern' String.validateUTF8 $arr => false)
+macro "validate" arr:term " => " str:term : command =>
+  `(test_extern' String.validateUTF8 $arr => true
+    test_extern' String.fromUTF8 $arr (with_decl_name% _validate by native_decide) => $str
+    test_extern' String.toUTF8 $str => $arr
+    #guard checkGet $str ($arr : ByteArray).data)
+
+validate ⟨#[0]⟩ => "\x00"
+validate ⟨#[0x80]⟩ => ↯
+validate ⟨#[0x80, 0x1]⟩ => ↯
+validate ⟨#[0xc0, 0x81]⟩ => ↯
+validate ⟨#[0xc8, 0x81]⟩ => "ȁ"
+validate ⟨#[0xc8, 0x81, 0xc8, 0x81]⟩ => "ȁȁ"
+validate ⟨#[0xe0, 0x81]⟩ => ↯
+validate ⟨#[0xe0, 0x81, 0x81]⟩ => ↯
+validate ⟨#[0xe1, 0x81, 0x81]⟩ => "\u1041"
+validate ⟨#[0xee, 0x80, 0x80]⟩ => "\ue000"
+validate ⟨#[0xf1, 0x81, 0x81, 0x81]⟩ => "񁁁"
+validate ⟨#[0xf8, 0x81, 0x81, 0x81, 0x81]⟩ => ↯
+validate ⟨#[0x24, 0xc2, 0xa3, 0xe2, 0x82, 0xac, 0xf0, 0x90, 0x8d, 0x88]⟩ => "$£€𐍈"
+
 def check_eq {α} [BEq α] [Repr α] (tag : String) (expected actual : α) : IO Unit :=
   unless (expected == actual) do
     throw $ IO.userError $

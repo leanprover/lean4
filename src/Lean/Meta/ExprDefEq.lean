@@ -1173,6 +1173,35 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
   trace[Meta.isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
+/-- Helper predicate for `tryHeuristic`. -/
+private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
+  match info.hints with
+  | .regular d =>
+    if (← isProjectionFn info.name) then
+      -- All projections are considered trivial
+      return false
+    if d > 2 then
+      -- If definition depth is greater than 2, we claim it is not a trivial definition
+      return true
+    -- After consuming the lambda expressions, we consider a regular definition non-trivial if it is not "simple".
+    -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
+    let val := consumeDefnPreamble info.value
+    return !isSimple val (allowApp := true)
+  | _ => return false
+where
+  consumeDefnPreamble (e : Expr) : Expr :=
+    match e with
+    | .mdata _ e => consumeDefnPreamble e
+    | .lam _ _ b _ => consumeDefnPreamble b
+    | _ => e
+  isSimple (e : Expr) (allowApp : Bool) : Bool :=
+    match e with
+    | .bvar .. | .sort .. | .lit .. | .fvar .. | .mvar .. => true
+    | .app f a => isSimple a false && isSimple f allowApp
+    | .proj _ _ b => isSimple b false
+    | .mdata _ b => isSimple b allowApp
+    | .lam .. | .letE .. | .forallE .. | .const .. => false
+
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
 
     Auxiliary method for isDefEqDelta -/
@@ -1181,19 +1210,32 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let mut s := s
   let tFn := t.getAppFn
   let sFn := s.getAppFn
-  let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
-     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
-     We check whether terms contain metavariables to make sure we can solve constraints such
-     as `S.proj ?x =?= S.proj t` without performing delta-reduction.
-     That is, we are assuming the heuristic implemented by this method is seldom effective
-     when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms.
+  -- If `f` (i.e., `tFn`) is not a definition, we do not apply the heuristic.
+  let .defnInfo info ← getConstInfo tFn.constName! | return false
+  /-
+  We apply the heuristic in the following cases:
+  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  2- `f` is `match` application.
+  3- `t` or `s` contain meta-variables.
 
-     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
-     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
-     case is used to help the kernel type checker. -/
-  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
+  The third case is important to make sure we can solve constraints such as
+  `S.proj ?x =?= S.proj t` without performing delta-reduction.
+
+  When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
+  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+
+  Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+  them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+  case is used to help the kernel type checker.
+
+  The `isNonTrivialRegular` predicate is also useful to avoid applying the heuristic to very simple definitions that
+  have not been marked as abbreviations by the user. Example:
+  ```
+  protected def Mem (a : α) (s : Set α) : Prop := s a
+  ```
+  at test 3807.lean
+  -/
+  unless (← isNonTrivialRegular info) || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
@@ -1689,8 +1731,72 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
+/--
+Result type for `isDefEqDelta`
+-/
+inductive DeltaStepResult where
+  | eq | unknown
+  | cont (t s : Expr)
+  | diff (t s : Expr)
+
+/--
+Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
+It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
+in the kernel.
+-/
+private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => return .unknown
+  | some _,     none       => unfold t (return .unknown) (k · s)
+  | none,       some _     => unfold s (return .unknown) (k t ·)
+  | some tInfo, some sInfo =>
+    match compare tInfo.hints sInfo.hints with
+    | .lt => unfold t (return .unknown) (k · s)
+    | .gt => unfold s (return .unknown) (k t ·)
+    | .eq =>
+      unfold t
+        (unfold s (return .unknown) (k t ·))
+        (fun t => unfold s (k t s) (k t ·))
+where
+  k (t s : Expr) : MetaM DeltaStepResult := do
+    let t ← whnfCore t
+    let s ← whnfCore s
+    match (← isDefEqQuick t s) with
+    | .true  => return .eq
+    | .false => return .diff t s
+    | .undef => return .cont t s
+
+/--
+Helper function for solving contraints of the form `t.i =?= s.i`.
+-/
+private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
+  let t ← whnfCore t
+  let s ← whnfCore s
+  match (← isDefEqQuick t s) with
+  | .true  => return true
+  | .false | .undef  => loop t s
+where
+  loop (t s : Expr) : MetaM Bool := do
+    match (← isDefEqDeltaStep t s) with
+    | .cont t s => loop t s
+    | .eq => return true
+    | .unknown => tryReduceProjs t s
+    | .diff t s => tryReduceProjs t s
+
+  tryReduceProjs (t s : Expr) : MetaM Bool := do
+    match (← projectCore? t i), (← projectCore? s i) with
+    | some t, some s => Meta.isExprDefEqAux t s
+    | _, _ => Meta.isExprDefEqAux t s
+
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | .proj m i t, .proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+  | .proj m i t, .proj n j s =>
+    if i == j && m == n then
+      isDefEqProjDelta t s i
+    else
+      return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v
   | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false

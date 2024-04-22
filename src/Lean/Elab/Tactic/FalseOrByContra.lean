@@ -58,7 +58,7 @@ partial def falseOrByContra (g : MVarId) (useClassical : Option Bool := none) : 
       let [g] ← g.applyConst ``False.elim | panic! "expected one sugoal"
       pure g
 
-@[builtin_tactic falseOrByContra]
+@[builtin_tactic Lean.Parser.Tactic.falseOrByContra]
 def elabFalseOrByContra : Tactic
    | `(tactic| false_or_by_contra) => do liftMetaTactic1 (falseOrByContra ·)
    | _ => no_error_if_unused% throwUnsupportedSyntax

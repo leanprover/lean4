@@ -686,7 +686,7 @@ def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
         IO.sleep 1000
         continue
       sendServerRequest ctx "workspace/semanticTokens/refresh" (none : Option Nat)
-      IO.sleep 5000
+      IO.sleep 2000
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i

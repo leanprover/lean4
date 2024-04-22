@@ -29,7 +29,6 @@ LEAN_EXPORT lean_object* l_String_join(lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2082(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_splitAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_atEnd___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instAppendString;
 LEAN_EXPORT lean_object* l_Substring_takeRightWhileAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_intercalate_go___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux___at_String_isNat___spec__1(lean_object*, lean_object*, lean_object*);
@@ -88,6 +87,7 @@ static lean_object* l_Substring_extract___closed__1;
 LEAN_EXPORT lean_object* l_String_instSizeOfIterator___boxed(lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_Iterator_setCurr___boxed(lean_object*, lean_object*);
+static lean_object* l_String_instAppend___closed__1;
 LEAN_EXPORT lean_object* l_String_anyAux___at_Substring_contains___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_firstDiffPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_isNat___boxed(lean_object*);
@@ -138,7 +138,6 @@ LEAN_EXPORT lean_object* l_String_intercalate___boxed(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_String_splitOnAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Char_toUpper(uint32_t);
 LEAN_EXPORT uint8_t l_String_anyAux(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_instInhabitedString;
 LEAN_EXPORT lean_object* l_Substring_splitOn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_takeWhile(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Substring_contains(lean_object*, uint32_t);
@@ -176,6 +175,7 @@ LEAN_EXPORT lean_object* l_String_find___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8GetAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_dropWhile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldlAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_instInhabited;
 LEAN_EXPORT lean_object* l_String_offsetOfPosAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_takeRight(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_extract_go_u2081(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -198,6 +198,7 @@ LEAN_EXPORT uint8_t l_String_isNat(lean_object*);
 LEAN_EXPORT lean_object* l_String_replace_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_front___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toString(uint32_t);
+LEAN_EXPORT lean_object* l_String_instLT;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8ByteSize_go_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_prev(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toUpper(lean_object*);
@@ -228,7 +229,6 @@ LEAN_EXPORT lean_object* l_String_takeRightWhile___boxed(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_String_get_x21___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_nextUntil(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
-LEAN_EXPORT lean_object* l_String_instLTString;
 LEAN_EXPORT lean_object* l_String_toLower(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -271,6 +271,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_instDecidableEqIterator(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf8PrevAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Substring_front(lean_object*);
+LEAN_EXPORT lean_object* l_String_instAppend;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__String_utf8ByteSize_go_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -299,7 +300,6 @@ LEAN_EXPORT lean_object* l_String_Iterator_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_anyAux___at_Substring_all___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at_String_toUpper___spec__1(lean_object*, lean_object*);
-static lean_object* l_String_instAppendString___closed__1;
 LEAN_EXPORT lean_object* l_String_trimLeft(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_splitOn(lean_object*, lean_object*);
@@ -348,7 +348,7 @@ x_1 = lean_unsigned_to_nat(0u);
 return x_1;
 }
 }
-static lean_object* _init_l_String_instLTString() {
+static lean_object* _init_l_String_instLT() {
 _start:
 {
 lean_object* x_1; 
@@ -1565,7 +1565,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_String_instInhabitedString() {
+static lean_object* _init_l_String_instInhabited() {
 _start:
 {
 lean_object* x_1; 
@@ -1573,7 +1573,7 @@ x_1 = l_String_splitOn___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_String_instAppendString___closed__1() {
+static lean_object* _init_l_String_instAppend___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1581,11 +1581,11 @@ x_1 = lean_alloc_closure((void*)(l_String_append___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_String_instAppendString() {
+static lean_object* _init_l_String_instAppend() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_String_instAppendString___closed__1;
+x_1 = l_String_instAppend___closed__1;
 return x_1;
 }
 }
@@ -5994,16 +5994,16 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_instOfNatPos = _init_l_String_instOfNatPos();
 lean_mark_persistent(l_String_instOfNatPos);
-l_String_instLTString = _init_l_String_instLTString();
-lean_mark_persistent(l_String_instLTString);
+l_String_instLT = _init_l_String_instLT();
+lean_mark_persistent(l_String_instLT);
 l_String_splitOn___closed__1 = _init_l_String_splitOn___closed__1();
 lean_mark_persistent(l_String_splitOn___closed__1);
-l_String_instInhabitedString = _init_l_String_instInhabitedString();
-lean_mark_persistent(l_String_instInhabitedString);
-l_String_instAppendString___closed__1 = _init_l_String_instAppendString___closed__1();
-lean_mark_persistent(l_String_instAppendString___closed__1);
-l_String_instAppendString = _init_l_String_instAppendString();
-lean_mark_persistent(l_String_instAppendString);
+l_String_instInhabited = _init_l_String_instInhabited();
+lean_mark_persistent(l_String_instInhabited);
+l_String_instAppend___closed__1 = _init_l_String_instAppend___closed__1();
+lean_mark_persistent(l_String_instAppend___closed__1);
+l_String_instAppend = _init_l_String_instAppend();
+lean_mark_persistent(l_String_instAppend);
 l_String_findLineStart___closed__1 = _init_l_String_findLineStart___closed__1();
 lean_mark_persistent(l_String_findLineStart___closed__1);
 l_Substring_extract___closed__1 = _init_l_Substring_extract___closed__1();

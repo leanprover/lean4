@@ -13,29 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Int_instTransIntLeInstLEIntLtInstLTInt;
-LEAN_EXPORT lean_object* l_Int_instTransIntLeInstLEInt;
-LEAN_EXPORT lean_object* l_Int_instTransIntLtInstLTIntLeInstLEInt;
-LEAN_EXPORT lean_object* l_Int_instTransIntLtInstLTInt;
-static lean_object* _init_l_Int_instTransIntLeInstLEInt() {
+LEAN_EXPORT lean_object* l_Int_instTransLtLe;
+LEAN_EXPORT lean_object* l_Int_instTransLeLt;
+LEAN_EXPORT lean_object* l_Int_instTransLt;
+LEAN_EXPORT lean_object* l_Int_instTransLe;
+static lean_object* _init_l_Int_instTransLe() {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Int_instTransIntLtInstLTIntLeInstLEInt() {
+static lean_object* _init_l_Int_instTransLtLe() {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Int_instTransIntLeInstLEIntLtInstLTInt() {
+static lean_object* _init_l_Int_instTransLeLt() {
 _start:
 {
 return lean_box(0);
 }
 }
-static lean_object* _init_l_Int_instTransIntLtInstLTInt() {
+static lean_object* _init_l_Int_instTransLt() {
 _start:
 {
 return lean_box(0);
@@ -54,10 +54,10 @@ lean_dec_ref(res);
 res = initialize_Init_ByCases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_instTransIntLeInstLEInt = _init_l_Int_instTransIntLeInstLEInt();
-l_Int_instTransIntLtInstLTIntLeInstLEInt = _init_l_Int_instTransIntLtInstLTIntLeInstLEInt();
-l_Int_instTransIntLeInstLEIntLtInstLTInt = _init_l_Int_instTransIntLeInstLEIntLtInstLTInt();
-l_Int_instTransIntLtInstLTInt = _init_l_Int_instTransIntLtInstLTInt();
+l_Int_instTransLe = _init_l_Int_instTransLe();
+l_Int_instTransLtLe = _init_l_Int_instTransLtLe();
+l_Int_instTransLeLt = _init_l_Int_instTransLeLt();
+l_Int_instTransLt = _init_l_Int_instTransLt();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

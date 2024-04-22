@@ -51,7 +51,6 @@ lean_object* l_Lean_Name_getPrefix(lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_numAlts(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__3;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
@@ -86,6 +85,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__1___
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_matchMatcherApp_x3f___spec__7(lean_object*);
@@ -104,7 +104,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -122,7 +122,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -140,7 +140,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -176,7 +176,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -194,7 +194,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }
@@ -212,7 +212,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = l_instInhabitedPUnit;
-x_4 = l_instInhabited___rarg(x_1, x_3);
+x_4 = l_instInhabitedOfMonad___rarg(x_1, x_3);
 x_5 = lean_panic_fn(x_4, x_2);
 return x_5;
 }

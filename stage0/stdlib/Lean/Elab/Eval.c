@@ -18,14 +18,15 @@ static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___close
 lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__5;
 lean_object* l_Lean_Elab_Term_synthesizeSyntheticMVars(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_instBEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTermEnsuringType(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Expr_instBEq;
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__12;
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_evalTerm___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__8;
-extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__7;
@@ -34,7 +35,6 @@ lean_object* l_Lean_Meta_evalExpr___rarg(lean_object*, lean_object*, uint8_t, le
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_instHashableExpr;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_evalTerm___rarg___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instHashableLocalInstance___boxed(lean_object*);
@@ -46,8 +46,8 @@ static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___close
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__1;
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_evalTerm(lean_object*);
+extern lean_object* l_Lean_Expr_instHashable;
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__19;
-lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__14;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__11;
@@ -56,8 +56,8 @@ lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__9;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__10;
+lean_object* l_Lean_Meta_InfoCacheKey_instHashable___boxed(lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__6;
-lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__17;
 static lean_object* _init_l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__1() {
 _start:
@@ -116,7 +116,7 @@ static lean_object* _init_l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashable___boxed), 1, 0);
 return x_1;
 }
 }
@@ -145,7 +145,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__8;
-x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Array_instBEq___rarg___boxed), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -155,7 +155,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__9;
-x_2 = l_Lean_Expr_instBEqExpr;
+x_2 = l_Lean_Expr_instBEq;
 x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -185,7 +185,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1___closed__12;
-x_2 = l_Lean_Expr_instHashableExpr;
+x_2 = l_Lean_Expr_instHashable;
 x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -208,7 +208,7 @@ static lean_object* _init_l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instBEqExpr;
+x_1 = l_Lean_Expr_instBEq;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);
@@ -219,7 +219,7 @@ static lean_object* _init_l_Lean_setEnv___at_Lean_Elab_Term_evalTerm___spec__1__
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Expr_instHashableExpr;
+x_1 = l_Lean_Expr_instHashable;
 x_2 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
 lean_closure_set(x_2, 0, x_1);
 lean_closure_set(x_2, 1, x_1);

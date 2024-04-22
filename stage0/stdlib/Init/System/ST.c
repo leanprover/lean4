@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_ST_Ref_modifyGet___rarg(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_instInhabitedEST___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_ptr_eq(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -29,9 +30,9 @@ LEAN_EXPORT lean_object* l_instMonadST(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modify(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_take___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_get___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_set(lean_object*, lean_object*);
+lean_object* l_EStateM_instMonad(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_get(lean_object*, lean_object*);
@@ -41,7 +42,6 @@ LEAN_EXPORT lean_object* l_ST_Ref_modifyGet(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftSTEST___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_mkRef___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-lean_object* l_EStateM_instInhabitedEStateM___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_RefPointed;
 LEAN_EXPORT lean_object* l_instMonadEST(lean_object*, lean_object*);
@@ -49,37 +49,37 @@ LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe___rarg(lean_object*, lean_ob
 static lean_object* l_instMonadEST___closed__1;
 LEAN_EXPORT lean_object* l_instInhabitedEST(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSTWorld(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runST(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runEST___rarg(lean_object*);
-lean_object* l_EStateM_instMonadExceptOfEStateM___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSTWorld___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftSTEST(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_mkRef(lean_object*, lean_object*);
 static lean_object* l_instMonadExceptOfEST___closed__2;
 LEAN_EXPORT lean_object* l_ST_Ref_swap(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_swap___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe(lean_object*, lean_object*);
 static lean_object* l_instMonadExceptOfEST___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+lean_object* l_EStateM_instMonadExceptOfOfBacktrackable___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_swap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_ptrEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_nonBacktrackable(lean_object*);
 LEAN_EXPORT lean_object* l_runEST(lean_object*, lean_object*);
 static lean_object* _init_l_instMonadEST___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_EStateM_instMonadEStateM(lean_box(0), lean_box(0));
+x_1 = l_EStateM_instMonad(lean_box(0), lean_box(0));
 return x_1;
 }
 }
@@ -104,7 +104,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instMonadExceptOfEST___closed__1;
-x_2 = l_EStateM_instMonadExceptOfEStateM___rarg(x_1);
+x_2 = l_EStateM_instMonadExceptOfOfBacktrackable___rarg(x_1);
 return x_2;
 }
 }
@@ -120,7 +120,7 @@ LEAN_EXPORT lean_object* l_instInhabitedEST___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabitedEStateM___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_EStateM_instInhabited___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -141,7 +141,7 @@ x_2 = l_instMonadEST___closed__1;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instSTWorld(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -149,11 +149,11 @@ x_6 = lean_box(0);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_instSTWorld___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_instSTWorldOfMonadLift___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
-x_6 = l_instSTWorld(x_1, x_2, x_3, x_4, x_5);
+x_6 = l_instSTWorldOfMonadLift(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_5);
 lean_dec(x_4);
 return x_6;

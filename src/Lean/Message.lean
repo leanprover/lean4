@@ -102,19 +102,6 @@ def ofPPFormat (f : PPFormat) : MessageData :=
     let md ← f.pp ppctx
     return Dynamic.mk (MessageData.ofFormatWithInfos md)
 
-/-- Determines whether the message contains any content.
-This considers lazily generated messages (`.ofLazy`) to be nonempty.
--/
-def isEmpty : MessageData → Bool
-  | ofFormat f => f.isEmpty
-  | withContext _ m => m.isEmpty
-  | withNamingContext _ m => m.isEmpty
-  | nest _ m => m.isEmpty
-  | group m => m.isEmpty
-  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
-  | tagged _ m => m.isEmpty
-  | _ => false
-
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
 is true.

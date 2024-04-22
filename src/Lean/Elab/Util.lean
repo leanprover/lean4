@@ -114,10 +114,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
       return kind
     onAdded       := fun builtin declName => do
       if builtin then
-        if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
-          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-        if let some declRanges ← findDeclarationRanges? declName then
-          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+        declareBuiltinDocStringAndRanges declName
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=

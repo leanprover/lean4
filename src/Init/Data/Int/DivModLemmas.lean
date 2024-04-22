@@ -1085,6 +1085,9 @@ theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
 @[simp] theorem mul_bmod_bmod : Int.bmod (x * Int.bmod y n) n = Int.bmod (x * y) n := by
   rw [Int.mul_comm x, bmod_mul_bmod, Int.mul_comm x]
 
+theorem add_bmod (a b : Int) (n : Nat) : (a + b).bmod n = (a.bmod n + b.bmod n).bmod n := by
+  simp
+
 theorem emod_bmod {x : Int} {m : Nat} : bmod (x % m) m = bmod x m := by
   simp [bmod]
 

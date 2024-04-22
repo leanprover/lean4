@@ -38,7 +38,10 @@ example (f g : Nat × Nat → Nat) : f = g := by
   guard_target = f (x, y) = g (x, y); exact mySorry
 
 -- Check that we generate a warning if there are too many patterns.
-/-- warning: `ext` did not consume the patterns: [j] [linter.unusedRCasesPattern] -/
+/--
+warning: `ext` did not consume the patterns: [j]
+note: this linter can be disabled with `set_option linter.unusedRCasesPattern false`
+-/
 #guard_msgs in
 example (f g : Nat → Nat) (h : f = g) : f = g := by
   ext i j

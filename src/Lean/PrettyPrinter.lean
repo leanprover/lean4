@@ -107,7 +107,7 @@ open Lean PrettyPrinter Delaborator
 Turns a `MetaM FormatWithInfos` into a `MessageData` using `.ofPPFormat` and running the monadic value in the given context.
 Uses the `pp.tagAppFns` option to annotate constants with terminfo, which is necessary for seeing the type on mouse hover.
 -/
-def ofFormatWithInfos
+def ofFormatWithInfosM
     (fmt : MetaM FormatWithInfos)
     (noContext : Unit → Format := fun _ => "<no context, could not generate MessageData>") : MessageData :=
   .ofPPFormat
@@ -121,13 +121,13 @@ argument is implicit, which is what the default `toMessageData` for `Expr` does.
 Panics if `e` is not a constant. -/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
-    .ofFormatWithInfos (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) fun _ => f!"{e}"
+    .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) fun _ => f!"{e}"
   else
     panic! "not a constant"
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=
-  .ofFormatWithInfos (PrettyPrinter.ppSignature c) fun _ => f!"{c}"
+  .ofFormatWithInfosM (PrettyPrinter.ppSignature c) fun _ => f!"{c}"
 
 end MessageData
 

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.CollectMVars
 import Lean.Meta.Basic
 
@@ -28,12 +29,12 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
     | none   => pure ()
     | some d => collectMVars (mkMVar d.mvarIdPending)
 
-/-- Return metavariables in occurring the given expression. See `collectMVars` -/
+/-- Return metavariables occurring in the given expression. See `collectMVars` -/
 def getMVars (e : Expr) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVars e).run {}
   pure s.result
 
-/-- Similar to getMVars, but removes delayed assignments. -/
+/-- Similar to `getMVars`, but removes delayed assignments. -/
 def getMVarsNoDelayed (e : Expr) : MetaM (Array MVarId) := do
   let mvarIds ← getMVars e
   mvarIds.filterM fun mvarId => not <$> mvarId.isDelayedAssigned
@@ -44,5 +45,40 @@ def collectMVarsAtDecl (d : Declaration) : StateRefT CollectMVars.State MetaM Un
 def getMVarsAtDecl (d : Declaration) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVarsAtDecl d).run {}
   pure s.result
+
+/--
+Collect the metavariables which `mvarId` depends on. These are the metavariables
+which appear in the type and local context of `mvarId`, as well as the
+metavariables which *those* metavariables depend on, etc.
+-/
+partial def _root_.Lean.MVarId.getMVarDependencies (mvarId : MVarId) (includeDelayed := false) :
+    MetaM (HashSet MVarId) :=
+  (·.snd) <$> (go mvarId).run {}
+where
+  /-- Auxiliary definition for `getMVarDependencies`. -/
+  addMVars (e : Expr) : StateRefT (HashSet MVarId) MetaM Unit := do
+    let mvars ← getMVars e
+    let mut s ← get
+    set ({} : HashSet MVarId) -- Ensure that `s` is not shared.
+    for mvarId in mvars do
+      if ← pure includeDelayed <||> notM (mvarId.isDelayedAssigned) then
+        s := s.insert mvarId
+    set s
+    mvars.forM go
+
+  /-- Auxiliary definition for `getMVarDependencies`. -/
+  go (mvarId : MVarId) : StateRefT (HashSet MVarId) MetaM Unit :=
+    withIncRecDepth do
+      let mdecl ← mvarId.getDecl
+      addMVars mdecl.type
+      for ldecl in mdecl.lctx do
+        addMVars ldecl.type
+        if let (some val) := ldecl.value? then
+          addMVars val
+      if let (some ass) ← getDelayedMVarAssignment? mvarId then
+        let pendingMVarId := ass.mvarIdPending
+        if ← notM pendingMVarId.isAssignedOrDelayedAssigned then
+          modify (·.insert pendingMVarId)
+        go pendingMVarId
 
 end Lean.Meta

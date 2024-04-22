@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.Apply
@@ -19,17 +21,17 @@ def getSimpMatchContext : MetaM Simp.Context :=
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
+  let discharge? ← SplitIf.mkDischarge?
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
+    unless (← isMatcherApp e) do
+      return Simp.Step.continue
+    let matcherDeclName := e.getAppFn.constName!
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    =>
-      match (← Simp.simpMatchCore? app e SplitIf.discharge?) with
-      | some r => return r
-      | none => return Simp.Step.visit { expr := e }
+    | none    => Simp.simpMatchCore matcherDeclName e
 
 def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
@@ -37,13 +39,14 @@ def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   applySimpResultToTarget mvarId target r
 
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
+  let discharge? ← SplitIf.mkDischarge?
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     if e.isAppOf matchDeclName then
       -- First try to reduce matcher
       match (← reduceRecMatcher? e) with
-      | some e' => return Simp.Step.done { expr := e' }
+      | some e' => return .done { expr := e' }
       | none    =>
       -- Try lemma
       let simpTheorem := {
@@ -51,11 +54,11 @@ where
         proof := mkConst matchEqDeclName
         rfl := (← isRflTheorem matchEqDeclName)
       }
-      match (← withReducible <| Simp.tryTheorem? e simpTheorem SplitIf.discharge?) with
-      | none => return Simp.Step.visit { expr := e }
-      | some r => return Simp.Step.done r
+      match (← withReducible <| Simp.tryTheorem? e simpTheorem) with
+      | none => return .continue
+      | some r => return .done r
     else
-      return Simp.Step.visit { expr := e }
+      return .continue
 
 private def simpMatchTargetCore (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
   mvarId.withContext do
@@ -117,7 +120,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
       let foundRef ← IO.mkRef false
       let rec mkNewTarget (e : Expr) : MetaM Expr := do
         let pre (e : Expr) : MetaM TransformStep := do
-          if !e.isAppOf matcherDeclName || e.getAppNumArgs != matcherInfo.arity then
+          if !e.isAppOfArity matcherDeclName matcherInfo.arity then
             return .continue
           let some matcherApp ← matchMatcherApp? e | return .continue
           for matcherDiscr in matcherApp.discrs, discr in discrs do

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Data.PrefixTree
 
 namespace Lean
@@ -68,5 +69,11 @@ def NameTrie.forMatchingM [Monad m] (t : NameTrie β) (k : Name) (f : β → m U
 @[inline]
 def NameTrie.forM [Monad m] (t : NameTrie β) (f : β → m Unit) : m Unit :=
   t.forMatchingM Name.anonymous f
+
+def NameTrie.matchingToArray (t : NameTrie β) (k : Name) : Array β :=
+  Id.run <| t.foldMatchingM k #[] fun v acc => acc.push v
+
+def NameTrie.toArray (t : NameTrie β) : Array β :=
+  Id.run <| t.foldM #[] fun v acc => acc.push v
 
 end Lean

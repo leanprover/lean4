@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 
 namespace Lean
@@ -20,6 +21,7 @@ inductive TransformStep where
   For `pre`, this means visiting the children of the expression.
   For `post`, this is equivalent to returning `done`. -/
   | continue (e? : Option Expr := none)
+  deriving Inhabited
 
 namespace Core
 
@@ -73,12 +75,18 @@ namespace Meta
 
 /--
   Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
-  So, it is safe to use any `MetaM` method at `pre` and `post`. -/
+  So, it is safe to use any `MetaM` method at `pre` and `post`.
+
+  If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
+  `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
+  arguments if present, on its own otherwise.
+ -/
 partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun _ => return .continue)
     (post  : Expr → m TransformStep := fun e => return .done e)
     (usedLetOnly := false)
+    (skipConstInApp := false)
     : m Expr := do
   let _ : STWorld IO.RealWorld m := ⟨⟩
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
@@ -109,7 +117,10 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
-          visitPost (mkAppN (← visit f) (← args.mapM visit))
+          if skipConstInApp && f.isConst then
+            visitPost (mkAppN f (← args.mapM visit))
+          else
+            visitPost (mkAppN (← visit f) (← args.mapM visit))
       match (← pre e) with
       | .done e  => pure e
       | .visit e => visit e
@@ -125,6 +136,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | _                  => visitPost e
   visit input |>.run
 
+-- TODO: add options to distinguish zeta and zetaDelta reduction
 def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do
     match e with

@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+prelude
 import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.Deriving.Basic
-import Lean.Elab.Deriving.Util
 
 import Lean.Server.Rpc.Basic
 
@@ -41,8 +41,10 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       decInits := decInits.push (← `(structInstField| $fid:ident := ← rpcDecode a.$fid))
 
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-
-  `(structure RpcEncodablePacket where
+  let indName := mkIdent indVal.name
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    structure RpcEncodablePacket where
       $[($fieldIds : $fieldTys)]*
       deriving FromJson, ToJson
 
@@ -54,7 +56,8 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       enc a := return toJson { $[$encInits],* : RpcEncodablePacket }
       dec j := do
         let a : RpcEncodablePacket ← fromJson? j
-        return { $[$decInits],* }
+        return { $decInits:structInstField,* }
+    end $indName
   )
 
 private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
@@ -67,7 +70,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     let ctorTy ← instantiateForall (← getConstInfoCtor ctorName).type params
     forallTelescopeReducing ctorTy fun argVars _ => do
     let .str _ ctor := ctorName | throwError m!"constructor name not a string: {ctorName}"
-    let ctorId := mkIdent ctor
+    let ctorId := mkIdent (.mkSimple ctor)
 
     -- create the constructor
     let fieldStxs ← argVars.mapM fun arg => do
@@ -92,7 +95,10 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
   let typeId ← `(@$(mkIdent indVal.name) $paramIds*)
 
-  `(inductive RpcEncodablePacket where
+  let indName := mkIdent indVal.name
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    inductive RpcEncodablePacket where
       $[$ctors:ctor]*
       deriving FromJson, ToJson
 
@@ -107,6 +113,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         have inst : RpcEncodable $typeId := { rpcEncode := enc, rpcDecode := dec }
         let pkt : RpcEncodablePacket ← fromJson? j
         id <| match pkt with $[$decodes:matchAlt]*
+    end $indName
   )
 
 /-- Creates an `RpcEncodablePacket` for `typeName`. For structures, the packet is a structure

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 Notation for operators defined at Prelude.lean
 -/
 prelude
-import Init.NotationExtra
+import Init.Tactics
 
 namespace Lean.Parser.Tactic.Conv
 
@@ -54,6 +54,10 @@ syntax (name := lhs) "lhs" : conv
 (In general, for an `n`-ary operator, it traverses into the last argument.) -/
 syntax (name := rhs) "rhs" : conv
 
+/-- Traverses into the function of a (unary) function application.
+For example, `| f a b` turns into `| f a`. (Use `arg 0` to traverse into `f`.)  -/
+syntax (name := «fun») "fun" : conv
+
 /-- Reduces the target to Weak Head Normal Form. This reduces definitions
 in "head position" until a constructor is exposed. For example, `List.map f [a, b, c]`
 weak head normalizes to `f a :: List.map f [b, c]`. -/
@@ -74,7 +78,8 @@ syntax (name := congr) "congr" : conv
 * `arg i` traverses into the `i`'th argument of the target. For example if the
   target is `f a b c d` then `arg 1` traverses to `a` and `arg 3` traverses to `c`.
 * `arg @i` is the same as `arg i` but it counts all arguments instead of just the
-  explicit arguments. -/
+  explicit arguments.
+* `arg 0` traverses into the function. If the target is `f a b c d`, `arg 0` traverses into `f`. -/
 syntax (name := arg) "arg " "@"? num : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
@@ -151,7 +156,6 @@ match [a, b] with
 simplifies to `a`. -/
 syntax (name := simpMatch) "simp_match" : conv
 
-
 /-- Executes the given tactic block without converting `conv` goal into a regular goal. -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 
@@ -197,7 +201,7 @@ macro (name := anyGoals) tk:"any_goals " s:convSeq : conv =>
   with inaccessible names to the given names.
 * `case tag₁ | tag₂ => tac` is equivalent to `(case tag₁ => tac); (case tag₂ => tac)`.
 -/
-macro (name := case) tk:"case " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case) tk:"case " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case%$tk $args|* =>%$arr conv' => ($s); all_goals rfl)
 
 /--
@@ -206,7 +210,7 @@ has been solved after applying `tac`, nor admits the goal if `tac` failed.
 Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
-macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convSeq : conv =>
+macro (name := case') tk:"case' " args:sepBy1(caseArg, "|") arr:" => " s:convSeq : conv =>
   `(conv| tactic' => case'%$tk $args|* =>%$arr conv' => $s)
 
 /--
@@ -302,5 +306,8 @@ Basic forms:
 -- HACK: put this at the end so that references to `conv` above
 -- refer to the syntax category instead of this syntax
 syntax (name := conv) "conv" (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
+
+/-- `norm_cast` tactic in `conv` mode. -/
+syntax (name := normCast) "norm_cast" : conv
 
 end Lean.Parser.Tactic.Conv

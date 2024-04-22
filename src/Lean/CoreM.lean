@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.RecDepth
 import Lean.Util.Trace
 import Lean.Log
@@ -65,6 +66,12 @@ structure Context where
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
+  /--
+  If `catchRuntimeEx = false`, then given `try x catch ex => h ex`,
+  an runtime exception occurring in `x` is not handled by `h`.
+  Recall that runtime exceptions are `maxRecDepth` or `maxHeartbeats`.
+  -/
+  catchRuntimeEx : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -170,6 +177,13 @@ instance : MonadTrace CoreM where
 def restore (b : State) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def restoreFull (b : State) : CoreM Unit :=
+  set b
+
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
@@ -199,6 +213,11 @@ instance [MetaEval α] : MetaEval (CoreM α) where
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
+@[inline] def checkInterrupted : CoreM Unit := do
+  if (← IO.checkCanceled) then
+    -- should never be visible to users!
+    throw <| Exception.error .missing "elaboration interrupted"
+
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let msg := s!"(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
@@ -207,10 +226,15 @@ def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat)
   unless max == 0 do
     let numHeartbeats ← IO.getNumHeartbeats
     if numHeartbeats - (← read).initHeartbeats > max then
-      throwMaxHeartbeat moduleName optionName max
+      throwMaxHeartbeat (.mkSimple moduleName) optionName max
 
 def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
   checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats
+
+def checkSystem (moduleName : String) : CoreM Unit := do
+  -- TODO: bring back more checks from the C++ implementation
+  checkInterrupted
+  checkMaxHeartbeats moduleName
 
 private def withCurrHeartbeatsImp (x : CoreM α) : CoreM α := do
   let heartbeats ← IO.getNumHeartbeats
@@ -228,6 +252,13 @@ def resetMessageLog : CoreM Unit :=
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
+/--
+Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+for incremental reporting during elaboration of a single command.
+-/
+def getAndEmptyMessageLog : CoreM MessageLog :=
+  modifyGet fun log => ({ log with msgs := {} }, log)
+
 instance : MonadLog CoreM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
@@ -240,7 +271,7 @@ instance : MonadLog CoreM where
 
 end Core
 
-export Core (CoreM mkFreshUserName checkMaxHeartbeats withCurrHeartbeats)
+export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
 
 @[inline] def withAtLeastMaxRecDepth [MonadFunctorT CoreM m] (max : Nat) : m α → m α :=
   monadMap (m := CoreM) <| withReader (fun ctx => { ctx with maxRecDepth := Nat.max max ctx.maxRecDepth })
@@ -272,6 +303,9 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
+/-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
+def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
@@ -299,7 +333,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | _ => pure ()
 
 register_builtin_option compiler.enableNew : Bool := {
-  defValue := true
+  defValue := false
   group    := "compiler"
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }
@@ -310,10 +344,13 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let opts ← getOptions
+  let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
-    compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
-  match (← getEnv).compileDecl opts decl with
-  | Except.ok env   => setEnv env
+    compileDeclsNew decls
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return (← getEnv).compileDecl opts decl
+  match res with
+  | Except.ok env => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg
@@ -339,5 +376,43 @@ def ImportM.runCoreM (x : CoreM α) : ImportM α := do
   let ctx ← read
   let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
   return a
+
+/-- Return `true` if the exception was generated by one our resource limits. -/
+def Exception.isRuntime (ex : Exception) : Bool :=
+  ex.isMaxHeartbeat || ex.isMaxRecDepth
+
+/--
+Custom `try-catch` for all monads based on `CoreM`. We don't want to catch "runtime exceptions"
+in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `MonadAlwayExcept`.
+-/
+@[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
+  try
+    x
+  catch ex =>
+    if ex.isRuntime && !(← read).catchRuntimeEx then
+      throw ex
+    else
+      h ex
+
+instance : MonadExceptOf Exception CoreM where
+  throw    := throw
+  tryCatch := Core.tryCatch
+
+@[inline] def Core.withCatchingRuntimeEx (flag : Bool) (x : CoreM α) : CoreM α :=
+  withReader (fun ctx => { ctx with catchRuntimeEx := flag }) x
+
+@[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
+  controlAt CoreM fun runInBase => f <| runInBase x
+
+/--
+Execute `x` with `catchRuntimeEx = flag`. That is, given `try x catch ex => h ex`,
+if `x` throws a runtime exception, the handler `h` will be invoked if `flag = true`
+Recall that
+-/
+@[inline] def withCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
+  mapCoreM (Core.withCatchingRuntimeEx true) x
+
+@[inline] def withoutCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
+  mapCoreM (Core.withCatchingRuntimeEx false) x
 
 end Lean

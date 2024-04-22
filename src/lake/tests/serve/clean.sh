@@ -1,1 +1,1 @@
-rm -f lakefile.lean lakefile.olean
+rm -rf .lake lakefile.lean

@@ -3,6 +3,7 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Extension
 import Lean.Parser.StrInterpolation
 import Lean.ParserCompiler.Attribute
@@ -266,6 +267,12 @@ def visitToken : Parenthesizer := do
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
 
+@[combinator_parenthesizer recover]
+def recover.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
+@[combinator_parenthesizer recover']
+def recover'.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Parenthesizer := p
+
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
@@ -340,8 +347,18 @@ def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesize
 
 @[builtin_category_parenthesizer term]
 def term.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `term true (fun stx => Unhygienic.run `(($(⟨stx⟩)))) prec $
+  maybeParenthesize `term true wrapParens prec $
     parenthesizeCategoryCore `term prec
+where
+  /-- Wraps the term `stx` in parentheses and then copies its `SourceInfo` to the result.
+  The purpose of this is to copy synthetic delaborator positions from the `stx` node to the parentheses node,
+  which causes the info view to view both of these nodes as referring to the same expression.
+  If we did not copy info, the info view would consider the parentheses to belong to the outer term.
+  Note: we do not do `withRef stx` because that causes the "(" and ")" tokens to have source info as well,
+  causing the info view to highlight each parenthesis as an independent expression. -/
+  wrapParens (stx : Syntax) : Syntax := Unhygienic.run do
+    let pstx ← `(($(⟨stx⟩)))
+    return pstx.raw.setInfo (SourceInfo.fromRef stx)
 
 @[builtin_category_parenthesizer tactic]
 def tactic.parenthesizer : CategoryParenthesizer | prec => do

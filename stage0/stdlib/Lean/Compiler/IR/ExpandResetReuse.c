@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.ExpandResetReuse
-// Imports: Init Lean.Compiler.IR.CompilerM Lean.Compiler.IR.NormIds Lean.Compiler.IR.FreeVars
+// Imports: Lean.Compiler.IR.CompilerM Lean.Compiler.IR.NormIds Lean.Compiler.IR.FreeVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncFor(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_IR_ExpandResetReuse_setFields___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,6 +30,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_removeSelfSet(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_ExpandResetReuse_releaseUnreadFields___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ExpandResetReuse_removeSelfSet___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -854,57 +854,44 @@ return x_20;
 }
 else
 {
-uint8_t x_21; 
-x_21 = lean_nat_dec_le(x_17, x_17);
-if (x_21 == 0)
-{
-uint8_t x_22; 
+size_t x_21; size_t x_22; uint8_t x_23; 
+x_21 = 0;
+x_22 = lean_usize_of_nat(x_17);
 lean_dec(x_17);
+x_23 = l_Array_anyMUnsafe_any___at_Lean_IR_ExpandResetReuse_consumed___spec__1(x_1, x_16, x_21, x_22);
 lean_dec(x_16);
-x_22 = 1;
-return x_22;
+if (x_23 == 0)
+{
+uint8_t x_24; 
+x_24 = 1;
+return x_24;
 }
 else
 {
-size_t x_23; size_t x_24; uint8_t x_25; 
-x_23 = 0;
-x_24 = lean_usize_of_nat(x_17);
-lean_dec(x_17);
-x_25 = l_Array_anyMUnsafe_any___at_Lean_IR_ExpandResetReuse_consumed___spec__1(x_1, x_16, x_23, x_24);
-lean_dec(x_16);
-if (x_25 == 0)
-{
-uint8_t x_26; 
-x_26 = 1;
-return x_26;
-}
-else
-{
-uint8_t x_27; 
-x_27 = 0;
-return x_27;
-}
+uint8_t x_25; 
+x_25 = 0;
+return x_25;
 }
 }
 }
 default: 
 {
-uint8_t x_28; 
-x_28 = l_Lean_IR_FnBody_isTerminal(x_2);
-if (x_28 == 0)
+uint8_t x_26; 
+x_26 = l_Lean_IR_FnBody_isTerminal(x_2);
+if (x_26 == 0)
 {
-lean_object* x_29; 
-x_29 = l_Lean_IR_FnBody_body(x_2);
+lean_object* x_27; 
+x_27 = l_Lean_IR_FnBody_body(x_2);
 lean_dec(x_2);
-x_2 = x_29;
+x_2 = x_27;
 goto _start;
 }
 else
 {
-uint8_t x_31; 
+uint8_t x_29; 
 lean_dec(x_2);
-x_31 = 0;
-return x_31;
+x_29 = 0;
+return x_29;
 }
 }
 }
@@ -1019,7 +1006,7 @@ if (x_61 == 0)
 {
 lean_object* x_62; 
 lean_dec(x_60);
-x_62 = l___private_Init_Util_0__outOfBounds___rarg(x_8);
+x_62 = l___private_Init_GetElem_0__outOfBounds___rarg(x_8);
 x_25 = x_62;
 goto block_57;
 }
@@ -3504,7 +3491,6 @@ x_3 = l_Lean_IR_Decl_normalizeIds(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_NormIds(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin, lean_object*);
@@ -3513,9 +3499,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(uint8_t bu
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -6,11 +6,12 @@ Authors: Mac Malone
 import Lake.Load
 import Lake.Build
 import Lake.Util.MainM
+import Lean.Util.FileSetupInfo
 
 namespace Lake
-open Lean (Json toJson fromJson? LeanPaths)
+open Lean
 
-/-- Exit code to return if `print-paths` cannot find the config file. -/
+/-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
 
 /--
@@ -20,27 +21,40 @@ and falls back to plain `lean --server`.
 def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
 /--
-Build a list of imports of the package
-and print the `.olean` and source directories of every used package.
+Build a list of imports of a file and print the `.olean` and source directories of every used package, as well as the server options for the file.
 If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
-The `print-paths` command is used internally by Lean 4 server.
+The `setup-file` command is used internally by Lean 4 server.
 -/
-def printPaths (loadConfig : LoadConfig) (imports : List String := [])
+def setupFile (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
 (buildConfig : BuildConfig := {}) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  if (← loadConfig.configFile.pathExists) then
+  if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
     let ws ← MainM.runLogIO (loadWorkspace loadConfig) verbosity
+    let imports := imports.foldl (init := #[]) fun imps imp =>
+    if let some mod := ws.findModule? imp.toName then imps.push mod else imps
     let dynlibs ← ws.runBuild (buildImportsAndDeps imports) buildConfig
       |>.run (MonadLog.eio verbosity)
-    IO.println <| Json.compress <| toJson {
+    let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
       : LeanPaths
+    }
+    let setupOptions : LeanOptions ← do
+      let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
+        | pure ⟨∅⟩
+      let some module := ws.findModule? moduleName
+        | pure ⟨∅⟩
+      let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
+      pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
+    IO.println <| Json.compress <| toJson {
+      paths,
+      setupOptions
+      : FileSetupInfo
     }
   else
     exit noConfigFileCode
@@ -55,12 +69,12 @@ def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
     IO.eprint log
     if let some ws := ws? then
       let ctx := mkLakeContext ws
-      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
+      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
-      pure (config.env.installVars.push (invalidConfigEnvVar, log), #[])
+      pure (config.lakeEnv.baseVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
-    cmd := config.env.lean.lean.toString
+    cmd := config.lakeEnv.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args
     env := extraEnv
   }).wait

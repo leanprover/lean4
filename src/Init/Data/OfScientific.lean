@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Meta
 import Init.Data.Float
-import Init.Data.Nat
+import Init.Data.Nat.Log2
 
 /-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
    Examples:

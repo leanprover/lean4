@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Conv.Change
-// Imports: Init Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Conv.Basic
+// Imports: Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Conv.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -213,7 +213,7 @@ lean_inc(x_4);
 x_33 = l_Lean_Elab_Tactic_logUnassignedAndAbort(x_31, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_32);
 if (lean_obj_tag(x_33) == 0)
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
+lean_object* x_34; lean_object* x_35; 
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
@@ -224,6 +224,9 @@ lean_inc(x_6);
 lean_inc(x_12);
 lean_inc(x_25);
 x_35 = l_Lean_Meta_isExprDefEqGuarded(x_25, x_12, x_6, x_7, x_8, x_9, x_34);
+if (lean_obj_tag(x_35) == 0)
+{
+lean_object* x_36; uint8_t x_37; 
 x_36 = lean_ctor_get(x_35, 0);
 lean_inc(x_36);
 x_37 = lean_unbox(x_36);
@@ -303,19 +306,19 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_55 = !lean_is_exclusive(x_33);
+x_55 = !lean_is_exclusive(x_35);
 if (x_55 == 0)
 {
-return x_33;
+return x_35;
 }
 else
 {
 lean_object* x_56; lean_object* x_57; lean_object* x_58; 
-x_56 = lean_ctor_get(x_33, 0);
-x_57 = lean_ctor_get(x_33, 1);
+x_56 = lean_ctor_get(x_35, 0);
+x_57 = lean_ctor_get(x_35, 1);
 lean_inc(x_57);
 lean_inc(x_56);
-lean_dec(x_33);
+lean_dec(x_35);
 x_58 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_58, 0, x_56);
 lean_ctor_set(x_58, 1, x_57);
@@ -326,7 +329,7 @@ return x_58;
 else
 {
 uint8_t x_59; 
-lean_dec(x_18);
+lean_dec(x_25);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -336,19 +339,19 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_59 = !lean_is_exclusive(x_24);
+x_59 = !lean_is_exclusive(x_33);
 if (x_59 == 0)
 {
-return x_24;
+return x_33;
 }
 else
 {
 lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-x_60 = lean_ctor_get(x_24, 0);
-x_61 = lean_ctor_get(x_24, 1);
+x_60 = lean_ctor_get(x_33, 0);
+x_61 = lean_ctor_get(x_33, 1);
 lean_inc(x_61);
 lean_inc(x_60);
-lean_dec(x_24);
+lean_dec(x_33);
 x_62 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_62, 0, x_60);
 lean_ctor_set(x_62, 1, x_61);
@@ -369,20 +372,19 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
-x_63 = !lean_is_exclusive(x_19);
+x_63 = !lean_is_exclusive(x_24);
 if (x_63 == 0)
 {
-return x_19;
+return x_24;
 }
 else
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; 
-x_64 = lean_ctor_get(x_19, 0);
-x_65 = lean_ctor_get(x_19, 1);
+x_64 = lean_ctor_get(x_24, 0);
+x_65 = lean_ctor_get(x_24, 1);
 lean_inc(x_65);
 lean_inc(x_64);
-lean_dec(x_19);
+lean_dec(x_24);
 x_66 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
@@ -393,6 +395,8 @@ return x_66;
 else
 {
 uint8_t x_67; 
+lean_dec(x_18);
+lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -402,23 +406,55 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_67 = !lean_is_exclusive(x_11);
+x_67 = !lean_is_exclusive(x_19);
 if (x_67 == 0)
+{
+return x_19;
+}
+else
+{
+lean_object* x_68; lean_object* x_69; lean_object* x_70; 
+x_68 = lean_ctor_get(x_19, 0);
+x_69 = lean_ctor_get(x_19, 1);
+lean_inc(x_69);
+lean_inc(x_68);
+lean_dec(x_19);
+x_70 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_70, 0, x_68);
+lean_ctor_set(x_70, 1, x_69);
+return x_70;
+}
+}
+}
+else
+{
+uint8_t x_71; 
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_71 = !lean_is_exclusive(x_11);
+if (x_71 == 0)
 {
 return x_11;
 }
 else
 {
-lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_68 = lean_ctor_get(x_11, 0);
-x_69 = lean_ctor_get(x_11, 1);
-lean_inc(x_69);
-lean_inc(x_68);
+lean_object* x_72; lean_object* x_73; lean_object* x_74; 
+x_72 = lean_ctor_get(x_11, 0);
+x_73 = lean_ctor_get(x_11, 1);
+lean_inc(x_73);
+lean_inc(x_72);
 lean_dec(x_11);
-x_70 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_70, 0, x_68);
-lean_ctor_set(x_70, 1, x_69);
-return x_70;
+x_74 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_74, 0, x_72);
+lean_ctor_set(x_74, 1, x_73);
+return x_74;
 }
 }
 }
@@ -581,7 +617,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(12u);
+x_1 = lean_unsigned_to_nat(13u);
 x_2 = lean_unsigned_to_nat(49u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -593,7 +629,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(22u);
+x_1 = lean_unsigned_to_nat(23u);
 x_2 = lean_unsigned_to_nat(31u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -621,7 +657,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(12u);
+x_1 = lean_unsigned_to_nat(13u);
 x_2 = lean_unsigned_to_nat(53u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -633,7 +669,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRa
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(12u);
+x_1 = lean_unsigned_to_nat(13u);
 x_2 = lean_unsigned_to_nat(63u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -679,7 +715,6 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Conv_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -687,9 +722,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Conv_Change(uint8_t builtin
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_ElabTerm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

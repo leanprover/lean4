@@ -3,6 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich and Leonardo de Moura
 -/
+prelude
 import Lean.ImportingFlag
 import Lean.Data.KVMap
 import Lean.Data.NameMap

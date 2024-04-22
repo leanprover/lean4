@@ -10,11 +10,10 @@ def f (x : Nat) : Nat :=
     1
   else
    f (x - 1) * 2
-termination_by' measure id
 decreasing_by
   apply Nat.pred_lt
   exact h
 
 #eval tst ``f
-#check f._eq_1
-#check f._unfold
+#check f.eq_1
+#check f.eq_def

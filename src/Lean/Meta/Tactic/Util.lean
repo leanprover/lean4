@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
@@ -35,11 +36,10 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
-def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α :=
-  if msg.isEmpty then
-    throwError "tactic '{tacticName}' failed\n{mvarId}"
-  else
-    throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
+  match msg? with
+  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
+  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
@@ -167,5 +167,20 @@ inductive TacticResultCNM where
   | closed
   | noChange
   | modified (mvarId : MVarId)
+
+
+/-- Check if a goal is of a subsingleton type. -/
+def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
+  try
+    discard <| synthInstance (← mkAppM ``Subsingleton #[← g.getType])
+    return true
+  catch _ =>
+    return false
+
+register_builtin_option tactic.skipAssignedInstances : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
+}
 
 end Lean.Meta

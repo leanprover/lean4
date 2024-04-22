@@ -8,6 +8,8 @@ import Init.Data.Nat.Linear
 
 namespace Nat
 
+protected theorem two_pow_pos (w : Nat) : 0 < 2^w := Nat.pos_pow_of_pos _ (by decide)
+
 theorem nextPowerOfTwo_dec {n power : Nat} (h₁ : power > 0) (h₂ : power < n) : n - power * 2 < n - power := by
   have : power * 2 = power + power := by simp_arith
   rw [this, Nat.sub_add_eq]
@@ -21,8 +23,8 @@ where
       go (power * 2) (Nat.mul_pos h (by decide))
     else
       power
-termination_by go p h => n - p
-decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  termination_by n - power
+  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
@@ -48,7 +50,7 @@ where
     split
     . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.mul2_isPowerOfTwo_of_isPowerOfTwo h₂)
     . assumption
-termination_by isPowerOfTwo_go p _ _ => n - p
-decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  termination_by n - power
+  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 end Nat

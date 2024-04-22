@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
 

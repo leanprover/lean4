@@ -3,6 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Control.StateRef
+import Init.Data.Array.BinSearch
+import Init.Data.Stream
 import Lean.Data.HashMap
 import Lean.ImportingFlag
 import Lean.Data.SMap
@@ -205,8 +209,13 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | ConstantInfo.ctorInfo _ => true
-  | _                       => false
+  | some (.ctorInfo _) => true
+  | _                  => false
+
+def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
+  | some (.defnInfo { safety := .safe, .. }) => true
+  | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)
@@ -226,10 +235,12 @@ inductive KernelException where
   | exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
   | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
   | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
+  | thmTypeIsNotProp (env : Environment) (name : Name) (type : Expr)
   | other            (msg : String)
   | deterministicTimeout
   | excessiveMemory
   | deepRecursion
+  | interrupted
 
 namespace Environment
 
@@ -764,7 +775,44 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
       moduleNames := s.moduleNames.push i.module
     }
 
-def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+/--
+Return `true` if `cinfo₁` and `cinfo₂` are theorems with the same name, universe parameters,
+and types. We allow different modules to prove the same theorem.
+
+Motivation: We want to generate equational theorems on demand and potentially
+in different files, and we want them to have non-private names.
+We may add support for other kinds of definitions in the future. For now, theorems are
+sufficient for our purposes.
+
+We may have to revise this design decision and eagerly generate equational theorems when
+we implement the module system.
+
+Remark: we do not check whether the theorem `value` field match. This feature is useful and
+ensures the proofs for equational theorems do not need to be identical. This decision
+relies on the fact that theorem types are propositions, we have proof irrelevance,
+and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
+during type-checking, but we are assuming this is not an issue in practice,
+and we are planning to address this issue in the future.
+-/
+private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
+  let .thmInfo tval₁ := cinfo₁ | false
+  let .thmInfo tval₂ := cinfo₂ | false
+  return tval₁.name == tval₂.name
+    && tval₁.type == tval₂.type
+    && tval₁.levelParams == tval₂.levelParams
+    && tval₁.all == tval₂.all
+
+/--
+  Construct environment from `importModulesCore` results.
+
+  If `leakEnv` is true, we mark the environment as persistent, which means it
+  will not be freed. We set this when the object would survive until the end of
+  the process anyway. In exchange, RC updates are avoided, which is especially
+  important when they would be atomic because the environment is shared across
+  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
+  as such). -/
+def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
@@ -772,17 +820,19 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   for h:modIdx in [0:s.moduleData.size] do
     let mod := s.moduleData[modIdx]'h.upper
     for cname in mod.constNames, cinfo in mod.constants do
-      match constantMap.insert' cname cinfo with
-      | (constantMap', replaced) =>
+      match constantMap.insertIfNew cname cinfo with
+      | (constantMap', cinfoPrev?) =>
         constantMap := constantMap'
-        if replaced then
-          throwAlreadyImported s const2ModIdx modIdx cname
+        if let some cinfoPrev := cinfoPrev? then
+          -- Recall that the map has not been modified when `cinfoPrev? = some _`.
+          unless equivInfo cinfoPrev cinfo do
+            throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insert cname modIdx
     for cname in mod.extraConstNames do
       const2ModIdx := const2ModIdx.insert cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
-  let env : Environment := {
+  let mut env : Environment := {
     const2ModIdx    := const2ModIdx
     constants       := constants
     extraConstNames := {}
@@ -796,18 +846,35 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       moduleData   := s.moduleData
     }
   }
-  let env ← setImportedEntries env s.moduleData
-  let env ← finalizePersistentExtensions env s.moduleData opts
+  env ← setImportedEntries env s.moduleData
+  if leakEnv then
+    /- Mark persistent a first time before `finalizePersistenExtensions`, which
+       avoids costly MT markings when e.g. an interpreter closure (which
+       contains the environment) is put in an `IO.Ref`. This can happen in e.g.
+       initializers of user environment extensions and is wasteful because the
+       environment is marked persistent immediately afterwards anyway when the
+       constructed extension including the closure is ultimately stored in the
+       initialized constant. We have seen significant savings in `open Mathlib`
+       timings, where we have both a big environment and interpreted environment
+       extensions, from this. There is no significant extra cost to calling
+       `markPersistent` multiple times like this. -/
+    env := Runtime.markPersistent env
+  env ← finalizePersistentExtensions env s.moduleData opts
+  if leakEnv then
+    /- Ensure the final environment including environment extension states is
+       marked persistent as documented. -/
+    env := Runtime.markPersistent env
   pure env
 
 @[export lean_import_modules]
-def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the

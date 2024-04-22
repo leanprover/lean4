@@ -3,10 +3,11 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Name
 import Lake.Util.NativeLib
 import Lake.Config.InstallPath
 
-open System
+open System Lean
 
 /-! # Lake's Environment
 Definitions related to a Lake environment.
@@ -24,6 +25,10 @@ structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
+  /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
+  githashOverride : String
+  /-- A name-to-URL mapping of URL overrides for the named packages. -/
+  pkgUrlMap : NameMap String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
@@ -34,20 +39,39 @@ structure Env where
   initSharedLibPath : SearchPath
   /-- The initial binary search path of the environment (i.e., `PATH`). -/
   initPath : SearchPath
-  deriving Inhabited, Repr
+  deriving Inhabited
 
 namespace Env
 
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
-def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : BaseIO Env :=
+def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env :=
   return {
     lake, lean, elan?,
+    pkgUrlMap := ← computePkgUrlMap
+    githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
     initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
     initSharedLibPath := ← getSearchPath sharedLibPathEnvVar,
     initPath := ← getSearchPath "PATH"
   }
+where
+  computePkgUrlMap := do
+    let some urlMapStr ← IO.getEnv "LAKE_PKG_URL_MAP" | return {}
+    match Json.parse urlMapStr |>.bind fromJson? with
+    | .ok urlMap => return urlMap
+    | .error e => throw s!"'LAKE_PKG_URL_MAP' has invalid JSON: {e}"
+
+/--
+The string Lake uses to identify Lean in traces.
+Either the environment-specified `LEAN_GITHASH` or the detected Lean's githash.
+
+The override allows one to replace the Lean version used by a library
+(e.g., Mathlib) without completely rebuilding it, which is useful for testing
+custom builds of Lean.
+-/
+def leanGithash (env : Env) : String :=
+  if env.githashOverride.isEmpty then env.lean.githash else env.githashOverride
 
 /--
 The preferred toolchain of the environment. May be empty.
@@ -82,7 +106,7 @@ def leanPath (env : Env) : SearchPath :=
 
 /--
 The Lean source search path of the environment (i.e., `LEAN_SRC_PATH`).
-Combines the initial path of the environment with that of the Lake abd Lean
+Combines the initial path of the environment with that of the Lake and Lean
 installations.
 -/
 def leanSrcPath (env : Env) : SearchPath :=
@@ -95,13 +119,15 @@ Combines the initial path of the environment with that of the Lean installation.
 def sharedLibPath (env : Env) : SearchPath :=
   env.lean.sharedLibPath ++ env.initSharedLibPath
 
-/-- Environment variable settings based only on the Elan/Lean/Lake installations. -/
-def installVars (env : Env) : Array (String × Option String)  :=
+/-- Environment variable settings that are not augmented by a Lake workspace. -/
+def baseVars (env : Env) : Array (String × Option String)  :=
   #[
     ("ELAN_HOME", env.elan?.map (·.home.toString)),
     ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
+    ("LAKE_PKG_URL_MAP", toJson env.pkgUrlMap |>.compress),
+    ("LEAN_GITHASH", env.leanGithash),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),
     ("LEAN_AR", env.lean.ar.toString),
     ("LEAN_CC", env.lean.leanCc?)
@@ -109,7 +135,7 @@ def installVars (env : Env) : Array (String × Option String)  :=
 
 /-- Environment variable settings for the `Lake.Env`. -/
 def vars (env : Env) : Array (String × Option String)  :=
-  let vars := env.installVars ++ #[
+  let vars := env.baseVars ++ #[
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
     ("PATH", some env.path.toString)

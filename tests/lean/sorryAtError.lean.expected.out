@@ -1,5 +1,5 @@
 sorryAtError.lean:13:46-13:47: error: application type mismatch
-  Ty.ty ty Γ
+  ty.ty Γ
 argument
   Γ
 has type

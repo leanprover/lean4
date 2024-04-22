@@ -3,6 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.Array.BasicAux
+import Init.Data.ToString.Macro
+
 namespace Lean
 universe u v w w'
 
@@ -81,14 +85,14 @@ partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → 
       else insertAtCollisionNodeAux n (i+1) k v
     else
       ⟨Node.collision (keys.push k) (vals.push v) (size_push heq k v), IsCollisionNode.mk _ _ _⟩
-  | ⟨Node.entries _, h⟩, _, _, _ => False.elim (nomatch h)
+  | ⟨Node.entries _, h⟩, _, _, _ => nomatch h
 
 def insertAtCollisionNode [BEq α] : CollisionNode α β → α → β → CollisionNode α β :=
   fun n k v => insertAtCollisionNodeAux n 0 k v
 
 def getCollisionNodeSize : CollisionNode α β → Nat
   | ⟨Node.collision keys _ _, _⟩ => keys.size
-  | ⟨Node.entries _, h⟩          => False.elim (nomatch h)
+  | ⟨Node.entries _, h⟩          => nomatch h
 
 def mkCollisionNode (k₁ : α) (v₁ : β) (k₂ : α) (v₂ : β) : Node α β :=
   let ks : Array α := Array.mkEmpty maxCollisions
@@ -102,7 +106,7 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
     let newNode := insertAtCollisionNode ⟨Node.collision keys vals heq, IsCollisionNode.mk _ _ _⟩ k v
     if depth >= maxDepth || getCollisionNodeSize newNode < maxCollisions then newNode.val
     else match newNode with
-      | ⟨Node.entries _, h⟩ => False.elim (nomatch h)
+      | ⟨Node.entries _, h⟩ => nomatch h
       | ⟨Node.collision keys vals heq, _⟩ =>
         let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
           if h : i < keys.size then
@@ -150,6 +154,8 @@ def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Op
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
   getElem m i _ := m.find? i
+
+instance {_ : BEq α} {_ : Hashable α} : LawfulGetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
 
 @[inline] def findD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
@@ -223,8 +229,10 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β × Bo
   | n@(Node.collision keys vals heq), _, k =>
     match keys.indexOf? k with
     | some idx =>
-      let ⟨keys', keq⟩ := keys.eraseIdx' idx
-      let ⟨vals', veq⟩ := vals.eraseIdx' (Eq.ndrec idx heq)
+      let keys' := keys.feraseIdx idx
+      have keq := keys.size_feraseIdx idx
+      let vals' := vals.feraseIdx (Eq.ndrec idx heq)
+      have veq := vals.size_feraseIdx (Eq.ndrec idx heq)
       have : keys.size - 1 = vals.size - 1 := by rw [heq]
       (Node.collision keys' vals' (keq.trans (this.trans veq.symm)), true)
     | none     => (n, false)
@@ -316,6 +324,9 @@ def map {α : Type u} {β : Type v} {σ : Type u} {_ : BEq α} {_ : Hashable α}
 
 def toList {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : List (α × β) :=
   m.foldl (init := []) fun ps k v => (k, v) :: ps
+
+def toArray {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) : Array (α × β) :=
+  m.foldl (init := #[]) fun ps k v => ps.push (k, v)
 
 structure Stats where
   numNodes      : Nat := 0

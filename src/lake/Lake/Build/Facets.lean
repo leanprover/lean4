@@ -74,9 +74,45 @@ module_data ilean : BuildJob FilePath
 abbrev Module.cFacet := `c
 module_data c : BuildJob FilePath
 
-/-- The object file built from `c`. -/
+/-- The LLVM BC file built from the Lean file via `lean`. -/
+abbrev Module.bcFacet := `bc
+module_data bc : BuildJob FilePath
+
+/--
+The object file `.c.o` built from `c`.
+On Windows, this is `c.o.noexport`, on other systems it is `c.o.export`).
+-/
+abbrev Module.coFacet := `c.o
+module_data c.o : BuildJob FilePath
+
+/-- The object file `.c.o.export` built from `c` (with `-DLEAN_EXPORTING`). -/
+abbrev Module.coExportFacet := `c.o.export
+module_data c.o.export : BuildJob FilePath
+
+/-- The object file `.c.o.noexport` built from `c` (without `-DLEAN_EXPORTING`). -/
+abbrev Module.coNoExportFacet := `c.o.noexport
+module_data c.o.noexport : BuildJob FilePath
+
+/-- The object file `.bc.o` built from `bc`. -/
+abbrev Module.bcoFacet := `bc.o
+module_data bc.o : BuildJob FilePath
+
+/--
+The object file built from `c`/`bc`.
+On Windows with the C backend, no Lean symbols are exported.
+On every other configuration, symbols are exported.
+-/
 abbrev Module.oFacet := `o
 module_data o : BuildJob FilePath
+
+/-- The object file built from `c`/`bc` (with Lean symbols exported). -/
+abbrev Module.oExportFacet := `o.export
+module_data o.export : BuildJob FilePath
+
+/-- The object file built from `c`/`bc` (without Lean symbols exported). -/
+abbrev Module.oNoExportFacet := `o.noexport
+module_data o.noexport : BuildJob FilePath
+
 
 /-! ## Package Facets -/
 
@@ -97,6 +133,10 @@ library_data leanArts : BuildJob Unit
 /-- A Lean library's static artifact. -/
 abbrev LeanLib.staticFacet := `static
 library_data static : BuildJob FilePath
+
+/-- A Lean library's static artifact (with exported symbols). -/
+abbrev LeanLib.staticExportFacet := `static.export
+library_data static.export : BuildJob FilePath
 
 /-- A Lean library's shared artifact. -/
 abbrev LeanLib.sharedFacet := `shared

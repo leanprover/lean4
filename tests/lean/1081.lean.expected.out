@@ -7,6 +7,6 @@ but is expected to have type
 1081.lean:23:4-23:7: error: type mismatch
   rfl
 has type
-  insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v = insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v : Prop
+  insert a ⟨0, ⋯⟩ v = insert a ⟨0, ⋯⟩ v : Prop
 but is expected to have type
-  insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v = cons a v : Prop
+  insert a ⟨0, ⋯⟩ v = cons a v : Prop

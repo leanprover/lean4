@@ -1,1 +1,1 @@
-rm -f lakefile.olean lake-manifest.json
+rm -rf .lake lake-manifest.json

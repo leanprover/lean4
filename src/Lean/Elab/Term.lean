@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
+import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
@@ -10,6 +12,7 @@ import Lean.Linter.Deprecated
 import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
+import Lean.Elab.PreDefinition.WF.TerminationHint
 
 namespace Lean.Elab
 
@@ -95,6 +98,7 @@ structure LetRecToLift where
   type           : Expr
   val            : Expr
   mvarId         : MVarId
+  termination    : WF.TerminationHints
   deriving Inhabited
 
 /--
@@ -196,6 +200,8 @@ structure Context where
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
+  /-- Heed `elab_as_elim` attribute. -/
+  heedElabAsElim     : Bool            := true
   /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
   isNoncomputableSection : Bool        := false
   /-- When `true` we skip TC failures. We use this option when processing patterns. -/
@@ -211,7 +217,7 @@ structure Context where
   saveRecAppSyntax : Bool := true
   /--
   If `holesAsSyntheticOpaque` is `true`, then we mark metavariables associated
-  with `_`s as `synthethicOpaque` if they do not occur in patterns.
+  with `_`s as `syntheticOpaque` if they do not occur in patterns.
   This option is useful when elaborating terms in tactics such as `refine'` where
   we want holes there to become new goals. See issue #1681, we have
   `refine' (fun x => _)
@@ -254,6 +260,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   setTraceState traceState
   unless restoreInfo do
     setInfoState infoState
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
+  s.meta.restoreFull
+  set s.elab
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -326,33 +340,6 @@ instance : AddErrorMessageContext TermElabM where
     pure (ref, msg)
 
 /--
-  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
-  be preserved. This method is useful for performing computations where all
-  metavariable must be resolved or discarded.
-  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
-  to store their metavariable context. -/
-def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
-  let s ← get
-  let sMeta ← getThe Meta.State
-  try
-    withSaveInfoContext x
-  finally
-    set s
-    set sMeta
-
-/--
-  Execute `x` but discard changes performed to the state.
-  However, the info trees and messages are not discarded. -/
-private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
-  let saved ← saveState
-  try
-    withSaveInfoContext x
-  finally
-    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
-    restoreState saved
-
-/--
   Execute `x` without storing `Syntax` for recursive applications. See `saveRecAppSyntax` field at `Context`.
 -/
 def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
@@ -375,8 +362,8 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
   /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
-  `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+  `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref
@@ -398,9 +385,12 @@ def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecs
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 
-/-- Execute `x` with `declName? := name`. See `getDeclName?`. -/
+instance : MonadParentDecl TermElabM where
+  getParentDeclName? := getDeclName?
+
+/-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) x
+  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -430,6 +420,44 @@ def withoutErrToSorryImp (x : TermElabM α) : TermElabM α :=
 -/
 def withoutErrToSorry [MonadFunctorT TermElabM m] : m α → m α :=
   monadMap (m := TermElabM) withoutErrToSorryImp
+
+def withoutHeedElabAsElimImp (x : TermElabM α) : TermElabM α :=
+  withReader (fun ctx => { ctx with heedElabAsElim := false }) x
+
+/--
+  Execute `x` without heeding the `elab_as_elim` attribute. Useful when there is
+  no expected type (so `elabAppArgs` would fail), but expect that the user wants
+  to use such constants.
+-/
+def withoutHeedElabAsElim [MonadFunctorT TermElabM m] : m α → m α :=
+  monadMap (m := TermElabM) withoutHeedElabAsElimImp
+
+/--
+  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
+  be preserved. This method is useful for performing computations where all
+  metavariable must be resolved or discarded.
+  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
+  to store their metavariable context. -/
+def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
+  let s ← get
+  let sMeta ← getThe Meta.State
+  try
+    withSaveInfoContext x
+  finally
+    set s
+    set sMeta
+
+/--
+  Execute `x` but discard changes performed to the state.
+  However, the info trees and messages are not discarded. -/
+private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
+  let saved ← saveState
+  try
+    withSaveInfoContext x
+  finally
+    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
+    restoreState saved
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
@@ -645,7 +673,7 @@ def mkTypeMismatchError (header? : Option String) (e : Expr) (eType : Expr) (exp
   return m!"{header}{← mkHasTypeButIsExpectedMsg eType expectedType}"
 
 def throwTypeMismatchError (header? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (extraMsg? : Option MessageData := none) : TermElabM α := do
+    (f? : Option Expr := none) (_extraMsg? : Option MessageData := none) : TermElabM α := do
   /-
     We ignore `extraMsg?` for now. In all our tests, it contained no useful information. It was
     always of the form:
@@ -774,10 +802,10 @@ def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgH
     | _            => throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
 
 /--
-  If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
-  If they are not, then try coercions.
+If `expectedType?` is `some t`, then ensures `t` and `eType` are definitionally equal by inserting a coercion if necessary.
 
-  Argument `f?` is used only for generating error messages. -/
+Argument `f?` is used only for generating error messages when inserting coercions fails.
+-/
 def ensureHasType (expectedType? : Option Expr) (e : Expr)
     (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
   let some expectedType := expectedType? | return e
@@ -846,6 +874,12 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
   let some expectedType ← tryPostponeIfHasMVars? expectedType? |
     throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
+
+def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType ← pure expectedType?
+    | throwError "expected type must be known"
+  x expectedType
 
 /--
   Save relevant context for term elaboration postponement.
@@ -1353,8 +1387,9 @@ where
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
-    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}") do
-    checkMaxHeartbeats "elaborator"
+    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
+      (tag := stx.getKind.toString) do
+    checkSystem "elaborator"
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
@@ -1383,9 +1418,9 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     trace[Elab.step.result] result
     pure result
 
-/-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
-def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (field? := field?) (expectedType? := expectedType?)
+/-- Store in the `InfoTree` that `e` is a "dot"-completion target. `stx` should cover the entire term. -/
+def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) : TermElabM Unit := do
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1407,9 +1442,22 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=
   withRef stx <| elabTermAux expectedType? catchExPostpone implicitLambda stx
 
+/--
+Similar to `Lean.Elab.Term.elabTerm`, but ensures that the type of the elaborated term is `expectedType?`
+by inserting coercions if necessary.
+
+If `errToSorry` is true, then if coercion insertion fails, this function returns `sorry` and logs the error.
+Otherwise, it throws the error.
+-/
 def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
-  withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  try
+    withRef stx <| ensureHasType expectedType? e errorMsgHeader?
+  catch ex =>
+    if (← read).errToSorry && ex matches .error .. then
+      exceptionToSorry ex expectedType?
+    else
+      throw ex
 
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions were thrown. Otherwise, return `none`. -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
@@ -1615,7 +1663,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
     return [(e, projs)]  -- section variables should shadow global decls
   if preresolved.isEmpty then
-    process (← resolveGlobalName n)
+    process (← realizeGlobalName n)
   else
     process preresolved
 where
@@ -1718,6 +1766,7 @@ builtin_initialize
   registerTraceClass `Elab.postpone
   registerTraceClass `Elab.coe
   registerTraceClass `Elab.debug
+  registerTraceClass `Elab.reuse
 
 export Term (TermElabM)
 

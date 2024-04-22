@@ -4,11 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Coe
-import Init.Classical
-import Init.SimpLemmas
-import Init.Data.Nat.Basic
-import Init.Data.List.Basic
+import Init.ByCases
 import Init.Data.Prod
 
 namespace Nat.Linear
@@ -539,13 +535,13 @@ theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b
 theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
   have := Poly.denote_eq_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.norm, Poly.denote_eq] at this
+  simp [toNormPoly, Poly.norm, Poly.denote_eq, -eq_iff_iff] at this
   exact this.symm
 
 theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
   have := Poly.denote_le_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.norm,Poly.denote_le] at this
+  simp [toNormPoly, Poly.norm,Poly.denote_le, -eq_iff_iff] at this
   exact this.symm
 
 theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
@@ -584,13 +580,13 @@ attribute [-simp] Nat.right_distrib Nat.left_distrib
 
 theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).denote ctx = c.denote ctx := by
   cases c; rename_i eq lhs rhs
-  have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp; apply Nat.succ_ne_zero
+  have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp [Nat.succ.injEq]
   have : ¬ (k == 0) → (k + 1 == 1) = false := fun h => beq_false_of_ne (this (ne_of_beq_false (Bool.of_not_eq_true h)))
   have : ¬ ((k + 1 == 0) = true)  := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)
   have : (1 == (0 : Nat)) = false := rfl
   have : (1 == (1 : Nat)) = true  := rfl
   by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.denote, Poly.denote_le, Poly.denote_eq]
-     <;> by_cases hk : k == 0 <;> (try simp [eq_of_beq hk]) <;> simp [*] <;> apply propext <;> apply Iff.intro <;> intro h
+     <;> by_cases hk : k == 0 <;> (try simp [eq_of_beq hk]) <;> simp [*] <;> apply Iff.intro <;> intro h
   · exact Nat.eq_of_mul_eq_mul_left (Nat.zero_lt_succ _) h
   · rw [h]
   · exact Nat.le_of_mul_le_mul_left h (Nat.zero_lt_succ _)
@@ -637,20 +633,18 @@ theorem Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : 
 theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
   cases c; rename_i eq lhs rhs
   simp [isUnsat]
-  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le, -and_imp]
   · intro
       | Or.inl ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₁]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₂); simp [this.symm]
       | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
   · intro ⟨h₁, h₂⟩
     simp [Poly.of_isZero, h₂]
-    have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁)
-    simp [this]
-    done
+    exact Poly.of_isNonZero ctx h₁
 
 theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
   cases c; rename_i eq lhs rhs
   simp [isValid]
-  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le, -and_imp]
   · intro ⟨h₁, h₂⟩
     simp [Poly.of_isZero, h₁, h₂]
   · intro h
@@ -658,12 +652,12 @@ theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid
 
 theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
   have := PolyCnstr.eq_false_of_isUnsat ctx h
-  simp at this
+  simp [-eq_iff_iff] at this
   assumption
 
 theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.denote ctx = True := by
   have := PolyCnstr.eq_true_of_isValid ctx h
-  simp at this
+  simp [-eq_iff_iff] at this
   assumption
 
 theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certificate) (h : (combineHyps c cs).denote ctx → False) : c.denote ctx → cs.denote ctx := by
@@ -712,7 +706,7 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
 
 theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly == d.toPoly) : c.denote ctx = d.denote ctx := by
   have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
-  simp at h
+  simp [-eq_iff_iff] at h
   assumption
 
 theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by

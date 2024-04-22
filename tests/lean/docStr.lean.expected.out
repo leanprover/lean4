@@ -189,3 +189,4 @@ g.foo :=
                         charUtf16 := 44,
                         endPos := { line := 42, column := 47 },
                         endCharUtf16 := 47 } }
+docStr.lean:106:0-107:20: error: invalid 'add_decl_doc', declaration is in an imported module

@@ -1,0 +1,1 @@
+invalidMutualError.lean:8:0-17:3: error: invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs

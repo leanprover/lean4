@@ -173,7 +173,7 @@ using namespace lean; // NOLINT
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
 extern "C" object *lean_ir_emit_llvm(object *env, object *mod_name,
-                                     object *filepath, object *target_triple, object *w);
+                                     object *filepath, object *w);
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
@@ -199,7 +199,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --i=iname -i       create ilean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --bc=fname -b      name of the LLVM bitcode file\n";
-    std::cout << "  --target=target    target triple of object file produced by LLVM\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
               << "                     (default: current working directory)\n";
@@ -218,6 +217,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
     std::cout << "  --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
+    std::cout << "  --json             report Lean output (e.g., messages) as JSON (one per line)\n";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
     std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
@@ -231,6 +231,7 @@ static void display_help(std::ostream & out) {
 
 static int print_prefix = 0;
 static int print_libdir = 0;
+static int json_output = 0;
 
 static struct option g_long_options[] = {
     {"version",      no_argument,       0, 'v'},
@@ -251,7 +252,6 @@ static struct option g_long_options[] = {
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
     {"bc",           optional_argument, 0, 'b'},
-    {"target",       optional_argument, 0, '3'},
     {"features",     optional_argument, 0, 'f'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_MULTI_THREAD)
@@ -262,6 +262,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"json",         no_argument,       &json_output, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
@@ -271,7 +272,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -348,6 +349,7 @@ extern "C" object * lean_run_frontend(
     object * main_module_name,
     uint32_t trust_level,
     object * ilean_filename,
+    uint8_t  json_output,
     object * w
 );
 pair_ref<environment, object_ref> run_new_frontend(
@@ -355,7 +357,8 @@ pair_ref<environment, object_ref> run_new_frontend(
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
-    optional<std::string> const & ilean_file_name
+    optional<std::string> const & ilean_file_name,
+    uint8_t json
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
@@ -368,6 +371,7 @@ pair_ref<environment, object_ref> run_new_frontend(
         main_module_name.to_obj_arg(),
         trust_level,
         oilean_file_name,
+        json_output,
         io_mk_world()
     ));
 }
@@ -489,7 +493,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     std::string native_output;
     optional<std::string> c_output;
     optional<std::string> llvm_output;
-    optional<std::string> target_triple;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
 
@@ -524,12 +527,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 c_output = optarg;
                 break;
             case 'b':
-                check_optarg("b");
+                check_optarg("bc");
                 llvm_output = optarg;
-                break;
-            case '3':
-                check_optarg("target");
-                target_triple = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -723,7 +722,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 
@@ -752,24 +751,13 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             out.close();
         }
 
-        // target triple is only used by the LLVM backend. Save users
-        // a great deal of pain by erroring out if they misuse flags.
-        if (target_triple && !llvm_output) {
-            std::cerr << "ERROR: '--target' must be used with '--bc' to enable LLVM backend. Quitting code generation.\n";
-            return 1;
-        }
-
         if (llvm_output && ok) {
-	        // marshal 'optional<string>' to 'lean_object*'
-            lean_object* const target_triple_lean =
-                target_triple ? mk_option_some(lean::string_ref(*target_triple).to_obj_arg()) : mk_option_none();
             initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
                     lean_io_mk_world());
             time_task _("LLVM code generation", opts);
             lean::consume_io_result(lean_ir_emit_llvm(
                         env.to_obj_arg(), (*main_module_name).to_obj_arg(),
                         lean::string_ref(*llvm_output).to_obj_arg(),
-                        target_triple_lean,
                         lean_io_mk_world()));
         }
 

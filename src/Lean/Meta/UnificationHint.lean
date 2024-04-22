@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
@@ -10,14 +11,14 @@ import Lean.Meta.SynthInstance
 
 namespace Lean.Meta
 
-abbrev UnificationHintKey := DiscrTree.Key (simpleReduce := true)
+abbrev UnificationHintKey := DiscrTree.Key
 
 structure UnificationHintEntry where
   keys        : Array UnificationHintKey
   val         : Name
   deriving Inhabited
 
-abbrev UnificationHintTree := DiscrTree Name (simpleReduce := true)
+abbrev UnificationHintTree := DiscrTree Name
 
 structure UnificationHints where
   discrTree : UnificationHintTree := DiscrTree.empty
@@ -25,6 +26,8 @@ structure UnificationHints where
 
 instance : ToFormat UnificationHints where
   format h := format h.discrTree
+
+def UnificationHints.config : WhnfCoreConfig := { iota := false, proj := .no }
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
@@ -78,7 +81,7 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
       match decodeUnificationHint body with
       | Except.error msg => throwError msg
       | Except.ok hint =>
-        let keys ← DiscrTree.mkPath hint.pattern.lhs
+        let keys ← DiscrTree.mkPath hint.pattern.lhs UnificationHints.config
         validateHint hint
         unificationHintExtension.add { keys := keys, val := declName } kind
 
@@ -98,7 +101,7 @@ def tryUnificationHints (t s : Expr) : MetaM Bool := do
   if t.isMVar then
     return false
   let hints := unificationHintExtension.getState (← getEnv)
-  let candidates ← hints.discrTree.getMatch t
+  let candidates ← hints.discrTree.getMatch t UnificationHints.config
   for candidate in candidates do
     if (← tryCandidate candidate) then
       return true

@@ -3,6 +3,9 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Dany Fabian
 -/
+prelude
+import Init.NotationExtra
+import Init.Data.ToString.Macro
 
 namespace Lean
 
@@ -40,11 +43,19 @@ def fail (msg : String) : Parsec α := fun it =>
   error it msg
 
 @[inline]
-def orElse (p : Parsec α) (q : Unit → Parsec α) : Parsec α := fun it =>
+def tryCatch (p : Parsec α)
+    (csuccess : α → Parsec β)
+    (cerror : Unit → Parsec β)
+    : Parsec β := fun it =>
   match p it with
-  | success rem a => success rem a
-  | error rem err =>
-    if it = rem then q () it else error rem err
+  | .success rem a => csuccess a rem
+  | .error rem err =>
+    -- We assume that it.s never changes as the `Parsec` monad only modifies `it.pos`.
+    if it.pos = rem.pos then cerror () rem else .error rem err
+
+@[inline]
+def orElse (p : Parsec α) (q : Unit → Parsec α) : Parsec α :=
+  tryCatch p pure q
 
 @[inline]
 def attempt (p : Parsec α) : Parsec α := λ it =>
@@ -71,8 +82,7 @@ def eof : Parsec Unit := fun it =>
 
 @[specialize]
 partial def manyCore (p : Parsec α) (acc : Array α) : Parsec $ Array α :=
-  (do manyCore p (acc.push $ ←p))
-  <|> pure acc
+  tryCatch p (manyCore p <| acc.push ·) (fun _ => pure acc)
 
 @[inline]
 def many (p : Parsec α) : Parsec $ Array α := manyCore p #[]
@@ -82,8 +92,7 @@ def many1 (p : Parsec α) : Parsec $ Array α := do manyCore p #[←p]
 
 @[specialize]
 partial def manyCharsCore (p : Parsec Char) (acc : String) : Parsec String :=
-  (do manyCharsCore p (acc.push $ ←p))
-  <|> pure acc
+  tryCatch p (manyCharsCore p <| acc.push ·) (fun _ => pure acc)
 
 @[inline]
 def manyChars (p : Parsec Char) : Parsec String := manyCharsCore p ""

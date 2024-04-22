@@ -37,6 +37,7 @@ example : foo (0 + a) (b + 0) = a + b := by
     case' y => skip
     case y => skip
     done
+  rfl
 
 example : foo (0 + a) (b + 0) = a + b := by
   conv =>
@@ -59,6 +60,7 @@ example : foo (0 + a) (b + 0) = a + b := by
     fail_if_success lhs
     try lhs
     trace_state
+  rfl
 
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
@@ -99,6 +101,7 @@ example (x y : Nat) : f x (x + y + 0) y = y + x := by
     change x + y
     trace_state
     rw [Nat.add_comm]
+  rfl
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
@@ -108,6 +111,7 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
     trace_state
     rw [Nat.zero_add]
     trace_state
+  rfl
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
@@ -115,12 +119,14 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
     arg 1
     intro a b
     rw [Nat.zero_add]
+  rfl
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
     enter [1, 1, a, b]
     trace_state
     rw [Nat.zero_add]
+  rfl
 
 example (p : Nat → Prop) (h : ∀ a, p a) : ∀ a, p (id (0 + a)) := by
   conv =>
@@ -152,6 +158,7 @@ example : (fun x => 0 + x) = id := by
     tactic => funext x
     trace_state
     rw [Nat.zero_add]
+  rfl
 
 example (p : Prop) (x : Nat) : (x = x → p) → p := by
   conv =>
@@ -249,3 +256,32 @@ example : 1 = 1 := by conv => apply bla; congr
 example (h : a = a') (H : a + a' = 0) : a + a = 0 := by
   conv in (occs := 2) a => rw [h]
   apply H
+
+
+-- Testing conv => fun
+example (P Q : Nat → Nat → Nat → Prop) (h : P = Q) (h2 : Q 1 2 3) : P 1 2 3 := by
+  conv =>
+    trace_state
+    fun
+    trace_state
+    fun
+    trace_state
+    fun
+    trace_state
+    rw [h]
+  exact h2
+
+example (p : Prop) : p := by
+  conv => fun -- error
+
+-- Testing conv => arg 0
+example (P Q : Nat → Nat → Nat → Prop) (h : P = Q) (h2 : Q 1 2 3) : P 1 2 3 := by
+  conv =>
+    trace_state
+    arg 0
+    trace_state
+    rw [h]
+  exact h2
+
+example (p : Prop) : p := by
+  conv => arg 0 -- error

@@ -24,8 +24,6 @@ theorem ex3 : fact x > 0 := by
   | zero => decide
   | succ x ih =>
     simp [fact]
-    apply Nat.mul_pos
-    apply Nat.zero_lt_succ
     apply ih
 
 def head [Inhabited α] : List α → α
@@ -59,7 +57,7 @@ def f2 : StateM Nat Unit := do
 -- Note: prior to PR #2489, the `Try this` suggestion reported by this `simp`
 -- call was incomplete.
 example : f1 = f2 := by
-  simp [f1, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, pure, set, StateT.set, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet]
+  simp (config := {unfoldPartialApp := true}) [f1, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, pure, set, StateT.set, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet]
 
 def h (x : Nat) : Sum (Nat × Nat) Nat := Sum.inl (x, x)
 
@@ -134,3 +132,19 @@ example (P Q : Prop) (h : P ↔ Q) (p : P) : Q := by
 theorem my_thm' : a ↔ a ∧ a := my_thm.symm
 
 example (P : Prop) : P ∧ P ↔ P := by simp only [← my_thm']
+
+example {P : Prop} : P → P := by intro h; simp [*]
+
+example {P : Prop} : P → P := by intro; simp [*]
+
+-- `simp_all only [h]`, where `h` is a local hypothesis, is redundant and
+-- misleading since `simp_all` uses all local hypotheses anyway. `simp_all?`
+-- should therefore omit hypotheses from the suggested theorem list.
+
+example {P : Nat → Type} (h₁ : n = m) (h₂ : P m) : P n := by
+  simp_all
+  exact h₂
+
+example {Q : ∀ {n m : Nat}, n = m → Prop} {P : Nat → Type} (h₁ : n = m) (h₂ : P m) (h₃ : Q h₁) : P n := by
+  simp_all
+  exact h₂

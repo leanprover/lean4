@@ -1,12 +1,12 @@
 inductionErrors.lean:11:12-11:27: error: unsolved goals
 case lower.h
 p d : Nat
-⊢ p ≤ p + Nat.succ d
+⊢ p ≤ p + d.succ
 inductionErrors.lean:12:12-12:27: error: unsolved goals
 case upper.h
 q d : Nat
-⊢ q + Nat.succ d > q
-inductionErrors.lean:16:19-16:26: error: unknown constant 'elimEx2'
+⊢ q + d.succ > q
+inductionErrors.lean:16:19-16:26: error: unknown identifier 'elimEx2'
 inductionErrors.lean:22:2-25:45: error: insufficient number of targets for 'elimEx'
 inductionErrors.lean:28:16-28:23: error: unexpected eliminator resulting type
   Nat
@@ -18,11 +18,11 @@ x y : Nat
 ⊢ 0 + (y + 1) = y + 1
 inductionErrors.lean:40:14-40:18: error: unsolved goals
 case zero
-⊢ 0 + Nat.zero = Nat.zero
+⊢ 0 + 0 = 0
 inductionErrors.lean:41:14-41:18: error: unsolved goals
 case succ
 y : Nat
-⊢ 0 + Nat.succ y = Nat.succ y
+⊢ 0 + (y + 1) = y + 1
 inductionErrors.lean:50:2-50:16: error: alternative 'cons' is not needed
 inductionErrors.lean:55:2-55:16: error: alternative 'cons' is not needed
 inductionErrors.lean:60:2-60:40: error: invalid alternative name 'upper2'

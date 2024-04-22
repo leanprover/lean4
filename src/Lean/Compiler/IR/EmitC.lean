@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Runtime
 import Lean.Compiler.NameMangling
 import Lean.Compiler.ExportAttr
@@ -90,6 +91,11 @@ def toCInitName (n : Name) : M String := do
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit
 
+def shouldExport (n : Name) : Bool :=
+  -- HACK: exclude symbols very unlikely to be used by the interpreter or other consumers of
+  -- libleanshared to avoid Windows symbol limit
+  !(`Lean.Compiler.LCNF).isPrefixOf n
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
@@ -98,7 +104,7 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M U
     else if isExternal then emit "extern "
     else emit "LEAN_EXPORT "
   else
-    if !isExternal then emit "LEAN_EXPORT "
+    if !isExternal && shouldExport decl.name then emit "LEAN_EXPORT "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
@@ -472,6 +478,7 @@ def quoteString (s : String) : String :=
       else if c == '\t' then "\\t"
       else if c == '\\' then "\\\\"
       else if c == '\"' then "\\\""
+      else if c == '?' then "\\?" -- avoid trigraphs
       else if c.toNat <= 31 then
         "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
       -- TODO(Leo): we should use `\unnnn` for escaping unicode characters.
@@ -639,7 +646,7 @@ def emitDeclAux (d : Decl) : M Unit := do
       let baseName ← toCName f;
       if xs.size == 0 then
         emit "static "
-      else
+      else if shouldExport f then
         emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
       emit (toCType t); emit " ";
       if xs.size > 0 then

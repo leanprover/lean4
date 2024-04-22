@@ -5,6 +5,22 @@ f (y + x) : Nat
 a b : Nat
 h1 : a = 0
 h2 : b = 0
-⊢ (let_fun x := 1;
-    x + x) >
-    b
+⊢ b <
+    let_fun x := 1;
+    x + x
+(let_fun this := id;
+  this)
+  1 : Nat
+a b : Nat
+h : a > b
+⊢ b < a
+let_fun n := 5;
+⟨[], ⋯⟩ : { as // as.length ≤ 5 }
+rfl : (let_fun n := 5;
+  n) =
+  let_fun n := 5;
+  n
+rfl : 2 = 2
+5
+let_fun n := 5;
+n

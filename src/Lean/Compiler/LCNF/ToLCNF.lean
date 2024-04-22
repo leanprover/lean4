@@ -3,7 +3,9 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ProjFns
+import Lean.Meta.CtorRecognizer
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
@@ -618,7 +620,7 @@ where
       let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
       let lhs := lhs.toCtorIfLit
       let rhs := rhs.toCtorIfLit
-      match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
+      match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
       | some lhsCtorVal, some rhsCtorVal =>
         if lhsCtorVal.name == rhsCtorVal.name then
           etaIfUnderApplied e (arity+1) do
@@ -658,7 +660,9 @@ where
       visit (f.beta e.getAppArgs)
 
   visitApp (e : Expr) : M Arg := do
-    if let .const declName _ := e.getAppFn then
+    if let some (args, n, t, v, b) := e.letFunAppArgs? then
+      visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
+    else if let .const declName _ := e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
@@ -725,11 +729,8 @@ where
       pushElement (.fun funDecl)
       return .fvar funDecl.fvarId
 
-  visitMData (mdata : MData) (e : Expr) : M Arg := do
-    if let some (.app (.lam n t b ..) v) := letFunAnnotation? (.mdata mdata e) then
-      visitLet (.letE n t v b (nonDep := true)) #[]
-    else
-      visit e
+  visitMData (_mdata : MData) (e : Expr) : M Arg := do
+    visit e
 
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
     match (← visit e) with

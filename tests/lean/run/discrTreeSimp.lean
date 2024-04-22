@@ -1,4 +1,5 @@
 prelude
+import Init.MetaTypes
 import Init.Data.List.Basic
 
 @[simp] theorem map_comp_map (f : α → β) (g : β → γ) : List.map g ∘ List.map f = List.map (g ∘ f) :=
@@ -18,4 +19,4 @@ theorem ex2 (f : Nat → Nat) : List.map f ∘ List.map f ∘ List.map f = List.
 attribute [simp] map_map
 
 theorem ex3 (f : Nat → Nat) (xs : List Nat) : (xs.map f |>.map f |>.map f) = xs.map (fun x => f (f (f x))) := by
-  simp [Function.comp]
+  simp (config := { unfoldPartialApp := true }) [Function.comp]

@@ -3,7 +3,7 @@ namespace MWE
 inductive Id {A : Type u} : A → A → Type u
 | refl {a : A} : Id a a
 
-attribute [eliminator] Id.casesOn
+attribute [induction_eliminator] Id.casesOn
 
 infix:50 (priority := high) " = " => Id
 

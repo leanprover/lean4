@@ -277,14 +277,13 @@ theorem BinTree.find_insert (b : BinTree β) (k : Nat) (v : β)
     . by_cases' key < k
       cases h; apply ihr; assumption
 
-theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β)
+theorem BinTree.find_insert_of_ne (b : BinTree β) (ne : k ≠ k') (v : β)
         : (b.insert k v).find? k' = b.find? k' := by
   let ⟨t, h⟩ := b; simp
   induction t with simp
   | leaf =>
-    split <;> (try simp) <;> split <;> (try simp)
-    have_eq k k'
-    contradiction
+    intros le
+    exact Nat.lt_of_le_of_ne le ne
   | node left key value right ihl ihr =>
     let .node hl hr bl br := h
     specialize ihl bl

@@ -95,7 +95,7 @@ theorem listStringLen_append (xs ys : List String) : listStringLen (xs ++ ys) = 
   simp [listStringLen]
   induction xs with
   | nil => simp
-  | cons x xs ih => simp_arith [foldl_init x.length, ih]
+  | cons x xs ih => simp_arith [foldl_init x.length, foldl_init (_ + _), ih]
 
 mutual
   theorem listStringLen_flat (f : Foo) : listStringLen (flat f) = textLength f := by
@@ -105,7 +105,7 @@ mutual
 
   theorem listStringLen_flatList (cs : List Foo) : listStringLen (flatList cs) = textLengthList cs := by
     match cs with
-    | [] => simp
+    | [] => simp [listStringLen]
     | f :: fs => simp [listStringLen_append, listStringLen_flatList fs, listStringLen_flat f]
 end
 

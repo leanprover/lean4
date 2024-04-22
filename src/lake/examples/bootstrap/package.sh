@@ -1,1 +1,1 @@
-${LAKE:-../../build/bin/lake} build
+${LAKE:-../../.lake/build/bin/lake} build

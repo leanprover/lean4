@@ -3,10 +3,10 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Basic
-import Lean.Compiler.InitAttr
 import Lean.ScopedEnvExtension
-import Lean.DocString
+import Lean.BuiltinDocAttr
 
 /-! Extensible parsing via attributes -/
 
@@ -451,7 +451,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let p := andthenFn whitespace (categoryParserFnImpl catName)
   let ictx := mkInputContext input fileName
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
-  if s.hasError then
+  if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
   else if input.atEnd s.pos then
     Except.ok s.stxStack.back
@@ -487,23 +487,20 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   | Expr.const `Lean.Parser.Parser _ =>
     declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
-  if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
-    declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-  if let some declRanges ← findDeclarationRanges? declName then
-    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+  declareBuiltinDocStringAndRanges declName
   runParserAttributeHooks catName declName (builtin := true)
 
 /--
 The parsing tables for builtin parsers are "stored" in the extracted source code.
 -/
 def registerBuiltinParserAttribute (attrName declName : Name)
-    (behavior := LeadingIdentBehavior.default) : IO Unit := do
+    (behavior := LeadingIdentBehavior.default) (ref : Name := by exact decl_name%) : IO Unit := do
   let .str ``Lean.Parser.Category s := declName
     | throw (IO.userError "`declName` should be in Lean.Parser.Category")
   let catName := Name.mkSimple s
   addBuiltinParserCategory catName declName behavior
   registerBuiltinAttribute {
-    ref             := declName
+    ref             := ref
     name            := attrName
     descr           := "Builtin parser"
     add             := fun declName stx kind => liftM $ BuiltinParserAttribute.add attrName catName declName stx kind

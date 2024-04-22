@@ -5,5 +5,5 @@ inductive Vector (α : Type u) : Nat → Type u
 def test [Monad m] (xs : Vector α a) : m Unit :=
   match xs with
   | Vector.nil => return ()
-  | Vector.cons x xs => test xs
-termination_by test xs => sizeOf xs
+  | Vector.cons _ xs => test xs
+termination_by sizeOf xs

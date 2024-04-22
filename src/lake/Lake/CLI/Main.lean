@@ -13,6 +13,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 import Lake.CLI.Error
 import Lake.CLI.Actions
+import Lake.CLI.Translate
 import Lake.CLI.Serve
 
 -- # CLI
@@ -59,14 +60,15 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
+    |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
-    env := ← opts.computeEnv
-    rootDir := opts.rootDir
-    configFile := opts.rootDir / opts.configFile
-    configOpts := opts.configOpts
+    lakeEnv := ← opts.computeEnv
+    wsDir := opts.rootDir
+    relConfigFile := opts.configFile
+    lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
   }
@@ -189,23 +191,38 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
   match spec.splitOn "/" with
   | [scriptName] =>
-    match ws.findScript? scriptName with
+    match ws.findScript? scriptName.toName with
     | some script => return script
     | none => throw <| CliError.unknownScript spec
   | [pkg, scriptName] => do
     let pkg ← parsePackageSpec ws pkg
-    match pkg.scripts.find? scriptName with
+    match pkg.scripts.find? scriptName.toName with
     | some script => return script
     | none => throw <| CliError.unknownScript spec
   | _ => throw <| CliError.invalidScriptSpec spec
 
-def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
+def parseTemplateSpec (spec : String) : Except CliError InitTemplate := do
   if spec.isEmpty then
-    pure default
-  else if let some tmp := InitTemplate.parse? spec then
-    pure tmp
+    return default
+  else if let some tmp := InitTemplate.ofString? spec.toLower then
+    return tmp
   else
     throw <| CliError.unknownTemplate spec
+
+def parseLangSpec (spec : String) : Except CliError ConfigLang :=
+  if spec.isEmpty then
+    return default
+  else if let some lang := ConfigLang.ofString? spec.toLower then
+    return lang
+  else
+    throw <| CliError.unknownConfigLang spec
+
+def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × ConfigLang) := do
+  match spec.splitOn "." with
+  | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
+  | [tmp] => return (← parseTemplateSpec tmp, default)
+  | _ => return default
+
 
 /-! ## Commands -/
 
@@ -225,7 +242,7 @@ protected def list : CliM PUnit := do
         IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
-  processOptions lakeOption
+  processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
@@ -266,15 +283,15 @@ protected def new : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
-  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv)) opts.verbosity
+  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (new name tmp lang (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let name ← takeArg "package name"
-  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv)) opts.verbosity
+  let name := (← takeArg?).getD "."
+  let (tmp, lang) ← parseTemplateLangSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (init name tmp lang (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -309,12 +326,28 @@ protected def upload : CliM PUnit := do
   noArgsRem do
     liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
-protected def printPaths : CliM PUnit := do
+protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
-  printPaths loadConfig (← takeArgs) buildConfig opts.verbosity
+  let filePath ← takeArg "file path"
+  let imports ← takeArgs
+  setupFile loadConfig filePath imports buildConfig opts.verbosity
+
+protected def test : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  noArgsRem do
+  let x := ws.root.test opts.subArgs (mkBuildConfig opts)
+  exit <| ← x.run (mkLakeContext ws) |>.run (MonadLog.io opts.verbosity)
+
+protected def checkTest : CliM PUnit := do
+  processOptions lakeOption
+  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if ws.root.testRunner.isAnonymous then 1 else 0
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -350,10 +383,10 @@ protected def serve : CliM PUnit := do
 protected def env : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   let env ← do
-    if (← config.configFile.pathExists) then
+    if (← configFileExists config.configFile) then
       pure (← loadWorkspace config).augmentedEnvVars
     else
-      pure config.env.vars
+      pure config.lakeEnv.vars
   if let some cmd ← takeArg? then
     let child ← IO.Process.spawn {cmd, args := (← takeArgs).toArray, env}
     exit <| ← child.wait
@@ -363,14 +396,50 @@ protected def env : CliM PUnit := do
     exit 0
 
 protected def exe : CliM PUnit := do
-  let exeName ← takeArg "executable name"
+  let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws
-  let buildConfig := mkBuildConfig opts
-  exit <| ← (exe exeName args.toArray buildConfig).run ctx
+  let exe ← parseExeTargetSpec ws exeSpec
+  let exeFile ← ws.runBuild (exe.build >>= (·.await)) <| mkBuildConfig opts
+  exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
+
+protected def lean : CliM PUnit := do
+  processOptions lakeOption
+  let leanFile ← takeArg "Lean file"
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  let imports ← Lean.parseImports' (← IO.FS.readFile leanFile) leanFile
+  let imports := imports.filterMap (ws.findModule? ·.module)
+  let dynlibs ← ws.runBuild (buildImportsAndDeps imports) (mkBuildConfig opts)
+  let spawnArgs := {
+    args :=
+      #[leanFile] ++ dynlibs.map (s!"--load-dynlib={·}") ++
+      ws.root.moreLeanArgs ++ opts.subArgs
+    cmd := ws.lakeEnv.lean.lean.toString
+    env := ws.augmentedEnvVars
+  }
+  logProcCmd spawnArgs logVerbose
+  let rc ← IO.Process.spawn spawnArgs >>= (·.wait)
+  exit rc
+
+protected def translateConfig : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let cfg ← mkLoadConfig opts
+  let lang ← parseLangSpec (← takeArg "configuration language")
+  let outFile? := (← takeArg?).map FilePath.mk
+  noArgsRem do
+  Lean.searchPathRef.set cfg.lakeEnv.leanSearchPath
+  let (pkg, _) ← loadPackage "[root]" cfg
+  let outFile := outFile?.getD <| pkg.configFile.withExtension lang.fileExtension
+  if (← outFile.pathExists) then
+    throw (.outputConfigExists outFile)
+  IO.FS.writeFile outFile (← pkg.mkConfigString lang)
+  if outFile?.isNone then
+    IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
@@ -388,7 +457,9 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
-| "print-paths"         => lake.printPaths
+| "setup-file"          => lake.setupFile
+| "test"                => lake.test
+| "check-test"          => lake.checkTest
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list
@@ -396,6 +467,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "serve"               => lake.serve
 | "env"                 => lake.env
 | "exe" | "exec"        => lake.exe
+| "lean"                => lake.lean
+| "translate-config"    => lake.translateConfig
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

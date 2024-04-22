@@ -14,7 +14,7 @@ bool is_used_name(expr const & t, name const & n);
 name pick_unused_name(expr const & t, name const & s);
 /**
     \brief Return the body of the binding \c b, where variable #0 is replaced by a local constant with a "fresh" name.
-    The name is considered fresh if it is not used by a constant or local constant occuring in the body of \c b.
+    The name is considered fresh if it is not used by a constant or local constant occurring in the body of \c b.
     The fresh constant is also returned (second return value).
 
     \remark If preserve_type is false, then the local constant will not use binding_domain.

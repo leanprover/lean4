@@ -11,7 +11,8 @@ if ! command -v elan > /dev/null; then
    exit 0
 fi
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -23,4 +24,4 @@ cd foo
 elan run leanprover/lean4:nightly-2022-06-30 lake build +Foo:olean | grep -m1 Foo.olean
 rm lean-toolchain
 sed_i 's/defaultTarget/default_target/g' lakefile.lean
-${LAKE:-../../../build/bin/lake} build -v | grep -m1 Foo.olean
+${LAKE:-../../../.lake/build/bin/lake} build -v | grep -m1 Foo.olean

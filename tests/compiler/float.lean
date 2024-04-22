@@ -30,6 +30,9 @@ def tst1 : IO Unit := do
   IO.println (let x : Float := -0 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
   IO.println (let x : Float := 1 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
   IO.println (let x : Float := -1 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
+  -- Pow instance defaults to exponent being a Float:
+  IO.println (2^(-1) : Float)
+  IO.println (2.2^2.2 : Float)
 
 structure Foo where
   x : Nat

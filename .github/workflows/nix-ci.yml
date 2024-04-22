@@ -6,8 +6,8 @@ on:
     tags:
       - '*'
   pull_request:
-    branches:
-      - master
+    types: [opened, synchronize, reopened, labeled]
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,7 +18,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: nix -v --experimental-features "nix-command flakes" run .#ciShell -- bash -euxo pipefail {0}
+        shell: nix run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
         include:
@@ -30,18 +30,13 @@ jobs:
       fail-fast: false
     name: ${{ matrix.name }}
     env:
-      NIX_BUILD_ARGS: -v --print-build-logs --fallback
+      NIX_BUILD_ARGS: --print-build-logs --fallback
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Nix
-        uses: cachix/install-nix-action@v18
         with:
-          # https://github.com/NixOS/nix/issues/6572
-          install_url: https://releases.nixos.org/nix/nix-2.7.0/install
-          extra_nix_config: |
-            extra-sandbox-paths = /nix/var/cache/ccache
-            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set Up Nix Cache
         uses: actions/cache@v3
         with:
@@ -55,8 +50,13 @@ jobs:
         run: |
           # Nix seems to mutate the cache, so make a copy
           cp -r nix-store-cache nix-store-cache-copy || true
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            extra-sandbox-paths = /nix/var/cache/ccache?
+            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org  
       - name: Prepare CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
@@ -69,34 +69,63 @@ jobs:
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
       - name: Further Set Up CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache
-      - name: Install Cachix
-        uses: cachix/cachix-action@v12
-        with:
-          name: lean4
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-          skipPush: true  # we push specific outputs only
       - name: Build
         run: |
           nix build $NIX_BUILD_ARGS .#cacheRoots -o push-build
       - name: Test
         run: |
-          nix build $NIX_BUILD_ARGS .#test -o push-test
+          nix build --keep-failed $NIX_BUILD_ARGS .#test -o push-test || (ln -s /tmp/nix-build-*/source/src/build/ ./push-test; false)
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: push-test/test-results.xml
+        if: always()
+        continue-on-error: true
       - name: Build manual
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
+          # https://github.com/netlify/cli/issues/1809
+          cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
-      - name: Push to Cachix
-        run: |
-          [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
+      - name: Check manual for broken links
+        id: lychee
+        uses: lycheeverse/lychee-action@v1.9.0
+        with:
+          fail: false  # report errors but do not block CI on temporary failures
+          # gmplib.org consistently times out from GH actions
+          # the GitHub token is to avoid rate limiting
+          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Rebuild Nix Store Cache
         run: |
           rm -rf nix-store-cache || true
           nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
+      - id: deploy-info
+        name: Compute Deployment Metadata
+        run: |
+          set -e
+          python3 -c 'import base64; print("alias="+base64.urlsafe_b64encode(bytes.fromhex("${{github.sha}}")).decode("utf-8").rstrip("="))' >> "$GITHUB_OUTPUT"
+          echo "message=`git log -1 --pretty=format:"%s"`" >> "$GITHUB_OUTPUT"
+      - name: Publish manual to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        id: publish-manual
+        with:
+          publish-dir: ./dist
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: |
+            ${{ github.event_name == 'pull_request' && format('pr#{0}: {1}', github.event.number, github.event.pull_request.title) || format('ref/{0}: {1}', github.ref_name, steps.deploy-info.outputs.message) }}
+          alias: ${{ steps.deploy-info.outputs.alias }}
+          enable-commit-comment: false
+          enable-pull-request-comment: false
+          github-deployment-environment: "lean-lang.org/lean4/doc"
+          fails-without-credentials: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: "b8e805d2-7e9b-4f80-91fb-a84d72fc4a68"
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache

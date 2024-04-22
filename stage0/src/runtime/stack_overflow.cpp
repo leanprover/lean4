@@ -43,10 +43,6 @@ stack_guard::stack_guard() {
 }
 
 stack_guard::~stack_guard() {}
-#elif defined(LEAN_EMSCRIPTEN)
-stack_guard::stack_guard() {}
-
-stack_guard::~stack_guard() {}
 #else
 // Install a segfault signal handler and abort with custom message if address is within stack guard.
 // https://github.com/rust-lang/rust/blob/master/src/libstd/sys/unix/stack_overflow.rs
@@ -105,7 +101,7 @@ void initialize_stack_overflow() {
     g_stack_guard = new stack_guard();
 #ifdef LEAN_WINDOWS
     AddVectoredExceptionHandler(0, stack_overflow_handler);
-#elif !defined(LEAN_EMSCRIPTEN)
+#else
     struct sigaction action;
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;

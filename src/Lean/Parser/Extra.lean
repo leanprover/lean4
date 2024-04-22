@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Extension
 -- necessary for auto-generation
 import Lean.PrettyPrinter.Parenthesizer
@@ -71,6 +72,13 @@ This parser has arity 1: it produces a `Syntax.ident` node containing the parsed
 You can use `TSyntax.getId` to extract the name from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
+
+-- `optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)`
+-- can never fully succeed but ensures that the identifier
+-- produces a partial syntax that contains the dot.
+-- The partial syntax is sometimes useful for dot-auto-completion.
+@[run_builtin_parser_attribute_hooks] def identWithPartialTrailingDot :=
+  ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
 @[run_builtin_parser_attribute_hooks] def rawIdent : Parser :=
@@ -290,7 +298,9 @@ macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
     let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
       Macro.throwError "expected non-overloaded constant name"
-    let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
+    let aliasName := match aliasName? with
+      | some n => quote (Name.mkSimple n.getString)
+      | none => quote declName.getId
     `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
          PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))

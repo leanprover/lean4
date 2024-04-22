@@ -35,7 +35,10 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
     job ← job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job ← job.mix <| ← self.release.fetch
+    job ← job.add <| ← (← self.release.fetch).attempt.bindSync fun success t => do
+      unless success do
+        logWarning "fetching cloud release failed; falling back to local build"
+      return ((), t)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job ← job.mix <| ← self.fetchTargetJob target
@@ -49,26 +52,23 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
 def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
-  let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?) | do
-    logWarning <| s!"{self.name}: wanted prebuilt release, " ++
+  let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
+    | error <| s!"{self.name}: wanted prebuilt release, " ++
       "but package's repository URL was not known; it may need to set `releaseRepo?`"
-    return ((), .nil)
-  let some tag ← repo.findTag? | do
-    logWarning <| s!"{self.name}: wanted prebuilt release, " ++
+  let some tag ← repo.findTag?
+    | error <| s!"{self.name}: wanted prebuilt release, " ++
       "but could not find an associated tag for the package's revision"
-    return ((), .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
   let logName := s!"{self.name}/{tag}/{self.buildArchive}"
-  try
-    let depTrace := Hash.ofString url
-    let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-    buildUnlessUpToDate self.buildArchiveFile depTrace traceFile do
-      logStep s!"Fetching {self.name} cloud release"
-      download logName url self.buildArchiveFile
-      untar logName self.buildArchiveFile self.buildDir
-    return ((), .nil)
-  else
-    return ((), .nil)
+  let depTrace := Hash.ofString url
+  let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
+  let upToDate ← buildUnlessUpToDate' self.buildArchiveFile depTrace traceFile do
+    logStep s!"Downloading {self.name} cloud release"
+    download logName url self.buildArchiveFile
+  unless upToDate && (← self.buildDir.pathExists) do
+    logStep s!"Unpacking {self.name} cloud release"
+    untar logName self.buildArchiveFile self.buildDir
+  return ((), .nil)
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=

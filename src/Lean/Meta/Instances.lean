@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Meta.GlobalInstances
 import Lean.Meta.DiscrTree
@@ -37,7 +38,7 @@ def f (a b : Ty.bool.interp) : Ty.bool.interp :=
 See comment at `DiscrTree`.
 -/
 
-abbrev InstanceKey := DiscrTree.Key (simpleReduce := false)
+abbrev InstanceKey := DiscrTree.Key
 
 structure InstanceEntry where
   keys        : Array InstanceKey
@@ -63,13 +64,16 @@ instance : ToFormat InstanceEntry where
     | some n => format n
     | _      => "<local>"
 
-abbrev InstanceTree := DiscrTree InstanceEntry (simpleReduce := false)
+abbrev InstanceTree := DiscrTree InstanceEntry
 
 structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   deriving Inhabited
+
+/-- Configuration for the discrimination tree module -/
+def tcDtConfig : WhnfCoreConfig := {}
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
@@ -94,7 +98,7 @@ private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
-    DiscrTree.mkPath type
+    DiscrTree.mkPath type tcDtConfig
 
 /--
 Compute the order the arguments of `inst` should by synthesized.
@@ -207,7 +211,7 @@ builtin_initialize
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }
 
-def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry (simpleReduce := false)) :=
+def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree
 
 def getErasedInstances : CoreM (PHashSet Name) :=

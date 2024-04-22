@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.ReplaceLevel
-// Imports: Init Lean.Expr
+// Imports: Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,7 +39,7 @@ size_t lean_usize_mod(size_t, size_t);
 static lean_object* l_Lean_Expr_ReplaceLevelImpl_initCache___closed__4;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
 uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkLevelIMax_x27(lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
@@ -397,7 +397,7 @@ return x_66;
 else
 {
 uint8_t x_67; 
-x_67 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_49, x_49);
+x_67 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_49, x_49);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; 
@@ -478,7 +478,7 @@ return x_91;
 else
 {
 uint8_t x_92; 
-x_92 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_74, x_74);
+x_92 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_74, x_74);
 if (x_92 == 0)
 {
 lean_object* x_93; lean_object* x_94; 
@@ -780,16 +780,12 @@ lean_dec(x_5);
 return x_6;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_ReplaceLevel(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

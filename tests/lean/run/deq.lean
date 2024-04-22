@@ -27,8 +27,8 @@ theorem deq_correct_2 (Q : LazyList τ)
   : deq Q = none ↔ Q.force = none
   := by
     cases h' : Q.force with
-    | none => unfold deq; rw [h']; simp
-    | some => unfold deq; rw [h']; simp
+    | none => unfold deq; rw [h']
+    | some => unfold deq; rw [h']
 
 theorem deq_correct_3 (Q : LazyList τ)
   : deq Q = none ↔ Q.force = none

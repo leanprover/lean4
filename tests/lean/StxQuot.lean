@@ -16,7 +16,7 @@ namespace Lean.Syntax
 #eval run $ let id := miss; `($id + 1)
 end Lean.Syntax
 #eval run `(1 + 1)
-#eval run `([x,])
+#eval run `([x+])
 #eval run $ `(fun a => a) >>= pure
 #eval run $ `(def foo := 1)
 #eval run $ `(def foo := 1 def bar := 2)

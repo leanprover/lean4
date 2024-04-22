@@ -4,10 +4,10 @@
 [Elab.definition.body] «_aux_ppNotationCode___macroRules_term_+++__1» : Lean.Macro :=
     fun x =>
       let_fun __discr := x;
-      if Lean.Syntax.isOfKind __discr `term_+++_ = true then
-        let_fun __discr_1 := Lean.Syntax.getArg __discr 0;
-        let_fun __discr_2 := Lean.Syntax.getArg __discr 1;
-        let_fun __discr := Lean.Syntax.getArg __discr 2;
+      if __discr.isOfKind `term_+++_ = true then
+        let_fun __discr_1 := __discr.getArg 0;
+        let_fun __discr_2 := __discr.getArg 1;
+        let_fun __discr := __discr.getArg 2;
         let_fun rhs := { raw := __discr };
         let_fun lhs := { raw := __discr_1 };
         do
@@ -18,7 +18,7 @@
             {
                 raw :=
                   Lean.Syntax.node2 info `Lean.Parser.Term.app
-                    (Lean.Syntax.ident info (String.toSubstring' "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
+                    (Lean.Syntax.ident info "Nat.add".toSubstring' (Lean.addMacroScope mainModule `Nat.add scp)
                       [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add])
                     (Lean.Syntax.node2 info `null lhs.raw rhs.raw) }.raw
       else
@@ -27,26 +27,13 @@
 [Elab.definition.body] _aux_ppNotationCode___unexpand_Nat_add_1 : Lean.PrettyPrinter.Unexpander :=
     fun x =>
       let_fun __discr := x;
-      if Lean.Syntax.isOfKind __discr `Lean.Parser.Term.app = true then
-        let_fun __discr_1 := Lean.Syntax.getArg __discr 0;
-        bif false || Lean.Syntax.isOfKind __discr_1 `ident then
-          let_fun __discr_2 := Lean.Syntax.getArg __discr 1;
-          let rhs := fun x => throw ();
-          let rhs_1 := fun lhs rhs moreArgs =>
-            let_fun f := { raw := __discr_1 };
-            Lean.withRef f.raw do
-              let info ← Lean.MonadRef.mkInfoFromRefPos
-              let _ ← Lean.getCurrMacroScope
-              let _ ← Lean.getMainModule
-              pure
-                  {
-                      raw :=
-                        Lean.Syntax.node2 info `Lean.Parser.Term.app
-                          (Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw)
-                          (Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))) }.raw;
-          if Lean.Syntax.matchesNull __discr_2 2 = true then
-            let_fun __discr := Lean.Syntax.getArg __discr_2 0;
-            let_fun __discr_3 := Lean.Syntax.getArg __discr_2 1;
+      if __discr.isOfKind `Lean.Parser.Term.app = true then
+        let_fun __discr_1 := __discr.getArg 0;
+        bif false || __discr_1.isOfKind `ident then
+          let_fun __discr_2 := __discr.getArg 1;
+          if __discr_2.matchesNull 2 = true then
+            let_fun __discr := __discr_2.getArg 0;
+            let_fun __discr_3 := __discr_2.getArg 1;
             let_fun rhs := { raw := __discr_3 };
             let_fun lhs := { raw := __discr };
             let_fun f := { raw := __discr_1 };
@@ -56,23 +43,11 @@
               let _ ← Lean.getMainModule
               pure { raw := Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
           else
-            let_fun __discr_3 := Lean.Syntax.getArg __discr 1;
-            if Lean.Syntax.getNumArgs __discr_3 ≥ 2 then
-              let_fun __discr := Lean.Syntax.getArg __discr_3 0;
-              let_fun __discr_4 := Lean.Syntax.getArg __discr_3 1;
-              let_fun __discr_5 :=
-                Lean.mkNullNode
-                  (Array.extract (Lean.Syntax.getArgs __discr_3) 2 (Nat.sub (Lean.Syntax.getNumArgs __discr_3) 0));
-              let_fun moreArgs := Lean.TSyntaxArray.mk (Lean.Syntax.getArgs __discr_5);
-              let_fun rhs := { raw := __discr_4 };
-              let_fun lhs := { raw := __discr };
-              rhs_1 lhs rhs moreArgs
-            else
-              let_fun __discr := Lean.Syntax.getArg __discr 1;
-              rhs ()
+            let_fun __discr := __discr.getArg 1;
+            throw ()
         else
-          let_fun __discr_2 := Lean.Syntax.getArg __discr 0;
-          let_fun __discr := Lean.Syntax.getArg __discr 1;
+          let_fun __discr_2 := __discr.getArg 0;
+          let_fun __discr := __discr.getArg 1;
           throw ()
       else
         let_fun __discr := x;

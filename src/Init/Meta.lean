@@ -6,6 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 Additional goodies for writing macros
 -/
 prelude
+import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
 
@@ -64,6 +65,15 @@ def toolchain :=
 @[extern "lean_internal_is_stage0"]
 opaque Internal.isStage0 (u : Unit) : Bool
 
+/--
+This function can be used to detect whether the compiler has support for
+generating LLVM instead of C. It is used by lake instead of the --features
+flag in order to avoid having to run a compiler for this every time on startup.
+See #2572.
+-/
+@[extern "lean_internal_has_llvm_backend"]
+opaque Internal.hasLLVMBackend (u : Unit) : Bool
+
 /-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
@@ -94,7 +104,6 @@ def idBeginEscape := '«'
 def idEndEscape   := '»'
 def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
 def isIdEndEscape (c : Char) : Bool := c = idEndEscape
-
 namespace Name
 
 def getRoot : Name → Name
@@ -216,11 +225,6 @@ instance : DecidableEq Name :=
   fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
 
 end Name
-
-structure NameGenerator where
-  namePrefix : Name := `_uniq
-  idx        : Nat  := 1
-  deriving Inhabited
 
 namespace NameGenerator
 
@@ -452,11 +456,6 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-/-- Syntax objects for a Lean module. -/
-structure Module where
-  header   : Syntax
-  commands : Array Syntax
-
 /--
   Expand macros in the given syntax.
   A node with kind `k` is visited only if `p k` is true.
@@ -563,8 +562,17 @@ def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax)
 instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
 
+/--
+Constructs a typed separated array from elements.
+The given array does not include the separators.
+
+Like `Syntax.SepArray.ofElems` but for typed syntax.
+-/
+def TSepArray.ofElems {sep} (elems : Array (TSyntax k)) : TSepArray k sep :=
+  .mk (SepArray.ofElems (sep := sep) (TSyntaxArray.raw elems)).1
+
 instance : Coe (TSyntaxArray k) (TSepArray k sep) where
-  coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
+  coe := TSepArray.ofElems
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
@@ -577,6 +585,9 @@ def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
+
+def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
+  mkLit charLitKind (Char.quote val) info
 
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
@@ -773,6 +784,16 @@ def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos)
   else
     none
 
+/--
+Decodes a valid string gap after the `\`.
+Note that this function matches `"\" whitespace+` rather than
+the more restrictive `"\" newline whitespace*` since this simplifies the implementation.
+Justification: this does not overlap with any other sequences beginning with `\`.
+-/
+def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
+  guard <| (s.get i).isWhitespace
+  s.nextWhile Char.isWhitespace (s.next i)
+
 partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
   let c := s.get i
   let i := s.next i
@@ -781,14 +802,49 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
   else if s.atEnd i then
     none
   else if c == '\\' then do
-    let (c, i) ← decodeQuotedChar s i
-    decodeStrLitAux s i (acc.push c)
+    if let some (c, i) := decodeQuotedChar s i then
+      decodeStrLitAux s i (acc.push c)
+    else if let some i := decodeStringGap s i then
+      decodeStrLitAux s i acc
+    else
+      none
   else
     decodeStrLitAux s i (acc.push c)
 
-def decodeStrLit (s : String) : Option String :=
-  decodeStrLitAux s ⟨1⟩ ""
+/--
+Takes a raw string literal, counts the number of `#`'s after the `r`, and interprets it as a string.
+The position `i` should start at `1`, which is the character after the leading `r`.
+The algorithm is simple: we are given `r##...#"...string..."##...#` with zero or more `#`s.
+By counting the number of leading `#`'s, we can extract the `...string...`.
+-/
+partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : String :=
+  let c := s.get i
+  let i := s.next i
+  if c == '#' then
+    decodeRawStrLitAux s i (num + 1)
+  else
+    s.extract i ⟨s.utf8ByteSize - (num + 1)⟩
 
+/--
+Takes the string literal lexical syntax parsed by the parser and interprets it as a string.
+This is where escape sequences are processed for example.
+The string `s` is is either a plain string literal or a raw string literal.
+
+If it returns `none` then the string literal is ill-formed, which indicates a bug in the parser.
+The function is not required to return `none` if the string literal is ill-formed.
+-/
+def decodeStrLit (s : String) : Option String :=
+  if s.get 0 == 'r' then
+    decodeRawStrLitAux s ⟨1⟩ 0
+  else
+    decodeStrLitAux s ⟨1⟩ ""
+
+/--
+If the provided `Syntax` is a string literal, returns the string it represents.
+
+Even if the `Syntax` is a `str` node, the function may return `none` if its internally ill-formed.
+The parser should always create well-formed `str` nodes.
+-/
 def isStrLit? (stx : Syntax) : Option String :=
   match isLit? strLitKind stx with
   | some val => decodeStrLit val
@@ -853,6 +909,11 @@ def _root_.Substring.toName (s : Substring) : Name :=
       else
         Name.mkStr n comp
 
+/--
+Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+
+`"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
+-/
 def _root_.String.toName (s : String) : Name :=
   s.toSubstring.toName
 
@@ -950,6 +1011,7 @@ instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨f
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
+instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
@@ -994,7 +1056,7 @@ where
       go (i+1) (args.push (quote xs[i]))
     else
       Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
-termination_by go i _ => xs.size - i
+  termination_by xs.size - i
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := quoteArray
@@ -1132,14 +1194,6 @@ instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
 
 end Lean.Syntax
 
-set_option linter.unusedVariables.funArgs false in
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the given tactic.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
-
 /-! # Helper functions for manipulating interpolated strings -/
 
 namespace Lean.Syntax
@@ -1162,8 +1216,12 @@ private partial def decodeInterpStrLit (s : String) : Option String :=
     else if s.atEnd i then
       none
     else if c == '\\' then do
-      let (c, i) ← decodeInterpStrQuotedChar s i
-      loop i (acc.push c)
+      if let some (c, i) := decodeInterpStrQuotedChar s i then
+        loop i (acc.push c)
+      else if let some i := decodeStringGap s i then
+        loop i acc
+      else
+        none
     else
       loop i (acc.push c)
   loop ⟨1⟩ ""
@@ -1199,97 +1257,16 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
   let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
+def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
+  match stx.raw[1] with
+  | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
+  | _                 => ""
+
 end TSyntax
 
 namespace Meta
 
-inductive TransparencyMode where
-  | all | default | reducible | instances
-  deriving Inhabited, BEq, Repr
-
-inductive EtaStructMode where
-  /-- Enable eta for structure and classes. -/
-  | all
-  /-- Enable eta only for structures that are not classes. -/
-  | notClasses
-  /-- Disable eta for structures and classes. -/
-  | none
-  deriving Inhabited, BEq, Repr
-
-namespace DSimp
-
-structure Config where
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := false
-  autoUnfold        : Bool := false
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  deriving Inhabited, BEq, Repr
-
-end DSimp
-
-namespace Simp
-
-def defaultMaxSteps := 100000
-
-structure Config where
-  maxSteps          : Nat  := defaultMaxSteps
-  maxDischargeDepth : Nat  := 2
-  contextual        : Bool := false
-  memoize           : Bool := true
-  singlePass        : Bool := false
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := true
-  arith             : Bool := false
-  autoUnfold        : Bool := false
-  /--
-    If `dsimp := true`, then switches to `dsimp` on dependent arguments where there is no congruence theorem that allows
-    `simp` to visit them. If `dsimp := false`, then argument is not visited.
-  -/
-  dsimp             : Bool := true
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  /-- If `ground := true`, then ground terms are reduced. A term is ground when
-  it does not contain free or meta variables. Reduction is interrupted at a function application `f ...`
-  if `f` is marked to not be unfolded. -/
-  ground            : Bool := false
-  deriving Inhabited, BEq, Repr
-
--- Configuration object for `simp_all`
-structure ConfigCtx extends Config where
-  contextual := true
-
-def neutralConfig : Simp.Config := {
-  zeta              := false
-  beta              := false
-  eta               := false
-  iota              := false
-  proj              := false
-  decide            := false
-  arith             := false
-  autoUnfold        := false
-  ground            := false
-}
-
-end Simp
-
-inductive Occurrences where
-  | all
-  | pos (idxs : List Nat)
-  | neg (idxs : List Nat)
-  deriving Inhabited, BEq
+deriving instance Repr for TransparencyMode, EtaStructMode, DSimp.Config, Simp.Config
 
 def Occurrences.contains : Occurrences → Nat → Bool
   | all,      _   => true
@@ -1309,9 +1286,59 @@ structure Config where
 
 end Rewrite
 
+namespace Omega
+
+/-- Configures the behaviour of the `omega` tactic. -/
+structure OmegaConfig where
+  /--
+  Split disjunctions in the context.
+
+  Note that with `splitDisjunctions := false` omega will not be able to solve `x = y` goals
+  as these are usually handled by introducing `¬ x = y` as a hypothesis, then replacing this with
+  `x < y ∨ x > y`.
+
+  On the other hand, `omega` does not currently detect disjunctions which, when split,
+  introduce no new useful information, so the presence of irrelevant disjunctions in the context
+  can significantly increase run time.
+  -/
+  splitDisjunctions : Bool := true
+  /--
+  Whenever `((a - b : Nat) : Int)` is found, register the disjunction
+  `b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0`
+  for later splitting.
+  -/
+  splitNatSub : Bool := true
+  /--
+  Whenever `Int.natAbs a` is found, register the disjunction
+  `0 ≤ a ∧ Int.natAbs a = a ∨ a < 0 ∧ Int.natAbs a = - a` for later splitting.
+  -/
+  splitNatAbs : Bool := true
+  /--
+  Whenever `min a b` or `max a b` is found, rewrite in terms of the definition
+  `if a ≤ b ...`, for later case splitting.
+  -/
+  splitMinMax : Bool := true
+
+end Omega
+
+namespace CheckTactic
+
+/--
+Type used to lift an arbitrary value into a type parameter so it can
+appear in a proof goal.
+
+It is used by the #check_tactic command.
+-/
+inductive CheckGoalType {α : Sort u} : (val : α) → Prop where
+| intro : (val : α) → CheckGoalType val
+
+end CheckTactic
+
 end Meta
 
-namespace Parser.Tactic
+namespace Parser
+
+namespace Tactic
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
@@ -1347,14 +1374,14 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true`.
+/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
 This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, decide := true }
 
 /-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
@@ -1362,16 +1389,18 @@ partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
 
 /-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, decide := true }
 
 /-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
-end Parser.Tactic
+end Tactic
+
+end Parser
 
 end Lean

@@ -205,8 +205,29 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 @[inherit_doc cFacet] abbrev c (self : Module) :=
   self.facet cFacet
 
+@[inherit_doc cFacet] abbrev bc (self : Module) :=
+  self.facet bcFacet
+
 @[inherit_doc oFacet] abbrev o (self : Module) :=
   self.facet oFacet
+
+@[inherit_doc oExportFacet] abbrev oExport (self : Module) :=
+  self.facet oExportFacet
+
+@[inherit_doc oNoExportFacet] abbrev oNoExport (self : Module) :=
+  self.facet oNoExportFacet
+
+@[inherit_doc coFacet] abbrev co (self : Module) :=
+  self.facet coFacet
+
+@[inherit_doc coExportFacet] abbrev coExport (self : Module) :=
+  self.facet coExportFacet
+
+@[inherit_doc coNoExportFacet] abbrev coNoExport (self : Module) :=
+  self.facet coNoExportFacet
+
+@[inherit_doc bcoFacet] abbrev bco (self : Module) :=
+  self.facet bcoFacet
 
 @[inherit_doc dynlibFacet] abbrev dynlib (self : Module) :=
   self.facet dynlibFacet
@@ -244,6 +265,10 @@ abbrev LeanLib.leanArts (self : LeanLib) : BuildInfo :=
 @[inherit_doc staticFacet]
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
   self.facet staticFacet
+
+@[inherit_doc staticExportFacet]
+abbrev LeanLib.staticExport (self : LeanLib) : BuildInfo :=
+  self.facet staticExportFacet
 
 @[inherit_doc sharedFacet]
 abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=

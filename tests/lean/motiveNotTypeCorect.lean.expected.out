@@ -1,0 +1,11 @@
+motiveNotTypeCorect.lean:7:6-7:7: error: tactic 'rewrite' failed, motive is not type correct
+t : Nat
+f : Nat → Nat
+h : f t = t
+d : D (f t)
+P : (t : Nat) → D t → Prop
+⊢ P (f t) d
+motiveNotTypeCorect.lean:18:8-18:9: error: tactic 'rewrite' failed, motive is dependent
+h : true = false
+A : (b : Bool) → if b = true then Prop else Nat
+⊢ A true

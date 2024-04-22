@@ -342,7 +342,7 @@ void object_compactor::operator()(object * o) {
             g_tag_counters[lean_ptr_tag(curr)]++;
 #endif
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         lean_internal_panic("closures cannot be compacted");
+            case LeanClosure:         lean_internal_panic("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     insert_sarray(curr); break;
             case LeanString:          insert_string(curr); break;

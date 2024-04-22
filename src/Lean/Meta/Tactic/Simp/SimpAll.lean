@@ -3,13 +3,14 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
-open Simp (UsedSimps)
+open Simp (UsedSimps SimprocsArray)
 
 namespace SimpAll
 
@@ -27,6 +28,7 @@ structure State where
   mvarId    : MVarId
   entries   : Array Entry := #[]
   ctx       : Simp.Context
+  simprocs  : SimprocsArray
   usedSimps : UsedSimps := {}
 
 abbrev M := StateRefT State MetaM
@@ -52,6 +54,7 @@ private abbrev getSimpTheorems : M SimpTheoremsArray :=
 
 private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
+  let simprocs := (← get).simprocs
   -- simplify entries
   for i in [:(← get).entries.size] do
     let entry := (← get).entries[i]!
@@ -59,7 +62,7 @@ private partial def loop : M Bool := do
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
     let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
-    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx (usedSimps := (← get).usedSimps)
+    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (usedSimps := (← get).usedSimps)
     modify fun s => { s with usedSimps }
     match r with
     | none => return true -- closed the goal
@@ -99,7 +102,7 @@ private partial def loop : M Bool := do
         }
   -- simplify target
   let mvarId := (← get).mvarId
-  let (r, usedSimps) ← simpTarget mvarId (← get).ctx (usedSimps := (← get).usedSimps)
+  let (r, usedSimps) ← simpTarget mvarId (← get).ctx simprocs (usedSimps := (← get).usedSimps)
   modify fun s => { s with usedSimps }
   match r with
   | none => return true
@@ -128,7 +131,7 @@ def main : M (Option MVarId) := do
     let mut toClear := #[]
     let mut modified := false
     for e in (← get).entries do
-      if e.type.consumeMData.isConstOf ``True then
+      if e.type.isTrue then
         -- Do not assert `True` hypotheses
         toClear := toClear.push e.fvarId
       else if modified || e.type != e.origType then
@@ -140,9 +143,9 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   mvarId.withContext do
-    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps }
+    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps, simprocs }
     if let .some mvarIdNew := r then
       if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
         throwError "simp_all made no progress"

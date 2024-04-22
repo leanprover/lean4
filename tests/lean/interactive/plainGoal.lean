@@ -134,3 +134,16 @@ example : True ∧ False := by
   · --
  --^ $/lean/plainGoal
   --^ $/lean/plainGoal
+
+section
+
+example : True := by induction 1 with
+                                --^ $/lean/plainGoal
+
+example : True := by induction 1 with |
+                                --^ $/lean/plainGoal
+
+example : True := by induction 1 with done
+                                --^ $/lean/plainGoal
+
+end

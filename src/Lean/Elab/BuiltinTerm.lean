@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.Eval
@@ -98,6 +99,14 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 
+@[builtin_term_elab Lean.Parser.Term.omission] def elabOmission : TermElab := fun stx expectedType? => do
+  logWarning m!"\
+    The '⋯' token is used by the pretty printer to indicate omitted terms, and it should not be used directly. \
+    It logs this warning and then elaborates like `_`.\
+    \n\nThe presence of `⋯` in pretty printing output is controlled by the 'pp.deepTerms' and `pp.proofs` options. \
+    These options can be further adjusted using `pp.deepTerms.threshold` and `pp.proofs.threshold`."
+  elabHole stx expectedType?
+
 @[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
@@ -157,7 +166,10 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
-@[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun _ _ =>
+@[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun stx expectedType? => do
+  if stx[0].getAtomVal == "." then
+    -- Users may input bad cdots because they are trying to auto-complete them using the expected type
+    addCompletionInfo <| CompletionInfo.dotId stx .anonymous (← getLCtx) expectedType?
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtin_term_elab str] def elabStrLit : TermElab := fun stx _ => do
@@ -211,7 +223,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none     => throwIllFormedSyntax
 
 @[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
-  return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
+  return toExpr (← realizeGlobalConstNoOverloadWithInfo stx[2])
 
 @[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?
@@ -220,7 +232,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
   let id := stx[2].getId
-  let id := if stx[1].isNone then id else (← getCurrNamespace) ++ id
+  let id ← if stx[1].isNone then pure id else pure <| (← getCurrNamespace) ++ id
   let e := stx[3]
   withMacroExpansion stx e <| withDeclName id <| elabTerm e expectedType?
 
@@ -300,9 +312,9 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
+  let options ← Elab.elabSetOption stx[1] stx[3]
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
-    elabTerm stx[4] expectedType?
+    elabTerm stx[5] expectedType?
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with

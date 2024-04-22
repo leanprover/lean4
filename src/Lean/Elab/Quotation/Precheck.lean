@@ -3,7 +3,7 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-
+prelude
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Command  -- for `precheckedQuot`
 import Lean.Elab.Term
@@ -92,7 +92,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← resolveGlobalNameWithInfos stx val then
+    if let _::_ ← realizeGlobalNameWithInfos stx val then
       return
     if (← read).quotLCtx.contains val then
       return
@@ -140,5 +140,37 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   let singleQuot := stx[1]
   runPrecheck singleQuot.getQuotContent
   adaptExpander (fun _ => pure singleQuot) stx expectedType?
+
+section ExpressionTree
+
+@[builtin_quot_precheck Lean.Parser.Term.binrel] def precheckBinrel : Precheck
+  | `(binrel% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.binrel_no_prop] def precheckBinrelNoProp : Precheck
+  | `(binrel_no_prop% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.binop] def precheckBinop : Precheck
+  | `(binop% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.binop_lazy] def precheckBinopLazy : Precheck
+  | `(binop_lazy% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.leftact] def precheckLeftact : Precheck
+  | `(leftact% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.rightact] def precheckRightact : Precheck
+  | `(rightact% $f $a $b) => do precheck f; precheck a; precheck b
+  | _ => throwUnsupportedSyntax
+
+@[builtin_quot_precheck Lean.Parser.Term.unop] def precheckUnop : Precheck
+  | `(unop% $f $a) => do precheck f; precheck a
+  | _ => throwUnsupportedSyntax
+
+end ExpressionTree
 
 end Lean.Elab.Term.Quotation

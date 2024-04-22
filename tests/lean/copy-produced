@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
-root="$(realpath $(dirname $0))"
-cd ${1:-$PWD}
-for f in $(find . -name '*.expected.out'); do
-    cp ${f/.expected/.produced} "$root/$f"
+#
+# Updates all *.expected.out files it finds within tests/lean
+#
+
+find "$(dirname "$0")" -name '*.expected.out' |
+while read -r to; do
+  from="${to/.expected.out/.produced.out}"
+  [ ! -f "$from" ] || cmp -s "$from" "$to" || cp -v "$from" "$to"
 done

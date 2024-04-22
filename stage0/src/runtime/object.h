@@ -99,7 +99,6 @@ inline void cnstr_set_float(b_obj_arg o, unsigned offset, double v) { lean_ctor_
 // =======================================
 // Closures
 
-void free_closure_obj(object * o);
 inline void * closure_fun(object * o) { return lean_closure_fun(o); }
 inline unsigned closure_arity(object * o) { return lean_closure_arity(o); }
 inline unsigned closure_num_fixed(object * o) { return lean_closure_num_fixed(o); }
@@ -178,7 +177,7 @@ inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply
 // =======================================
 // MPZ
 
-object * alloc_mpz(mpz const &);
+LEAN_EXPORT object * alloc_mpz(mpz const &);
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 
 // =======================================
@@ -187,7 +186,7 @@ inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_obj
 inline size_t array_capacity(object * o) { return lean_array_capacity(o); }
 inline object ** array_cptr(object * o) { return lean_array_cptr(o); }
 inline obj_res alloc_array(size_t size, size_t capacity) { return lean_alloc_array(size, capacity); }
-object * array_mk_empty();
+LEAN_EXPORT object * array_mk_empty();
 inline size_t array_size(b_obj_arg o) { return lean_array_size(o); }
 inline void array_set_size(u_obj_arg o, size_t sz) { lean_array_set_size(o, sz); }
 inline b_obj_res array_get(b_obj_arg o, size_t i) { return lean_array_get_core(o, i); }
@@ -239,8 +238,8 @@ inline size_t string_capacity(object * o) { return lean_string_capacity(o); }
 inline uint32 char_default_value() { return lean_char_default_value(); }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) { return lean_alloc_string(size, capacity, len); }
 inline obj_res mk_string(char const * s) { return lean_mk_string(s); }
-obj_res mk_string(std::string const & s);
-std::string string_to_std(b_obj_arg o);
+LEAN_EXPORT obj_res mk_string(std::string const & s);
+LEAN_EXPORT std::string string_to_std(b_obj_arg o);
 inline char const * string_cstr(b_obj_arg o) { return lean_string_cstr(o); }
 inline size_t string_size(b_obj_arg o) { return lean_string_size(o); }
 inline size_t string_len(b_obj_arg o) { return lean_string_len(o); }
@@ -257,7 +256,7 @@ inline uint8 string_utf8_at_end(b_obj_arg s, b_obj_arg i) { return lean_string_u
 inline obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b, b_obj_arg e) { return lean_string_utf8_extract(s, b, e); }
 inline obj_res string_utf8_byte_size(b_lean_obj_arg s) { return lean_string_utf8_byte_size(s); }
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return lean_string_eq(s1, s2); }
-bool string_eq(b_obj_arg s1, char const * s2);
+LEAN_EXPORT bool string_eq(b_obj_arg s1, char const * s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return lean_string_ne(s1, s2); }
 inline bool string_lt(b_obj_arg s1, b_obj_arg s2) { return lean_string_lt(s1, s2); }
 inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
@@ -275,7 +274,7 @@ inline obj_res thunk_get_own(b_obj_arg t) { return lean_thunk_get_own(t); }
 // =======================================
 // Tasks
 
-class scoped_task_manager {
+class LEAN_EXPORT scoped_task_manager {
 public:
     scoped_task_manager(unsigned num_workers);
     ~scoped_task_manager();
@@ -283,8 +282,8 @@ public:
 
 inline obj_res task_spawn(obj_arg c, unsigned prio = 0, bool keep_alive = false) { return lean_task_spawn_core(c, prio, keep_alive); }
 inline obj_res task_pure(obj_arg a) { return lean_task_pure(a); }
-inline obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0, bool keep_alive = false) { return lean_task_bind_core(x, f, prio, keep_alive); }
-inline obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0, bool keep_alive = false) { return lean_task_map_core(f, t, prio, keep_alive); }
+inline obj_res task_bind(obj_arg x, obj_arg f, unsigned prio = 0, bool sync = false, bool keep_alive = false) { return lean_task_bind_core(x, f, prio, sync, keep_alive); }
+inline obj_res task_map(obj_arg f, obj_arg t, unsigned prio = 0, bool sync = false, bool keep_alive = false) { return lean_task_map_core(f, t, prio, sync, keep_alive); }
 inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 
 inline bool io_check_canceled_core() { return lean_io_check_canceled_core(); }
@@ -309,7 +308,7 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // Natural numbers
 
 inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
-object * mpz_to_nat_core(mpz const & m);
+LEAN_EXPORT object * mpz_to_nat_core(mpz const & m);
 inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
 inline obj_res mk_nat_obj(mpz const & m) {
     if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
@@ -325,6 +324,7 @@ inline obj_res nat_add(b_obj_arg a1, b_obj_arg a2) { return lean_nat_add(a1, a2)
 inline obj_res nat_sub(b_obj_arg a1, b_obj_arg a2) { return lean_nat_sub(a1, a2); }
 inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) { return lean_nat_mul(a1, a2); }
 inline obj_res nat_pow(b_obj_arg a1, b_obj_arg a2) { return lean_nat_pow(a1, a2); }
+inline obj_res nat_gcd(b_obj_arg a1, b_obj_arg a2) { return lean_nat_gcd(a1, a2); }
 inline obj_res nat_div(b_obj_arg a1, b_obj_arg a2) { return lean_nat_div(a1, a2); }
 inline obj_res nat_mod(b_obj_arg a1, b_obj_arg a2) { return lean_nat_mod(a1, a2); }
 inline bool nat_eq(b_obj_arg a1, b_obj_arg a2) { return lean_nat_eq(a1, a2); }
@@ -340,7 +340,7 @@ inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) { return lean_nat_lxor(a1, a
 
 // =======================================
 // Integers
-object * mk_int_obj_core(mpz const & m);
+LEAN_EXPORT object * mk_int_obj_core(mpz const & m);
 inline obj_res mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
         return mk_int_obj_core(m);
@@ -462,7 +462,7 @@ inline b_obj_res io_result_get_value(b_obj_arg r) { return lean_io_result_get_va
 inline b_obj_res io_result_get_error(b_obj_arg r) { return lean_io_result_get_error(r); }
 inline void io_result_show_error(b_obj_arg r) { return lean_io_result_show_error(r); }
 inline void io_mark_end_initialization() { return lean_io_mark_end_initialization(); }
-void io_eprintln(obj_arg s);
+LEAN_EXPORT void io_eprintln(obj_arg s);
 
 // =======================================
 // ST ref primitives

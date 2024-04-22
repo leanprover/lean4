@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.CollectFVars
 import Lean.Util.CollectLevelParams
 import Lean.Util.CollectMVars
@@ -23,6 +24,8 @@ import Lean.Util.ForEachExprWhere
 import Lean.Util.ReplaceLevel
 import Lean.Util.FoldConsts
 import Lean.Util.SCC
+import Lean.Util.TestExtern
 import Lean.Util.OccursCheck
-import Lean.Util.Paths
 import Lean.Util.HasConstCache
+import Lean.Util.FileSetupInfo
+import Lean.Util.Heartbeats

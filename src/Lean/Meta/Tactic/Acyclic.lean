@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Simp.Main
 
@@ -13,7 +14,7 @@ private def isTarget (lhs rhs : Expr) : MetaM Bool := do
   if !lhs.isFVar || !lhs.occurs rhs then
     return false
   else
-    return (← whnf rhs).isConstructorApp (← getEnv)
+    isConstructorApp' rhs
 
 /--
   Close the given goal if `h` is a proof for an equality such as `as = a :: as`.
@@ -37,7 +38,7 @@ where
       let sizeOfEq ← mkLT sizeOf_lhs sizeOf_rhs
       let hlt ← mkFreshExprSyntheticOpaqueMVar sizeOfEq
       -- TODO: we only need the `sizeOf` simp theorems
-      match (← simpTarget hlt.mvarId! { config.arith := true, simpTheorems := #[ (← getSimpTheorems) ] }).1 with
+      match (← simpTarget hlt.mvarId! { config.arith := true, simpTheorems := #[ (← getSimpTheorems) ] } {}).1 with
       | some _ => return false
       | none   =>
         let heq ← mkCongrArg sizeOf_lhs.appFn! (← mkEqSymm h)

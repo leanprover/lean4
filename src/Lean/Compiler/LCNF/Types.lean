@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.InferType
 
 namespace Lean.Compiler
@@ -234,7 +235,7 @@ where
         throwError "invalid instantiateForall, too many parameters"
     else
       return type
-termination_by go i _ => ps.size - i
+  termination_by ps.size - i
 
 /--
 Return `true` if `type` is a predicate.

@@ -5,10 +5,11 @@ Authors: Daniel Selsam, Leonardo de Moura
 
 Type class instance synthesizer using tabled resolution.
 -/
+prelude
+import Init.Data.Array.InsertionSort
 import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars
-import Lean.Meta.WHNF
 import Lean.Meta.Check
 import Lean.Util.Profile
 
@@ -175,7 +176,8 @@ structure State where
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
-def checkMaxHeartbeats : SynthM Unit := do
+def checkSystem : SynthM Unit := do
+  Core.checkInterrupted
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
@@ -194,7 +196,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
-      let result ← globalInstances.getUnify type
+      let result ← globalInstances.getUnify type tcDtConfig
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
@@ -320,6 +322,26 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   }
 
 /--
+Similar to `mkLambdaFVars`, but ensures result is eta-reduced.
+For example, suppose `e` is the local variable `inst x y`, and `xs` is `#[x, y]`, then
+the result is `inst` instead of `fun x y => inst x y`.
+
+We added this auxiliary function because of aliases such as `DecidablePred`. For example,
+consider the following definition.
+```
+def filter (p : α → Prop) [inst : DecidablePred p] (xs : List α) : List α :=
+  match xs with
+  | [] => []
+  | x :: xs' => if p x then x :: filter p xs' else filter p xs'
+```
+Without `mkLambdaFVars'`, the implicit instance at the `filter` applications would be `fun x => inst x` instead of `inst`.
+Moreover, the equation lemmas associated with `filter` would have `fun x => inst x` on their right-hand-side. Then,
+we would start getting terms such as `fun x => (fun x => inst x) x` when using the equational theorem.
+-/
+private def mkLambdaFVars' (xs : Array Expr) (e : Expr) : MetaM Expr :=
+  return (← mkLambdaFVars xs e).eta
+
+/--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` is set using `withMCtx`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
@@ -333,7 +355,7 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
     withTraceNode `Meta.synthInstance.tryResolve (withMCtx (← getMCtx) do
         return m!"{exceptOptionEmoji ·} {← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
-      let instVal ← mkLambdaFVars xs instVal
+      let instVal ← mkLambdaFVars' xs instVal
       if (← isDefEq mvar instVal) then
         return some ((← getMCtx), subgoals)
     return none
@@ -446,7 +468,7 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
         let ys := ys.toArray
         let mvarType' ← mkForallFVars ys body
         withLocalDeclD `redf mvarType' fun f => do
-          let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys))
+          let transformer ← mkLambdaFVars' #[f] (← mkLambdaFVars' xs (mkAppN f ys))
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
@@ -552,7 +574,7 @@ def resume : SynthM Unit := do
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
 
 def step : SynthM Bool := do
-  checkMaxHeartbeats
+  checkSystem
   let s ← get
   if !s.resumeStack.isEmpty then
     resume
@@ -581,13 +603,16 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
-     try
-       action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
-     catch ex =>
-       if ex.isMaxHeartbeat then
-         throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
-       else
-         throw ex
+     -- TODO: it would be nice to have a nice notation for the following idiom
+     withCatchingRuntimeEx
+       try
+         withoutCatchingRuntimeEx do
+           action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
+       catch ex =>
+         if ex.isRuntime then
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+         else
+           throw ex
 
 end SynthInstance
 

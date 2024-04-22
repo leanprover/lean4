@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
@@ -25,7 +26,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
 
 def elimOptParam (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
-    if e.isAppOfArity  ``optParam 2 then
+    if e.isAppOfArity ``optParam 2 then
       return TransformStep.visit (e.getArg! 0)
     else
       return .continue

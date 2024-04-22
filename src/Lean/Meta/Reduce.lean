@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Util.MonadCache
@@ -31,8 +32,8 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
                 args ← args.modifyM i visit
             else
               args ← args.modifyM i visit
-          if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isNatLit then
-            return mkRawNatLit (args[0]!.natLit?.get! + 1)
+          if f.isConstOf ``Nat.succ && args.size == 1 && args[0]!.isRawNatLit then
+            return mkRawNatLit (args[0]!.rawNatLit?.get! + 1)
           else
             return mkAppN f args
         | Expr.lam ..        => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)

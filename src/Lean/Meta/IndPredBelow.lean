@@ -3,7 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
-
+prelude
 import Lean.Meta.Constructions
 import Lean.Meta.Match.Match
 
@@ -65,8 +65,8 @@ def mkContext (declName : Name) : MetaM Context := do
 where
   motiveName (motiveTypes : Array Expr) (i : Nat) : MetaM Name :=
     if motiveTypes.size > 1
-    then mkFreshUserName s!"motive_{i.succ}"
-    else mkFreshUserName "motive"
+    then mkFreshUserName <| .mkSimple s!"motive_{i.succ}"
+    else mkFreshUserName <| .mkSimple "motive"
 
   mkHeader
       (motives : Array (Name × Expr))
@@ -169,6 +169,7 @@ where
       let fail _ := do
         throwError "only trivial inductive applications supported in premises:{indentExpr t}"
 
+      let t ← whnf t
       t.withApp fun f args => do
         if let some name := f.constName? then
           if let some idx := ctx.typeInfos.findIdx?
@@ -190,6 +191,7 @@ where
       (domain : Expr)
       {α : Type} (k : Expr → MetaM α) : MetaM α := do
     forallTelescopeReducing domain fun xs t => do
+      let t ← whnf t
       t.withApp fun _ args => do
         let hApp := mkAppN binder xs
         let t := mkAppN vars.motives[indValIdx]! $ args[ctx.numParams:] ++ #[hApp]
@@ -313,7 +315,7 @@ where
 def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]!
-  let name := indVal.name ++ brecOnSuffix
+  let name := indVal.name ++ .mkSimple brecOnSuffix
   return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams
@@ -335,8 +337,8 @@ where
       (motive : Name × Expr) : MetaM $ Name × (Array Expr → MetaM Expr) := do
     let name :=
       if ctx.motives.size > 1
-      then mkFreshUserName s!"ih_{idx.val.succ}"
-      else mkFreshUserName "ih"
+      then mkFreshUserName <| .mkSimple s!"ih_{idx.val.succ}"
+      else mkFreshUserName <| .mkSimple "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
       forallTelescopeReducing ih fun ys _ => do

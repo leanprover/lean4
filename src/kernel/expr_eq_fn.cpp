@@ -60,7 +60,9 @@ template<bool CompareBinderInfo>
 class expr_eq_fn {
     eq_cache & m_cache;
 
-    static void check_system() { ::lean::check_system("expression equality test"); }
+    static void check_system() {
+        ::lean::check_system("expression equality test");
+    }
 
     bool apply(expr const & a, expr const & b) {
         if (is_eqp(a, b))          return true;

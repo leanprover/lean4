@@ -246,7 +246,7 @@ struct print_expr_fn {
             break;
         case expr_kind::Proj:
             print_child(proj_expr(a));
-            out() << "." << proj_idx(a).to_mpz();
+            out() << "." << proj_idx(a).to_mpz() + 1;
             break;
         case expr_kind::BVar:
             out() << "#" << bvar_idx(a);

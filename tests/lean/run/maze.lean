@@ -100,8 +100,8 @@ def extractXY : Lean.Expr → Lean.MetaM Coords
   let sizeArgs := Lean.Expr.getAppArgs e'
   let x ← Lean.Meta.whnf sizeArgs[0]!
   let y ← Lean.Meta.whnf sizeArgs[1]!
-  let numCols := (Lean.Expr.natLit? x).get!
-  let numRows := (Lean.Expr.natLit? y).get!
+  let numCols := (Lean.Expr.rawNatLit? x).get!
+  let numRows := (Lean.Expr.rawNatLit? y).get!
   return Coords.mk numCols numRows
 
 partial def extractWallList : Lean.Expr → Lean.MetaM (List Coords)
@@ -292,5 +292,5 @@ def maze1 := ┌───┐
 def foo : can_escape maze1 := by
   apply step_west
   set_option trace.Meta.debug true in
-  simp
+  simp (config := { decide := true })
   out

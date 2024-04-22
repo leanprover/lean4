@@ -45,12 +45,10 @@ double cos(double);
 LEAN_EXPORT lean_object* l_Float_acosh___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Float_decLt___boxed(lean_object*, lean_object*);
-static lean_object* l_instPowFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_atan2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT double l_instMinFloat(double, double);
 double lean_float_negate(double);
 LEAN_EXPORT lean_object* l_Float_sub___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instPowFloat;
 uint8_t lean_float_to_uint8(double);
 double sin(double);
 LEAN_EXPORT lean_object* l_instMulFloat;
@@ -134,7 +132,9 @@ LEAN_EXPORT lean_object* l_Float_asin___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 double fabs(double);
 LEAN_EXPORT lean_object* l_Float_tan___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instHomogeneousPowFloat;
 LEAN_EXPORT lean_object* l_Float_log2___boxed(lean_object*);
+static lean_object* l_instHomogeneousPowFloat___closed__1;
 LEAN_EXPORT lean_object* l_Float_sin___boxed(lean_object*);
 uint8_t lean_float_isfinite(double);
 LEAN_EXPORT lean_object* l_Float_log10___boxed(lean_object*);
@@ -905,7 +905,7 @@ x_4 = lean_box_float(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_instPowFloat___closed__1() {
+static lean_object* _init_l_instHomogeneousPowFloat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -913,11 +913,11 @@ x_1 = lean_alloc_closure((void*)(l_Float_pow___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instPowFloat() {
+static lean_object* _init_l_instHomogeneousPowFloat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instPowFloat___closed__1;
+x_1 = l_instHomogeneousPowFloat___closed__1;
 return x_1;
 }
 }
@@ -1050,10 +1050,10 @@ l_instToStringFloat = _init_l_instToStringFloat();
 lean_mark_persistent(l_instToStringFloat);
 l_instReprAtomFloat = _init_l_instReprAtomFloat();
 lean_mark_persistent(l_instReprAtomFloat);
-l_instPowFloat___closed__1 = _init_l_instPowFloat___closed__1();
-lean_mark_persistent(l_instPowFloat___closed__1);
-l_instPowFloat = _init_l_instPowFloat();
-lean_mark_persistent(l_instPowFloat);
+l_instHomogeneousPowFloat___closed__1 = _init_l_instHomogeneousPowFloat___closed__1();
+lean_mark_persistent(l_instHomogeneousPowFloat___closed__1);
+l_instHomogeneousPowFloat = _init_l_instHomogeneousPowFloat();
+lean_mark_persistent(l_instHomogeneousPowFloat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

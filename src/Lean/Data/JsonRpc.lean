@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
-import Init.Control
+prelude
 import Init.System.IO
 import Lean.Data.RBTree
 import Lean.Data.Json
@@ -183,6 +183,9 @@ structure ResponseError (α : Type u) where
 instance [ToJson α] : CoeOut (ResponseError α) Message :=
   ⟨fun r => Message.responseError r.id r.code r.message (r.data?.map toJson)⟩
 
+instance : CoeOut (ResponseError Unit) Message :=
+  ⟨fun r => Message.responseError r.id r.code r.message none⟩
+
 instance : Coe String RequestID := ⟨RequestID.str⟩
 instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
 
@@ -305,7 +308,7 @@ section
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError s!"Expected JSON-RPC notification, got: '{(toJson m).compress}'"
 
-  partial def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
+  def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
     let m ← h.readMessage nBytes
     match m with
     | Message.response id result =>
@@ -315,7 +318,6 @@ section
         | Except.error inner => throw $ userError s!"Unexpected result '{result.compress}'\n{inner}"
       else
         throw $ userError s!"Expected id {expectedID}, got id {id}"
-    | Message.notification .. => readResponseAs h nBytes expectedID α
     | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
 end
 

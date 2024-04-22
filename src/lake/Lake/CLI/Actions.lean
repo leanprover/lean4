@@ -24,6 +24,17 @@ def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
   tar pkg.buildArchive pkg.buildDir pkg.buildArchiveFile
-    (excludePaths := #["*.tar.gz", "*.tar.gz.trace"])
   logInfo s!"Uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
+
+def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
+  let pkgName := pkg.name.toString (escape := false)
+  if pkg.testRunner.isAnonymous then
+    error s!"{pkgName}: no test runner script or executable"
+  else if let some script := pkg.scripts.find? pkg.testRunner then
+    script.run args
+  else if let some exe := pkg.findLeanExe? pkg.testRunner then
+    let exeFile ← runBuild (exe.build >>= (·.await)) buildConfig
+    env exeFile.toString args.toArray
+  else
+    error s!"{pkgName}: invalid test runner: unknown script or executable `{pkg.testRunner}`"

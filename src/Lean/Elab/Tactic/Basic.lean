@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Elab.Term
 
 namespace Lean.Elab
@@ -146,7 +147,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
         stx.getArgs.forM evalTactic
-      else withTraceNode `Elab.step (fun _ => return stx) do
+      else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
@@ -157,8 +158,9 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | _ => throwError m!"unexpected tactic{indentD stx}"
 where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
-     if let some fail := failures[0]? then
-       -- Recall that `failures[0]` is the highest priority evalFn/macro
+     if h : 0 < failures.size  then
+       -- For macros we want to report the error from the first registered / last tried rule (#3770)
+       let fail := failures[failures.size-1]
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else
@@ -335,6 +337,15 @@ def evalTacticAt (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
   finally
     setGoals gs
 
+/--
+Like `evalTacticAt`, but without restoring the goal list or pruning solved goals.
+Useful when these tasks are already being done in an outer loop.
+-/
+def evalTacticAtRaw (tac : Syntax) (mvarId : MVarId) : TacticM (List MVarId) := do
+  setGoals [mvarId]
+  evalTactic tac
+  getGoals
+
 def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   let e ← instantiateMVars e
   let pendingMVars ← getMVars e
@@ -371,6 +382,10 @@ then set the new goals to be the resulting goal list.-/
       replaceMainGoal [mvarId]
     else
       replaceMainGoal []
+
+/-- Analogue of `liftMetaTactic` for tactics that do not return any goals. -/
+@[inline] def liftMetaFinishingTactic (tac : MVarId → MetaM Unit) : TacticM Unit :=
+  liftMetaTactic fun g => do tac g; pure []
 
 def tryTactic? (tactic : TacticM α) : TacticM (Option α) := do
   try

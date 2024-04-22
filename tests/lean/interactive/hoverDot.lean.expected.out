@@ -1,20 +1,20 @@
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 8, "character": 11}}
 {"range":
  {"start": {"line": 8, "character": 7}, "end": {"line": 8, "character": 14}},
  "contents": {"value": "```lean\nFoo.foo : Foo\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 12, "character": 7}}
 {"range":
  {"start": {"line": 12, "character": 7}, "end": {"line": 12, "character": 10}},
  "contents": {"value": "```lean\nFoo.foo : Foo\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 12, "character": 11}}
 {"range":
  {"start": {"line": 12, "character": 11}, "end": {"line": 12, "character": 13}},
  "contents":
  {"value": "```lean\nFoo.f₁ (self : Foo) : Nat\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 12, "character": 14}}
 {"range":
  {"start": {"line": 12, "character": 14}, "end": {"line": 12, "character": 18}},
@@ -22,13 +22,13 @@
  {"value":
   "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 16, "character": 11}}
 {"range":
  {"start": {"line": 16, "character": 11}, "end": {"line": 16, "character": 13}},
  "contents":
  {"value": "```lean\nFoo.f₂ (f : Foo) : Nat\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 16, "character": 14}}
 {"range":
  {"start": {"line": 16, "character": 14}, "end": {"line": 16, "character": 18}},
@@ -36,13 +36,13 @@
  {"value":
   "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 19, "character": 13}}
 {"range":
  {"start": {"line": 19, "character": 13}, "end": {"line": 19, "character": 15}},
  "contents":
  {"value": "```lean\nFoo.f₂ (f : Foo) : Nat\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 19, "character": 16}}
 {"range":
  {"start": {"line": 19, "character": 16}, "end": {"line": 19, "character": 20}},
@@ -50,13 +50,13 @@
  {"value":
   "```lean\nNat.succ (n : Nat) : Nat\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 22, "character": 14}}
 {"range":
  {"start": {"line": 22, "character": 14}, "end": {"line": 22, "character": 16}},
  "contents":
  {"value": "```lean\nFoo.f₂ (f : Foo) : Nat\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hoverDot.lean"},
+{"textDocument": {"uri": "file:///hoverDot.lean"},
  "position": {"line": 22, "character": 17}}
 {"range":
  {"start": {"line": 22, "character": 17}, "end": {"line": 22, "character": 21}},

@@ -62,7 +62,6 @@ class for_each_fn {
           begin_loop:
             if (todo.empty())
                 break;
-            check_interrupted();
             check_memory("expression traversal");
             auto p = todo.back();
             todo.pop_back();

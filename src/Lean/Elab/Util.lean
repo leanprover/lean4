@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Parser.Command
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
@@ -22,6 +23,13 @@ def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format
       view.scopes.foldl Name.mkNum (view.name ++ view.imported)
     else
       view.scopes.foldl Name.mkNum (view.name ++ view.imported ++ view.mainModule)
+
+/--
+Two names are from the same lexical scope if their scoping information modulo `MacroScopesView.name`
+is equal.
+-/
+def MacroScopesView.equalScope (a b : MacroScopesView) : Bool :=
+  a.scopes == b.scopes && a.mainModule == b.mainModule && a.imported == b.imported
 
 namespace Elab
 
@@ -50,7 +58,7 @@ def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
 register_builtin_option pp.macroStack : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "dispaly macro expansion stack"
+  descr    := "display macro expansion stack"
 }
 
 def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroStack : MacroStack) : m MessageData := do
@@ -106,10 +114,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
       return kind
     onAdded       := fun builtin declName => do
       if builtin then
-        if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
-          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-        if let some declRanges ← findDeclarationRanges? declName then
-          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+        declareBuiltinDocStringAndRanges declName
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=

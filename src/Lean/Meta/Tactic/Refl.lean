@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Reduce
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Apply
@@ -66,6 +67,6 @@ Close given goal using `HEq.refl`.
 def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do
     let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `hrefl mvarId ""
+      | throwTacticEx `hrefl mvarId
 
 end Lean.Meta

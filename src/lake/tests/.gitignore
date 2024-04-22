@@ -1,5 +1,0 @@
-build
-lake-packages
-lakefile.olean
-lake-manifest.json
-*produced.out

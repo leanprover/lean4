@@ -11,30 +11,30 @@ def g (i j : Nat) : Nat :=
   match j with
   | Nat.zero => 1
   | Nat.succ j => h i j
+termination_by (i + j, 0)
+decreasing_by
+  simp_wf
+  · apply Prod.Lex.left
+    apply Nat.lt_succ_self
+
 def h (i j : Nat) : Nat :=
   match j with
   | 0 => g i 0
   | Nat.succ j => g i j
-end
-termination_by'
- invImage
-    (fun
-      | PSum.inl n => (n, 0)
-      | PSum.inr n => (n, 1))
-    (Prod.lex sizeOfWFRel sizeOfWFRel)
+termination_by (i + j, 1)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
-  first
-  | apply Prod.Lex.left
-    apply Nat.lt_succ_self
-  | apply Prod.Lex.right
+  all_goals simp_wf
+  · apply Prod.Lex.right
     decide
+  · apply Prod.Lex.left
+    apply Nat.lt_succ_self
+end
 
 #eval tst ``g
-#check g._eq_1
-#check g._eq_2
-#check g._unfold
+#check g.eq_1
+#check g.eq_2
+#check g.eq_def
 #eval tst ``h
-#check h._eq_1
-#check h._eq_2
-#check h._unfold
+#check h.eq_1
+#check h.eq_2
+#check h.eq_def

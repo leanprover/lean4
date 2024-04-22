@@ -4,3 +4,6 @@ h : y = 0
 y x : Nat
 h : y = 0
 ⊢ Add.add x y = x
+cdotAtSimpArg.lean:24:39-25:17: error: unsolved goals
+x y : Nat
+⊢ Pow.pow x y = Pow.pow y x

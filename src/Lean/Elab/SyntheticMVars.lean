@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Meta.Tactic.Util
 import Lean.Util.ForEachExpr
 import Lean.Util.OccursCheck
@@ -231,7 +232,7 @@ private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit 
   for mvarId in pendingMVars do
     reportStuckSyntheticMVar mvarId ignoreStuckTC
 
-private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
+private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
   for mvarId in (← get).pendingMVars do
     if let some decl ← getSyntheticMVarDecl? mvarId then
       if decl.stx.getPos?.isSome then
@@ -291,9 +292,12 @@ mutual
 
   /--
   Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
+
+  The `tacticCode` syntax comprises the whole `by ...` expression.
+
+  If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
-  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := withoutAutoBoundImplicit do
-    /- Recall, `tacticCode` is the whole `by ...` expression. -/
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-
@@ -319,9 +323,12 @@ mutual
             evalTactic code
         synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
-        reportUnsolvedGoals remainingGoals
+        if report then
+          reportUnsolvedGoals remainingGoals
+        else
+          throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
     catch ex =>
-      if (← read).errToSorry then
+      if report && (← read).errToSorry then
         for mvarId in (← getMVars (mkMVar mvarId)) do
           mvarId.admit
         logException ex
@@ -395,7 +402,7 @@ mutual
   -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
     let rec loop (_ : Unit) : TermElabM Unit := do
-      withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
+      withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
         unless (← get).pendingMVars.isEmpty do
           if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
             loop ()

@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Attributes
 import Lean.Declaration
 import Lean.MonadEnv
@@ -16,7 +17,7 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
   getParam := fun declName stx => do
     let decl ← getConstInfo declName
     let fnNameStx ← Attribute.Builtin.getIdent stx
-    let fnName ← Elab.resolveGlobalConstNoOverloadWithInfo fnNameStx
+    let fnName ← Elab.realizeGlobalConstNoOverloadWithInfo fnNameStx
     let fnDecl ← getConstInfo fnName
     unless decl.levelParams.length == fnDecl.levelParams.length do
       throwError "invalid 'implemented_by' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"

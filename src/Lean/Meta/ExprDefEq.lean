@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Offset
 import Lean.Meta.UnificationHint
 import Lean.Util.OccursCheck
@@ -1172,6 +1173,35 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
   trace[Meta.isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
+/-- Helper predicate for `tryHeuristic`. -/
+private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
+  match info.hints with
+  | .regular d =>
+    if (← isProjectionFn info.name) then
+      -- All projections are considered trivial
+      return false
+    if d > 2 then
+      -- If definition depth is greater than 2, we claim it is not a trivial definition
+      return true
+    -- After consuming the lambda expressions, we consider a regular definition non-trivial if it is not "simple".
+    -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
+    let val := consumeDefnPreamble info.value
+    return !isSimple val (allowApp := true)
+  | _ => return false
+where
+  consumeDefnPreamble (e : Expr) : Expr :=
+    match e with
+    | .mdata _ e => consumeDefnPreamble e
+    | .lam _ _ b _ => consumeDefnPreamble b
+    | _ => e
+  isSimple (e : Expr) (allowApp : Bool) : Bool :=
+    match e with
+    | .bvar .. | .sort .. | .lit .. | .fvar .. | .mvar .. => true
+    | .app f a => isSimple a false && isSimple f allowApp
+    | .proj _ _ b => isSimple b false
+    | .mdata _ b => isSimple b allowApp
+    | .lam .. | .letE .. | .forallE .. | .const .. => false
+
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
 
     Auxiliary method for isDefEqDelta -/
@@ -1180,19 +1210,32 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let mut s := s
   let tFn := t.getAppFn
   let sFn := s.getAppFn
-  let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
-     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
-     We check whether terms contain metavariables to make sure we can solve constraints such
-     as `S.proj ?x =?= S.proj t` without performing delta-reduction.
-     That is, we are assuming the heuristic implemented by this method is seldom effective
-     when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms.
+  -- If `f` (i.e., `tFn`) is not a definition, we do not apply the heuristic.
+  let .defnInfo info ← getConstInfo tFn.constName! | return false
+  /-
+  We apply the heuristic in the following cases:
+  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  2- `f` is `match` application.
+  3- `t` or `s` contain meta-variables.
 
-     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
-     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
-     case is used to help the kernel type checker. -/
-  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
+  The third case is important to make sure we can solve constraints such as
+  `S.proj ?x =?= S.proj t` without performing delta-reduction.
+
+  When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
+  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+
+  Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+  them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+  case is used to help the kernel type checker.
+
+  The `isNonTrivialRegular` predicate is also useful to avoid applying the heuristic to very simple definitions that
+  have not been marked as abbreviations by the user. Example:
+  ```
+  protected def Mem (a : α) (s : Set α) : Prop := s a
+  ```
+  at test 3807.lean
+  -/
+  unless (← isNonTrivialRegular info) || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
@@ -1491,10 +1534,16 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
     else
       pure false
 
-/-- Remove unnecessary let-decls -/
-private def consumeLet : Expr → Expr
+/--
+Removes unnecessary let-decls (both true `let`s and `let_fun`s).
+-/
+private partial def consumeLet : Expr → Expr
   | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-  | e                       => e
+  | e =>
+    if let some (_, _, _, b) := e.letFun? then
+      if b.hasLooseBVars then e else consumeLet b
+    else
+      e
 
 mutual
 
@@ -1538,9 +1587,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
-    We might other annotations in the future that we should not preserve.
-    Perhaps, we should mark the annotation we do want to preserve ones
-    (e.g., hints for the pretty printer), and consume all other
+    We might have other annotations in the future that we should not preserve.
+    Perhaps, we should mark the annotations we do want to preserve
+    (e.g., hints for the pretty printer), and consume all others.
   -/
   if let some t := patternAnnotation? t then
     isDefEqQuick t s
@@ -1567,7 +1616,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
-       is not definitionally equal to `A`. We left the code here as a remainder of this issue. -/
+       is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/
 --    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
 --      let t ← instantiateMVars t
 --     isDefEqQuick t s
@@ -1597,7 +1646,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
            2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
               The motivation: avoid unassigned metavariables in goals.
-           3- Each pending tactic goal is represented as a metavariable. It is marked as `synthethicOpaque` to make it clear
+           3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.
            4- When we abstract a term containing metavariables, we often create new metavariables.
               Example: when abstracting `x` at `f ?m`, we obtain `fun x => f (?m' x)`. If `x` is in the scope of `?m`.
@@ -1682,24 +1731,88 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
+/--
+Result type for `isDefEqDelta`
+-/
+inductive DeltaStepResult where
+  | eq | unknown
+  | cont (t s : Expr)
+  | diff (t s : Expr)
+
+/--
+Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
+It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
+in the kernel.
+-/
+private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => return .unknown
+  | some _,     none       => unfold t (return .unknown) (k · s)
+  | none,       some _     => unfold s (return .unknown) (k t ·)
+  | some tInfo, some sInfo =>
+    match compare tInfo.hints sInfo.hints with
+    | .lt => unfold t (return .unknown) (k · s)
+    | .gt => unfold s (return .unknown) (k t ·)
+    | .eq =>
+      unfold t
+        (unfold s (return .unknown) (k t ·))
+        (fun t => unfold s (k t s) (k t ·))
+where
+  k (t s : Expr) : MetaM DeltaStepResult := do
+    let t ← whnfCore t
+    let s ← whnfCore s
+    match (← isDefEqQuick t s) with
+    | .true  => return .eq
+    | .false => return .diff t s
+    | .undef => return .cont t s
+
+/--
+Helper function for solving contraints of the form `t.i =?= s.i`.
+-/
+private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
+  let t ← whnfCore t
+  let s ← whnfCore s
+  match (← isDefEqQuick t s) with
+  | .true  => return true
+  | .false | .undef  => loop t s
+where
+  loop (t s : Expr) : MetaM Bool := do
+    match (← isDefEqDeltaStep t s) with
+    | .cont t s => loop t s
+    | .eq => return true
+    | .unknown => tryReduceProjs t s
+    | .diff t s => tryReduceProjs t s
+
+  tryReduceProjs (t s : Expr) : MetaM Bool := do
+    match (← projectCore? t i), (← projectCore? s i) with
+    | some t, some s => Meta.isExprDefEqAux t s
+    | _, _ => Meta.isExprDefEqAux t s
+
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | Expr.proj m i t, Expr.proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
-  | Expr.proj structName 0 s, v => isDefEqSingleton structName s v
-  | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
+  | .proj m i t, .proj n j s =>
+    if i == j && m == n then
+      isDefEqProjDelta t s i
+    else
+      return false
+  | .proj structName 0 s, v  => isDefEqSingleton structName s v
+  | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     if isClass (← getEnv) structName then
       /-
-      We disable this feature is `structName` is a class. See issue #2011.
+      We disable this feature if `structName` is a class. See issue #2011.
       The example at issue #2011, the following weird
       instance was being generated for `Zero (f x)`
       ```
       (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
       ```
       where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
-      Note that this instance is definitinally equal to the expected nicer
+      Note that this instance is definitionally equal to the expected nicer
       instance `inst✝¹ x✝`.
       However, the nasty instance trigger nasty unification higher order
       constraints later.
@@ -1733,7 +1846,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
+    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
     if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
@@ -1743,7 +1856,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
   matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
@@ -1772,25 +1885,30 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
   if (← isDefEqProj t s) then return true
-  whenUndefDo (isDefEqNative t s) do
-  whenUndefDo (isDefEqNat t s) do
-  whenUndefDo (isDefEqOffset t s) do
-  whenUndefDo (isDefEqDelta t s) do
-  -- We try structure eta *after* lazy delta reduction;
-  -- otherwise we would end up applying it at every step of a reduction chain
-  -- as soon as one of the sides is a constructor application,
-  -- which is very costly because it requires us to unify the fields.
-  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
-    return true
-  if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-    return true
+  let t' ← whnfCore t
+  let s' ← whnfCore s
+  if t != t' || s != s' then
+    Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqProjInst t s) do
-    whenUndefDo (isDefEqStringLit t s) do
-    if (← isDefEqUnitLike t s) then return true else
-    isDefEqOnFailure t s
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDelta t s) do
+    -- We try structure eta *after* lazy delta reduction;
+    -- otherwise we would end up applying it at every step of a reduction chain
+    -- as soon as one of the sides is a constructor application,
+    -- which is very costly because it requires us to unify the fields.
+    if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
+      return true
+    else
+      whenUndefDo (isDefEqProjInst t s) do
+      whenUndefDo (isDefEqStringLit t s) do
+      if (← isDefEqUnitLike t s) then return true else
+      isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
   | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
@@ -1851,19 +1969,46 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
-  checkMaxHeartbeats "isDefEq"
+  checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
   /-
     We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
-    When unifying e.g. `@Neg.neg α (@Field.toNeg α inst1) =?= @Neg.neg α (@Field.toNeg α inst2)`,
+    When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
-    We used to *not* reduce projections here, to support unifying `(?a).1 =?= (x, y).1`.
-    NOTE: this still seems to work because we don't eagerly unfold projection definitions to primitive projections.
+
+    Note that ew use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    We added this refinement to address a performance issue in code such as
+    ```
+    let val : Test := bar c1 key
+    have : val.1 = (bar c1 key).1 := rfl
+    ```
+    where `bar` is a complex function that takes a long time to be reduced.
+
+    Note that the current solution times out at unification problems such as
+    `(f x).1 =?= (g x).1` where `f`, `g` are defined as
+    ```
+    structure Foo where
+      x : Nat
+      y : Nat
+
+    def f (x : Nat) : Foo :=
+      { x, y := ack 10 10 }
+
+    def g (x : Nat) : Foo :=
+      { x, y := ack 10 11 }
+    ```
+    and `ack` is ackermann. We claim this is an abuse of the unifier.
+    That being said, we could in principle address this issue by implementing
+    lazy-delta reduction at `isDefEqProj`.
+
+    The current solution should be sufficient. In the past, we have used
+    `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
+    and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t
-  let s' ← whnfCore s
+  let t' ← whnfCore t (config := { proj := .yesWithDeltaI })
+  let s' ← whnfCore s (config := { proj := .yesWithDeltaI })
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

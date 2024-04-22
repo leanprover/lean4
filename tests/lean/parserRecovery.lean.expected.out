@@ -1,0 +1,46 @@
+parserRecovery.lean:16:3-16:9: error: unexpected token; expected identifier
+parserRecovery.lean:16:21-16:25: error: unexpected token ':='; expected term
+parserRecovery.lean:18:3-18:5: error: unexpected token; expected identifier
+parserRecovery.lean:22:7-22:9: error: unexpected token '('; expected identifier
+parserRecovery.lean:22:9-22:10: error: unexpected token ')'; expected '_' or identifier
+parserRecovery.lean:23:7-23:11: error: unexpected token; expected identifier
+parserRecovery.lean:23:20-23:22: error: unexpected token ')'; expected term
+parserRecovery.lean:24:7-24:13: error: unexpected token; expected identifier
+parserRecovery.lean:24:22-24:24: error: unexpected token ')'; expected term
+parserRecovery.lean:25:7-25:9: error: unexpected token; expected identifier
+parserRecovery.lean:25:18-25:20: error: unexpected token ')'; expected term
+parserRecovery.lean:27:6-27:8: error: unexpected token '('; expected identifier
+parserRecovery.lean:27:8-27:9: error: unexpected token '('; expected '_' or identifier
+parserRecovery.lean:29:5-29:12: error: unexpected token; expected identifier
+parserRecovery.lean:29:18-29:20: error: unexpected token '⟩'; expected term
+parserRecovery.lean:31:15-31:17: error: unexpected token '('; expected identifier
+parserRecovery.lean:31:17-31:18: error: unexpected token ')'; expected '_' or identifier
+parserRecovery.lean:34:9-34:12: error: unexpected token; expected identifier
+parserRecovery.lean:34:27: error: expected token
+parserRecovery.lean:36:9-36:12: error: unexpected token; expected identifier
+parserRecovery.lean:36:28: error: expected token
+parserRecovery.lean:38:9-38:12: error: unexpected token; expected identifier
+parserRecovery.lean:38:38: error: expected token
+parserRecovery.lean:40:9-40:12: error: unexpected token; expected identifier
+parserRecovery.lean:40:37: error: expected token
+parserRecovery.lean:42:9-42:12: error: unexpected token; expected identifier
+parserRecovery.lean:42:14: error: expected token
+parserRecovery.lean:44:9-44:11: error: unexpected token '!'; expected identifier
+parserRecovery.lean:45:4: error: expected token
+parserRecovery.lean:47:6-47:11: error: unknown identifier 'Foo.a'
+parserRecovery.lean:49:16-49:17: error: unexpected token; expected identifier
+parserRecovery.lean:49:18-49:20: error: unexpected token; expected identifier
+parserRecovery.lean:49:21-49:23: error: unexpected token; expected identifier
+parserRecovery.lean:49:24-49:26: error: unexpected token; expected identifier
+parserRecovery.lean:49:30-49:36: error: unexpected token; expected identifier
+parserRecovery.lean:50:9-50:11: error: unexpected token ')'; expected term
+parserRecovery.lean:69:16-69:17: error: unexpected token ']'; expected '|}'
+parserRecovery.lean:69:20: error: unexpected token at this precedence level; consider parenthesizing the term
+parserRecovery.lean:72:15-72:16: error: unexpected token ']'; expected ')', ',' or ':'
+parserRecovery.lean:100:3-101:1: error: unexpected token; expected identifier
+parserRecovery.lean:103:1-104:3: error: unexpected token 'def'; expected identifier
+parserRecovery.lean:105:0-105:1: error: unexpected token; expected identifier
+parserRecovery.lean:106:3-107:1: error: unexpected token '('; expected identifier
+parserRecovery.lean:107:6-107:8: error: unexpected token; expected identifier
+parserRecovery.lean:108:2-108:3: error: unexpected token '('; expected identifier
+5

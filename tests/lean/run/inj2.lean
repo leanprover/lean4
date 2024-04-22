@@ -24,7 +24,7 @@ by {
   rw [h4]
 }
 
-theorem test4 {α} (v : Fin2 0) : α :=
+def test4 {α} (v : Fin2 0) : α :=
 by cases v
 
 def test5 {α β} {n} (v : Vec2 α β (n+1)) : α := by

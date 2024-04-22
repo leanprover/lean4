@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.MacroArgUtil
 import Lean.Elab.AuxDef
 
@@ -10,12 +11,6 @@ namespace Lean.Elab.Command
 open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
-
-def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
-  Term.tryPostponeIfNoneOrMVar expectedType?
-  let some expectedType ← pure expectedType?
-    | throwError "expected type must be known"
-  x expectedType
 
 def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ",")) (attrKind : TSyntax ``attrKind)
@@ -54,7 +49,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     if catName == `term then
       `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
-        fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
+        fun stx expectedType? => Lean.Elab.Term.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"

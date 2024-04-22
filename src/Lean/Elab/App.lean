@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.FindMVar
 import Lean.Parser.Term
 import Lean.Meta.KAbstract
@@ -690,10 +691,10 @@ builtin_initialize elabAsElim : TagAttribute ←
     (applicationTime := .afterCompilation)
     fun declName => do
       let go : MetaM Unit := do
-        discard <| getElimInfo declName
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
           throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
+        discard <| getElimInfo declName
       go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
@@ -937,6 +938,7 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
 where
   /-- Return `some info` if we should elaborate as an eliminator. -/
   elabAsElim? : TermElabM (Option ElimInfo) := do
+    unless (← read).heedElabAsElim do return none
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
@@ -957,8 +959,7 @@ where
   The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
   -/
   getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
-    let cinfo ← getConstInfo elimInfo.name
-    forallTelescope cinfo.type fun xs type => do
+    forallTelescope elimInfo.elimType fun xs type => do
       let resultArgs := type.getAppArgs
       let mut extraArgsPos := #[]
       for i in [:xs.size] do
@@ -1034,7 +1035,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   if eType.isForall then
     match lval with
     | LVal.fieldName _ fieldName _ _ =>
-      let fullName := `Function ++ fieldName
+      let fullName := Name.str `Function fieldName
       if (← getEnv).contains fullName then
         return LValResolution.const `Function `Function fullName
     | _ => pure ()
@@ -1059,9 +1060,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
     let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName fieldName then
+      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
         return LValResolution.const baseStructName structName fullName
-      else if let some (structName', fullName) := findMethodAlias? env structName fieldName then
+      else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
         return LValResolution.const structName' structName' fullName
       else
         throwLValError e eType
@@ -1148,7 +1149,7 @@ private partial def mkBaseProjections (baseStructName : Name) (structName : Name
 private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := do
   if baseName == `Function then
     return (← whnfR type).isForall
-  else if type.consumeMData.isAppOf baseName then
+  else if type.cleanupAnnotations.isAppOf baseName then
     return true
   else
     return (← whnfR type).isAppOf baseName
@@ -1193,13 +1194,24 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
           argIdx := argIdx + 1
     throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with a unique name"
 
+/-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
+private def addProjTermInfo
+    (stx            : Syntax)
+    (e              : Expr)
+    (expectedType?  : Option Expr := none)
+    (lctx?          : Option LocalContext := none)
+    (elaborator     : Name := Name.anonymous)
+    (isBinder force : Bool := false)
+    : TermElabM Expr :=
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force
+
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (ref := fieldStx) (targetStx := targetStx) .. := lval then
-      addDotCompletionInfo targetStx f expectedType? fieldStx
+    if let LVal.fieldName (fullRef := fullRef) .. := lval then
+      addDotCompletionInfo fullRef f expectedType?
     let hasArgs := !namedArgs.isEmpty || !args.isEmpty
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
@@ -1213,7 +1225,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         if isPrivateNameFromImportedModule (← getEnv) info.projFn then
           throwError "field '{fieldName}' from structure '{structName}' is private"
         let projFn ← mkConst info.projFn
-        let projFn ← addTermInfo lval.getRef projFn
+        let projFn ← addProjTermInfo lval.getRef projFn
         if lvals.isEmpty then
           let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
           elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
@@ -1225,7 +1237,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
-      let projFn ← addTermInfo lval.getRef projFn
+      let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let projFnType ← inferType projFn
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
@@ -1234,7 +1246,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
-      let fvar ← addTermInfo lval.getRef fvar
+      let fvar ← addProjTermInfo lval.getRef fvar
       if lvals.isEmpty then
         let fvarType ← inferType fvar
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
@@ -1261,7 +1273,7 @@ def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
 - When we elaborate choice nodes (and overloaded identifiers), we track multiple results using the `observing x` combinator.
   The `observing x` executes `x` and returns a `TermElabResult`.
 
-`observing `x does not check for synthetic sorry's, just an exception. Thus, it may think `x` worked when it didn't
+`observing x` does not check for synthetic sorry's, just an exception. Thus, it may think `x` worked when it didn't
 if a synthetic sorry was introduced. We decided that checking for synthetic sorrys at `observing` is not a good solution
 because it would not be clear to decide what the "main" error message for the alternative is. When the result contains
 a synthetic `sorry`, it is not clear which error message corresponds to the `sorry`. Moreover, while executing `x`, many
@@ -1339,7 +1351,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
-        LVal.fieldName comp comp.getId.getString! none e
+        LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"

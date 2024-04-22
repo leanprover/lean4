@@ -1,2 +1,2 @@
-./clean.sh
+./clean-build.sh
 time ./build.sh "$@"

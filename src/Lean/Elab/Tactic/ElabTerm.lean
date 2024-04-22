@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Clear
@@ -92,7 +93,7 @@ def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List
 def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) :=
   /-
   When `allowNaturalHoles = true`, unassigned holes should become new metavariables, including `_`s.
-  Thus, we set `holesAsSynthethicOpaque` to true if it is not already set to `true`.
+  Thus, we set `holesAsSyntheticOpaque` to true if it is not already set to `true`.
   See issue #1681. We have the tactic
   ```
   `refine' (fun x => _)
@@ -246,7 +247,7 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
 
     By disabling "error to sorry", we also limit ourselves to at most one error at `t[h']`.
 
-    By disabling "error to sorry", we also miss the opportunity to catch mistakes is tactic code such as
+    By disabling "error to sorry", we also miss the opportunity to catch mistakes in tactic code such as
       `first | apply nonsensical-term | assumption`
 
     This should not be a big problem for the `apply` tactic since we usually provide small terms there.
@@ -317,7 +318,7 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   withTransparency TransparencyMode.all <| evalTactic stx[1]
 
 /--
-  Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
+  Elaborate `stx`. If it is a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
 def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId :=
   withMainContext do
@@ -356,7 +357,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
 
 /--
    Make sure `expectedType` does not contain free and metavariables.
-   It applies zeta-reduction to eliminate let-free-vars.
+   It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
 -/
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType
@@ -371,10 +372,24 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
-    let r ← withDefault <| whnf d
-    unless r.isConstOf ``true do
-      throwError "failed to reduce to 'true'{indentExpr r}"
-    let s := d.appArg! -- get instance from `d`
+    -- Get instance from `d`
+    let s := d.appArg!
+    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    let r ← withDefault <| whnf s
+    if r.isAppOf ``isFalse then
+      throwError "\
+        tactic 'decide' proved that the proposition\
+        {indentExpr expectedType}\n\
+        is false"
+    unless r.isAppOf ``isTrue do
+      throwError "\
+        tactic 'decide' failed for proposition\
+        {indentExpr expectedType}\n\
+        since its 'Decidable' instance reduced to\
+        {indentExpr r}\n\
+        rather than to the 'isTrue' constructor."
+    -- While we have a proof from reduction, we do not embed it in the proof term,
+    -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 

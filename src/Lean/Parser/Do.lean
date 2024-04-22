@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Parser.Term
 
 namespace Lean
@@ -49,7 +50,7 @@ def notFollowedByRedefinedTermToken :=
   -- but we include them in the following list to fix the ambiguity where
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
-  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|>
+  notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
       "do" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
@@ -57,6 +58,14 @@ def notFollowedByRedefinedTermToken :=
   "let " >> optional "mut " >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
+  checkColGt >> " | " >> doSeq
+
+@[builtin_doElem_parser] def doLetExpr  := leading_parser
+  "let_expr " >> matchExprPat >> " := " >> termParser >>
+  checkColGt >> " | " >> doSeq
+
+@[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
+  "let_expr " >> matchExprPat >> " ← " >> termParser >>
   checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
@@ -149,6 +158,12 @@ def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
   "match " >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
+def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)
+def optMetaFalse :=
+  optional (atomic ("(" >> nonReservedSymbol "meta" >>  " := " >> nonReservedSymbol "false" >> ") "))
+@[builtin_doElem_parser] def doMatchExpr := leading_parser:leadPrec
+  "match_expr " >> optMetaFalse >> termParser >> " with" >> doMatchExprAlts
+
 def doCatch      := leading_parser
   ppDedent ppLine >> atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := leading_parser
@@ -174,8 +189,15 @@ is highlighted when hovering over `return`.
 -/
 @[builtin_doElem_parser] def doReturn    := leading_parser:leadPrec
   withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
+/--
+`dbg_trace e` prints `e` (which can be an interpolated string literal) to stderr.
+It should only be used for debugging.
+-/
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
+/--
+`assert! cond` panics if `cond` evaluates to `false`.
+-/
 @[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec
   "assert! " >> termParser
 

@@ -8,5 +8,5 @@ Author: Mac Malone
 #include <string>
 
 namespace lean {
-void load_dynlib(std::string path);
+LEAN_EXPORT void load_dynlib(std::string path);
 }

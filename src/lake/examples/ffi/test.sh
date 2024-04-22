@@ -2,7 +2,7 @@ set -ex
 
 ./clean.sh
 ./package.sh
-./app/build/bin/app
-./lib/build/bin/test
+./app/.lake/build/bin/app
+./lib/.lake/build/bin/test
 
-${LAKE:-../../build/bin/lake} -d app build -v Test
+${LAKE:-../../.lake/build/bin/lake} -d app build -v Test

@@ -27,13 +27,11 @@ structure LeanLibConfig extends LeanConfig where
 
   /--
   The root module(s) of the library.
-
   Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered
-  part of the package.
-
-  Defaults to a single root of the library's upper camel case name.
+  part of the library.
+  Defaults to a single root of the target's name.
   -/
-  roots : Array Name := #[toUpperCamelCase name]
+  roots : Array Name := #[name]
 
   /--
   An `Array` of module `Glob`s to build for the library.
@@ -48,9 +46,9 @@ structure LeanLibConfig extends LeanConfig where
   /--
   The name of the library.
   Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the upper camel case name of the target.
+  Defaults to the name of the target.
   -/
-  libName := toUpperCamelCase name |>.toString (escape := false)
+  libName := name.toString (escape := false)
 
   /-- An `Array` of target names to build before the library's modules. -/
   extraDepTargets : Array Name := #[]
@@ -71,11 +69,17 @@ structure LeanLibConfig extends LeanConfig where
   defaultFacets : Array Name := #[LeanLib.leanArtsFacet]
 
   /--
-  An `Array` of module facets to build and combine into the library's static
-  and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file
-  compiled from the Lean source).
+  The module facets to build and combine into the library's static
+  and shared libraries. If `shouldExport` is true, the module facets should
+  export any symbols a user may expect to lookup in the library. For example,
+  the Lean interpreter will use exported symbols in linked libraries.
+
+  Defaults to a singleton of `Module.oExportFacet` (if `shouldExport`) or
+  `Module.oFacet`. That is, the  object files compiled from the Lean sources,
+  potentially with exported Lean symbols.
   -/
-  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+    #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited
 

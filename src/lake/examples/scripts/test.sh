@@ -5,12 +5,13 @@ set -exo pipefail
 [ "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
 
 ./clean.sh
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 $LAKE update
 $LAKE script list | tee produced.out
 $LAKE run /greet | tee -a produced.out
 $LAKE script run greet me | tee -a produced.out
+$LAKE script run greet --me | tee -a produced.out
 $LAKE script doc greet | tee -a produced.out
 $LAKE script run hello | tee -a produced.out
 $LAKE script run dep/hello | tee -a produced.out

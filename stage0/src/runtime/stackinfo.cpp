@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include "runtime/thread.h"
 #include "runtime/exception.h"
+#include "runtime/stackinfo.h"
 
 #if !defined(LEAN_USE_SPLIT_STACK)
 #if defined(LEAN_WINDOWS)
@@ -19,13 +20,17 @@ Author: Leonardo de Moura
     #include <sys/resource.h> // NOLINT
 #endif
 
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten/stack.h>
+#endif
+
 namespace lean {
 void throw_get_stack_size_failed() {
     throw exception("failed to retrieve thread stack size");
 }
 
 #if defined(LEAN_WINDOWS)
-size_t get_stack_size(int main) {
+size_t get_stack_size(bool main) {
     if (main) {
         return LEAN_WIN_STACK_SIZE;
     } else {
@@ -33,7 +38,7 @@ size_t get_stack_size(int main) {
     }
 }
 #elif defined (__APPLE__)
-size_t get_stack_size(int main) {
+size_t get_stack_size(bool main) {
     if (main) {
         // Retrieve stack size of the main thread.
         struct rlimit curr;
@@ -45,8 +50,16 @@ size_t get_stack_size(int main) {
         return lthread::get_thread_stack_size();
     }
 }
+#elif defined(LEAN_EMSCRIPTEN)
+size_t get_stack_size(bool main) {
+    if (main) {
+        return emscripten_stack_get_end() - emscripten_stack_get_base();
+    } else {
+        return lthread::get_thread_stack_size();
+    }
+}
 #else
-size_t get_stack_size(int main) {
+size_t get_stack_size(bool main) {
     if (main) {
         // Retrieve stack size of the main thread.
         struct rlimit curr;

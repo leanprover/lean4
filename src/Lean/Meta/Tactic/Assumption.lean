@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
@@ -32,7 +33,7 @@ def assumptionCore (mvarId : MVarId) : MetaM Bool :=
 /-- Close goal `mvarId` using an assumption. Throw error message if failed. -/
 def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← mvarId.assumptionCore) do
-    throwTacticEx `assumption mvarId ""
+    throwTacticEx `assumption mvarId
 
 @[deprecated MVarId.assumption]
 def assumption (mvarId : MVarId) : MetaM Unit :=

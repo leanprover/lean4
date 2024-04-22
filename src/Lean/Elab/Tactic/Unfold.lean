@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Unfold
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Location
@@ -23,7 +24,7 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
     go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := do
-    let declName ← resolveGlobalConstNoOverloadWithInfo declNameId
+    let declName ← realizeGlobalConstNoOverloadWithInfo declNameId
     withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
 
 end Lean.Elab.Tactic

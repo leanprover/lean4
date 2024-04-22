@@ -3,9 +3,9 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.HasConstCache
-import Lean.Meta.CasesOn
-import Lean.Meta.Match.Match
+import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
@@ -83,20 +83,6 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
   withBelowDict below numIndParams fun C belowDict =>
     toBelowAux C belowDict recArg below
 
-/--
-  This method is used after `matcherApp.addArg arg` to check whether the new type of `arg` has been "refined/modified"
-  in at least one alternative.
--/
-def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
-  let argType ← inferType arg
-  (Array.zip matcherApp.alts matcherApp.altNumParams).anyM fun (alt, numParams) =>
-    lambdaTelescope alt fun xs _ => do
-      if xs.size >= numParams then
-        let refinedArg := xs[numParams - 1]!
-        return !(← isDefEq (← inferType refinedArg) argType)
-      else
-        return false
-
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
   let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) M Bool :=
     modifyGet (·.contains e)
@@ -113,12 +99,12 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b     =>
-      if let some _ := getRecAppSyntax? e then
-        loop below b
+    | Expr.mdata d b =>
+      if let some stx := getRecAppSyntax? e then
+        withRef stx <| loop below b
       else
         return mkMData d (← loop below b)
-    | Expr.proj n i e    => return mkProj n i (← loop below e)
+    | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do
@@ -143,7 +129,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             return mkAppN f fArgs
           else
             return mkAppN (← loop below f) (← args.mapM (loop below))
-      match (← matchMatcherApp? e) with
+      match (← matchMatcherApp? (alsoCasesOn := true) e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
@@ -165,10 +151,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              If this is too annoying in practice, we may replace `ys` with the matching term, but
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
-          let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-          if !(← refinedArgType matcherApp below) then
-            processApp e
-          else
+          if let some matcherApp ← matcherApp.addArg? below then
             let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
               lambdaTelescope alt fun xs altBody => do
                 trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
@@ -177,21 +160,8 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
                 let belowForAlt := xs[numParams - 1]!
                 mkLambdaFVars xs (← loop belowForAlt altBody)
             pure { matcherApp with alts := altsNew }.toExpr
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
-          processApp e
-        else if let some casesOnApp ← casesOnApp.addArg? below (checkIfRefined := true) then
-          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let belowForAlt := xs[numParams]!
-              mkLambdaFVars xs (← loop belowForAlt altBody)
-          return { casesOnApp with alts := altsNew }.toExpr
-        else
-          processApp e
+          else
+            processApp e
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop below e |>.run' {}

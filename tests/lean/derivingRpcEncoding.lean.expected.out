@@ -1,27 +1,17 @@
-instTypeNameFooRef : TypeName FooRef
 ok: {"p": "0"}
-instRpcEncodableBar : RpcEncodable Bar
 ok: {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}
-instRpcEncodableBarTrans : RpcEncodable BarTrans
 ok: {"bar": {"fooRef": {"p": "0"}, "fooJson": {"s": ""}}}
-instRpcEncodableBaz : RpcEncodable Baz
 ok: {"arr": []}
-instRpcEncodableFooGeneric {α : Type} [inst✝ : RpcEncodable α] : RpcEncodable (FooGeneric α)
 ok: {"a": 0}
 ok: {"b": 42, "a": 3}
-instRpcEncodableBazInductive : RpcEncodable BazInductive
 ok: {"baz":
  {"arr":
   [{"fooRef": {"p": "0"}, "fooJson": {"s": ""}},
    {"fooRef": {"p": "1"}, "fooJson": {"s": ""}}]}}
-instRpcEncodableFooInductive {α : Type} [inst✝ : RpcEncodable α] : RpcEncodable (FooInductive α)
 ok: {"a": [{"baz": {"arr": []}}, {"p": "0"}]}
 ok: {"b": {"n": 42, "m": 0, "a": {"baz": {"arr": []}}}}
 ok: {"a": [{"baz": {"arr": []}}, [{"a": [{"baz": {"arr": []}}, []]}]]}
-instRpcEncodableFooParam {n : Nat} : RpcEncodable (FooParam n)
 ok: {"a": 42}
-instRpcEncodableUnused {α : Type} : RpcEncodable (Unused α)
 ok: "a"
-instRpcEncodableUnusedStruct {α : Type} : RpcEncodable (UnusedStruct α)
 ok: {}
 Except.error "no inductive constructor matched"

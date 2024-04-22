@@ -19,22 +19,27 @@ inductive Glob
   | submodules : Name → Glob
   /-- Selects the specified module and all submodules. -/
   | andSubmodules : Name → Glob
-deriving Inhabited, Repr
+deriving Inhabited, Repr, DecidableEq
 
 instance : Coe Name Glob := ⟨Glob.one⟩
+instance : Coe Glob (Array Glob) := ⟨Array.singleton⟩
 
-partial def forEachModuleIn [Monad m] [MonadLiftT IO m]
-(dir : FilePath) (f : Name → m PUnit) (ext := "lean") : m PUnit := do
-  for entry in (← dir.readDir) do
-    if (← liftM (m := IO) <| entry.path.isDir) then
-      let n := Name.mkSimple entry.fileName
-      let r := FilePath.withExtension entry.fileName ext
-      if (← liftM (m := IO) r.pathExists) then f n
-      forEachModuleIn entry.path (f <| n ++ ·)
-    else if entry.path.extension == some ext then
-      f <| Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
+/-- A name glob which matches all names with the prefix, including itself. -/
+scoped macro:max n:name noWs ".*" : term =>
+  ``(Glob.andSubmodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
+
+/-- A name glob which matches all names with the prefix, but not the prefix itself. -/
+scoped macro:max n:name noWs ".+" : term =>
+  ``(Glob.submodules $(⟨Lean.mkNode `Lean.Parser.Term.quotedName #[n]⟩))
 
 namespace Glob
+
+protected def toString : Glob → String
+| .one n => n.toString
+| .submodules n => n.toString ++ ".+"
+| .andSubmodules n => n.toString ++ ".*"
+
+instance : ToString Glob := ⟨Glob.toString⟩
 
 def «matches» (m : Name) : (self : Glob) → Bool
 | one n => n == m
@@ -45,6 +50,6 @@ def «matches» (m : Name) : (self : Glob) → Bool
 (dir : FilePath) (f : Name → m PUnit) : (self : Glob) → m PUnit
 | one n => f n
 | submodules n =>
-  forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)
+  Lean.forEachModuleInDir (Lean.modToFilePath dir n "") (f <| n ++ ·)
 | andSubmodules n =>
-  f n *> forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)
+  f n *> Lean.forEachModuleInDir (Lean.modToFilePath dir n "") (f <| n ++ ·)

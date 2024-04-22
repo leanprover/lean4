@@ -33,7 +33,7 @@ convert the pure non-monadic value `x / y` into the required `Except` object.  S
 
 Now this return typing would get tedious if you had to include it everywhere that you call this
 function, however, Lean type inference can clean this up. For example, you can define a test
-function can calls the `divide` function and you don't need to say anything here about the fact that
+function that calls the `divide` function and you don't need to say anything here about the fact that
 it might throw an error, because that is inferred:
 -/
 def test := divide 5 0

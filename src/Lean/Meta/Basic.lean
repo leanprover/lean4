@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Data.LOption
 import Lean.Environment
 import Lean.Class
@@ -19,7 +20,7 @@ This module provides four (mutually dependent) goodies that are needed for build
 3- Type inference.
 4- Type class resolution.
 
-They are packed into the MetaM monad.
+They are packed into the `MetaM` monad.
 -/
 
 namespace Lean.Meta
@@ -78,14 +79,6 @@ structure Config where
     we may want to notify the caller that the TC problem may be solvable
     later after it assigns `?m`. -/
   isDefEqStuckEx     : Bool := false
-  /--
-    Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
-   -/
-  transparency       : TransparencyMode := TransparencyMode.default
-  /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
-  zetaNonDep         : Bool := true
-  /-- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
-  trackZeta          : Bool := false
   /-- Enable/disable the unification hints feature. -/
   unificationHints   : Bool := true
   /-- Enables proof irrelevance at `isDefEq` -/
@@ -99,8 +92,24 @@ structure Config where
   assignSyntheticOpaque : Bool := false
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
+  /--
+    Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
+   -/
+  transparency       : TransparencyMode := TransparencyMode.default
+  /--
+  When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
+  That is, suppose the local context contains
+  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaDeltaFVarIds`.
+  We use `trackZetaDelta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
+  When we find these declarations we set their `nonDep` flag with `true`.
+  To find these let-declarations in a given term `s`, we
+  1- Reset `State.zetaDeltaFVarIds`
+  2- Set `trackZetaDelta := true`
+  3- Type-check `s`.
+  -/
+  trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
-  etaStruct             : EtaStructMode := .all
+  etaStruct          : EtaStructMode := .all
 
 /--
   Function parameter information cache.
@@ -245,7 +254,7 @@ structure PostponedEntry where
   ref  : Syntax
   lhs  : Level
   rhs  : Level
-  /-- Context for the surrounding `isDefEq` call when entry was created. -/
+  /-- Context for the surrounding `isDefEq` call when the entry was created. -/
   ctx? : Option DefEqContext
   deriving Inhabited
 
@@ -253,12 +262,12 @@ structure PostponedEntry where
   `MetaM` monad state.
 -/
 structure State where
-  mctx           : MetavarContext := {}
-  cache          : Cache := {}
-  /-- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
-  zetaFVarIds    : FVarIdSet := {}
+  mctx             : MetavarContext := {}
+  cache            : Cache := {}
+  /-- When `trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
+  zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
-  postponed      : PersistentArray PostponedEntry := {}
+  postponed        : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
 /--
@@ -292,6 +301,44 @@ structure Context where
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
   canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
 
+/--
+The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
+construction and manipulation of expressions (`Lean.Expr`) within Lean.
+
+It builds on top of `CoreM` and additionally provides:
+- A `LocalContext` for managing free variables.
+- A `MetavarContext` for managing metavariables.
+- A `Cache` for caching results of the key `MetaM` operations.
+
+The key operations provided by `MetaM` are:
+- `inferType`, which attempts to automatically infer the type of a given expression.
+- `whnf`, which reduces an expression to the point where the outermost part is no longer reducible
+  but the inside may still contain unreduced expression.
+- `isDefEq`, which determines whether two expressions are definitionally equal, possibly assigning
+  meta variables in the process.
+- `forallTelescope` and `lambdaTelescope`, which make it possible to automatically move into
+  (nested) binders while updating the local context.
+
+The following is a small example that demonstrates how to obtain and manipulate the type of a
+`Fin` expression:
+```
+import Lean
+
+open Lean Meta
+
+def getFinBound (e : Expr) : MetaM (Option Expr) := do
+  let type ← whnf (← inferType e)
+  let_expr Fin bound := type | return none
+  return bound
+
+def a : Fin 100 := 42
+
+run_meta
+  match ← getFinBound (.const ``a []) with
+  | some limit => IO.println (← ppExpr limit)
+  | none => IO.println "no limit found"
+```
+-/
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -322,7 +369,15 @@ protected def saveState : MetaM SavedState :=
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
-  modify fun s => { s with mctx := b.meta.mctx, zetaFVarIds := b.meta.zetaFVarIds, postponed := b.meta.postponed }
+  modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
+  Core.restoreFull b.core
+  set b.meta
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -366,7 +421,7 @@ section Methods
 variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
-  modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
+  modify fun { mctx, cache, zetaDeltaFVarIds, postponed } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed }
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
@@ -386,11 +441,11 @@ def getLocalInstances : MetaM LocalInstances :=
 def getConfig : MetaM Config :=
   return (← read).config
 
-def resetZetaFVarIds : MetaM Unit :=
-  modify fun s => { s with zetaFVarIds := {} }
+def resetZetaDeltaFVarIds : MetaM Unit :=
+  modify fun s => { s with zetaDeltaFVarIds := {} }
 
-def getZetaFVarIds : MetaM FVarIdSet :=
-  return (← get).zetaFVarIds
+def getZetaDeltaFVarIds : MetaM FVarIdSet :=
+  return (← get).zetaDeltaFVarIds
 
 /-- Return the array of postponed universe level constraints. -/
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
@@ -781,8 +836,11 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
 
-@[inline] def withTrackingZeta (x : n α) : n α :=
-  withConfig (fun cfg => { cfg with trackZeta := true }) x
+/--
+Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
+-/
+@[inline] def withTrackingZetaDelta (x : n α) : n α :=
+  withConfig (fun cfg => { cfg with trackZetaDelta := true }) x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
@@ -1055,6 +1113,23 @@ partial def withNewLocalInstances (fvars : Array Expr) (j : Nat) : n α → n α
 def forallTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallTelescopeImp type k) k
 
+/--
+Given a monadic function `f` that takes a type and a term of that type and produces a new term,
+lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
+and then builds the lambda telescope term for the new term.
+-/
+def mapForallTelescope' (f : Expr → Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+  forallTelescope (← inferType forallTerm) fun xs ty => do
+    mkLambdaFVars xs (← f ty (mkAppN forallTerm xs))
+
+/--
+Given a monadic function `f` that takes a term and produces a new term,
+lifts this to the monadic function that opens a `∀` telescope, applies `f` to the body,
+and then builds the lambda telescope term for the new term.
+-/
+def mapForallTelescope (f : Expr → MetaM Expr) (forallTerm : Expr) : MetaM Expr := do
+  mapForallTelescope' (fun _ e => f e) forallTerm
+
 private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr → MetaM α) : MetaM α :=
   forallTelescopeReducingAux type (maxFVars? := none) k
 
@@ -1073,19 +1148,21 @@ private def forallBoundedTelescopeImp (type : Expr) (maxFVars? : Option Nat) (k 
 def forallBoundedTelescope (type : Expr) (maxFVars? : Option Nat) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallBoundedTelescopeImp type maxFVars? k) k
 
-private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) : MetaM α := do
+private partial def lambdaTelescopeImp (e : Expr) (consumeLet : Bool) (k : Array Expr → Expr → MetaM α) (cleanupAnnotations := false) : MetaM α := do
   process consumeLet (← getLCtx) #[] 0 e
 where
   process (consumeLet : Bool) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (e : Expr) : MetaM α := do
     match consumeLet, e with
     | _, .lam n d b bi =>
       let d := d.instantiateRevRange j fvars.size fvars
+      let d := if cleanupAnnotations then d.cleanupAnnotations else d
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
     | true, .letE n t v b _ => do
       let t := t.instantiateRevRange j fvars.size fvars
+      let t := if cleanupAnnotations then t.cleanupAnnotations else t
       let v := v.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
@@ -1097,16 +1174,23 @@ where
         withNewLocalInstancesImp fvars j do
           k fvars e
 
-/-- Similar to `lambdaTelescope` but for lambda and let expressions. -/
-def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e true k) k
+/--
+Similar to `lambdaTelescope` but for lambda and let expressions.
+
+If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e true k (cleanupAnnotations := cleanupAnnotations)) k
 
 /--
   Given `e` of the form `fun ..xs => A`, execute `k xs A`.
   This combinator will declare local declarations, create free variables for them,
-  execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
-def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp e false k) k
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`.
+
+  If `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.
+-/
+def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) (cleanupAnnotations := false) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false k (cleanupAnnotations := cleanupAnnotations)) k
 
 /-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
@@ -1184,7 +1268,7 @@ where
         process mvars bis j b
       | _ => finalize ()
 
-private def withNewFVar (n : Name) (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
+private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM α := do
   if let some c ← isClass? fvarType then
     withNewLocalInstance c fvar <| k fvar
   else
@@ -1196,7 +1280,7 @@ private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Exp
   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
-    withNewFVar n fvar type k
+    withNewFVar fvar type k
 
 /-- Create a free variable `x` with name, binderInfo and type, add it to the context and run in `k`.
 Then revert the context. -/
@@ -1207,7 +1291,7 @@ def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
 /-- Append an array of free variables `xs` to the local context and execute `k xs`.
-declInfos takes the form of an array consisting of:
+`declInfos` takes the form of an array consisting of:
 - the name of the variable
 - the binder info of the variable
 - a type constructor for the variable, where the array consists of all of the free variables
@@ -1257,7 +1341,7 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
   let lctx := ctx.lctx.mkLetDecl fvarId n type val (nonDep := false) kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
-    withNewFVar n fvar type k
+    withNewFVar fvar type k
 
 /--
   Add the local declaration `<name> : <type> := <val>` to the local context and execute `k x`, where `x` is a new
@@ -1308,6 +1392,16 @@ private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : 
     x
   finally
     modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
+
+/--
+Removes `fvarId` from the local context, and replaces occurrences of it with `e`.
+It is the responsibility of the caller to ensure that `e` is well-typed in the context
+of any occurrence of `fvarId`.
+-/
+def withReplaceFVarId {α} (fvarId : FVarId) (e : Expr) : MetaM α → MetaM α :=
+  withReader fun ctx => { ctx with
+    lctx := ctx.lctx.replaceFVarId fvarId e
+    localInstances := ctx.localInstances.erase fvarId }
 
 /--
   `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
@@ -1395,6 +1489,12 @@ def whnfD (e : Expr) : MetaM Expr :=
 /-- `whnf` with instances transparency.-/
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
+
+/-- `whnf` with at most instances transparency. -/
+def whnfAtMostI (e : Expr) : MetaM Expr := do
+  match (← getTransparency) with
+  | .all | .default => withTransparency TransparencyMode.instances <| whnf e
+  | _ => whnf e
 
 /--
   Mark declaration `declName` with the attribute `[inline]`.
@@ -1531,7 +1631,8 @@ def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
 
 /-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
 private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
-  e.replace fun
+  e.replace fun e =>
+    match e with
     | .const _ us => if us.any p then some (e.setPPUniverses true) else none
     | .sort u     => if p u then some (e.setPPUniverses true) else none
     | _           => none
@@ -1697,6 +1798,15 @@ def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
 -/
 def etaExpand (e : Expr) : MetaM Expr :=
   withDefault do forallTelescopeReducing (← inferType e) fun xs _ => mkLambdaFVars xs (mkAppN e xs)
+
+/--
+If `e` is of the form `?m ...` instantiate metavars
+-/
+def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
+  if e.getAppFn.isMVar then
+    instantiateMVars e
+  else
+    return e
 
 end Meta
 

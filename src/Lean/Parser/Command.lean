@@ -237,16 +237,17 @@ def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> st
 /--
 `set_option <id> <value>` sets the option `<id>` to `<value>`. Depending on the type of the option,
 the value can be `true`, `false`, a string, or a numeral. Options are used to configure behavior of
-Lean as well as user-defined extensions. The setting is active until the end of the current section.
+Lean as well as user-defined extensions. The setting is active until the end of the current `section`
+or `namespace` or the end of the file.
 Auto-completion is available for `<id>` to list available options.
 
-The `in` command combinator is useful for delimiting an option to a specific command:
+`set_option <id> <value> in <command>` sets the option for just a single command:
 ```
 set_option pp.all true in
 #check 1 + 1
 ```
-Similarly, `set_option <id> <value> in` can also be used inside terms and tactics to delimit a
-setting to the following term or tactic.
+Similarly, `set_option <id> <value> in` can also be used inside terms and tactics to set an option
+only in a single term or tactic.
 -/
 @[builtin_command_parser] def «set_option»   := leading_parser
   "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue

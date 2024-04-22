@@ -74,7 +74,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     | none =>
       cont heq heqType
 
-@[deprecated MVarId.rewrite]
+@[deprecated MVarId.rewrite] -- 2022-07-15
 def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
   mvarId.rewrite e heq symm config

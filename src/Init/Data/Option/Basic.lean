@@ -18,8 +18,8 @@ def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[deprecated getM] def toMonad [Monad m] [Alternative m] : Option α → m α :=
-  getM
+@[deprecated getM] -- 2024-04-17
+def toMonad [Monad m] [Alternative m] : Option α → m α := getM
 
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool

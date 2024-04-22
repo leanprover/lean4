@@ -360,7 +360,8 @@ def toNat (b:Bool) : Nat := cond b 1 0
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
 
-@[deprecated toNat_le] abbrev toNat_le_one := toNat_le
+@[deprecated toNat_le] -- 2024-02-23
+abbrev toNat_le_one := toNat_le
 
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   Nat.lt_succ_of_le (toNat_le _)

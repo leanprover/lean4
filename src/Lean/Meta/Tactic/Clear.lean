@@ -35,7 +35,7 @@ def _root_.Lean.MVarId.clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId 
     pure newMVar.mvarId!
 
 
-@[deprecated MVarId.clear]
+@[deprecated MVarId.clear] -- 2022-07-15
 def clear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
   mvarId.clear fvarId
 
@@ -46,7 +46,7 @@ cannot be erased due to forward dependencies.
 def _root_.Lean.MVarId.tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
   mvarId.clear fvarId <|> pure mvarId
 
-@[deprecated MVarId.tryClear]
+@[deprecated MVarId.tryClear] -- 2022-07-15
 def tryClear (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId :=
   mvarId.tryClear fvarId
 
@@ -56,7 +56,7 @@ Try to erase the given free variables from the goal `mvarId`.
 def _root_.Lean.MVarId.tryClearMany (mvarId : MVarId) (fvarIds : Array FVarId) : MetaM MVarId := do
   fvarIds.foldrM (init := mvarId) fun fvarId mvarId => mvarId.tryClear fvarId
 
-@[deprecated MVarId.tryClearMany]
+@[deprecated MVarId.tryClearMany] -- 2022-07-15
 def tryClearMany (mvarId : MVarId) (fvarIds : Array FVarId) : MetaM MVarId := do
   mvarId.tryClearMany fvarIds
 

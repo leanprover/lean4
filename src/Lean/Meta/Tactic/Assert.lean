@@ -24,7 +24,7 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign (mkApp newMVar val)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assert]
+@[deprecated MVarId.assert] -- 2022-07-15
 def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
   mvarId.assert name type val
 
@@ -46,7 +46,7 @@ def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign newMVar
     return newMVar.mvarId!
 
-@[deprecated MVarId.define]
+@[deprecated MVarId.define] -- 2022-07-15
 def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
   mvarId.define name type val
 
@@ -66,7 +66,7 @@ def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (
     mvarId.assign (mkApp2 newMVar val rflPrf)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assertExt]
+@[deprecated MVarId.assertExt] -- 2022-07-15
 def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
   mvarId.assertExt name type val hName
 
@@ -90,7 +90,7 @@ def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName
     subst := subst.insert f (mkFVar fNew)
   return { fvarId := fvarIdNew, mvarId, subst }
 
-@[deprecated MVarId.assertAfter]
+@[deprecated MVarId.assertAfter] -- 2022-07-15
 def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
   mvarId.assertAfter fvarId userName type val
 
@@ -116,7 +116,7 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     mvarId.assign val
     mvarNew.mvarId!.introNP hs.size
 
-@[deprecated MVarId.assertHypotheses]
+@[deprecated MVarId.assertHypotheses] -- 2022-07-15
 def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
   mvarId.assertHypotheses hs
 

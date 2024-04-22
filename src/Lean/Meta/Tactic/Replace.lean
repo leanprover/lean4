@@ -32,7 +32,7 @@ def _root_.Lean.MVarId.replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqP
     mvarId.assign val
     return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceTargetEq]
+@[deprecated MVarId.replaceTargetEq] -- 2022-07-15
 def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId :=
   mvarId.replaceTargetEq targetNew eqProof
 
@@ -56,7 +56,7 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
       mvarId.assign newVal
       return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceTargetDefEq]
+@[deprecated MVarId.replaceTargetDefEq] -- 2022-07-15
 def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
   mvarId.replaceTargetDefEq targetNew
 
@@ -102,7 +102,7 @@ where
 abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
-@[deprecated MVarId.replaceLocalDecl]
+@[deprecated MVarId.replaceLocalDecl] -- 2022-07-15
 abbrev replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   mvarId.replaceLocalDecl fvarId typeNew eqProof
 
@@ -121,7 +121,7 @@ def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId)
       mvarId.assign mvarNew
       return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceLocalDeclDefEq]
+@[deprecated MVarId.replaceLocalDeclDefEq] -- 2022-07-15
 def replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
   mvarId.replaceLocalDeclDefEq fvarId typeNew
 
@@ -137,7 +137,7 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
       throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   mvarId.replaceTargetDefEq targetNew
 
-@[deprecated MVarId.change]
+@[deprecated MVarId.change] -- 2022-07-15
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
   mvarId.change targetNew checkDefEq
 
@@ -222,7 +222,7 @@ def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) 
     mvarId.checkNotAssigned `modifyTarget
     mvarId.change (← f (← mvarId.getType)) (checkDefEq := false)
 
-@[deprecated modifyTarget]
+@[deprecated modifyTarget] -- 2022-07-15
 def modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
   mvarId.modifyTarget f
 
@@ -237,7 +237,7 @@ def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM E
      else
        throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
 
-@[deprecated MVarId.modifyTargetEqLHS]
+@[deprecated MVarId.modifyTargetEqLHS] -- 2022-07-15
 def modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
   mvarId.modifyTargetEqLHS f
 

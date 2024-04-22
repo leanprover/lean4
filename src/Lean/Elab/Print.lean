@@ -66,7 +66,7 @@ private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) 
   logInfo m
 
 open Meta in
-private def printStructOrClass (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
+private def printStructure (id : Name) (levelParams : List Name) (numParams : Nat) (type : Expr)
     (ctor : Name) (fields : Array Name) (isUnsafe : Bool) (isClass : Bool) : CommandElabM Unit := do
   let kind := if isClass then "class" else "structure"
   let mut m ← mkHeader' kind id levelParams type isUnsafe
@@ -106,7 +106,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
     match getStructureInfo? env id with
     | some { fieldNames, .. } =>
       let [ctor] := ctors | panic! "structures have only one constructor"
-      printStructOrClass id us numParams t ctor fieldNames u (isClass env id)
+      printStructure id us numParams t ctor fieldNames u (isClass env id)
     | none => printInduct id us numParams t ctors u
   | none => throwUnknownId id
 

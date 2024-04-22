@@ -22,6 +22,7 @@ lean_object* l_Array_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dList___default(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty(lean_object*);
@@ -29,13 +30,12 @@ LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_toArray___rarg(lean_object*);
+static lean_object* l_Std_Queue_instEmptyCollection___closed__1;
+LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_instInhabitedQueue(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollectionQueue(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
-static lean_object* l_Std_Queue_instEmptyCollectionQueue___closed__1;
 LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
@@ -74,7 +74,7 @@ x_2 = l_Std_Queue_empty___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Queue_instEmptyCollectionQueue___closed__1() {
+static lean_object* _init_l_Std_Queue_instEmptyCollection___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -82,19 +82,19 @@ x_1 = l_Std_Queue_empty(lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollectionQueue(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollection(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Queue_instEmptyCollectionQueue___closed__1;
+x_2 = l_Std_Queue_instEmptyCollection___closed__1;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Queue_instInhabitedQueue(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Queue_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_Queue_instEmptyCollectionQueue___closed__1;
+x_2 = l_Std_Queue_instEmptyCollection___closed__1;
 return x_2;
 }
 }
@@ -387,8 +387,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Queue_empty___closed__1 = _init_l_Std_Queue_empty___closed__1();
 lean_mark_persistent(l_Std_Queue_empty___closed__1);
-l_Std_Queue_instEmptyCollectionQueue___closed__1 = _init_l_Std_Queue_instEmptyCollectionQueue___closed__1();
-lean_mark_persistent(l_Std_Queue_instEmptyCollectionQueue___closed__1);
+l_Std_Queue_instEmptyCollection___closed__1 = _init_l_Std_Queue_instEmptyCollection___closed__1();
+lean_mark_persistent(l_Std_Queue_instEmptyCollection___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

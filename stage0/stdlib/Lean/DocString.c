@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Lean_addDocString___rarg(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_findDocString_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDocStringText___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_String_instInhabitedString;
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
@@ -53,6 +52,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_list_to_array(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_String_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DocString___hyg_366____lambda__1___boxed(lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getDocStringText___rarg___closed__3;
@@ -416,7 +416,7 @@ LEAN_EXPORT lean_object* l_Lean_findDocString_x3f(lean_object* x_1, lean_object*
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_String_instInhabitedString;
+x_5 = l_String_instInhabited;
 x_6 = l_Lean_addDocString___rarg___lambda__1___closed__1;
 lean_inc(x_2);
 x_7 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_5, x_6, x_1, x_2);

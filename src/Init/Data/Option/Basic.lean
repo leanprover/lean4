@@ -13,29 +13,36 @@ namespace Option
 deriving instance DecidableEq for Option
 deriving instance BEq for Option
 
-def toMonad [Monad m] [Alternative m] : Option α → m α
+/-- Lifts an optional value to any `Alternative`, sending `none` to `failure`. -/
+def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
+@[deprecated getM] def toMonad [Monad m] [Alternative m] : Option α → m α :=
+  getM
+
+/-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
-@[deprecated isSome, inline] def toBool : Option α → Bool
-  | some _ => true
-  | none   => false
+@[deprecated isSome, inline] def toBool : Option α → Bool := isSome
 
+/-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool
   | some _ => false
   | none   => true
 
+/--
+`x?.isEqSome y` is equivalent to `x? == some y`, but avoids an allocation.
+-/
 @[inline] def isEqSome [BEq α] : Option α → α → Bool
   | some a, b => a == b
   | none,   _ => false
 
 @[inline] protected def bind : Option α → (α → Option β) → Option β
   | none,   _ => none
-  | some a, b => b a
+  | some a, f => f a
 
 /-- Runs `f` on `o`'s value, if any, and returns its result, or else returns `none`.  -/
 @[inline] protected def bindM [Monad m] (f : α → m (Option β)) (o : Option α) : m (Option β) := do
@@ -44,6 +51,10 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   else
     return none
 
+/--
+Runs a monadic function `f` on an optional value.
+If the optional value is `none` the function is not called.
+-/
 @[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
   if let some a := o then
     return some (← f a)
@@ -53,18 +64,24 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
 
+/-- Keeps an optional value only if it satisfies the predicate `p`. -/
 @[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
+/-- Checks that an optional value satisfies a predicate `p` or is `none`. -/
 @[always_inline, inline] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
+/-- Checks that an optional value is not `none` and the value satisfies a predicate `p`. -/
 @[always_inline, inline] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
+/--
+Implementation of `OrElse`'s `<|>` syntax for `Option`.
+-/
 @[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
   | none,   b => b ()

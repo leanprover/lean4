@@ -177,6 +177,13 @@ instance : MonadTrace CoreM where
 def restore (b : State) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def restoreFull (b : State) : CoreM Unit :=
+  set b
+
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
@@ -244,6 +251,13 @@ def resetMessageLog : CoreM Unit :=
 
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
+
+/--
+Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+for incremental reporting during elaboration of a single command.
+-/
+def getAndEmptyMessageLog : CoreM MessageLog :=
+  modifyGet fun log => ({ log with msgs := {} }, log)
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -330,10 +344,13 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let opts ← getOptions
+  let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
-    compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
-  match (← getEnv).compileDecl opts decl with
-  | Except.ok env   => setEnv env
+    compileDeclsNew decls
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return (← getEnv).compileDecl opts decl
+  match res with
+  | Except.ok env => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg

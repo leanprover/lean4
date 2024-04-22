@@ -13,9 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Int_instDiv;
 static lean_object* l_Int_fdiv___closed__1;
 LEAN_EXPORT lean_object* l_Nat_cast___at_Int_bmod___spec__1(lean_object*);
 static lean_object* l_Int_bmod___closed__1;
+static lean_object* l_Int_instMod___closed__1;
 LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ediv___boxed(lean_object*, lean_object*);
@@ -30,24 +32,22 @@ LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bmod(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Int_subNatNat(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instDivInt;
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Int_instDivInt___closed__1;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_fmod___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_instMod;
 LEAN_EXPORT lean_object* l_Int_emod___boxed(lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bdiv(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_int_mod(lean_object*, lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Int_instModInt;
+static lean_object* l_Int_instDiv___closed__1;
 lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
-static lean_object* l_Int_instModInt___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_bdiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object* x_1, lean_object* x_2) {
@@ -323,7 +323,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instDivInt___closed__1() {
+static lean_object* _init_l_Int_instDiv___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -331,15 +331,15 @@ x_1 = lean_alloc_closure((void*)(l_Int_ediv___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instDivInt() {
+static lean_object* _init_l_Int_instDiv() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instDivInt___closed__1;
+x_1 = l_Int_instDiv___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instModInt___closed__1() {
+static lean_object* _init_l_Int_instMod___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -347,11 +347,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_emod___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instModInt() {
+static lean_object* _init_l_Int_instMod() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instModInt___closed__1;
+x_1 = l_Int_instMod___closed__1;
 return x_1;
 }
 }
@@ -480,14 +480,14 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_fdiv___closed__1 = _init_l_Int_fdiv___closed__1();
 lean_mark_persistent(l_Int_fdiv___closed__1);
-l_Int_instDivInt___closed__1 = _init_l_Int_instDivInt___closed__1();
-lean_mark_persistent(l_Int_instDivInt___closed__1);
-l_Int_instDivInt = _init_l_Int_instDivInt();
-lean_mark_persistent(l_Int_instDivInt);
-l_Int_instModInt___closed__1 = _init_l_Int_instModInt___closed__1();
-lean_mark_persistent(l_Int_instModInt___closed__1);
-l_Int_instModInt = _init_l_Int_instModInt();
-lean_mark_persistent(l_Int_instModInt);
+l_Int_instDiv___closed__1 = _init_l_Int_instDiv___closed__1();
+lean_mark_persistent(l_Int_instDiv___closed__1);
+l_Int_instDiv = _init_l_Int_instDiv();
+lean_mark_persistent(l_Int_instDiv);
+l_Int_instMod___closed__1 = _init_l_Int_instMod___closed__1();
+lean_mark_persistent(l_Int_instMod___closed__1);
+l_Int_instMod = _init_l_Int_instMod();
+lean_mark_persistent(l_Int_instMod);
 l_Int_bmod___closed__1 = _init_l_Int_bmod___closed__1();
 lean_mark_persistent(l_Int_bmod___closed__1);
 l_Int_bmod___closed__2 = _init_l_Int_bmod___closed__2();

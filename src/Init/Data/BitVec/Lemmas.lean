@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
 -/
 prelude
 import Init.Data.Bool
@@ -817,8 +817,12 @@ Definition of bitvector addition as a nat.
   .ofFin x + y = .ofFin (x + y.toFin) := rfl
 @[simp] theorem add_ofFin (x : BitVec n) (y : Fin (2^n)) :
   x + .ofFin y = .ofFin (x.toFin + y) := rfl
-@[simp] theorem ofNat_add_ofNat {n} (x y : Nat) : x#n + y#n = (x + y)#n := by
+
+theorem ofNat_add {n} (x y : Nat) : (x + y)#n = x#n + y#n := by
   apply eq_of_toNat_eq ; simp [BitVec.ofNat]
+
+theorem ofNat_add_ofNat {n} (x y : Nat) : x#n + y#n = (x + y)#n :=
+  (ofNat_add x y).symm
 
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq ; simp [Nat.add_assoc]
@@ -834,6 +838,15 @@ theorem truncate_add (x y : BitVec w) (h : i ≤ w) :
     (x + y).truncate i = x.truncate i + y.truncate i := by
   have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
   simp [bv_toNat, h, Nat.mod_mod_of_dvd _ dvd]
+
+@[simp, bv_toNat] theorem toInt_add (x y : BitVec w) :
+  (x + y).toInt = (x.toInt + y.toInt).bmod (2^w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
+    BitVec.ofInt n x + BitVec.ofInt n y := by
+  apply eq_of_toInt_eq
+  simp
 
 /-! ### sub/neg -/
 
@@ -910,6 +923,15 @@ instance : Std.Associative (fun (x y : BitVec w) => x * y) := ⟨BitVec.mul_asso
 
 instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
   right_id := BitVec.mul_one
+
+@[simp, bv_toNat] theorem toInt_mul (x y : BitVec w) :
+  (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
+    BitVec.ofInt n x * BitVec.ofInt n y := by
+  apply eq_of_toInt_eq
+  simp
 
 /-! ### le and lt -/
 

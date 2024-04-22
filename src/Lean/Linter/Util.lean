@@ -14,7 +14,8 @@ open Lean.Elab
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
-  logWarningAt stx (.tagged linterOption.name m!"{msg} [{linterOption.name}]")
+  let disable := m!"note: this linter can be disabled with `set_option {linterOption.name} false`"
+  logWarningAt stx (.tagged linterOption.name m!"{msg}\n{disable}")
 
 /-- If `linterOption` is true, print a linter warning message at the position determined by `stx`.
 -/

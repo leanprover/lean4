@@ -17,14 +17,25 @@ def toNat! (s : String) : Nat :=
   else
     panic! "Nat expected"
 
-/--
-  Convert a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`.
-  The result is unspecified if `a` is not properly UTF-8 encoded.
--/
-@[extern "lean_string_from_utf8_unchecked"]
-opaque fromUTF8Unchecked (a : @& ByteArray) : String
+/-- Returns true if the given byte array consists of valid UTF-8. -/
+@[extern "lean_string_validate_utf8"]
+opaque validateUTF8 (a : @& ByteArray) : Bool
 
-/-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`. -/
+@[extern "lean_string_from_utf8"]
+opaque fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or returns `none` if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8? (a : ByteArray) : Option String :=
+  if h : validateUTF8 a then fromUTF8 a h else none
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or panics if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8! (a : ByteArray) : String :=
+  if h : validateUTF8 a then fromUTF8 a h else panic! "invalid UTF-8 string"
+
+/-- Converts the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray
 

@@ -46,9 +46,6 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
     let fmt ← ppTerm stx
     return ⟨fmt, infos⟩
 
-def ppConst (e : Expr) : MetaM Format := do
-  ppUsing e fun e => return (← delabCore e (delab := Delaborator.delabConst)).1
-
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
   Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts, fileName := "<PrettyPrinter>", fileMap := default } { env := env }
@@ -75,8 +72,8 @@ private partial def noContext : MessageData → MessageData
   | MessageData.group msg  => MessageData.group (noContext msg)
   | MessageData.compose msg₁ msg₂ => MessageData.compose (noContext msg₁) (noContext msg₂)
   | MessageData.tagged tag msg => MessageData.tagged tag (noContext msg)
-  | MessageData.trace cls header children collapsed =>
-    MessageData.trace cls (noContext header) (children.map noContext) collapsed
+  | MessageData.trace data header children =>
+    MessageData.trace data (noContext header) (children.map noContext)
   | msg => msg
 
 -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
@@ -101,4 +98,37 @@ unsafe def registerParserCompilers : IO Unit := do
   ParserCompiler.registerParserCompiler ⟨`formatter, formatterAttribute, combinatorFormatterAttribute⟩
 
 end PrettyPrinter
+
+namespace MessageData
+
+open Lean PrettyPrinter Delaborator
+
+/--
+Turns a `MetaM FormatWithInfos` into a `MessageData` using `.ofPPFormat` and running the monadic value in the given context.
+Uses the `pp.tagAppFns` option to annotate constants with terminfo, which is necessary for seeing the type on mouse hover.
+-/
+def ofFormatWithInfos
+    (fmt : MetaM FormatWithInfos)
+    (noContext : Unit → Format := fun _ => "<no context, could not generate MessageData>") : MessageData :=
+  .ofPPFormat
+  { pp := fun
+      | some ctx => ctx.runMetaM <| withOptions (pp.tagAppFns.set · true) fmt
+      | none => return noContext () }
+
+/-- Pretty print a const expression using `delabConst` and generate terminfo.
+This function avoids inserting `@` if the constant is for a function whose first
+argument is implicit, which is what the default `toMessageData` for `Expr` does.
+Panics if `e` is not a constant. -/
+def ofConst (e : Expr) : MessageData :=
+  if e.isConst then
+    .ofFormatWithInfos (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) fun _ => f!"{e}"
+  else
+    panic! "not a constant"
+
+/-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
+def signature (c : Name) : MessageData :=
+  .ofFormatWithInfos (PrettyPrinter.ppSignature c) fun _ => f!"{c}"
+
+end MessageData
+
 end Lean

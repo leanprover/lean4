@@ -20,13 +20,13 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_decEqSum____x40_Init_D
 LEAN_EXPORT lean_object* l_Sum_getLeft_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getRight_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getLeft_x3f___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instDecidableEqSum(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instDecidableEq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_decEqSum____x40_Init_Data_Sum___hyg_4_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instBEqSum___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Sum_getLeft_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_beqSum____x40_Init_Data_Sum___hyg_241_(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instDecidableEqSum___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Sum_instBEqSum(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instBEq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instBEq___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_instDecidableEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Sum_0__Sum_decEqSum____x40_Init_Data_Sum___hyg_4____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -92,7 +92,7 @@ x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Sum_0__Sum_decEqSum____x4
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Sum_instDecidableEqSum___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Sum_instDecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -100,11 +100,11 @@ x_5 = l___private_Init_Data_Sum_0__Sum_decEqSum____x40_Init_Data_Sum___hyg_4____
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Sum_instDecidableEqSum(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Sum_instDecidableEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Sum_instDecidableEqSum___rarg), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Sum_instDecidableEq___rarg), 4, 0);
 return x_3;
 }
 }
@@ -173,7 +173,7 @@ x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Sum_0__Sum_beqSum____x40_
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Sum_instBEqSum___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Sum_instBEq___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -183,11 +183,11 @@ lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Sum_instBEqSum(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Sum_instBEq(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Sum_instBEqSum___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Sum_instBEq___rarg), 2, 0);
 return x_3;
 }
 }

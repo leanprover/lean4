@@ -105,7 +105,10 @@ def ofPPFormat (f : PPFormat) : MessageData :=
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
 is true.
-This does not descend into lazily generated subtress (`.ofLazy`).
+
+This does not descend into lazily generated subtress (`.ofLazy`); message tags
+of interest (like those added by `logLinter`) are expected to be near the root
+of the `MessageData`, and not hidden inside `.ofLazy`.
 -/
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg

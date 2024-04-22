@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF.FixedParams
-// Imports: Init Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Types
+// Imports: Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,15 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_FixedParams_evalFVar___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 size_t lean_hashset_mk_idx(lean_object*, uint64_t);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118____boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_contains___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__15(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FixedParams_abort___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -29,7 +28,8 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104____boxed(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__5(lean_object*, size_t, size_t, uint64_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -40,8 +40,8 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_FixedP
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Compiler_LCNF_FixedParams_evalFVar___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__11___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkInitialValues(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkInitialValues(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_contains___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__2___boxed(lean_object*, lean_object*);
@@ -52,10 +52,10 @@ LEAN_EXPORT lean_object* l_List_replace___at_Lean_Compiler_LCNF_FixedParams_eval
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_Compiler_LCNF_FixedParams_State_visited___default___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_FixedParams_mkAssignment___spec__1(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_inMutualBlock___spec__1(lean_object*, lean_object*, size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Compiler_LCNF_FixedParams_mkInitialValues___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_Compiler_LCNF_FixedParams_State_visited___default___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__9___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__10(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_mkFixedParamsMap___spec__1___closed__1;
@@ -63,57 +63,57 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_instInhabitedAbsValue;
 static lean_object* l_Lean_Compiler_LCNF_FixedParams_instHashableAbsValue___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_mkFixedParamsMap___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalCode(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalCode(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__13(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalLetValue(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalLetValue(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__9(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_instHashableAbsValue;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isErased(lean_object*);
-LEAN_EXPORT uint64_t l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_inMutualBlock___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_FixedParams_mkAssignment___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__6(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkFixedParamsMap(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_mkFixedParamsMap(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_State_visited___default;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__16(uint8_t, lean_object*, size_t, size_t);
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_beqAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_23_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_beqAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_23____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___rarg(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___rarg(lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FixedParams_abort___spec__1(size_t, size_t, lean_object*);
 size_t lean_usize_add(size_t, size_t);
+LEAN_EXPORT uint64_t l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_moveEntries___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__8(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT uint8_t l_Lean_HashSetImp_contains___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_mkFixedParamsMap___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__15___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_FixedParams_evalCode___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_expand___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__7(lean_object*, lean_object*);
@@ -208,7 +208,7 @@ x_1 = l_Lean_Compiler_LCNF_FixedParams_instBEqAbsValue___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint64_t l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118_(lean_object* x_1) {
+LEAN_EXPORT uint64_t l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104_(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -236,11 +236,11 @@ return x_7;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104____boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118_(x_1);
+x_2 = l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104_(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -250,7 +250,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_FixedParams_instHashableAbsValue_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104____boxed), 1, 0);
 return x_1;
 }
 }
@@ -313,7 +313,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___rarg(lean_object* x_1) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___rarg(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -358,7 +358,7 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -378,7 +378,7 @@ x_6 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_FixedParams_abort___spec__1
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_abort___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -427,7 +427,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; 
@@ -465,7 +465,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalFVar___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -475,7 +475,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -519,7 +519,7 @@ return x_12;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalArg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -566,7 +566,7 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -615,7 +615,7 @@ x_8 = lean_box(x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_inMutualBlock___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -780,7 +780,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13; 
@@ -816,7 +816,7 @@ lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment___boxed(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkAssignment___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -825,7 +825,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalLetValue(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalLetValue(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 3)
@@ -1037,7 +1037,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint64_t x_7; uint64_t x_8; size_t x_9; size_t x_10; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_118_(x_6);
+x_7 = l___private_Lean_Compiler_LCNF_FixedParams_0__Lean_Compiler_LCNF_FixedParams_hashAbsValue____x40_Lean_Compiler_LCNF_FixedParams___hyg_104_(x_6);
 lean_dec(x_6);
 x_8 = lean_uint64_mix_hash(x_4, x_7);
 x_9 = 1;
@@ -2242,7 +2242,7 @@ return x_9;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
@@ -2301,7 +2301,7 @@ return x_19;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -2463,7 +2463,7 @@ return x_20;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalCode(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalCode(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -2819,7 +2819,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
@@ -2830,7 +2830,7 @@ lean_dec(x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_evalApp___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -2894,7 +2894,7 @@ return x_5;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FixedParams_mkInitialValues(lean_object* x_1) {
+lean_object* l_Lean_Compiler_LCNF_FixedParams_mkInitialValues(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -2981,7 +2981,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkFixedParamsMap(lean_object* x_1) {
+lean_object* l_Lean_Compiler_LCNF_mkFixedParamsMap(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; size_t x_4; size_t x_5; lean_object* x_6; 
@@ -3009,7 +3009,6 @@ lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3017,9 +3016,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF_FixedParams(uint8_t built
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

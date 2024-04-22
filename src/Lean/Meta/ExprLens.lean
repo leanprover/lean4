@@ -3,6 +3,7 @@ Copyright (c) 2022 E.W.Ayers. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: E.W.Ayers
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.SubExpr
 
@@ -137,11 +138,11 @@ private def viewCoordRaw: Expr → Nat → M Expr
   | e                     , c => throwError "Bad coordinate {c} for {e}"
 
 
-/-- Given a valid SubExpr, will return the raw current expression without performing any instantiation.
-If the SubExpr has a type subexpression coordinate then will error.
+/-- Given a valid `SubExpr`, return the raw current expression without performing any instantiation.
+If the given `SubExpr` has a type subexpression coordinate, then throw an error.
 
 This is a cheaper version of `Lean.Meta.viewSubexpr` and can be used to quickly view the
-subexpression at a position. Note that because the resulting expression will contain
+subexpression at a position. Note that because the resulting expression may contain
 loose bound variables it can't be used in any `MetaM` methods. -/
 def viewSubexpr (p : Pos) (root : Expr) : M Expr :=
   p.foldlM viewCoordRaw root
@@ -171,5 +172,3 @@ def numBinders (p : Pos) (e : Expr) : M Nat :=
 end ViewRaw
 
 end Lean.Core
-
-

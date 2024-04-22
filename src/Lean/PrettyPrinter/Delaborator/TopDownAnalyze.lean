@@ -3,12 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
+prelude
 import Lean.Data.RBMap
 import Lean.Meta.SynthInstance
+import Lean.Meta.CtorRecognizer
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
 import Lean.Util.ReplaceLevel
+import Lean.PrettyPrinter.Delaborator.FieldNotation
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
 import Lean.Elab.Config
@@ -121,6 +124,7 @@ def getPPAnalysisNamedArg        (o : Options) : Bool := o.get `pp.analysis.name
 def getPPAnalysisLetVarType      (o : Options) : Bool := o.get `pp.analysis.letVarType false
 def getPPAnalysisNeedsType       (o : Options) : Bool := o.get `pp.analysis.needsType false
 def getPPAnalysisBlockImplicit   (o : Options) : Bool := o.get `pp.analysis.blockImplicit false
+def getPPAnalysisNoDot           (o : Options) : Bool := o.get `pp.analysis.noDot false
 
 namespace PrettyPrinter.Delaborator
 
@@ -151,7 +155,7 @@ def isIdLike (arg : Expr) : Bool :=
   | _ => false
 
 def isStructureInstance (e : Expr) : MetaM Bool := do
-  match e.isConstructorApp? (← getEnv) with
+  match (← isConstructorApp? e) with
   | some s => return isStructure (← getEnv) s.induct
   | none   => return false
 
@@ -287,7 +291,7 @@ where
 partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
   let opts ← getOptions
   return e.isFVar
-         || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
+         || e.isConst || e.isMVar || e.isRawNatLit || e.isStringLit || e.isSort
          || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity ``OfNat.ofNat 3)
          || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity ``OfScientific.ofScientific 5)
 
@@ -398,6 +402,17 @@ mutual
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType
+
+      -- Prevent using dot notation if the expected of the argument can't be determined.
+      -- TODO: is canBottomUp sufficient for this?
+      if getPPFieldNotation (← getOptions) then
+        if let some (_, idx) ← fieldNotationCandidate? f args (getPPFieldNotationGeneralized (← getOptions)) then
+          if idx < args.size then
+            withKnowing false false do
+              if !(← canBottomUp args[idx]!) then
+                annotateBool `pp.analysis.noDot
+          else
+            annotateBool `pp.analysis.noDot
 
       let forceRegularApp : Bool :=
         (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))

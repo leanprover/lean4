@@ -3,6 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+prelude
+import Init.Data.Nat.Power2
+import Init.Data.List.Control
 namespace Lean
 universe u v w
 
@@ -80,7 +83,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : Has
      moveEntries (i+1) source target
   else
     target
-termination_by _ i source _ => source.size - i
+termination_by source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let bucketsNew : HashSetBucket α := ⟨
@@ -109,8 +112,10 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   | ⟨ size, buckets ⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
-    if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
-    else m
+    if bkt.contains a then
+      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+    else
+      ⟨size, buckets⟩
 
 inductive WellFormed [BEq α] [Hashable α] : HashSetImp α → Prop where
   | mkWff     : ∀ n,                  WellFormed (mkHashSetImp n)
@@ -194,3 +199,11 @@ def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.ru
   for a in as do
     s := s.insert a
   return s
+
+/--
+`O(|t|)` amortized. Merge two `HashSet`s.
+-/
+@[inline]
+def merge {α : Type u} [BEq α] [Hashable α] (s t : HashSet α) : HashSet α :=
+  t.fold (init := s) fun s a => s.insert a
+  -- We don't use `insertMany` here because it gives weird universes.

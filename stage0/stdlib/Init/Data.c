@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data
-// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Channel
+// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.Array.Subarray.Split Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Channel Init.Data.Cast Init.Data.Sum
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,11 +15,15 @@ extern "C" {
 #endif
 lean_object* initialize_Init_Data_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Bool(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_BitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Cast(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Char(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_FloatArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin(uint8_t builtin, lean_object*);
@@ -38,6 +42,8 @@ lean_object* initialize_Init_Data_Prod(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Queue(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Channel(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Cast(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Sum(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -47,6 +53,15 @@ res = initialize_Init_Data_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Bool(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_BitVec(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Cast(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Char(builtin, lean_io_mk_world());
@@ -62,6 +77,9 @@ res = initialize_Init_Data_Int(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
@@ -116,6 +134,12 @@ res = initialize_Init_Data_Queue(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Channel(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Cast(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Sum(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

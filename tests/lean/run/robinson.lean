@@ -41,19 +41,18 @@ def robinson (u v : Term) : { f : Option Subst // P f u v } := match u, v with
   | .Var i, .Var j =>
     if i = j then ⟨ some id, sorry ⟩
     else ⟨ some λ n => if n = i then j else n, sorry ⟩
-termination_by _ u v => (u, v)
+termination_by (u, v)
 decreasing_by
-  first
-    | apply decr_left _ _ _ _
-    | apply decr_right _ _ _ _ _
+  · apply decr_left _ _ _ _
+  · apply decr_right _ _ _ _ _
 
 attribute [simp] robinson
 
 set_option pp.proofs true
-#check robinson._eq_1
-#check robinson._eq_2
-#check robinson._eq_3
-#check robinson._eq_4
+#check robinson.eq_1
+#check robinson.eq_2
+#check robinson.eq_3
+#check robinson.eq_4
 
 theorem ex : (robinson (Term.Var 0) (Term.Var 0)).1 = some id := by
   unfold robinson

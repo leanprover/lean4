@@ -76,10 +76,12 @@ macro_rules
 end Range
 end Std
 
-theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := by
-  simp [Membership.mem] at h
-  exact h.2
+theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := h.2
 
-theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := by
-  simp [Membership.mem] at h
-  exact h.1
+theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := h.1
+
+theorem Membership.get_elem_helper {i n : Nat} {r : Std.Range} (h₁ : i ∈ r) (h₂ : r.stop = n) :
+    i < n := h₂ ▸ h₁.2
+
+macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Membership.get_elem_helper; assumption; rfl)

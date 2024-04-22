@@ -18,13 +18,16 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  test                  run the workspace's test script or executable
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
+  lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
+  translate-config      change language of the package configuration
   serve                 start the Lean language server
 
 OPTIONS:
@@ -49,13 +52,16 @@ s!"The initial configuration and starter files are based on the template:
   std                   library and executable; default
   exe                   executable only
   lib                   library only
-  math                  library only with a mathlib dependency"
+  math                  library only with a mathlib dependency
+
+Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
+version of the configuration file, respectively. The default is Lean."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>]
+  lake new <name> [<template>][.<language>]
 
 {templateHelp}"
 
@@ -63,7 +69,7 @@ def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>]
+  lake init [<name>] [<template>][.<language>]
 
 {templateHelp}
 
@@ -130,6 +136,15 @@ removed from the configuration). If there are dependencies on multiple versions
 of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
+
+def helpTest :=
+"Run the workspace's test script or executable
+
+USAGE:
+  lake test [-- <args>...]
+
+Looks for a script or executable tagged `@[test_runner]` in the workspace's
+root package and executes it with `args`. "
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -244,6 +259,32 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
+def helpLean :=
+"Elaborate a Lean file in the context of the Lake workspace
+
+USAGE:
+  lake lean <file> [-- <args>...]
+
+Build the imports of the the given file and then runs `lean` on it using
+the workspace's root package's additional Lean arguments and the given args
+(in that order). The `lean` process is executed in Lake's environment like
+`lake env lean` (see `lake help env` for how the environment is set up)."
+
+def helpTranslateConfig :=
+"Translate a Lake configuration file into a different language
+
+USAGE:
+  lake translate-config <lang> [<out-file>]
+
+Translates the loaded package's configuration into another of
+Lake's supported configuration languages (i.e., either `lean` or `toml`).
+The produced file is written to `out-file` or, if not provided, the path of
+the configuration file with the new language's extension. If the output file
+already exists, Lake will error.
+
+Translation is lossy. It does not preserve comments or formatting and
+non-declarative configuration will be discarded."
+
 def helpScript : (cmd : String) → String
 | "list"                => helpScriptList
 | "run"                 => helpScriptRun
@@ -256,6 +297,7 @@ def help : (cmd : String) → String
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
 | "upload"              => helpUpload
+| "test"                => helpTest
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList
@@ -263,4 +305,6 @@ def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
+| "lean"                => helpLean
+| "translate-config"    => helpTranslateConfig
 | _                     => usage

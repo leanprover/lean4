@@ -10,7 +10,7 @@ lib.makeOverridable (
   staticLibDeps ? [],
   # Whether to wrap static library inputs in a -Wl,--start-group [...] -Wl,--end-group to ensure dependencies are resolved.
   groupStaticLibs ? false,
-  # Shared library dependencies included at interpretation with --load-dynlib and linked to. Each derivation `shared` should contain a 
+  # Shared library dependencies included at interpretation with --load-dynlib and linked to. Each derivation `shared` should contain a
   # shared library at the path `${shared}/${shared.libName or shared.name}` and a name to link to like `-l${shared.linkName or shared.name}`.
   # These libs are also linked to in packages that depend on this one.
   nativeSharedLibs ? [],
@@ -88,9 +88,9 @@ with builtins; let
   allNativeSharedLibs =
     lib.unique (lib.flatten (nativeSharedLibs ++ (map (dep: dep.allNativeSharedLibs or []) allExternalDeps)));
 
-  # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`, 
+  # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`,
   # plus every dep module itself: `dep.staticLib`
-  allStaticLibDeps = 
+  allStaticLibDeps =
     lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) allExternalDeps)));
 
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
@@ -176,7 +176,7 @@ with builtins; let
       # make local "copy" so `drv`'s Nix store path doesn't end up in ccache's hash
       ln -s ${drv.c}/${drv.cPath} src.c
       # on the other hand, a debug build is pretty fast anyway, so preserve the path for gdb
-      leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
+      leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG -DLEAN_EXPORTING"}
     '';
   };
   mkMod = mod: deps:
@@ -249,7 +249,7 @@ in rec {
     ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${libName}.a" else "-Wl,--whole-archive ${staticLib}/lib${libName}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = lib.makeOverridable ({ withSharedStdlib ? true }: let
-      objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.leanshared}/*";
+      objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.libInit_shared}/* ${lean-final.leanshared}/*";
     in runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
       mkdir -p $out/bin
       leanc ${staticLibLinkWrapper (lib.concatStringsSep " " (objPaths ++ map (d: "${d}/*.a") allStaticLibDeps))} \

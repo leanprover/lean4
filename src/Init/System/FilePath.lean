@@ -73,7 +73,21 @@ private def posOfLastSep (p : FilePath) : Option String.Pos :=
   p.toString.revFind pathSeparators.contains
 
 def parent (p : FilePath) : Option FilePath :=
-  FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
+  let extractParentPath := FilePath.mk <$> p.toString.extract {} <$> posOfLastSep p
+  if p.isAbsolute then
+    let lengthOfRootDirectory := if pathSeparators.contains p.toString.front then 1 else 3
+    if p.toString.length == lengthOfRootDirectory then
+      -- `p` is a root directory
+      none
+    else if posOfLastSep p == String.Pos.mk (lengthOfRootDirectory - 1) then
+      -- `p` is a direct child of the root
+      some ⟨p.toString.extract 0 ⟨lengthOfRootDirectory⟩⟩
+    else
+      -- `p` is an absolute path with at least two subdirectories
+      extractParentPath
+  else
+    -- `p` is a relative path
+    extractParentPath
 
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with
@@ -101,6 +115,21 @@ def withFileName (p : FilePath) (fname : String) : FilePath :=
   | none => ⟨fname⟩
   | some p => p / fname
 
+/-- Appends the extension `ext` to a path `p`.
+
+`ext` should not contain a leading `.`, as this function adds one.
+If `ext` is the empty string, no `.` is added.
+
+Unlike `System.FilePath.withExtension`, this does not remove any existing extension. -/
+def addExtension (p : FilePath) (ext : String) : FilePath :=
+  match p.fileName with
+  | none => p
+  | some fname => p.withFileName (if ext.isEmpty then fname else fname ++ "." ++ ext)
+
+/-- Replace the current extension in a path `p` with `ext`.
+
+`ext` should not contain a `.`, as this function adds one.
+If `ext` is the empty string, no `.` is added. -/
 def withExtension (p : FilePath) (ext : String) : FilePath :=
   match p.fileStem with
   | none => p

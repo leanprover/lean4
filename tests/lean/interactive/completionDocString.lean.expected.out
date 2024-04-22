@@ -1,16 +1,26 @@
 {"textDocument": {"uri": "file:///completionDocString.lean"},
  "position": {"line": 0, "character": 20}}
 {"items":
- [{"label": "insertAt",
+ [{"sortText": "0",
+   "label": "insertAt",
    "kind": 3,
    "documentation":
    {"value": "Insert element `a` at position `i`. ", "kind": "markdown"},
-   "detail": "(as : Array α) → Fin (Array.size as + 1) → α → Array α"},
-  {"label": "insertAt!",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDocString.lean"},
+     "position": {"line": 0, "character": 20}},
+    "id": {"const": {"declName": "Array.insertAt"}}}},
+  {"sortText": "1",
+   "label": "insertAt!",
    "kind": 3,
    "documentation":
    {"value":
     "Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. ",
     "kind": "markdown"},
-   "detail": "Array α → Nat → α → Array α"}],
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDocString.lean"},
+     "position": {"line": 0, "character": 20}},
+    "id": {"const": {"declName": "Array.insertAt!"}}}}],
  "isIncomplete": true}

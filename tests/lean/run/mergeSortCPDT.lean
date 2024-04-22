@@ -1,12 +1,12 @@
-def List.insert (p : α → α → Bool) (a : α) (bs : List α) : List α :=
+def List.insert' (p : α → α → Bool) (a : α) (bs : List α) : List α :=
   match bs with
   | [] => [a]
-  | b :: bs' => if p a b then a :: bs else b :: bs'.insert p a
+  | b :: bs' => if p a b then a :: bs else b :: bs'.insert' p a
 
 def List.merge (p : α → α → Bool) (as bs : List α) : List α :=
   match as with
   | [] => bs
-  | a :: as' => insert p a (merge p as' bs)
+  | a :: as' => insert' p a (merge p as' bs)
 
 def List.split (as : List α) : List α × List α :=
   match as with
@@ -47,4 +47,4 @@ def List.mergeSort (p : α → α → Bool) (as : List α) : List α :=
       merge p (mergeSort p as') (mergeSort p bs')
   else
     as
-termination_by _ as => as.length
+termination_by as.length

@@ -13,6 +13,7 @@ $LAKE env | grep ".*=.*"
 # NOTE: `printenv` exits with code 1 if the variable is not set
 $LAKE env printenv LAKE
 $LAKE env printenv LAKE_HOME
+$LAKE env printenv LEAN_GITHASH
 $LAKE env printenv LEAN_SYSROOT
 $LAKE env printenv LEAN_AR | grep ar
 $LAKE env printenv LEAN_PATH
@@ -23,6 +24,7 @@ $LAKE -d ../../examples/hello env printenv PATH | grep examples/hello
 
 # Test that `env` preserves the input environment for certain variables
 test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = foo
+test "`LEAN_GITHASH=foo $LAKE env printenv LEAN_GITHASH`" = foo
 test "`LEAN_AR=foo $LAKE env printenv LEAN_AR`" = foo
 test "`LEAN_CC=foo $LAKE env printenv LEAN_CC`" = foo
 

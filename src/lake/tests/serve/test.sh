@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   TAIL=gtail
 else
   TAIL=tail

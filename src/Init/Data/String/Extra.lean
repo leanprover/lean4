@@ -4,12 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import Init.Control.Except
 import Init.Data.ByteArray
-import Init.SimpLemmas
-import Init.Data.Nat.Linear
-import Init.Util
-import Init.WFTactics
 
 namespace String
 
@@ -22,14 +17,25 @@ def toNat! (s : String) : Nat :=
   else
     panic! "Nat expected"
 
-/--
-  Convert a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`.
-  The result is unspecified if `a` is not properly UTF-8 encoded.
--/
-@[extern "lean_string_from_utf8_unchecked"]
-opaque fromUTF8Unchecked (a : @& ByteArray) : String
+/-- Returns true if the given byte array consists of valid UTF-8. -/
+@[extern "lean_string_validate_utf8"]
+opaque validateUTF8 (a : @& ByteArray) : Bool
 
-/-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`. -/
+@[extern "lean_string_from_utf8"]
+opaque fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or returns `none` if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8? (a : ByteArray) : Option String :=
+  if h : validateUTF8 a then fromUTF8 a h else none
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or panics if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8! (a : ByteArray) : String :=
+  if h : validateUTF8 a then fromUTF8 a h else panic! "invalid UTF-8 string"
+
+/-- Converts the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray
 
@@ -66,5 +72,41 @@ namespace Iterator
     (init, it)
 
 end Iterator
+
+private def findLeadingSpacesSize (s : String) : Nat :=
+  let it := s.iter
+  let it := it.find (· == '\n') |>.next
+  consumeSpaces it 0 s.length
+where
+  consumeSpaces (it : String.Iterator) (curr min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == ' ' || it.curr == '\t' then consumeSpaces it.next (curr + 1) min
+    else if it.curr == '\n' then findNextLine it.next min
+    else findNextLine it.next (Nat.min curr min)
+  findNextLine (it : String.Iterator) (min : Nat) : Nat :=
+    if it.atEnd then min
+    else if it.curr == '\n' then consumeSpaces it.next 0 min
+    else findNextLine it.next min
+
+private def removeNumLeadingSpaces (n : Nat) (s : String) : String :=
+  consumeSpaces n s.iter ""
+where
+  consumeSpaces (n : Nat) (it : String.Iterator) (r : String) : String :=
+     match n with
+     | 0 => saveLine it r
+     | n+1 =>
+       if it.atEnd then r
+       else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
+       else saveLine it r
+  termination_by (it, 1)
+  saveLine (it : String.Iterator) (r : String) : String :=
+    if it.atEnd then r
+    else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
+    else saveLine it.next (r.push it.curr)
+  termination_by (it, 0)
+
+def removeLeadingSpaces (s : String) : String :=
+  let n := findLeadingSpacesSize s
+  if n == 0 then s else removeNumLeadingSpaces n s
 
 end String

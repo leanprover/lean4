@@ -1,6 +1,12 @@
-2161.lean:15:48-15:54: error: failed to reduce to 'true'
-  Decidable.rec (fun h => (fun x => false) h) (fun h => (fun x => true) h)
-    (instDecidableEqFoo (mul (mul (mul 4 1) 1) 1) 4)
-2161.lean:22:48-22:54: error: failed to reduce to 'true'
-  Decidable.rec (fun h => (fun x => false) h) (fun h => (fun x => true) h)
-    (instDecidableEqFoo (add (add (add 4 1) 1) 1) 4)
+2161.lean:15:48-15:54: error: tactic 'decide' failed for proposition
+  ((mul 4 1).mul 1).mul 1 = 4
+since its 'Decidable' instance reduced to
+  Decidable.rec (fun h => (fun h => isFalse ⋯) h) (fun h => (fun h => h ▸ isTrue ⋯) h)
+    (instDecidableEqNat (((mul 4 1).mul 1).mul 1).num 4)
+rather than to the 'isTrue' constructor.
+2161.lean:22:48-22:54: error: tactic 'decide' failed for proposition
+  ((add 4 1).add 1).add 1 = 4
+since its 'Decidable' instance reduced to
+  Decidable.rec (fun h => (fun h => isFalse ⋯) h) (fun h => (fun h => h ▸ isTrue ⋯) h)
+    (instDecidableEqNat (((add 4 1).add 1).add 1).num 4)
+rather than to the 'isTrue' constructor.

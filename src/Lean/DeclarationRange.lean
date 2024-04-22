@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.MonadEnv
 import Lean.AuxRecursor
 import Lean.ToExpr
@@ -47,14 +48,14 @@ def addDeclarationRanges [MonadEnv m] (declName : Name) (declRanges : Declaratio
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
   return declRangeExt.find? (← getEnv) declName
 
-def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m (Option DeclarationRanges) := do
+def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT BaseIO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv
   let ranges ← if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
     findDeclarationRangesCore? declName.getPrefix
   else
     findDeclarationRangesCore? declName
   match ranges with
-  | none => return (← builtinDeclRanges.get (m := IO)).find? declName
+  | none => return (← builtinDeclRanges.get (m := BaseIO)).find? declName
   | some _ => return ranges
 
 end Lean

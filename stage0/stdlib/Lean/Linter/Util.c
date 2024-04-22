@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Util
-// Imports: Init Lean.Data.Options Lean.Server.InfoUtils Lean.Linter.Basic
+// Imports: Lean.Data.Options Lean.Server.InfoUtils Lean.Linter.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ static lean_object* l_Lean_Linter_logLint___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_logLint___rarg___closed__8;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Linter_logLint___rarg___closed__5;
 LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(lean_object*);
@@ -34,6 +35,7 @@ uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_logLint___rarg___closed__7;
 lean_object* l_Lean_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1;
@@ -50,7 +52,7 @@ static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
+x_1 = lean_mk_string_from_bytes("note: this linter can be disabled with `set_option ", 51);
 return x_1;
 }
 }
@@ -67,7 +69,7 @@ static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" [", 2);
+x_1 = lean_mk_string_from_bytes(" false`", 7);
 return x_1;
 }
 }
@@ -84,7 +86,7 @@ static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("]", 1);
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -97,36 +99,60 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("\n", 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Linter_logLint___rarg___closed__7;
+x_2 = l_Lean_stringToMessageData(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; 
 x_8 = lean_ctor_get(x_5, 0);
 lean_inc(x_8);
 lean_dec(x_5);
-x_9 = l_Lean_Linter_logLint___rarg___closed__2;
-x_10 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_7);
-x_11 = l_Lean_Linter_logLint___rarg___closed__4;
-x_12 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_12, 0, x_10);
-lean_ctor_set(x_12, 1, x_11);
 lean_inc(x_8);
-x_13 = l_Lean_MessageData_ofName(x_8);
-x_14 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Lean_Linter_logLint___rarg___closed__6;
-x_16 = lean_alloc_ctor(7, 2, 0);
-lean_ctor_set(x_16, 0, x_14);
-lean_ctor_set(x_16, 1, x_15);
-x_17 = lean_alloc_ctor(8, 2, 0);
-lean_ctor_set(x_17, 0, x_8);
+x_9 = l_Lean_MessageData_ofName(x_8);
+x_10 = l_Lean_Linter_logLint___rarg___closed__2;
+x_11 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_11, 0, x_10);
+lean_ctor_set(x_11, 1, x_9);
+x_12 = l_Lean_Linter_logLint___rarg___closed__4;
+x_13 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+x_14 = l_Lean_Linter_logLint___rarg___closed__6;
+x_15 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_7);
+x_16 = l_Lean_Linter_logLint___rarg___closed__8;
+x_17 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
-x_18 = 1;
-x_19 = l_Lean_logAt___rarg(x_1, x_2, x_3, x_4, x_6, x_17, x_18);
-return x_19;
+x_18 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_13);
+x_19 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_14);
+x_20 = lean_alloc_ctor(8, 2, 0);
+lean_ctor_set(x_20, 0, x_8);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = 1;
+x_22 = l_Lean_logAt___rarg(x_1, x_2, x_3, x_4, x_6, x_20, x_21);
+return x_22;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint(lean_object* x_1) {
@@ -663,7 +689,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Linter_collectMacroExpansions_x3f___rarg
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter_Basic(uint8_t builtin, lean_object*);
@@ -672,9 +697,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_Util(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -696,6 +718,10 @@ l_Lean_Linter_logLint___rarg___closed__5 = _init_l_Lean_Linter_logLint___rarg___
 lean_mark_persistent(l_Lean_Linter_logLint___rarg___closed__5);
 l_Lean_Linter_logLint___rarg___closed__6 = _init_l_Lean_Linter_logLint___rarg___closed__6();
 lean_mark_persistent(l_Lean_Linter_logLint___rarg___closed__6);
+l_Lean_Linter_logLint___rarg___closed__7 = _init_l_Lean_Linter_logLint___rarg___closed__7();
+lean_mark_persistent(l_Lean_Linter_logLint___rarg___closed__7);
+l_Lean_Linter_logLint___rarg___closed__8 = _init_l_Lean_Linter_logLint___rarg___closed__8();
+lean_mark_persistent(l_Lean_Linter_logLint___rarg___closed__8);
 l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1 = _init_l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

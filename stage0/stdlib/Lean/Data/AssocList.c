@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.AssocList
-// Imports: Init
+// Imports: Init.Control.Id Init.Data.List.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,10 +14,8 @@
 extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_Lean_AssocList_all___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInAssocListProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_isEmpty___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInAssocListProd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldl___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldl(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27(lean_object*, lean_object*);
@@ -32,9 +30,9 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_toList___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_empty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_instEmptyCollectionAssocList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_findEntry_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_isEmpty___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instEmptyCollection(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_isEmpty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_mapVal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_toList___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toAssocList_x27___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_toList___spec__1(lean_object*, lean_object*);
@@ -67,6 +66,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_foldl___spe
 LEAN_EXPORT lean_object* l_Lean_AssocList_forIn(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_mapVal(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,7 +86,7 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_instEmptyCollectionAssocList(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_instEmptyCollection(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1066,7 +1066,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_AssocList_forIn___rarg), 4, 0);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInAssocListProd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -1074,11 +1074,11 @@ x_5 = l_Lean_AssocList_forIn_loop___rarg(x_1, x_4, x_3, x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_AssocList_instForInAssocListProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_AssocList_instForInProd(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_AssocList_instForInAssocListProd___rarg), 4, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_AssocList_instForInProd___rarg), 4, 0);
 return x_5;
 }
 }
@@ -1126,13 +1126,17 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Id(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_AssocList(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Id(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

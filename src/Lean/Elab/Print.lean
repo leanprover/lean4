@@ -3,7 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.FoldConsts
+import Lean.Meta.Eqns
 import Lean.Elab.Command
 
 namespace Lean.Elab.Command
@@ -78,12 +80,12 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
 
 private def printId (id : Syntax) : CommandElabM Unit := do
   addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
-  let cs ← resolveGlobalConstWithInfos id
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM printIdCore
 
 @[builtin_command_elab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
-  | `(#print%$tk $s:str) => logInfoAt tk s.getString
+  | `(#print%$tk $s:str)    => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
 
 namespace CollectAxioms
@@ -123,8 +125,22 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    let cs ← resolveGlobalConstWithInfos id
+    let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax
+
+private def printEqnsOf (constName : Name) : CommandElabM Unit := do
+  let some eqns ← liftTermElabM <| Meta.getEqnsFor? constName (nonRec := true) |
+    logInfo m!"'{constName}' does not have equations"
+  let mut m := m!"equations:"
+  for eq in eqns do
+    let cinfo ← getConstInfo eq
+    m := m ++ Format.line ++ (← mkHeader "theorem" eq cinfo.levelParams cinfo.type .safe)
+  logInfo m
+
+@[builtin_command_elab «printEqns»] def elabPrintEqns : CommandElab := fun stx => do
+  let id := stx[2]
+  let cs ← liftCoreM <| realizeGlobalConstWithInfos id
+  cs.forM printEqnsOf
 
 end Lean.Elab.Command

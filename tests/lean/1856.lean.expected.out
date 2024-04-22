@@ -6,4 +6,4 @@ i : α
 β : α → Type ?u
 f : (j : α) → β j
 x : α
-⊢ (if h : x = i then (_ : i = x) ▸ f i else f x) = f x
+⊢ (if h : x = i then ⋯ ▸ f i else f x) = f x

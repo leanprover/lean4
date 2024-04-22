@@ -16,7 +16,7 @@ x1 =
 
 Please use `termination_by` to specify a decreasing measure.
 f (x : Nat) : Nat
-f.g (a✝ : Nat) : Nat
+f.g : Nat → Nat
 1
 2
 terminationFailure.lean:24:9-24:12: error: fail to show termination for

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.MonadBacktrack
-// Imports: Init
+// Imports: Init.Control.Except
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___rarg___lambda__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitIfNoEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,21 +33,20 @@ LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__3(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_observing_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSomeNoEx_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_observing_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_observing_x3f___rarg___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instMonadBacktrackExceptT___rarg___closed__1;
+static lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitIfNoEx(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_observing_x3f___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_commitWhen___rarg___lambda__3___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSomeNoEx_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_commitWhenSome_x3f___rarg___lambda__1___closed__1() {
 _start:
 {
@@ -729,7 +729,7 @@ lean_dec(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg___lambda__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -738,7 +738,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -750,15 +750,15 @@ x_7 = lean_apply_4(x_2, lean_box(0), lean_box(0), x_3, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_instMonadBacktrackExceptT___rarg___closed__1() {
+static lean_object* _init_l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptT___rarg___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__1), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -773,10 +773,10 @@ lean_dec(x_4);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_instMonadBacktrackExceptT___rarg___closed__1;
+x_7 = l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1;
 lean_inc(x_6);
 x_8 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_7, x_3);
-x_9 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptT___rarg___lambda__2), 4, 3);
+x_9 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptTOfMonad___rarg___lambda__2), 4, 3);
 lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_6);
 lean_closure_set(x_9, 2, x_7);
@@ -786,29 +786,29 @@ lean_ctor_set(x_10, 1, x_9);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instMonadBacktrackExceptTOfMonad(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptT___rarg), 2, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_instMonadBacktrackExceptTOfMonad___rarg), 2, 0);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_MonadBacktrack(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_commitWhenSome_x3f___rarg___lambda__1___closed__1 = _init_l_Lean_commitWhenSome_x3f___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_commitWhenSome_x3f___rarg___lambda__1___closed__1);
 l_Lean_withoutModifyingState___rarg___lambda__3___closed__1 = _init_l_Lean_withoutModifyingState___rarg___lambda__3___closed__1();
 lean_mark_persistent(l_Lean_withoutModifyingState___rarg___lambda__3___closed__1);
-l_Lean_instMonadBacktrackExceptT___rarg___closed__1 = _init_l_Lean_instMonadBacktrackExceptT___rarg___closed__1();
-lean_mark_persistent(l_Lean_instMonadBacktrackExceptT___rarg___closed__1);
+l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1 = _init_l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1();
+lean_mark_persistent(l_Lean_instMonadBacktrackExceptTOfMonad___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

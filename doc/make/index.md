@@ -10,10 +10,9 @@ Platform-Specific Setup
 
 - [Linux (Ubuntu)](ubuntu.md)
 - [Windows (msys2)](msys2.md)
-- [Windows (Visual Studio)](msvc.md)
 - [Windows (WSL)](wsl.md)
 - [macOS (homebrew)](osx-10.9.md)
-- Linux/macOS/WSL via [Nix](https://nixos.org/nix/): Call `nix-shell` in the project root. That's it.
+- Linux/macOS/WSL via [Nix](https://nixos.org/nix/): Call `nix develop` in the project root. That's it.
 
 Generic Build Instructions
 --------------------------

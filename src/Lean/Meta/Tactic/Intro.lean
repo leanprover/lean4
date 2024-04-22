@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
@@ -44,24 +45,35 @@ namespace Lean.Meta
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
     | i+1, type =>
-      let type := type.instantiateRevRange j fvars.size fvars
-      withReader (fun ctx => { ctx with lctx := lctx }) do
-        withNewLocalInstances fvars j do
-          /- We used to use just `whnf`, but it produces counterintuitive behavior if
-             - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
-             - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
+      if let some (n, type, val, body) := type.letFun? then
+        let type   := type.instantiateRevRange j fvars.size fvars
+        let type   := type.headBeta
+        let val    := val.instantiateRevRange j fvars.size fvars
+        let fvarId ← mkFreshFVarId
+        let (n, s) ← mkName lctx n true s
+        let lctx   := lctx.mkLetDecl fvarId n type val
+        let fvar   := mkFVar fvarId
+        let fvars  := fvars.push fvar
+        loop i lctx fvars j s body
+      else
+        let type := type.instantiateRevRange j fvars.size fvars
+        withReader (fun ctx => { ctx with lctx := lctx }) do
+          withNewLocalInstances fvars j do
+            /- We used to use just `whnf`, but it produces counterintuitive behavior if
+              - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
+              - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
 
-             `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
-          -/
-          let newType := (← instantiateMVars type).cleanupAnnotations
-          if newType.isForall || newType.isLet then
-            loop (i+1) lctx fvars fvars.size s newType
-          else
-            let newType ← whnf newType
-            if newType.isForall then
+              `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
+            -/
+            let newType := (← instantiateMVars type).cleanupAnnotations
+            if newType.isForall || newType.isLet || newType.isLetFun then
               loop (i+1) lctx fvars fvars.size s newType
             else
-              throwTacticEx `introN mvarId "insufficient number of binders"
+              let newType ← whnf newType
+              if newType.isForall then
+                loop (i+1) lctx fvars fvars.size s newType
+              else
+                throwTacticEx `introN mvarId "insufficient number of binders"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 
@@ -97,6 +109,9 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useName
       mkAuxNameWithoutGivenName rest
 where
   mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
+    -- Use a nicer binder name than `[anonymous]`, which can appear in for example `letFun x f` when `f` is not a lambda expression.
+    -- In this case, we make sure the name is hygienic.
+    let binderName ← if binderName.isAnonymous then mkFreshUserName `a else pure binderName
     if preserveBinderNames then
       return (binderName, rest)
     else
@@ -169,11 +184,15 @@ abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :
 abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   mvarId.intro1P
 
-private def getIntrosSize : Expr → Nat
+private partial def getIntrosSize : Expr → Nat
   | .forallE _ _ b _ => getIntrosSize b + 1
   | .letE _ _ _ b _  => getIntrosSize b + 1
   | .mdata _ b       => getIntrosSize b
-  | _                => 0
+  | e                =>
+    if let some (_, _, _, b) := e.letFun? then
+      getIntrosSize b + 1
+    else
+      0
 
 /--
 Introduce as many binders as possible without unfolding definitions.

@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Data.LBool
 import Lean.Meta.Basic
 
@@ -246,7 +247,7 @@ partial def isPropQuick : Expr → MetaM LBool
   | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  isArrowProp mvarType 0
   | .app f ..         => isPropQuickApp f 1
 
-/-- `isProp whnf e` return `true` if `e` is a proposition.
+/-- `isProp e` returns `true` if `e` is a proposition.
 
      If `e` contains metavariables, it may not be possible
      to decide whether is a proposition or not. We return `false` in this
@@ -370,7 +371,6 @@ def isType (e : Expr) : MetaM Bool := do
     match type with
     | .sort .. => return true
     | _        => return false
-
 
 @[inline] private def withLocalDecl' {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α := do
   let fvarId ← mkFreshFVarId

@@ -14,6 +14,12 @@ has type
   true = true : Prop
 but is expected to have type
   true = false : Prop
+mulcommErrorMessage.lean:12:22-12:25: error: type mismatch
+  rfl
+has type
+  false = false : Prop
+but is expected to have type
+  false = true : Prop
 mulcommErrorMessage.lean:16:3-17:47: error: type mismatch
   fun a b => ?m a b
 has type

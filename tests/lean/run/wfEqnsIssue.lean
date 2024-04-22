@@ -84,4 +84,4 @@ def Stmt.mapCtx (f : HList Γ' → HList Γ) : Stmt m ω Γ Δ b c β → Stmt m
   | sfor e body => sfor (e ∘ f) (body.mapCtx (fun | HList.cons a as => HList.cons a (f as)))
   | sbreak => sbreak
   | scont => scont
-termination_by mapCtx _ s => sizeOf s
+termination_by s => sizeOf s

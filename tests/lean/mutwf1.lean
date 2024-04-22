@@ -4,24 +4,24 @@ mutual
     | n, true  => 2 * f n false
     | 0, false => 1
     | n, false => n + g n
+  termination_by n b => (n, if b then 2 else 1)
+  decreasing_by
+  all_goals simp_wf
+  · apply Prod.Lex.right; decide
+  · apply Prod.Lex.right; decide
 
   def g (n : Nat) : Nat :=
     if h : n ≠ 0 then
       f (n-1) true
     else
       n
-end
-termination_by
-  f n b => (n, if b then 2 else 1)
-  g n => (n, 0)
-decreasing_by
-  simp_wf
-  first
-  | apply Prod.Lex.left
-    apply Nat.pred_lt
-  | apply Prod.Lex.right
-    decide
+  termination_by (n, 0)
+  decreasing_by
+  all_goals simp_wf
+  apply Prod.Lex.left
+  apply Nat.pred_lt
   done -- should fail
+end
 end Ex1
 
 
@@ -31,14 +31,13 @@ mutual
     | n, true  => 2 * f n false
     | 0, false => 1
     | n, false => n + g (n+1) -- Error
+  termination_by n b => (n, if b then 2 else 1)
 
   def g (n : Nat) : Nat :=
     if h : n ≠ 0 then
       f (n-1) true
     else
       n
+  termination_by (n, 0)
 end
-termination_by
-  f n b => (n, if b then 2 else 1)
-  g n   => (n, 0)
 end Ex2

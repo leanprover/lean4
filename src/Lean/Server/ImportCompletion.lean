@@ -3,12 +3,14 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga
 -/
+prelude
 import Lean.Data.Name
 import Lean.Data.NameTrie
 import Lean.Data.Lsp.Utf16
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Util.Paths
 import Lean.Util.LakePath
+import Lean.Server.CompletionItemData
 
 namespace ImportCompletion
 
@@ -56,26 +58,30 @@ def computePartialImportCompletions
     (completionPos : String.Pos)
     (availableImports : ImportTrie)
     : Array Name := Id.run do
-  let some importStxToComplete := headerStx[1].getArgs.find? fun importStx => Id.run do
+  let some (completePrefix, incompleteSuffix) := headerStx[1].getArgs.findSome? fun importStx => do
       -- `partialTrailingDotStx` ≙ `("." ident)?`
       let partialTrailingDotStx := importStx[3]
       if ! partialTrailingDotStx.hasArgs then
-        return false
-      let trailingDot := partialTrailingDotStx[0]
-      let some tailPos := trailingDot.getTailPos?
-        | return false
-      return tailPos == completionPos
+        let tailPos ← importStx[2].getTailPos?
+        guard <| tailPos == completionPos
+        let .str completePrefix incompleteSuffix := importStx[2].getId
+          | none
+        return (completePrefix, incompleteSuffix)
+      else
+        let trailingDot := partialTrailingDotStx[0]
+        let tailPos ← trailingDot.getTailPos?
+        guard <| tailPos == completionPos
+        return (importStx[2].getId, "")
     | return #[]
-  let importPrefixToComplete := importStxToComplete[2].getId
 
-  let completions : Array Name :=
-    availableImports.matchingToArray importPrefixToComplete
-      |>.map fun matchingAvailableImport =>
-        matchingAvailableImport.replacePrefix importPrefixToComplete Name.anonymous
+  let completions := availableImports.matchingToArray completePrefix
+    |>.map (·.replacePrefix completePrefix .anonymous)
+    |>.filter (·.toString.startsWith incompleteSuffix)
+    |>.filter (! ·.isAnonymous)
+    |>.qsort Name.quickLt
 
-  let nonEmptyCompletions := completions.filter fun completion => !completion.isAnonymous
+  return completions
 
-  return nonEmptyCompletions.insertionSort (Name.cmp · · == Ordering.lt)
 
 def isImportCompletionRequest (text : FileMap) (headerStx : Syntax) (params : CompletionParams) : Bool :=
   let completionPos := text.lspPosToUtf8Pos params.position
@@ -119,23 +125,35 @@ def collectAvailableImports : IO AvailableImports := do
     ImportCompletion.collectAvailableImportsFromSrcSearchPath
   | some availableImports => pure availableImports
 
+/--
+Sets the `data?` field of every `CompletionItem` in `completionList` using `params`. Ensures that
+`completionItem/resolve` requests can be routed to the correct file worker even for
+`CompletionItem`s produced by the import completion.
+-/
+def addCompletionItemData (completionList : CompletionList) (params : CompletionParams)
+    : CompletionList :=
+  let data := { params : Lean.Lsp.CompletionItemData }
+  { completionList with items := completionList.items.map fun item =>
+    { item with data? := some <| toJson data } }
+
 def find (text : FileMap) (headerStx : Syntax) (params : CompletionParams) (availableImports : AvailableImports) : CompletionList :=
   let availableImports := availableImports.toImportTrie
   let completionPos := text.lspPosToUtf8Pos params.position
   if isImportNameCompletionRequest headerStx completionPos then
     let allAvailableImportNameCompletions := availableImports.toArray.map ({ label := toString · })
-    { isIncomplete := false, items := allAvailableImportNameCompletions }
+    addCompletionItemData { isIncomplete := false, items := allAvailableImportNameCompletions } params
   else if isImportCmdCompletionRequest headerStx completionPos then
     let allAvailableFullImportCompletions := availableImports.toArray.map ({ label := s!"import {·}" })
-    { isIncomplete := false, items := allAvailableFullImportCompletions }
+    addCompletionItemData { isIncomplete := false, items := allAvailableFullImportCompletions } params
   else
     let completionNames : Array Name := computePartialImportCompletions headerStx completionPos availableImports
     let completions : Array CompletionItem := completionNames.map ({ label := toString · })
-    { isIncomplete := false, items := completions }
+    addCompletionItemData { isIncomplete := false, items := completions } params
 
 def computeCompletions (text : FileMap) (headerStx : Syntax) (params : CompletionParams)
     : IO CompletionList := do
   let availableImports ← collectAvailableImports
-  return find text headerStx params availableImports
+  let completionList := find text headerStx params availableImports
+  return addCompletionItemData completionList params
 
 end ImportCompletion

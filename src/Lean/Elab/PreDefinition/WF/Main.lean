@@ -3,9 +3,9 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationHint
-import Lean.Elab.PreDefinition.WF.PackDomain
+import Lean.Elab.PreDefinition.WF.TerminationArgument
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
@@ -18,29 +18,15 @@ namespace Lean.Elab
 open WF
 open Meta
 
-private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) (fixedPrefixSize : Nat) : TermElabM Unit := do
+private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition)  : TermElabM Unit := do
   let us := preDefNonRec.levelParams.map mkLevelParam
   let all := preDefs.toList.map (·.declName)
   for fidx in [:preDefs.size] do
     let preDef := preDefs[fidx]!
-    let value ← lambdaTelescope preDef.value fun xs _ => do
-      let packedArgs : Array Expr := xs[fixedPrefixSize:]
-      let mkProd (type : Expr) : MetaM Expr := do
-        mkUnaryArg type packedArgs
-      let rec mkSum (i : Nat) (type : Expr) : MetaM Expr := do
-        if i == preDefs.size - 1 then
-          mkProd type
-        else
-          (← whnfD type).withApp fun f args => do
-            assert! args.size == 2
-            if i == fidx then
-              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0]! args[1]! (← mkProd args[0]!)
-            else
-              let r ← mkSum (i+1) args[1]!
-              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
-      let Expr.forallE _ domain _ _ := (← instantiateForall preDefNonRec.type xs[:fixedPrefixSize]) | unreachable!
-      let arg ← mkSum 0 domain
-      mkLambdaFVars xs (mkApp (mkAppN (mkConst preDefNonRec.declName us) xs[:fixedPrefixSize]) arg)
+    let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
+      let value := mkAppN (mkConst preDefNonRec.declName us) xs
+      let value ← argsPacker.curryProj value fidx
+      mkLambdaFVars xs value
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
 
@@ -80,31 +66,66 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize :
   else
     return false
 
-def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
-  let preDefs ← preDefs.mapM fun preDef => return { preDef with value := (← preprocess preDef.value) }
-  let (unaryPreDef, fixedPrefixSize) ← withoutModifyingEnv do
+/--
+Collect the names of the varying variables (after the fixed prefix); this also determines the
+arity for the well-founded translations, and is turned into an `ArgsPacker`.
+We use the term to determine the arity, but take the name from the type, for better names in the
+```
+fun : (n : Nat) → Nat | 0 => 0 | n+1 => fun n
+```
+idiom.
+-/
+def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name) := do
+  -- We take the arity from the term, but the names from the types
+  let arity ← lambdaTelescope preDef.value fun xs _ => return xs.size
+  assert! fixedPrefixSize ≤ arity
+  if arity = fixedPrefixSize then
+    throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+  forallBoundedTelescope preDef.type arity fun xs _ => do
+    assert! xs.size = arity
+    let xs : Array Expr := xs[fixedPrefixSize:]
+    xs.mapM (·.fvarId!.getUserName)
+
+def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
+  let preDefs ← preDefs.mapM fun preDef =>
+    return { preDef with value := (← preprocess preDef.value) }
+  let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedPrefixSize ← getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
+    let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
+    let argsPacker := { varNamess }
     let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
-    let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
-    return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
+    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
 
-  let wf ←
-    if let .some wf := wf? then
-      pure wf
+  let wf : TerminationArguments ← do
+    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.terminationBy?.isSome)
+    if preDefsWith.isEmpty then
+      -- No termination_by anywhere, so guess one
+      guessLex preDefs unaryPreDef fixedPrefixSize argsPacker
+    else if preDefsWithout.isEmpty then
+      preDefsWith.mapIdxM fun funIdx predef => do
+        let arity := fixedPrefixSize + argsPacker.varNamess[funIdx]!.size
+        let hints := predef.termination
+        TerminationArgument.elab predef.declName predef.type arity hints.extraParams hints.terminationBy?.get!
     else
-      guessLex preDefs unaryPreDef fixedPrefixSize decrTactic?
+      -- Some have, some do not, so report errors
+      preDefsWithout.forM fun preDef => do
+        logErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
+          m!"recursive with {preDefsWith[0]!.declName}, which has a `termination_by` clause.")
+      return
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type
+    unless type.isForall do
+      throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf fun wfRel => do
+    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
+        let value ← mkFix unaryPreDef prefixArgs argsPacker wfRel (preDefs.map (·.termination.decreasingBy?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value
@@ -116,13 +137,14 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
   else
     withEnableInfoTree false do
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-    addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
+    addNonRecPreDefs fixedPrefixSize argsPacker preDefs preDefNonRec
   -- We create the `_unsafe_rec` before we abstract nested proofs.
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
   for preDef in preDefs do
+    markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 builtin_initialize registerTraceClass `Elab.definition.wf

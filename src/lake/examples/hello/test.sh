@@ -11,3 +11,9 @@ $LAKE exe hello Bob Bill
 # Tests that build produces a manifest if there is none.
 # Related: https://github.com/leanprover/lean4/issues/2549
 test -f lake-manifest.json
+
+./clean.sh
+
+$LAKE -f lakefile.toml exe hello
+$LAKE -f lakefile.toml exe hello Bob Bill
+.lake/build/bin/hello

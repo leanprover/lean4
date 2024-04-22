@@ -55,3 +55,8 @@ required to disambiguate the syntax).
 -/
 scoped macro (name := requireDecl) "require " spec:depSpec : command =>
   expandDepSpec spec
+
+@[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
+
+instance : Coe RequireDecl Command where
+  coe x := ⟨x.raw⟩

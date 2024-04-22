@@ -13,10 +13,10 @@ Author: Leonardo de Moura
 
 namespace lean {
 /** \brief Increment thread local counter for approximating elapsed time. */
-void inc_heartbeat();
+LEAN_EXPORT void inc_heartbeat();
 
 /** \brief Reset thread local counter for approximating elapsed time. */
-void reset_heartbeat();
+LEAN_EXPORT void reset_heartbeat();
 
 /* Update the current heartbeat */
 class scope_heartbeat : flet<size_t> {
@@ -30,9 +30,9 @@ public:
 
     This is a thread local value. The class lthread uses the
     maximum of the parent thread. */
-void set_max_heartbeat(size_t max);
-void set_max_heartbeat_thousands(unsigned max);
-size_t get_max_heartbeat();
+LEAN_EXPORT void set_max_heartbeat(size_t max);
+LEAN_EXPORT void set_max_heartbeat_thousands(unsigned max);
+LEAN_EXPORT size_t get_max_heartbeat();
 
 /* Update the thread local max heartbeat */
 class scope_max_heartbeat : flet<size_t> {
@@ -40,21 +40,22 @@ public:
     scope_max_heartbeat(size_t max);
 };
 
-void check_heartbeat();
+LEAN_EXPORT void check_heartbeat();
 
 /**
    \brief Throw an interrupted exception if the current task is marked cancelled.
 */
-void check_interrupted();
+LEAN_EXPORT void check_interrupted();
 
 /**
-   \brief Check system resources: stack, memory, heartbeat, interrupt flag.
+   \brief Check system resources: stack, memory, and (if `do_check_interrupted` is true) heartbeat
+   limit and interrupt flag.
 
-   `do_check_interrupted` should only be set to `true` in places where a C++ exception
-   is caught and would not bring down the entire process as interruption
-   should not be a fatal error.
+   `do_check_interrupted` should only be set to `true` in places where a C++ exception is caught and
+   would not bring down the entire process as interruption (via heartbeat limit or flag) should not
+   be a fatal error.
 */
-void check_system(char const * component_name, bool do_check_interrupted = false);
+LEAN_EXPORT void check_system(char const * component_name, bool do_check_interrupted = false);
 
 constexpr unsigned g_small_sleep = 10;
 
@@ -63,6 +64,6 @@ constexpr unsigned g_small_sleep = 10;
 
    \remark check_interrupted is invoked every \c step_ms milliseconds;
 */
-void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
-inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
+LEAN_EXPORT void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
+LEAN_EXPORT inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
 }

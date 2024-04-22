@@ -1,8 +1,8 @@
 let y := Nat.zero;
-Nat.add y y
-fun y_1 => Nat.add y y_1
-fun y => Nat.add _uniq.1 y
+y.add y
+fun y_1 => y.add y_1
+fun y => Nat.add _fvar.1 y
 fun (y : Nat) => Nat.add y y
-Nat.add ?m y
+?m.add y
 Nat.add (?m #0) #0
-fun y => Nat.add (Nat.add y y) y
+fun y => (y.add y).add y

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Init.System.IO
 import Lean.Data.Json
 import Lean.Data.Lsp.Communication
@@ -63,9 +64,10 @@ def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request �
   (←stdout).readLspRequestAs expectedMethod α
 
 /--
-  Reads response, discarding notifications in between. This function is meant
-  purely for testing where we use `collectDiagnostics` explicitly if we do care
-  about such notifications. -/
+Reads response, discarding notifications and server-to-client requests in between.
+This function is meant purely for testing where we use `collectDiagnostics` explicitly
+if we do care about such notifications.
+-/
 partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
     IpcM (Response α) := do
   let m ← (←stdout).readLspMessage
@@ -78,20 +80,28 @@ partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
     else
       throw $ userError s!"Expected id {expectedID}, got id {id}"
   | .notification .. => readResponseAs expectedID α
-  | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
+  | .request .. => readResponseAs expectedID α
+  | .responseError .. => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
 
 def waitForExit : IpcM UInt32 := do
   (←read).wait
 
-/-- Waits for the worker to emit all diagnostics for the current document version
-and returns them as a list. -/
+/--
+Waits for the worker to emit all diagnostic notifications for the current document version and
+returns the last notification, if any.
+
+We used to return all notifications but with debouncing in the server, this would not be
+deterministic anymore as what messages are dropped depends on wall-clock timing.
+ -/
 partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri) (version : Nat)
-: IpcM (List (Notification PublishDiagnosticsParams)) := do
+: IpcM (Option (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParams.mk target version⟩
-  let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
+  loop
+where
+  loop := do
     match (←readMessage) with
     | Message.response id _ =>
-      if id == waitForDiagnosticsId then return []
+      if id == waitForDiagnosticsId then return none
       else loop
     | Message.responseError id _    msg _ =>
       if id == waitForDiagnosticsId then
@@ -99,10 +109,9 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | Except.ok diagnosticParam => return ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
+      | Except.ok diagnosticParam => return (← loop).getD ⟨"textDocument/publishDiagnostics", diagnosticParam⟩
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
-  loop
 
 def runWith (lean : System.FilePath) (args : Array String := #[]) (test : IpcM α) : IO α := do
   let proc ← Process.spawn {

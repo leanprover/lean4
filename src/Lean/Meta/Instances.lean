@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Meta.GlobalInstances
 import Lean.Meta.DiscrTree
@@ -76,8 +77,8 @@ def tcDtConfig : WhnfCoreConfig := {}
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e tcDtConfig, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertCore e.keys e tcDtConfig }
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
+  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }

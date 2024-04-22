@@ -6,7 +6,7 @@ universe u v w
 inductive Id {A : Type u} : A → A → Type u
 | refl {a : A} : Id a a
 
-attribute [eliminator] Id.casesOn
+attribute [cases_eliminator] Id.casesOn
 
 infix:50 (priority := high) " = " => Id
 
@@ -40,7 +40,7 @@ def Iff.comp {A : Type u} {B : Type v} {C : Type w} :
 λ p q => (q.left ∘ p.left, p.right ∘ q.right)
 
 inductive Empty : Type u
-attribute [eliminator] Empty.casesOn
+attribute [cases_eliminator] Empty.casesOn
 
 notation "𝟎" => Empty
 
@@ -88,7 +88,7 @@ notation n "-Type" => nType n
 inductive Unit : Type u
 | star : Unit
 
-attribute [eliminator] Unit.casesOn
+attribute [cases_eliminator] Unit.casesOn
 
 def Homotopy {A : Type u} {B : A → Type v} (f g : ∀ x, B x) :=
 ∀ (x : A), f x = g x

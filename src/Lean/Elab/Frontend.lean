@@ -3,10 +3,11 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Elab.Import
-import Lean.Elab.Command
+prelude
+import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
+import Lean.Util.Profiler
 
 namespace Lean.Elab.Frontend
 
@@ -32,6 +33,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
     tacticCache? := none
+    snap?        := none
   }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
@@ -39,7 +41,19 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
+    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
+    let mut msgs := (← get).messages
+    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check
+    -- in general
+    if !Language.Lean.showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors &&
+        stx.hasMissing then
+      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
+      -- parse error
+      msgs := ⟨msgs.msgs.filter fun msg =>
+        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
+          tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
+    modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -85,11 +99,7 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   pure (s.commandState.env, s.commandState.messages)
 
 builtin_initialize
-  registerOption `printMessageEndPos { defValue := false, descr := "print end position of each message in addition to start position" }
   registerTraceClass `Elab.info
-
-def getPrintMessageEndPos (opts : Options) : Bool :=
-  opts.getBool `printMessageEndPos false
 
 @[export lean_run_frontend]
 def runFrontend
@@ -100,27 +110,66 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
+  let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  -- allow `env` to be leaked, which would live until the end of the process anyway
-  let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
-  let env := env.setMainModule mainModuleName
-  let mut commandState := Command.mkState env messages opts
+  -- TODO: replace with `#lang` processing
+  if /- Lean #lang? -/ true then
+    -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
+    -- overhead of passing the environment between snapshots until we actually make good use of it
+    -- outside the server
+    let (header, parserState, messages) ← Parser.parseHeader inputCtx
+    -- allow `env` to be leaked, which would live until the end of the process anyway
+    let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
+    let env := env.setMainModule mainModuleName
+    let mut commandState := Command.mkState env messages opts
+    let elabStartTime := (← IO.monoNanosNow).toFloat / 1000000000
 
-  if ileanFileName?.isSome then
-    -- Collect InfoTrees so we can later extract and export their info to the ilean file
-    commandState := { commandState with infoState.enabled := true }
+    if ileanFileName?.isSome then
+      -- Collect InfoTrees so we can later extract and export their info to the ilean file
+      commandState := { commandState with infoState.enabled := true }
 
-  let s ← IO.processCommands inputCtx parserState commandState
-  for msg in s.commandState.messages.toList do
-    IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
+    let s ← IO.processCommands inputCtx parserState commandState
+    for msg in s.commandState.messages.toList do
+      IO.print (← msg.toString (includeEndPos := Language.printMessageEndPos.get opts))
 
+    if let some ileanFileName := ileanFileName? then
+      let trees := s.commandState.infoState.trees.toArray
+      let references ←
+        Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
+      let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
+      IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
+
+    if let some out := trace.profiler.output.get? opts then
+      let traceState := s.commandState.traceState
+      -- importing does not happen in an elaboration monad, add now
+      let traceState := { traceState with
+        traces := #[{
+          ref := .missing,
+          msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
+            (.ofFormat "importing") #[]
+        }].toPArray' ++ traceState.traces
+      }
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+      IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
+
+    return (s.commandState.env, !s.commandState.messages.hasErrors)
+
+  let ctx := { inputCtx with mainModuleName, opts, trustLevel }
+  let processor := Language.Lean.process
+  let snap ← processor none ctx
+  let snaps := Language.toSnapshotTree snap
+  snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then
-    let trees := s.commandState.infoState.trees.toArray
+    let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
+    let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
-  pure (s.commandState.env, !s.commandState.messages.hasErrors)
+  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
+  -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
+  -- where we use the environment despite errors in the file is `--stats`
+  let env := Language.Lean.waitForFinalEnv? snap |>.getD (← mkEmptyEnvironment)
+  pure (env, !hasErrors)
+
 
 end Lean.Elab

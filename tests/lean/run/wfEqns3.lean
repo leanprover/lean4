@@ -15,5 +15,5 @@ decreasing_by
   exact h
 
 #eval tst ``f
-#check f._eq_1
-#check f._unfold
+#check f.eq_1
+#check f.eq_def

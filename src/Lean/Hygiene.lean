@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
 import Lean.Data.Name
 import Lean.Data.Options
 import Lean.Data.Format
@@ -50,7 +51,7 @@ private def mkInaccessibleUserNameAux (unicode : Bool) (name : Name) (idx : Nat)
     else
       name.appendAfter ("✝" ++ idx.toSuperscriptString)
   else
-    name ++ Name.mkNum "_inaccessible" idx
+    name ++ Name.num `_inaccessible idx
 
 private def mkInaccessibleUserName (unicode : Bool) : Name → Name
   | .num p@(.str ..) idx =>

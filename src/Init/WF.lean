@@ -9,7 +9,18 @@ import Init.Data.Nat.Basic
 
 universe u v
 
+/--
+`Acc` is the accessibility predicate. Given some relation `r` (e.g. `<`) and a value `x`,
+`Acc r x` means that `x` is accessible through `r`:
+
+`x` is accessible if there exists no infinite sequence `... < y₂ < y₁ < y₀ < x`.
+-/
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
+  /--
+  A value is accessible if for all `y` such that `r y x`, `y` is also accessible.
+  Note that if there exists no `y` such that `r y x`, then `x` is accessible. Such an `x` is called a
+  _base case_.
+  -/
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
 noncomputable abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
@@ -31,6 +42,14 @@ def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
 
 end Acc
 
+/--
+A relation `r` is `WellFounded` if all elements of `α` are accessible within `r`.
+If a relation is `WellFounded`, it does not allow for an infinite descent along the relation.
+
+If the arguments of the recursive calls in a function definition decrease according to
+a well founded relation, then the function terminates.
+Well-founded relations are sometimes called _Artinian_ or said to satisfy the “descending chain condition”.
+-/
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
@@ -45,7 +64,7 @@ def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) :
 section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
-theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
+noncomputable def recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
   induction (apply hwf a) with
   | intro x₁ _ ih => exact h x₁ ih
 
@@ -166,13 +185,13 @@ def lt_wfRel : WellFoundedRelation Nat where
       | Or.inl e => subst e; assumption
       | Or.inr e => exact Acc.inv ih e
 
-protected theorem strongInductionOn
+protected noncomputable def strongInductionOn
     {motive : Nat → Sort u}
     (n : Nat)
     (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
   Nat.lt_wfRel.wf.fix ind n
 
-protected theorem caseStrongInductionOn
+protected noncomputable def caseStrongInductionOn
     {motive : Nat → Sort u}
     (a : Nat)
     (zero : motive 0)
@@ -206,11 +225,38 @@ protected inductive Lex : α × β → α × β → Prop where
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Prod.Lex (a₁, b₁) (a₂, b₂)
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
+theorem lex_def (r : α → α → Prop) (s : β → β → Prop) {p q : α × β} :
+    Prod.Lex r s p q ↔ r p.1 q.1 ∨ p.1 = q.1 ∧ s p.2 q.2 :=
+  ⟨fun h => by cases h <;> simp [*], fun h =>
+    match p, q, h with
+    | (a, b), (c, d), Or.inl h => Lex.left _ _ h
+    | (a, b), (c, d), Or.inr ⟨e, h⟩ => by subst e; exact Lex.right _ h⟩
+
+namespace Lex
+
+instance [αeqDec : DecidableEq α] {r : α → α → Prop} [rDec : DecidableRel r]
+    {s : β → β → Prop} [sDec : DecidableRel s] : DecidableRel (Prod.Lex r s)
+  | (a, b), (a', b') =>
+    match rDec a a' with
+    | isTrue raa' => isTrue $ left b b' raa'
+    | isFalse nraa' =>
+      match αeqDec a a' with
+      | isTrue eq => by
+        subst eq
+        cases sDec b b' with
+        | isTrue sbb' => exact isTrue $ right a sbb'
+        | isFalse nsbb' =>
+          apply isFalse; intro contra; cases contra <;> contradiction
+      | isFalse neqaa' => by
+        apply isFalse; intro contra; cases contra <;> contradiction
+
 -- TODO: generalize
-def Lex.right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
+def right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
   match Nat.eq_or_lt_of_le h₁ with
   | Or.inl h => h ▸ Prod.Lex.right a₁ h₂
   | Or.inr h => Prod.Lex.left b₁ _ h
+
+end Lex
 
 -- relational product based on ra and rb
 inductive RProd : α × β → α × β → Prop where

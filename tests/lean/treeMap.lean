@@ -6,4 +6,4 @@ open TreeNode in def treeToList (t : TreeNode) : List String :=
  match t with
  | mkLeaf name => [name]
  | mkNode name children => name :: List.join (children.map treeToList)
-termination_by _ t => t
+termination_by t

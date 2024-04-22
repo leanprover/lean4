@@ -2,7 +2,7 @@ import Lean.Util.ShareCommon
 
 open Lean.ShareCommon
 def check (b : Bool) : ShareCommonT IO Unit := do
-unless b do throw $ IO.userError "check failed"
+  unless b do throw $ IO.userError "check failed"
 
 unsafe def tst1 : ShareCommonT IO Unit := do
 let x := [1]

@@ -1,0 +1,1 @@
+binop_at_pattern_issue.lean:4:4-4:17: error: invalid pattern, constructor or constant marked with '[match_pattern]' expected

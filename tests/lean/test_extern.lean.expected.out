@@ -1,4 +1,4 @@
-test_extern.lean:6:0-6:17: error: test_extern: HAdd.hAdd does not have an @[extern] attribute or @[implemented_by] attribute
+test_extern.lean:7:0-7:17: error: test_extern: HAdd.hAdd does not have an @[extern] attribute or @[implemented_by] attribute
 test_extern.lean:8:0-8:86: error: native implementation did not agree with reference implementation!
 Compare the outputs of:
 #eval ByteArray.copySlice { data := #[1, 2, 3] } 1 { data := #[4, 5, 6, 7, 8, 9, 10, 11, 12, 13] } 0 6

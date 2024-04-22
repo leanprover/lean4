@@ -89,5 +89,6 @@
 - [Testing](./dev/testing.md)
 - [Debugging](./dev/debugging.md)
 - [Commit Convention](./dev/commit_convention.md)
+- [Release checklist](./dev/release_checklist.md)
 - [Building This Manual](./dev/mdbook.md)
 - [Foreign Function Interface](./dev/ffi.md)

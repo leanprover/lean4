@@ -3,6 +3,7 @@ Copyright (c) 2020 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
+prelude
 import Lean.CoreM
 import Lean.Parser.Extension
 import Lean.Parser.StrInterpolation
@@ -192,6 +193,12 @@ def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter :=
     -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
     -- them in turn. Uses the syntax traverser non-linearly!
     p1 <|> p2
+
+@[combinator_formatter recover]
+def recover.formatter (fmt : PrettyPrinter.Formatter) := fmt
+
+@[combinator_formatter recover']
+def recover'.formatter (fmt : PrettyPrinter.Formatter) := fmt
 
 -- `mkAntiquot` is quite complex, so we'd rather have its formatter synthesized below the actual parser definition.
 -- Note that there is a mutual recursion

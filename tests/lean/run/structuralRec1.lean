@@ -35,7 +35,7 @@ loop as
 
 def pmap2 {α β} (f : α → β) (as : PList α) : PList β :=
 let rec loop : PList α → PList β
- | PList.nil    => PList.nil 
+ | PList.nil    => PList.nil
  | a:::as => f a ::: loop as;
 loop as
 
@@ -58,7 +58,7 @@ match xs with
 | x:::xs =>
   let y := 2 * x;
   match xs with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | x:::xs => (y + x) ::: pfoo xs
 
 #eval foo [1, 2, 3, 4]
@@ -79,11 +79,11 @@ else
 def pbla (x : Nat) (ys : PList Nat) : PList Nat :=
 if x % 2 == 0 then
   match ys with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | y:::ys => (y + x/2) ::: pbla (x/2) ys
 else
   match ys with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | y:::ys => (y + x/2 + 1) ::: pbla (x/2) ys
 
 theorem blaEq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
@@ -121,7 +121,7 @@ def pg (xs : PList Nat) : True :=
   | y:::ys =>
     match ys with
     | PList.nil => True.intro
-    | _ => pg ys 
+    | _ => pg ys
 
 def aux : Nat → Nat → Nat
  | 0, y   => y
@@ -157,7 +157,7 @@ axiom F0 : P 0
 axiom F1 : P (F 0)
 axiom FS {n : Nat} : P n → P (F (F n))
 
-axiom T : Nat → Type
+axiom T : Nat → Prop
 axiom TF0 : T 0
 axiom TF1 : T (F 0)
 axiom TFS {n : Nat} : T n → T (F (F n))
@@ -175,13 +175,13 @@ theorem «nested recursion» : ∀ {n}, is_nat n → P n
 -- | _, is_nat.S .(is_nat.Z) => F1
 -- | _, is_nat.S (is_nat.S h) => FS («nested recursion, inaccessible» h)
 
-theorem «reordered discriminants, type» : ∀ n, is_nat_T n → Nat → T n := fun n hn m => 
+theorem «reordered discriminants, type» : ∀ n, is_nat_T n → Nat → T n := fun n hn m =>
 match n, m, hn with
 | _, _, is_nat_T.Z => TF0
 | _, _, is_nat_T.S is_nat_T.Z => TF1
 | _, m, is_nat_T.S (is_nat_T.S h) => TFS («reordered discriminants, type» _ h m)
 
-theorem «reordered discriminants» : ∀ n, is_nat n → Nat → P n := fun n hn m => 
+theorem «reordered discriminants» : ∀ n, is_nat n → Nat → P n := fun n hn m =>
 match n, m, hn with
 | _, _, is_nat.Z => F0
 | _, _, is_nat.S is_nat.Z => F1
@@ -194,8 +194,8 @@ match n, m, hn with
 --   | y::ys =>
 --     match ys with
 --     | List.nil      => True.intro
---     | _::_::zs      => «unsupported nesting» zs 
---     | zs            => «unsupported nesting» ys 
+--     | _::_::zs      => «unsupported nesting» zs
+--     | zs            => «unsupported nesting» ys
 
 def «unsupported nesting, predicate» (xs : PList Nat) : True :=
   match xs with
@@ -203,8 +203,8 @@ def «unsupported nesting, predicate» (xs : PList Nat) : True :=
   | y:::ys =>
     match ys with
     | PList.nil      => True.intro
-    | _:::_:::zs     => «unsupported nesting, predicate» zs 
-    | zs             => «unsupported nesting, predicate» ys 
+    | _:::_:::zs     => «unsupported nesting, predicate» zs
+    | zs             => «unsupported nesting, predicate» ys
 
 
 def f1 (xs : List Nat) : Nat :=
@@ -221,4 +221,4 @@ match xs with
 | x:::xs =>
   match xs with
   | PList.nil  => True.intro
-  | _ => pf1 xs 
+  | _ => pf1 xs

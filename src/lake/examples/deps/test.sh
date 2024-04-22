@@ -25,3 +25,11 @@ test -d foo/.lake/build
 $LAKE -d foo clean
 test ! -d root/.lake/build
 test ! -d foo/.lake/build
+
+./clean.sh
+
+$LAKE -d bar -f lakefile.toml build --update
+$LAKE -d foo -f lakefile.toml build --update
+
+./foo/.lake/build/bin/foo
+./bar/.lake/build/bin/bar

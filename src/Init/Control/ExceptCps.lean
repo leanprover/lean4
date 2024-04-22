@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Control.Lawful
+import Init.Control.Lawful.Basic
 
 /-!
 The Exception monad transformer using CPS style.
@@ -18,6 +18,7 @@ namespace ExceptCpsT
 def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
+set_option linter.unusedVariables false in  -- `s` unused
 @[always_inline, inline]
 def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error

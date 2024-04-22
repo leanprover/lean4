@@ -16,6 +16,10 @@ set_target_properties(leanrt PROPERTIES
 if (NOT MSVC)
 target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
 endif()
+# We do not export Lean symbols when statically linking on Windows.
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+target_compile_options(leanrt PRIVATE -ULEAN_EXPORTING)
+endif()
 
 if(LLVM)
   if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))

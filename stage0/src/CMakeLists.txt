@@ -9,13 +9,21 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 5)
+set(LEAN_VERSION_MINOR 8)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
 if (LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
+endif()
+
+set(LEAN_PLATFORM_TARGET "" CACHE STRING "LLVM triple of the target platform")
+if (NOT LEAN_PLATFORM_TARGET)
+  # this may fail when the compiler is not clang, but this should only happen in local builds where
+  # the value of the variable is not of immediate relevance
+  execute_process(COMMAND ${CMAKE_C_COMPILER} --print-target-triple
+    OUTPUT_VARIABLE LEAN_PLATFORM_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif()
 
 set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
@@ -291,13 +299,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
     string(APPEND LEANSHARED_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
   endif()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
 else()
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
+  string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
 endif()
-string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake")
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
@@ -305,8 +312,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 
-string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
-string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+# flags for user binaries = flags for toolchain binaries + Lake
+string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 
 if (LLVM)
   string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
@@ -334,9 +344,9 @@ endif()
 
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-dead_strip")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-dead_strip")
 elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -346,26 +356,20 @@ endif()
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if(BSYMBOLIC)
     string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
-    string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
+    string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
   endif()
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+  string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
+  string(APPEND INIT_SHARED_LINKER_FLAGS " -install_name @rpath/libInit_shared.dylib")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
-  # We do not use dynamic linking via leanshared for Emscripten to keep things
-  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
-  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
-  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -391,7 +395,7 @@ endif()
 # are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # import library created by the `leanshared` target
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lleanshared")
+  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lInit_shared -lleanshared")
 elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
   string(APPEND LEANC_SHARED_LINKER_FLAGS " -Wl,-undefined,dynamic_lookup")
 endif()
@@ -497,13 +501,25 @@ string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 # (also looks nicer in the build log)
 file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
+# set up libInit_shared only on Windows; see also stdlib.make.in
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(INIT_SHARED_LINKER_FLAGS "-Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libInit.a.export ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a -Wl,--no-whole-archive -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libInit_shared.dll.a")
+endif()
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLean.a.export -lleancpp -Wl,--no-whole-archive -lInit_shared -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libleanshared.dll.a")
 else()
   set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libleanshared.dll.a")
-  endif()
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  # We do not use dynamic linking via leanshared for Emscripten to keep things
+  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
+  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
+  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  string(APPEND LEAN_EXE_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
 endif()
 
 # Build the compiler using the bootstrapped C sources for stage0, and use
@@ -512,10 +528,6 @@ if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
-# Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
-configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
@@ -533,13 +545,33 @@ endif()
 # We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
 # (e.g. `libLean.a`) are now newer than the target file
 
-add_custom_target(leanshared ALL
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS make_stdlib leancpp leanrt_initial-exec
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
-  VERBATIM)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  # dummy targets, see `MAIN_MODULE` discussion above
+  add_custom_target(Init_shared ALL
+    DEPENDS make_stdlib leanrt_initial-exec
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX}
+  )
+  add_custom_target(leanshared ALL
+    DEPENDS Init_shared leancpp
+    COMMAND touch ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
+  )
+else()
+  add_custom_target(Init_shared ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS make_stdlib leanrt_initial-exec
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init_shared
+    VERBATIM)
 
-if(${STAGE} GREATER 0)
+  add_custom_target(leanshared ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS Init_shared leancpp
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
+    VERBATIM)
+
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
+endif()
+
+if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
     message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
   endif()
@@ -556,11 +588,15 @@ if(PREV_STAGE)
     COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
+
+  add_custom_target(update-stage0-commit
+    COMMAND git commit -m "chore: update stage0"
+    DEPENDS update-stage0)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution
 configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
-if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean)
+if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
   add_custom_target(leanc ALL
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc
@@ -611,3 +647,8 @@ if(LEAN_INSTALL_PREFIX)
   set(LEAN_INSTALL_SUFFIX "-${LOWER_SYSTEM_NAME}" CACHE STRING "If LEAN_INSTALL_PREFIX is set, append this value to CMAKE_INSTALL_PREFIX")
   set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/lean-${LEAN_VERSION_STRING}${LEAN_INSTALL_SUFFIX}")
 endif()
+
+# Escape for `make`. Yes, twice.
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
+configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)

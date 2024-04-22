@@ -3,7 +3,8 @@ set -euxo pipefail
 
 ./clean.sh
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -12,10 +13,12 @@ fi
 LAKE1=${LAKE:-../../../.lake/build/bin/lake}
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-# Test `new` and `init` with bad template (should error)
+# Test `new` and `init` with bad template/langauge (should error)
 
-($LAKE new  foo bar 2>&1 && false || true) | grep "unknown package template"
+($LAKE new foo bar 2>&1 && false || true) | grep "unknown package template"
+($LAKE new foo .baz 2>&1 && false || true) | grep "unknown configuration language"
 ($LAKE init foo bar 2>&1 && false || true) | grep "unknown package template"
+($LAKE init foo std.baz 2>&1 && false || true) | grep "unknown configuration language"
 
 # Test package name validation (should error)
 # https://github.com/leanprover/lean4/issues/2637
@@ -33,13 +36,36 @@ for cmd in new init; do
 ($LAKE $cmd main 2>&1 && false || true) | grep "reserved package name"
 done
 
-# Test `init .`
+# Test default (std) template
 
-mkdir hello
-pushd hello
-$LAKE1 init .
-$LAKE1 exe hello
-popd
+$LAKE new hello
+$LAKE -d hello exe hello
+test -f hello/.lake/build/lib/Hello.olean
+rm -rf hello
+$LAKE new hello .toml
+$LAKE -d hello exe hello
+test -f hello/.lake/build/lib/Hello.olean
+rm -rf hello
+
+# Test exe template
+
+$LAKE new hello exe
+$LAKE -d hello exe hello
+rm -rf hello
+$LAKE new hello exe.toml
+$LAKE -d hello exe hello
+rm -rf hello
+
+# Test lib template
+
+$LAKE new hello lib
+$LAKE -d hello build Hello
+test -f hello/.lake/build/lib/Hello.olean
+rm -rf hello
+$LAKE new hello lib.toml
+$LAKE -d hello build Hello
+test -f hello/.lake/build/lib/Hello.olean
+rm -rf hello
 
 # Test math template
 
@@ -48,6 +74,20 @@ $LAKE new qed math
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 $LAKE -d qed build Qed
 test -f qed/.lake/build/lib/Qed.olean
+rm -rf qed
+$LAKE new qed math.toml
+# Remove the require, since we do not wish to download mathlib during tests
+sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
+$LAKE -d qed build Qed
+test -f qed/.lake/build/lib/Qed.olean
+
+# Test `init .`
+
+mkdir hello
+pushd hello
+$LAKE1 init .
+$LAKE1 exe hello
+popd
 
 # Test creating packages with uppercase names
 # https://github.com/leanprover/lean4/issues/2540
@@ -76,6 +116,15 @@ $LAKE -d lean-data exe lean-data
 
 $LAKE new 123-hello
 $LAKE -d 123-hello exe 123-hello
+
+# Test creating packages with components that contain `.`s
+# https://github.com/leanprover/lean4/issues/2999
+
+# this fails on windows for unrelated reasons
+if [ "$OSTYPE" != "msys" ]; then
+  $LAKE new «A.B».«C.D»
+  $LAKE -d «A-B»-«C-D» exe «a.b-c.d»
+fi
 
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128

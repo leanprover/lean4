@@ -3,14 +3,13 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
+prelude
 import Lean.Data.HashSet
 import Lean.Data.RBMap
 import Lean.Data.RBTree
 import Lean.Data.SSet
 import Lean.Data.Name
 namespace Lean
-
-instance : Coe String Name := ⟨Name.mkSimple⟩
 
 def NameMap (α : Type) := RBMap Name α Name.quickCmp
 

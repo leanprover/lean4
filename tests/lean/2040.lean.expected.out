@@ -9,4 +9,4 @@
 has type
   a = @OfNat.ofNat Nat 2 (instOfNatNat 2) ^ n : Prop
 but is expected to have type
-  a = @OfNat.ofNat Int 2 instOfNatInt ^ n : Prop
+  a = @OfNat.ofNat Int 2 instOfNat ^ n : Prop

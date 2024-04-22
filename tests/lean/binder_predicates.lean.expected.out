@@ -1,0 +1,8 @@
+∃ x, x > 10 ∧ x = 15 : Prop
+∃ x, x < 10 ∧ x = 5 : Prop
+∃ x, x ≥ 10 ∧ x = 15 : Prop
+∃ x, x ≤ 10 ∧ x = 5 : Prop
+∀ (x : Nat), x > 10 → x ≠ 5 : Prop
+∀ (x : Nat), x < 10 → x ≠ 15 : Prop
+∀ (x : Nat), x ≥ 10 → x ≠ 5 : Prop
+∀ (x : Nat), x ≤ 10 → x ≠ 15 : Prop

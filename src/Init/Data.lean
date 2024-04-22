@@ -6,11 +6,15 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Basic
 import Init.Data.Nat
+import Init.Data.Bool
+import Init.Data.BitVec
+import Init.Data.Cast
 import Init.Data.Char
 import Init.Data.String
 import Init.Data.List
 import Init.Data.Int
 import Init.Data.Array
+import Init.Data.Array.Subarray.Split
 import Init.Data.ByteArray
 import Init.Data.FloatArray
 import Init.Data.Fin
@@ -29,3 +33,5 @@ import Init.Data.Prod
 import Init.Data.AC
 import Init.Data.Queue
 import Init.Data.Channel
+import Init.Data.Cast
+import Init.Data.Sum

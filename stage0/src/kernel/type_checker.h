@@ -63,6 +63,7 @@ private:
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
     optional<expr> reduce_recursor(expr const & e, bool cheap_rec, bool cheap_proj);
+    optional<expr> reduce_proj_core(expr c, unsigned idx);
     optional<expr> reduce_proj(expr const & e, bool cheap_rec, bool cheap_proj);
     expr whnf_fvar(expr const & e, bool cheap_rec, bool cheap_proj);
     optional<constant_info> is_delta(expr const & e) const;
@@ -91,6 +92,7 @@ private:
     void cache_failure(expr const & t, expr const & s);
     reduction_status lazy_delta_reduction_step(expr & t_n, expr & s_n);
     lbool lazy_delta_reduction(expr & t_n, expr & s_n);
+    bool lazy_delta_proj_reduction(expr & t_n, expr & s_n, nat const & idx);
     bool is_def_eq_core(expr const & t, expr const & s);
     /** \brief Like \c check, but ignores undefined universes */
     expr check_ignore_undefined_universes(expr const & e);

@@ -12,7 +12,7 @@
     flake = false;
   };
   inputs.leanInk = {
-    url = "github:leanprover/LeanInk";
+    url = "github:leanprover/LeanInk/refs/pull/57/merge";
     flake = false;
   };
 
@@ -27,7 +27,7 @@
         src = inputs.mdBook;
         cargoDeps = drv.cargoDeps.overrideAttrs (_: {
           inherit src;
-          outputHash = "sha256-1YlPS6cqgxE4fjy9G8pWrpP27YrrbCDnfeyIsX81ZNw=";
+          outputHash = "sha256-CO3A9Kpp4sIvkT9X3p+GTidazk7Fn4jf0AP2PINN44A=";
         });
         doCheck = false;
       });

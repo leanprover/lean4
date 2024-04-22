@@ -27,7 +27,7 @@ def List.unfoldr' {α β : Type u} [w : WellFoundedRelation β] (f : (b : β) �
   match f b with
   | none => []
   | some (a, ⟨b', h⟩) => a :: unfoldr' f b'
-termination_by unfoldr' b => b
+termination_by b
 
 -- We need the `master` branch to test the following example
 

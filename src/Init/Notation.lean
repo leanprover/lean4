@@ -268,6 +268,7 @@ syntax (name := rawNatLit) "nat_lit " num : term
 @[inherit_doc] infixr:90 " ∘ "  => Function.comp
 @[inherit_doc] infixr:35 " × "  => Prod
 
+@[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
 @[inherit_doc] infixl:58 " ^^^ " => HXor.hXor
 @[inherit_doc] infixl:60 " &&& " => HAnd.hAnd
@@ -464,6 +465,14 @@ macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 namespace Lean
 
 /--
+* The `by_elab doSeq` expression runs the `doSeq` as a `TermElabM Expr` to
+  synthesize the expression.
+* `by_elab fun expectedType? => do doSeq` receives the expected type (an `Option Expr`)
+  as well.
+-/
+syntax (name := byElab) "by_elab " doSeq : term
+
+/--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
 The only accepted parser for this category is an antiquotation.
 -/
@@ -475,6 +484,9 @@ instance : Coe Syntax (TSyntax `rawStx) where
 /-- `with_annotate_term stx e` annotates the lexical range of `stx : Syntax` with term info for `e`. -/
 scoped syntax (name := withAnnotateTerm) "with_annotate_term " rawStx ppSpace term : term
 
+/-- Normalize casts in an expression using the same method as the `norm_cast` tactic. -/
+syntax (name := modCast) "mod_cast " term : term
+
 /--
 The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
@@ -485,8 +497,191 @@ existing code. It may be removed in a future version of the library.
 syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
 
 /--
+The `@[coe]` attribute on a function (which should also appear in a
+`instance : Coe A B := ⟨myFn⟩` declaration) allows the delaborator to show
+applications of this function as `↑` when printing expressions.
+-/
+syntax (name := Attr.coe) "coe" : attr
+
+/--
+This attribute marks a code action, which is used to suggest new tactics or replace existing ones.
+
+* `@[command_code_action kind]`: This is a code action which applies to applications of the command
+  `kind` (a command syntax kind), which can replace the command or insert things before or after it.
+
+* `@[command_code_action kind₁ kind₂]`: shorthand for
+  `@[command_code_action kind₁, command_code_action kind₂]`.
+
+* `@[command_code_action]`: This is a command code action that applies to all commands.
+  Use sparingly.
+-/
+syntax (name := command_code_action) "command_code_action" (ppSpace ident)* : attr
+
+/--
+Builtin command code action. See `command_code_action`.
+-/
+syntax (name := builtin_command_code_action) "builtin_command_code_action" (ppSpace ident)* : attr
+
+/--
 When `parent_dir` contains the current Lean file, `include_str "path" / "to" / "file"` becomes
 a string literal with the contents of the file at `"parent_dir" / "path" / "to" / "file"`. If this
 file cannot be read, elaboration fails.
 -/
 syntax (name := includeStr) "include_str " term : term
+
+/--
+The `run_cmd doSeq` command executes code in `CommandElabM Unit`.
+This is almost the same as `#eval show CommandElabM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+-/
+syntax (name := runCmd) "run_cmd " doSeq : command
+
+/--
+The `run_elab doSeq` command executes code in `TermElabM Unit`.
+This is almost the same as `#eval show TermElabM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+-/
+syntax (name := runElab) "run_elab " doSeq : command
+
+/--
+The `run_meta doSeq` command executes code in `MetaM Unit`.
+This is almost the same as `#eval show MetaM Unit from do doSeq`,
+except that it doesn't print an empty diagnostic.
+
+(This is effectively a synonym for `run_elab`.)
+-/
+syntax (name := runMeta) "run_meta " doSeq : command
+
+set_option linter.missingDocs false in
+syntax guardMsgsFilterSeverity := &"info" <|> &"warning" <|> &"error" <|> &"all"
+
+/--
+A message filter specification for `#guard_msgs`.
+- `info`, `warning`, `error`: capture messages with the given severity level.
+- `all`: capture all messages (the default).
+- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
+- `drop all`: drop every message.
+These filters are processed in left-to-right order.
+-/
+syntax guardMsgsFilter := &"drop"? guardMsgsFilterSeverity
+
+set_option linter.missingDocs false in
+syntax guardMsgsWhitespaceArg := &"exact" <|> &"normalized" <|> &"lax"
+
+/--
+Whitespace handling for `#guard_msgs`:
+- `whitespace := exact` requires an exact whitespace match.
+- `whitespace := normalized` converts all newline characters to a space before matching
+  (the default). This allows breaking long lines.
+- `whitespace := lax` collapses whitespace to a single space before matching.
+In all cases, leading and trailing whitespace is trimmed before matching.
+-/
+syntax guardMsgsWhitespace := &"whitespace" " := " guardMsgsWhitespaceArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsOrderingArg := &"exact" <|> &"sorted"
+
+/--
+Message ordering for `#guard_msgs`:
+- `ordering := exact` uses the exact ordering of the messages (the default).
+- `ordering := sorted` sorts the messages in lexicographic order.
+  This helps with testing commands that are non-deterministic in their ordering.
+-/
+syntax guardMsgsOrdering := &"ordering" " := " guardMsgsOrderingArg
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpecElt := guardMsgsFilter <|> guardMsgsWhitespace <|> guardMsgsOrdering
+
+set_option linter.missingDocs false in
+syntax guardMsgsSpec := "(" guardMsgsSpecElt,* ")"
+
+/--
+`/-- ... -/ #guard_msgs in cmd` captures the messages generated by the command `cmd`
+and checks that they match the contents of the docstring.
+
+Basic example:
+```lean
+/--
+error: unknown identifier 'x'
+-/
+#guard_msgs in
+example : α := x
+```
+This checks that there is such an error and then consumes the message.
+
+By default, the command captures all messages, but the filter condition can be adjusted.
+For example, we can select only warnings:
+```lean
+/--
+warning: declaration uses 'sorry'
+-/
+#guard_msgs(warning) in
+example : α := sorry
+```
+or only errors
+```lean
+#guard_msgs(error) in
+example : α := sorry
+```
+In the previous example, since warnings are not captured there is a warning on `sorry`.
+We can drop the warning completely with
+```lean
+#guard_msgs(error, drop warning) in
+example : α := sorry
+```
+
+In general, `#guard_msgs` accepts a comma-separated list of configuration clauses in parentheses:
+```
+#guard_msgs (configElt,*) in cmd
+```
+By default, the configuration list is `(all, whitespace := normalized, ordering := exact)`.
+
+Message filters (processed in left-to-right order):
+- `info`, `warning`, `error`: capture messages with the given severity level.
+- `all`: capture all messages (the default).
+- `drop info`, `drop warning`, `drop error`: drop messages with the given severity level.
+- `drop all`: drop every message.
+
+Whitespace handling (after trimming leading and trailing whitespace):
+- `whitespace := exact` requires an exact whitespace match.
+- `whitespace := normalized` converts all newline characters to a space before matching
+  (the default). This allows breaking long lines.
+- `whitespace := lax` collapses whitespace to a single space before matching.
+
+Message ordering:
+- `ordering := exact` uses the exact ordering of the messages (the default).
+- `ordering := sorted` sorts the messages in lexicographic order.
+  This helps with testing commands that are non-deterministic in their ordering.
+
+For example, `#guard_msgs (error, drop all) in cmd` means to check warnings and drop
+everything else.
+-/
+syntax (name := guardMsgsCmd)
+  (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
+
+namespace Parser
+
+/--
+`#check_tactic t ~> r by commands` runs the tactic sequence `commands`
+on a goal with `t` and sees if the resulting expression has reduced it
+to `r`.
+-/
+syntax (name := checkTactic) "#check_tactic " term "~>" term "by" tactic : command
+
+/--
+`#check_tactic_failure t by tac` runs the tactic `tac`
+on a goal with `t` and verifies it fails.
+-/
+syntax  (name := checkTacticFailure) "#check_tactic_failure " term "by" tactic : command
+
+/--
+`#check_simp t ~> r` checks `simp` reduces `t` to `r`.
+-/
+syntax (name := checkSimp) "#check_simp " term "~>" term : command
+
+/--
+`#check_simp t !~>` checks `simp` fails on reducing `t`.
+-/
+syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
+
+end Parser

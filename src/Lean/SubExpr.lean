@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Daniel Selsam, Wojciech Nawrocki, E.W.Ayers
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Data.Json
 import Lean.Data.RBMap
@@ -84,7 +85,7 @@ The first coordinate in the array corresponds to the root of the expression tree
 def ofArray (ps : Array Nat) : Pos :=
   ps.foldl push root
 
-/-- Decodes a subexpression `Pos` as a sequence of coordinates `cs : Array Nat`. See `Pos.fromArray` for details.
+/-- Decodes a subexpression `Pos` as a sequence of coordinates `cs : Array Nat`. See `Pos.ofArray` for details.
 `cs[0]` is the coordinate for the root expression. -/
 def toArray (p : Pos) : Array Nat :=
   foldl Array.push #[] p

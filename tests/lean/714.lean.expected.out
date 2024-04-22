@@ -1,1 +1,1 @@
-test {α : Type} [inst✝ : LT α] : Type
+test {α : Type} [LT α] : Type

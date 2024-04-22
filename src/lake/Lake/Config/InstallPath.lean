@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.NativeLib
+import Lake.Config.Defaults
 
 open System
 namespace Lake
@@ -12,7 +13,7 @@ namespace Lake
 
 /-- Standard path of `elan` in a Elan installation. -/
 def elanExe (home : FilePath) :=
-  home / "bin" / "elan" |>.withExtension FilePath.exeExtension
+  home / "bin" / "elan" |>.addExtension FilePath.exeExtension
 
 /-- Information about the local Elan setup. -/
 structure ElanInstall where
@@ -24,28 +25,34 @@ structure ElanInstall where
 
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
-  sysroot / "bin" / "lean" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "lean" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `leanc` in a Lean installation. -/
 def leancExe (sysroot : FilePath) :=
-  sysroot / "bin" / "leanc" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "leanc" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `llvm-ar` in a Lean installation. -/
 def leanArExe (sysroot : FilePath) :=
-  sysroot / "bin" / "llvm-ar" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "llvm-ar" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `clang` in a Lean installation. -/
 def leanCcExe (sysroot : FilePath) :=
-  sysroot / "bin" / "clang" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "clang" |>.addExtension FilePath.exeExtension
 
-/-- Standard path of `libleanshared` in a Lean installation. -/
-def leanSharedLib (sysroot : FilePath) :=
-  let dir :=
-    if Platform.isWindows then
-      sysroot / "bin"
-    else
-      sysroot / "lib" / "lean"
-  dir / "libleanshared" |>.withExtension sharedLibExt
+/-- Standard path of shared libraries in a Lean installation. -/
+def leanSharedLibDir (sysroot : FilePath) :=
+  if Platform.isWindows then
+    sysroot / "bin"
+  else
+    sysroot / "lib" / "lean"
+
+/-- `libleanshared` file name. -/
+def leanSharedLib  :=
+  FilePath.addExtension "libleanshared" sharedLibExt
+
+/-- `Init` shared library file name. -/
+def initSharedLib : FilePath :=
+  FilePath.addExtension "libInit_shared" sharedLibExt
 
 /-- Path information about the local Lean installation. -/
 structure LeanInstall where
@@ -58,7 +65,8 @@ structure LeanInstall where
   binDir := sysroot / "bin"
   lean := leanExe sysroot
   leanc := leancExe sysroot
-  sharedLib := leanSharedLib sysroot
+  sharedLib := leanSharedLibDir sysroot / leanSharedLib
+  initSharedLib := leanSharedLibDir sysroot / initSharedLib
   ar : FilePath
   cc : FilePath
   customCc : Bool
@@ -78,17 +86,17 @@ def LeanInstall.sharedLibPath (self : LeanInstall) : SearchPath :=
 def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
   if self.customCc then self.cc.toString else none
 
-/-- Standard path of `lake` in a Lake installation. -/
-def lakeExe (buildHome : FilePath) :=
-  buildHome / "bin" / "lake" |>.withExtension FilePath.exeExtension
+/-- Lake executable file name. -/
+def lakeExe : FilePath :=
+  FilePath.addExtension "lake" FilePath.exeExtension
 
 /-- Path information about the local Lake installation. -/
 structure LakeInstall where
   home : FilePath
   srcDir := home
-  binDir := home / "build" / "bin"
-  libDir := home / "build" / "lib"
-  lake := lakeExe <| home / "build"
+  binDir := home / defaultBuildDir / defaultBinDir
+  libDir := home / defaultBuildDir / defaultLeanLibDir
+  lake := binDir / lakeExe
   deriving Inhabited, Repr
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
@@ -97,7 +105,7 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
-  lake := lakeExe lean.sysroot
+  lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/
 
@@ -203,17 +211,28 @@ try to return their joint home by assuming they are both located at `<home>/bin`
 def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
   if let .ok appPath ← IO.appPath.toBaseIO then
     if let some appDir := appPath.parent then
-      let leanExe := appDir / "lean" |>.withExtension FilePath.exeExtension
+      let leanExe := appDir / "lean" |>.addExtension FilePath.exeExtension
       if (← leanExe.pathExists) then
         return appDir.parent
   return none
 
 /--
-Attempt to detect a specified Lake's executable's home by assuming
-the executable is located at `<lake-home>/.lake/build/bin/lake`.
+Get the root of Lake's installation by assuming the executable
+is located at `<lake-home>/.lake/build/bin/lake`.
 -/
-def lakePackageHome? (lake : FilePath) : Option FilePath := do
+def lakeBuildHome? (lake : FilePath) : Option FilePath := do
   (← (← (← lake.parent).parent).parent).parent
+
+/--
+Heuristically validate that `getLakeBuildHome?` is a proper Lake installation
+by check for `Lake.olean` in the installation's `lib` directory.
+-/
+def getLakeInstall? (lake : FilePath) : BaseIO (Option LakeInstall) := do
+  let some home := lakeBuildHome? lake | return none
+  let lake : LakeInstall := {home, lake}
+  if (← lake.libDir / "Lake.olean" |>.pathExists) then
+    return lake
+  return none
 
 /--
 Attempt to detect Lean's installation by first checking the
@@ -228,9 +247,8 @@ def findLeanInstall? : BaseIO (Option LeanInstall) := do
   return none
 
 /--
-Attempt to detect Lake's installation by
-first checking the `LAKE_HOME` environment variable
-and then by trying the `lakePackageHome?` of the running executable.
+Attempt to detect Lake's installation by first checking the `lakeBuildHome?`
+of the running executable, then trying the `LAKE_HOME` environment variable.
 
 It assumes that the Lake installation is organized the same way it is built.
 That is, with its binary located at `<lake-home>/.lake/build/bin/lake` and its
@@ -238,11 +256,11 @@ static library and `.olean` files in `<lake-home>/.lake/build/lib`, and
 its source files located directly in `<lake-home>`.
 -/
 def findLakeInstall? : BaseIO (Option LakeInstall) := do
+  if let Except.ok lake ← IO.appPath.toBaseIO then
+    if let some lake ← getLakeInstall? lake then
+      return lake
   if let some home ← IO.getEnv "LAKE_HOME" then
     return some {home}
-  if let Except.ok lake ← IO.appPath.toBaseIO then
-    if let some home := lakePackageHome? lake then
-      return some {home, lake}
   return none
 
 /--

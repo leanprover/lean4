@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Command
 import Lean.Parser.Syntax
 import Lean.Elab.Util
@@ -172,7 +173,7 @@ where
           | `(stx| $sym:str) => pure sym
           | _ => return arg'
         let sym := sym.getString
-        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (`token ++ sym)) $(arg'.1)), 1)
+        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (Name.str `token sym)) $(arg'.1)), 1)
     else
       pure args'
     let (args', stackSz) := if let some stackSz := info.stackSz? then
@@ -381,7 +382,6 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
   let name ← match name? with
     | some name => pure name.getId
     | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
-  trace[Meta.debug] "name: {name}"
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
   let stxNodeKind := (← getCurrNamespace) ++ name
@@ -441,8 +441,5 @@ def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
   | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
-
-builtin_initialize
-  registerTraceClass `Elab.syntax
 
 end Lean.Elab.Command

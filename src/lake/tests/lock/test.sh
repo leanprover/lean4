@@ -6,7 +6,8 @@ exit 0
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   TAIL=gtail
 else
   TAIL=tail

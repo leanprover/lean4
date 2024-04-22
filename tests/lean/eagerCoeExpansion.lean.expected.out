@@ -9,4 +9,4 @@ fun (a : Nat) =>
     (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))) Bool.true)
     (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))) Bool.true)
 def s : Option Nat :=
-HOrElse.hOrElse (ConstantFunction.f myFun 3) fun x => ConstantFunction.f myFun 4
+HOrElse.hOrElse (myFun.f 3) fun x => myFun.f 4

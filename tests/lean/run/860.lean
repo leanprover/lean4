@@ -13,17 +13,19 @@ private theorem pack_loop_terminates : (n : Nat) → n / 2 < n.succ
     · apply Nat.zero_lt_succ
 
 def pack (n: Nat) : List Nat :=
-  let rec loop (n : Nat) (acc : Nat) (accs: List Nat) : List Nat :=
-    let next (n: Nat) := n / 2;
-    match n with
-    | Nat.zero => List.cons acc accs
-    | n+1 => match evenq n with
-      | true => loop (next n) 0 (List.cons acc accs)
-      | false => loop (next n) (acc+1) accs
+  let rec
+    loop (n : Nat) (acc : Nat) (accs: List Nat) : List Nat :=
+      let next (n: Nat) := n / 2;
+      match n with
+      | Nat.zero => List.cons acc accs
+      | n+1 => match evenq n with
+        | true => loop (next n) 0 (List.cons acc accs)
+        | false => loop (next n) (acc+1) accs
+    termination_by n
+    decreasing_by all_goals
+      simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
+      apply pack_loop_terminates
+
   loop n 0 []
-termination_by _ n _ _ => n
-decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
-  apply pack_loop_terminates
 
 #eval pack 27

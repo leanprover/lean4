@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Basic
+import Init.Data.String.Basic
 
 namespace System
 namespace Platform
@@ -16,6 +17,11 @@ namespace Platform
 def isWindows : Bool := getIsWindows ()
 def isOSX : Bool := getIsOSX ()
 def isEmscripten : Bool := getIsEmscripten ()
+
+@[extern "lean_system_platform_target"] opaque getTarget : Unit → String
+
+/-- The LLVM target triple of the current platform. Empty if missing at Lean compile time. -/
+def target : String := getTarget ()
 
 end Platform
 end System

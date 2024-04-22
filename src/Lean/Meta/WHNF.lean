@@ -3,10 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
+import Lean.Meta.Offset
+import Lean.Meta.CtorRecognizer
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
 
@@ -132,7 +135,7 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
   let env ← getEnv
   if !isStructureLike env inductName then
     return major
-  else if let some _ := major.isConstructorApp? env then
+  else if let some _ ← isConstructorApp? major then
     return major
   else
     let majorType ← inferType major
@@ -159,6 +162,22 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
 private def isWFRec (declName : Name) : Bool :=
   declName == ``Acc.rec || declName == ``WellFounded.rec
 
+/--
+Helper method for `reduceRec`.
+We use it to ensure we don't expose `Nat.add` when reducing `Nat.rec`.
+We we use the following trick, if `e` can be expressed as an offest `(a, k)` with `k > 0`,
+we create a new expression `Nat.succ e'` where `e'` is `a` for `k = 1`, or `a + (k-1)` for `k > 1`.
+See issue #3022
+-/
+private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
+  let some (e, k) ← isOffset? e | return e
+  if k = 0 then
+    return e
+  else if k = 1 then
+    return mkNatSucc e
+  else
+    return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -175,6 +194,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     if recVal.k then
       major ← toCtorWhenK recVal major
     major := major.toCtorIfLit
+    major ← cleanupNatOffsetMajor major
     major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>
@@ -201,7 +221,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
 -- ===========================
 
 /-- Auxiliary function for reducing `Quot.lift` and `Quot.ind` applications. -/
-private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
       let major := recArgs.get ⟨majorPos, h⟩
@@ -322,6 +342,16 @@ inductive ProjReductionKind where
   Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
   -/
   | yesWithDelta
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
+  Recall that `whnfAtMostII` is like `whnf` but uses transparency at most `instances`.
+  This option is stronger than `yes`, but weaker than `yesWithDelta`.
+  We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
+  When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
+  we only want to unify negation (and not all other field operations as well).
+  Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+  -/
+  | yesWithDeltaI
   deriving DecidableEq, Inhabited, Repr
 
 /--
@@ -335,11 +365,7 @@ structure WhnfCoreConfig where
   /-- Control projection reduction at `whnfCore`. -/
   proj : ProjReductionKind := .yesWithDelta
   /--
-  Zeta reduction.
-  It includes two kinds of reduction:
-  - `let x := v; e[x]` reduces to `e[v]`.
-  - Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
-
+  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
   We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
   Recall that
   ```
@@ -352,6 +378,10 @@ structure WhnfCoreConfig where
   is not.
   -/
   zeta : Bool := true
+  /--
+  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+  -/
+  zetaDelta : Bool := true
 
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
 @[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
@@ -371,9 +401,11 @@ structure WhnfCoreConfig where
     match decl with
     | .cdecl .. => return e
     | .ldecl (value := v) .. =>
-      unless config.zeta do return e
-      if (← getConfig).trackZeta then
-        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
+      -- Let-declarations marked as implementation detail should always be unfolded
+      -- We initially added this feature for `simp`, and added it here for consistency.
+      unless config.zetaDelta || decl.isImplementationDetail do return e
+      if (← getConfig).trackZetaDelta then
+        modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k config
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
@@ -447,6 +479,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
        || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
+       || info.name == ``Fin.ofNat' -- It is used to define `BitVec` literals
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
        || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
@@ -496,7 +529,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
 
-private def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e := e.toCtorIfLit
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs
@@ -543,12 +576,6 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 /--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
-
-The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
-then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
-
-If `simpleReduceOnly`, then `iota` and projection reduction are not performed.
-Note that the value of `deltaAtProj` is irrelevant if `simpleReduceOnly = true`.
 -/
 partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
   go e
@@ -560,6 +587,10 @@ where
       | .const ..  => pure e
       | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
+        if config.zeta then
+          if let some (args, _, _, v, b) := e.letFunAppArgs? then
+            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+            return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
         if config.beta && f'.isLambda then
@@ -578,7 +609,7 @@ where
             matchConstAux f' (fun _ => return e) fun cinfo lvls =>
               match cinfo with
               | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | .quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) go
               | c@(.defnInfo _) => do
                 if (← isAuxDef c.name) then
                   deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
@@ -586,11 +617,16 @@ where
                   return e
               | _ => return e
       | .proj _ i c =>
-        if config.proj == .no then return e
-        let c ← if config.proj == .yesWithDelta then whnf c else go c
-        match (← projectCore? c i) with
-        | some e => go e
-        | none => return e
+        let k (c : Expr) := do
+          match (← projectCore? c i) with
+          | some e => go e
+          | none => return e
+        match config.proj with
+        | .no => return e
+        | .yes => k (← go c)
+        | .yesWithDelta => k (← whnf c)
+        -- Remark: If the current transparency setting is `reducible`, we should not increase it to `instances`
+        | .yesWithDeltaI => k (← whnfAtMostI c)
       | _ => unreachable!
 
 /--
@@ -746,7 +782,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
+                if !(← isConstructorApp (← whnfMatcher recArg)) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
@@ -798,7 +834,7 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
-      | .quotInfo «rec» => reduceQuotRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
+      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then
           deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
@@ -823,12 +859,17 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   | _ =>
     return none
 
-@[inline] def withNatValue {α} (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
+@[inline] def withNatValue (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
+  if !a.hasExprMVar && a.hasFVar then
+    return none
+  let a ← instantiateMVars a
+  if a.hasExprMVar || a.hasFVar then
+    return none
   let a ← whnf a
   match a with
-  | Expr.const `Nat.zero _      => k 0
-  | Expr.lit (Literal.natVal v) => k v
-  | _                           => return none
+  | .const ``Nat.zero _ => k 0
+  | .lit (.natVal v)    => k v
+  | _                   => return none
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
@@ -846,27 +887,31 @@ def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Exp
   return toExpr <| f a b
 
 def reduceNat? (e : Expr) : MetaM (Option Expr) :=
-  if e.hasFVar || e.hasMVar then
-    return none
-  else match e with
-    | .app (.const fn _) a                =>
-      if fn == ``Nat.succ then
-        reduceUnaryNatOp Nat.succ a
-      else
-        return none
-    | .app (.app (.const fn _) a1) a2 =>
-      if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
-      else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
-      else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
-      else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
-      else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
-      else if fn == ``Nat.pow then reduceBinNatOp Nat.pow a1 a2
-      else if fn == ``Nat.gcd then reduceBinNatOp Nat.gcd a1 a2
-      else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
-      else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
-      else return none
-    | _ =>
+  match e with
+  | .app (.const fn _) a =>
+    if fn == ``Nat.succ then
+      reduceUnaryNatOp Nat.succ a
+    else
       return none
+  | .app (.app (.const fn _) a1) a2 =>
+    match fn with
+    | ``Nat.add => reduceBinNatOp Nat.add a1 a2
+    | ``Nat.sub => reduceBinNatOp Nat.sub a1 a2
+    | ``Nat.mul => reduceBinNatOp Nat.mul a1 a2
+    | ``Nat.div => reduceBinNatOp Nat.div a1 a2
+    | ``Nat.mod => reduceBinNatOp Nat.mod a1 a2
+    | ``Nat.pow => reduceBinNatOp Nat.pow a1 a2
+    | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
+    | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
+    | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2
+    | ``Nat.land => reduceBinNatOp Nat.land a1 a2
+    | ``Nat.lor  => reduceBinNatOp Nat.lor a1 a2
+    | ``Nat.xor  => reduceBinNatOp Nat.xor a1 a2
+    | ``Nat.shiftLeft  => reduceBinNatOp Nat.shiftLeft a1 a2
+    | ``Nat.shiftRight => reduceBinNatOp Nat.shiftRight a1 a2
+    | _ => return none
+  | _ =>
+    return none
 
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
@@ -900,21 +945,22 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    checkSystem "whnf"
     let useCache ← useWHNFCache e
     match (← cached? useCache e) with
     | some e' => pure e'
     | none    =>
-      let e' ← whnfCore e
-      match (← reduceNat? e') with
-      | some v => cache useCache e v
-      | none   =>
-        match (← reduceNative? e') with
+      withTraceNode `Meta.whnf (fun _ => return m!"Non-easy whnf: {e}") do
+        checkSystem "whnf"
+        let e' ← whnfCore e
+        match (← reduceNat? e') with
         | some v => cache useCache e v
         | none   =>
-          match (← unfoldDefinition? e') with
-          | some e'' => cache useCache e (← whnfImp e'')
-          | none => cache useCache e e'
+          match (← reduceNative? e') with
+          | some v => cache useCache e v
+          | none   =>
+            match (← unfoldDefinition? e') with
+            | some e'' => cache useCache e (← whnfImp e'')
+            | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

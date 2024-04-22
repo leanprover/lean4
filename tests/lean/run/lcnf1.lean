@@ -104,4 +104,4 @@ def gebner2 (x : UInt64) := x &&& ((1 : UInt64) <<< 5 : UInt64)
 #eval Compiler.compile #[``Lean.Core.instMonadCoreM]
 #eval Compiler.compile #[``instMonadEIO]
 -- set_option pp.explicit true in
-#eval Compiler.compile #[``EStateM.instMonadEStateM]
+#eval Compiler.compile #[``EStateM.instMonad]

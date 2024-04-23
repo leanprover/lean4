@@ -29,15 +29,6 @@ jobs:
           echo "CHANGES=no" >> "$GITHUB_ENV"
         fi
       shell: bash
-    - if: github.event_name == 'merge_group' && env.CHANGES == 'yes'
-      run: |
-        echo "Found changes to stage0/, please do not merge using the merge queue." | tee "$GITHUB_STEP_SUMMARY"
-        # shellcheck disable=SC2129
-        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
-        cat  "$RUNNER_TEMP/stage0"  >> "$GITHUB_STEP_SUMMARY"
-        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
-        exit 1
-      shell: bash
     - name: Set label
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
@@ -49,3 +40,12 @@ jobs:
           } else {
             await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'changes-stage0' }).catch(() => {});
           }
+    - if: env.CHANGES == 'yes'
+      run: |
+        echo "Found changes to stage0/, please do not merge using the merge queue." | tee "$GITHUB_STEP_SUMMARY"
+        # shellcheck disable=SC2129
+        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
+        cat  "$RUNNER_TEMP/stage0"  >> "$GITHUB_STEP_SUMMARY"
+        echo '```'                  >> "$GITHUB_STEP_SUMMARY"
+    - if: github.event_name == 'merge_group' && env.CHANGES == 'yes'
+      run: exit 1

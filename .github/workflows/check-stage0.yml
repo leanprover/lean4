@@ -20,8 +20,8 @@ jobs:
     - name: Identify base0 changes
       run: |
         git diff "${BASE:-HEAD^}..HEAD" --name-only -- stage0 |
-          grep -q -v -x -F $'stage0/src/stdlib_flags.h\nstage0/src/lean.mk.in' \
-          > "$RUNNER_TEMP/stage0"
+          grep -v -x -F $'stage0/src/stdlib_flags.h\nstage0/src/lean.mk.in' \
+          > "$RUNNER_TEMP/stage0" || true
         if test -s "$RUNNER_TEMP/stage0"
         then
           echo "CHANGES=yes" >> "$GITHUB_ENV"

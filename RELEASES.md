@@ -82,7 +82,8 @@ v4.8.0 (development in progress)
   When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
   When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
   These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
-  [#3798](https://github.com/leanprover/lean4/pull/3798).
+  [#3798](https://github.com/leanprover/lean4/pull/3798) and
+  [#3978](https://github.com/leanprover/lean4/pull/3978).
 
 * Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
   for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.

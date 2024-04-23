@@ -71,9 +71,11 @@ def delabSort : Delab := do
   match l with
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
-  | _ => match l.dec with
-    | some l' => `(Type $(Level.quote l' max_prec))
-    | none    => `(Sort $(Level.quote l max_prec))
+  | _ =>
+    let mvars ← getPPOption getPPMVars
+    match l.dec with
+    | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
+    | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
 
 /--
 Delaborator for `const` expressions.
@@ -96,7 +98,8 @@ def delabConst : Delab := do
         c := c₀
     pure <| mkIdent c
   else
-    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+    let mvars ← getPPOption getPPMVars
+    `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
 
   let stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then

@@ -91,8 +91,7 @@ theorem nat_find_mem_find {p : Fin n → Prop} [DecidablePred p]
     (⟨Nat.find h, (Nat.find_spec h).fst⟩ : Fin n) ∈ find p := by
   rcases hf : find p with f | f
   · sorry
-  · -- After https://github.com/leanprover/lean4/pull/3965, we need to fill in the `_` below with `h`.
-    exact Option.some_inj.2 (le_antisymm sorry (Nat.find_min' _ ⟨f.2, sorry⟩))
+  · exact Option.some_inj.2 (le_antisymm sorry (Nat.find_min' _ ⟨f.2, sorry⟩))
 
 end Fin
 

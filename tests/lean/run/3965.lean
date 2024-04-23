@@ -180,8 +180,26 @@ theorem principal_nfp_blsub₂ (op : Ordinal → Ordinal → Ordinal) (o : Ordin
     rw [Function.iterate_succ']
     -- after https://github.com/leanprover/lean4/pull/3965 this requires `lt_blsub₂.{u}` or we get
     -- `stuck at solving universe constraint max u ?u =?= u`
-    exact lt_blsub₂ (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
+    -- Note that there are two solutions: 0 and u. Both of them work.
+    exact lt_blsub₂.{u} (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
   · sorry
+
+-- Trying again with 0
+theorem principal_nfp_blsub₂' (op : Ordinal → Ordinal → Ordinal) (o : Ordinal) :
+    Principal op (nfp (fun o' => blsub₂.{u, u, u} o' o' (@fun a _ b _ => op a b)) o) :=
+  fun a b ha hb => by
+  rw [lt_nfp] at *
+  rcases ha with ⟨m, hm⟩
+  rcases hb with ⟨n, hn⟩
+  rcases le_total
+    ((fun o' => blsub₂.{u, u, u} o' o' (@fun a _ b _ => op a b))^[m] o)
+    ((fun o' => blsub₂.{u, u, u} o' o' (@fun a _ b _ => op a b))^[n] o) with h | h
+  · refine ⟨n+1, ?_⟩
+    rw [Function.iterate_succ']
+    -- universe 0 also works here
+    exact lt_blsub₂.{0} (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
+  · sorry
+
 
 end Ordinal
 

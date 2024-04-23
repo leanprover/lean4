@@ -68,11 +68,26 @@ def elabExact?Term : TermElab := fun stx expectedType? => do
     let (_, introdGoal) ← goal.mvarId!.intros
     introdGoal.withContext do
       if let some suggestions ← librarySearch introdGoal then
+        if suggestions.isEmpty then logError "`exact?%` didn't find any relevant lemmas"
+        else logError "`exact?%` could not close the goal. Try `apply?%` to see partial suggestions."
+        mkSorry expectedType (synthetic := true)
+      else
+        addTermSuggestion stx (← instantiateMVars goal).headBeta
+        instantiateMVars goal
+
+@[builtin_term_elab Lean.Parser.Syntax.apply?]
+def elabApply?Term : TermElab := fun stx expectedType? => do
+  let `(apply?%) := stx | throwUnsupportedSyntax
+  withExpectedType expectedType? fun expectedType => do
+    let goal ← mkFreshExprMVar expectedType
+    let (_, introdGoal) ← goal.mvarId!.intros
+    introdGoal.withContext do
+      if let some suggestions ← librarySearch introdGoal then
         reportOutOfHeartbeats `library_search stx
         for suggestion in suggestions do
           withMCtx suggestion.2 do
             addTermSuggestion stx (← instantiateMVars goal).headBeta
-        if suggestions.isEmpty then logError "exact?# didn't find any relevant lemmas"
+        if suggestions.isEmpty then logError "`apply?%` didn't find any relevant lemmas"
         mkSorry expectedType (synthetic := true)
       else
         addTermSuggestion stx (← instantiateMVars goal).headBeta

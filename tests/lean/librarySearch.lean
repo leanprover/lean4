@@ -43,6 +43,26 @@ example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 #guard_msgs in
 example : x < x + 1 := exact?%
 
+/-- info: Try this: Nat.lt.base x -/
+#guard_msgs in
+example : x < x + 1 := apply?%
+
+/-- error: `exact?%` didn't find any relevant lemmas -/
+#guard_msgs in
+example {α : Sort u} (x y : α) : Eq x y := exact?%
+
+/-- error: `apply?%` didn't find any relevant lemmas -/
+#guard_msgs in
+example {α : Sort u} (x y : α) : Eq x y := apply?%
+
+/-- warning: declaration uses 'sorry' -/
+#guard_msgs (warning, drop info) in
+example (x y : Nat) : x ≤ y := apply?%
+
+/-- error: `exact?%` could not close the goal. Try `apply?%` to see partial suggestions. -/
+#guard_msgs in
+example (x y : Nat) : x ≤ y := exact?%
+
 /-- info: Try this: exact p -/
 #guard_msgs in
 example (P : Prop) (p : P) : P := by apply?

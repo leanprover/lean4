@@ -1542,9 +1542,15 @@ macro "get_elem_tactic" : tactic =>
 
 /--
 Searches environment for definitions or theorems that can be substituted in
-for `exact?% to solve the goal.
+for `exact?%` to close the goal.
  -/
 syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
+
+/--
+Searches environment for definitions or theorems that can be substituted in
+for `apply?%` to close or partially solve the goal.
+ -/
+syntax (name := Lean.Parser.Syntax.apply?) "apply?%" : term
 
 set_option linter.unusedVariables.funArgs false in
 /--

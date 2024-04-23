@@ -21,6 +21,10 @@
 /src/Lean/Server/ @mhuisi
 /src/Lean/Widget/ @Vtec234
 /src/runtime/io.cpp @joehendrix
+/src/Init/Data/ @semorrison
+/src/Init/Data/Array/ @diagam0
+/src/Init/Data/List/ @diagam0
+/src/Init/Data/Array/Subarray.lean @david-christiansen
 /src/Lean/Elab/Tactic/RCases.lean @digama0
 /src/Init/RCases.lean @digama0
 /src/Lean/Elab/Tactic/Ext.lean @digama0
@@ -39,5 +43,4 @@
 /src/Lean/Elab/Tactic/Guard.lean @digama0
 /src/Init/Guard.lean @digama0
 /src/Lean/Server/CodeActions/ @digama0
-/src/Init/Data/Array/Subarray.lean @david-christiansen
 

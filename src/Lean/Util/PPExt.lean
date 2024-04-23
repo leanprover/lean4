@@ -57,7 +57,7 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
     ppExprWithInfos := fun _ e => return format (toString e)
     ppTerm := fun ctx stx => return stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
-    ppLevel := fun _ l => return l.format (mvars := true)
+    ppLevel := fun _ l => return format l
     ppGoal := fun _ _ => return "goal"
   }
 

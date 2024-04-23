@@ -501,6 +501,9 @@ def toList (as : Array α) : List α :=
 def toListAppend (as : Array α) (l : List α) : List α :=
   as.foldr List.cons l
 
+instance : Functor Array where
+  map := Array.map
+
 instance {α : Type u} [Repr α] : Repr (Array α) where
   reprPrec a _ :=
     let _ : Std.ToFormat α := ⟨repr⟩

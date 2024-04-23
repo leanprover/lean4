@@ -553,7 +553,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
 #if !defined(LEAN_WINDOWS)
     int fd_urandom = open("/dev/urandom", O_RDONLY | O_CLOEXEC);
     if (fd_urandom < 0) {
-        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string("/dev/urandom")));
+        return io_result_mk_error(decode_io_error(errno, lean_mk_ascii_string_unchecked("/dev/urandom")));
     }
 #endif
 
@@ -618,7 +618,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg
     } else {
         out << string_cstr(msg) << " " << diff.count() << "s";
     }
-    io_eprintln(mk_utf8_string(out.str()));
+    io_eprintln(mk_string(out.str()));
     return w;
 }
 
@@ -630,7 +630,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_
         allocprof prof(out, string_cstr(msg));
         res = apply_1(fn, w);
     }
-    io_eprintln(mk_utf8_string(out.str()));
+    io_eprintln(mk_string(out.str()));
     return res;
 }
 
@@ -828,7 +828,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     if (!ok) {
         std::ostringstream s;
         s << string_cstr(from) << " and/or " << string_cstr(to);
-        object_ref out{mk_utf8_string(s.str())};
+        object_ref out{mk_string(s.str())};
         return io_result_mk_error(decode_io_error(errno, out.raw()));
     }
 #endif
@@ -1092,7 +1092,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
 }
 
 void initialize_io() {
-    g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string("null reference read"));
+    g_io_error_nullptr_read = lean_mk_io_user_error(mk_ascii_string_unchecked("null reference read"));
     mark_persistent(g_io_error_nullptr_read);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)

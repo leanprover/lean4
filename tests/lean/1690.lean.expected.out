@@ -1,1 +1,1 @@
-1690.lean: input file contains invalid UTF-8
+1690.lean:1:10: error: expected token

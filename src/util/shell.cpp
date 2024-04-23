@@ -365,11 +365,8 @@ pair_ref<environment, object_ref> run_new_frontend(
     if (ilean_file_name) {
         oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
     }
-    if (!validate_utf8((const uint8_t *)input.data(), input.size())) {
-        throw exception(sstream() << file_name << ": input file contains invalid UTF-8");
-    }
     return get_io_result<pair_ref<environment, object_ref>>(lean_run_frontend(
-        mk_utf8_string(input),
+        mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
         main_module_name.to_obj_arg(),

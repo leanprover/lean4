@@ -1,10 +1,16 @@
-inductive Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
+structure Foo.{v, u_1} : {α : Sort u_1} → (α → Type v) → Sort (max u_1 (v + 1))
 number of parameters: 2
-constructors:
+constructor:
 Foo.mk : {α : Sort u_1} → {β : α → Type v} → (a : α) → β a → Foo β
+fields:
+a : α
+b : β self.a
 structAutoBound.lean:9:15-9:16: error: a universe level named 'u' has already been declared
-inductive Boo.{u, v} : Type u → Type v → Type (max u v)
+structure Boo.{u, v} : Type u → Type v → Type (max u v)
 number of parameters: 2
-constructors:
+constructor:
 Boo.mk : {α : Type u} → {β : Type v} → α → β → Boo α β
+fields:
+a : α
+b : β
 structAutoBound.lean:18:0-20:7: error: unused universe parameter 'w'

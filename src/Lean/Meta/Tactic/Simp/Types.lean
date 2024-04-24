@@ -21,7 +21,11 @@ structure Result where
   /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
   If `none`, the proof is assumed to be `refl`. -/
   proof?         : Option Expr := none
-  /-- If `cache := true` the result is cached. -/
+  /--
+  If `cache := true` the result is cached.
+  Warning: we will remove this field in the future. It is currently used by
+  `arith := true`, but we can now refactor the code to avoid the hack.
+  -/
   cache          : Bool := true
   deriving Inhabited
 
@@ -283,9 +287,6 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try x finally modify fun s => { s with cache := cacheSaved }
-
-@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
-  withFreshCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
 
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
   withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x

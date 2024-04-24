@@ -1125,11 +1125,14 @@ normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
 macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
 
 /--
-The `norm_cast` family of tactics is used to normalize casts inside expressions.
-It is basically a `simp` tactic with a specific set of lemmas to move casts
+The `norm_cast` family of tactics is used to normalize certain coercions (*casts*) in expressions.
+- `norm_cast` normalizes casts in the target.
+- `norm_cast at h` normalizes casts in hypothesis `h`.
+
+The tactic is basically a version of `simp` with a specific set of lemmas to move casts
 upwards in the expression.
 Therefore even in situations where non-terminal `simp` calls are discouraged (because of fragility),
-`norm_cast` is considered safe.
+`norm_cast` is considered to be safe.
 It also has special handling of numerals.
 
 For instance, given an assumption
@@ -1137,22 +1140,22 @@ For instance, given an assumption
 a b : ℤ
 h : ↑a + ↑b < (10 : ℚ)
 ```
-
 writing `norm_cast at h` will turn `h` into
 ```lean
 h : a + b < 10
 ```
 
-There are also variants of `exact`, `apply`, `rw`, and `assumption` that
-work modulo `norm_cast` - in other words, they apply `norm_cast` to make
-them more flexible. They are called `exact_mod_cast`, `apply_mod_cast`,
-`rw_mod_cast`, and `assumption_mod_cast`, respectively.
-Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize casts
-in the goal and `h` before using `exact h` or `apply h`.
-Writing `assumption_mod_cast` will normalize casts in the goal and, for
-every hypothesis `h` in the context, it will try to normalize casts in `h` and use
-`exact h`.
-`rw_mod_cast` acts like the `rw` tactic but it applies `norm_cast` between steps.
+There are also variants of basic tactics that use `norm_cast` to normalize expressions during
+their operation, to make them more flexible about the expressions they accept
+(we say that it is a tactic *modulo* the effects of `norm_cast`):
+- `exact_mod_cast` for `exact` and `apply_mod_cast` for `apply`.
+  Writing `exact_mod_cast h` and `apply_mod_cast h` will normalize casts
+  in the goal and `h` before using `exact h` or `apply h`.
+- `rw_mod_cast` for `rw`. It applies `norm_cast` between rewrites.
+- `assumption_mod_cast` for `assumption`.
+  This is effectively `norm_cast at *; assumption`, but more efficient.
+  It normalizes casts in the goal and, for every hypothesis `h` in the context,
+  it will try to normalize casts in `h` and use `exact h`.
 
 See also `push_cast`, which moves casts inwards rather than lifting them outwards.
 -/
@@ -1160,22 +1163,37 @@ macro "norm_cast" loc:(location)? : tactic =>
   `(tactic| norm_cast0 $[$loc]? <;> try trivial)
 
 /--
-`push_cast` rewrites the goal to move casts inward, toward the leaf nodes.
+`push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
 This uses `norm_cast` lemmas in the forward direction.
 For example, `↑(a + b)` will be written to `↑a + ↑b`.
-It is equivalent to `simp only with push_cast`.
-It can also be used at hypotheses with `push_cast at h`
-and with extra simp lemmas with `push_cast [int.add_zero]`.
+- `push_cast` moves casts inward in the goal.
+- `push_cast at h` moves casts inward in the hypothesis `h`.
+It can be used with extra simp lemmas with, for example, `push_cast [Int.add_zero]`.
 
+Example:
 ```lean
-example (a b : ℕ) (h1 : ((a + b : ℕ) : ℤ) = 10) (h2 : ((a + b + 0 : ℕ) : ℤ) = 10) :
-  ((a + b : ℕ) : ℤ) = 10 :=
-begin
-  push_cast,
-  push_cast at h1,
-  push_cast [int.add_zero] at h2,
-end
+example (a b : Nat)
+    (h1 : ((a + b : Nat) : Int) = 10)
+    (h2 : ((a + b + 0 : Nat) : Int) = 10) :
+    ((a + b : Nat) : Int) = 10 := by
+  /-
+  h1 : ↑(a + b) = 10
+  h2 : ↑(a + b + 0) = 10
+  ⊢ ↑(a + b) = 10
+  -/
+  push_cast
+  /- Now
+  ⊢ ↑a + ↑b = 10
+  -/
+  push_cast at h1
+  push_cast [Int.add_zero] at h2
+  /- Now
+  h1 h2 : ↑a + ↑b = 10
+  -/
+  exact h1
 ```
+
+See also `norm_cast`.
 -/
 syntax (name := pushCast) "push_cast" (config)? (discharger)? (&" only")?
   (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic

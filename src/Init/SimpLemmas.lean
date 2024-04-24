@@ -103,18 +103,26 @@ end SimprocHelperLemmas
 
 @[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
 @[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
+instance : Std.LawfulIdentity And True where
+  left_id := true_and
+  right_id := and_true
 @[simp] theorem and_false (p : Prop) : (p ∧ False) = False := eq_false (·.2)
 @[simp] theorem false_and (p : Prop) : (False ∧ p) = False := eq_false (·.1)
 @[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.left), fun h => ⟨h, h⟩⟩
+instance : Std.IdempotentOp And := ⟨and_self⟩
 @[simp] theorem and_not_self : ¬(a ∧ ¬a) | ⟨ha, hn⟩ => absurd ha hn
 @[simp] theorem not_and_self : ¬(¬a ∧ a) := and_not_self ∘ And.symm
 @[simp] theorem and_imp : (a ∧ b → c) ↔ (a → b → c) := ⟨fun h ha hb => h ⟨ha, hb⟩, fun h ⟨ha, hb⟩ => h ha hb⟩
 @[simp] theorem not_and : ¬(a ∧ b) ↔ (a → ¬b) := and_imp
 @[simp] theorem or_self (p : Prop) : (p ∨ p) = p := propext ⟨fun | .inl h | .inr h => h, .inl⟩
+instance : Std.IdempotentOp Or := ⟨or_self⟩
 @[simp] theorem or_true (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
 @[simp] theorem true_or (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
 @[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
 @[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
+instance : Std.LawfulIdentity Or False where
+  left_id := false_or
+  right_id := or_false
 @[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := eq_true .rfl
 @[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
 @[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
@@ -140,6 +148,7 @@ theorem and_congr_left (h : c → (a ↔ b)) : a ∧ c ↔ b ∧ c :=
 theorem and_assoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
   Iff.intro (fun ⟨⟨ha, hb⟩, hc⟩ => ⟨ha, hb, hc⟩)
             (fun ⟨ha, hb, hc⟩ => ⟨⟨ha, hb⟩, hc⟩)
+instance : Std.Associative And := ⟨fun _ _ _ => propext and_assoc⟩
 
 @[simp] theorem and_self_left  : a ∧ (a ∧ b) ↔ a ∧ b := by rw [←propext and_assoc, and_self]
 @[simp] theorem and_self_right : (a ∧ b) ∧ b ↔ a ∧ b := by rw [ propext and_assoc, and_self]
@@ -167,6 +176,7 @@ theorem Or.imp_right (f : b → c) : a ∨ b → a ∨ c := .imp id f
 theorem or_assoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
   Iff.intro (.rec (.imp_right .inl) (.inr ∘ .inr))
             (.rec (.inl ∘ .inl) (.imp_left .inr))
+instance : Std.Associative Or := ⟨fun _ _ _ => propext or_assoc⟩
 
 @[simp] theorem or_self_left  : a ∨ (a ∨ b) ↔ a ∨ b := by rw [←propext or_assoc, or_self]
 @[simp] theorem or_self_right : (a ∨ b) ∨ b ↔ a ∨ b := by rw [ propext or_assoc, or_self]
@@ -187,8 +197,12 @@ theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.r
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl
 @[simp] theorem Bool.false_or (b : Bool) : (false || b) = b  := by cases b <;> rfl
+instance : Std.LawfulIdentity (· || ·) false where
+  left_id := Bool.false_or
+  right_id := Bool.or_false
 @[simp] theorem Bool.true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
 @[simp] theorem Bool.or_self (b : Bool) : (b || b) = b       := by cases b <;> rfl
+instance : Std.IdempotentOp (· || ·) := ⟨Bool.or_self⟩
 @[simp] theorem Bool.or_eq_true (a b : Bool) : ((a || b) = true) = (a = true ∨ b = true) := by
   cases a <;> cases b <;> decide
 
@@ -196,14 +210,20 @@ theorem or_iff_left_of_imp  (hb : b → a) : (a ∨ b) ↔ a  := Iff.intro (Or.r
 @[simp] theorem Bool.and_true (b : Bool) : (b && true) = b       := by cases b <;> rfl
 @[simp] theorem Bool.false_and (b : Bool) : (false && b) = false := by cases b <;> rfl
 @[simp] theorem Bool.true_and (b : Bool) : (true && b) = b       := by cases b <;> rfl
+instance : Std.LawfulIdentity (· && ·) true where
+  left_id := Bool.true_and
+  right_id := Bool.and_true
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
+instance : Std.IdempotentOp (· && ·) := ⟨Bool.and_self⟩
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by
   cases a <;> cases b <;> decide
 
 theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
   cases a <;> cases b <;> cases c <;> decide
+instance : Std.Associative (· && ·) := ⟨Bool.and_assoc⟩
 theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
   cases a <;> cases b <;> cases c <;> decide
+instance : Std.Associative (· || ·) := ⟨Bool.or_assoc⟩
 
 @[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
 @[simp] theorem Bool.not_true  : (!true) = false := by decide

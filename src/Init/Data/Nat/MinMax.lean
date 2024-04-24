@@ -17,6 +17,7 @@ protected theorem min_comm (a b : Nat) : min a b = min b a := by
   | .inl h => simp [Nat.min_def, h, Nat.le_of_lt, Nat.not_le_of_lt]
   | .inr (.inl h) => simp [Nat.min_def, h]
   | .inr (.inr h) => simp [Nat.min_def, h, Nat.le_of_lt, Nat.not_le_of_lt]
+instance : Std.Commutative (α := Nat) min := ⟨Nat.min_comm⟩
 
 protected theorem min_le_right (a b : Nat) : min a b ≤ b := by
   by_cases (a <= b) <;> simp [Nat.min_def, *]
@@ -47,6 +48,7 @@ protected theorem max_comm (a b : Nat) : max a b = max b a := by
   by_cases h₁ : a ≤ b <;> by_cases h₂ : b ≤ a <;> simp [h₁, h₂]
   · exact Nat.le_antisymm h₂ h₁
   · cases not_or_intro h₁ h₂ <| Nat.le_total ..
+instance : Std.Commutative (α := Nat) max := ⟨Nat.max_comm⟩
 
 protected theorem le_max_left ( a b : Nat) : a ≤ max a b := by
   by_cases (a <= b) <;> simp [Nat.max_def, *]

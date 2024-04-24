@@ -86,6 +86,7 @@ builtin_initialize
   ppFnsRef.set {
     ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e,
     ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx,
+    ppLevel := fun ctx l => return l.format (mvars := getPPMVars ctx.opts),
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 

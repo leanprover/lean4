@@ -79,10 +79,11 @@ v4.8.0 (development in progress)
   Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
 
 * Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
-  When `pp.mvars` is false, metavariables pretty print as `?_`,
-  and when `pp.mvars.withType` is true, metavariables pretty print with a type ascription.
-  These can be set when using `#guard_msgs` to make tests not rely on the unique ids assigned to anonymous metavariables.
-  [#3798](https://github.com/leanprover/lean4/pull/3798).
+  When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
+  When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
+  These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
+  [#3798](https://github.com/leanprover/lean4/pull/3798) and
+  [#3978](https://github.com/leanprover/lean4/pull/3978).
 
 * Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
   for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.

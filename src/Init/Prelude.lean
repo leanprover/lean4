@@ -4335,8 +4335,13 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
     Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
 
 /--
-Append two names that may have macro scopes. The macro scopes in `b` are always erased.
-If `a` has macro scopes, then they are propagated to the result of `append a b`.
+Appends two names `a` and `b`, propagating macro scopes from `a` or `b`, if any, to the result.
+Panics if both `a` and `b` have macro scopes.
+
+This function is used for the `Append Name` instance.
+
+See also `Lean.Name.appendCore`, which appends names without any consideration for macro scopes.
+Also consider `Lean.Name.eraseMacroScopes` to erase macro scopes before appending, if appropriate.
 -/
 def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with

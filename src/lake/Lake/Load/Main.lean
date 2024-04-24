@@ -174,6 +174,8 @@ def Workspace.updateAndMaterialize
         liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
       logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
     resolveDepsAcyclic ws.root fun pkg resolve => do
+      if let some pkg := (← getThe Workspace).findPackage? pkg.name then
+        return pkg
       let inherited := pkg.name != ws.root.name
       -- Materialize this package's dependencies first
       let deps ← pkg.depConfigs.mapM fun dep => fetchOrCreate dep.name do
@@ -243,6 +245,8 @@ def Workspace.materializeDeps
   let rootPkg := ws.root
   let (root, ws) ← StateT.run (s := ws) <| StateT.run' (s := mkNameMap Package) do
     resolveDepsAcyclic rootPkg fun pkg resolve => do
+      if let some pkg := (← getThe Workspace).findPackage? pkg.name then
+        return pkg
       let topLevel := pkg.name = rootPkg.name
       let deps := pkg.depConfigs
       if topLevel then

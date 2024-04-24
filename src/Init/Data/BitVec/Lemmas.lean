@@ -826,13 +826,18 @@ theorem ofNat_add_ofNat {n} (x y : Nat) : x#n + y#n = (x + y)#n :=
 
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq ; simp [Nat.add_assoc]
+instance : Std.Associative (α := BitVec n) (· + ·) := ⟨BitVec.add_assoc⟩
 
 protected theorem add_comm (x y : BitVec n) : x + y = y + x := by
   simp [add_def, Nat.add_comm]
+instance : Std.Commutative (α := BitVec n) (· + ·) := ⟨BitVec.add_comm⟩
 
 @[simp] protected theorem add_zero (x : BitVec n) : x + 0#n = x := by simp [add_def]
 
 @[simp] protected theorem zero_add (x : BitVec n) : 0#n + x = x := by simp [add_def]
+instance : Std.LawfulIdentity (α := BitVec n) (· + ·) 0#n where
+  left_id := BitVec.zero_add
+  right_id := BitVec.add_zero
 
 theorem truncate_add (x y : BitVec w) (h : i ≤ w) :
     (x + y).truncate i = x.truncate i + y.truncate i := by

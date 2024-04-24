@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
 
 # Script internal to `./script/rebase-stage0.sh`
 

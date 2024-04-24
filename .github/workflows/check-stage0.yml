@@ -1,0 +1,27 @@
+name: Check for stage0 updates on the merge queue
+
+# We only want to run this on merge_group checks, but github uses the same
+# list of requires checks for PR → queue and queue → master, so
+# this needs to run (without doing anything) for pull_request as well.
+on:
+  merge_group:
+  pull_request:
+
+jobs:
+  check-stage0-on-queue:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'merge_group'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        filter: blob:none
+        fetch-depth: 2
+    - run: |
+        if git diff HEAD^..HEAD --name-only -- stage0 |
+          grep -q -v -x -F $'stage0/src/stdlib_flags.h\nstage0/src/lean.mk.in'
+        then
+          echo "Found changes to stage0/, please do not merge using the merge queue." | tee "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+      shell: bash

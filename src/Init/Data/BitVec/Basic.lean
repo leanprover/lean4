@@ -34,7 +34,7 @@ structure BitVec (w : Nat) where
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
 
-@[deprecated] -- 2024-04-12
+@[deprecated (since := "2024-04-12")]
 protected abbrev Std.BitVec := _root_.BitVec
 
 -- We manually derive the `DecidableEq` instances for `BitVec` because
@@ -74,7 +74,7 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
-@[deprecated isLt] -- 2024-03-12
+@[deprecated isLt (since := "2024-03-12")]
 theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
 
 /-- Theorem for normalizing the bit vector literal representation. -/

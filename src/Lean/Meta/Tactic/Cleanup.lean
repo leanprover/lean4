@@ -72,7 +72,7 @@ where
 abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
   cleanupCore mvarId toPreserve indirectProps
 
-@[deprecated MVarId.cleanup] -- 2022-07-15
+@[deprecated MVarId.cleanup (since := "2022-07-15")]
 abbrev cleanup (mvarId : MVarId) : MetaM MVarId := do
   mvarId.cleanup
 

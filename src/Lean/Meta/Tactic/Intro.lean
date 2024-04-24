@@ -132,7 +132,7 @@ Introduce `n` binders in the goal `mvarId`.
 abbrev _root_.Lean.MVarId.introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useNamesForExplicitOnly := false) : MetaM (Array FVarId × MVarId) :=
   introNCore mvarId n givenNames (useNamesForExplicitOnly := useNamesForExplicitOnly) (preserveBinderNames := false)
 
-@[deprecated MVarId.introN] -- 2022-07-15
+@[deprecated MVarId.introN (since := "2022-07-15")]
 abbrev introN (mvarId : MVarId) (n : Nat) (givenNames : List Name := []) (useNamesForExplicitOnly := false) : MetaM (Array FVarId × MVarId) :=
   mvarId.introN n givenNames useNamesForExplicitOnly
 
@@ -143,7 +143,7 @@ The suffix `P` stands for "preserving`.
 abbrev _root_.Lean.MVarId.introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
   introNCore mvarId n [] (useNamesForExplicitOnly := false) (preserveBinderNames := true)
 
-@[deprecated MVarId.introNP] -- 2022-07-15
+@[deprecated MVarId.introNP (since := "2022-07-15")]
 abbrev introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
   mvarId.introNP n
 
@@ -154,7 +154,7 @@ def _root_.Lean.MVarId.intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × 
   let (fvarIds, mvarId) ← mvarId.introN 1 [name]
   return (fvarIds[0]!, mvarId)
 
-@[deprecated MVarId.intro] -- 2022-07-15
+@[deprecated MVarId.intro (since := "2022-07-15")]
 def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
   mvarId.intro name
 
@@ -169,7 +169,7 @@ does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId false
 
-@[deprecated MVarId.intro1] -- 2022-07-15
+@[deprecated MVarId.intro1 (since := "2022-07-15")]
 abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   mvarId.intro1
 
@@ -180,7 +180,7 @@ does not start with a forall, lambda or let. -/
 abbrev _root_.Lean.MVarId.intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId true
 
-@[deprecated MVarId.intro1P] -- 2022-07-15
+@[deprecated MVarId.intro1P (since := "2022-07-15")]
 abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   mvarId.intro1P
 
@@ -206,7 +206,7 @@ def _root_.Lean.MVarId.intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId)
   else
     mvarId.introN n
 
-@[deprecated MVarId.intros] -- 2022-07-15
+@[deprecated MVarId.intros (since := "2022-07-15")]
 def intros (mvarId : MVarId) : MetaM (Array FVarId × MVarId) := do
   mvarId.intros
 

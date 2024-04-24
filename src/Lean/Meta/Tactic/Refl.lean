@@ -37,11 +37,11 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
     let α := targetType.appFn!.appFn!.appArg!
     mvarId.assign (mkApp2 (mkConst ``Eq.refl  us) α lhs)
 
-@[deprecated MVarId.refl] -- 2022-07-15
+@[deprecated MVarId.refl (since := "2022-07-15")]
 def refl (mvarId : MVarId) : MetaM Unit := do
   mvarId.refl
 
-@[deprecated MVarId.refl] -- 2022-07-15
+@[deprecated MVarId.refl (since := "2022-07-15")]
 def _root_.Lean.MVarId.applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
   try mvarId.refl catch _ => throwError msg
 

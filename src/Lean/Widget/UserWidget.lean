@@ -346,9 +346,9 @@ structure UserWidgetDefinition where
 instance : ToModule UserWidgetDefinition where
   toModule uwd := { uwd with }
 
-private def widgetAttrImpl : AttributeImpl where
+@[deprecated (since := "2023-12-21")] private def widgetAttrImpl : AttributeImpl where
   name := `widget
-  descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead." -- 2023-12-21
+  descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead."
   applicationTime := AttributeApplicationTime.afterCompilation
   add := widgetModuleAttrImpl.add
 
@@ -364,7 +364,7 @@ opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadEr
 
 /-- Save a user-widget instance to the infotree.
     The given `widgetId` should be the declaration name of the widget definition. -/
-@[deprecated savePanelWidgetInfo] def saveWidgetInfo (widgetId : Name) (props : Json) -- 2023-12-21
+@[deprecated savePanelWidgetInfo (since := "2023-12-21")] def saveWidgetInfo (widgetId : Name) (props : Json)
     (stx : Syntax) : CoreM Unit := do
   let uwd ← evalUserWidgetDefinition widgetId
   savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
@@ -439,6 +439,6 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
 builtin_initialize
   Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets
 
-attribute [deprecated Module] UserWidgetDefinition -- 2023-12-21
+attribute [deprecated Module (since := "2023-12-21")] UserWidgetDefinition
 
 end Lean.Widget

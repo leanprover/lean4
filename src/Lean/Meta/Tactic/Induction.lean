@@ -207,7 +207,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
           | _ =>
            throwTacticEx `induction mvarId "major premise is not of the form (C ...)"
 
-@[deprecated MVarId.induction] -- 2022-07-15
+@[deprecated MVarId.induction (since := "2022-07-15")]
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.induction majorFVarId recursorName givenNames
 

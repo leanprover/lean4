@@ -185,7 +185,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     result.forM (·.headBetaType)
     return result
 
-@[deprecated MVarId.apply] -- 2022-07-15
+@[deprecated MVarId.apply (since := "2022-07-15")]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   mvarId.apply e cfg
 

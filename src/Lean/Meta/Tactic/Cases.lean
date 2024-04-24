@@ -269,7 +269,7 @@ Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka 
 def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)
 
-@[deprecated MVarId.cases] -- 2022-07-15
+@[deprecated MVarId.cases (since := "2022-07-15")]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 

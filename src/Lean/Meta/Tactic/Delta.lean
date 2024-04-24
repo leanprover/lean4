@@ -32,7 +32,7 @@ def _root_.Lean.MVarId.deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM
     mvarId.checkNotAssigned `delta
     mvarId.change (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
 
-@[deprecated MVarId.deltaTarget] -- 2022-07-15
+@[deprecated MVarId.deltaTarget (since := "2022-07-15")]
 def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
   mvarId.deltaTarget p
 
@@ -44,7 +44,7 @@ def _root_.Lean.MVarId.deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : N
     mvarId.checkNotAssigned `delta
     mvarId.changeLocalDecl fvarId (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
 
-@[deprecated MVarId.deltaLocalDecl] -- 2022-07-15
+@[deprecated MVarId.deltaLocalDecl (since := "2022-07-15")]
 def deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
   mvarId.deltaLocalDecl fvarId p
 

@@ -28,7 +28,7 @@ def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) :
             pure ()
         throwTacticEx `constructor mvarId "no applicable constructor found"
 
-@[deprecated MVarId.constructor] -- 2022-07-15
+@[deprecated MVarId.constructor (since := "2022-07-15")]
 def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   mvarId.constructor cfg
 
@@ -50,7 +50,7 @@ def _root_.Lean.MVarId.existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId :
           | throwTacticEx `exists mvarId "unexpected number of subgoals"
         pure mvarId
 
-@[deprecated MVarId.existsIntro] -- 2022-07-15
+@[deprecated MVarId.existsIntro (since := "2022-07-15")]
 def existsIntro (mvarId : MVarId) (w : Expr) : MetaM MVarId := do
   mvarId.existsIntro w
 

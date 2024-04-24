@@ -125,7 +125,7 @@ def _root_.Lean.MVarId.generalize (mvarId : MVarId) (args : Array GeneralizeArg)
     (transparency := TransparencyMode.instances) : MetaM (Array FVarId × MVarId) :=
   generalizeCore mvarId args transparency
 
-@[inherit_doc generalizeCore, deprecated MVarId.generalize] -- 2022-07-15
+@[inherit_doc generalizeCore, deprecated MVarId.generalize (since := "2022-07-15")]
 def generalize (mvarId : MVarId) (args : Array GeneralizeArg)
     (transparency := TransparencyMode.instances) : MetaM (Array FVarId × MVarId) :=
   generalizeCore mvarId args transparency

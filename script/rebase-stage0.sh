@@ -11,14 +11,14 @@ then
 fi
 
 # Check if an argument is provided
-if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 [-nix] <branch-to-rebase-onto>"
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 [-nix] <options to git rebase -i>"
     exit 1
 fi
 
-BRANCH_TO_REBASE="$1"
 REPO_ROOT=$(git rev-parse --show-toplevel)
+
 # Run git rebase in interactive mode, but automatically edit the todo list
 # using the defined GIT_SEQUENCE_EDITOR command
-GIT_SEQUENCE_EDITOR="$REPO_ROOT/script/aux/rebase-editor.sh" git rebase -i "$BRANCH_TO_REBASE"
+GIT_SEQUENCE_EDITOR="$REPO_ROOT/script/aux/rebase-editor.sh" git rebase -i "$@"
 

@@ -1,5 +1,5 @@
 /- Ensure that non-fixed indices don't get mistakenly promoted to parameter
-   See issue `#3458`
+   See issue `https://github.com/leanprover/lean4/issues/3458`
  -/
 
 set_option autoImplicit false

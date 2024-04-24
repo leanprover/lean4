@@ -58,7 +58,7 @@ def checked (e : Expr) : ForEachM m Bool := do
     return false
 
 /-- `Expr.forEachWhere` (unsafe) implementation -/
-unsafe def visit (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false): m Unit := do
+unsafe def visit (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false) : m Unit := do
   go e |>.run' initCache
 where
   go (e : Expr) : StateRefT' ω State m Unit := do
@@ -85,6 +85,6 @@ end ForEachExprWhere
   which satisfy `p`.
 -/
 @[implemented_by ForEachExprWhere.visit]
-opaque Expr.forEachWhere {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false): m Unit
+opaque Expr.forEachWhere {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false) : m Unit
 
 end Lean

@@ -17,23 +17,23 @@ lean_object* lean_nat_gcd(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_IntList_get___closed__1;
 static lean_object* l_Lean_Omega_IntList_add___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_bmod(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_IntList_instMulIntList___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instSub;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
 static lean_object* l_Lean_Omega_IntList_leading___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_combo(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_leading___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Omega_IntList_gcd___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sum(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instMulIntList;
+static lean_object* l_Lean_Omega_IntList_instMul___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sub___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sub(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_IntList_instSubIntList___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_zipWith___at_Lean_Omega_IntList_mul___spec__1(lean_object*, lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_mul___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_IntList_instNegIntList___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instNeg;
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instAdd;
 lean_object* l_List_zipWithAll___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_zipWithAll__get_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add(lean_object*, lean_object*);
@@ -43,8 +43,9 @@ static lean_object* l_Lean_Omega_IntList_sub___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_sdiv___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_combo___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instAddIntList;
+static lean_object* l_Lean_Omega_IntList_instNeg___closed__1;
 LEAN_EXPORT lean_object* l_List_zipWith___at_Lean_Omega_IntList_mul___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instMul;
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Omega_IntList_sum___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_leading(lean_object*);
@@ -54,9 +55,9 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_smul___spec__
 lean_object* l_Int_bmod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add___lambda__1(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
-static lean_object* l_Lean_Omega_IntList_instAddIntList___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_sub___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulInt(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_bmod___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -65,27 +66,26 @@ LEAN_EXPORT lean_object* l_Lean_Omega_IntList_gcd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_zipWithAll__get_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_IntList_add___lambda__1___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+static lean_object* l_Lean_Omega_IntList_instAdd___closed__1;
 static lean_object* l_Lean_Omega_IntList_sub___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_get___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instSubIntList;
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Omega_IntList_sum___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_neg___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_bmod__dot__sub__dot__bmod___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Omega_IntList_leading___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_zipWith__get_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instNegIntList;
 lean_object* lean_int_add(lean_object*, lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulIntIntList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_combo___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Omega_IntList_gcd___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_zipWith__get_x3f_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_smul___spec__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Omega_IntList_instSub___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_sdiv___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
 lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
@@ -370,7 +370,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instAddIntList___closed__1() {
+static lean_object* _init_l_Lean_Omega_IntList_instAdd___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -378,11 +378,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_add), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instAddIntList() {
+static lean_object* _init_l_Lean_Omega_IntList_instAdd() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Omega_IntList_instAddIntList___closed__1;
+x_1 = l_Lean_Omega_IntList_instAdd___closed__1;
 return x_1;
 }
 }
@@ -513,7 +513,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instMulIntList___closed__1() {
+static lean_object* _init_l_Lean_Omega_IntList_instMul___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -521,11 +521,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_mul___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instMulIntList() {
+static lean_object* _init_l_Lean_Omega_IntList_instMul() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Omega_IntList_instMulIntList___closed__1;
+x_1 = l_Lean_Omega_IntList_instMul___closed__1;
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ x_3 = l_List_mapTR_loop___at_Lean_Omega_IntList_neg___spec__1(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instNegIntList___closed__1() {
+static lean_object* _init_l_Lean_Omega_IntList_instNeg___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -639,11 +639,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_neg), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instNegIntList() {
+static lean_object* _init_l_Lean_Omega_IntList_instNeg() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Omega_IntList_instNegIntList___closed__1;
+x_1 = l_Lean_Omega_IntList_instNeg___closed__1;
 return x_1;
 }
 }
@@ -724,7 +724,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instSubIntList___closed__1() {
+static lean_object* _init_l_Lean_Omega_IntList_instSub___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -732,11 +732,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Omega_IntList_sub), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Omega_IntList_instSubIntList() {
+static lean_object* _init_l_Lean_Omega_IntList_instSub() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Omega_IntList_instSubIntList___closed__1;
+x_1 = l_Lean_Omega_IntList_instSub___closed__1;
 return x_1;
 }
 }
@@ -809,7 +809,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulIntIntList(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulInt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -1232,26 +1232,26 @@ l_Lean_Omega_IntList_add___lambda__1___closed__1 = _init_l_Lean_Omega_IntList_ad
 lean_mark_persistent(l_Lean_Omega_IntList_add___lambda__1___closed__1);
 l_Lean_Omega_IntList_add___closed__1 = _init_l_Lean_Omega_IntList_add___closed__1();
 lean_mark_persistent(l_Lean_Omega_IntList_add___closed__1);
-l_Lean_Omega_IntList_instAddIntList___closed__1 = _init_l_Lean_Omega_IntList_instAddIntList___closed__1();
-lean_mark_persistent(l_Lean_Omega_IntList_instAddIntList___closed__1);
-l_Lean_Omega_IntList_instAddIntList = _init_l_Lean_Omega_IntList_instAddIntList();
-lean_mark_persistent(l_Lean_Omega_IntList_instAddIntList);
-l_Lean_Omega_IntList_instMulIntList___closed__1 = _init_l_Lean_Omega_IntList_instMulIntList___closed__1();
-lean_mark_persistent(l_Lean_Omega_IntList_instMulIntList___closed__1);
-l_Lean_Omega_IntList_instMulIntList = _init_l_Lean_Omega_IntList_instMulIntList();
-lean_mark_persistent(l_Lean_Omega_IntList_instMulIntList);
-l_Lean_Omega_IntList_instNegIntList___closed__1 = _init_l_Lean_Omega_IntList_instNegIntList___closed__1();
-lean_mark_persistent(l_Lean_Omega_IntList_instNegIntList___closed__1);
-l_Lean_Omega_IntList_instNegIntList = _init_l_Lean_Omega_IntList_instNegIntList();
-lean_mark_persistent(l_Lean_Omega_IntList_instNegIntList);
+l_Lean_Omega_IntList_instAdd___closed__1 = _init_l_Lean_Omega_IntList_instAdd___closed__1();
+lean_mark_persistent(l_Lean_Omega_IntList_instAdd___closed__1);
+l_Lean_Omega_IntList_instAdd = _init_l_Lean_Omega_IntList_instAdd();
+lean_mark_persistent(l_Lean_Omega_IntList_instAdd);
+l_Lean_Omega_IntList_instMul___closed__1 = _init_l_Lean_Omega_IntList_instMul___closed__1();
+lean_mark_persistent(l_Lean_Omega_IntList_instMul___closed__1);
+l_Lean_Omega_IntList_instMul = _init_l_Lean_Omega_IntList_instMul();
+lean_mark_persistent(l_Lean_Omega_IntList_instMul);
+l_Lean_Omega_IntList_instNeg___closed__1 = _init_l_Lean_Omega_IntList_instNeg___closed__1();
+lean_mark_persistent(l_Lean_Omega_IntList_instNeg___closed__1);
+l_Lean_Omega_IntList_instNeg = _init_l_Lean_Omega_IntList_instNeg();
+lean_mark_persistent(l_Lean_Omega_IntList_instNeg);
 l_Lean_Omega_IntList_sub___lambda__1___closed__1 = _init_l_Lean_Omega_IntList_sub___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Omega_IntList_sub___lambda__1___closed__1);
 l_Lean_Omega_IntList_sub___closed__1 = _init_l_Lean_Omega_IntList_sub___closed__1();
 lean_mark_persistent(l_Lean_Omega_IntList_sub___closed__1);
-l_Lean_Omega_IntList_instSubIntList___closed__1 = _init_l_Lean_Omega_IntList_instSubIntList___closed__1();
-lean_mark_persistent(l_Lean_Omega_IntList_instSubIntList___closed__1);
-l_Lean_Omega_IntList_instSubIntList = _init_l_Lean_Omega_IntList_instSubIntList();
-lean_mark_persistent(l_Lean_Omega_IntList_instSubIntList);
+l_Lean_Omega_IntList_instSub___closed__1 = _init_l_Lean_Omega_IntList_instSub___closed__1();
+lean_mark_persistent(l_Lean_Omega_IntList_instSub___closed__1);
+l_Lean_Omega_IntList_instSub = _init_l_Lean_Omega_IntList_instSub();
+lean_mark_persistent(l_Lean_Omega_IntList_instSub);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -116,6 +116,11 @@ instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
 
 namespace Nat
 
+/-
+We have pure functions for calculating the decimal representation of a `Nat` (`toDigits`), but also
+a fast variant that handles small numbers (`USize`) via C code (`lean_string_of_usize`).
+-/
+
 def digitChar (n : Nat) : Char :=
   if n = 0 then '0' else
   if n = 1 then '1' else
@@ -146,6 +151,20 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 def toDigits (base : Nat) (n : Nat) : List Char :=
   toDigitsCore base (n+1) n []
 
+@[extern "lean_string_of_usize"]
+protected def _root_.USize.repr (n : @& USize) : String :=
+  (toDigits 10 n.toNat).asString
+
+/-- We statically allocate and memoize reprs for small natural numbers. -/
+private def reprArray : Array String := Id.run do
+  List.range 128 |>.map (·.toUSize.repr) |> Array.mk
+
+private def reprFast (n : Nat) : String :=
+  if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else
+  if h : n < USize.size then (USize.ofNatCore n h).repr
+  else (toDigits 10 n).asString
+
+@[implemented_by reprFast]
 protected def repr (n : Nat) : String :=
   (toDigits 10 n).asString
 
@@ -174,6 +193,32 @@ def toSuperDigits (n : Nat) : List Char :=
 
 def toSuperscriptString (n : Nat) : String :=
   (toSuperDigits n).asString
+
+def subDigitChar (n : Nat) : Char :=
+  if n = 0 then '₀' else
+  if n = 1 then '₁' else
+  if n = 2 then '₂' else
+  if n = 3 then '₃' else
+  if n = 4 then '₄' else
+  if n = 5 then '₅' else
+  if n = 6 then '₆' else
+  if n = 7 then '₇' else
+  if n = 8 then '₈' else
+  if n = 9 then '₉' else
+  '*'
+
+partial def toSubDigitsAux : Nat → List Char → List Char
+  | n, ds =>
+    let d  := subDigitChar <| n % 10;
+    let n' := n / 10;
+    if n' = 0 then d::ds
+    else toSubDigitsAux n' (d::ds)
+
+def toSubDigits (n : Nat) : List Char :=
+  toSubDigitsAux n []
+
+def toSubscriptString (n : Nat) : String :=
+  (toSubDigits n).asString
 
 end Nat
 

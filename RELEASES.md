@@ -79,9 +79,9 @@ v4.8.0 (development in progress)
   Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
 
 * Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
-  When `pp.mvars` is false, metavariables pretty print as `?_`,
-  and when `pp.mvars.withType` is true, metavariables pretty print with a type ascription.
-  These can be set when using `#guard_msgs` to make tests not rely on the unique ids assigned to anonymous metavariables.
+  When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
+  When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
+  These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
   [#3798](https://github.com/leanprover/lean4/pull/3798).
 
 * Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
@@ -98,6 +98,10 @@ v4.8.0 (development in progress)
   For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
   and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
   PR [#3883](https://github.com/leanprover/lean4/pull/3883).
+
+* The `#guard_msgs` command now supports showing a diff between the expected and actual outputs. This feature is currently
+  disabled by default, but can be enabled with `set_option guard_msgs.diff true`. Depending on user feedback, this option
+  may default to `true` in a future version of Lean.
 
 Breaking changes:
 
@@ -131,6 +135,8 @@ fact.def :
 * The `Subarray` fields `as`, `h₁` and `h₂` have been renamed to `array`, `start_le_stop`, and `stop_le_array_size`, respectively. This more closely follows standard Lean conventions. Deprecated aliases for the field projections were added; these will be removed in a future release.
 
 * The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
+
+* `Option.toMonad` has been renamed to `Option.getM` and the unneeded `[Monad m]` instance argument has been removed.
 
 v4.7.0
 ---------

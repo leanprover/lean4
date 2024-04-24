@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_instToFormatPos(lean_object*);
 static lean_object* l_Option_format___rarg___closed__3;
-LEAN_EXPORT lean_object* l_instToFormat___rarg___lambda__1(lean_object*);
 static lean_object* l_Option_format___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1(lean_object*, lean_object*);
 static lean_object* l_instToFormatProd___rarg___closed__6;
@@ -27,11 +26,10 @@ LEAN_EXPORT lean_object* l_String_toFormat(lean_object*);
 static lean_object* l_List_format___rarg___closed__7;
 LEAN_EXPORT lean_object* l_List_format___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatList(lean_object*);
-static lean_object* l_instToFormat___rarg___closed__1;
 LEAN_EXPORT lean_object* l_List_format(lean_object*);
 static lean_object* l_List_format___rarg___closed__9;
-LEAN_EXPORT lean_object* l_instToFormat___rarg(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatOfToString(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatList___rarg(lean_object*);
 static lean_object* l_instToFormatProd___rarg___closed__2;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -43,29 +41,31 @@ static lean_object* l_Option_format___rarg___closed__2;
 lean_object* l_Std_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatProd___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_format___rarg___closed__3;
+static lean_object* l_instToFormatOfToString___rarg___closed__1;
 LEAN_EXPORT lean_object* l_instToFormatOption___rarg(lean_object*);
 static lean_object* l_List_format___rarg___closed__6;
 static lean_object* l_List_format___rarg___closed__8;
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_List_format___rarg___closed__4;
 static lean_object* l_instToFormatProd___rarg___closed__1;
+LEAN_EXPORT lean_object* l_instToFormatOfToString___rarg(lean_object*);
 static lean_object* l_instToFormatArray___rarg___closed__1;
 static lean_object* l_Option_format___rarg___closed__1;
 lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatOfToString___rarg___lambda__1(lean_object*);
 static lean_object* l_String_toFormat___closed__1;
 LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*);
 static lean_object* l_instToFormatProd___rarg___closed__5;
 static lean_object* l_List_format___rarg___closed__11;
-LEAN_EXPORT lean_object* l_instToFormat(lean_object*);
 static lean_object* l_instToFormatProd___rarg___closed__4;
 LEAN_EXPORT lean_object* l_instToFormatOption(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatProd(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_List_format___rarg___closed__10;
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 static lean_object* l_instToFormatArray___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instToFormat___rarg___lambda__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instToFormatOfToString___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -74,30 +74,30 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_instToFormat___rarg___closed__1() {
+static lean_object* _init_l_instToFormatOfToString___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_instToFormat___rarg___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_instToFormatOfToString___rarg___lambda__1), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_instToFormat___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instToFormatOfToString___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_instToFormat___rarg___closed__1;
+x_2 = l_instToFormatOfToString___rarg___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_2);
 lean_closure_set(x_3, 1, x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_instToFormat(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instToFormatOfToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instToFormat___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_instToFormatOfToString___rarg), 1, 0);
 return x_2;
 }
 }
@@ -593,7 +593,7 @@ LEAN_EXPORT lean_object* l_instToFormatPos(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Nat_repr(x_1);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_3 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_3, 0, x_2);
 return x_3;
@@ -616,8 +616,8 @@ lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_instToFormat___rarg___closed__1 = _init_l_instToFormat___rarg___closed__1();
-lean_mark_persistent(l_instToFormat___rarg___closed__1);
+l_instToFormatOfToString___rarg___closed__1 = _init_l_instToFormatOfToString___rarg___closed__1();
+lean_mark_persistent(l_instToFormatOfToString___rarg___closed__1);
 l_List_format___rarg___closed__1 = _init_l_List_format___rarg___closed__1();
 lean_mark_persistent(l_List_format___rarg___closed__1);
 l_List_format___rarg___closed__2 = _init_l_List_format___rarg___closed__2();

@@ -49,12 +49,25 @@ def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
 
 namespace ReducibilityHints
 
+-- Recall that if `lt h₁ h₂`, we want to reduce declaration associated with `h₁`.
 def lt : ReducibilityHints → ReducibilityHints → Bool
   | .abbrev,     .abbrev     => false
   | .abbrev,     _           => true
-  | .regular d₁, .regular d₂ => d₁ < d₂
+  | .regular d₁, .regular d₂ => d₁ > d₂
   | .regular _,  .opaque     => true
   | _,           _           => false
+
+protected def compare : ReducibilityHints → ReducibilityHints → Ordering
+  | .abbrev,     .abbrev     => .eq
+  | .abbrev,     _           => .lt
+  | .regular _,  .abbrev     => .gt
+  | .regular d₁, .regular d₂ => Ord.compare d₂ d₁
+  | .regular _,  .opaque     => .lt
+  | .opaque,     .opaque     => .eq
+  | .opaque,     _           => .gt
+
+instance : Ord ReducibilityHints where
+  compare := ReducibilityHints.compare
 
 def isAbbrev : ReducibilityHints → Bool
   | .abbrev => true

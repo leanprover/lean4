@@ -18,26 +18,26 @@ lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* lean_byte_array_mk(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instEmptyCollectionTrie(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchPrefix_loop___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchPrefix_loop___spec__1(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_Trie_upsert_loop___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_insertEmpty___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_upsert_loop___spec__1(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_insertEmpty___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_empty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_find_x3f_loop___spec__1(uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_upsert_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -52,19 +52,21 @@ LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_find_x
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Data_Trie_empty___closed__1;
 LEAN_EXPORT lean_object* l_List_zipWith___at___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___spec__1___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Data_Trie_instEmptyCollection___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Data_Trie_values_go___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instEmptyCollection(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix_loop(lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___rarg(lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f___rarg___boxed(lean_object*, lean_object*);
@@ -75,7 +77,6 @@ LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchP
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_matchPrefix___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instInhabitedTrie(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_Lean_Data_Trie_matchPrefix_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_upsert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_insert___rarg___lambda__1(lean_object*, lean_object*);
@@ -96,7 +97,6 @@ lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix_go___rarg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f_loop(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -105,7 +105,7 @@ LEAN_EXPORT lean_object* l_Lean_Data_Trie_find_x3f(lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_values_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_Trie_findPrefix_go(lean_object*);
 static lean_object* _init_l_Lean_Data_Trie_empty___closed__1() {
@@ -126,7 +126,7 @@ x_2 = l_Lean_Data_Trie_empty___closed__1;
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1() {
+static lean_object* _init_l_Lean_Data_Trie_instEmptyCollection___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -134,19 +134,19 @@ x_1 = l_Lean_Data_Trie_empty(lean_box(0));
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instEmptyCollectionTrie(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instEmptyCollection(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_2 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instInhabitedTrie(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_2 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 return x_2;
 }
 }
@@ -886,7 +886,7 @@ lean_dec(x_26);
 x_29 = lean_unsigned_to_nat(1u);
 x_30 = lean_nat_add(x_2, x_29);
 lean_dec(x_2);
-x_31 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_31 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 x_32 = lean_array_get(x_31, x_21, x_28);
 lean_dec(x_28);
 lean_dec(x_21);
@@ -1322,7 +1322,7 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec(x_19);
-x_22 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_22 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 x_23 = lean_array_get(x_22, x_17, x_21);
 lean_dec(x_21);
 lean_dec(x_17);
@@ -1610,7 +1610,7 @@ lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean
 x_29 = lean_ctor_get(x_28, 0);
 lean_inc(x_29);
 lean_dec(x_28);
-x_30 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_30 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 x_31 = lean_array_get(x_30, x_23, x_29);
 lean_dec(x_29);
 lean_dec(x_23);
@@ -1653,7 +1653,7 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean
 x_38 = lean_ctor_get(x_37, 0);
 lean_inc(x_38);
 lean_dec(x_37);
-x_39 = l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1;
+x_39 = l_Lean_Data_Trie_instEmptyCollection___closed__1;
 x_40 = lean_array_get(x_39, x_23, x_38);
 lean_dec(x_38);
 lean_dec(x_23);
@@ -1782,7 +1782,7 @@ x_10 = lean_ctor_get(x_2, 1);
 x_11 = lean_unbox(x_7);
 lean_dec(x_7);
 x_12 = lean_uint8_to_nat(x_11);
-x_13 = l_Nat_repr(x_12);
+x_13 = l___private_Init_Data_Repr_0__Nat_reprFast(x_12);
 x_14 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 x_15 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(x_9);
@@ -1820,7 +1820,7 @@ lean_dec(x_2);
 x_29 = lean_unbox(x_25);
 lean_dec(x_25);
 x_30 = lean_uint8_to_nat(x_29);
-x_31 = l_Nat_repr(x_30);
+x_31 = l___private_Init_Data_Repr_0__Nat_reprFast(x_30);
 x_32 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
 x_33 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(x_27);
@@ -1870,7 +1870,7 @@ if (lean_is_exclusive(x_2)) {
 x_49 = lean_unbox(x_44);
 lean_dec(x_44);
 x_50 = lean_uint8_to_nat(x_49);
-x_51 = l_Nat_repr(x_50);
+x_51 = l___private_Init_Data_Repr_0__Nat_reprFast(x_50);
 x_52 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_52, 0, x_51);
 x_53 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(x_46);
@@ -1932,7 +1932,7 @@ x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_uint8_to_nat(x_3);
-x_6 = l_Nat_repr(x_5);
+x_6 = l___private_Init_Data_Repr_0__Nat_reprFast(x_5);
 x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l___private_Lean_Data_Trie_0__Lean_Data_Trie_toStringAux___rarg(x_4);
@@ -1981,7 +1981,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Trie_0__Lean_Data_Trie_to
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -1994,11 +1994,11 @@ x_7 = lean_format_pretty(x_4, x_5, x_6, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToStringTrie(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Data_Trie_instToString(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Data_Trie_instToStringTrie___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Data_Trie_instToString___rarg), 1, 0);
 return x_2;
 }
 }
@@ -2013,8 +2013,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Data_Trie_empty___closed__1 = _init_l_Lean_Data_Trie_empty___closed__1();
 lean_mark_persistent(l_Lean_Data_Trie_empty___closed__1);
-l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1 = _init_l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1();
-lean_mark_persistent(l_Lean_Data_Trie_instEmptyCollectionTrie___closed__1);
+l_Lean_Data_Trie_instEmptyCollection___closed__1 = _init_l_Lean_Data_Trie_instEmptyCollection___closed__1();
+lean_mark_persistent(l_Lean_Data_Trie_instEmptyCollection___closed__1);
 l_Lean_Data_Trie_upsert_loop___rarg___closed__1 = _init_l_Lean_Data_Trie_upsert_loop___rarg___closed__1();
 lean_mark_persistent(l_Lean_Data_Trie_upsert_loop___rarg___closed__1);
 l_Lean_Data_Trie_values___rarg___closed__1 = _init_l_Lean_Data_Trie_values___rarg___closed__1();

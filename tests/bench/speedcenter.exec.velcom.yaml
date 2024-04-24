@@ -303,6 +303,14 @@
     <<: *time
     cmd: lean reduceMatch.lean
 - attributes:
+    description: nat_repr
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./nat_repr.lean.out 5000
+  build_config:
+    cmd: ./compile.sh nat_repr.lean
+- attributes:
     description: unionfind
     tags: [fast, suite]
   run_config:

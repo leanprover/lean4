@@ -311,6 +311,8 @@ Note that EOF does not actually close a stream, so further reads may block and r
   -/
   getLine : IO String
   putStr  : String → IO Unit
+  /-- Returns true if a stream refers to a Windows console or Unix terminal. -/
+  isTty   : BaseIO Bool
   deriving Inhabited
 
 open FS
@@ -359,6 +361,9 @@ Releases any previously acquired lock on the handle.
 Will succeed even if no lock has been acquired.
 -/
 @[extern "lean_io_prim_handle_unlock"] opaque unlock (h : @& Handle) : IO Unit
+
+/-- Returns true if a handle refers to a Windows console or Unix terminal. -/
+@[extern "lean_io_prim_handle_is_tty"] opaque isTty (h : @& Handle) : BaseIO Bool
 
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /-- Rewinds the read/write cursor to the beginning of the handle. -/
@@ -743,36 +748,41 @@ namespace FS
 namespace Stream
 
 @[export lean_stream_of_handle]
-def ofHandle (h : Handle) : Stream := {
-  flush   := Handle.flush h,
-  read    := Handle.read h,
-  write   := Handle.write h,
-  getLine := Handle.getLine h,
-  putStr  := Handle.putStr h,
-}
+def ofHandle (h : Handle) : Stream where
+  flush   := Handle.flush h
+  read    := Handle.read h
+  write   := Handle.write h
+  getLine := Handle.getLine h
+  putStr  := Handle.putStr h
+  isTty   := Handle.isTty h
 
 structure Buffer where
   data : ByteArray := ByteArray.empty
   pos  : Nat := 0
 
-def ofBuffer (r : Ref Buffer) : Stream := {
-  flush   := pure (),
+def ofBuffer (r : Ref Buffer) : Stream where
+  flush   := pure ()
   read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat)
-    (data, { b with pos := b.pos + data.size }),
+    (data, { b with pos := b.pos + data.size })
   write   := fun data => r.modify fun b =>
     -- set `exact` to `false` so that repeatedly writing to the stream does not impose quadratic run time
-    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
-  getLine := r.modifyGet fun b =>
-    let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
-      -- include '\n', but not '\0'
-      | some pos => if b.data.get! pos == 0 then pos else pos + 1
-      | none     => b.data.size
-    (String.fromUTF8Unchecked <| b.data.extract b.pos pos, { b with pos := pos }),
+    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
+  getLine := do
+    let buf ← r.modifyGet fun b =>
+      let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
+        -- include '\n', but not '\0'
+        | some pos => if b.data.get! pos == 0 then pos else pos + 1
+        | none     => b.data.size
+      (b.data.extract b.pos pos, { b with pos := pos })
+    match String.fromUTF8? buf with
+    | some str => pure str
+    | none => throw (.userError "invalid UTF-8")
   putStr  := fun s => r.modify fun b =>
     let data := s.toUTF8
-    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
-}
+    { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
+  isTty   := pure false
+
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
@@ -785,7 +795,7 @@ def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m 
       (if isolateStderr then withStderr (Stream.ofBuffer bOut) else id) <|
         x
   let bOut ← liftM (m := BaseIO) bOut.get
-  let out := String.fromUTF8Unchecked bOut.data
+  let out := String.fromUTF8! bOut.data
   pure (out, r)
 
 end FS

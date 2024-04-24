@@ -1118,6 +1118,7 @@ lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabSubst___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandCDot_x3f___closed__3;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabAnonymousCtor_declRange___closed__5;
 lean_object* l_Lean_Elab_Term_withMacroExpansion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandDbgTrace_declRange___closed__1;
@@ -1130,7 +1131,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingImp
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabCoeSortNotation(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_expandDbgTrace___closed__23;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabCDotFunctionAlias_x3f___spec__10(lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabCoe_declRange___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabRunElab_declRange___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabPanic___closed__1;
@@ -3017,7 +3017,7 @@ x_58 = l_Lean_Elab_Term_elabAnonymousCtor___lambda__3___closed__14;
 x_59 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_59, 0, x_57);
 lean_ctor_set(x_59, 1, x_58);
-x_60 = l_Nat_repr(x_15);
+x_60 = l___private_Init_Data_Repr_0__Nat_reprFast(x_15);
 x_61 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 1, 0);
@@ -3187,7 +3187,7 @@ x_31 = l_Lean_Elab_Term_elabAnonymousCtor___lambda__4___closed__2;
 x_32 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_32, 0, x_30);
 lean_ctor_set(x_32, 1, x_31);
-x_33 = l_Nat_repr(x_21);
+x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_21);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(0, 1, 0);
@@ -3199,7 +3199,7 @@ x_37 = l_Lean_Elab_Term_elabAnonymousCtor___lambda__4___closed__4;
 x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
-x_39 = l_Nat_repr(x_24);
+x_39 = l___private_Init_Data_Repr_0__Nat_reprFast(x_24);
 x_40 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
 x_41 = lean_alloc_ctor(0, 1, 0);
@@ -8971,7 +8971,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_maxPrec;
-x_2 = l_Nat_repr(x_1);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -9690,7 +9690,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Nat_repr(x_1);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 return x_2;
 }
 }
@@ -10411,12 +10411,12 @@ x_43 = l_Lean_Syntax_mkStrLit(x_41, x_42);
 lean_dec(x_41);
 x_44 = lean_ctor_get(x_16, 0);
 lean_inc(x_44);
-x_45 = l_Nat_repr(x_44);
+x_45 = l___private_Init_Data_Repr_0__Nat_reprFast(x_44);
 x_46 = l_Lean_Syntax_mkNumLit(x_45, x_42);
 x_47 = lean_ctor_get(x_16, 1);
 lean_inc(x_47);
 lean_dec(x_16);
-x_48 = l_Nat_repr(x_47);
+x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_47);
 x_49 = l_Lean_Syntax_mkNumLit(x_48, x_42);
 x_50 = l_Lean_Elab_Term_elabAnonymousCtor___lambda__3___closed__3;
 lean_inc(x_27);
@@ -10472,12 +10472,12 @@ x_77 = l_Lean_Syntax_mkStrLit(x_76, x_74);
 lean_dec(x_76);
 x_78 = lean_ctor_get(x_16, 0);
 lean_inc(x_78);
-x_79 = l_Nat_repr(x_78);
+x_79 = l___private_Init_Data_Repr_0__Nat_reprFast(x_78);
 x_80 = l_Lean_Syntax_mkNumLit(x_79, x_74);
 x_81 = lean_ctor_get(x_16, 1);
 lean_inc(x_81);
 lean_dec(x_16);
-x_82 = l_Nat_repr(x_81);
+x_82 = l___private_Init_Data_Repr_0__Nat_reprFast(x_81);
 x_83 = l_Lean_Syntax_mkNumLit(x_82, x_74);
 x_84 = l_Lean_Elab_Term_elabAnonymousCtor___lambda__3___closed__3;
 lean_inc(x_59);

@@ -768,12 +768,16 @@ def ofBuffer (r : Ref Buffer) : Stream where
   write   := fun data => r.modify fun b =>
     -- set `exact` to `false` so that repeatedly writing to the stream does not impose quadratic run time
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
-  getLine := r.modifyGet fun b =>
-    let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
-      -- include '\n', but not '\0'
-      | some pos => if b.data.get! pos == 0 then pos else pos + 1
-      | none     => b.data.size
-    (String.fromUTF8Unchecked <| b.data.extract b.pos pos, { b with pos := pos })
+  getLine := do
+    let buf ← r.modifyGet fun b =>
+      let pos := match b.data.findIdx? (start := b.pos) fun u => u == 0 || u = '\n'.toNat.toUInt8 with
+        -- include '\n', but not '\0'
+        | some pos => if b.data.get! pos == 0 then pos else pos + 1
+        | none     => b.data.size
+      (b.data.extract b.pos pos, { b with pos := pos })
+    match String.fromUTF8? buf with
+    | some str => pure str
+    | none => throw (.userError "invalid UTF-8")
   putStr  := fun s => r.modify fun b =>
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size }
@@ -791,7 +795,7 @@ def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m 
       (if isolateStderr then withStderr (Stream.ofBuffer bOut) else id) <|
         x
   let bOut ← liftM (m := BaseIO) bOut.get
-  let out := String.fromUTF8Unchecked bOut.data
+  let out := String.fromUTF8! bOut.data
   pure (out, r)
 
 end FS

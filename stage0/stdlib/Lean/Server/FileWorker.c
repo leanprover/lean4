@@ -19009,7 +19009,7 @@ x_6 = l_Lean_Server_FileWorker_sendServerRequest___at_Lean_Server_FileWorker_run
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = 5000;
+x_8 = 2000;
 x_9 = l_IO_sleep(x_8, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)

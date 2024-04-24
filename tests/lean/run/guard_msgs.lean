@@ -150,3 +150,148 @@ note: this linter can be disabled with `set_option linter.unusedVariables false`
 #guard_msgs in
 #guard_msgs (info) in
 example (n : Nat) : True := trivial
+
+/-!
+Test diffs
+-/
+
+/--
+info: ABCDEFG
+HIJKLMNOP
+QRSTUVWXYZ
+---
+error: ❌ Docstring on `#guard_msgs` does not match generated message:
+
+-
++ info: ABCDEFG
++ HIJKLMNOP
++ QRSTUVWXYZ
+-/
+#guard_msgs in
+set_option guard_msgs.diff true in
+#guard_msgs in
+#eval IO.println "ABCDEFG\nHIJKLMNOP\nQRSTUVWXYZ"
+
+/--
+info: ABCDEFG
+HIJKLMNOP
+QRSTUVWXYZ
+---
+error: ❌ Docstring on `#guard_msgs` does not match generated message:
+
+  info: ABCDEFG
++ HIJKLMNOP
+  QRSTUVWXYZ
+-/
+#guard_msgs in
+set_option guard_msgs.diff true in
+/--
+info: ABCDEFG
+QRSTUVWXYZ
+-/
+#guard_msgs in
+#eval IO.println "ABCDEFG\nHIJKLMNOP\nQRSTUVWXYZ"
+
+inductive Tree where
+  | leaf (x : Nat)
+  | branch (left : Tree) (x : Nat) (right : Tree)
+deriving Repr
+
+def Tree.build (n k : Nat) : Tree :=
+  if n = 0 then leaf k else branch (Tree.build (n - 1) k) n (Tree.build (n - k - 1) (k / 2))
+
+/--
+info: Tree.branch
+  (Tree.branch
+    (Tree.branch
+      (Tree.branch
+        (Tree.branch
+          (Tree.branch (Tree.branch (Tree.branch (Tree.leaf 3) 1 (Tree.leaf 1)) 2 (Tree.leaf 1)) 3 (Tree.leaf 1))
+          4
+          (Tree.leaf 1))
+        5
+        (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)))
+      6
+      (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0)))
+    7
+    (Tree.branch
+      (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0))
+      3
+      (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
+  8
+  (Tree.branch
+    (Tree.branch
+      (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0))
+      3
+      (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)))
+    4
+    (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
+---
+error: ❌ Docstring on `#guard_msgs` does not match generated message:
+
+  info: Tree.branch
+    (Tree.branch
+      (Tree.branch
+        (Tree.branch
+          (Tree.branch
+-           (Tree.branch (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf)) 3 (Tree.leaf))
++           (Tree.branch (Tree.branch (Tree.branch (Tree.leaf 3) 1 (Tree.leaf 1)) 2 (Tree.leaf 1)) 3 (Tree.leaf 1))
+            4
+-           (Tree.leaf))
++           (Tree.leaf 1))
+          5
+-         (Tree.branch (Tree.leaf) 1 (Tree.leaf)))
++         (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)))
+        6
+-       (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf)))
++       (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0)))
+      7
+      (Tree.branch
+-       (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf))
++       (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0))
+        3
+-       (Tree.branch (Tree.leaf) 1 (Tree.leaf))))
++       (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
+    8
+    (Tree.branch
+      (Tree.branch
+-       (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf))
++       (Tree.branch (Tree.branch (Tree.leaf 1) 1 (Tree.leaf 0)) 2 (Tree.leaf 0))
+        3
+-       (Tree.branch (Tree.leaf) 1 (Tree.leaf)))
++       (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)))
+      4
+-     (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.branch (Tree.leaf) 1 (Tree.leaf))))
++     (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
+-/
+#guard_msgs in
+set_option guard_msgs.diff true in
+/--
+info: Tree.branch
+  (Tree.branch
+    (Tree.branch
+      (Tree.branch
+        (Tree.branch
+          (Tree.branch (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf)) 3 (Tree.leaf))
+          4
+          (Tree.leaf))
+        5
+        (Tree.branch (Tree.leaf) 1 (Tree.leaf)))
+      6
+      (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf)))
+    7
+    (Tree.branch
+      (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf))
+      3
+      (Tree.branch (Tree.leaf) 1 (Tree.leaf))))
+  8
+  (Tree.branch
+    (Tree.branch
+      (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.leaf))
+      3
+      (Tree.branch (Tree.leaf) 1 (Tree.leaf)))
+    4
+    (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.branch (Tree.leaf) 1 (Tree.leaf))))
+-/
+#guard_msgs in
+#eval Tree.build 8 3

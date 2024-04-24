@@ -529,7 +529,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       i := i + 1
     return ReduceMatcherResult.stuck auxApp
 
-private def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
+def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e := e.toCtorIfLit
   matchConstCtor e.getAppFn (fun _ => pure none) fun ctorVal _ =>
     let numArgs := e.getAppNumArgs

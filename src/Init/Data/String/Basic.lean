@@ -44,6 +44,16 @@ def append : String → (@& String) → String
 def toList (s : String) : List Char :=
   s.data
 
+/-- Returns true if `p` is a valid UTF-8 position in the string `s`, meaning that `p ≤ s.endPos`
+and `p` lies on a UTF-8 character boundary. This has an O(1) implementation in the runtime. -/
+@[extern "lean_string_is_valid_pos"]
+def Pos.isValid (s : @&String) (p : @& Pos) : Bool :=
+  go s.data 0
+where
+  go : List Char → Pos → Bool
+  | [],    i => i = p
+  | c::cs, i => if i = p then true else go cs (i + c)
+
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p

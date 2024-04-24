@@ -30,7 +30,6 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
                 return -1; /* unfold f1 */
             else
                 return 1;  /* unfold f2 */
-            return h1.get_height() > h2.get_height() ? -1 : 1;
         } else {
             return 0; /* reduce both */
         }

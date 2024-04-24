@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
 -/
 prelude
 import Init.Data.Bool

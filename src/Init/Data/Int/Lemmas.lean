@@ -137,12 +137,16 @@ protected theorem add_comm : ∀ a b : Int, a + b = b + a
   | ofNat _, -[_+1]  => rfl
   | -[_+1],  ofNat _ => rfl
   | -[_+1],  -[_+1]  => by simp [Nat.add_comm]
+instance : Std.Commutative (α := Int) (· + ·) := ⟨Int.add_comm⟩
 
 @[simp] protected theorem add_zero : ∀ a : Int, a + 0 = a
   | ofNat _ => rfl
   | -[_+1]  => rfl
 
 @[simp] protected theorem zero_add (a : Int) : 0 + a = a := Int.add_comm .. ▸ a.add_zero
+instance : Std.LawfulIdentity (α := Int) (· + ·) 0 where
+  left_id := Int.zero_add
+  right_id := Int.add_zero
 
 theorem ofNat_add_negSucc_of_lt (h : m < n.succ) : ofNat m + -[n+1] = -[n - m+1] :=
   show subNatNat .. = _ by simp [succ_sub (le_of_lt_succ h), subNatNat]
@@ -196,6 +200,7 @@ where
     simp
     rw [Int.add_comm, subNatNat_add_negSucc]
     simp [Nat.add_comm, Nat.add_left_comm, Nat.add_assoc]
+instance : Std.Associative (α := Int) (· + ·) := ⟨Int.add_assoc⟩
 
 protected theorem add_left_comm (a b c : Int) : a + (b + c) = b + (a + c) := by
   rw [← Int.add_assoc, Int.add_comm a, Int.add_assoc]
@@ -351,6 +356,7 @@ protected theorem sub_right_inj (i j k : Int) : (i - k = j - k) ↔ i = j := by
 
 protected theorem mul_comm (a b : Int) : a * b = b * a := by
   cases a <;> cases b <;> simp [Nat.mul_comm]
+instance : Std.Commutative (α := Int) (· * ·) := ⟨Int.mul_comm⟩
 
 theorem ofNat_mul_negOfNat (m n : Nat) : (m : Nat) * negOfNat n = negOfNat (m * n) := by
   cases n <;> rfl
@@ -369,6 +375,7 @@ attribute [local simp] ofNat_mul_negOfNat negOfNat_mul_ofNat
 
 protected theorem mul_assoc (a b c : Int) : a * b * c = a * (b * c) := by
   cases a <;> cases b <;> cases c <;> simp [Nat.mul_assoc]
+instance : Std.Associative (α := Int) (· * ·) := ⟨Int.mul_assoc⟩
 
 protected theorem mul_left_comm (a b c : Int) : a * (b * c) = b * (a * c) := by
   rw [← Int.mul_assoc, ← Int.mul_assoc, Int.mul_comm a]
@@ -458,6 +465,9 @@ protected theorem sub_mul (a b c : Int) : (a - b) * c = a * c - b * c := by
   | -[n+1]  => show -[1 * n +1] = -[n+1] by rw [Nat.one_mul]
 
 @[simp] protected theorem mul_one (a : Int) : a * 1 = a := by rw [Int.mul_comm, Int.one_mul]
+instance : Std.LawfulIdentity (α := Int) (· * ·) 1 where
+  left_id := Int.one_mul
+  right_id := Int.mul_one
 
 protected theorem mul_neg_one (a : Int) : a * -1 = -a := by rw [Int.mul_neg, Int.mul_one]
 

@@ -110,6 +110,14 @@ structure Config where
   trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
   etaStruct          : EtaStructMode := .all
+  /--
+  When `univApprox` is set to true,
+  we use approximations when solving postponed universe constraints.
+  Examples:
+  - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
+  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  -/
+  univApprox : Bool := true
 
 /--
   Function parameter information cache.
@@ -300,6 +308,11 @@ structure Context where
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
   canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
+  /--
+  When `Config.univApprox := true`, this flag is set to `true` when there is no
+  progress processing universe constraints.
+  -/
+  univApprox        : Bool := false
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -1690,6 +1703,10 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
               return true
             else if numPostponed' < numPostponed then
               loop
+            -- If we cannot pospone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
+            -- then try approximations before failing.
+            else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
+              withReader (fun ctx => { ctx with univApprox := true }) loop
             else
               trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
               return mayPostpone

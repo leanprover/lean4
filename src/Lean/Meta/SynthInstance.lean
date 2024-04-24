@@ -690,7 +690,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   withTraceNode `Meta.synthInstance
     (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false }) do
+                                          foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type

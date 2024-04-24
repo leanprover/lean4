@@ -179,9 +179,10 @@ theorem principal_nfp_blsub₂ (op : Ordinal → Ordinal → Ordinal) (o : Ordin
   · refine ⟨n+1, ?_⟩
     rw [Function.iterate_succ']
     -- after https://github.com/leanprover/lean4/pull/3965 this requires `lt_blsub₂.{u}` or we get
-    -- `stuck at solving universe constraint max u ?u =?= u`
+    -- `stuck at solving universe constraint max u ?v =?= u`
     -- Note that there are two solutions: 0 and u. Both of them work.
-    exact lt_blsub₂.{u} (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
+    -- However, when `Meta.Config.univApprox := true`, we solve using `?v := u`
+    exact lt_blsub₂ (@fun a _ b _ => op a b) (lt_of_lt_of_le hm h) hn
   · sorry
 
 -- Trying again with 0

@@ -1319,8 +1319,8 @@ syntax (name := showTerm) "show_term " tacticSeq : tactic
 
 (For some tactics, the printed term will not be human readable.)
 -/
-macro (name := showTermElab) tk:"show_term " t:term : term =>
-  `(no_implicit_lambda% (show_term_elab%$tk $t))
+macro (name := showTermElab) "show_term " t:term : term =>
+  `(no_implicit_lambda% (show_term_elab $t))
 
 /--
 The command `by?` will print a suggestion for replacing the proof block with a proof term

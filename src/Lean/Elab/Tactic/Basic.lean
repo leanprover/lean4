@@ -96,13 +96,15 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   b.term.restore restoreInfo
   set b.tactic
 
-/--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
--/
-def SavedState.restoreFull (b : SavedState) : TacticM Unit := do
-  b.term.restoreFull
-  set b.tactic
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (old? : Option (α × SavedState))
+    (cont : TacticM SavedState → TacticM α) : TacticM α := do
+  if let some (_, oldState) := old? then
+    set oldState.tactic
+  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.term))
+  controlAt TermElabM fun runInBase =>
+    Term.withRestoreOrSaveFull old? fun restore =>
+      runInBase <| cont (return { term := (← restore), tactic := (← get) })
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule

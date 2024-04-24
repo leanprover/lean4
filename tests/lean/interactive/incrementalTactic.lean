@@ -4,7 +4,9 @@
 
 def basic : True := by
   dbg_trace "b 0"
+  apply id
   dbg_trace "b 1"
+  apply id
   dbg_trace "b 2"
               --^ sync
               --^ insert: ".5"

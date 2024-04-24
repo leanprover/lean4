@@ -274,7 +274,7 @@ structure State where
   Backtrackable state for the `MetaM` monad.
 -/
 structure SavedState where
-  core        : Core.State
+  core        : Core.SavedState
   meta        : State
   deriving Nonempty
 
@@ -364,20 +364,22 @@ instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull
 
 protected def saveState : MetaM SavedState :=
-  return { core := (← getThe Core.State), meta := (← get) }
+  return { core := (← Core.saveState), meta := (← get) }
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : MetaM Unit := do
-  Core.restore b.core
+  b.core.restore
   modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
 
-/--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
--/
-def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
-  Core.restoreFull b.core
-  set b.meta
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (old? : Option (α × SavedState))
+    (cont : MetaM SavedState → MetaM α) : MetaM α := do
+  if let some (_, oldState) := old? then
+    set oldState.meta
+  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.core))
+  controlAt CoreM fun runInCoreM =>
+    Core.withRestoreOrSaveFull old? fun restore =>
+      runInCoreM <| cont (return { core := (← restore), meta := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState

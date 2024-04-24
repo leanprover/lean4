@@ -64,14 +64,13 @@ where
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
         | do evalTactic tac; goOdd stxs
-      let mut reused := false
+      let mut reusableResult? := none
       let mut oldNext? := none
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
         if let some state := oldParsed.data.finished.get.state? then
-          state.restoreFull
-          reused := true
+          reusableResult? := some (state, state)
           -- only allow `next` reuse in this case
           oldNext? := oldParsed.next.get? 1 |>.map (⟨old.stx, ·⟩)
 
@@ -89,15 +88,18 @@ where
               {
                 range? := stxs |>.getRange?
                 task := next.result }]
-            unless reused do
+            let state ← withRestoreOrSaveFull reusableResult? fun save => do
+              -- allow nested reuse for allowlisted tactics
               withTheReader Term.Context ({ · with
-                  tacSnap? := if (← builtinIncrementalTactics.get).contains tac.getKind then
+                  tacSnap? :=
+                    guard ((← builtinIncrementalTactics.get).contains tac.getKind) *>
                     some {
                       old? := oldInner?
                       new := inner
-                    } else none }) do
+                    } }) do
                 evalTactic tac
-            finished.resolve { state? := (← saveState) }
+              save
+            finished.resolve { state? := state }
 
         withTheReader Term.Context ({ · with tacSnap? := some {
           new := next

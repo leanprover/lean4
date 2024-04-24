@@ -305,13 +305,15 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
-/--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
--/
-def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
-  s.meta.restoreFull
-  set s.elab
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (old? : Option (α × SavedState))
+    (cont : TermElabM SavedState → TermElabM α) : TermElabM α := do
+  if let some (_, oldState) := old? then
+    set oldState.elab
+  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.meta))
+  controlAt MetaM fun runInBase =>
+    Meta.withRestoreOrSaveFull old? fun restore =>
+      runInBase <| cont (return { meta := (← restore), «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState

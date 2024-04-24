@@ -229,6 +229,13 @@ local macro "nonempty_list" : tactic =>
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 /--
+Adjusts the heartbeat counter of the current thread by the given amount. This can be useful to give
+allocation-avoiding code additional "weight" and is also used to adjust the counter after resuming
+from a snapshot.
+-/
+@[extern "lean_io_add_heartbeats"] opaque addHeartbeats (count : UInt64) : BaseIO Unit
+
+/--
 The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).
 
 All modes do not translate line endings (i.e., `O_BINARY` on Windows) and

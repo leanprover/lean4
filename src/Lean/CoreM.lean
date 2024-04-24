@@ -173,16 +173,45 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
-/-- Restore backtrackable parts of the state. -/
-def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+structure SavedState extends State where
+  /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
+  passedHearbeats : Nat
+deriving Nonempty
+
+def saveState : CoreM SavedState := do
+  let s ← get
+  return { toState := s, passedHearbeats := 0 }
 
 /--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+Incremental reuse primitive: if `old?` is `none`, runs `cont` with an action `save` that on
+execution returns the saved monadic state at this point including the heartbeats used by `cont` so
+far. If `old?` on the other hand is `some (a, state)`, restores full `state` including heartbeats
+used and returns `a`.
+
+The intention is for steps that support incremental reuse to initially pass `none` as `old?` and
+call `save` as late as possible in `cont`. In a further run, if reuse is possible, `old?` should be
+set to the previous state and result, ensuring that the state after running `withRestoreOrSaveFull`
+is identical in both runs. Note however that necessarily this is only an approximation in the case
+of heartbeats as heartbeats used by `withRestoreOrSaveFull`, by the remainder of `cont` after
+calling `save`, as well as by reuse-handling code such as the one supplying `old?` are not accounted
+for.
 -/
-def restoreFull (b : State) : CoreM Unit :=
-  set b
+@[specialize] def withRestoreOrSaveFull (old? : Option (α × SavedState))
+    (cont : (save : CoreM SavedState) → CoreM α) : CoreM α := do
+  if let some (oldVal, oldState) := old? then
+    set oldState.toState
+    IO.addHeartbeats oldState.passedHearbeats.toUInt64
+    return oldVal
+
+  let startHeartbeats ← IO.getNumHeartbeats
+  cont (do
+    let s ← get
+    let stopHeartbeats ← IO.getNumHeartbeats
+    return { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : CoreM Unit :=
+  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })

@@ -140,11 +140,11 @@ private def elabHeaders (views : Array DefView)
     let mut reuseBody := views.all (·.headerSnap?.any (·.old?.isSome))
     for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds,
         tacPromise in tacPromises, bodyPromise in bodyPromises do
+      let mut reusableResult? := none
       if let some snap := view.headerSnap? then
         -- by the `DefView.headerSnap?` invariant, safe to reuse results at this point, so let's
         -- wait for them!
         if let some old := snap.old?.bind (·.val.get) then
-          old.state.restoreFull
           let (tacStx?, newTacTask?) ← mkTacPromiseAndSnap view.value tacPromise
           snap.new.resolve <| some { old with
             tacStx?
@@ -161,7 +161,7 @@ private def elabHeaders (views : Array DefView)
           -- we can reuse the result
           reuseBody := reuseBody &&
             view.value.structRangeEqWithTraceReuse (← getOptions) old.bodyStx
-          headers := headers.push { old.view, view with
+          let header := { old.view, view with
             tacSnap? := some {
               old? := do
                 guard reuseTac
@@ -174,11 +174,12 @@ private def elabHeaders (views : Array DefView)
               new := bodyPromise
             }
           }
-          continue
+          reusableResult? := some (header, old.state)
         else
           reuseBody := false
 
-      let newHeader ← withRef view.ref do
+      let header ← withRestoreOrSaveFull reusableResult? fun save => do
+        withRef view.ref do
         addDeclarationRanges declName view.ref
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -220,7 +221,7 @@ private def elabHeaders (views : Array DefView)
                 diagnostics :=
                   (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
                 view := newHeader.toDefViewElabHeaderData
-                state := (← saveState)
+                state := (← save)
                 tacStx?
                 tacSnap? := newTacTask?
                 bodyStx := view.value
@@ -232,7 +233,7 @@ private def elabHeaders (views : Array DefView)
               }
             check headers newHeader
             return newHeader
-      headers := headers.push newHeader
+      headers := headers.push header
     return headers
 where
   getBodyTerm? (stx : Syntax) : Option Syntax :=
@@ -333,38 +334,39 @@ private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.Terminati
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => do
+    let mut reusableResult? := none
     if let some snap := header.bodySnap? then
       if let some old := snap.old? then
         -- guaranteed reusable as by the `bodySnap?` invariant, so let's wait on the previous
         -- elaboration
         if let some old := old.val.get then
-          old.state.restoreFull
           snap.new.resolve <| some old
           -- also make sure to reuse tactic snapshots if present so that body reuse does not lead to
           -- missed tactic reuse on further changes
           if let some tacSnap := header.tacSnap? then
             if let some oldTacSnap := tacSnap.old? then
               tacSnap.new.resolve oldTacSnap.val.get
-          return old.value
+          reusableResult? := some (old.value, old.state)
 
-    withDeclName header.declName <| withLevelNames header.levelNames do
-    let valStx ← liftMacroM <| declValToTerm header.value
-    forallBoundedTelescope header.type header.numParams fun xs type => do
-      -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
-      for i in [0:header.binderIds.size] do
-        -- skip auto-bound prefix in `xs`
-        addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
-      let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
-        elabTermEnsuringType valStx type <* Term.synthesizeSyntheticMVarsNoPostponing
-      let val ← mkLambdaFVars xs val
-      if let some snap := header.bodySnap? then
-        snap.new.resolve <| some {
-          diagnostics :=
-            (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
-          state := (← saveState)
-          value := val
-        }
-      return val
+    withRestoreOrSaveFull reusableResult? fun save => do
+      withDeclName header.declName <| withLevelNames header.levelNames do
+      let valStx ← liftMacroM <| declValToTerm header.value
+      forallBoundedTelescope header.type header.numParams fun xs type => do
+        -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
+        for i in [0:header.binderIds.size] do
+          -- skip auto-bound prefix in `xs`
+          addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
+        let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
+          elabTermEnsuringType valStx type <* Term.synthesizeSyntheticMVarsNoPostponing
+        let val ← mkLambdaFVars xs val
+        if let some snap := header.bodySnap? then
+          snap.new.resolve <| some {
+            diagnostics :=
+              (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+            state := (← save)
+            value := val
+          }
+        return val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do

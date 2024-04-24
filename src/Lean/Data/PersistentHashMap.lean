@@ -62,6 +62,8 @@ inductive IsCollisionNode : Node α β → Prop where
 
 abbrev CollisionNode (α β) := { n : Node α β // IsCollisionNode n }
 
+instance : Inhabited (CollisionNode α β) := ⟨⟨Node.collision #[] #[] rfl, .mk _ _ _⟩⟩
+
 inductive IsEntriesNode : Node α β → Prop where
   | mk (entries : Array (Entry α β (Node α β))) : IsEntriesNode (Node.entries entries)
 
@@ -74,22 +76,12 @@ private theorem size_set {ks : Array α} {vs : Array β} (h : ks.size = vs.size)
 private theorem size_push {ks : Array α} {vs : Array β} (h : ks.size = vs.size) (k : α) (v : β) : (ks.push k).size = (vs.push v).size := by
   simp [h]
 
-inductive InsertCont (α : Type _) [BEq α] [Hashable α] (β : Type _) : Type _ → Type _ where
-  | setSz : Nat → InsertCont α β (PersistentHashMap α β)
-  | ignore : InsertCont α β (Node α β)
-  | setEntry : Array (Entry α β (Node α β)) → Nat → InsertCont α β γ → InsertCont α β γ
-
-def InsertCont.apply [BEq α] [Hashable α] (node : Node α β) (replaced : Bool) : InsertCont α β γ → γ
-  | .setSz sz => { root := node, size := if replaced then sz else sz + 1 }
-  | .ignore => node
-  | .setEntry entries' j cont => cont.apply (Node.entries $ entries'.set! j (.ref node)) replaced
-
-structure InsertAtCollisionNode (α β) where
-  node : CollisionNode α β
+structure WithReplaced (α) where
+  node : α
   replaced : Bool
+  deriving Inhabited
 
-local instance : Inhabited (InsertAtCollisionNode α β) := ⟨⟨⟨Node.collision #[] #[] rfl, .mk _ _ _⟩, true⟩⟩ in
-partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → α → β → InsertAtCollisionNode α β
+partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → α → β → WithReplaced (CollisionNode α β)
   | n@⟨Node.collision keys vals heq, _⟩, i, k, v =>
     if h : i < keys.size then
       let idx : Fin keys.size := ⟨i, h⟩;
@@ -103,7 +95,7 @@ partial def insertAtCollisionNodeAux [BEq α] : CollisionNode α β → Nat → 
   | ⟨Node.entries _, h⟩, _, _, _ => nomatch h
 
 /-- Inserts a key-value pair into a CollisionNode, also returning whether an existing value was replaced. -/
-def insertAtCollisionNode [BEq α] : CollisionNode α β → α → β → InsertAtCollisionNode α β :=
+def insertAtCollisionNode [BEq α] : CollisionNode α β → α → β → WithReplaced (CollisionNode α β) :=
   fun n k v => insertAtCollisionNodeAux n 0 k v
 
 def getCollisionNodeSize : CollisionNode α β → Nat
@@ -117,15 +109,14 @@ def mkCollisionNode (k₁ : α) (v₁ : β) (k₂ : α) (v₂ : β) : Node α β
   let vs := (vs.push v₁).push v₂
   Node.collision ks vs rfl
 
-local instance [BEq α] [Hashable α] : Inhabited (InsertCont α β γ → γ) := ⟨InsertCont.apply default default⟩ in
 /--
 Inserts a key-value pair into a node, returning the new node,
 along with a `Bool` indicating whether an existing value was replaced.
 -/
-partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize → α → β → InsertCont α β γ → γ
-  | Node.collision keys vals heq, _, depth, k, v, cont =>
+partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize → α → β → WithReplaced (Node α β)
+  | Node.collision keys vals heq, _, depth, k, v =>
     let ⟨newNode, replaced⟩ := insertAtCollisionNode ⟨Node.collision keys vals heq, IsCollisionNode.mk _ _ _⟩ k v
-    if depth >= maxDepth || getCollisionNodeSize newNode < maxCollisions then cont.apply newNode.val replaced
+    if depth >= maxDepth || getCollisionNodeSize newNode < maxCollisions then ⟨newNode.val, replaced⟩
     else
       let ⟨Node.collision keys vals heq, _⟩ := newNode
       let rec traverse (i : Nat) (entries : Node α β) : Node α β :=
@@ -137,28 +128,30 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
           let h := div2Shift h (shift * (depth - 1))
           -- We don't need to capture the `replaced` flag here,
           -- as the result from `insertAtCollisionNode` already tells us if we are replacing a value.
-          let entries' := insertAux entries h depth k v .ignore
+          let entries' := (insertAux entries h depth k v).node
           traverse (i+1) entries'
         else
           entries
-      cont.apply (traverse 0 mkEmptyEntries) replaced
-  | Node.entries entries, h, depth, k, v, cont =>
+      ⟨traverse 0 mkEmptyEntries, replaced⟩
+  | Node.entries entries, h, depth, k, v =>
     let j     := (mod2Shift h shift).toNat
     -- We can't use `entries.modify` here, as we need to return `replaced`.
     -- To ensure linearity, we use `swapAt!`.
     let (entry, entries') := entries.swapAt! j .null
     match entry with
       | Entry.null        =>
-        cont.apply (Node.entries $ entries'.set! j (.entry k v)) false
+        ⟨Node.entries $ entries'.set! j (.entry k v), false⟩
       | Entry.ref node    =>
-        insertAux node (div2Shift h shift) (depth+1) k v (.setEntry entries' j cont)
+        let ⟨newNode, replaced⟩ := insertAux node (div2Shift h shift) (depth+1) k v
+        ⟨Node.entries $ entries'.set! j (.ref newNode), replaced⟩
       | Entry.entry k' v' =>
-        if k == k' then cont.apply (Node.entries $ entries'.set! j (.entry k v)) true
-        else cont.apply (Node.entries $ entries'.set! j (.ref <| mkCollisionNode k' v' k v)) false
+        if k == k' then ⟨Node.entries $ entries'.set! j (.entry k v), true⟩
+        else ⟨Node.entries $ entries'.set! j (.ref <| mkCollisionNode k' v' k v), false⟩
 
 def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
   | { root := n, size := sz }, k, v =>
-    insertAux n (hash k |>.toUSize) 1 k v (.setSz sz)
+    let ⟨node, replaced⟩ := insertAux n (hash k |>.toUSize) 1 k v
+    { root := node, size := if replaced then sz else sz + 1 }
 
 partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
   if h : i < keys.size then

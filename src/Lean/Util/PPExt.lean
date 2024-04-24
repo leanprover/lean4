@@ -49,6 +49,7 @@ instance : Coe Format FormatWithInfos where
 structure PPFns where
   ppExprWithInfos : PPContext → Expr → IO FormatWithInfos
   ppTerm : PPContext → Term → IO Format
+  ppLevel : PPContext → Level → IO Format
   ppGoal : PPContext → MVarId → IO Format
   deriving Inhabited
 
@@ -56,6 +57,7 @@ builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
     ppExprWithInfos := fun _ e => return format (toString e)
     ppTerm := fun ctx stx => return stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
+    ppLevel := fun _ l => return format l
     ppGoal := fun _ _ => return "goal"
   }
 
@@ -88,7 +90,10 @@ def ppTerm (ctx : PPContext) (stx : Term) : IO Format :=
       else
         pure f!"failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)"
 
+def ppLevel (ctx : PPContext) (l : Level) : IO Format :=
+  ppExt.getState ctx.env |>.ppLevel ctx l
+
 def ppGoal (ctx : PPContext) (mvarId : MVarId) : IO Format :=
-    ppExt.getState ctx.env |>.ppGoal ctx mvarId
+  ppExt.getState ctx.env |>.ppGoal ctx mvarId
 
 end Lean

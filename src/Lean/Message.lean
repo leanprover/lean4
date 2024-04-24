@@ -120,7 +120,13 @@ def ofExpr (e : Expr) : MessageData :=
     hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
   }
 
-def ofLevel (l : Level) : MessageData := ofFormat (format l)
+def ofLevel (l : Level) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppLevel ctx l
+      | none => return format l
+  }
+
 def ofName (n : Name) : MessageData := ofFormat (format n)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=

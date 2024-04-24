@@ -492,9 +492,12 @@ The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
-`@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
+syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
 
 /--
 The `@[coe]` attribute on a function (which should also appear in a

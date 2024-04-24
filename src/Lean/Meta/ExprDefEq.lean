@@ -1757,10 +1757,21 @@ private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
     | .lt => unfold t (return .unknown) (k · s)
     | .gt => unfold s (return .unknown) (k t ·)
     | .eq =>
-      unfold t
-        (unfold s (return .unknown) (k t ·))
-        (fun t => unfold s (k t s) (k t ·))
+      -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
+      -- if `f` is not a projection. The projection case generates a performance regression.
+      if tInfo.name == sInfo.name && !(← isProjectionFn tInfo.name) then
+        if t.isApp && s.isApp && (← tryHeuristic t s) then
+          return .eq
+        else
+          unfoldBoth t s
+      else
+        unfoldBoth t s
 where
+  unfoldBoth (t s : Expr) : MetaM DeltaStepResult := do
+    unfold t
+      (unfold s (return .unknown) (k t ·))
+      (fun t => unfold s (k t s) (k t ·))
+
   k (t s : Expr) : MetaM DeltaStepResult := do
     let t ← whnfCore t
     let s ← whnfCore s

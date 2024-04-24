@@ -67,6 +67,6 @@ Close given goal using `HEq.refl`.
 def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do
   mvarId.withContext do
     let some [] ← observing? do mvarId.apply (mkConst ``HEq.refl [← mkFreshLevelMVar])
-      | throwTacticEx `hrefl mvarId ""
+      | throwTacticEx `hrefl mvarId
 
 end Lean.Meta

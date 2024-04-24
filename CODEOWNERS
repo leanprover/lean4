@@ -22,8 +22,9 @@
 /src/Lean/Widget/ @Vtec234
 /src/runtime/io.cpp @joehendrix
 /src/Init/Data/ @semorrison
-/src/Init/Data/Array/ @digama0
-/src/Init/Data/List/ @digama0
+/src/Init/Data/Array/Lemmas.lean @digama0
+/src/Init/Data/List/Lemmas.lean @digama0
+/src/Init/Data/List/BasicAux.lean @digama0
 /src/Init/Data/Array/Subarray.lean @david-christiansen
 /src/Lean/Elab/Tactic/RCases.lean @digama0
 /src/Init/RCases.lean @digama0

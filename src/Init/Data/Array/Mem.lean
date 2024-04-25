@@ -32,8 +32,8 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a <
 over a nested inductive like `inductive T | mk : Array T → T`. -/
 macro "array_get_dec" : tactic =>
   `(tactic| first
-    | apply sizeOf_get
-    | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
+    | with_reducible apply sizeOf_get
+    | (with_reducible apply Nat.lt_trans (sizeOf_get ..)); simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
 
@@ -43,9 +43,10 @@ provided that `a ∈ arr` which is useful for well founded recursions over a nes
 -- NB: This is analogue to tactic `sizeOf_list_dec`
 macro "array_mem_dec" : tactic =>
   `(tactic| first
-    | apply Array.sizeOf_lt_of_mem; assumption; done
-    | apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
-      case' h => assumption
+    | with_reducible apply Array.sizeOf_lt_of_mem; assumption; done
+    | with_reducible
+        apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
+        case' h => assumption
       simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_mem_dec)

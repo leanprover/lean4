@@ -682,11 +682,6 @@ theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h�
 @[simp] theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a :=
   rfl
 
-theorem eqRec_eq_cast {α : Sort _} {a : α} {motive : (a' : α) → a = a' → Sort _}
-    (x : motive a (rfl : a = a)) {a' : α} (e : a = a') :
-    @Eq.rec α a motive x a' e = cast (e ▸ rfl) x := by
-  subst e; rfl
-
 /--
 `a ≠ b`, or `Ne a b` is defined as `¬ (a = b)` or `a = b → False`,
 and asserts that `a` and `b` are not equal.

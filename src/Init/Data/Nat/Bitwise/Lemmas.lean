@@ -487,11 +487,6 @@ theorem binaryRec_zero {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (b
     binaryRec z f 0 = z :=
   rfl
 
-theorem binaryRec_of_ne_zero {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) {n}
-    (h : n ≠ 0) :
-    binaryRec z f n = bit_testBit_zero_shiftRight_one n ▸ f (n.testBit 0) (n >>> 1) (binaryRec z f (n >>> 1)) := by
-  rw [binaryRec, dif_neg h, eqRec_eq_cast, eqRec_eq_cast]; rfl
-
 theorem binaryRec_eq {C : Nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit b n)} (b n)
     (h : f false 0 z = z ∨ (n = 0 → b = true)) :
     binaryRec z f (bit b n) = f b n (binaryRec z f n) := by
@@ -501,8 +496,9 @@ theorem binaryRec_eq {C : Nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit
     simp only [forall_const, or_false] at h
     exact h.symm
   case neg =>
-    rw [binaryRec_of_ne_zero _ _ h']
-    generalize bit_testBit_zero_shiftRight_one (bit b n) = e; revert e
+    rw [binaryRec, dif_neg h']
+    change congrArg C (bit b n).bit_testBit_zero_shiftRight_one ▸ f _ _ _ = _
+    generalize congrArg C (bit b n).bit_testBit_zero_shiftRight_one = e; revert e
     rw [bit_testBit_zero, bit_shiftRight_one]
     intros; rfl
 

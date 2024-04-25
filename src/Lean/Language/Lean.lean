@@ -505,7 +505,7 @@ where
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
         stx
         parserState
-        elabSnap := { range? := finishedSnap.range?, task := elabPromise.result }
+        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
         finishedSnap
         tacticCache
       }
@@ -514,7 +514,15 @@ where
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO (stx.getRange?.getD ⟨beginPos, beginPos⟩) do
+    -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
+    -- retract the progress bar to a previous position in case the command support incremental
+    -- reporting but has significant work after resolving its last incremental promise, such as
+    -- final type checking; if it does not support incrementality, `elabSnap` constructed in
+    -- `parseCmd` and containing the entire range of the command will determine the reported
+    -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
+    -- irrelevant in this case.
+    let tailPos := stx.getTailPos? |>.getD beginPos
+    SnapshotTask.ofIO (some ⟨tailPos, tailPos⟩) do
       let scope := cmdState.scopes.head!
       let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
       /-

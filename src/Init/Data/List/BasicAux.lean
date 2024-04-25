@@ -203,9 +203,10 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
 over a nested inductive like `inductive T | mk : List T → T`. -/
 macro "sizeOf_list_dec" : tactic =>
   `(tactic| first
-    | apply sizeOf_lt_of_mem; assumption; done
-    | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
-      case' h => assumption
+    | with_reducible apply sizeOf_lt_of_mem; assumption; done
+    | with_reducible
+        apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+        case' h => assumption
       simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| sizeOf_list_dec)

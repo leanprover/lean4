@@ -31,6 +31,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
   go (i : Nat) (acc : Array α) : Array α :=
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
 termination_by n - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
@@ -306,6 +307,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
     else
       pure r
   termination_by as.size - i
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
 @[inline]
@@ -378,6 +380,7 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
       else
         pure false
       termination_by stop - j
+      decreasing_by simp_wf; decreasing_trivial_pre_omega
     loop start
   if h : stop ≤ as.size then
     any stop h
@@ -463,6 +466,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
       if p as[j] then some j else loop (j + 1)
     else none
     termination_by as.size - j
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
@@ -557,6 +561,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
   else
     true
 termination_by a.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -661,6 +666,7 @@ def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) 
     else indexOfAux a v (i+1)
   else none
 termination_by a.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
@@ -703,6 +709,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
   else
     as
 termination_by as.size
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec go (i : Nat) (r : Array α) : Array α :=
@@ -715,6 +722,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     else
       r
     termination_by as.size - i
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   go 0 #[]
 
 /-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
@@ -731,6 +739,7 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   else
     a.pop
 termination_by a.size - i.val
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
@@ -763,6 +772,7 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
     else
       as
     termination_by j.1
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
@@ -816,6 +826,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
   else
     true
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /-- Return true iff `as` is a prefix of `bs`.
 That is, `bs = as ++ t` for some `t : List α`.-/
@@ -837,6 +848,7 @@ private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   else
     true
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
@@ -852,6 +864,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
   else
     cs
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

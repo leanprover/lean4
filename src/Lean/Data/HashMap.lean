@@ -92,6 +92,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
      moveEntries (i+1) source target
   else target
 termination_by source.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨

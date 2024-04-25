@@ -130,6 +130,7 @@ where
       simp [aux (i+1), map_eq_pure_bind]; rfl
     · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
+  decreasing_by decreasing_trivial_pre_omega
 
 @[simp] theorem map_data (f : α → β) (arr : Array α) : (arr.map f).data = arr.data.map f := by
   rw [map, mapM_eq_foldlM]

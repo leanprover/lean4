@@ -145,7 +145,7 @@ private def elabHeaders (views : Array DefView)
         -- by the `DefView.headerSnap?` invariant, safe to reuse results at this point, so let's
         -- wait for them!
         if let some old := snap.old?.bind (·.val.get) then
-          let (tacStx?, newTacTask?) ← mkTacPromiseAndSnap view.value tacPromise
+          let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
           snap.new.resolve <| some { old with
             tacStx?
             tacSnap? := newTacTask?
@@ -216,7 +216,7 @@ private def elabHeaders (views : Array DefView)
             let mut newHeader : DefViewElabHeader := { view, newHeader with
               bodySnap? := none, tacSnap? := none }
             if let some snap := view.headerSnap? then
-              let (tacStx?, newTacTask?) ← mkTacPromiseAndSnap view.value tacPromise
+              let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
               snap.new.resolve <| some {
                 diagnostics :=
                   (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
@@ -248,10 +248,11 @@ where
     { range? := rangeStx.getRange?, task := new.result }
 
   /--
-  If `body` allows for incremental tactic reporting and reuse, creates a promise and snapshot task
-  with appropriate range.
+  If `body` allows for incremental tactic reporting and reuse, creates a snapshot task out of the
+  passed promise with appropriate range, otherwise immediately resolves the promise to a dummy
+  value.
   -/
-  mkTacPromiseAndSnap (body : Syntax) (tacPromise : IO.Promise Tactic.TacticParsedSnapshot) :
+  mkTacTask (body : Syntax) (tacPromise : IO.Promise Tactic.TacticParsedSnapshot) :
       TermElabM (Option Syntax × Option (Language.SnapshotTask Tactic.TacticParsedSnapshot))
    := do
     if let some e := getBodyTerm? body then

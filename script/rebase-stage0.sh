@@ -20,5 +20,5 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # Run git rebase in interactive mode, but automatically edit the todo list
 # using the defined GIT_SEQUENCE_EDITOR command
-GIT_SEQUENCE_EDITOR="$REPO_ROOT/script/aux/rebase-editor.sh" git rebase -i "$@"
+GIT_SEQUENCE_EDITOR="$REPO_ROOT/script/lib/rebase-editor.sh" git rebase -i "$@"
 

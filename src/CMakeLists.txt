@@ -585,7 +585,7 @@ endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0
-    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/aux/update-stage0'
+    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/lib/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 

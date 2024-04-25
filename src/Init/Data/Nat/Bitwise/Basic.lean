@@ -129,7 +129,9 @@ theorem bit_eq_zero_iff {n : Nat} {b : Bool} : bit b n = 0 ↔ n = 0 ∧ b = fal
   constructed for natural numbers of the form `bit b n`,
   they can be constructed for any given natural number. -/
 @[inline]
-def bitCasesOn {C : Nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n := bit_decomp n ▸ h _ _
+def bitCasesOn {C : Nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
+  let x := h (1 &&& n != 0) (n >>> 1)
+  congrArg C n.bit_decomp ▸ x -- `congrArg C _` is `rfl` in non-dependent case
 
 /-- A recursion principle for `bit` representations of natural numbers.
   For a predicate `C : Nat → Sort u`, if instances can be
@@ -137,8 +139,10 @@ def bitCasesOn {C : Nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n := bit_
   they can be constructed for all natural numbers. -/
 @[elab_as_elim, specialize]
 def binaryRec {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) (n : Nat) : C n :=
-  if n0 : n = 0 then congrArg C n0 ▸ z -- `congrArg C _` is `rfl` in non-dependent case
-  else congrArg C n.bit_decomp ▸ f (1 &&& n != 0) (n >>> 1) (binaryRec z f (n >>> 1))
+  if n0 : n = 0 then congrArg C n0 ▸ z
+  else
+    let x := f (1 &&& n != 0) (n >>> 1) (binaryRec z f (n >>> 1))
+    congrArg C n.bit_decomp ▸ x
 decreasing_by exact bitwise_rec_lemma n0
 
 /-- The same as `binaryRec`, but the induction step can assume that if `n=0`,
@@ -159,9 +163,10 @@ def binaryRec' {C : Nat → Sort u} (z : C 0)
 def binaryRecFromOne {C : Nat → Sort u} (z₀ : C 0) (z₁ : C 1)
     (f : ∀ b n, n ≠ 0 → C n → C (bit b n)) : ∀ n, C n :=
   binaryRec' z₀ fun b n h ih =>
-    if h' : n = 0 then by
-      rw [h', h h']
-      exact z₁
+    if h' : n = 0 then
+      have : bit b n = bit true 0 := by
+        rw [h', h h']
+      congrArg C this ▸ z₁
     else f b n h' ih
 
 end Nat

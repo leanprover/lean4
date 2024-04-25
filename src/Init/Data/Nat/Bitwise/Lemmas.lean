@@ -475,6 +475,14 @@ theorem bit_shiftRight_one (b n) : bit b n >>> 1 = n :=
 /-! ### binaryRec -/
 
 @[simp]
+theorem bitCasesOn_bit {C : Nat → Sort u} (h : ∀ b n, C (bit b n)) (b : Bool) (n : Nat) :
+    bitCasesOn (bit b n) h = h b n := by
+  change congrArg C (bit b n).bit_decomp ▸ h _ _ = h b n
+  generalize congrArg C (bit b n).bit_decomp = e; revert e
+  rw [bit_testBit_zero, bit_shiftRight_one]
+  intros; rfl
+
+@[simp]
 theorem binaryRec_zero {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) :
     binaryRec z f 0 = z :=
   rfl

@@ -1542,7 +1542,7 @@ macro "get_elem_tactic" : tactic =>
 
 /--
 Searches environment for definitions or theorems that can be substituted in
-for `exact?% to solve the goal.
+for `exact?%` to solve the goal.
  -/
 syntax (name := Lean.Parser.Syntax.exact?) "exact?%" : term
 

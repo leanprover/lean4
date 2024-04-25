@@ -187,6 +187,7 @@ protected theorem min_comm (a b : Int) : min a b = min b a := by
   by_cases h₁ : a ≤ b <;> by_cases h₂ : b ≤ a <;> simp [h₁, h₂]
   · exact Int.le_antisymm h₁ h₂
   · cases not_or_intro h₁ h₂ <| Int.le_total ..
+instance : Std.Commutative (α := Int) min := ⟨Int.min_comm⟩
 
 protected theorem min_le_right (a b : Int) : min a b ≤ b := by rw [Int.min_def]; split <;> simp [*]
 
@@ -206,6 +207,7 @@ protected theorem max_comm (a b : Int) : max a b = max b a := by
   by_cases h₁ : a ≤ b <;> by_cases h₂ : b ≤ a <;> simp [h₁, h₂]
   · exact Int.le_antisymm h₂ h₁
   · cases not_or_intro h₁ h₂ <| Int.le_total ..
+instance : Std.Commutative (α := Int) max := ⟨Int.max_comm⟩
 
 protected theorem le_max_left (a b : Int) : a ≤ max a b := by rw [Int.max_def]; split <;> simp [*]
 

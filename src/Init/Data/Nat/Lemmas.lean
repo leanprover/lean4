@@ -471,6 +471,7 @@ protected theorem mul_lt_mul_of_lt_of_lt {a b c d : Nat} (hac : a < c) (hbd : b 
 
 theorem succ_mul_succ (a b) : succ a * succ b = a * b + a + b + 1 := by
   rw [succ_mul, mul_succ]; rfl
+
 theorem mul_le_add_right (m k n : Nat) : k * m ≤ m + n ↔ (k-1) * m ≤ n := by
   match k with
   | 0 =>
@@ -504,11 +505,6 @@ protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
   ⟨Nat.pos_of_mul_pos_right, fun w => Nat.mul_pos w h⟩
 
 /-! ### div/mod -/
-
-theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
-  match n % 2, @Nat.mod_lt n 2 (by decide) with
-  | 0, _ => .inl rfl
-  | 1, _ => .inr rfl
 
 theorem le_of_mod_lt {a b : Nat} (h : a % b < a) : b ≤ a :=
   Nat.not_lt.1 fun hf => (ne_of_lt h).elim (Nat.mod_eq_of_lt hf)
@@ -548,6 +544,14 @@ theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
 
 theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
   rw [add_mod_mod, mod_add_mod]
+
+@[simp]
+theorem mod_two_ne_one {n : Nat} : ¬n % 2 = 1 ↔ n % 2 = 0 := by
+  cases mod_two_eq_zero_or_one n with | _ h => simp [h]
+
+@[simp]
+theorem mod_two_ne_zero {n : Nat} : ¬n % 2 = 0 ↔ n % 2 = 1 := by
+  cases mod_two_eq_zero_or_one n with | _ h => simp [h]
 
 /-! ### pow -/
 

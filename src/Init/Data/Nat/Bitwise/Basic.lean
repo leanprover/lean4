@@ -86,8 +86,9 @@ of a number.
 -/
 
 /-- `testBit m n` returns whether the `(n+1)` least significant bit is `1` or `0`-/
-def testBit (m n : Nat) : Bool := 1 &&& (m >>> n) != 0
--- `1 &&& n` is faster than `n &&& 1` for big `n`. This may change in the future.
+def testBit (m n : Nat) : Bool :=
+  -- `1 &&& n` is faster than `n &&& 1` for big `n`. This may change in the future.
+  1 &&& (m >>> n) != 0
 
 theorem bit_val (b n) : bit b n = 2 * n + b.toNat := by
   rw [Nat.mul_comm]
@@ -110,16 +111,13 @@ theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
     unfold bitwise
     cases mod_two_eq_zero_or_one n with | _ h => simp [n0, h]; rfl
 
-@[simp]
-theorem testBit_zero (n : Nat) : testBit n 0 = decide (n % 2 = 1) := by
+@[simp] theorem testBit_zero (n : Nat) : testBit n 0 = decide (n % 2 = 1) := by
   cases mod_two_eq_zero_or_one n with | _ h => simp [testBit, h]
 
 @[simp] theorem decide_mod_two_eq_one_toNat (n : Nat) : (decide (n % 2 = 1)).toNat = n % 2 := by
   cases mod_two_eq_zero_or_one n with | _ h => simp [h]; rfl
 
-theorem testBit_zero_toNat (n : Nat) : (n.testBit 0).toNat = n % 2 := by simp
-
-theorem bit_decomp (n : Nat) : bit (n.testBit 0) (n >>> 1) = n := by
+theorem bit_testBit_zero_shiftRight_one (n : Nat) : bit (n.testBit 0) (n >>> 1) = n := by
   simp [bit_val, shiftRight_one, Nat.div_add_mod]
 
 theorem bit_eq_zero_iff {n : Nat} {b : Bool} : bit b n = 0 ↔ n = 0 ∧ b = false := by
@@ -130,8 +128,10 @@ theorem bit_eq_zero_iff {n : Nat} {b : Bool} : bit b n = 0 ↔ n = 0 ∧ b = fal
   they can be constructed for any given natural number. -/
 @[inline]
 def bitCasesOn {C : Nat → Sort u} (n) (h : ∀ b n, C (bit b n)) : C n :=
+  -- `1 &&& n != 0` is faster than `n.testBit 0`. This may change when we have faster `testBit`.
   let x := h (1 &&& n != 0) (n >>> 1)
-  congrArg C n.bit_decomp ▸ x -- `congrArg C _` is `rfl` in non-dependent case
+  -- `congrArg C _` is `rfl` in non-dependent case
+  congrArg C n.bit_testBit_zero_shiftRight_one ▸ x
 
 /-- A recursion principle for `bit` representations of natural numbers.
   For a predicate `C : Nat → Sort u`, if instances can be
@@ -142,7 +142,7 @@ def binaryRec {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) 
   if n0 : n = 0 then congrArg C n0 ▸ z
   else
     let x := f (1 &&& n != 0) (n >>> 1) (binaryRec z f (n >>> 1))
-    congrArg C n.bit_decomp ▸ x
+    congrArg C n.bit_testBit_zero_shiftRight_one ▸ x
 decreasing_by exact bitwise_rec_lemma n0
 
 /-- The same as `binaryRec`, but the induction step can assume that if `n=0`,

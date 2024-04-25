@@ -115,7 +115,7 @@ theorem ne_implies_bit_diff {x y : Nat} (p : x ≠ y) : ∃ i, testBit x i ≠ t
     simp only [zero_testBit, Bool.ne_false_iff]
     exact ne_zero_implies_bit_true p
   | f yb y h hyp =>
-    rw [← x.bit_decomp] at *
+    rw [← x.bit_testBit_zero_shiftRight_one] at *
     by_cases hb : testBit x 0 = yb
     · subst hb
       obtain ⟨i, h⟩ := hyp (mt (congrArg _) p)
@@ -477,8 +477,8 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 @[simp]
 theorem bitCasesOn_bit {C : Nat → Sort u} (h : ∀ b n, C (bit b n)) (b : Bool) (n : Nat) :
     bitCasesOn (bit b n) h = h b n := by
-  change congrArg C (bit b n).bit_decomp ▸ h _ _ = h b n
-  generalize congrArg C (bit b n).bit_decomp = e; revert e
+  change congrArg C (bit b n).bit_testBit_zero_shiftRight_one ▸ h _ _ = h b n
+  generalize congrArg C (bit b n).bit_testBit_zero_shiftRight_one = e; revert e
   rw [bit_testBit_zero, bit_shiftRight_one]
   intros; rfl
 
@@ -489,7 +489,7 @@ theorem binaryRec_zero {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (b
 
 theorem binaryRec_of_ne_zero {C : Nat → Sort u} (z : C 0) (f : ∀ b n, C n → C (bit b n)) {n}
     (h : n ≠ 0) :
-    binaryRec z f n = bit_decomp n ▸ f (n.testBit 0) (n >>> 1) (binaryRec z f (n >>> 1)) := by
+    binaryRec z f n = bit_testBit_zero_shiftRight_one n ▸ f (n.testBit 0) (n >>> 1) (binaryRec z f (n >>> 1)) := by
   rw [binaryRec, dif_neg h, eqRec_eq_cast, eqRec_eq_cast]; rfl
 
 theorem binaryRec_eq {C : Nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit b n)} (b n)
@@ -502,7 +502,7 @@ theorem binaryRec_eq {C : Nat → Sort u} {z : C 0} {f : ∀ b n, C n → C (bit
     exact h.symm
   case neg =>
     rw [binaryRec_of_ne_zero _ _ h']
-    generalize bit_decomp (bit b n) = e; revert e
+    generalize bit_testBit_zero_shiftRight_one (bit b n) = e; revert e
     rw [bit_testBit_zero, bit_shiftRight_one]
     intros; rfl
 

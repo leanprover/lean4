@@ -17,8 +17,13 @@ set_option linter.missingDocs true
 
 namespace Lean.Language
 
-/-- `MessageLog` with interactive diagnostics. -/
+/--
+`MessageLog` with interactive diagnostics.
+
+Can be created using `Diagnostics.empty` or `Diagnostics.ofMessageLog`.
+-/
 structure Snapshot.Diagnostics where
+  private mk ::
   /-- Non-interactive message log. -/
   msgLog : MessageLog
   /--

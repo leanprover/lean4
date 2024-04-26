@@ -139,8 +139,8 @@ static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRan
 static lean_object* l_Lean_instReprDeclarationRange___closed__1;
 lean_object* l_Lean_isRec___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_310____closed__15;
 static lean_object* _init_l_Lean_instInhabitedDeclarationRange___closed__1() {
 _start:
@@ -514,7 +514,7 @@ lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
-x_21 = l_Nat_repr(x_20);
+x_21 = l___private_Init_Data_Repr_0__Nat_reprFast(x_20);
 x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_310____closed__12;
@@ -569,7 +569,7 @@ lean_ctor_set(x_42, 1, x_18);
 x_43 = lean_ctor_get(x_1, 3);
 lean_inc(x_43);
 lean_dec(x_1);
-x_44 = l_Nat_repr(x_43);
+x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_43);
 x_45 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
 x_46 = l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_310____closed__18;

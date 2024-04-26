@@ -10,6 +10,24 @@ import Init.RCases
 
 namespace Nat
 
+/--
+Computes the greatest common divisor of two natural numbers.
+
+This reference implementation via the Euclidean algorithm
+is overridden in both the kernel and the compiler to efficiently
+evaluate using the "bignum" representation (see `Nat`).
+The definition provided here is the logical model
+(and it is soundness-critical that they coincide).
+
+The GCD of two natural numbers is the largest natural number
+that divides both arguments.
+In particular, the GCD of a number and `0` is the number itself:
+```
+example : Nat.gcd 10 15 = 5 := rfl
+example : Nat.gcd 0 5 = 5 := rfl
+example : Nat.gcd 7 0 = 7 := rfl
+```
+-/
 @[extern "lean_nat_gcd"]
 def gcd (m n : @& Nat) : Nat :=
   if m = 0 then
@@ -36,9 +54,13 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
     -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
     rw [gcd_succ]
     exact gcd_zero_left _
+instance : Std.LawfulIdentity gcd 0 where
+  left_id := gcd_zero_left
+  right_id := gcd_zero_right
 
 @[simp] theorem gcd_self (n : Nat) : gcd n n = n := by
   cases n <;> simp [gcd_succ]
+instance : Std.IdempotentOp gcd := ⟨gcd_self⟩
 
 theorem gcd_rec (m n : Nat) : gcd m n = gcd (n % m) m :=
   match m with
@@ -79,6 +101,7 @@ theorem gcd_comm (m n : Nat) : gcd m n = gcd n m :=
   Nat.dvd_antisymm
     (dvd_gcd (gcd_dvd_right m n) (gcd_dvd_left m n))
     (dvd_gcd (gcd_dvd_right n m) (gcd_dvd_left n m))
+instance : Std.Commutative gcd := ⟨gcd_comm⟩
 
 theorem gcd_eq_left_iff_dvd : m ∣ n ↔ gcd m n = m :=
   ⟨fun h => by rw [gcd_rec, mod_eq_zero_of_dvd h, gcd_zero_left],

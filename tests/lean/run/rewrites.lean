@@ -4,7 +4,7 @@ private axiom test_sorry : ∀ {α}, α
 -- set_option trace.Tactic.rewrites.lemmas true
 
 /--
-info: Try this: rw [@List.map_append]
+info: Try this: rw [List.map_append]
 -- "no goals"
 -/
 #guard_msgs in

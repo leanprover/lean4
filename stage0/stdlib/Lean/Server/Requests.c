@@ -18,6 +18,7 @@ static lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3___closed
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Server_lookupLspRequestHandler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_parseRequestParams___rarg___closed__1;
 static lean_object* l_Lean_Server_RequestError_methodNotFound___closed__2;
+lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -158,7 +159,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___rarg___lambda__1(lean_
 static lean_object* l_Lean_Server_instInhabitedRequestError___closed__1;
 size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_registerLspRequestHandler___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__1;
@@ -177,9 +177,9 @@ lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_ofIoError(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_mapTask(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleLspRequest(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftEIOExceptionRequestM(lean_object*);
@@ -1171,7 +1171,7 @@ x_12 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_withWaitFindSnapAtPos__
 lean_closure_set(x_12, 0, x_11);
 x_13 = lean_ctor_get(x_1, 0);
 lean_inc(x_13);
-x_14 = l_Nat_repr(x_13);
+x_14 = l___private_Init_Data_Repr_0__Nat_reprFast(x_13);
 x_15 = l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__1;
 x_16 = lean_string_append(x_15, x_14);
 lean_dec(x_14);
@@ -1180,7 +1180,7 @@ x_18 = lean_string_append(x_16, x_17);
 x_19 = lean_ctor_get(x_1, 1);
 lean_inc(x_19);
 lean_dec(x_1);
-x_20 = l_Nat_repr(x_19);
+x_20 = l___private_Init_Data_Repr_0__Nat_reprFast(x_19);
 x_21 = lean_string_append(x_18, x_20);
 lean_dec(x_20);
 x_22 = l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__3;
@@ -1706,7 +1706,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_1113____closed__1;
-x_2 = lean_alloc_closure((void*)(l_instBEq___rarg), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_instBEqOfDecidableEq___rarg), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

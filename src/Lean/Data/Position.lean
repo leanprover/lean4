@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Data.Format
+import Lean.Data.Json
 import Lean.ToExpr
 
 namespace Lean
@@ -12,7 +13,7 @@ namespace Lean
 structure Position where
   line   : Nat
   column : Nat
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, ToJson, FromJson
 
 namespace Position
 protected def lt : Position → Position → Bool

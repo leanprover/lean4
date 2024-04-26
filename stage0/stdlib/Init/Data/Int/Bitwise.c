@@ -13,14 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Int_instComplementInt;
+LEAN_EXPORT lean_object* l_Int_instHShiftRightNat;
+static lean_object* l_Int_instHShiftRightNat___closed__1;
 LEAN_EXPORT lean_object* l_Int_not(lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_instHShiftRightIntNat;
 lean_object* lean_nat_to_int(lean_object*);
-static lean_object* l_Int_instComplementInt___closed__1;
 static lean_object* l_Int_not___closed__1;
-static lean_object* l_Int_instHShiftRightIntNat___closed__1;
+static lean_object* l_Int_instComplement___closed__1;
 LEAN_EXPORT lean_object* l_Int_shiftRight___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_shiftRight(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
@@ -28,6 +27,7 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Int_not___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Int_instComplement;
 static lean_object* _init_l_Int_not___closed__1() {
 _start:
 {
@@ -71,7 +71,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Int_instComplementInt___closed__1() {
+static lean_object* _init_l_Int_instComplement___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -79,11 +79,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_not___boxed), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instComplementInt() {
+static lean_object* _init_l_Int_instComplement() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instComplementInt___closed__1;
+x_1 = l_Int_instComplement___closed__1;
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instHShiftRightIntNat___closed__1() {
+static lean_object* _init_l_Int_instHShiftRightNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -134,11 +134,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_shiftRight___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instHShiftRightIntNat() {
+static lean_object* _init_l_Int_instHShiftRightNat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instHShiftRightIntNat___closed__1;
+x_1 = l_Int_instHShiftRightNat___closed__1;
 return x_1;
 }
 }
@@ -157,14 +157,14 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_not___closed__1 = _init_l_Int_not___closed__1();
 lean_mark_persistent(l_Int_not___closed__1);
-l_Int_instComplementInt___closed__1 = _init_l_Int_instComplementInt___closed__1();
-lean_mark_persistent(l_Int_instComplementInt___closed__1);
-l_Int_instComplementInt = _init_l_Int_instComplementInt();
-lean_mark_persistent(l_Int_instComplementInt);
-l_Int_instHShiftRightIntNat___closed__1 = _init_l_Int_instHShiftRightIntNat___closed__1();
-lean_mark_persistent(l_Int_instHShiftRightIntNat___closed__1);
-l_Int_instHShiftRightIntNat = _init_l_Int_instHShiftRightIntNat();
-lean_mark_persistent(l_Int_instHShiftRightIntNat);
+l_Int_instComplement___closed__1 = _init_l_Int_instComplement___closed__1();
+lean_mark_persistent(l_Int_instComplement___closed__1);
+l_Int_instComplement = _init_l_Int_instComplement();
+lean_mark_persistent(l_Int_instComplement);
+l_Int_instHShiftRightNat___closed__1 = _init_l_Int_instHShiftRightNat___closed__1();
+lean_mark_persistent(l_Int_instHShiftRightNat___closed__1);
+l_Int_instHShiftRightNat = _init_l_Int_instHShiftRightNat();
+lean_mark_persistent(l_Int_instHShiftRightNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

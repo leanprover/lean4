@@ -110,6 +110,14 @@ structure Config where
   trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
   etaStruct          : EtaStructMode := .all
+  /--
+  When `univApprox` is set to true,
+  we use approximations when solving postponed universe constraints.
+  Examples:
+  - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
+  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  -/
+  univApprox : Bool := true
 
 /--
   Function parameter information cache.
@@ -300,7 +308,50 @@ structure Context where
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
   canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
+  /--
+  When `Config.univApprox := true`, this flag is set to `true` when there is no
+  progress processing universe constraints.
+  -/
+  univApprox        : Bool := false
 
+/--
+The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
+construction and manipulation of expressions (`Lean.Expr`) within Lean.
+
+It builds on top of `CoreM` and additionally provides:
+- A `LocalContext` for managing free variables.
+- A `MetavarContext` for managing metavariables.
+- A `Cache` for caching results of the key `MetaM` operations.
+
+The key operations provided by `MetaM` are:
+- `inferType`, which attempts to automatically infer the type of a given expression.
+- `whnf`, which reduces an expression to the point where the outermost part is no longer reducible
+  but the inside may still contain unreduced expression.
+- `isDefEq`, which determines whether two expressions are definitionally equal, possibly assigning
+  meta variables in the process.
+- `forallTelescope` and `lambdaTelescope`, which make it possible to automatically move into
+  (nested) binders while updating the local context.
+
+The following is a small example that demonstrates how to obtain and manipulate the type of a
+`Fin` expression:
+```
+import Lean
+
+open Lean Meta
+
+def getFinBound (e : Expr) : MetaM (Option Expr) := do
+  let type ← whnf (← inferType e)
+  let_expr Fin bound := type | return none
+  return bound
+
+def a : Fin 100 := 42
+
+run_meta
+  match ← getFinBound (.const ``a []) with
+  | some limit => IO.println (← ppExpr limit)
+  | none => IO.println "no limit found"
+```
+-/
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -332,6 +383,14 @@ protected def saveState : MetaM SavedState :=
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
   modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
+  Core.restoreFull b.core
+  set b.meta
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -1644,6 +1703,10 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
               return true
             else if numPostponed' < numPostponed then
               loop
+            -- If we cannot pospone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
+            -- then try approximations before failing.
+            else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
+              withReader (fun ctx => { ctx with univApprox := true }) loop
             else
               trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
               return mayPostpone

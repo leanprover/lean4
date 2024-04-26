@@ -150,7 +150,7 @@ jobs:
             git -C lean4.git log -10 origin/master
 
             git -C lean4.git fetch origin nightly-with-mathlib 
-            NIGHTLY_WITH_MATHLIB_SHA="$(git -C lean4.git rev-parse "nightly-with-mathlib")"
+            NIGHTLY_WITH_MATHLIB_SHA="$(git -C lean4.git rev-parse "origin/nightly-with-mathlib")"
             MESSAGE="- ❗ Std/Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch. Try \`git rebase $MERGE_BASE_SHA --onto $NIGHTLY_WITH_MATHLIB_SHA\`."
           fi
 

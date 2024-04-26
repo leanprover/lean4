@@ -10,7 +10,7 @@ import Init.Control.Except
 
 universe u v
 
-instance : ToBool (Option α) := ⟨Option.toBool⟩
+instance : ToBool (Option α) := ⟨Option.isSome⟩
 
 def OptionT (m : Type u → Type v) (α : Type u) : Type v :=
   m (Option α)

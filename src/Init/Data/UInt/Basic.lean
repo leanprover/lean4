@@ -103,7 +103,7 @@ def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.val <<< (modn b 16).val⟩
 @[extern "lean_uint16_to_uint8"]
 def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint8_to_uint16"]
-def UInt8.toUInt16 (a : UInt8) : UInt16 := a.toNat.toUInt16
+def UInt8.toUInt16 (a : UInt8) : UInt16 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 @[extern "lean_uint16_shift_right"]
 def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
@@ -186,9 +186,9 @@ def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint32_to_uint16"]
 def UInt32.toUInt16 (a : UInt32) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint8_to_uint32"]
-def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
+def UInt8.toUInt32 (a : UInt8) : UInt32 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 @[extern "lean_uint16_to_uint32"]
-def UInt16.toUInt32 (a : UInt16) : UInt32 := a.toNat.toUInt32
+def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 instance : Add UInt32       := ⟨UInt32.add⟩
@@ -244,11 +244,11 @@ def UInt64.toUInt16 (a : UInt64) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint64_to_uint32"]
 def UInt64.toUInt32 (a : UInt64) : UInt32 := a.toNat.toUInt32
 @[extern "lean_uint8_to_uint64"]
-def UInt8.toUInt64 (a : UInt8) : UInt64 := a.toNat.toUInt64
+def UInt8.toUInt64 (a : UInt8) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 @[extern "lean_uint16_to_uint64"]
-def UInt16.toUInt64 (a : UInt16) : UInt64 := a.toNat.toUInt64
+def UInt16.toUInt64 (a : UInt16) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 @[extern "lean_uint32_to_uint64"]
-def UInt32.toUInt64 (a : UInt32) : UInt64 := a.toNat.toUInt64
+def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨a.val, Nat.lt_trans a.1.2 (by decide)⟩
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 instance : Add UInt64       := ⟨UInt64.add⟩
@@ -321,7 +321,7 @@ def USize.shiftLeft (a b : USize) : USize := ⟨a.val <<< (modn b System.Platfor
 @[extern "lean_usize_shift_right"]
 def USize.shiftRight (a b : USize) : USize := ⟨a.val >>> (modn b System.Platform.numBits).val⟩
 @[extern "lean_uint32_to_usize"]
-def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
+def UInt32.toUSize (a : UInt32) : USize := USize.ofNat32 a.val a.1.2
 @[extern "lean_usize_to_uint32"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 

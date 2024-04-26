@@ -28,12 +28,12 @@ static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____closed__6;
 static lean_object* l_Lean_Lsp_instToJsonCompletionItemData___closed__1;
-extern lean_object* l_String_instInhabitedString;
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____closed__5;
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____closed__2;
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_toJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_75_(lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__4;
+extern lean_object* l_String_instInhabited;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -315,7 +315,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Lsp_CompletionItem_getFileSource_x21_
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_instInhabitedString;
+x_2 = l_String_instInhabited;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }

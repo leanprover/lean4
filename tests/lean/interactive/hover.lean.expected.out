@@ -446,198 +446,206 @@
   "end": {"line": 229, "character": 32}},
  "contents": {"value": "my_intro tactic ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 232, "character": 8}}
+ "position": {"line": 231, "character": 17}}
 {"range":
- {"start": {"line": 232, "character": 8}, "end": {"line": 232, "character": 9}},
- "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 235, "character": 4}}
-{"range":
- {"start": {"line": 235, "character": 2}, "end": {"line": 235, "character": 8}},
+ {"start": {"line": 231, "character": 17},
+  "end": {"line": 231, "character": 25}},
  "contents":
- {"value":
-  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
+ {"value": "```lean\nmy_intro : ℕ\n```\n***\nmy_intro term ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 235, "character": 8}}
+{"range":
+ {"start": {"line": 235, "character": 8}, "end": {"line": 235, "character": 9}},
+ "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 4}}
 {"range":
- {"start": {"line": 238, "character": 2},
-  "end": {"line": 238, "character": 10}},
+ {"start": {"line": 238, "character": 2}, "end": {"line": 238, "character": 8}},
  "contents":
  {"value":
   "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 238, "character": 9}}
+ "position": {"line": 241, "character": 4}}
 {"range":
- {"start": {"line": 238, "character": 9},
-  "end": {"line": 238, "character": 10}},
- "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 242, "character": 8}}
-{"range":
- {"start": {"line": 242, "character": 8}, "end": {"line": 242, "character": 9}},
- "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 244, "character": 12}}
-{"range":
- {"start": {"line": 244, "character": 12},
-  "end": {"line": 244, "character": 13}},
- "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 246, "character": 4}}
-{"range":
- {"start": {"line": 246, "character": 2}, "end": {"line": 246, "character": 8}},
+ {"start": {"line": 241, "character": 2},
+  "end": {"line": 241, "character": 10}},
  "contents":
  {"value":
   "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 249, "character": 9}}
+ "position": {"line": 241, "character": 9}}
 {"range":
- {"start": {"line": 249, "character": 9},
-  "end": {"line": 249, "character": 10}},
+ {"start": {"line": 241, "character": 9},
+  "end": {"line": 241, "character": 10}},
+ "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 245, "character": 8}}
+{"range":
+ {"start": {"line": 245, "character": 8}, "end": {"line": 245, "character": 9}},
+ "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 247, "character": 12}}
+{"range":
+ {"start": {"line": 247, "character": 12},
+  "end": {"line": 247, "character": 13}},
+ "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 249, "character": 4}}
+{"range":
+ {"start": {"line": 249, "character": 2}, "end": {"line": 249, "character": 8}},
+ "contents":
+ {"value":
+  "The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`\nwhere `foo` is a constructor of the inductive type and `a b c` are the arguments\nto the constructor.\n",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 252, "character": 9}}
+{"range":
+ {"start": {"line": 252, "character": 9},
+  "end": {"line": 252, "character": 10}},
  "contents":
  {"value":
   "```lean\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 249, "character": 11}}
+ "position": {"line": 252, "character": 11}}
 {"range":
- {"start": {"line": 249, "character": 11},
-  "end": {"line": 249, "character": 13}},
+ {"start": {"line": 252, "character": 11},
+  "end": {"line": 252, "character": 13}},
  "contents": {"value": "```lean\nih : True\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 254, "character": 6}}
-{"range":
- {"start": {"line": 254, "character": 4}, "end": {"line": 254, "character": 9}},
- "contents":
- {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
-  "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 254, "character": 15}}
-{"range":
- {"start": {"line": 254, "character": 13},
-  "end": {"line": 254, "character": 18}},
- "contents":
- {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
-  "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 6}}
 {"range":
  {"start": {"line": 257, "character": 4}, "end": {"line": 257, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 257, "character": 17}}
+ "position": {"line": 257, "character": 15}}
 {"range":
- {"start": {"line": 257, "character": 15},
-  "end": {"line": 257, "character": 20}},
- "contents":
- {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
-  "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 260, "character": 27}}
-{"range":
- {"start": {"line": 260, "character": 27},
-  "end": {"line": 260, "character": 37}},
- "contents":
- {"value":
-  "```lean\nInhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α\n```\n***\n*import Init.Prelude*",
-  "kind": "markdown"}}
-{"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 260, "character": 28}}
-{"range":
- {"start": {"line": 260, "character": 28},
-  "end": {"line": 260, "character": 36}},
+ {"start": {"line": 257, "character": 13},
+  "end": {"line": 257, "character": 18}},
  "contents":
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 266, "character": 2}}
+ "position": {"line": 260, "character": 6}}
 {"range":
- {"start": {"line": 266, "character": 2}, "end": {"line": 266, "character": 3}},
+ {"start": {"line": 260, "character": 4}, "end": {"line": 260, "character": 9}},
+ "contents":
+ {"value":
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 260, "character": 17}}
+{"range":
+ {"start": {"line": 260, "character": 15},
+  "end": {"line": 260, "character": 20}},
+ "contents":
+ {"value":
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 263, "character": 27}}
+{"range":
+ {"start": {"line": 263, "character": 27},
+  "end": {"line": 263, "character": 37}},
+ "contents":
+ {"value":
+  "```lean\nInhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α\n```\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 263, "character": 28}}
+{"range":
+ {"start": {"line": 263, "character": 28},
+  "end": {"line": 263, "character": 36}},
+ "contents":
+ {"value":
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hover.lean"},
+ "position": {"line": 269, "character": 2}}
+{"range":
+ {"start": {"line": 269, "character": 2}, "end": {"line": 269, "character": 3}},
  "contents":
  {"value":
   "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 269, "character": 4}}
+ "position": {"line": 272, "character": 4}}
 {"range":
- {"start": {"line": 269, "character": 4}, "end": {"line": 269, "character": 8}},
+ {"start": {"line": 272, "character": 4}, "end": {"line": 272, "character": 8}},
  "contents":
  {"value": "```lean\nauto (o : ℕ := by exact 1) : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 274, "character": 22}}
+ "position": {"line": 277, "character": 22}}
 {"range":
- {"start": {"line": 274, "character": 22},
-  "end": {"line": 274, "character": 23}},
+ {"start": {"line": 277, "character": 22},
+  "end": {"line": 277, "character": 23}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 274, "character": 13}}
+ "position": {"line": 277, "character": 13}}
 {"range":
- {"start": {"line": 274, "character": 13},
-  "end": {"line": 274, "character": 15}},
+ {"start": {"line": 277, "character": 13},
+  "end": {"line": 277, "character": 15}},
  "contents": {"value": "```lean\n_e : 1 = x\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 279, "character": 8}}
+ "position": {"line": 282, "character": 8}}
 {"range":
- {"start": {"line": 279, "character": 8},
-  "end": {"line": 279, "character": 10}},
+ {"start": {"line": 282, "character": 8},
+  "end": {"line": 282, "character": 10}},
  "contents": {"value": "```lean\n_e : 1 = 0\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 282, "character": 9}}
+ "position": {"line": 285, "character": 9}}
 {"range":
- {"start": {"line": 282, "character": 9},
-  "end": {"line": 282, "character": 10}},
+ {"start": {"line": 285, "character": 9},
+  "end": {"line": 285, "character": 10}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 287, "character": 13}}
+ "position": {"line": 290, "character": 13}}
 {"range":
- {"start": {"line": 287, "character": 13},
-  "end": {"line": 287, "character": 16}},
+ {"start": {"line": 290, "character": 13},
+  "end": {"line": 290, "character": 16}},
  "contents":
  {"value":
   "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\n`[]` is the empty list. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 289, "character": 13}}
+ "position": {"line": 292, "character": 13}}
 {"range":
- {"start": {"line": 289, "character": 11},
-  "end": {"line": 289, "character": 15}},
+ {"start": {"line": 292, "character": 11},
+  "end": {"line": 292, "character": 15}},
  "contents":
  {"value":
   "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nIf `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the\nlist whose first element is `a` and with `l` as the rest of the list. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 291, "character": 18}}
+ "position": {"line": 294, "character": 18}}
 {"range":
- {"start": {"line": 291, "character": 17},
-  "end": {"line": 291, "character": 20}},
+ {"start": {"line": 294, "character": 17},
+  "end": {"line": 294, "character": 20}},
  "contents":
  {"value":
   "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) : List α → List β\n```\n***\n`O(|l|)`. `map f l` applies `f` to each element of the list.\n* `map f [a, b, c] = [f a, f b, f c]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 294, "character": 26}}
+ "position": {"line": 297, "character": 26}}
 {"range":
- {"start": {"line": 294, "character": 25},
-  "end": {"line": 294, "character": 29}},
+ {"start": {"line": 297, "character": 25},
+  "end": {"line": 297, "character": 29}},
  "contents":
  {"value":
   "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
- "position": {"line": 294, "character": 19}}
+ "position": {"line": 297, "character": 19}}
 {"range":
- {"start": {"line": 294, "character": 19},
-  "end": {"line": 294, "character": 22}},
+ {"start": {"line": 297, "character": 19},
+  "end": {"line": 297, "character": 22}},
  "contents":
  {"value":
   "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} : List α → List β → List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",

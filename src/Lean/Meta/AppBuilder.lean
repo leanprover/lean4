@@ -164,7 +164,7 @@ def mkHEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``HEq.trans ("heterogeneous equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
-/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+/-- Given `h : HEq a b` where `a` and `b` have the same type, returns a proof of `Eq a b`. -/
 def mkEqOfHEq (h : Expr) : MetaM Expr := do
   let hType ← infer h
   match hType.heq? with
@@ -174,7 +174,7 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
     let u ← getLevel α
     return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
-    throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
+    throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
 /--
 If `e` is `@Eq.refl α a`, return `a`.
@@ -189,7 +189,7 @@ def isRefl? (e : Expr) : Option Expr := do
 If `e` is `@congrArg α β a b f h`, return `α`, `f` and `h`.
 Also works if `e` can be turned into such an application (e.g. `congrFun`).
 -/
-def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
+def congrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
   if e.isAppOfArity ``congrArg 6 then
     let #[α, _β, _a, _b, f, h] := e.getAppArgs | unreachable!
     return some (α, f, h)

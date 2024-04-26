@@ -7,6 +7,7 @@ prelude
 import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
+import Lean.Util.Profiler
 
 namespace Lean.Elab.Frontend
 
@@ -32,6 +33,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
     tacticCache? := none
+    snap?        := none
   }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
@@ -107,7 +109,9 @@ def runFrontend
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
+    (jsonOutput : Bool := false)
     : IO (Environment × Bool) := do
+  let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   if /- Lean #lang? -/ true then
@@ -119,14 +123,14 @@ def runFrontend
     let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
     let env := env.setMainModule mainModuleName
     let mut commandState := Command.mkState env messages opts
+    let elabStartTime := (← IO.monoNanosNow).toFloat / 1000000000
 
     if ileanFileName?.isSome then
       -- Collect InfoTrees so we can later extract and export their info to the ilean file
       commandState := { commandState with infoState.enabled := true }
 
     let s ← IO.processCommands inputCtx parserState commandState
-    for msg in s.commandState.messages.toList do
-      IO.print (← msg.toString (includeEndPos := Language.printMessageEndPos.get opts))
+    Language.reportMessages s.commandState.messages opts jsonOutput
 
     if let some ileanFileName := ileanFileName? then
       let trees := s.commandState.infoState.trees.toArray
@@ -135,13 +139,26 @@ def runFrontend
       let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
+    if let some out := trace.profiler.output.get? opts then
+      let traceState := s.commandState.traceState
+      -- importing does not happen in an elaboration monad, add now
+      let traceState := { traceState with
+        traces := #[{
+          ref := .missing,
+          msg := .trace { cls := `Import, startTime, stopTime := elabStartTime }
+            (.ofFormat "importing") #[]
+        }].toPArray' ++ traceState.traces
+      }
+      let profile ← Firefox.Profile.export mainModuleName.toString startTime traceState opts
+      IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
+
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 
   let ctx := { inputCtx with mainModuleName, opts, trustLevel }
   let processor := Language.Lean.process
   let snap ← processor none ctx
   let snaps := Language.toSnapshotTree snap
-  snaps.runAndReport opts
+  snaps.runAndReport opts jsonOutput
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)

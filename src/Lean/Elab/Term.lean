@@ -261,6 +261,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
+  s.meta.restoreFull
+  set s.elab
+
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
@@ -1379,7 +1387,8 @@ where
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
-    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}") do
+    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
+      (tag := stx.getKind.toString) do
     checkSystem "elaborator"
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
@@ -1757,6 +1766,7 @@ builtin_initialize
   registerTraceClass `Elab.postpone
   registerTraceClass `Elab.coe
   registerTraceClass `Elab.debug
+  registerTraceClass `Elab.reuse
 
 export Term (TermElabM)
 

@@ -76,14 +76,14 @@ private inductive NatOffset where
 private partial def NatOffset.asOffset (e : Expr) : Meta.SimpM (Option (Expr × Nat)) := do
   if e.isAppOfArity ``HAdd.hAdd 6 then
     let inst := e.appFn!.appFn!.appArg!
-    unless ← matchesInstance inst Nat.instHAdd do return none
+    unless ← matchesInstance inst Nat.mkInstHAdd do return none
     let b := e.appFn!.appArg!
     let o := e.appArg!
     let some n ← Nat.fromExpr? o | return none
     pure (some (b, n))
   else if e.isAppOfArity ``Add.add 4 then
     let inst := e.appFn!.appFn!.appArg!
-    unless ← matchesInstance inst Nat.instAdd do return none
+    unless ← matchesInstance inst Nat.mkInstAdd do return none
     let b := e.appFn!.appArg!
     let some n ← Nat.fromExpr? e.appArg! | return none
     pure (some (b, n))

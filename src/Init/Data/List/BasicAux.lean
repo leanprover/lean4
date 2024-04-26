@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
+import Init.Ext
 
 universe u
 
@@ -12,63 +13,157 @@ namespace List
 /-! The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
-def get! [Inhabited α] : List α → Nat → α
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function panics when executed, and returns
+`default`. See `get?` and `getD` for safer alternatives.
+-/
+def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
-def get? : List α → Nat → Option α
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
+Also see `get`, `getD` and `get!`.
+-/
+def get? : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get? as n
   | _,     _   => none
 
-def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
-  (as.get? idx).getD a₀
+/--
+Returns the `i`-th element in the list (zero-based).
 
+If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
+See also `get?` and `get!`.
+-/
+def getD (as : List α) (i : Nat) (fallback : α) : α :=
+  (as.get? i).getD fallback
+
+@[ext] theorem ext : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+  | [], [], _ => rfl
+  | a :: l₁, [], h => nomatch h 0
+  | [], a' :: l₂, h => nomatch h 0
+  | a :: l₁, a' :: l₂, h => by
+    have h0 : some a = some a' := h 0
+    injection h0 with aa; simp only [aa, ext fun n => h (n+1)]
+
+/--
+Returns the first element in the list.
+
+If the list is empty, this function panics when executed, and returns `default`.
+See `head` and `headD` for safer alternatives.
+-/
 def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
   | a::_ => a
 
+/--
+Returns the first element in the list.
+
+If the list is empty, this function returns `none`.
+Also see `headD` and `head!`.
+-/
 def head? : List α → Option α
   | []   => none
   | a::_ => some a
 
-def headD : List α → α → α
-  | [],   a₀ => a₀
+/--
+Returns the first element in the list.
+
+If the list is empty, this function returns `fallback`.
+Also see `head?` and `head!`.
+-/
+def headD : (as : List α) → (fallback : α) → α
+  | [],   fallback => fallback
   | a::_, _  => a
 
+/--
+Returns the first element of a non-empty list.
+-/
 def head : (as : List α) → as ≠ [] → α
   | a::_, _ => a
 
+/--
+Drops the first element of the list.
+
+If the list is empty, this function panics when executed, and returns the empty list.
+See `tail` and `tailD` for safer alternatives.
+-/
 def tail! : List α → List α
   | []    => panic! "empty list"
   | _::as => as
 
+/--
+Drops the first element of the list.
+
+If the list is empty, this function returns `none`.
+Also see `tailD` and `tail!`.
+-/
 def tail? : List α → Option (List α)
   | []    => none
   | _::as => some as
 
-def tailD : List α → List α → List α
-  | [],   as₀ => as₀
-  | _::as, _  => as
+/--
+Drops the first element of the list.
 
+If the list is empty, this function returns `fallback`.
+Also see `head?` and `head!`.
+-/
+def tailD (list fallback : List α) : List α :=
+  match list with
+  | [] => fallback
+  | _ :: tl => tl
+
+/--
+Returns the last element of a non-empty list.
+-/
 def getLast : ∀ (as : List α), as ≠ [] → α
   | [],       h => absurd rfl h
   | [a],      _ => a
   | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
 
+/--
+Returns the last element in the list.
+
+If the list is empty, this function panics when executed, and returns `default`.
+See `getLast` and `getLastD` for safer alternatives.
+-/
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
   | a::as => getLast (a::as) (fun h => List.noConfusion h)
 
+/--
+Returns the last element in the list.
+
+If the list is empty, this function returns `none`.
+Also see `getLastD` and `getLast!`.
+-/
 def getLast? : List α → Option α
   | []    => none
   | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
 
-def getLastD : List α → α → α
+/--
+Returns the last element in the list.
+
+If the list is empty, this function returns `fallback`.
+Also see `getLast?` and `getLast!`.
+-/
+def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 
+/--
+`O(n)`. Rotates the elements of `xs` to the left such that the element at
+`xs[i]` rotates to `xs[(i - n) % l.length]`.
+* `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
+* `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
+-/
 def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -79,6 +174,13 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
+/--
+`O(n)`. Rotates the elements of `xs` to the right such that the element at
+`xs[i]` rotates to `xs[(i + n) % l.length]`.
+* `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
+* `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
+-/
 def rotateRight (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -209,6 +311,15 @@ def mapMono (as : List α) (f : α → α) : List α :=
 Monadic generalization of `List.partition`.
 
 This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+```
+def posOrNeg (x : Int) : Except String Bool :=
+  if x > 0 then pure true
+  else if x < 0 then pure false
+  else throw "Zero is not positive or negative"
+
+partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
+partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
+```
 -/
 @[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
   go l #[] #[]

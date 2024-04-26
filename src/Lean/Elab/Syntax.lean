@@ -442,7 +442,4 @@ def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
 
-builtin_initialize
-  registerTraceClass `Elab.syntax
-
 end Lean.Elab.Command

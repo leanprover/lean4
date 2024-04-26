@@ -183,7 +183,6 @@ structure ParametricAttribute (α : Type) where
   deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
-  /-- This is used as the target for go-to-definition queries for simple attributes -/
   getParam : Name → Syntax → AttrM α
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()

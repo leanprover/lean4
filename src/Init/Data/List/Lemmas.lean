@@ -274,6 +274,19 @@ theorem get?_reverse {l : List α} (i) (h : i < length l) :
 
 @[simp] theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := rfl
 
+theorem ext_get {l₁ l₂ : List α} (hl : length l₁ = length l₂)
+    (h : ∀ n h₁ h₂, get l₁ ⟨n, h₁⟩ = get l₂ ⟨n, h₂⟩) : l₁ = l₂ :=
+  ext fun n =>
+    if h₁ : n < length l₁ then by
+      rw [get?_eq_get, get?_eq_get, h n h₁ (by rwa [← hl])]
+    else by
+      have h₁ := Nat.le_of_not_lt h₁
+      rw [get?_len_le h₁, get?_len_le]; rwa [← hl]
+
+@[simp] theorem get_map (f : α → β) {l n} :
+    get (map f l) n = f (get l ⟨n, length_map l f ▸ n.2⟩) :=
+  Option.some.inj <| by rw [← get?_eq_get, get?_map, get?_eq_get]; rfl
+
 /-! ### take and drop -/
 
 @[simp] theorem take_append_drop : ∀ (n : Nat) (l : List α), take n l ++ drop n l = l
@@ -390,6 +403,14 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
   induction l <;> simp [*]
 
 theorem foldr_self (l : List α) : l.foldr cons [] = l := by simp
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β₁) (init : α) :
+    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
+  induction l generalizing init <;> simp [*]
+
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
+    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
+  induction l generalizing init <;> simp [*]
 
 /-! ### mapM -/
 

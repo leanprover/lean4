@@ -41,7 +41,6 @@ LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-extern lean_object* l_String_instInhabitedString;
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object*);
@@ -50,6 +49,7 @@ uint8_t l_String_startsWith(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+extern lean_object* l_String_instInhabited;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts___boxed(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -132,7 +132,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_obj
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_String_instInhabitedString;
+x_2 = l_String_instInhabited;
 x_3 = lean_panic_fn(x_2, x_1);
 return x_3;
 }

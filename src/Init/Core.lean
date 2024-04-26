@@ -2040,4 +2040,8 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
 
+instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
+instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
+instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
+
 end Std

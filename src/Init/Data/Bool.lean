@@ -74,6 +74,7 @@ Added for confluence with `not_and_self` `and_not_self` on term
 @[simp] theorem eq_false_and_eq_true_self : ∀(b : Bool), (b = false ∧ b = true) ↔ False := by decide
 
 theorem and_comm : ∀ (x y : Bool), (x && y) = (y && x) := by decide
+instance : Std.Commutative (· && ·) := ⟨and_comm⟩
 
 theorem and_left_comm : ∀ (x y z : Bool), (x && (y && z)) = (y && (x && z)) := by decide
 theorem and_right_comm : ∀ (x y z : Bool), ((x && y) && z) = ((x && z) && y) := by decide
@@ -120,6 +121,7 @@ Needed for confluence of term `(a || b) ↔ a` which reduces to `(a || b) = a` v
 @[simp] theorem iff_or_self : ∀(a b : Bool), (b = (a || b)) ↔ (a → b) := by decide
 
 theorem or_comm : ∀ (x y : Bool), (x || y) = (y || x) := by decide
+instance : Std.Commutative (· || ·) := ⟨or_comm⟩
 
 theorem or_left_comm : ∀ (x y z : Bool), (x || (y || z)) = (y || (x || z)) := by decide
 theorem or_right_comm : ∀ (x y z : Bool), ((x || y) || z) = ((x || z) || y) := by decide
@@ -186,12 +188,18 @@ in false_eq and true_eq.
 @[simp] theorem true_beq  : ∀b, (true  == b) =  b := by decide
 @[simp] theorem false_beq : ∀b, (false == b) = !b := by decide
 @[simp] theorem beq_true  : ∀b, (b == true)  =  b := by decide
+instance : Std.LawfulIdentity (· == ·) true where
+  left_id := true_beq
+  right_id := beq_true
 @[simp] theorem beq_false : ∀b, (b == false) = !b := by decide
 
 @[simp] theorem true_bne  : ∀(b : Bool), (true  != b) = !b := by decide
 @[simp] theorem false_bne : ∀(b : Bool), (false != b) =  b := by decide
 @[simp] theorem bne_true  : ∀(b : Bool), (b != true)  = !b := by decide
 @[simp] theorem bne_false : ∀(b : Bool), (b != false) =  b := by decide
+instance : Std.LawfulIdentity (· != ·) false where
+  left_id := false_bne
+  right_id := bne_false
 
 @[simp] theorem not_beq_self : ∀ (x : Bool), ((!x) == x) = false := by decide
 @[simp] theorem beq_not_self : ∀ (x : Bool), (x   == !x) = false := by decide
@@ -214,6 +222,7 @@ due to `beq_iff_eq`.
 @[simp] theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by decide
 
 @[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
+instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
 @[simp] theorem bne_left_inj  : ∀ (x y z : Bool), (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_right_inj : ∀ (x y z : Bool), (x != z) = (y != z) ↔ x = y := by decide

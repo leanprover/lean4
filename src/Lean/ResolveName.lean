@@ -289,7 +289,7 @@ def filterFieldList [Monad m] [MonadError m] (n : Name) (cs : List (Name × List
   if cs.isEmpty then throwUnknownConstant n
   return cs.map (·.1)
 
-/-- Given a name `n`, return a list of possible interpretations for global constants.
+/-- Given a name `n`, returns a list of possible interpretations for global constants.
 
 Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty.
 For identifiers taken from syntax, use `resolveGlobalConst` instead, which respects preresolved names. -/
@@ -320,10 +320,13 @@ def preprocessSyntaxAndResolve [Monad m] [MonadResolveName m] [MonadEnv m] [Mona
   | _ => throwErrorAt stx s!"expected identifier"
 
 /--
-Interpret the syntax `n` as an identifier for a global constant, and return a list of resolved
+Interprets the syntax `n` as an identifier for a global constant, and returns a list of resolved
 constant names that it could be referring to based on the currently open namespaces.
 This should be used instead of `resolveGlobalConstCore` for identifiers taken from syntax
 because `Syntax` objects may have names that have already been resolved.
+
+Consider using `realizeGlobalConst` if you need to handle reserved names, and
+`realizeGlobalConstWithInfo` if you want the syntax to show the resulting name's info on hover.
 
 ## Example:
 ```
@@ -345,7 +348,7 @@ def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m
   preprocessSyntaxAndResolve stx resolveGlobalConstCore
 
 /--
-Given a list of names produced by `resolveGlobalConst`, throw an error if the list does not contain
+Given a list of names produced by `resolveGlobalConst`, throws an error if the list does not contain
 exactly one element.
 Recall that `resolveGlobalConst` does not return empty lists.
 -/
@@ -355,8 +358,12 @@ def ensureNonAmbiguous [Monad m] [MonadError m] (id : Syntax) (cs : List Name) :
   | [c] => pure c
   | _   => throwErrorAt id s!"ambiguous identifier '{id}', possible interpretations: {cs.map mkConst}"
 
-/-- Interpret the syntax `n` as an identifier for a global constant, and return a resolved
+/-- Interprets the syntax `n` as an identifier for a global constant, and return a resolved
 constant name. If there are multiple possible interpretations it will throw.
+
+Consider using `realizeGlobalConstNoOverload` if you need to handle reserved names, and
+`realizeGlobalConstNoOverloadWithInfo` if you
+want the syntax to show the resulting name's info on hover.
 
 ## Example:
 ```
@@ -397,7 +404,7 @@ where
     for _ in [:revComponents.length] do
       match revComponents with
       | [] => return none
-      | cmpt::rest => candidate := cmpt ++ candidate; revComponents := rest
+      | cmpt::rest => candidate := Name.appendCore cmpt candidate; revComponents := rest
       match (← resolveGlobalName candidate) with
       | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
       | _ => continue

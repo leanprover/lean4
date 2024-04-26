@@ -1,2 +1,2 @@
-instDecidableLeThingAInstLEThingA (t₁ t₂ : ThingA) : Decidable (t₁ ≤ t₂)
-instDecidableLeThingBInstLEThingB (t₁ t₂ : ThingB) : Decidable (t₁ ≤ t₂)
+instDecidableLeThingA (t₁ t₂ : ThingA) : Decidable (t₁ ≤ t₂)
+instDecidableLeThingB (t₁ t₂ : ThingB) : Decidable (t₁ ≤ t₂)

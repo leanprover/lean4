@@ -129,6 +129,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_erase_match__2_
 LEAN_EXPORT lean_object* l_List_zipWithTR_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterMapTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_replace_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_instMonad;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_filterMapTR_go_match__1_splitter(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_takeWhileTR_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -148,7 +149,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_isEmpty_match__
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_List_setTR_go___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldrTR___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Impl_0__List_isEmpty_match__1_splitter(lean_object*, lean_object*);
-extern lean_object* l_Id_instMonadId;
 lean_object* l_Array_foldrMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_List_intercalateTR_go___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1465,7 +1465,7 @@ size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_2
 x_17 = lean_usize_of_nat(x_14);
 lean_dec(x_14);
 x_18 = 0;
-x_19 = l_Id_instMonadId;
+x_19 = l_Id_instMonad;
 x_20 = l_List_replaceTR_go___rarg___closed__1;
 x_21 = l_Array_foldrMUnsafe_fold___rarg(x_19, x_20, x_6, x_17, x_18, x_5);
 return x_21;
@@ -1518,7 +1518,7 @@ size_t x_32; size_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_3
 x_32 = lean_usize_of_nat(x_29);
 lean_dec(x_29);
 x_33 = 0;
-x_34 = l_Id_instMonadId;
+x_34 = l_Id_instMonad;
 x_35 = l_List_replaceTR_go___rarg___closed__1;
 x_36 = l_Array_foldrMUnsafe_fold___rarg(x_34, x_35, x_6, x_32, x_33, x_28);
 return x_36;
@@ -1779,7 +1779,7 @@ size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13;
 x_10 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
 x_11 = 0;
-x_12 = l_Id_instMonadId;
+x_12 = l_Id_instMonad;
 x_13 = l_Array_foldrMUnsafe_fold___rarg(x_12, x_1, x_6, x_10, x_11, x_2);
 return x_13;
 }

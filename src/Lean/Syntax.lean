@@ -104,7 +104,9 @@ def structRangeEqWithTraceReuse (opts : Options) (stx1 stx2 : Syntax) : Bool :=
     true
   else
     if opts.getBool `trace.Elab.reuse then
-      dbg_trace "reuse stopped: {stx1} != {stx2}"
+      dbg_trace "reuse stopped:
+{stx1.formatStx (showInfo := true)} !=
+{stx2.formatStx (showInfo := true)}"
       false
     else
       false

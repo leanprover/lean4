@@ -125,4 +125,9 @@ def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | .irreducible => return true
   | _ => return false
 
+/-- Set the given declaration as `[irreducible]` -/
+def setIrreducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
+  setReducibilityStatus declName ReducibilityStatus.irreducible
+
+
 end Lean

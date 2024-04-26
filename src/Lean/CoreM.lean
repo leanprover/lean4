@@ -286,7 +286,7 @@ Returns the current log and then resets its messages but does NOT reset `Message
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun log => ({ log with msgs := {} }, log)
+  modifyGet fun s => (s.messages, { s with messages.msgs := {} })
 
 instance : MonadLog CoreM where
   getRef      := getRef

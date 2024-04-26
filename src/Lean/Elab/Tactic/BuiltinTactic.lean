@@ -79,7 +79,8 @@ where
           withAlwaysResolvedPromise fun inner => do
             snap.new.resolve <| .mk {
               stx := tac
-              diagnostics := .empty
+              diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
+                (← Core.getAndEmptyMessageLog))
               finished := finished.result
             } #[
               {

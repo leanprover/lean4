@@ -87,13 +87,15 @@ end
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
+@[irreducible]
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
 
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
-    fix hwf F x = F x (fun y _ => fix hwf F y) :=
-  fixFEq F x (apply hwf x)
+    fix hwf F x = F x (fun y _ => fix hwf F y) := by
+  delta fix
+  exact fixFEq F x (apply hwf x)
 end WellFounded
 
 open WellFounded

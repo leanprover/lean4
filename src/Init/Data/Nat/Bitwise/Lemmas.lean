@@ -50,7 +50,10 @@ noncomputable def div2Induction {motive : Nat → Sort u}
       apply hyp
       exact Nat.div_lt_self n_pos (Nat.le_refl _)
 
-@[simp] theorem zero_and (x : Nat) : 0 &&& x = 0 := by rfl
+@[simp] theorem zero_and (x : Nat) : 0 &&& x = 0 := by
+  simp only [HAnd.hAnd, AndOp.and, land]
+  unfold bitwise
+  simp
 
 @[simp] theorem and_zero (x : Nat) : x &&& 0 = 0 := by
   simp only [HAnd.hAnd, AndOp.and, land]

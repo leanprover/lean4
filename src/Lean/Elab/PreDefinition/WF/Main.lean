@@ -146,7 +146,6 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-  setIrreducibleAttribute preDefNonRec.declName
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

@@ -37,10 +37,11 @@ def gcd (m n : @& Nat) : Nat :=
   termination_by m
   decreasing_by simp_wf; apply mod_lt _ (zero_lt_of_ne_zero _); assumption
 
-@[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
-  rfl
+@[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y := by
+  unfold gcd; rfl
 
-theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
+theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
+  conv => lhs; unfold gcd
   rfl
 
 @[simp] theorem gcd_one_left (n : Nat) : gcd 1 n = 1 := by
@@ -60,7 +61,7 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
 
 theorem gcd_rec (m n : Nat) : gcd m n = gcd (n % m) m :=
   match m with
-  | 0 => by have := (mod_zero n).symm; rwa [gcd_zero_right]
+  | 0 => by have := (mod_zero n).symm; rwa [gcd_zero_right, gcd]
   | _ + 1 => by simp [gcd_succ]
 
 @[elab_as_elim] theorem gcd.induction {P : Nat → Nat → Prop} (m n : Nat)

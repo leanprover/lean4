@@ -670,6 +670,9 @@ protected theorem pow_lt_pow_iff_right {a n m : Nat} (h : 1 < a) :
 
 /-! ### log2 -/
 
+@[simp]
+theorem log2_zero : Nat.log2 0 = 0 := by simp [Nat.log2]
+
 theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
   match k with
   | 0 => simp [show 1 ≤ n from Nat.pos_of_ne_zero h]
@@ -690,7 +693,7 @@ theorem log2_self_le (h : n ≠ 0) : 2 ^ n.log2 ≤ n := (le_log2 h).1 (Nat.le_r
 
 theorem lt_log2_self : n < 2 ^ (n.log2 + 1) :=
   match n with
-  | 0 => Nat.zero_lt_two
+  | 0 => by simp
   | n+1 => (log2_lt n.succ_ne_zero).1 (Nat.le_refl _)
 
 /-! ### dvd -/

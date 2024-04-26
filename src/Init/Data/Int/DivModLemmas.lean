@@ -144,13 +144,13 @@ theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b
 
 @[simp] protected theorem div_zero : ∀ a : Int, div a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
-  | -[_+1] => rfl
+  | -[_+1] => by simp [div]
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
-  | succ _ => rfl
+  | succ _ => by simp [fdiv]
   | -[_+1] => rfl
 
 /-! ### div equivalences  -/
@@ -178,7 +178,7 @@ theorem fdiv_eq_div {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = div a
 
 @[simp] theorem mod_zero : ∀ a : Int, mod a 0 = a
   | ofNat _ => congrArg ofNat <| Nat.mod_zero _
-  | -[_+1] => rfl
+  | -[_+1] => by unfold mod; simp; rfl
 
 @[simp] theorem zero_fmod (b : Int) : fmod 0 b = 0 := by cases b <;> rfl
 
@@ -225,7 +225,7 @@ theorem mod_add_div : ∀ a b : Int, mod a b + b * (a.div b) = a
   | ofNat m, -[n+1] => by
     show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat (Nat.mod_add_div ..)
-  | -[_+1], 0 => rfl
+  | -[_+1], 0 => by simp [mod]; rfl
   | -[m+1], ofNat n => by
     show -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
     rw [Int.mul_neg, ← Int.neg_add]
@@ -764,13 +764,18 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
   | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
-  | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
+  | ofNat m, 0 => by unfold div; simp
   | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
-  | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
+  | ofNat m, succ n | -[m+1], -[n+1] => by unfold div; simp; rfl
+  | -[m+1], 0 => by unfold div; simp
+
+
 
 @[simp] protected theorem neg_div : ∀ a b : Int, (-a).div b = -(a.div b)
   | 0, n => by simp [Int.neg_zero]
-  | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl
+  | succ m, (n:Nat)=> by unfold div; simp; rfl
+  | -[m+1], -[n+1] => by unfold div; simp; rfl
+  | -[m+1], 0 => by unfold div; rw [Int.neg_negSucc]; simp
   | succ m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
 
 protected theorem neg_div_neg (a b : Int) : (-a).div (-b) = a.div b := by
@@ -937,7 +942,9 @@ theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_fdiv .. ▸ ofNat_zero_le _
 
 theorem fdiv_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
-  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
+  | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => by
+    simp [fdiv, Int.negSucc_lt_zero]
+    try exact Int.le_of_lt (Int.negSucc_lt_zero _)
 
 theorem fdiv_neg' : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
   | -[_+1], succ _, _, _ => negSucc_lt_zero _

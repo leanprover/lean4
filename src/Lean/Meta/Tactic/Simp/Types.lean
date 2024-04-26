@@ -95,8 +95,8 @@ structure Context where
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
   ctx.simpTheorems.isDeclToUnfold declName
 
--- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
-abbrev UsedSimps := PHashMap Origin Nat
+-- We use `PHashMap` because we backtrack the contents of `UsedSimps`
+abbrev UsedSimps := PHashMapSized Origin Nat
 
 structure State where
   cache        : Cache := {}

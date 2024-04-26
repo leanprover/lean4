@@ -57,8 +57,8 @@ abbrev AliasEntry := Name × Name
 
 def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
   match s.find? e.1 with
-  | none    => s.insert e.1 [e.2]
-  | some es => if es.contains e.2 then s else s.insert e.1 (e.2 :: es)
+  | none    => s.insertNew e.1 [e.2]
+  | some es => if es.contains e.2 then s else s.replace e.1 (e.2 :: es)
 
 builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
   registerSimplePersistentEnvExtension {

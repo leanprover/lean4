@@ -27,9 +27,9 @@ namespace Lean
    - We do not need additional bookkeeping for extracting the local entries.
 -/
 structure SMap (α : Type u) (β : Type v) [BEq α] [Hashable α] where
-  stage₁ : Bool         := true
-  map₁   : HashMap α β  := {}
-  map₂   : PHashMap α β := {}
+  stage₁ : Bool              := true
+  map₁   : HashMap α β       := {}
+  map₂   : PHashMapSized α β := {}
 
 namespace SMap
 variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
@@ -40,11 +40,15 @@ def empty : SMap α β := {}
 @[inline] def fromHashMap (m : HashMap α β) (stage₁ := true) : SMap α β :=
   { map₁ := m, stage₁ := stage₁ }
 
-@[specialize] def insert : SMap α β → α → β → SMap α β
+@[specialize] def insertNew : SMap α β → α → β → SMap α β
   | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
-  | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
+  | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insertNew k v⟩
 
-@[specialize] def insert' : SMap α β → α → β → SMap α β
+@[specialize] def replace : SMap α β → α → β → SMap α β
+  | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
+  | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.replace k v⟩
+
+@[specialize] def insert : SMap α β → α → β → SMap α β
   | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
   | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 

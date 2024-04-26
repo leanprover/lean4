@@ -26,7 +26,7 @@ structure CacheEntry where
   deriving Inhabited
 
 def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
-  cache.insert e.key e.declName
+  cache.insertNew e.key e.declName
 
 builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache ←
   registerSimplePersistentEnvExtension {

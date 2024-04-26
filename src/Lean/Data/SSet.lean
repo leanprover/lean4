@@ -21,6 +21,12 @@ abbrev empty : SSet α := SMap.empty
 abbrev insert (s : SSet α) (a : α) : SSet α :=
   SMap.insert s a ()
 
+abbrev replace (s : SSet α) (a : α) : SSet α :=
+  SMap.replace s a ()
+
+abbrev insertNew (s : SSet α) (a : α) : SSet α :=
+  SMap.insertNew s a ()
+
 abbrev contains (s : SSet α) (a : α) : Bool :=
   SMap.contains s a
 

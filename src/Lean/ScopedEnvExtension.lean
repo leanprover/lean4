@@ -52,8 +52,8 @@ def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) :=
 
 def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β) : ScopedEntries β :=
   match scopedEntries.map.find? ns with
-  | none    => { map := scopedEntries.map.insert ns <| ({} : PArray β).push b }
-  | some bs => { map := scopedEntries.map.insert ns <| bs.push b }
+  | none    => { map := scopedEntries.map.insertNew ns <| ({} : PArray β).push b }
+  | some bs => { map := scopedEntries.map.replace ns <| bs.push b }
 
 def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : ImportM (StateStack α β σ) := do
   let mut s ← descr.mkInitial

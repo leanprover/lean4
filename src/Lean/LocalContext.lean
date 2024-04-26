@@ -162,7 +162,7 @@ When inspecting a goal or expected type in the infoview, the local
 context is all of the variables above the `⊢` symbol.
  -/
 structure LocalContext where
-  fvarIdToDecl : PersistentHashMap FVarId LocalDecl := {}
+  fvarIdToDecl : PersistentHashMapSized FVarId LocalDecl := {}
   decls        : PersistentArray (Option LocalDecl) := {}
   deriving Inhabited
 
@@ -186,7 +186,7 @@ def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type 
   | { fvarIdToDecl := map, decls := decls } =>
     let idx  := decls.size
     let decl := LocalDecl.cdecl idx fvarId userName type bi kind
-    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
+    { fvarIdToDecl := map.insertNew fvarId decl, decls := decls.push decl }
 
 -- `mkLocalDecl` without `kind`
 @[export lean_local_ctx_mk_local_decl]
@@ -199,7 +199,7 @@ def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : 
   | { fvarIdToDecl := map, decls := decls } =>
     let idx  := decls.size
     let decl := LocalDecl.ldecl idx fvarId userName type value nonDep kind
-    { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
+    { fvarIdToDecl := map.insertNew fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
 private def mkLetDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : LocalContext :=
@@ -212,7 +212,7 @@ def addDecl (lctx : LocalContext) (newDecl : LocalDecl) : LocalContext :=
   | { fvarIdToDecl := map, decls := decls } =>
     let idx     := decls.size
     let newDecl := newDecl.setIndex idx
-    { fvarIdToDecl := map.insert newDecl.fvarId newDecl, decls := decls.push newDecl }
+    { fvarIdToDecl := map.insertNew newDecl.fvarId newDecl, decls := decls.push newDecl }
 
 @[export lean_local_ctx_find]
 def find? (lctx : LocalContext) (fvarId : FVarId) : Option LocalDecl :=
@@ -295,7 +295,7 @@ def lastDecl (lctx : LocalContext) : Option LocalDecl :=
 def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : LocalContext :=
   let decl := lctx.get! fvarId
   let decl := decl.setUserName userName
-  { fvarIdToDecl := lctx.fvarIdToDecl.insert decl.fvarId decl,
+  { fvarIdToDecl := lctx.fvarIdToDecl.replace decl.fvarId decl,
     decls        := lctx.decls.set decl.index decl }
 
 def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : LocalContext :=
@@ -305,7 +305,7 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     | none      => lctx
     | some decl =>
       let decl := decl.setUserName toName;
-      { fvarIdToDecl := map.insert decl.fvarId decl,
+      { fvarIdToDecl := map.replace decl.fvarId decl,
         decls        := decls.set decl.index decl }
 
 /--
@@ -319,7 +319,7 @@ def renameUserName (lctx : LocalContext) (fromName : Name) (toName : Name) : Loc
     | none      => lctx
     | some decl =>
       let decl := f decl
-      { fvarIdToDecl := map.insert decl.fvarId decl
+      { fvarIdToDecl := map.replace decl.fvarId decl
         decls        := decls.set decl.index decl }
 
 /--

@@ -37,7 +37,7 @@ structure ClassState where
 namespace ClassState
 
 def addEntry (s : ClassState) (entry : ClassEntry) : ClassState :=
-  { s with outParamMap := s.outParamMap.insert entry.name entry.outParams }
+  { s with outParamMap := s.outParamMap.insertNew entry.name entry.outParams }
 
 /--
 Switch the state into persistent mode. We switch to this mode after

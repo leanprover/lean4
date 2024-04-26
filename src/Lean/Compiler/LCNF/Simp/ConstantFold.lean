@@ -388,7 +388,7 @@ private def getFolder (declName : Name) : CoreM Folder := do
 
 def builtinFolders : SMap Name Folder :=
   (arithmeticFolders ++ relationFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
-    s.insert declName folder
+    s.insertNew declName folder
 
 structure FolderOleanEntry where
   declName : Name
@@ -406,9 +406,9 @@ builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEnt
       for entries in entriesArray do
         for { declName, folderDeclName } in entries do
           let folder ← IO.ofExcept <| getFolderCore ctx.env ctx.opts folderDeclName
-          folders := folders.insert declName folder
+          folders := folders.insertNew declName folder
       return ([], folders.switch)
-    addEntryFn := fun (entries, map) entry => (entry.toFolderOleanEntry :: entries, map.insert entry.declName entry.folder)
+    addEntryFn := fun (entries, map) entry => (entry.toFolderOleanEntry :: entries, map.insertNew entry.declName entry.folder)
     exportEntriesFn := fun (entries, _) => entries.reverse.toArray
   }
 

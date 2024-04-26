@@ -60,7 +60,9 @@ namespace NameSSet
 abbrev empty : NameSSet := SSet.empty
 instance : EmptyCollection NameSSet := ⟨empty⟩
 instance : Inhabited NameSSet := ⟨empty⟩
+abbrev insertNew (s : NameSSet) (n : Name) : NameSSet := SSet.insertNew s n
 abbrev insert (s : NameSSet) (n : Name) : NameSSet := SSet.insert s n
+abbrev replace (s : NameSSet) (n : Name) : NameSSet := SSet.replace s n
 abbrev contains (s : NameSSet) (n : Name) : Bool := SSet.contains s n
 end NameSSet
 

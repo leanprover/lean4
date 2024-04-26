@@ -53,7 +53,7 @@ structure AttributeImpl extends AttributeImplCore where
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited
 
-builtin_initialize attributeMapRef : IO.Ref (PersistentHashMap Name AttributeImpl) ← IO.mkRef {}
+builtin_initialize attributeMapRef : IO.Ref (PersistentHashMapSized Name AttributeImpl) ← IO.mkRef {}
 
 /-- Low level attribute registration function. -/
 def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
@@ -61,7 +61,7 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   if m.contains attr.name then throw (IO.userError ("invalid builtin attribute declaration, '" ++ toString attr.name ++ "' has already been used"))
   unless (← initializing) do
     throw (IO.userError "failed to register attribute, attributes can only be registered during initialization")
-  attributeMapRef.modify fun m => m.insert attr.name attr
+  attributeMapRef.modify fun m => m.insertNew attr.name attr
 
 /-!
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
@@ -320,7 +320,7 @@ inductive AttributeExtensionOLeanEntry where
 
 structure AttributeExtensionState where
   newEntries : List AttributeExtensionOLeanEntry := []
-  map        : PersistentHashMap Name AttributeImpl
+  map        : PersistentHashMapSized Name AttributeImpl
   deriving Inhabited
 
 abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
@@ -351,7 +351,7 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
   let map ← es.foldlM
     (fun map entries =>
       entries.foldlM
-        (fun (map : PersistentHashMap Name AttributeImpl) entry => do
+        (fun (map : PersistentHashMapSized Name AttributeImpl) entry => do
           let attrImpl ← mkAttributeImplOfEntry ctx.env ctx.opts entry
           return map.insert attrImpl.name attrImpl)
         map)
@@ -359,7 +359,7 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
   pure { map := map }
 
 private def addAttrEntry (s : AttributeExtensionState) (e : AttributeExtensionOLeanEntry × AttributeImpl) : AttributeExtensionState :=
-  { s with map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries }
+  { s with map := s.map.insertNew e.2.name e.2, newEntries := e.1 :: s.newEntries }
 
 builtin_initialize attributeExtension : AttributeExtension ←
   registerPersistentEnvExtension {
@@ -434,7 +434,7 @@ def updateEnvAttributesImpl (env : Environment) : IO Environment := do
     if s.map.contains attrName then
       s
     else
-      { s with map := s.map.insert attrName attrImpl }
+      { s with map := s.map.insertNew attrName attrImpl }
   return attributeExtension.setState env s
 
 /-- `getNumBuiltinAttributes` implementation -/

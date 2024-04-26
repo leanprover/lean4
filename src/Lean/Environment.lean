@@ -157,7 +157,7 @@ structure Environment where
 namespace Environment
 
 private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  { env with constants := env.constants.insert cinfo.name cinfo }
+  { env with constants := env.constants.insertNew cinfo.name cinfo }
 
 /--
 Save an extra constant name that is used to populate `const2ModIdx` when we import

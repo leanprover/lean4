@@ -21,8 +21,8 @@ def objectFactory :=
 
 def persistentObjectFactory :=
   StateFactory.mk {
-    Map := PersistentHashMap, mkMap := fun _ => .empty, mapFind? := (·.find?), mapInsert := (·.insert)
-    Set := PersistentHashSet, mkSet := fun _ => .empty, setFind? := (·.find?), setInsert := (·.insert)
+    Map := PHashMap, mkMap := fun _ => .empty, mapFind? := (·.find?), mapInsert := (·.insert)
+    Set := PHashSet, mkSet := fun _ => .empty, setFind? := (·.find?), setInsert := (·.insert)
   }
 
 abbrev ShareCommonT := _root_.ShareCommonT objectFactory

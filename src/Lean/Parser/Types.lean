@@ -34,10 +34,10 @@ abbrev Token := String
 
 abbrev TokenTable := Lean.Data.Trie Token
 
-abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
+abbrev SyntaxNodeKindSet := PersistentHashSet SyntaxNodeKind
 
 def SyntaxNodeKindSet.insert (s : SyntaxNodeKindSet) (k : SyntaxNodeKind) : SyntaxNodeKindSet :=
-  PersistentHashMap.insert s k ()
+  PersistentHashSet.insert s k
 
 /--
   Input string and related data. Recall that the `FileMap` is a helper structure for mapping

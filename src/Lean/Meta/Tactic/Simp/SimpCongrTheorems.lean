@@ -36,8 +36,8 @@ def SimpCongrTheorems.get (d : SimpCongrTheorems) (declName : Name) : List SimpC
 def addSimpCongrTheoremEntry (d : SimpCongrTheorems) (e : SimpCongrTheorem) : SimpCongrTheorems :=
   { d with lemmas :=
       match d.lemmas.find? e.funName with
-      | none    => d.lemmas.insert e.funName [e]
-      | some es => d.lemmas.insert e.funName <| insert es }
+      | none    => d.lemmas.insertNew e.funName [e]
+      | some es => d.lemmas.replace e.funName <| insert es }
 where
   insert : List SimpCongrTheorem → List SimpCongrTheorem
     | []     => [e]

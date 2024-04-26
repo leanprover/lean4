@@ -290,9 +290,9 @@ partial def visitAssignments (set : IO.Ref (HashSet USize))
     (assignments : Array (PersistentHashMap MVarId Expr)) : IO Unit := do
   MonadCacheT.run do
     for assignment in assignments do
-      visitNode assignment.root
+      visitNode assignment
 where
-  /-- Visit a `PersistentHashMap.Node`, collecting all fvars in it into `fvarUses` -/
+  /-- Visit a `PersistentHashMap`, collecting all fvars in it into `fvarUses` -/
   visitNode node : MonadCacheT Expr Unit IO Unit := do
     if ← insertObj set node then
       match node with

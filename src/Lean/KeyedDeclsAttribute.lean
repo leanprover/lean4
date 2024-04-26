@@ -62,7 +62,7 @@ structure ExtensionState (γ : Type) where
   newEntries : List OLeanEntry := []
   table      : Table γ := {}
   declNames  : PHashSet Name := {}
-  erased     : PHashSet Name := {}
+  erased     : PHashSetSized Name := {}
   deriving Inhabited
 
 abbrev Extension (γ : Type) := ScopedEnvExtension OLeanEntry (AttributeEntry γ) (ExtensionState γ)
@@ -81,8 +81,8 @@ namespace KeyedDeclsAttribute
 
 private def Table.insert (table : Table γ) (v : AttributeEntry γ) : Table γ :=
   match table.find? v.key with
-  | some vs => SMap.insert table v.key (v::vs)
-  | none    => SMap.insert table v.key [v]
+  | some vs => SMap.replace table v.key (v::vs)
+  | none    => SMap.insertNew table v.key [v]
 
 def ExtensionState.insert (s : ExtensionState γ) (v : AttributeEntry γ) :  ExtensionState γ := {
   table      := s.table.insert v

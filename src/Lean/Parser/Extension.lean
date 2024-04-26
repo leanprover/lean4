@@ -432,7 +432,7 @@ def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
   let kinds := (parserExtension.getState env).kinds
-  kinds.foldl (fun ks k _ => k::ks) []
+  kinds.set.foldl (fun ks k _ => k::ks) []
 
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
@@ -522,7 +522,7 @@ private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : 
       | Exception.error _   msg => throwError "invalid parser '{declName}', {msg}"
       | ex => throw ex
   let kinds := parser.info.collectKinds {}
-  kinds.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
+  kinds.set.forM fun kind _ => modifyEnv fun env => addSyntaxNodeKind env kind
   let entry := ParserExtension.Entry.parser catName declName leading parser prio
   match addParser categories catName declName leading parser prio with
   | Except.error ex => throwError ex

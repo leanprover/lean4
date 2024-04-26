@@ -25,6 +25,18 @@ theorem nonFirst (n : Nat) : True := by
                 --^ sync
                 --^ insert: ".5"
 
+-- RESET
+-- currently the pre-tac will be re-executed even if we can reuse a specific branch's tactics
+theorem preTac (n : Nat) : True := by
+  induction n with
+    dbg_trace "p -1"
+  | zero => sorry
+  | succ =>
+    dbg_trace "p 0"
+    dbg_trace "p 1"
+                --^ sync
+                --^ insert: ".5"
+
 /-! No reuse in cases where branch is run more than once -/
 
 -- RESET
@@ -37,13 +49,11 @@ theorem wildcard (n : Nat) : True := by
                 --^ insert: ".5"
 
 -- RESET
-theorem preTac (x : Nat × Nat × Nat) : True := by
+theorem preTacMulti (x : Nat × Nat × Nat) : True := by
   induction x with
     cases x
   | mk x =>
-    dbg_trace "p 0"
-    dbg_trace "p 1"
-                --^ sync
-                --^ insert: ".5"
-
-set_option trace.Elab.reuse true
+    dbg_trace "pm 0"
+    dbg_trace "pm 1"
+                 --^ sync
+                 --^ insert: ".5"

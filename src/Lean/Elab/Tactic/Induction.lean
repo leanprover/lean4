@@ -374,41 +374,44 @@ where
       addInfo
       if !isWildcard altStx then
         throwError "alternative '{altName}' is not needed"
-    match (← Cases.unifyEqs? numEqs altMVarId {}) with
-    | none => unusedAlt
-    | some (altMVarId', subst) =>
-      altMVarId ← if info.provesMotive then
-        (_, altMVarId) ← altMVarId'.introNP numGeneralized
-        pure altMVarId
-      else
-        pure altMVarId'
-      for fvarId in toClear do
-        altMVarId ← altMVarId.tryClear fvarId
-      altMVarId.withContext do
-        for (stx, fvar) in toTag do
-          Term.addLocalVarInfo stx (subst.get fvar)
-      let altMVarIds ← applyPreTac altMVarId
-      if altMVarIds.isEmpty then
-        unusedAlt
-      else
-        -- select corresponding snapshot bundle for incrementality of this alternative
-        -- note that `tacSnaps[altStxIdx]?` is `none` if `tacSnap?` was `none` to begin with
-        withTheReader Term.Context ({ · with tacSnap? := tacSnaps[altStxIdx]? }) do
-        -- all previous alternatives have to be unchanged for reuse
-        Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
-        -- everything up to rhs has to be unchanged for reuse
-        Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
-        -- disable reuse if rhs is run multiple times
-        Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
-          for altMVarId' in altMVarIds do
-            evalAlt altMVarId' altStx addInfo
+    let some (altMVarId', subst) ← Cases.unifyEqs? numEqs altMVarId {}
+      | unusedAlt
+    altMVarId ← if info.provesMotive then
+      (_, altMVarId) ← altMVarId'.introNP numGeneralized
+      pure altMVarId
+    else
+      pure altMVarId'
+    for fvarId in toClear do
+      altMVarId ← altMVarId.tryClear fvarId
+    altMVarId.withContext do
+      for (stx, fvar) in toTag do
+        Term.addLocalVarInfo stx (subst.get fvar)
+    let altMVarIds ← applyPreTac altMVarId
+    if altMVarIds.isEmpty then
+      return (← unusedAlt)
+
+    -- select corresponding snapshot bundle for incrementality of this alternative
+    -- note that `tacSnaps[altStxIdx]?` is `none` if `tacSnap?` was `none` to begin with
+    withTheReader Term.Context ({ · with tacSnap? := tacSnaps[altStxIdx]? }) do
+    -- all previous alternatives have to be unchanged for reuse
+    Term.withNarrowedArgTacticReuse (stx := mkNullNode altStxs) (argIdx := altStxIdx) fun altStx => do
+    -- everything up to rhs has to be unchanged for reuse
+    Term.withNarrowedArgTacticReuse (stx := altStx) (argIdx := 2) fun _rhs => do
+    -- disable reuse if rhs is run multiple times
+    Term.withoutTacticIncrementality (altMVarIds.length != 1 || isWildcard altStx) do
+      for altMVarId' in altMVarIds do
+        evalAlt altMVarId' altStx addInfo
 
   /-- Applies `induction .. with $preTac | ..`, if any, to an alternative goal. -/
   applyPreTac (mvarId : MVarId) : TacticM (List MVarId) :=
     if optPreTac.isNone then
       return [mvarId]
     else
-      evalTacticAt optPreTac[0] mvarId
+      -- disable incrementality for the pre-tactic to avoid non-monotonic progress reporting; it
+      -- would be possible to include a custom task around the pre-tac with an appropriate range in
+      -- the snapshot such that it is cached as well if it turns out that this is valuable
+      Term.withoutTacticIncrementality true do
+        evalTacticAt optPreTac[0] mvarId
 
 end ElimApp
 

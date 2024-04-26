@@ -8,7 +8,7 @@ def f (x : Nat) : Nat := by
 
 #eval f 10
 
-example : f x.succ = 2 * f x := rfl
+example : f x.succ = 2 * f x := by rw [f]; rfl
 end Ex1
 
 namespace Ex2

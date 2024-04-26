@@ -110,7 +110,7 @@ jobs:
               },*/
               {
                 "name": "macOS",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "shell": "bash -euxo pipefail {0}",
@@ -121,7 +121,7 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "cross": true,

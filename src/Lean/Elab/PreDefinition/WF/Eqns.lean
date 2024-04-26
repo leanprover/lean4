@@ -81,7 +81,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
     let (_, mvarId) ← main.mvarId!.intros
     let rec go (mvarId : MVarId) : MetaM Unit := do
       trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
-      if (← tryURefl mvarId) then
+      if ← withAtLeastTransparency .all (tryURefl mvarId) then
         return ()
       else if (← tryContradiction mvarId) then
         return ()

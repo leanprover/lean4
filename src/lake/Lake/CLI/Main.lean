@@ -66,7 +66,7 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
     lakeEnv := ← opts.computeEnv
-    wsDir := opts.rootDir
+    rootDir := opts.rootDir
     relConfigFile := opts.configFile
     lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
@@ -326,6 +326,94 @@ protected def upload : CliM PUnit := do
   noArgsRem do
     liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
+protected def install : CliM PUnit := do
+  processOptions lakeOption
+  let name? ←  takeArg?
+  let url? ← takeArg?
+  let rev? ← takeArg?
+  let subDir? ← takeArg?
+  let opts ← getThe LakeOptions
+  noArgsRem do
+  unless opts.configOpts.isEmpty do
+    error "'lake install' does not support Lake configuration options"
+  -- Detect toolchain directory
+  let lakeEnv ← opts.computeEnv
+  let toolchainDir ← do
+    match (← lakeEnv.getToolchainDir.toBaseIO) with
+    | .ok toolchainDir => pure toolchainDir
+    | .error e => error s!"could not locate Elan toolchain directory: {e}"
+  -- Load list of installed packages
+  let pkgsDir := toolchainDir / installedPackagesDir
+  let pkgsFile := toolchainDir / installedPackagesFile
+  let pkgEntries ← loadInstallEntries pkgsFile
+  let pkgEntries : NameMap PackageEntry := pkgEntries.foldl (init := {})
+    fun map entry => map.insert entry.name entry
+  -- Install the specified package
+  let (pkgEntry, depEntries)  ← id do
+    if let some name := name? then
+      let name := stringToLegalOrSimpleName name
+      let some url := url? | throw <| .missingArg "url"
+      let dep : Dependency := {name, src := .git url rev? subDir?}
+      if pkgEntries.contains dep.name then
+        logInfo s!"{dep.name} is already installed; will reinstall"
+      let result ← dep.materialize false lakeEnv pkgsDir "." pkgsDir
+      let manifestFile := pkgsDir / result.relPkgDir / defaultManifestFile
+      let manifest ←
+        match (← Manifest.load manifestFile |>.toBaseIO) with
+        | .ok manifest => pure manifest
+        | .error e =>
+          error s!"could not load package manifest: {e}; \
+          'lake install' does not support installing packages without a manifest"
+      if dep.name ≠ manifest.name then
+        let pkgDir := pkgsDir / result.relPkgDir
+        if !Platform.isWindows then
+          IO.FS.removeDirAll pkgDir -- cleanup
+        else
+          logError s!"package '{dep.name}' was incorrectly installed; \
+            you will need to manually delete '{pkgDir}'"
+        error s!"package '{manifest.name}' was incorrectly installed as '{dep.name}'"
+      return (result.manifestEntry, manifest.packages)
+    else
+      let manifestFile := opts.rootDir / defaultManifestFile
+      let manifest ←
+        match (← Manifest.load manifestFile |>.toBaseIO) with
+        | .ok manifest => pure manifest
+        | .error e =>
+          error s!"could not load package manifest: {e}; \
+          'lake install' does not support installing packages without a manifest"
+      let pkgDir ← IO.FS.realPath opts.rootDir
+      let src := .git pkgDir.toString none none
+      let dep : Dependency := {name := manifest.name, src}
+      if pkgEntries.contains dep.name then
+        logInfo s!"{dep.name} is already installed; will reinstall"
+      let result ← dep.materialize false lakeEnv pkgsDir "." pkgsDir
+      return (result.manifestEntry, manifest.packages)
+  -- Install missing dependencies
+  let pkgEntries ← depEntries.foldlM (init := pkgEntries) fun entries entry => do
+    if let some prevEntry := pkgEntries.find? entry.name then
+      match prevEntry, entry with
+      | .git (url := url) (rev := rev) (inherited := inherited) ..,
+        .git (url := url') (rev := rev')  .. =>
+        if url ≠ url' then
+          logWarning s!"package '{entry.name}' is already installed from a different source"
+        if rev ≠ rev' then
+          logWarning s!"package '{entry.name}' is already installed at revision '{rev}', \
+            but new package wants '{rev'}'"
+          if inherited then
+            discard <| entry.materialize lakeEnv pkgsDir "."
+            return entries.insert entry.name entry.setInherited
+      | _, _ =>
+        logWarning s!"package '{entry.name}' is already installed from a different source"
+      return entries
+    else
+      discard <| entry.materialize lakeEnv pkgsDir "."
+      return entries.insert entry.name entry.setInherited
+  -- Write new (sorted) list of packages back to the JSON file
+  let pkgEntries := pkgEntries.insert pkgEntry.name pkgEntry
+  let pkgEntries := pkgEntries.fold (fun es _ e => es.push e) (Array.mkEmpty pkgEntries.size)
+  let pkgEntries := pkgEntries.qsort (·.name.toString < ·.name.toString)
+  IO.FS.writeFile pkgsFile <| Json.pretty (toJson pkgEntries)
+
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
@@ -457,6 +545,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
+| "install"             => lake.install
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test
 | "check-test"          => lake.checkTest

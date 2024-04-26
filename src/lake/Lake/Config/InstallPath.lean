@@ -11,17 +11,38 @@ namespace Lake
 
 /-! ## Data Structures -/
 
-/-- Standard path of `elan` in a Elan installation. -/
-def elanExe (home : FilePath) :=
-  home / "bin" / "elan" |>.addExtension FilePath.exeExtension
-
 /-- Information about the local Elan setup. -/
 structure ElanInstall where
   home : FilePath
-  elan := elanExe home
+  elan := "elan"
   binDir := home / "bin"
   toolchainsDir := home / "toolchains"
   deriving Inhabited, Repr
+
+/-- The folder name in the Elan installation used to store installed Lake packages. -/
+def installedPackagesDir : FilePath :=
+  "lake-packages"
+
+/-- The file name in the Elan installation used to track installed Lake packages. -/
+def installedPackagesFile :=
+  installedPackagesDir.addExtension "json"
+
+/-- Convert an Elan toolchain name to an Elan toolchain directory name. -/
+partial def toolchain2Dir (toolchain : String) : FilePath :=
+  go "" 0
+where
+  go (acc : String) (pos : String.Pos) : FilePath :=
+    if h : toolchain.atEnd pos then
+      FilePath.mk acc
+    else
+      let c := toolchain.get' pos h
+      let pos' := toolchain.next' pos h
+      if c = '/' then
+        go (acc ++ "--") pos'
+      else if c = ':'  then
+        go (acc ++ "---") pos'
+      else
+        go (acc.push c) pos'
 
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=

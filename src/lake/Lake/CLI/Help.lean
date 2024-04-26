@@ -18,6 +18,7 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
+  install <name> <src>  install a Lake package into the Elan toolchain
   test                  run the workspace's test script or executable
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
@@ -136,6 +137,27 @@ removed from the configuration). If there are dependencies on multiple versions
 of the same package, the version materialized is undefined.
 
 A bare `lake update` will upgrade all dependencies."
+
+def helpInstall :=
+"Install a Lake package into the Elan toolchain
+
+USAGE:
+  lake install [<name> <url> [<rev>] [<sub-dir>]]
+
+Adds a package to Lake's toolchain-local package set. Installing a package
+makes it executables and facets available to all packages on the same toolchain.
+For example, installing `doc-gen4` makes the `:docs` facet available to every
+package, even if it does not mention `doc-gen4` as a dependency in its
+configuration file.
+
+If a name and source are provided, Lake installs the package with `name`
+from the Git repository `url` at `rev` (default: HEAD) in `sub-dir`.
+Otherwise, Lake installs the current package.
+
+IMPORTANT: The install command should NOT be used to download packages that
+are vital for building or using a package. Such packages should instead use the
+standard require syntax. This ensures consumers of the package can make use of
+it without additional manual effort."
 
 def helpTest :=
 "Run the workspace's test script or executable
@@ -296,6 +318,7 @@ def help : (cmd : String) → String
 | "init"                => helpInit
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
+| "install"             => helpInstall
 | "upload"              => helpUpload
 | "test"                => helpTest
 | "clean"               => helpClean

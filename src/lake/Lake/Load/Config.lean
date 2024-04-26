@@ -16,8 +16,8 @@ open System Lean
 structure LoadConfig where
   /-- The Lake environment of the load process. -/
   lakeEnv : Lake.Env
-  /-- The root directory of the Lake workspace. -/
-  wsDir : FilePath
+  /-- The root directory (e.g., of the Lake workspace or of installed packages). -/
+  rootDir : FilePath
   /-- The directory of the loaded package (relative to the root). -/
   relPkgDir : FilePath := "."
   /-- The package's Lake configuration file (relative to the package directory). -/
@@ -33,7 +33,7 @@ structure LoadConfig where
 
 /-- The full path to loaded package's directory. -/
 @[inline] def LoadConfig.pkgDir (cfg : LoadConfig) : FilePath :=
-  cfg.wsDir / cfg.relPkgDir
+  cfg.rootDir / cfg.relPkgDir
 
 /-- The full path to loaded package's configuration file. -/
 @[inline] def LoadConfig.configFile (cfg : LoadConfig) : FilePath :=

@@ -14,8 +14,8 @@ namespace Git
 def defaultRemote :=
   "origin"
 
-def upstreamBranch :=
-  "master"
+def defaultRevision :=
+  "HEAD"
 
 /--
 Try to turn a remote URL into a URL that can be used to, e.g.,
@@ -93,7 +93,7 @@ def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : G
   error s!"cannot find revision {rev} in repository {repo}"
 
 def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote := Git.defaultRemote) : LogIO String := do
-  repo.fetch remote; repo.resolveRemoteRevision (rev?.getD Git.upstreamBranch) remote
+  repo.fetch remote; repo.resolveRemoteRevision (rev?.getD Git.defaultRevision) remote
 
 @[inline] def branchExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
   repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]

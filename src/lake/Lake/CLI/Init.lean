@@ -261,8 +261,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (lang : Config
     let repo := GitRepo.mk dir
     try
       repo.quietInit
-      unless upstreamBranch = "master" do
-        repo.checkoutBranch upstreamBranch
+      repo.checkoutBranch "master"
     else
       logWarning "failed to initialize git repository"
 

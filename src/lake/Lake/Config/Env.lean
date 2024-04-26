@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Name
+import Lake.Util.Error
 import Lake.Util.NativeLib
 import Lake.Config.InstallPath
 
@@ -43,6 +44,7 @@ structure Env where
 
 namespace Env
 
+
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
 def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env :=
   return {
@@ -79,6 +81,20 @@ Tries `env.initToolchain` first and then Lake's `Lean.toolchain`.
 -/
 def toolchain (env : Env) : String :=
   if env.initToolchain.isEmpty then Lean.toolchain else env.initToolchain
+
+/--
+Returns the Elan toolchain directory of the detected Lean toolchain.
+If none, provides a descriptive error.
+-/
+def getToolchainDir (env : Env) : EIO String FilePath := do
+  let some elan := env.elan?
+    | error "Elan installation not detected"
+  if env.toolchain.isEmpty then
+    error "no Lean toolchain detected"
+  let toolchainDir := elan.toolchainsDir / toolchain2Dir env.toolchain
+  unless (← toolchainDir.pathExists) do
+    error s!"directory not found: {toolchainDir}"
+  return toolchainDir
 
 /--
 The binary search path of the environment (i.e., `PATH`).

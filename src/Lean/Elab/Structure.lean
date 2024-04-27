@@ -713,8 +713,8 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
           subobject? :=
             if info.kind == StructFieldKind.subobject then
               match env.find? info.declName with
-              | some (ConstantInfo.defnInfo val) =>
-                match val.type.getForallBody.getAppFn with
+              | some info =>
+                match info.type.getForallBody.getAppFn with
                 | Expr.const parentName .. => some parentName
                 | _ => panic! "ill-formed structure"
               | _ => panic! "ill-formed environment"

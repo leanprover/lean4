@@ -414,11 +414,11 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     let answer ← mkAnswer cNode
     -- Remark: `answer` does not contain assignable or assigned metavariables.
     let key := cNode.key
-    let entry ← getEntry key
-    if isNewAnswer entry.answers answer then
-      let newEntry := { entry with answers := entry.answers.push answer }
+    let { waiters, answers } ← getEntry key
+    if isNewAnswer answers answer then
+      let newEntry := { waiters, answers := answers.push answer }
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-      entry.waiters.forM (wakeUp answer)
+      waiters.forM (wakeUp answer)
 
 /--
   Return `true` if a type of the form `(a_1 : A_1) → ... → (a_n : A_n) → B` has an unused argument `a_i`.

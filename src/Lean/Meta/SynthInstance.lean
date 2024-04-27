@@ -711,6 +711,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
+  withReader (fun ctx => { ctx with inTypeClassResolution := true }) do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type

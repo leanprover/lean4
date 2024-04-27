@@ -1759,7 +1759,7 @@ private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
     | .eq =>
       -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
       -- if `f` is not a projection. The projection case generates a performance regression.
-      if tInfo.name == sInfo.name && !(← isProjectionFn tInfo.name) then
+      if tInfo.name == sInfo.name then
         if t.isApp && s.isApp && (← tryHeuristic t s) then
           return .eq
         else
@@ -1803,8 +1803,11 @@ where
     | _, _ => Meta.isExprDefEqAux t s
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | .proj m i t, .proj n j s =>
-    if i == j && m == n then
+  | .proj m i t, .proj n j s => do
+    if (← read).inTypeClassResolution then
+      -- See comment at `inTypeClassResolution`
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if i == j && m == n then
       isDefEqProjDelta t s i
     else
       return false

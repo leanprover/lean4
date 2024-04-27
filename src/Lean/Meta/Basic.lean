@@ -313,6 +313,12 @@ structure Context where
   progress processing universe constraints.
   -/
   univApprox        : Bool := false
+  /--
+  `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
+   resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
+   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+  -/
+  inTypeClassResolution : Bool := false
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the

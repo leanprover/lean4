@@ -114,7 +114,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 -/
-partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 

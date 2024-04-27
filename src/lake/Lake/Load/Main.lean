@@ -218,8 +218,6 @@ def Workspace.updateAndMaterialize
   (ws : Workspace) (leanOpts : Options := {})
   (toUpdate : NameSet := {}) (reconfigure := true)
 : LogIO Workspace := do
-  let ws ← ws.loadInstalledDeps leanOpts
-  let startIdx := ws.packages.size
   let (ws, entries) ← StateT.run (s := mkNameMap PackageEntry) do
     -- Use manifest versions of root packages that should not be updated
     match (← Manifest.load ws.manifestFile |>.toBaseIO) with
@@ -285,16 +283,17 @@ def Workspace.updateAndMaterialize
     lakeDir := ws.relLakeDir
     packagesDir? := ws.relPkgsDir
   }
-  let manifest := ws.packages.foldl (start := startIdx) (init := manifest) fun manifest pkg =>
+  let manifest := ws.packages.foldl (init := manifest) fun manifest pkg =>
     match entries.find? pkg.name with
     | some entry => manifest.addPackage <|
       entry.setManifestFile pkg.relManifestFile |>.setConfigFile pkg.relConfigFile
     | none => manifest -- should only be the case for the root
   manifest.saveToFile ws.manifestFile
-  LakeT.run ⟨ws⟩ <| ws.packages.forM (start := startIdx) fun pkg => do
+  LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
     unless pkg.postUpdateHooks.isEmpty do
       logInfo s!"{pkg.name}: running post-update hooks"
       pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+  let ws ← ws.loadInstalledDeps leanOpts
   return ws
 
 /--
@@ -337,7 +336,6 @@ def Workspace.materializeDeps
   let pkgEntries : NameMap PackageEntry := manifest.packages.foldl (init := {})
     fun map entry => map.insert entry.name entry
   validateManifest pkgEntries ws.root.depConfigs
-  let ws ← ws.loadInstalledDeps leanOpts
   let ws ← ws.resolveDeps fun pkg => pkg.depConfigs.mapM fun dep => do
     let ws ← getThe Workspace
     if let some entry := pkgEntries.find? dep.name then
@@ -354,6 +352,7 @@ def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
+  let ws ← ws.loadInstalledDeps leanOpts
   return ws
 
 /--

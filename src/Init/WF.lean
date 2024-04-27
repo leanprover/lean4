@@ -74,13 +74,13 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
-noncomputable def fixF (x : α) (a : Acc r x) : C x := by
+@[irreducible] noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
 def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
-  | intro x r _ => exact rfl
+  | intro x r _ => delta fixF; rfl
 
 end
 
@@ -88,12 +88,14 @@ variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
 noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
-  fixF F x (apply hwf x)
+  F x (fun y _ => fixF F y (apply hwf y))
 
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
-    fix hwf F x = F x (fun y _ => fix hwf F y) :=
-  fixFEq F x (apply hwf x)
+    fix hwf F x = F x (fun y _ => fix hwf F y) := by
+  unfold fix
+  congr
+  exact funext fun y => funext fun _ => fixFEq F y (apply hwf y)
 end WellFounded
 
 open WellFounded

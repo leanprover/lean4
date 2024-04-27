@@ -40,7 +40,8 @@ def gcd (m n : @& Nat) : Nat :=
 @[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
   rfl
 
-theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
+theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
+  conv => lhs; unfold gcd
   rfl
 
 @[simp] theorem gcd_one_left (n : Nat) : gcd 1 n = 1 := by

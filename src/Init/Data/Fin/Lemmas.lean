@@ -116,7 +116,11 @@ theorem mk_le_of_le_val {b : Fin n} {a : Nat} (h : a ≤ b) :
 
 @[simp] theorem zero_le (a : Fin (n + 1)) : 0 ≤ a := Nat.zero_le a.val
 
-theorem zero_lt_one : (0 : Fin (n + 2)) < 1 := Nat.zero_lt_one
+@[simp] theorem val_one (n : Nat) : (1 : Fin (n + 2)).1 = 1 := by
+  show (1 % (n + 2) = 1)
+  exact Nat.mod_eq_of_lt (Nat.lt_of_sub_eq_succ rfl)
+
+theorem zero_lt_one : (0 : Fin (n + 2)) < 1 := by simp [lt_def]
 
 @[simp] theorem not_lt_zero (a : Fin (n + 1)) : ¬a < 0 := nofun
 
@@ -170,9 +174,8 @@ theorem val_lt_last {i : Fin (n + 1)} : i ≠ last n → (i : Nat) < n :=
 
 /-! ### addition, numerals, and coercion from Nat -/
 
-@[simp] theorem val_one (n : Nat) : (1 : Fin (n + 2)).val = 1 := rfl
-
-@[simp] theorem mk_one : (⟨1, Nat.succ_lt_succ (Nat.succ_pos n)⟩ : Fin (n + 2)) = (1 : Fin _) := rfl
+@[simp] theorem mk_one : (⟨1, Nat.succ_lt_succ (Nat.succ_pos n)⟩ : Fin (n + 2)) = (1 : Fin _) := by
+  ext; simp
 
 theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
   (match n with | 0 | 1 | n+2 => ?_) <;> try simp
@@ -205,7 +208,9 @@ theorem val_add_one {n : Nat} (i : Fin (n + 1)) :
   | .inl h => cases Fin.eq_of_val_eq h; simp
   | .inr h => simpa [Fin.ne_of_lt h] using val_add_one_of_lt h
 
-@[simp] theorem val_two {n : Nat} : (2 : Fin (n + 3)).val = 2 := rfl
+@[simp] theorem val_two {n : Nat} : (2 : Fin (n + 3)).val = 2 := by
+  show (2 % (n + 3) = 2)
+  exact Nat.mod_eq_of_lt (Nat.lt_of_sub_eq_succ rfl)
 
 theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) < i + 1 := by
   match n with
@@ -215,7 +220,7 @@ theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) <
     rw [Fin.lt_def, val_add, val_zero, val_one, Nat.mod_eq_of_lt h]
     exact Nat.zero_lt_succ _
 
-theorem one_pos : (0 : Fin (n + 2)) < 1 := Nat.succ_pos 0
+theorem one_pos : (0 : Fin (n + 2)) < 1 := by simp [lt_def]
 
 theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
 
@@ -237,10 +242,10 @@ theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
 theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
   | ⟨k, _⟩, heq => Nat.succ_ne_zero k <| ext_iff.1 heq
 
-@[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
+@[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := by ext; simp
 
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
-@[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
+@[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := by ext; simp
 
 @[simp] theorem succ_mk (n i : Nat) (h : i < n) :
     Fin.succ ⟨i, h⟩ = ⟨i + 1, Nat.succ_lt_succ h⟩ := rfl
@@ -390,7 +395,7 @@ theorem castSucc_lt_last (a : Fin n) : castSucc a < last n := a.is_lt
 
 @[simp] theorem castSucc_zero : castSucc (0 : Fin (n + 1)) = 0 := rfl
 
-@[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := rfl
+@[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := by ext; simp
 
 /-- `castSucc i` is positive when `i` is positive -/
 theorem castSucc_pos {i : Fin (n + 1)} (h : 0 < i) : 0 < castSucc i := by
@@ -544,7 +549,7 @@ theorem pred_mk {n : Nat} (i : Nat) (h : i < n + 1) (w) : Fin.pred ⟨i, h⟩ w 
   | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [ext_iff, Nat.succ.injEq]
 
 @[simp] theorem pred_one {n : Nat} :
-    Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := rfl
+    Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := by ext; simp
 
 theorem pred_add_one (i : Fin (n + 2)) (h : (i : Nat) < n + 1) :
     pred (i + 1) (Fin.ne_of_gt (add_one_pos _ (lt_def.2 h))) = castLT i h := by
@@ -615,11 +620,13 @@ and `succ` defines the inductive step using `motive i.castSucc`.
 
 @[simp] theorem induction_zero {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (hs : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
-    (induction zero hs : ∀ i : Fin (n + 1), motive i) 0 = zero := rfl
+    (induction zero hs : ∀ i : Fin (n + 1), motive i) 0 = zero := by
+  (conv => lhs; unfold induction); rfl
 
 @[simp] theorem induction_succ {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) (i : Fin n) :
-    induction (motive := motive) zero succ i.succ = succ i (induction zero succ (castSucc i)) := rfl
+    induction (motive := motive) zero succ i.succ = succ i (induction zero succ (castSucc i)) := by
+  (conv => lhs; unfold induction); rfl
 
 /-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
 This function has two arguments: `zero` handles the base case on `motive 0`,
@@ -638,14 +645,15 @@ A version of `Fin.induction` taking `i : Fin (n + 1)` as the first argument.
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 
 @[simp] theorem cases_zero {n} {motive : Fin (n + 1) → Sort _} {zero succ} :
-    @Fin.cases n motive zero succ 0 = zero := rfl
+    @Fin.cases n motive zero succ 0 = zero := induction_zero ..
 
 @[simp] theorem cases_succ {n} {motive : Fin (n + 1) → Sort _} {zero succ} (i : Fin n) :
-    @Fin.cases n motive zero succ i.succ = succ i := rfl
+    @Fin.cases n motive zero succ i.succ = succ i := induction_succ ..
 
 @[simp] theorem cases_succ' {n} {motive : Fin (n + 1) → Sort _} {zero succ}
     {i : Nat} (h : i + 1 < n + 1) :
-    @Fin.cases n motive zero succ ⟨i.succ, h⟩ = succ ⟨i, Nat.lt_of_succ_lt_succ h⟩ := rfl
+    @Fin.cases n motive zero succ ⟨i.succ, h⟩ = succ ⟨i, Nat.lt_of_succ_lt_succ h⟩ := by
+  unfold Fin.cases induction; rfl
 
 theorem forall_fin_succ {P : Fin (n + 1) → Prop} : (∀ i, P i) ↔ P 0 ∧ ∀ i : Fin n, P i.succ :=
   ⟨fun H => ⟨H 0, fun _ => H _⟩, fun ⟨H0, H1⟩ i => Fin.cases H0 H1 i⟩

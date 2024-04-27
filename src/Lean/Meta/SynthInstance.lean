@@ -56,8 +56,8 @@ inductive Waiter where
   | root         : Waiter
 
 def Waiter.isRoot : Waiter → Bool
-  | Waiter.consumerNode _ => false
-  | Waiter.root           => true
+  | .consumerNode _ => false
+  | .root           => true
 
 /-!
   In tabled resolution, we creating a mapping from goals (e.g., `Coe Nat ?x`) to
@@ -98,10 +98,10 @@ partial def normLevel (u : Level) : M Level := do
   if !u.hasMVar then
     return u
   else match u with
-    | Level.succ v      => return u.updateSucc! (← normLevel v)
-    | Level.max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
-    | Level.imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
-    | Level.mvar mvarId =>
+    | .succ v      => return u.updateSucc! (← normLevel v)
+    | .max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
+    | .imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
+    | .mvar mvarId =>
       if (← getMCtx).getLevelDepth mvarId != (← getMCtx).depth then
         return u
       else
@@ -118,15 +118,15 @@ partial def normExpr (e : Expr) : M Expr := do
   if !e.hasMVar then
     pure e
   else match e with
-    | Expr.const _ us      => return e.updateConst! (← us.mapM normLevel)
-    | Expr.sort u          => return e.updateSort! (← normLevel u)
-    | Expr.app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
-    | Expr.letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
-    | Expr.mdata _ b       => return e.updateMData! (← normExpr b)
-    | Expr.proj _ _ b      => return e.updateProj! (← normExpr b)
-    | Expr.mvar mvarId     =>
+    | .const _ us      => return e.updateConst! (← us.mapM normLevel)
+    | .sort u          => return e.updateSort! (← normLevel u)
+    | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
+    | .letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
+    | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
+    | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
+    | .mdata _ b       => return e.updateMData! (← normExpr b)
+    | .proj _ _ b      => return e.updateProj! (← normExpr b)
+    | .mvar mvarId     =>
       if !(← mvarId.isAssignable) then
         return e
       else
@@ -202,7 +202,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
       let mut result ← result.filterMapM fun e => match e.val with
-        | Expr.const constName us =>
+        | .const constName us =>
           if erasedInstances.contains constName then
             return none
           else
@@ -351,7 +351,7 @@ def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext �
   let lctx       ← getLCtx
   let localInsts ← getLocalInstances
   forallTelescopeReducing mvarType fun xs mvarTypeBody => do
-    let ⟨subgoals, instVal, instTypeBody⟩ ← getSubgoals lctx localInsts xs inst
+    let { subgoals, instVal, instTypeBody } ← getSubgoals lctx localInsts xs inst
     withTraceNode `Meta.synthInstance.tryResolve (withMCtx (← getMCtx) do
         return m!"{exceptOptionEmoji ·} {← instantiateMVars mvarTypeBody} ≟ {← instantiateMVars instTypeBody}") do
     if (← isDefEq mvarTypeBody instTypeBody) then
@@ -373,7 +373,7 @@ def tryAnswer (mctx : MetavarContext) (mvar : Expr) (answer : Answer) : SynthM (
 
 /-- Move waiters that are waiting for the given answer to the resume stack. -/
 def wakeUp (answer : Answer) : Waiter → SynthM Unit
-  | Waiter.root               => do
+  | .root               => do
     /- Recall that we now use `ignoreLevelMVarDepth := true`. Thus, we should allow solutions
        containing universe metavariables, and not check `answer.result.paramNames.isEmpty`.
        We use `openAbstractMVarsResult` to construct the universe metavariables
@@ -383,7 +383,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     else
       let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
       trace[Meta.synthInstance] "skip answer containing metavariables {answerExpr}"
-  | Waiter.consumerNode cNode =>
+  | .consumerNode cNode =>
     modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
@@ -426,7 +426,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   Remark: This is syntactic check and no reduction is performed.
 -/
 private def hasUnusedArguments : Expr → Bool
-  | Expr.forallE _ _ b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
+  | .forallE _ _ b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
   | _ => false
 
 /--
@@ -667,7 +667,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     match typeBody.getAppFn with
-    | c@(Expr.const declName _) =>
+    | c@(.const declName _) =>
       let env ← getEnv
       if let some outParamsPos := getOutParamPositions? env declName then
         unless outParamsPos.isEmpty do
@@ -775,8 +775,7 @@ def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Ex
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
   let mvarDecl ← mvarId.getDecl
   match mvarDecl.kind with
-  | MetavarKind.syntheticOpaque =>
-    return false
+  | .syntheticOpaque => return false
   | _ =>
     /- Check whether the type of the given metavariable is a class or not. If yes, then try to synthesize
        it using type class resolution. We only do it for `synthetic` and `natural` metavariables. -/

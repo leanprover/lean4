@@ -1,5 +1,3 @@
-
-
 section Mathlib.Init.Order.Defs
 
 universe u
@@ -277,24 +275,6 @@ namespace Set.Iic
 
 variable [CompleteLattice α] {a : α}
 
-set_option pp.mvars false in
-/--
-error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
-  ?_ c'
----
-error: application type mismatch
-  And.intro b.property
-argument
-  b.property
-has type
-  ↑b ∈ Iic a : Prop
-but is expected to have type
-  ?_ ≤ ?_ : Prop
----
-error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
-  ?_ d'
--/
-#guard_msgs in
 def instCompleteLattice : CompleteLattice (Iic a) where
   sSup S := ⟨sSup (Set.image (fun x : Iic a => (x : α)) S), sorry⟩
   sInf S := ⟨a ⊓ sInf (Set.image (fun x : Iic a => (x : α)) S), sorry⟩
@@ -303,10 +283,6 @@ def instCompleteLattice : CompleteLattice (Iic a) where
     ⟨b.property, le_sInf fun d' ⟨d, hd, hd'⟩  ↦ hd' ▸ hb d hd⟩
   le_top := sorry
   bot_le := sorry
-
--- After https://github.com/leanprover/lean4/pull/3965
--- (and unfortunately not fixed by https://github.com/leanprover/lean4/pull/3977)
--- we need to add the named argument `(α := α)` twice below.
 
 example : CompleteLattice (Iic a) where
   sSup S := ⟨sSup (Set.image (fun x : Iic a => (x : α)) S), sorry⟩

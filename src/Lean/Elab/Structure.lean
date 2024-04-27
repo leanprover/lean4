@@ -82,15 +82,6 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   | StructFieldKind.subobject => true
   | _                         => false
 
-structure ElabStructResult where
-  decl            : Declaration
-  projInfos       : List ProjectionInfo
-  projInstances   : List Name -- projections (to parent classes) that must be marked as instances.
-  mctx            : MetavarContext
-  lctx            : LocalContext
-  localInsts      : LocalInstances
-  defaultAuxDecls : Array (Name × Expr × Expr)
-
 private def defaultCtorName := `mk
 
 /-

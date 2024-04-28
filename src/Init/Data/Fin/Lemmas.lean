@@ -602,6 +602,7 @@ A version of `Fin.succRec` taking `i : Fin n` as the first argument. -/
     @Fin.succRecOn (n + 1) i.succ motive zero succ = succ n i (Fin.succRecOn i zero succ) := by
   cases i; rfl
 
+
 /-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
 This function has two arguments: `zero` handles the base case on `motive 0`,
 and `succ` defines the inductive step using `motive i.castSucc`.
@@ -610,8 +611,12 @@ and `succ` defines the inductive step using `motive i.castSucc`.
 @[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
-  | ⟨0, hi⟩ => by rwa [Fin.mk_zero]
-  | ⟨i+1, hi⟩ => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (induction zero succ ⟨i, Nat.lt_of_succ_lt hi⟩)
+  | ⟨i, hi⟩ => go i hi
+where
+  -- Use a curried function so that this is structurally recursive
+  go : ∀ (i : Nat) (hi : i < n + 1), motive ⟨i, hi⟩
+  | 0, hi => by rwa [Fin.mk_zero]
+  | i+1, hi => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (go i (Nat.lt_of_succ_lt hi))
 
 @[simp] theorem induction_zero {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (hs : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :

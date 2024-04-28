@@ -607,12 +607,6 @@ A version of `Fin.succRec` taking `i : Fin n` as the first argument. -/
     @Fin.succRecOn (n + 1) i.succ motive zero succ = succ n i (Fin.succRecOn i zero succ) := by
   cases i; rfl
 
-def inductionAux {motive : Fin (n + 1) → Sort _} (zero : motive 0)
-    (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
-    ∀ (i : Nat) (hi : i < n + 1), motive ⟨i, hi⟩
-  | 0, hi => by rwa [Fin.mk_zero]
-  | i+1, hi => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (inductionAux zero succ i (Nat.lt_of_succ_lt hi))
-
 /-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
 This function has two arguments: `zero` handles the base case on `motive 0`,
 and `succ` defines the inductive step using `motive i.castSucc`.
@@ -621,7 +615,8 @@ and `succ` defines the inductive step using `motive i.castSucc`.
 @[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
-  | ⟨i, hi⟩ => inductionAux zero succ i hi
+  | ⟨0, hi⟩ => by rwa [Fin.mk_zero]
+  | ⟨i+1, hi⟩ => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (induction zero succ ⟨i, Nat.lt_of_succ_lt hi⟩)
 
 @[simp] theorem induction_zero {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (hs : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
@@ -648,15 +643,14 @@ A version of `Fin.induction` taking `i : Fin (n + 1)` as the first argument.
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 
 @[simp] theorem cases_zero {n} {motive : Fin (n + 1) → Sort _} {zero succ} :
-    @Fin.cases n motive zero succ 0 = zero := induction_zero ..
+    @Fin.cases n motive zero succ 0 = zero := rfl
 
 @[simp] theorem cases_succ {n} {motive : Fin (n + 1) → Sort _} {zero succ} (i : Fin n) :
-    @Fin.cases n motive zero succ i.succ = succ i := induction_succ ..
+    @Fin.cases n motive zero succ i.succ = succ i := rfl
 
 @[simp] theorem cases_succ' {n} {motive : Fin (n + 1) → Sort _} {zero succ}
     {i : Nat} (h : i + 1 < n + 1) :
-    @Fin.cases n motive zero succ ⟨i.succ, h⟩ = succ ⟨i, Nat.lt_of_succ_lt_succ h⟩ := by
-  unfold Fin.cases induction; rfl
+    @Fin.cases n motive zero succ ⟨i.succ, h⟩ = succ ⟨i, Nat.lt_of_succ_lt_succ h⟩ := rfl
 
 theorem forall_fin_succ {P : Fin (n + 1) → Prop} : (∀ i, P i) ↔ P 0 ∧ ∀ i : Fin n, P i.succ :=
   ⟨fun H => ⟨H 0, fun _ => H _⟩, fun ⟨H0, H1⟩ i => Fin.cases H0 H1 i⟩

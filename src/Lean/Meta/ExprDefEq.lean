@@ -10,6 +10,18 @@ import Lean.Util.OccursCheck
 
 namespace Lean.Meta
 
+register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
+}
+
+register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -1807,6 +1819,8 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
     else if i == j && m == n then
       isDefEqProjDelta t s i
     else
@@ -1980,6 +1994,12 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
     modifyDefEqTransientCache fun c => c.update mode key result
 
+private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
+  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+    whnfCore e (config := { proj := .yesWithDeltaI })
+  else
+    whnfCore e
+
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
@@ -2021,8 +2041,8 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
     and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t (config := { proj := .yesWithDeltaI })
-  let s' ← whnfCore s (config := { proj := .yesWithDeltaI })
+  let t' ← whnfCoreAtDefEq t
+  let s' ← whnfCoreAtDefEq s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

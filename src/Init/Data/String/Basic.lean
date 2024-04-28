@@ -37,7 +37,7 @@ def length : (@& String) → Nat
 Pushes a character onto the end of a string.
 
 The internal implementation uses dynamic arrays and will perform destructive updates
-if the String is not shared.
+if the string is not shared.
 * `"abc".push 'd' = "abcd"`
 -/
 @[extern "lean_string_push"]

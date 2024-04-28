@@ -148,7 +148,7 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after `p`.
+Returns the next position in a string after `p` given that `p` is a valid position.
 
 If `p` is an invalid position or `p = s.endPos`, `p.next` could return an invalid position
 * `"abc".next ⟨1⟩ = String.Pos.mk 2`

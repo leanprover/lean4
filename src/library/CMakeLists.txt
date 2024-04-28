@@ -4,6 +4,6 @@ add_library(library OBJECT expr_lt.cpp
   class.cpp util.cpp print.cpp annotation.cpp
   protected.cpp reducible.cpp init_module.cpp
   projection.cpp
-  aux_recursors.cpp trace.cpp
+  aux_recursors.cpp
   profiling.cpp time_task.cpp
   formatter.cpp)

@@ -126,6 +126,8 @@ Replaces the character at a specified position in a string with a new character.
 If the position is invalid, returns the string unchanged.
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
 * `"abc".set ⟨3⟩ 'D' = "abc"`
+
+If both the replacement character and the replaced character are ASCII characters and the string is not shared, destructive updates are used.
 -/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String

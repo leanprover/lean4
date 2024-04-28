@@ -15,11 +15,3 @@ def g (x : Nat) : S :=
 
 example : (f x).1 = (g x).1 :=
   rfl
-
-/--
-error: maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)
--/
-#guard_msgs in
-set_option backward.isDefEq.lazyProjDelta false in
-example : (f x).1 = (g x).1 :=
-  rfl

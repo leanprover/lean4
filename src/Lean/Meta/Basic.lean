@@ -27,6 +27,12 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+register_builtin_option diag.isDefEq.threshould : Nat := {
+  defValue := 20
+  group    := "diagnostics"
+  descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
+}
+
 /--
 Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
@@ -266,6 +272,13 @@ structure PostponedEntry where
   ctx? : Option DefEqContext
   deriving Inhabited
 
+structure Diagnostics where
+  /-- Number of times each declaration has been unfolded -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
+  heuristicCounter : PHashMap Name Nat := {}
+  deriving Inhabited
+
 /--
   `MetaM` monad state.
 -/
@@ -276,6 +289,7 @@ structure State where
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
+  diag             : Diagnostics := {}
   deriving Inhabited
 
 /--
@@ -440,7 +454,7 @@ section Methods
 variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
-  modify fun { mctx, cache, zetaDeltaFVarIds, postponed } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed }
+  modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
@@ -453,6 +467,55 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
+
+@[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache, zetaDeltaFVarIds, postponed, diag := f diag }
+
+/-- If diagnostics are enabled, record that `declName` has been unfolded. -/
+def recordUnfold (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter } =>
+    let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter }
+
+/-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
+def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter } =>
+    let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC }
+
+def collectAboveThreshold (counters : PHashMap Name Nat) (threshold : Nat) : Array (Name × Nat) := Id.run do
+  let mut r := #[]
+  for (declName, counter) in counters do
+    if counter > threshold then
+      r := r.push (declName, counter)
+  return r.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then d₁.lt d₂ else c₁ > c₂
+
+def mkMessageBodyFor? (counters : PHashMap Name Nat) (threshold : Nat) : Option MessageData := Id.run do
+  let entries := collectAboveThreshold counters threshold
+  if entries.isEmpty then
+    return none
+  else
+    let mut m := MessageData.nil
+    for (declName, counter) in entries do
+      m := m ++ m!"{declName} ↦ {counter}\n"
+    return some m
+
+def appendOptMessageData (m : MessageData) (header : String) (m? : Option MessageData) : MessageData :=
+  if let some m' := m? then
+    m ++ header ++ indentD m'
+  else
+    m
+
+def reportDiag : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    let threshould := diag.isDefEq.threshould.get (← getOptions)
+    let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshould
+    let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshould
+    if unfold?.isSome || heu?.isSome then
+      let m := appendOptMessageData MessageData.nil "unfolded declarations:" unfold?
+      let m := appendOptMessageData m "`isDefEq` heuristic:" heu?
+      logInfo m
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

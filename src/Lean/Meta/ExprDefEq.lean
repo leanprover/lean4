@@ -1251,6 +1251,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
+    recordDefEqHeuristic tFn.constName!
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 

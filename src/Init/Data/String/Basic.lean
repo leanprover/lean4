@@ -84,6 +84,7 @@ If `p` is not a valid position, returns `(default : Char)`.
 See `utf8GetAux` for the reference implementation.
 * `"abc".get ⟨1⟩ = 'b'`
 * `"abc".get ⟨3⟩ = (default : Char) = 'A'`
+* `"L∃∀N".get ⟨2⟩ = (default : Char) = 'A' -- invalid UTF-8 position as '∃' is a mutli-byte character`
 -/
 @[extern "lean_string_utf8_get"]
 def get (s : @& String) (p : @& Pos) : Char :=
@@ -98,8 +99,9 @@ def utf8GetAux? : List Char → Pos → Pos → Option Char
 Returns the character at position `p`.
 
 If `p` is not a valid position, returns `none`.
-* `"abc".get ⟨1⟩ = some 'b'`
-* `"abc".get ⟨3⟩ = none`
+* `"abc".get? ⟨1⟩ = some 'b'`
+* `"abc".get? ⟨3⟩ = none`
+* `"L∃∀N".get? ⟨2⟩ = none -- invalid UTF-8 position as '∃' is a mutli-byte character`
 -/
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char
@@ -109,6 +111,7 @@ def get? : (@& String) → (@& Pos) → Option Char
 Similar to `get`, but produces a panic error message if `p` is not a valid `String.Pos`.
 * `"abc".get! ⟨1⟩ = 'b'`
 * `"abc".get! ⟨3⟩ => panic!`
+* `"L∃∀N".get! ⟨2⟩ => panic! -- invalid UTF-8 position as '∃' is a mutli-byte character`
 -/
 @[extern "lean_string_utf8_get_bang"]
 def get! (s : @& String) (p : @& Pos) : Char :=
@@ -126,6 +129,7 @@ Replaces the character at a specified position in a string with a new character.
 If the position is invalid, returns the string unchanged.
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
 * `"abc".set ⟨3⟩ 'D' = "abc"`
+* `"L∃∀N".set ⟨1⟩ 'X' = "L∃∀N" -- invalid position as '∃' is a mutli-byte character`
 
 If both the replacement character and the replaced character are ASCII characters and the string is not shared, destructive updates are used.
 -/
@@ -146,9 +150,10 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
 /--
 Returns the next position in a string after `p`.
 
-Note `p.next` is not necessarily a valid position in the string `s`.
+If `p` is an invalid position or `p = s.endPos`, `p.next` could return an invalid position
 * `"abc".next ⟨1⟩ = String.Pos.mk 2`
 * `"abc".next ⟨3⟩ = String.Pos.mk 4`
+* `"L∃∀N".next ⟨1⟩ => String.Pos.mk 4 -- '∃' is a mutli-byte character`
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=

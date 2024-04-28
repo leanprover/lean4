@@ -82,7 +82,7 @@ structure Context where
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.
   -/
-  diag           : Bool
+  diag           : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.

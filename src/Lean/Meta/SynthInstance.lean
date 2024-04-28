@@ -25,6 +25,12 @@ register_builtin_option synthInstance.maxSize : Nat := {
   descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
 }
 
+register_builtin_option backward.synthInstance.canonInstances : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -549,16 +555,17 @@ def generate : SynthM Unit := do
     let mctx := gNode.mctx
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
-    unless gNode.typeHasMVars do
-      if let some entry := (← get).tableEntries.find? key then
-        unless entry.answers.isEmpty do
-          /-
-          We already have an answer for this node, and since its type does not have metavariables,
-          we can skip other solutions because we assume instances are "morally canonical".
-          We have added this optimization to address issue #3996.
-          -/
-          modify fun s => { s with generatorStack := s.generatorStack.pop }
-          return
+    if backward.synthInstance.canonInstances.get (← getOptions) then
+      unless gNode.typeHasMVars do
+        if let some entry := (← get).tableEntries.find? key then
+          unless entry.answers.isEmpty do
+            /-
+            We already have an answer for this node, and since its type does not have metavariables,
+            we can skip other solutions because we assume instances are "morally canonical".
+            We have added this optimization to address issue #3996.
+            -/
+            modify fun s => { s with generatorStack := s.generatorStack.pop }
+            return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
         (return m!"{exceptOptionEmoji ·} apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do

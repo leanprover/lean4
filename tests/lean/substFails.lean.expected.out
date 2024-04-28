@@ -1,0 +1,46 @@
+substFails.lean:5:67-5:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  foo = bar
+does not contain the expected result type on either the left or the right hand side
+substFails.lean:7:67-7:74: error: invalid `▸` notation, the equality
+  heq
+has type 
+  foo = bar
+but its left hand side is not mentioned in the type
+  P 3
+substFails.lean:8:67-8:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  foo = bar
+does not contain the expected result type on either the left or the right hand side
+substFails.lean:11:67-11:74: error: invalid `▸` notation, the equality
+  heq
+has type 
+  bar = foo
+but its left hand side is not mentioned in the type
+  P foo
+substFails.lean:12:67-12:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  bar = foo
+does not contain the expected result type on either the left or the right hand side
+substFails.lean:14:67-14:74: error: invalid `▸` notation, the equality
+  heq
+has type 
+  bar = foo
+but its left hand side is not mentioned in the type
+  P 3
+substFails.lean:15:67-15:74: error: invalid `▸` notation, expected result type of cast is 
+  P 4
+however, the equality 
+  heq
+of type 
+  bar = foo
+does not contain the expected result type on either the left or the right hand side

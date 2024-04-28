@@ -150,9 +150,7 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
 /--
 Returns the next position in a string after position `p`.
 
-If `p` is not a valid position, the result is unspecified.
-
-If `p` is an invalid position or `p = s.endPos`, `p.next` could return an invalid position
+If `p` is not a valid position or `p = s.endPos`, the result is unspecified.
 * `"abc".next ⟨1⟩ = String.Pos.mk 2`
 * `"abc".next ⟨3⟩ = String.Pos.mk 4`
 * `"L∃∀N".next ⟨1⟩ => String.Pos.mk 4 -- '∃' is a mutli-byte character`

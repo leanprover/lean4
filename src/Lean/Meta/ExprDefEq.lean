@@ -2013,7 +2013,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
 
-    Note that ew use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    Note that we use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
     We added this refinement to address a performance issue in code such as
     ```
     let val : Test := bar c1 key

@@ -14,7 +14,7 @@ info: unfolded declarations:
   Or.rec ↦ 144
   PProd.fst ↦ 126
   Acc.rec ↦ 108
-use `set_option diag.threshould <num>` to control threshold for reporting counters
+use `set_option diag.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diag true in

@@ -12,6 +12,10 @@ namespace Lake
 /-! # Utilities -/
 --------------------------------------------------------------------------------
 
+/-- Creates any missing parent directories of `path`. -/
+@[inline] def createParentDirs (path : FilePath) : IO Unit := do
+  if let some dir := path.parent then IO.FS.createDirAll dir
+
 class CheckExists.{u} (i : Type u) where
   /-- Check whether there already exists an artifact for the given target info. -/
   checkExists : i → BaseIO Bool
@@ -255,7 +259,8 @@ If not, check if the info is newer than this trace's modification time.
   else
     self.checkAgainstTime info
 
-@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
+@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+  createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 
 end BuildTrace

@@ -43,7 +43,7 @@ def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
   let out ← rawProc args (quiet := true)
   if out.exitCode = 0 then
     return out.stdout.trim -- remove, e.g., newline at end
-  else withError do
+  else errorWithLog do
     logVerbose (mkCmdLog args)
     logOutput out logInfo
     logError s!"external command '{args.cmd}' exited with code {out.exitCode}"

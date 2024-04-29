@@ -16,9 +16,6 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-def createParentDirs (path : FilePath) : IO Unit := do
-  if let some dir := path.parent then IO.FS.createDirAll dir
-
 def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)

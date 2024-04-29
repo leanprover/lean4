@@ -229,7 +229,7 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       Lean.writeModule env olean
       h.unlock
       return env
-    | .error e => withError do
+    | .error e => errorWithLog do
       logError <| toString e
       h.unlock
       IO.FS.removeFile traceFile

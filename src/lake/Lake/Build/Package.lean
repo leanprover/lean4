@@ -63,7 +63,7 @@ def Package.fetchRelease (self : Package) : SpawnM (BuildJob Unit) :=
   let logName := s!"{self.name}/{tag}/{self.buildArchive}"
   let depTrace := Hash.ofString url
   let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-  let upToDate ← buildUnlessUpToDate' self.buildArchiveFile depTrace traceFile do
+  let upToDate ← buildUnlessUpToDate? self.buildArchiveFile depTrace traceFile do
     logVerbose s!"downloading {logName}"
     download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do

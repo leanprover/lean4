@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Util.Error
 import Lake.Util.EStateT
+import Lean.Data.Json
 import Lean.Message
 
 open Lean
@@ -29,7 +30,7 @@ inductive LogLevel
 | info
 | warning
 | error
-deriving Inhabited, Repr, DecidableEq, Ord
+deriving Inhabited, Repr, DecidableEq, Ord, ToJson, FromJson
 
 instance : LT LogLevel := ltOfOrd
 instance : LE LogLevel := leOfOrd
@@ -58,13 +59,12 @@ def LogLevel.visibleAtVerbosity (self : LogLevel) (verbosity : Verbosity) : Bool
 structure LogEntry where
   level : LogLevel
   message : String
+  deriving Inhabited, ToJson, FromJson
 
 protected def LogEntry.toString (self : LogEntry) : String :=
   s!"{self.level}: {self.message.trim}"
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
-
-/-! # Class -/
 
 class MonadLog (m : Type u → Type v) where
   logEntry (e : LogEntry) : m PUnit
@@ -136,8 +136,6 @@ instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := lift methods
 
 end MonadLog
 
-/-! # Transformers -/
-
 abbrev MonadLogT (m : Type u → Type v) (n : Type v → Type w) :=
   ReaderT (MonadLog m) n
 
@@ -206,10 +204,23 @@ def hasVisibleEntries (log : Log) (verbosity := Verbosity.normal) : Bool :=
 
 end Log
 
+class MonadGetLog (m : Type → Type v) where
+  getLog : m Log
+
+@[inline] def MonadGetLog.getLogSize [Functor m] [MonadGetLog m] : m Nat :=
+  (·.size) <$> getLog
+
+export MonadGetLog (getLog getLogSize)
+
+instance [MonadLift m n] [MonadGetLog m] : MonadGetLog n where
+  getLog := liftM (m := m) getLog
+
 abbrev LogT (m : Type → Type) :=
   StateT Log m
 
 namespace LogT
+
+instance [Monad m] : MonadGetLog (LogT m) := ⟨get⟩
 
 @[inline] protected def log [Monad m] (e : LogEntry) : LogT m PUnit :=
   modify (·.push e)
@@ -223,25 +234,21 @@ abbrev ELogT (m : Type → Type) :=
 
 namespace ELogT
 
+instance [Pure m] : MonadGetLog (ELogT m) := ⟨get⟩
+
 @[inline] protected def log [Monad m] (e : LogEntry) : ELogT m PUnit :=
   modify (·.push e)
 
 instance [Monad m] : MonadLog (ELogT m) := ⟨ELogT.log⟩
 
-@[inline] def getLog [Pure m] : ELogT m Log :=
-  get
-
-@[inline] def getLogSize [Functor m] [Pure m] : ELogT m Nat :=
-  (·.size) <$> getLog
-
 /-- Performs `x` and groups all logs generated into an error block. -/
-@[inline] def withError [Monad m] (x : ELogT m α) : ELogT m β := fun s => do
+@[inline] def errorWithLog [Monad m] (x : ELogT m α) : ELogT m β := fun s => do
   let iniSz := s.size
   match (← x.run s) with
   | .ok _ log | .error _ log => pure (.error iniSz log)
 
 @[inline] protected def error [Monad m] (msg : String) : ELogT m α :=
-  withError (logError msg)
+  errorWithLog (logError msg)
 
 instance [Monad m] : MonadError (ELogT m) := ⟨ELogT.error⟩
 
@@ -262,7 +269,7 @@ instance [Monad m] : MonadError (ELogT m) := ⟨ELogT.error⟩
 
 end ELogT
 
-export ELogT (withError getLog getLogSize)
+export ELogT (errorWithLog)
 
 abbrev LogIO := ELogT BaseIO
 

@@ -153,16 +153,19 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-    buildUnlessUpToDate mod modTrace mod.traceFile do
+    let upToDate ← buildUnlessUpToDate? mod modTrace mod.traceFile do
       let hasLLVM := Lean.Internal.hasLLVMBackend ()
       let bcFile? := if hasLLVM then some mod.bcFile else none
-      compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
-        (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
+      cacheBuildLog mod.logFile do
+        compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
+          (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       discard <| cacheFileHash mod.oleanFile
       discard <| cacheFileHash mod.ileanFile
       discard <| cacheFileHash mod.cFile
       if hasLLVM then
         discard <| cacheFileHash mod.bcFile
+    if upToDate then
+      replayBuildLog mod.logFile
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/

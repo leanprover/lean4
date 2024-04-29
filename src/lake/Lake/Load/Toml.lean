@@ -269,8 +269,8 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
     if errs.isEmpty then
       return pkg
     else
-      withError <| errs.forM fun {ref, msg} =>
+      errorWithLog <| errs.forM fun {ref, msg} =>
         let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
         logError <| mkErrorStringWithPos ictx.fileName pos msg
   | .error log =>
-    withError <| log.forM fun msg => do logError (← msg.toString)
+    errorWithLog <| log.forM fun msg => do logError (← msg.toString)

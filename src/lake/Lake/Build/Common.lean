@@ -11,7 +11,8 @@ This file defines general utilities that abstract common
 build functionality and provides some common concrete build functions.
 -/
 
-open System
+open System Lean
+
 namespace Lake
 
 /-! ## General Utilities -/
@@ -38,15 +39,15 @@ Build `info` unless it already exists and `depTrace` matches that
 of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
 Returns whether `info` was already up-to-date.
 -/
-@[inline] def buildUnlessUpToDate'
+@[inline] def buildUnlessUpToDate?
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
 : JobM Bool := do
   if (← depTrace.checkUpToDate info traceFile) then
     return true
+  else if (← getNoBuild) then
+    IO.Process.exit noBuildCode.toUInt8
   else
-    if (← getNoBuild) then
-      IO.Process.exit noBuildCode.toUInt8
     build
     depTrace.writeToFile traceFile
     return false
@@ -59,7 +60,7 @@ of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
 : JobM PUnit := do
-  discard <| buildUnlessUpToDate' info depTrace traceFile build
+  discard <| buildUnlessUpToDate? info depTrace traceFile build
 
 /-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
 def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
@@ -82,25 +83,48 @@ def cacheFileHash (file : FilePath) : IO Hash := do
   return hash
 
 /--
-Build `file` using `build` unless it already exists and `depTrace` matches
+Replays the JSON log in `logFile` (if it exists).
+If the log file is malformed, logs a warning.
+-/
+def replayBuildLog (logFile : FilePath) : LogIO PUnit := do
+  match (← IO.FS.readFile logFile |>.toBaseIO) with
+  | .ok contents =>
+    match Json.parse contents >>= fromJson? with
+    | .ok entries => Log.mk entries |>.replay
+    | .error e => logWarning s!"cached build log is corrupted: {e}"
+  | .error (.noFileOrDirectory ..) => pure ()
+  | .error e => logWarning s!"failed to read cached build log: {e}"
+
+/-- Saves the log produce by `build` as JSON to `logFile`. -/
+def cacheBuildLog (logFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
+  let iniSz ← getLogSize
+  build
+  let log ← getLog
+  let log := log.entries.extract iniSz log.entries.size
+  unless log.isEmpty do
+    IO.FS.writeFile logFile (toJson log).pretty
+
+/--
+Builds `file` using `build` unless it already exists and `depTrace` matches
 the trace stored in the `.trace` file. If built, save the new `depTrace` and
 cache `file`'s hash in a `.hash` file. Otherwise, try to fetch the hash from
-the `.hash` file using `fetchFileTrace`.
+the `.hash` file using `fetchFileTrace`. Build logs (if any) are saved to
+a `.log.json` file and replayed from there if the build is skipped.
 
-By example, for `file := "foo.c"`, compare `depTrace` with that in `foo.c.trace`
-and cache the hash using `foo.c.hash`.
+For example, given `file := "foo.c"`, compares `depTrace` with that in
+`foo.c.trace` with the hash cache in `foo.c.hash` and the log cache in
+`foo.c.log.json`.
 -/
 def buildFileUnlessUpToDate (
   file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
-  if (← depTrace.checkUpToDate file traceFile) then
+  let logFile := FilePath.mk <| file.toString ++ ".log.json"
+  let build := cacheBuildLog logFile build
+  if (← buildUnlessUpToDate? file depTrace traceFile build) then
+    replayBuildLog logFile
     fetchFileTrace file
   else
-    if (← getNoBuild) then
-      IO.Process.exit noBuildCode.toUInt8
-    build
-    depTrace.writeToFile traceFile
     return .mk (← cacheFileHash file) (← getMTime file)
 
 /--

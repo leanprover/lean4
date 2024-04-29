@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/local_ctx.h"
 #include "kernel/inductive.h"
 #include "kernel/quot.h"
+#include "kernel/trace.h"
 
 namespace lean {
 void initialize_kernel_module() {
@@ -23,9 +24,11 @@ void initialize_kernel_module() {
     initialize_local_ctx();
     initialize_inductive();
     initialize_quot();
+    initialize_trace();
 }
 
 void finalize_kernel_module() {
+    finalize_trace();
     finalize_quot();
     finalize_inductive();
     finalize_local_ctx();

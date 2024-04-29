@@ -362,6 +362,9 @@ private def mkLambdaFVars' (xs : Array Expr) (e : Expr) : MetaM Expr :=
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext × List Expr)) := do
+  if (← isDiagnosticsEnabled) then
+    if let .const declName _ := inst.val.getAppFn then
+      recordInstance declName
   let mvarType   ← inferType mvar
   let lctx       ← getLCtx
   let localInsts ← getLocalInstances
@@ -422,7 +425,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   withMCtx cNode.mctx do
   if cNode.size ≥ (← read).maxResultSize then
-      trace[Meta.synthInstance.answer] "{crossEmoji} {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
+    trace[Meta.synthInstance.answer] "{crossEmoji} {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
   else
     withTraceNode `Meta.synthInstance.answer
       (fun _ => return m!"{checkEmoji} {← instantiateMVars (← inferType cNode.mvar)}") do

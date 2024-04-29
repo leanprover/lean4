@@ -13,18 +13,24 @@ import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 
 namespace Lean
-namespace Core
-
 register_builtin_option diag : Bool := {
   defValue := false
   group    := "diagnostics"
   descr    := "collect diagnostic information"
 }
 
+register_builtin_option diag.threshold : Nat := {
+  defValue := 20
+  group    := "diagnostics"
+  descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
+}
+
 register_builtin_option maxHeartbeats : Nat := {
   defValue := 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
+
+namespace Core
 
 builtin_initialize registerTraceClass `Kernel
 
@@ -384,7 +390,7 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
   compileDecl decl
 
 def getDiag (opts : Options) : Bool :=
-  Core.diag.get opts
+  diag.get opts
 
 /-- Return `true` if diagnostic information collection is enabled. -/
 def isDiagnosticsEnabled : CoreM Bool :=

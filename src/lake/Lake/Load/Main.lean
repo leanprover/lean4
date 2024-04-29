@@ -191,17 +191,17 @@ def Workspace.updateAndMaterialize
           -- Load the package
           let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
-            if dep.name = .mkSimple "std" ∧ depPkg.name = .mkSimple "boost" then
-              logError "what was the 'std' package has been renamed to 'boost'; \
-                users should switch packages depending on new versions of std/boost \
-                to 'require boost' instead of 'require std' and also update the \
+            if dep.name = .mkSimple "std" then
+              logError s!"what was the 'std' package has been renamed to '{depPkg.name}'; \
+                users should switch packages depending on new versions of std/{depPkg.name} \
+                to 'require {depPkg.name}' instead of 'require std' and also update the \
                 GitHub URL accordingly"
-            if !Platform.isWindows then
+            try
               IO.FS.removeDirAll depPkg.dir -- cleanup
-            else
+            catch e =>
               -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
-              logError s!"package '{dep.name}' was downloaded incorrectly; \
-                you may need to manually delete '{depPkg.dir}'"
+              logError s!"'{dep.name}' was downloaded incorrectly; \
+                you will need to manually delete '{depPkg.dir}': {e}"
             error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with

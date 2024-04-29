@@ -27,12 +27,6 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
-register_builtin_option diag.isDefEq.threshould : Nat := {
-  defValue := 20
-  group    := "diagnostics"
-  descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
-}
-
 /--
 Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
@@ -277,6 +271,8 @@ structure Diagnostics where
   unfoldCounter : PHashMap Name Nat := {}
   /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
   heuristicCounter : PHashMap Name Nat := {}
+  /-- Number of times a TC instance is used. -/
+  instanceCounter : PHashMap Name Nat := {}
   deriving Inhabited
 
 /--
@@ -474,15 +470,21 @@ variable [MonadControlT MetaM n] [Monad n]
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter }
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC }
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter }
+
+/-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
+def recordInstance (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
 
 def collectAboveThreshold (counters : PHashMap Name Nat) (threshold : Nat) : Array (Name × Nat) := Id.run do
   let mut r := #[]
@@ -498,23 +500,32 @@ def mkMessageBodyFor? (counters : PHashMap Name Nat) (threshold : Nat) : Option 
   else
     let mut m := MessageData.nil
     for (declName, counter) in entries do
-      m := m ++ m!"{declName} ↦ {counter}\n"
+      if m matches .nil then
+        m := m!"{declName} ↦ {counter}"
+      else
+        m := m ++ m!"\n{declName} ↦ {counter}"
     return some m
 
 def appendOptMessageData (m : MessageData) (header : String) (m? : Option MessageData) : MessageData :=
   if let some m' := m? then
-    m ++ header ++ indentD m'
+    if m matches .nil then
+      header ++ indentD m'
+    else
+      m ++ "\n" ++ header ++ indentD m'
   else
     m
 
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
-    let threshould := diag.isDefEq.threshould.get (← getOptions)
+    let threshould := diag.threshold.get (← getOptions)
     let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshould
     let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshould
-    if unfold?.isSome || heu?.isSome then
+    let inst?   := mkMessageBodyFor? (← get).diag.instanceCounter threshould
+    if unfold?.isSome || heu?.isSome || inst?.isSome then
       let m := appendOptMessageData MessageData.nil "unfolded declarations:" unfold?
+      let m := appendOptMessageData m "used instances:" inst?
       let m := appendOptMessageData m "`isDefEq` heuristic:" heu?
+      let m := m ++ "\nuse `set_option diag.threshould <num>` to control threshold for reporting counters"
       logInfo m
 
 def getLocalInstances : MetaM LocalInstances :=

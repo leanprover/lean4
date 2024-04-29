@@ -56,6 +56,8 @@ structure Context where
   old elaboration are identical.
   -/
   snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
+  /-- Cancellation token forwarded to `Core.cancelTk?`. -/
+  cancelTk?      : Option IO.CancelToken
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -72,6 +74,21 @@ Remark: see comment at TermElabM
 -/
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+
+/-- Like `Core.tryCatch` but do catch runtime exceptions. -/
+@[inline] protected def tryCatch (x : CommandElabM α) (h : Exception → CommandElabM α) :
+    CommandElabM α := do
+  try
+    x
+  catch ex =>
+    if ex.isInternalExceptionOf Core.interruptExceptionId then
+      throw ex
+    else
+      h ex
+
+instance : MonadExceptOf Exception CommandElabM where
+  throw    := throw
+  tryCatch := Command.tryCatch
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
@@ -139,7 +156,8 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     currNamespace  := scope.currNamespace
     openDecls      := scope.openDecls
     initHeartbeats := heartbeats
-    currMacroScope := ctx.currMacroScope }
+    currMacroScope := ctx.currMacroScope
+    cancelTk?      := ctx.cancelTk? }
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
@@ -467,7 +485,12 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs
 
-@[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
+/--
+Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
+catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
+Interrupt and abort exceptions are caught but not logged.
+-/
+@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
@@ -533,6 +556,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
       ref := ← getRef
       tacticCache? := none
       snap? := none
+      cancelTk? := (← read).cancelTk?
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth

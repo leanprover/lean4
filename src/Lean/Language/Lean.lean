@@ -212,17 +212,6 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
         s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
         pushOpt (s.next?.map (·.map (sync := true) go))⟩
 
-
-/-- Cancels all significant computations from this snapshot onwards. -/
-partial def CommandParsedSnapshot.cancel (snap : CommandParsedSnapshot) : BaseIO Unit := do
-  -- This is the only relevant computation right now, everything else is promises
-  -- TODO: cancel additional elaboration tasks (which will be tricky with `DynamicSnapshot`) if we
-  -- add them without switching to implicit cancellation
-  snap.data.finishedSnap.cancel
-  if let some next := snap.next? then
-    -- recurse on next command (which may have been spawned just before we cancelled above)
-    let _ ← IO.mapTask (sync := true) (·.cancel) next.task
-
 /-- State after successful importing. -/
 structure HeaderProcessedState where
   /-- The resulting initial elaboration state. -/
@@ -255,6 +244,8 @@ structure HeaderParsedSnapshot extends Snapshot where
   /-- State after successful parsing. -/
   result? : Option HeaderParsedState
   isFatal := result?.isNone
+  /-- Cancellation token for interrupting processing of this run. -/
+  cancelTk? : Option IO.CancelToken
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
@@ -272,6 +263,10 @@ abbrev InitialSnapshot := HeaderParsedSnapshot
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
   firstDiffPos? : Option String.Pos
+  /-- Cancellation token of the previous invocation, if any. -/
+  oldCancelTk? : Option IO.CancelToken
+  /-- Cancellation token of the current run. -/
+  newCancelTk : IO.CancelToken
 
 /-- Monad transformer holding all relevant data for Lean processing. -/
 abbrev LeanProcessingT m := ReaderT LeanProcessingContext m
@@ -285,14 +280,16 @@ instance : MonadLift (ProcessingT m) (LeanProcessingT m) where
   monadLift := fun act ctx => act ctx.toProcessingContext
 
 /--
-Embeds a `LeanProcessingT` action into `ProcessingT`, optionally using the old input string to
-speed up reuse analysis.
+Embeds a `LeanProcessingM` action into `ProcessingM`, optionally using the old input string to speed
+up reuse analysis and supplying a cancellation token that should be triggered as soon as reuse is
+ruled out.
 -/
-def LeanProcessingT.run [Monad m] (act : LeanProcessingT m α) (oldInputCtx? : Option InputContext) :
-    ProcessingT m α := do
+def LeanProcessingM.run (act : LeanProcessingM α) (oldInputCtx? : Option InputContext)
+    (oldCancelTk? : Option IO.CancelToken := none) : ProcessingM α := do
   -- compute position of syntactic change once
   let firstDiffPos? := oldInputCtx?.map (·.input.firstDiffPos (← read).input)
-  ReaderT.adapt ({ · with firstDiffPos? }) act
+  let newCancelTk ← IO.CancelToken.new
+  ReaderT.adapt ({ · with firstDiffPos?, oldCancelTk?, newCancelTk }) act
 
 /--
 Returns true if there was a previous run and the given position is before any textual change
@@ -317,8 +314,7 @@ General notes:
   state. As there is no cheap way to check whether the `Environment` is unchanged, i.e. *semantic*
   change detection is currently not possible, we must make sure to pass `none` as all follow-up
   "previous states" from the first *syntactic* change onwards.
-* We must make sure to use `CommandParsedSnapshot.cancel` on such tasks when discarding them, i.e.
-  when not passing them along in `old?`.
+* We must make sure to trigger `oldCancelTk?` as soon as discarding `old?`.
 * Control flow up to finding the last still-valid snapshot (which should be quick) is synchronous so
   as not to report this "fast forwarding" to the user as well as to make sure the next run sees all
   fast-forwarded snapshots without having to wait on tasks.
@@ -327,7 +323,7 @@ partial def process
     (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot Options) :=
       fun _ => pure <| .ok {})
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
-  parseHeader old? |>.run (old?.map (·.ictx))
+  parseHeader old? |>.run (old?.map (·.ictx)) (old?.bind (·.cancelTk?))
 where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
@@ -336,16 +332,21 @@ where
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
       if let some oldSuccess := old.result? then
-        return { old with ictx, result? := some { oldSuccess with
-          processedSnap := (← oldSuccess.processedSnap.bindIO (sync := true) fun oldProcessed => do
-            if let some oldProcSuccess := oldProcessed.result? then
-              -- also wait on old command parse snapshot as parsing is cheap and may allow for
-              -- elaboration reuse
-              oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd =>
-                return .pure { oldProcessed with result? := some { oldProcSuccess with
-                  firstCmdSnap := (← parseCmd oldCmd oldSuccess.parserState oldProcSuccess.cmdState ctx) } }
-            else
-              return .pure oldProcessed) } }
+        return {
+          ictx := old.ictx
+          stx := old.stx
+          diagnostics := old.diagnostics
+          cancelTk? := ctx.newCancelTk
+          result? := some { oldSuccess with
+            processedSnap := (← oldSuccess.processedSnap.bindIO (sync := true) fun oldProcessed => do
+              if let some oldProcSuccess := oldProcessed.result? then
+                -- also wait on old command parse snapshot as parsing is cheap and may allow for
+                -- elaboration reuse
+                oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd =>
+                  return .pure { oldProcessed with result? := some { oldProcSuccess with
+                    firstCmdSnap := (← parseCmd oldCmd oldSuccess.parserState oldProcSuccess.cmdState ctx) } }
+              else
+                return .pure oldProcessed) } }
       else return old
 
     -- fast path: if we have parsed the header successfully...
@@ -357,7 +358,8 @@ where
             -- ...go immediately to next snapshot
             return (← unchanged old)
 
-    withHeaderExceptions ({ · with ictx, stx := .missing, result? := none }) do
+    withHeaderExceptions ({ · with
+        ictx, stx := .missing, result? := none, cancelTk? := none }) do
       -- parsing the header should be cheap enough to do synchronously
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
       if msgLog.hasErrors then
@@ -365,6 +367,7 @@ where
           ictx, stx
           diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
           result? := none
+          cancelTk? := none
         }
 
       -- semi-fast path: go to next snapshot if syntax tree is unchanged AND we're still in front
@@ -376,13 +379,9 @@ where
       if let some old := old? then
         if (← isBeforeEditPos parserState.pos) && old.stx == stx then
           return (← unchanged old)
-        -- on first change, make sure to cancel all further old tasks
-        if let some oldSuccess := old.result? then
-          oldSuccess.processedSnap.cancel
-          let _ ← BaseIO.mapTask (t := oldSuccess.processedSnap.task) fun processed => do
-            if let some oldProcSuccess := processed.result? then
-              let _ ← BaseIO.mapTask (·.cancel) oldProcSuccess.firstCmdSnap.task
-
+        -- on first change, make sure to cancel old invocation
+        if let some tk := ctx.oldCancelTk? then
+          tk.set
       return {
         ictx, stx
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
@@ -390,6 +389,7 @@ where
           parserState
           processedSnap := (← processHeader stx parserState)
         }
+        cancelTk? := ctx.newCancelTk
       }
 
   processHeader (stx : Syntax) (parserState : Parser.ModuleParserState) :
@@ -443,7 +443,7 @@ where
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
     -- processing of next command
-    if (← IO.checkCanceled) then
+    if (← ctx.newCancelTk.isSet) then
       -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
       -- (as no-one should look at this result in that case) but anything containing `Environment`
       -- is not `Inhabited`
@@ -485,8 +485,12 @@ where
       if let some old := old? then
         if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
           return (← unchanged old)
-        -- on first change, make sure to cancel all further old tasks
-        old.cancel
+        -- on first change, make sure to cancel old invocation
+        -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
+        -- still-running elaboration steps?
+        if let some tk := ctx.oldCancelTk? then
+          dbg_trace "set"
+          tk.set
 
       -- definitely resolved in `doElab` task
       let elabPromise ← IO.Promise.new
@@ -536,11 +540,12 @@ where
         cmdPos       := beginPos
         tacticCache? := some tacticCacheNew
         snap?        := some snap
+        cancelTk?    := some ctx.newCancelTk
       }
       let (output, _) ←
         IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
           liftM (m := BaseIO) do
-            Elab.Command.catchExceptions
+            withLoggingExceptions
               (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
               cmdCtx cmdStateRef
       let postNew := (← tacticCacheNew.get).post

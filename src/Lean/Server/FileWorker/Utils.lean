@@ -15,22 +15,6 @@ namespace Lean.Server.FileWorker
 open Snapshots
 open IO
 
-structure CancelToken where
-  ref : IO.Ref Bool
-
-namespace CancelToken
-
-def new : IO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-def set (tk : CancelToken) : BaseIO Unit :=
-  tk.ref.set true
-
-def isSet (tk : CancelToken) : BaseIO Bool :=
-  tk.ref.get
-
-end CancelToken
-
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList IO.Error Snapshot := Id.run do

@@ -608,10 +608,11 @@ where
           | .notMatcher   =>
             matchConstAux f' (fun _ => return e) fun cinfo lvls =>
               match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) go
+              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
               | c@(.defnInfo _) => do
                 if (← isAuxDef c.name) then
+                  recordUnfold c.name
                   deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
                 else
                   return e

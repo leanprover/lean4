@@ -27,13 +27,20 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a <
   cases as with | _ as =>
   exact Nat.lt_trans (List.sizeOf_get ..) (by simp_arith)
 
+@[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
+  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _
+
 /-- This tactic, added to the `decreasing_trivial` toolbox, proves that
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions
 over a nested inductive like `inductive T | mk : Array T → T`. -/
 macro "array_get_dec" : tactic =>
   `(tactic| first
-    | apply sizeOf_get
-    | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
+    -- subsumed by simp
+    -- | with_reducible apply sizeOf_get
+    -- | with_reducible apply sizeOf_getElem
+    | (with_reducible apply Nat.lt_trans (sizeOf_get ..)); simp_arith
+    | (with_reducible apply Nat.lt_trans (sizeOf_getElem ..)); simp_arith
+    )
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
 
@@ -43,9 +50,10 @@ provided that `a ∈ arr` which is useful for well founded recursions over a nes
 -- NB: This is analogue to tactic `sizeOf_list_dec`
 macro "array_mem_dec" : tactic =>
   `(tactic| first
-    | apply Array.sizeOf_lt_of_mem; assumption; done
-    | apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
-      case' h => assumption
+    | with_reducible apply Array.sizeOf_lt_of_mem; assumption; done
+    | with_reducible
+        apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
+        case' h => assumption
       simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_mem_dec)

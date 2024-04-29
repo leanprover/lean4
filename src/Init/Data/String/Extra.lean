@@ -132,13 +132,17 @@ theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext)
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   exact Nat.sub_lt_sub_left h (String.lt_next s pos)
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
+macro_rules
+| `(tactic| decreasing_trivial) =>
+  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
 
 theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
   have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
   sizeOf_next_lt_of_hasNext i h
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
+macro_rules
+| `(tactic| decreasing_trivial) =>
+  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
 namespace Iterator
 

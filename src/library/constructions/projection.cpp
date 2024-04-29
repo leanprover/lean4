@@ -99,7 +99,10 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         expr proj_val  = mk_proj(n, i, c);
         proj_val = lctx.mk_lambda(proj_args, proj_val);
         declaration new_d;
-        if (is_prop) {
+        // TODO: replace `if (false) {` with `if (is_prop) {`.
+        // Mathlib is crashing when prop fields are theorems.
+        // The crash is in the ir_interpreter. Kyle suspects this is an use-after-free bug in the interpreter.
+        if (false) { // if (is_prop) {
             bool unsafe = use_unsafe(env, proj_type) || use_unsafe(env, proj_val);
             if (unsafe) {
                 // theorems cannot be unsafe

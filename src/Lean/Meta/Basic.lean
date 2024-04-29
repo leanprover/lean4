@@ -517,15 +517,15 @@ def appendOptMessageData (m : MessageData) (header : String) (m? : Option Messag
 
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
-    let threshould := diag.threshold.get (← getOptions)
-    let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshould
-    let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshould
-    let inst?   := mkMessageBodyFor? (← get).diag.instanceCounter threshould
+    let threshold := diag.threshold.get (← getOptions)
+    let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshold
+    let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshold
+    let inst?   := mkMessageBodyFor? (← get).diag.instanceCounter threshold
     if unfold?.isSome || heu?.isSome || inst?.isSome then
       let m := appendOptMessageData MessageData.nil "unfolded declarations:" unfold?
       let m := appendOptMessageData m "used instances:" inst?
       let m := appendOptMessageData m "`isDefEq` heuristic:" heu?
-      let m := m ++ "\nuse `set_option diag.threshould <num>` to control threshold for reporting counters"
+      let m := m ++ "\nuse `set_option diag.threshold <num>` to control threshold for reporting counters"
       logInfo m
 
 def getLocalInstances : MetaM LocalInstances :=

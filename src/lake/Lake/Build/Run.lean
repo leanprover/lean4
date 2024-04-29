@@ -45,20 +45,22 @@ def Workspace.runFetchM
   if showProgress then
     out.putStr header; out.flush
   let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run.run'.run ctx).captureLog
-  if io.isEmpty && !log.hasVisibleEntries verbosity then
+  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
+  let failed := log.any (·.level ≥ failLv)
+  if !failed && io.isEmpty && !log.hasVisibleEntries verbosity then
     if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
   else
     unless showProgress do
       out.putStr header
     out.putStr "\n"
-    if log.hasVisibleEntries verbosity then
-      log.replay (logger := MonadLog.stream out verbosity)
+    if failed || log.hasVisibleEntries verbosity then
+      let v := if failed then .verbose else verbosity
+      log.replay (logger := MonadLog.stream out v)
     unless io.isEmpty do
       out.putStr "stdout/stderr:\n"
       out.putStr io
     out.flush
-  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
-  let failures := if log.any (·.level ≥ failLv) then #[caption] else #[]
+  let failures := if failed then #[caption] else #[]
   let jobs ← ctx.registeredJobs.get
   let numJobs := jobs.size
   let failures ← numJobs.foldM (init := failures) fun i s => Prod.snd <$> StateT.run (s := s) do
@@ -67,15 +69,16 @@ def Workspace.runFetchM
     if showProgress then
       out.putStr header; out.flush
     let log := (← job.wait).state
-    if log.any (·.level ≥ failLv) then
-      modify (·.push caption)
-    if !log.hasVisibleEntries verbosity then
+    let failed := log.any (·.level ≥ failLv)
+    if failed then modify (·.push caption)
+    if !(failed || log.hasVisibleEntries verbosity) then
       if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
     else
       unless showProgress do
         out.putStr header
       out.putStr "\n"
-      log.replay (logger := MonadLog.stream out verbosity)
+      let v := if failed then .verbose else verbosity
+      log.replay (logger := MonadLog.stream out v)
       out.flush
   if failures.isEmpty then
     let some a := a?

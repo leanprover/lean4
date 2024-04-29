@@ -11,20 +11,21 @@ import Lake.Build.Basic
 Low level actions to build common Lean artifacts via the Lean toolchain.
 -/
 
-namespace Lake
 open System
+open Lean hiding SearchPath
+
+namespace Lake
 
 def createParentDirs (path : FilePath) : IO Unit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
 def compileLeanModule
-  (name : Name) (leanFile : FilePath)
+  (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
   (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : JobM Unit := do
-  logVerbose s!"building Lean module {name}"
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
   if let some oleanFile := oleanFile? then
@@ -41,7 +42,10 @@ def compileLeanModule
     args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
-  proc {
+  args := args.push "--json"
+  show LogIO _ from do
+  let iniSz ← getLogSize
+  let out ← rawProc {
     args
     cmd := lean.toString
     env := #[
@@ -49,6 +53,24 @@ def compileLeanModule
       (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ dynlibPath |>.toString)
     ]
   }
+  unless out.stdout.isEmpty do
+    let txt ← out.stdout.split (· == '\n') |>.foldlM (init := "") fun txt ln => do
+      if let .ok (msg : SerialMessage) := Json.parse ln >>= fromJson? then
+        unless txt.isEmpty do
+          logInfo s!"stdout:\n{txt}"
+        logSerialMessage msg
+        return txt
+      else if txt.isEmpty && ln.isEmpty then
+        return txt
+      else
+        return txt ++ ln ++ "\n"
+    unless txt.isEmpty do
+      logInfo s!"stdout:\n{txt}"
+  unless out.stderr.isEmpty do
+    logInfo s!"stderr:\n{out.stderr}"
+  if out.exitCode ≠ 0 then
+    logError s!"Lean exited with code {out.exitCode}"
+    throw iniSz
 
 def compileO
   (oFile srcFile : FilePath)

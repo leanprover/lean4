@@ -5,6 +5,9 @@ Authors: Mac Malone
 -/
 import Lake.Util.Error
 import Lake.Util.EStateT
+import Lean.Message
+
+open Lean
 
 namespace Lake
 
@@ -38,6 +41,11 @@ protected def LogLevel.toString : LogLevel → String
 | .info => "info"
 | .warning => "warning"
 | .error => "error"
+
+protected def LogLevel.ofMessageSeverity : MessageSeverity → LogLevel
+| .information => .info
+| .warning => .warning
+| .error => .error
 
 instance : ToString LogLevel := ⟨LogLevel.toString⟩
 
@@ -92,6 +100,15 @@ def logToStream (e : LogEntry) (h : IO.FS.Stream) (verbosity : Verbosity) : Base
     h.putStrLn s!"info: {e.message.trim}" |>.catchExceptions fun _ => pure ()
   | .warning => h.putStrLn s!"warning: {e.message.trim}" |>.catchExceptions fun _ => pure ()
   | .error => h.putStrLn s!"error: {e.message.trim}" |>.catchExceptions fun _ => pure ()
+
+@[specialize] def logSerialMessage (msg : SerialMessage) [MonadLog m] : m PUnit :=
+  let str := msg.data
+  let str := if msg.caption.trim.isEmpty then
+    str.trim else s!"{msg.caption.trim}:\n{str.trim}"
+  logEntry {
+    level := .ofMessageSeverity msg.severity
+    message := mkErrorStringWithPos msg.fileName msg.pos str msg.endPos
+  }
 
 namespace MonadLog
 
@@ -211,6 +228,12 @@ namespace ELogT
 
 instance [Monad m] : MonadLog (ELogT m) := ⟨ELogT.log⟩
 
+@[inline] def getLog [Pure m] : ELogT m Log :=
+  get
+
+@[inline] def getLogSize [Functor m] [Pure m] : ELogT m Nat :=
+  (·.size) <$> getLog
+
 /-- Performs `x` and groups all logs generated into an error block. -/
 @[inline] def withError [Monad m] (x : ELogT m α) : ELogT m β := fun s => do
   let iniSz := s.size
@@ -239,7 +262,7 @@ instance [Monad m] : MonadError (ELogT m) := ⟨ELogT.error⟩
 
 end ELogT
 
-export ELogT (withError)
+export ELogT (withError getLog getLogSize)
 
 abbrev LogIO := ELogT BaseIO
 

@@ -14,38 +14,39 @@ def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   let cwd := args.cwd.getD "."
   s!"{cwd}> {envStr}{cmdStr}"
 
-@[specialize] private def logProcWith
-  [Monad m] (args : IO.Process.SpawnArgs) (out : IO.Process.Output)
-  (log : String → m PUnit) (logOutput := log)
+@[inline] def logOutput
+  [Monad m] (out : IO.Process.Output) (log : String → m PUnit)
 : m Unit := do
-  log (mkCmdLog args)
   unless out.stdout.isEmpty do
-    logOutput s!"stdout:\n{out.stdout}"
+    log s!"stdout:\n{out.stdout}"
   unless out.stderr.isEmpty do
-    logOutput s!"stderr:\n{out.stderr}"
+    log s!"stderr:\n{out.stderr}"
 
-@[inline] def rawProc (args : IO.Process.SpawnArgs) : LogIO IO.Process.Output := do
+@[inline] def rawProc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO IO.Process.Output := do
+  let iniSz ← getLogSize
+  unless quiet do logVerbose (mkCmdLog args)
   match (← IO.Process.output args |>.toBaseIO) with
   | .ok out => return out
-  | .error err => withError do
-    logError (mkCmdLog args)
-    logError s!"failed to execute `{args.cmd}`: {err}"
+  | .error err =>
+    logError s!"failed to execute '{args.cmd}': {err}"
+    throw iniSz
 
 def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := do
+  let iniSz ← getLogSize
   let out ← rawProc args
-  if out.exitCode = 0 then
-    logProcWith args out logVerbose (if quiet then logVerbose else logInfo)
-  else withError do
-    logProcWith args out logError
-    logError s!"external command `{args.cmd}` exited with code {out.exitCode}"
+  logOutput out (if quiet then logVerbose else logInfo)
+  if out.exitCode ≠ 0 then
+    logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
+    throw iniSz
 
 def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
-  let out ← rawProc args
+  let out ← rawProc args (quiet := true)
   if out.exitCode = 0 then
     return out.stdout.trim -- remove, e.g., newline at end
   else withError do
-    logProcWith args out logError
-    logError s!"external command `{args.cmd}` exited with code {out.exitCode}"
+    logVerbose (mkCmdLog args)
+    logOutput out logInfo
+    logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
 def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
   EIO.catchExceptions (h := fun _ => pure none) do

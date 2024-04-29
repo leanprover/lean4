@@ -12,28 +12,42 @@ abbrev CallStack κ := List κ
 /-- A `CallStack` ending in a cycle. -/
 abbrev Cycle κ := CallStack κ
 
-/-- A monad equipped with a call stack and the ability to error on a cycle. -/
-class MonadCycleOf (κ :  semiOutParam (Type u)) (m : Type u → Type v) where
+/-- A monad equipped with a call stack. -/
+class MonadCallStackOf (κ :  semiOutParam (Type u)) (m : Type u → Type v) where
   getCallStack : m (CallStack κ)
   withCallStack (stack : CallStack κ) (x : m α) : m α
+
+/-- Similar to `MonadCallStackOf`, but `κ` is an `outParam` for convenience. -/
+class MonadCallStack (κ :  outParam (Type u)) (m : Type u → Type v) where
+  getCallStack : m (CallStack κ)
+  withCallStack (stack : CallStack κ) (x : m α) : m α
+
+export MonadCallStack (getCallStack withCallStack)
+
+instance [MonadCallStackOf κ m] : MonadCallStack κ m where
+  getCallStack := MonadCallStackOf.getCallStack
+  withCallStack := MonadCallStackOf.withCallStack
+
+instance [MonadLift m n] [MonadFunctor m n] [MonadCallStackOf κ m] : MonadCallStackOf κ n where
+  getCallStack := liftM (m := m) getCallStack
+  withCallStack s := monadMap (m := m) (withCallStack s ·)
+
+/-- A monad equipped with a call stack and the ability to error on a cycle. -/
+class MonadCycleOf (κ :  semiOutParam (Type u)) (m : Type u → Type v) extends MonadCallStackOf κ m where
   throwCycle (cycle : Cycle κ) : m α
 
 /-- Similar to `MonadCycle`, but `κ` is an `outParam` for convenience. -/
-class MonadCycle (κ :  outParam (Type u)) (m : Type u → Type v) where
-  getCallStack : m (CallStack κ)
-  withCallStack (stack : CallStack κ) (x : m α) : m α
+class MonadCycle (κ :  outParam (Type u)) (m : Type u → Type v) extends MonadCallStack κ m where
   throwCycle (cycle : Cycle κ) : m α
 
+export MonadCycle (throwCycle)
+
 instance [MonadCycleOf κ m] : MonadCycle κ m where
-  getCallStack := MonadCycleOf.getCallStack
-  withCallStack := MonadCycleOf.withCallStack
   throwCycle := MonadCycleOf.throwCycle
 
-export MonadCycle (getCallStack withCallStack throwCycle)
+export MonadCycle (throwCycle)
 
 instance [MonadLift m n] [MonadFunctor m n] [MonadCycleOf κ m] : MonadCycleOf κ n where
-  getCallStack := liftM (m := m) getCallStack
-  withCallStack s := monadMap (m := m) (withCallStack s ·)
   throwCycle cycle := liftM (m := m) (throwCycle cycle)
 
 instance inhabitedOfMonadCycle [MonadCycle κ m] : Inhabited (m α) := ⟨throwCycle []⟩
@@ -41,12 +55,14 @@ instance inhabitedOfMonadCycle [MonadCycle κ m] : Inhabited (m α) := ⟨throwC
 /-- A transformer that equips a monad with a `CallStack`. -/
 abbrev CallStackT κ m := ReaderT (CallStack κ) m
 
+instance [Monad m] : MonadCallStackOf κ (CallStackT κ m) where
+  getCallStack := read
+  withCallStack s x := x s
+
 /-- A transformer that equips a monad with a `CallStack` to detect cycles. -/
 abbrev CycleT κ m := CallStackT κ <| ExceptT (Cycle κ) m
 
 instance [Monad m] : MonadCycleOf κ (CycleT κ m) where
-  getCallStack := read
-  withCallStack s x := x s
   throwCycle := throw
 
 /--

@@ -37,8 +37,6 @@ abbrev RecBuildM := CallStackT BuildKey <| StateT BuildStore <| CoreBuildM
   error s!"build cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
 
 instance : MonadCycleOf BuildKey RecBuildM where
-  getCallStack := read
-  withCallStack s x := x s
   throwCycle := buildCycleError
 
 /-- A build function for any element of the Lake build index. -/

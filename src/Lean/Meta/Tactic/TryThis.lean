@@ -567,9 +567,10 @@ def addRewriteSuggestion (ref : Syntax) (rules : List (Expr × Bool))
   -- thus giving more information in the hovers.
   -- Perhaps in future we will have a better way to attach elaboration information to
   -- `Syntax` embedded in a `MessageData`.
+  let toMessageData (e : Expr) : MessageData := if e.isConst then .ofConst e else .ofExpr e
   let mut tacMsg :=
     let rulesMsg := MessageData.sbracket <| MessageData.joinSep
-      (rules.map fun ⟨e, symm⟩ => (if symm then "← " else "") ++ m!"{e}") ", "
+      (rules.map fun ⟨e, symm⟩ => (if symm then "← " else "") ++ toMessageData e) ", "
     if let some loc := loc? then
       m!"rw {rulesMsg} at {loc}"
     else

@@ -88,7 +88,7 @@ protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
   Nat.lt_of_lt_of_le h (Nat.le_add_left ..)
 
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
-  | n+1, h => by rw [Nat.succ_add, Nat.succ_inj'] at h; contradiction
+  | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 
 /-! ## sub -/
 
@@ -200,6 +200,7 @@ theorem succ_min_succ (x y) : min (succ x) (succ y) = succ (min x y) := by
   | inr h => rw [Nat.min_eq_right h, Nat.min_eq_right (Nat.succ_le_succ h)]
 
 @[simp] protected theorem min_self (a : Nat) : min a a = a := Nat.min_eq_left (Nat.le_refl _)
+instance : Std.IdempotentOp (α := Nat) min := ⟨Nat.min_self⟩
 
 @[simp] protected theorem zero_min (a) : min 0 a = 0 := Nat.min_eq_left (Nat.zero_le _)
 
@@ -210,6 +211,7 @@ protected theorem min_assoc : ∀ (a b c : Nat), min (min a b) c = min a (min b 
   | _, 0, _ => by rw [Nat.zero_min, Nat.min_zero, Nat.zero_min]
   | _, _, 0 => by rw [Nat.min_zero, Nat.min_zero, Nat.min_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_min_succ]; exact congrArg succ <| Nat.min_assoc ..
+instance : Std.Associative (α := Nat) min := ⟨Nat.min_assoc⟩
 
 protected theorem sub_sub_eq_min : ∀ (a b : Nat), a - (a - b) = min a b
   | 0, _ => by rw [Nat.zero_sub, Nat.zero_min]
@@ -249,16 +251,21 @@ protected theorem max_lt {a b c : Nat} : max a b < c ↔ a < c ∧ b < c := by
   rw [← Nat.succ_le, ← Nat.succ_max_succ a b]; exact Nat.max_le
 
 @[simp] protected theorem max_self (a : Nat) : max a a = a := Nat.max_eq_right (Nat.le_refl _)
+instance : Std.IdempotentOp (α := Nat) max := ⟨Nat.max_self⟩
 
 @[simp] protected theorem zero_max (a) : max 0 a = a := Nat.max_eq_right (Nat.zero_le _)
 
 @[simp] protected theorem max_zero (a) : max a 0 = a := Nat.max_eq_left (Nat.zero_le _)
+instance : Std.LawfulIdentity (α := Nat) max 0 where
+  left_id := Nat.zero_max
+  right_id := Nat.max_zero
 
 protected theorem max_assoc : ∀ (a b c : Nat), max (max a b) c = max a (max b c)
   | 0, _, _ => by rw [Nat.zero_max, Nat.zero_max]
   | _, 0, _ => by rw [Nat.zero_max, Nat.max_zero]
   | _, _, 0 => by rw [Nat.max_zero, Nat.max_zero]
   | _+1, _+1, _+1 => by simp only [Nat.succ_max_succ]; exact congrArg succ <| Nat.max_assoc ..
+instance : Std.Associative (α := Nat) max := ⟨Nat.max_assoc⟩
 
 protected theorem sub_add_eq_max (a b : Nat) : a - b + b = max a b := by
   match Nat.le_total a b with

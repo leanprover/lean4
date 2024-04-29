@@ -137,6 +137,9 @@ instance : LawfulBEq Nat where
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
   | n+1 => congrArg succ (Nat.zero_add n)
+instance : Std.LawfulIdentity (α := Nat) (· + ·) 0 where
+  left_id := Nat.zero_add
+  right_id := Nat.add_zero
 
 theorem succ_add : ∀ (n m : Nat), (succ n) + m = succ (n + m)
   | _, 0   => rfl
@@ -160,10 +163,12 @@ protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
     have : succ (n + m) = succ (m + n) := by apply congrArg; apply Nat.add_comm
     rw [succ_add m n]
     apply this
+instance : Std.Commutative (α := Nat) (· + ·) := ⟨Nat.add_comm⟩
 
 protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | _, _, 0      => rfl
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
+instance : Std.Associative (α := Nat) (· + ·) := ⟨Nat.add_assoc⟩
 
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
@@ -174,7 +179,7 @@ protected theorem add_right_comm (n m k : Nat) : (n + m) + k = (n + k) + m := by
 protected theorem add_left_cancel {n m k : Nat} : n + m = n + k → m = k := by
   induction n with
   | zero => simp
-  | succ n ih => simp [succ_add]; intro h; apply ih h
+  | succ n ih => simp [succ_add, succ.injEq]; intro h; apply ih h
 
 protected theorem add_right_cancel {n m k : Nat} (h : n + m = k + m) : n = k := by
   rw [Nat.add_comm n m, Nat.add_comm k m] at h
@@ -207,12 +212,16 @@ theorem succ_mul (n m : Nat) : (succ n) * m = (n * m) + m := by
 protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
   | n, 0      => (Nat.zero_mul n).symm ▸ (Nat.mul_zero n).symm ▸ rfl
   | n, succ m => (mul_succ n m).symm ▸ (succ_mul m n).symm ▸ (Nat.mul_comm n m).symm ▸ rfl
+instance : Std.Commutative (α := Nat) (· * ·) := ⟨Nat.mul_comm⟩
 
 @[simp] protected theorem mul_one : ∀ (n : Nat), n * 1 = n :=
   Nat.zero_add
 
 @[simp] protected theorem one_mul (n : Nat) : 1 * n = n :=
   Nat.mul_comm n 1 ▸ Nat.mul_one n
+instance : Std.LawfulIdentity (α := Nat) (· * ·) 1 where
+  left_id := Nat.one_mul
+  right_id := Nat.mul_one
 
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   induction n with
@@ -231,6 +240,7 @@ protected theorem add_mul (n m k : Nat) : (n + m) * k = n * k + m * k :=
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, 0      => rfl
   | n, m, succ k => by simp [mul_succ, Nat.mul_assoc n m k, Nat.left_distrib]
+instance : Std.Associative (α := Nat) (· * ·) := ⟨Nat.mul_assoc⟩
 
 protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
   rw [← Nat.mul_assoc, Nat.mul_comm n m, Nat.mul_assoc]
@@ -248,7 +258,7 @@ theorem lt_succ_of_le {n m : Nat} : n ≤ m → n < succ m := succ_le_succ
 
 @[simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
 
-@[simp] theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
+theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with
   | zero      => exact rfl
   | succ m ih => apply congrArg pred ih
@@ -574,7 +584,7 @@ theorem eq_zero_or_eq_succ_pred : ∀ n, n = 0 ∨ n = succ (pred n)
   | 0 => .inl rfl
   | _+1 => .inr rfl
 
-theorem succ_inj' : succ a = succ b ↔ a = b := ⟨succ.inj, congrArg _⟩
+theorem succ_inj' : succ a = succ b ↔ a = b := (Nat.succ.injEq a b).to_iff
 
 theorem succ_le_succ_iff : succ a ≤ succ b ↔ a ≤ b := ⟨le_of_succ_le_succ, succ_le_succ⟩
 
@@ -802,7 +812,7 @@ theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
 protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
   induction k with
   | zero => simp
-  | succ k ih => simp [← Nat.add_assoc, ih]
+  | succ k ih => simp [← Nat.add_assoc, succ_sub_succ_eq_sub, ih]
 
 protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
   rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]

@@ -266,29 +266,49 @@ open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
     term.parenthesizer prec
     visitToken
 
-def explicitBinder (requireType := false) := ppGroup $ leading_parser
+/--
+Explicit binder, like `(x y : A)` or `(x y)`.
+Default values can be specified using `(x : A := v)` syntax, and tactics using `(x : A := by tac)`.
+-/
+def explicitBinder (requireType := false) := leading_parser ppGroup <|
   "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
 /--
-Implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by unification whenever all explicit parameters before it are specified.
+Implicit binder, like `{x y : A}` or `{x y}`.
+In regular applications, whenever all parameters before it have been specified,
+then a `_` placeholder is automatically inserted for this parameter.
+Implicit parameters should be able to be determined from the other arguments and the return type
+by unification.
+
+In `@` explicit mode, implicit binders behave like explicit binders.
 -/
-def implicitBinder (requireType := false) := ppGroup $ leading_parser
+def implicitBinder (requireType := false) := leading_parser ppGroup <|
   "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
 def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
 /--
-Strict-implicit binder. In contrast to `{ ... }` regular implicit binders,
-a strict-implicit binder is inserted automatically only when at least one subsequent
-explicit parameter is specified.
+Strict-implicit binder, like `⦃x y : A⦄` or `⦃x y⦄`.
+In contrast to `{ ... }` implicit binders, strict-implicit binders do not automatically insert
+a `_` placeholder until at least one subsequent explicit parameter is specified.
+Do *not* use strict-implicit binders unless there is a subsequent explicit parameter.
+Assuming this rule is followed, for fully applied expressions implicit and strict-implicit binders have the same behavior.
+
+Example: If `h : ∀ ⦃x : A⦄, x ∈ s → p x` and `hs : y ∈ s`,
+then `h` by itself elaborates to itself without inserting `_` for the `x : A` parameter,
+and `h hs` has type `p y`.
+In contrast, if `h' : ∀ {x : A}, x ∈ s → p x`, then `h` by itself elaborates to have type `?m ∈ s → p ?m`
+with `?m` a fresh metavariable.
 -/
-def strictImplicitBinder (requireType := false) := ppGroup <| leading_parser
+def strictImplicitBinder (requireType := false) := leading_parser ppGroup <|
   strictImplicitLeftBracket >> many1 binderIdent >>
   binderType requireType >> strictImplicitRightBracket
 /--
-Instance-implicit binder. In regular applications without `@`, it is automatically inserted
-and solved by typeclass inference of the specified class.
+Instance-implicit binder, like `[C]` or `[inst : C]`.
+In regular applications without `@` explicit mode, it is automatically inserted
+and solved for by typeclass inference for the specified class `C`.
+In `@` explicit mode, if `_` is used for an an instance-implicit parameter, then it is still solved for by typeclass inference;
+use `(_)` to inhibit this and have it be solved for by unification instead, like an implicit argument.
 -/
-def instBinder := ppGroup <| leading_parser
+def instBinder := leading_parser ppGroup <|
   "[" >> withoutPosition (optIdent >> termParser) >> "]"
 /-- A `bracketedBinder` matches any kind of binder group that uses some kind of brackets:
 * An explicit binder like `(x y : A)`
@@ -746,6 +766,17 @@ is short for accessing the `i`-th field (1-indexed) of `e` if it is of a structu
 @[builtin_term_parser] def arrow    := trailing_parser
   checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
 
+/--
+Syntax kind for syntax nodes representing the field of a projection in the `InfoTree`.
+Specifically, the `InfoTree` node for a projection `s.f` contains a child `InfoTree` node
+with syntax ``(Syntax.node .none identProjKind #[`f])``.
+
+This is necessary because projection syntax cannot always be detected purely syntactically
+(`s.f` may refer to either the identifier `s.f` or a projection `s.f` depending on
+the available context).
+-/
+def identProjKind := `Lean.Parser.Term.identProj
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
@@ -839,7 +870,7 @@ def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (ho
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
-    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

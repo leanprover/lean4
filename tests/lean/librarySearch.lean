@@ -21,7 +21,7 @@ noncomputable section
 #guard_msgs in
 example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 
-/-- info: Try this: exact Nat.lt_of_sub_eq_succ rfl -/
+/-- info: Try this: exact Nat.zero_lt_succ 1 -/
 #guard_msgs in
 example : 0 ≠ 1 + 1 := Nat.ne_of_lt (by apply?)
 
@@ -42,6 +42,14 @@ example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 /-- info: Try this: Nat.lt.base x -/
 #guard_msgs in
 example : x < x + 1 := exact?%
+
+/-- error: `exact?%` didn't find any relevant lemmas -/
+#guard_msgs in
+example {α : Sort u} (x y : α) : Eq x y := exact?%
+
+/-- error: `exact?%` could not close the goal. Try `by apply` to see partial suggestions. -/
+#guard_msgs in
+example (x y : Nat) : x ≤ y := exact?%
 
 /-- info: Try this: exact p -/
 #guard_msgs in
@@ -83,11 +91,11 @@ example (n m k : Nat) : n * m - n * k = n * (m - k) := by
 #guard_msgs in
 example {α : Type} (x y : α) : x = y ↔ y = x := by apply?
 
-/-- info: Try this: exact Nat.lt_add_right b ha -/
+/-- info: Try this: exact Nat.add_pos_left ha b -/
 #guard_msgs in
 example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 
-/-- info: Try this: exact Nat.lt_add_right b ha -/
+/-- info: Try this: exact Nat.add_pos_left ha b -/
 #guard_msgs in
 -- Verify that if maxHeartbeats is 0 we don't stop immediately.
 set_option maxHeartbeats 0 in
@@ -95,7 +103,7 @@ example (a b : Nat) (ha : 0 < a) (_hb : 0 < b) : 0 < a + b := by apply?
 
 section synonym
 
-/-- info: Try this: exact Nat.lt_add_right b ha -/
+/-- info: Try this: exact Nat.add_pos_left ha b -/
 #guard_msgs in
 example (a b : Nat) (ha : a > 0) (_hb : 0 < b) : 0 < a + b := by apply?
 

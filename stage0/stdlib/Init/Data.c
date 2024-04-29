@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data
-// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Channel Init.Data.Cast Init.Data.Sum
+// Imports: Init.Data.Basic Init.Data.Nat Init.Data.Bool Init.Data.BitVec Init.Data.Cast Init.Data.Char Init.Data.String Init.Data.List Init.Data.Int Init.Data.Array Init.Data.Array.Subarray.Split Init.Data.ByteArray Init.Data.FloatArray Init.Data.Fin Init.Data.UInt Init.Data.Float Init.Data.Option Init.Data.Ord Init.Data.Random Init.Data.ToString Init.Data.Range Init.Data.Hashable Init.Data.OfScientific Init.Data.Format Init.Data.Stream Init.Data.Prod Init.Data.AC Init.Data.Queue Init.Data.Channel Init.Data.Cast Init.Data.Sum
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,6 +23,7 @@ lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray_Split(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_FloatArray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin(uint8_t builtin, lean_object*);
@@ -76,6 +77,9 @@ res = initialize_Init_Data_Int(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Array_Subarray_Split(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());

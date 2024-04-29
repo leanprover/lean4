@@ -40,6 +40,13 @@ Finally, we rarely use `mapM` with something that is not a `Monad`.
 Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 -/
 
+/--
+Applies the monadic action `f` on every element in the list, left-to-right, and returns the list of
+results.
+
+See `List.forM` for the variant that discards the results.
+See `List.mapA` for the variant that works with `Applicative`.
+-/
 @[inline]
 def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
   let rec @[specialize] loop
@@ -47,17 +54,42 @@ def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α �
     | a :: as, bs => do loop as ((← f a)::bs)
   loop as []
 
+/--
+Applies the applicative action `f` on every element in the list, left-to-right, and returns the list of
+results.
+
+NB: If `m` is also a `Monad`, then using `mapM` can be more efficient.
+
+See `List.forA` for the variant that discards the results.
+See `List.mapM` for the variant that works with `Monad`.
+
+**Warning**: this function is not tail-recursive, meaning that it may fail with a stack overflow on long lists.
+-/
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
   | []    => pure []
   | a::as => List.cons <$> f a <*> mapA f as
 
+/--
+Applies the monadic action `f` on every element in the list, left-to-right.
+
+See `List.mapM` for the variant that collects results.
+See `List.forA` for the variant that works with `Applicative`.
+-/
 @[specialize]
 protected def forM {m : Type u → Type v} [Monad m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
   match as with
   | []      => pure ⟨⟩
   | a :: as => do f a; List.forM as f
 
+/--
+Applies the applicative action `f` on every element in the list, left-to-right.
+
+NB: If `m` is also a `Monad`, then using `forM` can be more efficient.
+
+See `List.mapA` for the variant that collects results.
+See `List.forM` for the variant that works with `Monad`.
+-/
 @[specialize]
 def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f : α → m PUnit) : m PUnit :=
   match as with
@@ -71,15 +103,27 @@ def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) :
     let b ← f h
     filterAuxM f t (cond b (h :: acc) acc)
 
+/--
+Applies the monadic predicate `p` on every element in the list, left-to-right, and returns those
+elements `x` for which `p x` returns `true`.
+-/
 @[inline]
-def filterM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) := do
-  let as ← filterAuxM f as []
+def filterM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) := do
+  let as ← filterAuxM p as []
   pure as.reverse
 
+/--
+Applies the monadic predicate `p` on every element in the list, right-to-left, and returns those
+elements `x` for which `p x` returns `true`.
+-/
 @[inline]
-def filterRevM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) (as : List α) : m (List α) :=
-  filterAuxM f as.reverse []
+def filterRevM {m : Type → Type v} [Monad m] {α : Type} (p : α → m Bool) (as : List α) : m (List α) :=
+  filterAuxM p as.reverse []
 
+/--
+Applies the monadic function `f` on every element `x` in the list, left-to-right, and returns those
+results `y` for which `f x` returns `some y`.
+-/
 @[inline]
 def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
@@ -90,6 +134,16 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
       | some b => loop as (b::bs)
   loop as.reverse []
 
+/--
+Folds a monadic function over a list from left to right:
+```
+foldlM f x₀ [a, b, c] = do
+  let x₁ ← f x₀ a
+  let x₂ ← f x₁ b
+  let x₃ ← f x₂ c
+  pure x₃
+```
+-/
 @[specialize]
 protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
@@ -97,10 +151,26 @@ protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w
     let s' ← f s a
     List.foldlM f s' as
 
+/--
+Folds a monadic function over a list from right to left:
+```
+foldrM f x₀ [a, b, c] = do
+  let x₁ ← f c x₀
+  let x₂ ← f b x₁
+  let x₃ ← f a x₂
+  pure x₃
+```
+-/
 @[inline]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
 
+/--
+Maps `f` over the list and collects the results with `<|>`.
+```
+firstM f [a, b, c] = f a <|> f b <|> f c <|> failure
+```
+-/
 @[specialize]
 def firstM {m : Type u → Type v} [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
   | []    => failure

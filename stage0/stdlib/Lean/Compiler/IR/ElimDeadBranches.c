@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_IR_UnreachableBranches_getFunctionSummary_x3f___spec__2(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue;
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_IR_UnreachableBranches_Value_merge___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_inferStep___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -31,7 +30,6 @@ static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_Unr
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_truncateMaxDepth;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_truncate_go(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat___closed__7;
-static lean_object* l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_updateVarAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_format___closed__1;
@@ -104,14 +102,16 @@ LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_InterpContext_currFnIdx__
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_functionSummariesExt;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__4(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_IR_instInhabitedParam;
+static lean_object* l_Lean_IR_UnreachableBranches_Value_instToString___closed__1;
+LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToString;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__3;
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lean_IR_UnreachableBranches_Value_beq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____closed__5;
+static lean_object* l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1;
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_IR_UnreachableBranches_Value_merge___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____closed__9;
 LEAN_EXPORT uint8_t l_Lean_IR_UnreachableBranches_Value_beq___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_findVarValue___closed__1;
-static lean_object* l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_interpExpr___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_IR_CtorInfo_beq(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat___closed__6;
@@ -152,7 +152,6 @@ lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_UnreachableBranches_inferStep___spec__4(lean_object*, lean_object*, size_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_interpFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_IR_UnreachableBranches_Value_addChoice___spec__1(lean_object*);
-lean_object* l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_declLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
@@ -169,6 +168,7 @@ LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_IR_elimDeadBranches___spe
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_modifyAux___at_Lean_IR_UnreachableBranches_updateCurrFnSummary___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat(lean_object*);
 lean_object* l_Lean_IR_Decl_name(lean_object*);
+lean_object* l_Lean_PersistentHashMap_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat___closed__3;
 static lean_object* l_List_repr___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____spec__4___closed__7;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_Value_format___spec__2(lean_object*, size_t, size_t, lean_object*);
@@ -179,6 +179,7 @@ static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR
 static lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___closed__3;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instBEq;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_IR_UnreachableBranches_inferStep___spec__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__9;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_instToStringValue(lean_object*);
@@ -219,7 +220,6 @@ static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_Unr
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_IR_UnreachableBranches_Value_beq___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__12(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_IR_UnreachableBranches_findVarValue___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_containsCtor___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
@@ -263,6 +263,7 @@ static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_Unr
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_findAtSorted_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_resetNestedJPParams___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToString___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_interpExpr(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
@@ -297,6 +298,7 @@ lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_
 static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____closed__4;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____spec__4___closed__3;
+static lean_object* l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1;
 static lean_object* l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
@@ -320,7 +322,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches
 static lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___closed__2;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__19;
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_UnreachableBranches_inferStep___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_instBEqName;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_IR_elimDeadBranches___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -332,10 +333,10 @@ static lean_object* l_List_foldl___at_Lean_IR_UnreachableBranches_Value_merge___
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1138____spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__12___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_IR_LocalContext_addJP(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instBEqValue;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_sortEntries(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Name_instBEq;
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_addFunctionSummary___closed__1;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_40____closed__20;
@@ -347,12 +348,12 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_beq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_findAtSorted_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToFormat;
 static lean_object* l_Lean_IR_UnreachableBranches_Value_merge___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_UnreachableBranches_getFunctionSummary_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_UnreachableBranches_updateJPParamsAssignment___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1;
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_IR_elimDeadBranches___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_900_(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat___closed__11;
@@ -362,10 +363,9 @@ lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_IR_UnreachableBranches_updateVarAssignment___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_toFormat___closed__4;
 LEAN_EXPORT uint8_t l_Lean_IR_UnreachableBranches_Value_beq___lambda__2(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2;
+static lean_object* l_Lean_IR_UnreachableBranches_Value_instToString___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_UnreachableBranches_Value_truncate_go___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToFormatValue;
 LEAN_EXPORT uint8_t l_Lean_IR_UnreachableBranches_interpExpr___lambda__1(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_instHashableName;
@@ -1747,7 +1747,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1755,11 +1755,11 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_UnreachableBranches_Value_beq___boxed
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instBEqValue() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instBEq() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1;
+x_1 = l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1;
 return x_1;
 }
 }
@@ -2622,7 +2622,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2630,15 +2630,15 @@ x_1 = lean_alloc_closure((void*)(l_Lean_IR_UnreachableBranches_Value_format), 1,
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToFormat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1;
+x_1 = l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___lambda__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToString___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
@@ -2648,31 +2648,31 @@ x_4 = lean_format_pretty(x_1, x_2, x_3, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_IR_UnreachableBranches_Value_instToStringValue___lambda__1), 1, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_IR_UnreachableBranches_Value_instToString___lambda__1), 1, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToString___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1;
-x_2 = l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1;
+x_1 = l_Lean_IR_UnreachableBranches_Value_instToString___closed__1;
+x_2 = l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1;
 x_3 = lean_alloc_closure((void*)(l_Function_comp___rarg), 3, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue() {
+static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_instToString() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2;
+x_1 = l_Lean_IR_UnreachableBranches_Value_instToString___closed__2;
 return x_1;
 }
 }
@@ -4911,9 +4911,9 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_getFunctionSummary_x3f__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Name_instBEqName;
+x_1 = l_Lean_Name_instBEq;
 x_2 = l_Lean_instHashableName;
-x_3 = l_Lean_PersistentHashMap_instInhabitedPersistentHashMap___rarg(x_1, x_2);
+x_3 = l_Lean_PersistentHashMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -9189,10 +9189,10 @@ l_Lean_IR_UnreachableBranches_instToFormatValue___closed__1 = _init_l_Lean_IR_Un
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_instToFormatValue___closed__1);
 l_Lean_IR_UnreachableBranches_instToFormatValue = _init_l_Lean_IR_UnreachableBranches_instToFormatValue();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_instToFormatValue);
-l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instBEqValue___closed__1);
-l_Lean_IR_UnreachableBranches_Value_instBEqValue = _init_l_Lean_IR_UnreachableBranches_Value_instBEqValue();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instBEqValue);
+l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instBEq___closed__1);
+l_Lean_IR_UnreachableBranches_Value_instBEq = _init_l_Lean_IR_UnreachableBranches_Value_instBEq();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instBEq);
 l_Lean_IR_UnreachableBranches_Value_addChoice___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_addChoice___closed__1();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_addChoice___closed__1);
 l_Lean_IR_UnreachableBranches_Value_addChoice___closed__2 = _init_l_Lean_IR_UnreachableBranches_Value_addChoice___closed__2();
@@ -9221,16 +9221,16 @@ l_Lean_IR_UnreachableBranches_Value_format___closed__7 = _init_l_Lean_IR_Unreach
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_format___closed__7);
 l_Lean_IR_UnreachableBranches_Value_format___closed__8 = _init_l_Lean_IR_UnreachableBranches_Value_format___closed__8();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_format___closed__8);
-l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToFormatValue___closed__1);
-l_Lean_IR_UnreachableBranches_Value_instToFormatValue = _init_l_Lean_IR_UnreachableBranches_Value_instToFormatValue();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToFormatValue);
-l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__1);
-l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2 = _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2);
-l_Lean_IR_UnreachableBranches_Value_instToStringValue = _init_l_Lean_IR_UnreachableBranches_Value_instToStringValue();
-lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToStringValue);
+l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToFormat___closed__1);
+l_Lean_IR_UnreachableBranches_Value_instToFormat = _init_l_Lean_IR_UnreachableBranches_Value_instToFormat();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToFormat);
+l_Lean_IR_UnreachableBranches_Value_instToString___closed__1 = _init_l_Lean_IR_UnreachableBranches_Value_instToString___closed__1();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToString___closed__1);
+l_Lean_IR_UnreachableBranches_Value_instToString___closed__2 = _init_l_Lean_IR_UnreachableBranches_Value_instToString___closed__2();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToString___closed__2);
+l_Lean_IR_UnreachableBranches_Value_instToString = _init_l_Lean_IR_UnreachableBranches_Value_instToString();
+lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_instToString);
 l_Lean_IR_UnreachableBranches_Value_truncateMaxDepth = _init_l_Lean_IR_UnreachableBranches_Value_truncateMaxDepth();
 lean_mark_persistent(l_Lean_IR_UnreachableBranches_Value_truncateMaxDepth);
 l_Array_qsort_sort___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_sortEntries___spec__1___closed__1 = _init_l_Array_qsort_sort___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_sortEntries___spec__1___closed__1();

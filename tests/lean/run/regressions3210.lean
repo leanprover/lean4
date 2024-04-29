@@ -15,7 +15,7 @@ instance One.ofOfNat1 {α} [OfNat α (nat_lit 1)] : One α where
 
 example : Not
   (@Eq.{1} Nat
-    (@HMod.hMod.{0, 0, 0} Nat Nat Nat (@instHMod.{0} Nat Nat.instModNat)
+    (@HMod.hMod.{0, 0, 0} Nat Nat Nat (@instHMod.{0} Nat Nat.instMod)
       (@OfNat.ofNat.{0} Nat (nat_lit 1) (@One.toOfNat1.{0} Nat (@One.ofOfNat1.{0} Nat (instOfNatNat (nat_lit 1)))))
       (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
     (@OfNat.ofNat.{0} Nat (nat_lit 0) (instOfNatNat (nat_lit 0)))) := by
@@ -23,7 +23,7 @@ example : Not
 
 example : Not
   (@Eq.{1} Nat
-    (@HMod.hMod.{0, 0, 0} Nat Nat Nat (@instHMod.{0} Nat Nat.instModNat)
+    (@HMod.hMod.{0, 0, 0} Nat Nat Nat (@instHMod.{0} Nat Nat.instMod)
       (@OfNat.ofNat.{0} Nat 1 (@One.toOfNat1.{0} Nat (@One.ofOfNat1.{0} Nat (instOfNatNat 1))))
       (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2)))
     (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))) := by

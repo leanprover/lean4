@@ -9,4 +9,4 @@ false
 true
 true
 def instMMonad : Monad M :=
-ReaderT.instMonadReaderT
+ReaderT.instMonad

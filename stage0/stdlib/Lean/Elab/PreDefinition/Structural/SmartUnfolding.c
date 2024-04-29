@@ -68,7 +68,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 extern lean_object* l_Lean_instInhabitedExpr;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,7 +86,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartU
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__9___lambda__3___closed__6;
 lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__9___lambda__3___closed__1;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -112,6 +111,7 @@ lean_object* l_Array_ofSubarray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__9___lambda__1___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_instInhabitedOfMonad___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_addSmartUnfoldingDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_smartUnfoldingMatch_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,7 +142,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Meta_instMonadMetaM;
 x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
+x_3 = l_instInhabitedOfMonad___rarg(x_1, x_2);
 return x_3;
 }
 }
@@ -1881,7 +1881,7 @@ lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_addSmartUnfoldingDefAux_visit___spec__9___lambda__2___closed__1;
 lean_inc(x_13);
-x_16 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_15, x_13);
+x_16 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_15, x_13);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; uint8_t x_21; uint8_t x_22; lean_object* x_23; 

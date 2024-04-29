@@ -2022,17 +2022,46 @@ def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
 /-- Return `p ↔ q` -/
 def mkIff (p q : Expr) : Expr := mkApp2 (mkConst ``Iff) p q
 
+/-! Constants for Nat typeclasses. -/
+namespace Nat
+
+protected def mkType : Expr := mkConst ``Nat
+
+def mkInstAdd : Expr := mkConst ``instAddNat
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Nat.mkType mkInstAdd
+
+def mkInstSub : Expr := mkConst ``instSubNat
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Nat.mkType mkInstSub
+
+def mkInstMul : Expr := mkConst ``instMulNat
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Nat.mkType mkInstMul
+
+def mkInstDiv : Expr := mkConst ``Nat.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Nat.mkType mkInstDiv
+
+def mkInstMod : Expr := mkConst ``Nat.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Nat.mkType mkInstMod
+
+def mkInstNatPow : Expr := mkConst ``instNatPowNat
+def mkInstPow  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Nat.mkType mkInstNatPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Nat.mkType Nat.mkType mkInstPow
+
+def mkInstLT : Expr := mkConst ``instLTNat
+def mkInstLE : Expr := mkConst ``instLENat
+
+end Nat
+
 private def natAddFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHAdd [0]) nat (mkConst ``instAddNat))
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHSub [0]) nat (mkConst ``instSubNat))
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
 
 private def natMulFn : Expr :=
   let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat (mkApp2 (mkConst ``instHMul [0]) nat (mkConst ``instMulNat))
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2051,7 +2080,7 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) (mkConst ``instLENat)
+  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=

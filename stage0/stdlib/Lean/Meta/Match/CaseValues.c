@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_cas
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__1___closed__2;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_caseValues_loop___closed__9;
 static lean_object* l_Lean_Meta_caseValue___closed__6;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Meta_FVarSubst_get(lean_object*, lean_object*);
@@ -62,7 +63,6 @@ static lean_object* l_Lean_Meta_caseValues_loop___closed__1;
 static lean_object* l_Lean_Meta_CaseValuesSubgoal_newHs___default___closed__1;
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__1;
 static lean_object* l_Lean_Meta_caseValue___closed__1;
-lean_object* l_List_mapTR_loop___at_Lean_Meta_substCore___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_caseValues___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__4___closed__9;
@@ -105,6 +105,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedCaseValueSubgoal;
 lean_object* lean_nat_add(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseValue___closed__4;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_caseValues_loop___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -418,7 +419,7 @@ lean_inc(x_2);
 x_17 = l_Lean_Meta_FVarSubst_domain(x_2);
 lean_inc(x_4);
 x_18 = l_List_mapTR_loop___at___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___spec__1(x_17, x_4);
-x_19 = l_List_mapTR_loop___at_Lean_Meta_substCore___spec__6(x_18, x_4);
+x_19 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_18, x_4);
 x_20 = l_Lean_MessageData_ofList(x_19);
 lean_dec(x_19);
 x_21 = l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__2;
@@ -1688,22 +1689,32 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__6() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("case", 4);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_caseValues_loop___closed__5;
+x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__7() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("case", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__8() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_caseValues_loop___closed__6;
+x_2 = l_Lean_Meta_caseValues_loop___closed__7;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__8() {
+static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1724,7 +1735,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_14 = l_Lean_Meta_caseValues_loop___closed__2;
-x_15 = l_Lean_Meta_caseValues_loop___closed__5;
+x_15 = l_Lean_Meta_caseValues_loop___closed__6;
 x_16 = l_Lean_Meta_throwTacticEx___rarg(x_14, x_5, x_15, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_12);
 lean_dec(x_10);
@@ -1767,7 +1778,7 @@ x_27 = lean_ctor_get(x_23, 1);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_23, 2);
 lean_inc(x_28);
-x_29 = l_Lean_Meta_caseValues_loop___closed__7;
+x_29 = l_Lean_Meta_caseValues_loop___closed__8;
 lean_inc(x_4);
 x_30 = lean_name_append_index_after(x_29, x_4);
 lean_inc(x_26);
@@ -1867,7 +1878,7 @@ block_58:
 if (x_3 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
-x_38 = l_Lean_Meta_caseValues_loop___closed__8;
+x_38 = l_Lean_Meta_caseValues_loop___closed__9;
 x_39 = lean_array_push(x_38, x_27);
 x_40 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_40, 0, x_36);
@@ -2172,6 +2183,8 @@ l_Lean_Meta_caseValues_loop___closed__7 = _init_l_Lean_Meta_caseValues_loop___cl
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__7);
 l_Lean_Meta_caseValues_loop___closed__8 = _init_l_Lean_Meta_caseValues_loop___closed__8();
 lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__8);
+l_Lean_Meta_caseValues_loop___closed__9 = _init_l_Lean_Meta_caseValues_loop___closed__9();
+lean_mark_persistent(l_Lean_Meta_caseValues_loop___closed__9);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -5,15 +5,15 @@ open Lean Meta
 def ex1 (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   IO.println s!"{declName} : {← ppExpr info.type}"
-  if let some val := info.value? then 
+  if let some val := info.value? then
     IO.println s!"{declName} : {← ppExpr val}"
-    
+
 #eval ex1 ``Nat
 
 def ex2 (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   trace[Meta.debug] "{declName} : {info.type}"
-  if let some val := info.value? then 
+  if let some val := info.value? then
     trace[Meta.debug] "{declName} : {val}"
 
 #eval ex2 ``Add.add
@@ -30,9 +30,9 @@ def ex3 (declName : Name) : MetaM Unit := do
       trace[Meta.debug] "{x} : {← inferType x}"
 
 def myMin [LT α] [DecidableRel (α := α) (·<·)] (a b : α) : α :=
-  if a < b then 
+  if a < b then
     a
-  else 
+  else
     b
 
 set_option trace.Meta.debug true in
@@ -40,7 +40,7 @@ set_option trace.Meta.debug true in
 
 def ex4 : MetaM Unit := do
   let nat := mkConst ``Nat
-  withLocalDeclD `a nat fun a => 
+  withLocalDeclD `a nat fun a =>
   withLocalDeclD `b nat fun b => do
     let e ← mkAppM ``HAdd.hAdd #[a, b]
     trace[Meta.debug] "{e} : {← inferType e}"
@@ -66,15 +66,17 @@ open Elab Term
 
 def ex5 : TermElabM Unit := do
   let nat := Lean.mkConst ``Nat
-  withLocalDeclD `a nat fun a => do 
+  withLocalDeclD `a nat fun a => do
   withLocalDeclD `b nat fun b => do
     let ab ← mkAppM ``HAdd.hAdd #[a, b]
-    let stx ← `(fun x => if x < 10 then $(← exprToSyntax ab) + x else x + $(← exprToSyntax a))
+    let abStx ← exprToSyntax ab
+    let aStx ← exprToSyntax a
+    let stx ← `(fun x => if x < 10 then $abStx + x else x + $aStx)
     let e ← elabTerm stx none
     trace[Meta.debug] "{e} : {← inferType e}"
     let e := mkApp e (mkNatLit 5)
     let e ← whnf e
     trace[Meta.debug] "{e}"
-       
+
 set_option trace.Meta.debug true in
 #eval ex5

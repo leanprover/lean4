@@ -249,12 +249,14 @@ theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a
 theorem get?_append_right : ∀ {l₁ l₂ : List α} {n : Nat}, l₁.length ≤ n →
   (l₁ ++ l₂).get? n = l₂.get? (n - l₁.length)
 | [], _, n, _ => rfl
-| a :: l, _, n+1, h₁ => by rw [cons_append]; simp [get?_append_right (Nat.lt_succ.1 h₁)]
+| a :: l, _, n+1, h₁ => by
+  rw [cons_append]
+  simp [Nat.succ_sub_succ_eq_sub, get?_append_right (Nat.lt_succ.1 h₁)]
 
 theorem get?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     get? l.reverse i = get? l j
   | [], _, _, _ => rfl
-  | a::l, i, 0, h => by simp at h; simp [h, get?_append_right]
+  | a::l, i, 0, h => by simp [Nat.succ.injEq] at h; simp [h, get?_append_right, Nat.succ.injEq]
   | a::l, i, j+1, h => by
     have := Nat.succ.inj h; simp at this ⊢
     rw [get?_append, get?_reverse' _ j this]
@@ -271,6 +273,19 @@ theorem get?_reverse {l : List α} (i) (h : i < length l) :
 @[simp] theorem getD_cons_zero : getD (x :: xs) 0 d = x := rfl
 
 @[simp] theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := rfl
+
+theorem ext_get {l₁ l₂ : List α} (hl : length l₁ = length l₂)
+    (h : ∀ n h₁ h₂, get l₁ ⟨n, h₁⟩ = get l₂ ⟨n, h₂⟩) : l₁ = l₂ :=
+  ext fun n =>
+    if h₁ : n < length l₁ then by
+      rw [get?_eq_get, get?_eq_get, h n h₁ (by rwa [← hl])]
+    else by
+      have h₁ := Nat.le_of_not_lt h₁
+      rw [get?_len_le h₁, get?_len_le]; rwa [← hl]
+
+@[simp] theorem get_map (f : α → β) {l n} :
+    get (map f l) n = f (get l ⟨n, length_map l f ▸ n.2⟩) :=
+  Option.some.inj <| by rw [← get?_eq_get, get?_map, get?_eq_get]; rfl
 
 /-! ### take and drop -/
 
@@ -388,6 +403,14 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
   induction l <;> simp [*]
 
 theorem foldr_self (l : List α) : l.foldr cons [] = l := by simp
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β₁) (init : α) :
+    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
+  induction l generalizing init <;> simp [*]
+
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
+    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
+  induction l generalizing init <;> simp [*]
 
 /-! ### mapM -/
 

@@ -1308,13 +1308,18 @@ gen_injective_theorems% Fin
 gen_injective_theorems% Array
 gen_injective_theorems% Sum
 gen_injective_theorems% PSum
-gen_injective_theorems% Nat
 gen_injective_theorems% Option
 gen_injective_theorems% List
 gen_injective_theorems% Except
 gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+
+theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
+  fun x => Nat.noConfusion x id
+
+theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
+  Eq.propIntro Nat.succ.inj (congrArg Nat.succ)
 
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
@@ -2034,5 +2039,9 @@ identity should just add a `LawfulIdentity` constraint.
 class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
+
+instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
+instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
+instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
 
 end Std

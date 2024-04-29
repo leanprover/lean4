@@ -12,6 +12,15 @@ open Function
 @[simp] theorem monadLift_self [Monad m] (x : m α) : monadLift x = x :=
   rfl
 
+/--
+The `Functor` typeclass only contains the operations of a functor.
+`LawfulFunctor` further asserts that these operations satisfy the laws of a functor,
+including the preservation of the identity and composition laws:
+```
+id <$> x = x
+(h ∘ g) <$> x = h <$> g <$> x
+```
+-/
 class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
   map_const          : (Functor.mapConst : α → f β → f α) = Functor.map ∘ const β
   id_map   (x : f α) : id <$> x = x
@@ -24,6 +33,16 @@ attribute [simp] id_map
 @[simp] theorem id_map' [Functor m] [LawfulFunctor m] (x : m α) : (fun a => a) <$> x = x :=
   id_map x
 
+/--
+The `Applicative` typeclass only contains the operations of an applicative functor.
+`LawfulApplicative` further asserts that these operations satisfy the laws of an applicative functor:
+```
+pure id <*> v = v
+pure (·∘·) <*> u <*> v <*> w = u <*> (v <*> w)
+pure f <*> pure x = pure (f x)
+u <*> pure y = pure (· y) <*> u
+```
+-/
 class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFunctor f : Prop where
   seqLeft_eq  (x : f α) (y : f β)     : x <* y = const β <$> x <*> y
   seqRight_eq (x : f α) (y : f β)     : x *> y = const α id <$> x <*> y
@@ -42,6 +61,18 @@ attribute [simp] map_pure seq_pure
 @[simp] theorem pure_id_seq [Applicative f] [LawfulApplicative f] (x : f α) : pure id <*> x = x := by
   simp [pure_seq]
 
+/--
+The `Monad` typeclass only contains the operations of a monad.
+`LawfulMonad` further asserts that these operations satisfy the laws of a monad,
+including associativity and identity laws for `bind`:
+```
+pure x >>= f = f x
+x >>= pure = x
+x >>= f >>= g = x >>= (fun x => f x >>= g)
+```
+
+`LawfulMonad.mk'` is an alternative constructor containing useful defaults for many fields.
+-/
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
   bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x

@@ -261,6 +261,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
+  s.meta.restoreFull
+  set s.elab
+
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
@@ -354,8 +362,8 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
   /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
-  `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
+  `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
+  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
 
 def LVal.getRef : LVal → Syntax
   | .fieldIdx ref _    => ref
@@ -1379,7 +1387,8 @@ where
 private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone : Bool) (implicitLambda : Bool) : Syntax → TermElabM Expr
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
-    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}") do
+    withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
+      (tag := stx.getKind.toString) do
     checkSystem "elaborator"
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
@@ -1409,9 +1418,9 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     trace[Elab.step.result] result
     pure result
 
-/-- Store in the `InfoTree` that `e` is a "dot"-completion target. -/
-def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) (field? : Option Syntax := none) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (field? := field?) (expectedType? := expectedType?)
+/-- Store in the `InfoTree` that `e` is a "dot"-completion target. `stx` should cover the entire term. -/
+def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) : TermElabM Unit := do
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -1757,6 +1766,7 @@ builtin_initialize
   registerTraceClass `Elab.postpone
   registerTraceClass `Elab.coe
   registerTraceClass `Elab.debug
+  registerTraceClass `Elab.reuse
 
 export Term (TermElabM)
 

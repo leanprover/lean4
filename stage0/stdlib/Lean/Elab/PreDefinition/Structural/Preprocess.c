@@ -34,12 +34,12 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Structural_preprocess___spec__1(
 static lean_object* l_Lean_Elab_Structural_preprocess___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*, uint8_t);
+lean_object* l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_preprocess___lambda__3___closed__6;
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -81,7 +81,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_6 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lambda__1___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_2);
 x_7 = l_Lean_Expr_getAppFn(x_1);
-x_8 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_6, x_7);
+x_8 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; 

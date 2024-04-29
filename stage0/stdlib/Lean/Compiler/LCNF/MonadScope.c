@@ -17,26 +17,26 @@ lean_object* l_Lean_Compiler_LCNF_withFVar___rarg(lean_object*, lean_object*, le
 lean_object* l_Lean_Compiler_LCNF_withFVar___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_read___rarg(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_inScope___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withNewScope___rarg___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withParams___rarg___lambda__1___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1;
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withNewScope___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__2(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT(lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1;
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withFVar(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withNewScope(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withParams___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withNewScope___rarg___lambda__1___boxed(lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScope(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_inScope___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg(lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withFVar___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withParams___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_withParams(lean_object*, lean_object*);
@@ -52,7 +52,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_withP
 lean_object* l_Lean_Compiler_LCNF_withNewScope___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_inScope(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_withNewScope___rarg___closed__1;
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -61,36 +61,36 @@ x_6 = lean_apply_1(x_3, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1() {
+static lean_object* _init_l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___lambda__1), 4, 0);
+x_1 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___lambda__1), 4, 0);
 return x_1;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg(lean_object* x_1) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_alloc_closure((void*)(l_ReaderT_read___rarg), 2, 1);
 lean_closure_set(x_2, 0, x_1);
-x_3 = l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1;
+x_3 = l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1;
 x_4 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeT(lean_object* x_1) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg), 1, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg), 1, 0);
 return x_2;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -101,25 +101,25 @@ x_6 = lean_apply_3(x_5, lean_box(0), x_2, x_4);
 return x_6;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__1), 4, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__1), 4, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_4);
 x_7 = lean_apply_3(x_2, lean_box(0), x_6, x_5);
 return x_7;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScope___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_apply_2(x_1, lean_box(0), x_4);
-x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScope___rarg___lambda__2), 5, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg___lambda__2), 5, 2);
 lean_closure_set(x_6, 0, x_3);
 lean_closure_set(x_6, 1, x_2);
 x_7 = lean_alloc_ctor(0, 2, 0);
@@ -128,11 +128,11 @@ lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadScope(lean_object* x_1, lean_object* x_2) {
+lean_object* l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScope___rarg), 3, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadScopeOfMonadLiftOfMonadFunctor___rarg), 3, 0);
 return x_3;
 }
 }
@@ -413,8 +413,8 @@ _G_initialized = true;
 res = initialize_Lean_Compiler_LCNF_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1 = _init_l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1();
-lean_mark_persistent(l_Lean_Compiler_LCNF_instMonadScopeScopeT___rarg___closed__1);
+l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1 = _init_l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1();
+lean_mark_persistent(l_Lean_Compiler_LCNF_instMonadScopeScopeTOfMonad___rarg___closed__1);
 l_Lean_Compiler_LCNF_withNewScope___rarg___closed__1 = _init_l_Lean_Compiler_LCNF_withNewScope___rarg___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_withNewScope___rarg___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

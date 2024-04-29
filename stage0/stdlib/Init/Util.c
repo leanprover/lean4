@@ -63,7 +63,7 @@ LEAN_EXPORT lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqDecEq(lean_object*);
 LEAN_EXPORT lean_object* l_ptrEq___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_dbg_trace(lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_dbgTrace___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -167,11 +167,11 @@ x_5 = l___private_Init_Util_0__mkPanicMessage___closed__1;
 x_6 = lean_string_append(x_5, x_1);
 x_7 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_8 = lean_string_append(x_6, x_7);
-x_9 = l_Nat_repr(x_2);
+x_9 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
 x_10 = lean_string_append(x_8, x_9);
 lean_dec(x_9);
 x_11 = lean_string_append(x_10, x_7);
-x_12 = l_Nat_repr(x_3);
+x_12 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_13 = lean_string_append(x_11, x_12);
 lean_dec(x_12);
 x_14 = l___private_Init_Util_0__mkPanicMessage___closed__3;
@@ -236,11 +236,11 @@ x_9 = lean_string_append(x_7, x_8);
 x_10 = lean_string_append(x_9, x_1);
 x_11 = l___private_Init_Util_0__mkPanicMessage___closed__2;
 x_12 = lean_string_append(x_10, x_11);
-x_13 = l_Nat_repr(x_3);
+x_13 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
 x_14 = lean_string_append(x_12, x_13);
 lean_dec(x_13);
 x_15 = lean_string_append(x_14, x_11);
-x_16 = l_Nat_repr(x_4);
+x_16 = l___private_Init_Data_Repr_0__Nat_reprFast(x_4);
 x_17 = lean_string_append(x_15, x_16);
 lean_dec(x_16);
 x_18 = l___private_Init_Util_0__mkPanicMessage___closed__3;

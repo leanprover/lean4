@@ -255,6 +255,10 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
     (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
     (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
 
+/-- `#guard_msgs in cmd` itself runs linters in `cmd` (via `elabCommandTopLevel`), so do not run them again. -/
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
+    stack.any fun (stx, _) => stx.isOfKind ``Lean.guardMsgsCmd)
+
 /-- Get the current list of `IgnoreFunction`s. -/
 def getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction) := do
   return (unusedVariablesIgnoreFnsExt.getState (← getEnv)).2

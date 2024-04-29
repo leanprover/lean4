@@ -54,6 +54,10 @@ def foldRawNatLit (e : Expr) : SimpM Expr := do
 def isOfScientificLit (e : Expr) : Bool :=
   e.isAppOfArity ``OfScientific.ofScientific 5 && (e.getArg! 4).isRawNatLit && (e.getArg! 2).isRawNatLit
 
+/-- Return true if `e` is of the form `Char.ofNat n` where `n` is a kernel Nat literals. -/
+def isCharLit (e : Expr) : Bool :=
+  e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isRawNatLit
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -237,7 +241,17 @@ def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
     else
       return SimpLetCase.dep
 
-def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
+/--
+We use `withNewlemmas` whenever updating the local context.
+We use `withFreshCache` because the local context affects `simp` rewrites
+even when `contextual := false`.
+For example, the `discharger` may inspect the current local context. The default
+discharger does that when applying equational theorems, and the user may
+use `(discharger := assumption)` or `(discharger := omega)`.
+If the `wishFreshCache` introduces performance issues, we can design a better solution
+for the default discharger which is used most of the time.
+-/
+def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := withFreshCache do
   if (← getConfig).contextual then
     let mut s ← getSimpTheorems
     let mut updated := false
@@ -246,7 +260,7 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
         s ← s.addTheorem (.fvar x.fvarId!) x
         updated := true
     if updated then
-      withSimpTheorems s f
+      withTheReader Context (fun ctx => { ctx with simpTheorems := s }) f
     else
       f
   else
@@ -300,30 +314,27 @@ def simpArrow (e : Expr) : SimpM Result := do
   trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
   if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
     trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
-    withLocalDeclD e.bindingName! rp.expr fun h => do
-      let s ← getSimpTheorems
-      let s ← s.addTheorem (.fvar h.fvarId!) h
-      withSimpTheorems s do
-        let rq ← simp q
-        match rq.proof? with
-        | none    => mkImpCongr e rp rq
-        | some hq =>
-          let hq ← mkLambdaFVars #[h] hq
-          /-
-            We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
-            ```lean
-            @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
-            @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
-            ```
-            And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
-            terms are definitionally equal using `withReducible`.
-            TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
-            problem.
-            -/
-          if rq.expr.containsFVar h.fvarId! then
-            return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
-          else
-            return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
+    withLocalDeclD e.bindingName! rp.expr fun h => withNewLemmas #[h] do
+      let rq ← simp q
+      match rq.proof? with
+      | none    => mkImpCongr e rp rq
+      | some hq =>
+        let hq ← mkLambdaFVars #[h] hq
+        /-
+          We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
+          ```lean
+          @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
+          @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
+          ```
+          And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
+          terms are definitionally equal using `withReducible`.
+          TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
+          problem.
+          -/
+        if rq.expr.containsFVar h.fvarId! then
+          return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
+        else
+          return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
   else
     mkImpCongr e rp (← simp q)
 
@@ -385,7 +396,7 @@ def simpLet (e : Expr) : SimpM Result := do
     | SimpLetCase.dep => return { expr := (← dsimp e) }
     | SimpLetCase.nondep =>
       let rv ← simp v
-      withLocalDeclD n t fun x => do
+      withLocalDeclD n t fun x => withNewLemmas #[x] do
         let bx := b.instantiate1 x
         let rbx ← simp bx
         let hb? ← match rbx.proof? with
@@ -398,7 +409,7 @@ def simpLet (e : Expr) : SimpM Result := do
         | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
     | SimpLetCase.nondepDepVar =>
       let v' ← dsimp v
-      withLocalDeclD n t fun x => do
+      withLocalDeclD n t fun x => withNewLemmas #[x] do
         let bx := b.instantiate1 x
         let rbx ← simp bx
         let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
@@ -436,13 +447,18 @@ Auliliary `dsimproc` for not visiting `OfScientific.ofScientific` application su
 -/
 private def doNotVisitOfScientific : DSimproc := doNotVisit isOfScientificLit ``OfScientific.ofScientific
 
+/--
+Auliliary `dsimproc` for not visiting `Char` literal subterms.
+-/
+private def doNotVisitCharLit : DSimproc := doNotVisit isCharLit ``Char.ofNat
+
 @[export lean_dsimp]
 private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let cfg ← getConfig
   unless cfg.dsimp do
     return e
   let m ← getMethods
-  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific
+  let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
@@ -562,7 +578,7 @@ def congr (e : Expr) : SimpM Result := do
     congrDefault e
 
 def simpApp (e : Expr) : SimpM Result := do
-  if isOfNatNatLit e || isOfScientificLit e then
+  if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
   else

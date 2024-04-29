@@ -143,10 +143,12 @@ where
   | ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,       group d                  => Format.group <$> go nCtx ctx d
-  | ctx,       .trace cls header children collapsed => do
-    let header := (← go nCtx ctx header).nest 4
+  | ctx,       .trace data header children => do
+    let mut header := (← go nCtx ctx header).nest 4
+    if data.startTime != 0 then
+      header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←
-      if collapsed && !children.isEmpty then
+      if data.collapsed && !children.isEmpty then
         let children := children.map fun child =>
           MessageData.withNamingContext nCtx <|
             match ctx with
@@ -154,11 +156,11 @@ where
             | none     => child
         let blockSize := ctx.bind (infoview.maxTraceChildren.get? ·.opts)
           |>.getD infoview.maxTraceChildren.defValue
-        let children := chopUpChildren cls blockSize children.toSubarray
+        let children := chopUpChildren data.cls blockSize children.toSubarray
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
-    let e := .trace cls header collapsed nodes
+    let e := .trace data.cls header data.collapsed nodes
     return .tag (← pushEmbed e) ".\n"
 
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
@@ -167,7 +169,7 @@ where
     if children.size > blockSize + 1 then  -- + 1 to make idempotent
       let more := chopUpChildren cls blockSize children[blockSize:]
       children[:blockSize].toArray.push <|
-        .trace (collapsed := true) cls
+        .trace { collapsed := true, cls }
           f!"{children.size - blockSize} more entries..." more
     else children
 

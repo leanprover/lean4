@@ -44,6 +44,16 @@ def append : String → (@& String) → String
 def toList (s : String) : List Char :=
   s.data
 
+/-- Returns true if `p` is a valid UTF-8 position in the string `s`, meaning that `p ≤ s.endPos`
+and `p` lies on a UTF-8 character boundary. This has an O(1) implementation in the runtime. -/
+@[extern "lean_string_is_valid_pos"]
+def Pos.isValid (s : @&String) (p : @& Pos) : Bool :=
+  go s.data 0
+where
+  go : List Char → Pos → Bool
+  | [],    i => i = p
+  | c::cs, i => if i = p then true else go cs (i + c)
+
 def utf8GetAux : List Char → Pos → Pos → Char
   | [],    _, _ => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
@@ -245,12 +255,21 @@ termination_by s.endPos.1 - i.1
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
 
+/--
+Auxiliary for `splitOn`. Preconditions:
+* `sep` is not empty
+* `b <= i` are indexes into `s`
+* `j` is an index into `sep`, and not at the end
+
+It represents the state where we have currently parsed some split parts into `r` (in reverse order),
+`b` is the beginning of the string / the end of the previous match of `sep`, and the first `j` bytes
+of `sep` match the bytes `i-j .. i` of `s`.
+-/
 def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) : List String :=
-  if h : s.atEnd i then
+  if s.atEnd i then
     let r := (s.extract b i)::r
     r.reverse
   else
-    have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
     if s.get i == sep.get j then
       let i := s.next i
       let j := sep.next j
@@ -259,9 +278,42 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
       else
         splitOnAux s sep b i j r
     else
-      splitOnAux s sep b (s.next i) 0 r
-termination_by s.endPos.1 - i.1
+      splitOnAux s sep b (s.next (i - j)) 0 r
+termination_by (s.endPos.1 - (i - j).1, sep.endPos.1 - j.1)
+decreasing_by
+  all_goals simp_wf
+  focus
+    rename_i h _ _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (lt_next s _))
+  focus
+    rename_i i₀ j₀ _ eq h'
+    rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
+      show (_ + csize _) - (_ + csize _) = _
+      rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
+    right; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
+      (lt_next sep _)
+  focus
+    rename_i h _
+    left; exact Nat.sub_lt_sub_left
+      (Nat.lt_of_le_of_lt (Nat.sub_le ..) (Nat.gt_of_not_le (mt decide_eq_true h)))
+      (lt_next s _)
 
+/--
+Splits a string `s` on occurrences of the separator `sep`. When `sep` is empty, it returns `[s]`;
+when `sep` occurs in overlapping patterns, the first match is taken. There will always be exactly
+`n+1` elements in the returned list if there were `n` nonoverlapping matches of `sep` in the string.
+The default separator is `" "`. The separators are not included in the returned substrings.
+
+```
+"here is some text ".splitOn = ["here", "is", "some", "text", ""]
+"here is some text ".splitOn "some" = ["here is ", " text "]
+"here is some text ".splitOn "" = ["here is some text "]
+"ababacabac".splitOn "aba" = ["", "bac", "c"]
+```
+-/
 def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 

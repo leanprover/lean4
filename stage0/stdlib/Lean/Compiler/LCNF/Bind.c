@@ -24,9 +24,9 @@ lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go___lambda__1(lean_object*
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1___closed__5;
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_etaExpandCore___lambda__1___closed__2;
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1___closed__2;
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_etaExpandCore_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__2;
@@ -35,6 +35,7 @@ lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindReaderT___rarg___lambda__1(le
 lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_isEtaExpandCandidateCore___boxed(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkNewParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_etaExpandCore___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__1;
@@ -42,12 +43,12 @@ uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkNewParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_inferParamType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkCasesResultType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_findCore___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_etaExpandCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1___closed__4;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1___closed__1;
 lean_object* l_Lean_Compiler_LCNF_Code_bind___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,7 +84,6 @@ lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_LCNF_CompilerM_codeBind_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getArrowArity(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_CompilerM_codeBind_go___closed__4;
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindCompilerM;
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_etaExpandCore___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -1817,7 +1817,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadCodeBindReaderT__
 return x_3;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1828,19 +1828,19 @@ x_6 = lean_apply_2(x_1, x_2, x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27___rarg), 4, 0);
+x_5 = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld___rarg), 4, 0);
 return x_5;
 }
 }
-lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_Compiler_LCNF_instMonadCodeBindStateRefT_x27OfSTWorld(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }

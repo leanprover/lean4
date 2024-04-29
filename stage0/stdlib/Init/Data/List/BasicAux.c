@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.BasicAux
-// Imports: Init.Data.Nat.Linear
+// Imports: Init.Data.Nat.Linear Init.Ext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_List_head_x3f(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__44;
-LEAN_EXPORT lean_object* l_List_instAntisymmListLeInstLEList(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_head(lean_object*);
 LEAN_EXPORT lean_object* l_List_getLast(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__8;
@@ -84,10 +83,10 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__54;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rotateLeft___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instAntisymmListLeInstLEList___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_tacticSizeOf__list__dec___closed__4;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__42;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getD___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,6 +164,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__9;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__21;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__20;
+LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__39;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,13 +219,14 @@ return x_1;
 static lean_object* _init_l_List_get_x21___rarg___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_get_x21___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(18u);
-x_4 = l_List_get_x21___rarg___closed__3;
-x_5 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_3, x_4);
-return x_5;
+x_3 = lean_unsigned_to_nat(25u);
+x_4 = lean_unsigned_to_nat(18u);
+x_5 = l_List_get_x21___rarg___closed__3;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_List_get_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -399,7 +400,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_head_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(29u);
+x_3 = lean_unsigned_to_nat(62u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -572,7 +573,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_tail_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(44u);
+x_3 = lean_unsigned_to_nat(98u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -744,7 +745,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_List_get_x21___rarg___closed__1;
 x_2 = l_List_getLast_x21___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(61u);
+x_3 = lean_unsigned_to_nat(137u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_List_head_x21___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1917,7 +1918,7 @@ return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_instAntisymmListLeInstLEList(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -1925,11 +1926,11 @@ x_4 = lean_box(0);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_instAntisymmListLeInstLEList___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_instAntisymmLeOfNotLt___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_List_instAntisymmListLeInstLEList(x_1, x_2, x_3);
+x_4 = l_List_instAntisymmLeOfNotLt(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
@@ -2364,12 +2365,16 @@ return x_4;
 }
 }
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Ext(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_BasicAux(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Ext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_get_x21___rarg___closed__1 = _init_l_List_get_x21___rarg___closed__1();

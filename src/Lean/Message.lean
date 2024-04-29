@@ -23,7 +23,7 @@ def mkErrorStringWithPos (fileName : String) (pos : Position) (msg : String) (en
 
 inductive MessageSeverity where
   | information | warning | error
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, ToJson, FromJson
 
 structure MessageDataContext where
   env  : Environment
@@ -46,6 +46,18 @@ structure PPFormat where
   /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
   hasSyntheticSorry : MetavarContext → Bool := fun _ => false
 
+structure TraceData where
+  /-- Trace class, e.g. `Elab.step`. -/
+  cls       : Name
+  /-- Start time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  startTime : Float := 0
+  /-- Stop time in seconds; 0 if unknown to avoid `Option` allocation. -/
+  stopTime  : Float := startTime
+  /-- Whether trace node defaults to collapsed in the infoview. -/
+  collapsed : Bool := true
+  /-- Optional tag shown in `trace.profiler.output` output after the trace class name. -/
+  tag       : String := ""
+
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
   /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
@@ -65,21 +77,10 @@ inductive MessageData where
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | trace (cls : Name) (msg : MessageData) (children : Array MessageData) (collapsed : Bool)
+  | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
   deriving Inhabited
 
 namespace MessageData
-
-/-- Determines whether the message contains any content. -/
-def isEmpty : MessageData → Bool
-  | ofFormat f => f.isEmpty
-  | withContext _ m => m.isEmpty
-  | withNamingContext _ m => m.isEmpty
-  | nest _ m => m.isEmpty
-  | group m => m.isEmpty
-  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
-  | tagged _ m => m.isEmpty
-  | _ => false
 
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
@@ -90,7 +91,7 @@ partial def hasTag : MessageData → Bool
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
   | tagged n msg            => p n || hasTag msg
-  | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
+  | trace data msg msgs     => p data.cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
 /-- An empty message. -/
@@ -119,7 +120,13 @@ def ofExpr (e : Expr) : MessageData :=
     hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
   }
 
-def ofLevel (l : Level) : MessageData := ofFormat (format l)
+def ofLevel (l : Level) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppLevel ctx l
+      | none => return format l
+  }
+
 def ofName (n : Name) : MessageData := ofFormat (format n)
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
@@ -133,7 +140,7 @@ where
   | group msg               => visit mctx? msg
   | compose msg₁ msg₂       => visit mctx? msg₁ || visit mctx? msg₂
   | tagged _ msg            => visit mctx? msg
-  | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
+  | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
@@ -147,8 +154,11 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       trace cls header children _ => do
-    let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
+  | nCtx, ctx,       trace data header children => do
+    let mut msg := f!"[{data.cls}]"
+    if data.startTime != 0 then
+      msg := f!"{msg} [{data.stopTime - data.startTime}]"
+    msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::children.toList) "\n")
 
@@ -205,9 +215,15 @@ instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr�
 
 end MessageData
 
-/-- A `Message` is a richly formatted piece of information emitted by Lean.
-They are rendered by client editors in the infoview and in diagnostic windows. -/
-structure Message where
+/--
+A `BaseMessage` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows.
+There are two varieties in the Lean core:
+* `Message`: Uses structured, effectful `MessageData` for formatting content.
+* `SerialMessage`: Stores pure `String` data. Obtained by running the effectful
+`Message.serialize`.
+-/
+structure BaseMessage (α : Type u) where
   fileName      : String
   pos           : Position
   endPos        : Option Position := none
@@ -216,23 +232,52 @@ structure Message where
   severity      : MessageSeverity := MessageSeverity.error
   caption       : String          := ""
   /-- The content of the message. -/
-  data          : MessageData
-  deriving Inhabited
+  data          : α
+  deriving Inhabited, ToJson, FromJson
 
-namespace Message
+/-- A `Message` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows. -/
+abbrev Message := BaseMessage MessageData
 
-protected def toString (msg : Message) (includeEndPos := false) : IO String := do
-  let mut str ← msg.data.toString
+/-- A `SerialMessage` is a `Message` whose `MessageData` has been eagerly
+serialized and is thus appropriate for use in pure contexts where the effectful
+`MessageData.toString` cannot be used. -/
+abbrev SerialMessage := BaseMessage String
+
+namespace SerialMessage
+
+@[inline] def toMessage (msg : SerialMessage) : Message :=
+  {msg with data := msg.data}
+
+protected def toString (msg : SerialMessage) (includeEndPos := false) : String := Id.run do
+  let mut str := msg.data
   let endPos := if includeEndPos then msg.endPos else none
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str
   match msg.severity with
-  | MessageSeverity.information => pure ()
-  | MessageSeverity.warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
-  | MessageSeverity.error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
+  | .information => pure ()
+  | .warning     => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "warning: " ++ str
+  | .error       => str := mkErrorStringWithPos msg.fileName msg.pos (endPos := endPos) "error: " ++ str
   if str.isEmpty || str.back != '\n' then
     str := str ++ "\n"
   return str
+
+instance : ToString SerialMessage := ⟨SerialMessage.toString⟩
+
+end SerialMessage
+
+namespace Message
+
+@[inline] def serialize (msg : Message) : IO SerialMessage := do
+  return {msg with data := ← msg.data.toString}
+
+protected def toString (msg : Message) (includeEndPos := false) : IO String := do
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
+  return inline <| (← msg.serialize).toString includeEndPos
+
+protected def toJson (msg : Message) : IO Json := do
+  -- Remark: The inline here avoids a new message allocation when `msg` is shared
+  return inline <| toJson (← msg.serialize)
 
 end Message
 

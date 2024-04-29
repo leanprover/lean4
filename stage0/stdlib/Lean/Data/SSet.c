@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_SSet_size___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_List_toSSet___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_toList___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_fold___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,7 +43,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_toList___spec_
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__14(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___at_Lean_SSet_forM___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_empty___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__9___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__11___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_SSet_toList___spec__4(lean_object*, lean_object*, lean_object*);
@@ -73,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_S
 LEAN_EXPORT lean_object* l_List_toSSet(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_toList___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at_Lean_SSet_fold___spec__1(lean_object*);
-lean_object* l_Lean_SMap_instInhabitedSMap___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_forM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SMap_switch___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__5(lean_object*, lean_object*, lean_object*);
@@ -118,6 +115,7 @@ LEAN_EXPORT lean_object* l_Lean_SSet_forM___rarg___lambda__1(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_toList___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SSet_switch___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_fold___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SSet_toList___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_fold___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,10 +135,12 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_toList__
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_toList___spec__5___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_SMap_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_SSet_fold___spec__13___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_SSet_fold___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__9(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_fold___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___rarg(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_toList___spec__11(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_fold___spec__10(lean_object*, lean_object*, lean_object*);
@@ -150,8 +150,8 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SSet_toList___spec_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_toList___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_toList___spec__15___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_List_toSSet___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprSSet___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_instReprSSet___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_fold___spec__15___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -165,27 +165,27 @@ LEAN_EXPORT lean_object* l_instReprSSet___rarg(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_fold___spec__15(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_toList___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_SSet_toList___spec__15___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_SMap_instInhabitedSMap___rarg(x_1, x_2);
+x_3 = l_Lean_SMap_instInhabited___rarg(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_SSet_instInhabitedSSet___rarg___boxed), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_SSet_instInhabited___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_SSet_instInhabitedSSet___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_SSet_instInhabited___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_SSet_instInhabitedSSet___rarg(x_1, x_2);
+x_3 = l_Lean_SSet_instInhabited___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

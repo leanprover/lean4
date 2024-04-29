@@ -74,6 +74,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hy
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_261____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_has_macro_inline_attribute(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_261____closed__3;
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
@@ -101,7 +102,6 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_261____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_261____closed__9;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_setInlineAttribute___closed__1;
 lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -665,7 +665,7 @@ lean_closure_set(x_13, 1, x_1);
 x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 lean_dec(x_2);
-x_15 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_13, x_14);
+x_15 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_13, x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -704,7 +704,7 @@ lean_closure_set(x_24, 1, x_1);
 x_25 = lean_ctor_get(x_2, 1);
 lean_inc(x_25);
 lean_dec(x_2);
-x_26 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_24, x_25);
+x_26 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_24, x_25);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 

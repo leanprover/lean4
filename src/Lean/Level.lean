@@ -428,15 +428,18 @@ def Result.imax : Result → Result → Result
   | f, Result.imaxNode Fs => Result.imaxNode (f::Fs)
   | f₁, f₂                => Result.imaxNode [f₁, f₂]
 
-def toResult : Level → Result
+def toResult (l : Level) (mvars : Bool) : Result :=
+  match l with
   | zero       => Result.num 0
-  | succ l     => Result.succ (toResult l)
-  | max l₁ l₂  => Result.max (toResult l₁) (toResult l₂)
-  | imax l₁ l₂ => Result.imax (toResult l₁) (toResult l₂)
+  | succ l     => Result.succ (toResult l mvars)
+  | max l₁ l₂  => Result.max (toResult l₁ mvars) (toResult l₂ mvars)
+  | imax l₁ l₂ => Result.imax (toResult l₁ mvars) (toResult l₂ mvars)
   | param n    => Result.leaf n
   | mvar n     =>
-    let n := n.name.replacePrefix `_uniq (Name.mkSimple "?u");
-    Result.leaf n
+    if mvars then
+      Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?u")
+    else
+      Result.leaf `_
 
 private def parenIfFalse : Format → Bool → Format
   | f, true  => f
@@ -471,17 +474,17 @@ protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
 
 end PP
 
-protected def format (u : Level) : Format :=
-  (PP.toResult u).format true
+protected def format (u : Level) (mvars : Bool) : Format :=
+  (PP.toResult u mvars).format true
 
 instance : ToFormat Level where
-  format u := Level.format u
+  format u := Level.format u (mvars := true)
 
 instance : ToString Level where
-  toString u := Format.pretty (Level.format u)
+  toString u := Format.pretty (format u)
 
-protected def quote (u : Level) (prec : Nat := 0) : Syntax.Level :=
-  (PP.toResult u).quote prec
+protected def quote (u : Level) (prec : Nat := 0) (mvars : Bool := true) : Syntax.Level :=
+  (PP.toResult u (mvars := mvars)).quote prec
 
 instance : Quote Level `level where
   quote := Level.quote

@@ -192,7 +192,7 @@ def Workspace.updateAndMaterialize
           let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
             if dep.name = .mkSimple "std" then
-              logError s!"what was the 'std' package has been renamed to '{depPkg.name}'; \
+              logError s!"the 'std' package has been renamed to '{depPkg.name}'; \
                 users should switch packages depending on new versions of std/{depPkg.name} \
                 to 'require {depPkg.name}' instead of 'require std' and also update the \
                 GitHub URL accordingly"

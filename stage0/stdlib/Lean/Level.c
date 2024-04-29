@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux(lean_obj
 LEAN_EXPORT uint8_t lean_level_has_mvar(lean_object*);
 LEAN_EXPORT lean_object* lean_level_mk_succ(lean_object*);
 static lean_object* l_Lean_instForInLMVarIdMapProdLMVarId___closed__1;
+static lean_object* l_Lean_Level_PP_toResult___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Level_instantiateParams(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_mkLevelMaxCore(lean_object*, lean_object*, lean_object*);
@@ -97,6 +98,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_isExplicitSubsumed
 static lean_object* l___private_Lean_Level_0__Lean_reprLevelMVarId____x40_Lean_Level___hyg_535____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Level_isParam___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isSucc(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Level_substParams(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprData___closed__1;
@@ -150,7 +152,7 @@ LEAN_EXPORT lean_object* l_Lean_instReprData___lambda__1___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__2;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
-LEAN_EXPORT lean_object* l_Lean_Level_quote(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_quote(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_990____closed__2;
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
@@ -180,7 +182,7 @@ lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*)
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Level_ofNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instReprLevelMVarId;
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_990____closed__6;
@@ -269,20 +271,21 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedLMVarIdMap(lean_object*);
 static lean_object* l_Lean_Level_normalize___closed__2;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l_Lean_Level_isParam(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Level_quote___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_quote___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_skipExplicit___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RBMap_instForInProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLevelIMax(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_depth(lean_object*);
+static lean_object* l_Lean_Level_PP_toResult___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Level_occurs___boxed(lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l_Lean_Level_mkData___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_normalize___spec__2(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_dec(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Level_isIMax(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Level_format(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_format(lean_object*, uint8_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -317,6 +320,7 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_param___override(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint64_t lean_bool_to_uint64(uint8_t);
+static lean_object* l_Lean_Level_PP_toResult___closed__8;
 static lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_990____closed__19;
 static lean_object* l_Lean_Level_mkData___closed__3;
 static lean_object* l_Lean_Level_PP_Result_format___closed__3;
@@ -343,6 +347,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_data___override(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_990_(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Level_format___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_mvarId_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Level_instBEq;
 LEAN_EXPORT lean_object* l_Lean_simpLevelMax_x27(lean_object*, lean_object*, lean_object*);
@@ -4765,7 +4770,7 @@ static lean_object* _init_l_Lean_Level_PP_toResult___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_uniq", 5);
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -4782,91 +4787,139 @@ return x_3;
 static lean_object* _init_l_Lean_Level_PP_toResult___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("\?u", 2);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Level_PP_toResult___closed__3;
+x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Level_PP_toResult___closed__5() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("_uniq", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Level_PP_toResult___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Level_PP_toResult___closed__4;
+x_2 = l_Lean_Level_PP_toResult___closed__5;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult(lean_object* x_1) {
+static lean_object* _init_l_Lean_Level_PP_toResult___closed__7() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("\?u", 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Level_PP_toResult___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Level_PP_toResult___closed__7;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult(lean_object* x_1, uint8_t x_2) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Level_PP_toResult___closed__1;
-return x_2;
+lean_object* x_3; 
+x_3 = l_Lean_Level_PP_toResult___closed__1;
+return x_3;
 }
 case 1:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
 lean_dec(x_1);
-x_4 = l_Lean_Level_PP_toResult(x_3);
-x_5 = l_Lean_Level_PP_Result_succ(x_4);
-return x_5;
+x_5 = l_Lean_Level_PP_toResult(x_4, x_2);
+x_6 = l_Lean_Level_PP_Result_succ(x_5);
+return x_6;
 }
 case 2:
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
+x_8 = lean_ctor_get(x_1, 1);
+lean_inc(x_8);
 lean_dec(x_1);
-x_8 = l_Lean_Level_PP_toResult(x_6);
-x_9 = l_Lean_Level_PP_toResult(x_7);
-x_10 = l_Lean_Level_PP_Result_max(x_8, x_9);
-return x_10;
+x_9 = l_Lean_Level_PP_toResult(x_7, x_2);
+x_10 = l_Lean_Level_PP_toResult(x_8, x_2);
+x_11 = l_Lean_Level_PP_Result_max(x_9, x_10);
+return x_11;
 }
 case 3:
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_11 = lean_ctor_get(x_1, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_1, 1);
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_12 = lean_ctor_get(x_1, 0);
 lean_inc(x_12);
+x_13 = lean_ctor_get(x_1, 1);
+lean_inc(x_13);
 lean_dec(x_1);
-x_13 = l_Lean_Level_PP_toResult(x_11);
-x_14 = l_Lean_Level_PP_toResult(x_12);
-x_15 = l_Lean_Level_PP_Result_imax(x_13, x_14);
-return x_15;
+x_14 = l_Lean_Level_PP_toResult(x_12, x_2);
+x_15 = l_Lean_Level_PP_toResult(x_13, x_2);
+x_16 = l_Lean_Level_PP_Result_imax(x_14, x_15);
+return x_16;
 }
 case 4:
 {
-lean_object* x_16; lean_object* x_17; 
-x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
+lean_object* x_17; lean_object* x_18; 
+x_17 = lean_ctor_get(x_1, 0);
+lean_inc(x_17);
 lean_dec(x_1);
-x_17 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
-return x_17;
+x_18 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
 }
 default: 
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_18 = lean_ctor_get(x_1, 0);
-lean_inc(x_18);
+if (x_2 == 0)
+{
+lean_object* x_19; 
 lean_dec(x_1);
-x_19 = l_Lean_Level_PP_toResult___closed__3;
-x_20 = l_Lean_Level_PP_toResult___closed__5;
-x_21 = l_Lean_Name_replacePrefix(x_18, x_19, x_20);
-x_22 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
-return x_22;
+x_19 = l_Lean_Level_PP_toResult___closed__4;
+return x_19;
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_20 = lean_ctor_get(x_1, 0);
+lean_inc(x_20);
+lean_dec(x_1);
+x_21 = l_Lean_Level_PP_toResult___closed__6;
+x_22 = l_Lean_Level_PP_toResult___closed__8;
+x_23 = l_Lean_Name_replacePrefix(x_20, x_21, x_22);
+x_24 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_24, 0, x_23);
+return x_24;
 }
 }
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Level_PP_toResult___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = l_Lean_Level_PP_toResult(x_1, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__1() {
@@ -5539,60 +5592,75 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Level_format(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Level_format(lean_object* x_1, uint8_t x_2) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_2 = l_Lean_Level_PP_toResult(x_1);
-x_3 = 1;
-x_4 = l_Lean_Level_PP_Result_format(x_2, x_3);
+lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = l_Lean_Level_PP_toResult(x_1, x_2);
+x_4 = 1;
+x_5 = l_Lean_Level_PP_Result_format(x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Level_format___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = l_Lean_Level_format(x_1, x_3);
 return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Level_instToFormat(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Level_format(x_1);
-return x_2;
+uint8_t x_2; lean_object* x_3; 
+x_2 = 1;
+x_3 = l_Lean_Level_format(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Level_instToString(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Level_format(x_1);
-x_3 = l_Std_Format_defWidth;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_format_pretty(x_2, x_3, x_4, x_4);
+uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = 1;
+x_3 = l_Lean_Level_format(x_1, x_2);
+x_4 = l_Std_Format_defWidth;
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_format_pretty(x_3, x_4, x_5, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Level_quote(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Lean_Level_PP_toResult(x_1, x_3);
+x_5 = l_Lean_Level_PP_Result_quote(x_4, x_2);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Level_quote(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Level_quote___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Level_PP_toResult(x_1);
-x_4 = l_Lean_Level_PP_Result_quote(x_3, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Level_quote___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Level_quote(x_1, x_2);
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_Level_quote(x_1, x_2, x_4);
 lean_dec(x_2);
-return x_3;
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Level_instQuoteMkStr1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Level_quote(x_1, x_2);
-return x_3;
+x_3 = 1;
+x_4 = l_Lean_Level_quote(x_1, x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_mkLevelMaxCore(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -6629,7 +6697,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__1;
-x_3 = lean_unsigned_to_nat(539u);
+x_3 = lean_unsigned_to_nat(542u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l___private_Lean_Level_0__Lean_Level_updateSucc_x21Impl___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6700,7 +6768,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__1;
-x_3 = lean_unsigned_to_nat(550u);
+x_3 = lean_unsigned_to_nat(553u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l___private_Lean_Level_0__Lean_Level_updateMax_x21Impl___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6788,7 +6856,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl___closed__1;
-x_3 = lean_unsigned_to_nat(561u);
+x_3 = lean_unsigned_to_nat(564u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l___private_Lean_Level_0__Lean_Level_updateIMax_x21Impl___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10344,6 +10412,12 @@ l_Lean_Level_PP_toResult___closed__4 = _init_l_Lean_Level_PP_toResult___closed__
 lean_mark_persistent(l_Lean_Level_PP_toResult___closed__4);
 l_Lean_Level_PP_toResult___closed__5 = _init_l_Lean_Level_PP_toResult___closed__5();
 lean_mark_persistent(l_Lean_Level_PP_toResult___closed__5);
+l_Lean_Level_PP_toResult___closed__6 = _init_l_Lean_Level_PP_toResult___closed__6();
+lean_mark_persistent(l_Lean_Level_PP_toResult___closed__6);
+l_Lean_Level_PP_toResult___closed__7 = _init_l_Lean_Level_PP_toResult___closed__7();
+lean_mark_persistent(l_Lean_Level_PP_toResult___closed__7);
+l_Lean_Level_PP_toResult___closed__8 = _init_l_Lean_Level_PP_toResult___closed__8();
+lean_mark_persistent(l_Lean_Level_PP_toResult___closed__8);
 l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__1 = _init_l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__1();
 lean_mark_persistent(l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__1);
 l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__2 = _init_l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__2();

@@ -62,8 +62,23 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
       (instr, b) := b.split
       instr.setBody (S w c b)
 
+structure Context where
+  lctx      : LocalContext := {}
+  /--
+  Contains all variables in `cases` statements in the current path.
+  We use this information to prevent double-reset in code such as
+  ```
+  case x_i : obj of
+  Prod.mk →
+    case x_i : obj of
+    Prod.mk →
+    ...
+  ```
+  -/
+  casesVars : PHashSet VarId := {}
+
 /-- We use `Context` to track join points in scope. -/
-abbrev M := ReaderT LocalContext (StateT Index Id)
+abbrev M := ReaderT Context (StateT Index Id)
 
 private def mkFresh : M VarId := do
   let idx ← getModify fun n => n + 1
@@ -105,15 +120,14 @@ is expensive: `O(n^2)` where `n` is the size of the function body. -/
 private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody × Bool) := do
   match e with
   | .case tid y yType alts =>
-    let ctx ← read
-    if e.hasLiveVar ctx x then
+    if e.hasLiveVar (← read).lctx x then
       /- If `x` is live in `e`, we recursively process each branch. -/
       let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => Dmain x c b >>= Dfinalize x c
       return (.case tid y yType alts, true)
     else
       return (e, false)
   | .jdecl j ys v b =>
-    let (b, found) ← withReader (fun ctx => ctx.addJP j ys v) (Dmain x c b)
+    let (b, found) ← withReader (fun ctx => { ctx with lctx := ctx.lctx.addJP j ys v }) (Dmain x c b)
     let (v, _ /- found' -/) ← Dmain x c v
     /- If `found' == true`, then `Dmain b` must also have returned `(b, true)` since
        we assume the IR does not have dead join points. So, if `x` is live in `j` (i.e., `v`),
@@ -121,9 +135,8 @@ private partial def Dmain (x : VarId) (c : CtorInfo) (e : FnBody) : M (FnBody ×
        On the other hand, `x` may be live in `b` but dead in `j` (i.e., `v`). -/
     return (.jdecl j ys v b, found)
   | e =>
-    let ctx ← read
     if e.isTerminal then
-      return (e, e.hasLiveVar ctx x)
+      return (e, e.hasLiveVar (← read).lctx x)
     else do
       let (instr, b) := e.split
       if isCtorUsing instr x then
@@ -148,19 +161,23 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 partial def R (e : FnBody) : M FnBody := do
   match e with
   | .case tid x xType alts =>
-    let alts ← alts.mapM fun alt => do
-      let alt ← alt.mmodifyBody R
-      match alt with
-      | .ctor c b =>
-        if c.isScalar then
-          return alt
-        else
-          .ctor c <$> D x c b
-      | _ => return alt
-    return .case tid x xType alts
+    let alreadyFound := (← read).casesVars.contains x
+    withReader (fun ctx => { ctx with casesVars := ctx.casesVars.insert x }) do
+      let alts ← alts.mapM fun alt => do
+        let alt ← alt.mmodifyBody R
+        match alt with
+        | .ctor c b =>
+          if c.isScalar || alreadyFound then
+            -- If `alreadyFound`, then we don't try to reuse memory cell to avoid
+            -- double reset.
+            return alt
+          else
+            .ctor c <$> D x c b
+        | _ => return alt
+      return .case tid x xType alts
   | .jdecl j ys v b =>
     let v ← R v
-    let b ← withReader (fun ctx => ctx.addJP j ys v) (R b)
+    let b ← withReader (fun ctx => { ctx with lctx := ctx.lctx.addJP j ys v }) (R b)
     return .jdecl j ys v b
   | e =>
     if e.isTerminal then

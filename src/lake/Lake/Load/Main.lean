@@ -133,6 +133,21 @@ private def resolveDepsAcyclic
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
+def stdMismatchError (newName : String) (rev : String) :=
+s!"the 'std' package has been renamed to '{newName}' and moved to the
+'leanprover-community' organization; downstream packages which wish to
+update to the new std should replace
+
+  require std from
+    git \"https://github.com/leanprover/std4\"{rev}
+
+in their Lake configuration file with
+
+  require {newName} from
+    git \"https://github.com/leanprover-community/{newName}\"{rev}
+
+"
+
 /--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
 
@@ -192,10 +207,11 @@ def Workspace.updateAndMaterialize
           let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
             if dep.name = .mkSimple "std" then
-              logError s!"the 'std' package has been renamed to '{depPkg.name}'; \
-                users should switch packages depending on new versions of std/{depPkg.name} \
-                to 'require {depPkg.name}' instead of 'require std' and also update the \
-                GitHub URL accordingly"
+              let rev :=
+                match dep.manifestEntry with
+                | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
+                | _ => ""
+              logError (stdMismatchError depPkg.name.toString rev)
             try
               IO.FS.removeDirAll depPkg.dir -- cleanup
             catch e =>

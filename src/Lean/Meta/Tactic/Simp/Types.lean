@@ -98,11 +98,23 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 -- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
 abbrev UsedSimps := PHashMap Origin Nat
 
+structure Diagnostics where
+  /-- Number of times each simp theorem has been used/applied. -/
+  usedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each simp theorem has been tried. -/
+  triedThmCounter : PHashMap Origin Nat := {}
+  deriving Inhabited
+
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
+  diag         : Diagnostics := {}
+
+structure Stats where
+  usedTheorems : UsedSimps := {}
+  diag : Diagnostics := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
@@ -117,6 +129,10 @@ opaque simp (e : Expr) : SimpM Result
 
 @[extern "lean_dsimp"]
 opaque dsimp (e : Expr) : SimpM Expr
+
+@[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
+  if (← isDiagnosticsEnabled) then
+    modify fun { cache, congrCache, usedTheorems, numSteps, diag } => { cache, congrCache, usedTheorems, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
@@ -291,7 +307,15 @@ Save current cache, reset it, execute `x`, and then restore original cache.
 @[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
   withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
+def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter } =>
+    let cNew := if let some c := triedThmCounter.find? thmId then c + 1 else 1
+    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew }
+
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter } =>
+    let cNew := if let some c := usedThmCounter.find? thmId then c + 1 else 1
+    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter }
   /-
   If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.

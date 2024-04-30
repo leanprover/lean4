@@ -28,14 +28,21 @@ def mkSimpDiagSummary (counters : PHashMap Origin Nat) : MetaM DiagSummary := do
       data := data.push m!"{if data.isEmpty then "  " else "\n"}{key} ↦ {counter}"
     return { data, max := entries[0]!.2 }
 
-def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
+def reportDiag (diag : Simp.Diagnostics) (diagOrig : Meta.Diagnostics) : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let used ← mkSimpDiagSummary diag.usedThmCounter
     let tried ← mkSimpDiagSummary diag.triedThmCounter
-    unless used.isEmpty && tried.isEmpty do
+    let unfoldCounter := subCounters (← get).diag.unfoldCounter diagOrig.unfoldCounter
+    let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
+    let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
+    let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
+    unless used.isEmpty && tried.isEmpty && unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty do
       let m := MessageData.nil
       let m := appendSection m `simp "used theorems" used
       let m := appendSection m `simp "tried theorems" tried
+      let m := appendSection m `reduction "unfolded declarations" unfoldDefault
+      let m := appendSection m `reduction "unfolded instances" unfoldInstance
+      let m := appendSection m `reduction "unfolded reducible declarations" unfoldReducible
       let m := m ++ "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo m
 

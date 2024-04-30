@@ -18,6 +18,15 @@ def collectAboveThreshold [BEq α] [Hashable α] (counters : PHashMap α Nat) (t
       r := r.push (declName, counter)
   return r.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then lt d₁ d₂ else c₁ > c₂
 
+def subCounters [BEq α] [Hashable α] (newCounters oldCounters : PHashMap α Nat) : PHashMap α Nat := Id.run do
+  let mut result := {}
+  for (a, counterNew) in newCounters do
+    if let some counterOld := oldCounters.find? a then
+      result := result.insert a (counterNew - counterOld)
+    else
+      result := result.insert a counterNew
+  return result
+
 structure DiagSummary where
   data  : Array MessageData := #[]
   max   : Nat := 0
@@ -36,17 +45,17 @@ def mkDiagSummary (counters : PHashMap Name Nat) (threshold : Nat) (p : Name →
       data := data.push m!"{if data.isEmpty then "  " else "\n"}{MessageData.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}"
     return { data, max := entries[0]!.2 }
 
-def mkDiagSummaryForUnfolded (instances := false) : MetaM DiagSummary := do
+def mkDiagSummaryForUnfolded (counters : PHashMap Name Nat) (instances := false) : MetaM DiagSummary := do
   let threshold := diagnostics.threshold.get (← getOptions)
   let env ← getEnv
-  mkDiagSummary (← get).diag.unfoldCounter threshold fun declName =>
+  mkDiagSummary counters threshold fun declName =>
     getReducibilityStatusCore env declName matches .semireducible
     && isInstanceCore env declName == instances
 
-def mkDiagSummaryForUnfoldedReducible : MetaM DiagSummary := do
+def mkDiagSummaryForUnfoldedReducible (counters : PHashMap Name Nat) : MetaM DiagSummary := do
   let threshold := diagnostics.threshold.get (← getOptions)
   let env ← getEnv
-  mkDiagSummary (← get).diag.unfoldCounter threshold fun declName =>
+  mkDiagSummary counters threshold fun declName =>
     getReducibilityStatusCore env declName matches .reducible
 
 def mkDiagSummaryForUsedInstances : MetaM DiagSummary := do
@@ -63,9 +72,10 @@ def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSumm
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
     let threshold := diagnostics.threshold.get (← getOptions)
-    let unfoldDefault ← mkDiagSummaryForUnfolded
-    let unfoldInstance ← mkDiagSummaryForUnfolded (instances := true)
-    let unfoldReducible ← mkDiagSummaryForUnfoldedReducible
+    let unfoldCounter := (← get).diag.unfoldCounter
+    let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
+    let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
+    let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary (← get).diag.heuristicCounter threshold
     let inst ← mkDiagSummaryForUsedInstances
     unless unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty && heu.isEmpty && inst.isEmpty do

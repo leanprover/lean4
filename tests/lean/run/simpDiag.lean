@@ -35,7 +35,7 @@ def ack : Nat → Nat → Nat
 info: [simp] used theorems (max: 1201, num: 3):
     ack.eq_3 ↦ 1201
   ⏎
-  Nat.reduceAdd ↦ 771
+  Nat.reduceAdd (builtin simproc) ↦ 771
   ⏎
   ack.eq_1 ↦ 768[simp] tried theorems (max: 3262, num: 3):
     BitVec.of_length_zero ↦ 3262
@@ -57,7 +57,7 @@ example : ack 4 4 = x := by
 info: [simp] used theorems (max: 19, num: 5):
     ack.eq_3 ↦ 19
   ⏎
-  Nat.reduceAdd ↦ 9
+  Nat.reduceAdd (builtin simproc) ↦ 9
   ⏎
   ack.eq_1 ↦ 7
   ⏎
@@ -84,3 +84,30 @@ example : ack 4 4 = x := by
   set_option diagnostics true in
   set_option diagnostics.threshold 0 in
   simp [ack.eq_2, ack.eq_1, ack.eq_3]
+
+@[reducible] def h (x : Nat) :=
+  match x with
+  | 0 => 10
+  | x + 1 => h x
+
+opaque q1 : Nat → Nat → Prop
+@[simp] axiom q1_ax (x : Nat) : q1 x 10
+
+/--
+info: [simp] used theorems (max: 1, num: 1):
+    q1_ax ↦ 1[simp] tried theorems (max: 7, num: 2):
+    BitVec.of_length_zero ↦ 7
+  ⏎
+  q1_ax ↦ 1[reduction] unfolded declarations (max: 287, num: 2):
+    Nat.rec ↦ 287
+  ⏎
+  OfNat.ofNat ↦ 28[reduction] unfolded instances (max: 14, num: 1):
+    instOfNatNat ↦ 14[reduction] unfolded reducible declarations (max: 287, num: 2):
+    h ↦ 287
+   Nat.casesOn ↦ 287use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
+example : q1 x (h 40) := by
+  set_option diagnostics true in
+  set_option diagnostics.threshold 0 in
+  simp

@@ -664,10 +664,11 @@ def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := 
     return (r, { s with })
 where
   simpMain (e : Expr) : SimpM Result := withCatchingRuntimeEx do
+    let origDiag := (← getThe Meta.State).diag
     try
       withoutCatchingRuntimeEx <| simp e
     catch ex =>
-      reportDiag (← get).diag
+      reportDiag (← get).diag origDiag
       if ex.isRuntime then
         throwNestedTacticEx `simp ex
       else
@@ -679,10 +680,11 @@ def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Method
     pure (r, { s with })
 where
   dsimpMain (e : Expr) : SimpM Expr := withCatchingRuntimeEx do
+    let origDiag := (← getThe Meta.State).diag
     try
       withoutCatchingRuntimeEx <| dsimp e
     catch ex =>
-      reportDiag (← get).diag
+      reportDiag (← get).diag origDiag
       if ex.isRuntime then
         throwNestedTacticEx `simp ex
       else

@@ -414,9 +414,9 @@ where
     return stats
 
 def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
-  -- TODO: collect current unfolding diag info
+  let origDiag := (← getThe Meta.State).diag
   let stats ← x
-  Simp.reportDiag stats
+  Simp.reportDiag stats origDiag
   return ()
 
 /-

@@ -413,36 +413,10 @@ where
     | some (_, mvarId) => replaceMainGoal [mvarId]
     return stats
 
-def mkSimpDiagSummary (counters : PHashMap Origin Nat) : MetaM DiagSummary := do
-  let threshold := diagnostics.threshold.get (← getOptions)
-  let entries := collectAboveThreshold counters threshold (fun _ => true) (lt := (· < ·))
-  if entries.isEmpty then
-    return {}
-  else
-    let mut data := #[]
-    for (thmId, counter) in entries do
-      let key ← match thmId with
-        | .decl declName _ _ => pure m!"{MessageData.ofConst (← mkConstWithLevelParams declName)}"
-        | .fvar fvarId => pure m!"{mkFVar fvarId}"
-        | _ => pure thmId.key
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{key} ↦ {counter}"
-    return { data, max := entries[0]!.2 }
-
-def reportDiag (diag : Simp.Diagnostics) : TacticM Unit := do
-  if (← isDiagnosticsEnabled) then
-    let used ← mkSimpDiagSummary diag.usedThmCounter
-    let tried ← mkSimpDiagSummary diag.triedThmCounter
-    unless used.isEmpty && tried.isEmpty do
-      let m := MessageData.nil
-      let m := appendSection m `simp "used theorems" used
-      let m := appendSection m `simp "tried theorems" tried
-      let m := m ++ "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
-      logInfo m
-
 def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   -- TODO: collect current unfolding diag info
   let stats ← x
-  reportDiag stats
+  Simp.reportDiag stats
   return ()
 
 /-

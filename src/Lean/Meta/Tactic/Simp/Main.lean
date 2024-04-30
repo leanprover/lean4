@@ -8,6 +8,7 @@ import Lean.Meta.Transform
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.Simp.Diagnostics
 import Lean.Meta.Match.Value
 
 namespace Lean.Meta
@@ -657,23 +658,35 @@ where
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withSimpConfig ctx do withCatchingRuntimeEx do
+  withSimpConfig ctx do
+    let (r, s) ← simpMain e methods.toMethodsRef ctx |>.run { stats with }
+    trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+    return (r, { s with })
+where
+  simpMain (e : Expr) : SimpM Result := withCatchingRuntimeEx do
     try
-      withoutCatchingRuntimeEx do
-        let (r, s) ← simp e methods.toMethodsRef ctx |>.run { stats with }
-        trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-        return (r, { s with })
+      withoutCatchingRuntimeEx <| simp e
     catch ex =>
-      if ex.isRuntime then throwNestedTacticEx `simp ex else throw ex
+      reportDiag (← get).diag
+      if ex.isRuntime then
+        throwNestedTacticEx `simp ex
+      else
+        throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
-  withSimpConfig ctx do withCatchingRuntimeEx do
+  withSimpConfig ctx do
+    let (r, s) ← dsimpMain e methods.toMethodsRef ctx |>.run { stats with }
+    pure (r, { s with })
+where
+  dsimpMain (e : Expr) : SimpM Expr := withCatchingRuntimeEx do
     try
-      withoutCatchingRuntimeEx do
-        let (r, s) ← dsimp e methods.toMethodsRef ctx |>.run { stats with }
-        pure (r, { s with })
+      withoutCatchingRuntimeEx <| dsimp e
     catch ex =>
-      if ex.isRuntime then throwNestedTacticEx `dsimp ex else throw ex
+      reportDiag (← get).diag
+      if ex.isRuntime then
+        throwNestedTacticEx `simp ex
+      else
+        throw ex
 
 end Simp
 open Simp (SimprocsArray Stats)

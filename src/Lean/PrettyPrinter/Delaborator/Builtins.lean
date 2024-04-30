@@ -538,11 +538,15 @@ structure AppMatchState where
   rhss        : Array Term := #[]
   -- additional arguments applied to the result of the `match` expression
   moreArgs    : Array Term := #[]
+
 /--
-  Extract arguments of motive applications from the matcher type.
-  For the example below: `#[#[`([])], #[`(a::as)]]` -/
+Extracts arguments of motive applications from the matcher type.
+For the example below: `#[#[`([])], #[`(a::as)]]`
+-/
 private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Term)) :=
-  withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) do
+  withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) <|
+    -- Go to the position of the type of the match function
+    withNaryFn <| withTheReader SubExpr (fun ctx => { ctx with pos := ctx.pos.push SubExpr.Pos.typeCoord }) do
     let ty ← instantiateForall st.matcherTy st.params
     -- need to reduce `let`s that are lifted into the matcher type
     forallTelescopeReducing ty fun params _ => do
@@ -553,7 +557,8 @@ private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Te
         -- TODO: this is a hack; we are accessing the expression out-of-sync with the position
         -- Currently, we reset `optionsPerPos` at the beginning of `delabPatterns` to avoid
         -- incorrectly considering annotations.
-        withTheReader SubExpr ({ · with expr := ty }) $
+        -- TODO(kmill): now we are accessing the expression in-sync with the position. Evaluate the previous todo.
+        withTheReader SubExpr (fun ctx => { ctx with expr := ty, pos := ctx.pos.pushNthBindingDomain (1 + st.discrs.size + idx) }) <|
           usingNames st.varNames[idx]! do
             withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
 where

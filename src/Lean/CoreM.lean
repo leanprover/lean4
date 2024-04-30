@@ -236,7 +236,7 @@ protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m �
     throw <| Exception.error .missing "elaboration interrupted"
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let msg := s!"(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
+  let msg := s!"(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached\nuse 'set_option {optionName} <num>' to set the limit\nuse 'set_option {diagnostics.name} true' to get diagnostic information"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do

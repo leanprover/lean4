@@ -486,48 +486,6 @@ def recordInstance (declName : Name) : MetaM Unit := do
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
     { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
 
-def collectAboveThreshold (counters : PHashMap Name Nat) (threshold : Nat) : Array (Name × Nat) := Id.run do
-  let mut r := #[]
-  for (declName, counter) in counters do
-    if counter > threshold then
-      r := r.push (declName, counter)
-  return r.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then d₁.lt d₂ else c₁ > c₂
-
-def mkMessageBodyFor? (counters : PHashMap Name Nat) (threshold : Nat) : Option MessageData := Id.run do
-  let entries := collectAboveThreshold counters threshold
-  if entries.isEmpty then
-    return none
-  else
-    let mut m := MessageData.nil
-    for (declName, counter) in entries do
-      if m matches .nil then
-        m := m!"{declName} ↦ {counter}"
-      else
-        m := m ++ m!"\n{declName} ↦ {counter}"
-    return some m
-
-def appendOptMessageData (m : MessageData) (header : String) (m? : Option MessageData) : MessageData :=
-  if let some m' := m? then
-    if m matches .nil then
-      header ++ indentD m'
-    else
-      m ++ "\n" ++ header ++ indentD m'
-  else
-    m
-
-def reportDiag : MetaM Unit := do
-  if (← isDiagnosticsEnabled) then
-    let threshold := diagnostics.threshold.get (← getOptions)
-    let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshold
-    let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshold
-    let inst?   := mkMessageBodyFor? (← get).diag.instanceCounter threshold
-    if unfold?.isSome || heu?.isSome || inst?.isSome then
-      let m := appendOptMessageData MessageData.nil "unfolded declarations:" unfold?
-      let m := appendOptMessageData m "used instances:" inst?
-      let m := appendOptMessageData m "`isDefEq` heuristic:" heu?
-      let m := m ++ "\nuse `set_option diag.threshold <num>` to control threshold for reporting counters"
-      logInfo m
-
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
 

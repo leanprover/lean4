@@ -67,6 +67,9 @@ def lift {α : Type v} (t : m α) : EquipT ρ m α :=
 instance : MonadLift m (EquipT ρ m) where
   monadLift := EquipT.lift
 
+instance : MonadFunctor m (EquipT ρ m) where
+  monadMap f x := fun ctx => f (x ctx)
+
 @[inline] protected
 def failure [Alternative m] {α : Type v} : EquipT ρ m α :=
   fun _ => failure

@@ -43,6 +43,7 @@ OPTIONS:
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
+  --wfail               report a build failure if warnings are logged
 
 See `lake help <command>` for more information on a specific command."
 

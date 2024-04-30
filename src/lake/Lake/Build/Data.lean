@@ -83,10 +83,11 @@ abbrev BuildData : BuildKey → Type
 | .targetFacet _ _ f => TargetData f
 | .customTarget p t => CustomData (p, t)
 
+instance (priority := low) : FamilyDef BuildData k (BuildData k) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.targetFacet p t f) (TargetData f) := ⟨rfl⟩
-instance (priority := low)  : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/

@@ -14,7 +14,7 @@ Reducibility status for a definition.
 -/
 inductive ReducibilityStatus where
   | reducible | semireducible | irreducible
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq
 
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {

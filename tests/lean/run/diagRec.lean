@@ -9,12 +9,13 @@ info: 89
 ---
 info: unfolded declarations:
   Nat.rec ↦ 407
+  Or.rec ↦ 144
+  Acc.rec ↦ 108
+unfolded reducible declarations:
   Nat.casesOn ↦ 352
   Or.casesOn ↦ 144
-  Or.rec ↦ 144
   PProd.fst ↦ 126
-  Acc.rec ↦ 108
-use `set_option diag.threshold <num>` to control threshold for reporting counters
+use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics true in

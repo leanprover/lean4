@@ -10,13 +10,13 @@ import Lean.Meta.Instances
 
 namespace Lean.Meta
 
-private def collectAboveThreshold (counters : PHashMap Name Nat) (threshold : Nat) (p : Name → Bool) : Array (Name × Nat) := Id.run do
+def collectAboveThreshold [BEq α] [Hashable α] (counters : PHashMap α Nat) (threshold : Nat) (p : α → Bool) (lt : α → α → Bool) : Array (α × Nat) := Id.run do
   let mut r := #[]
   for (declName, counter) in counters do
     if counter > threshold then
     if p declName then
       r := r.push (declName, counter)
-  return r.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then d₁.lt d₂ else c₁ > c₂
+  return r.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then lt d₁ d₂ else c₁ > c₂
 
 structure DiagSummary where
   data  : Array MessageData := #[]
@@ -27,7 +27,7 @@ def DiagSummary.isEmpty (s : DiagSummary) : Bool :=
   s.data.isEmpty
 
 def mkDiagSummary (counters : PHashMap Name Nat) (threshold : Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
-  let entries := collectAboveThreshold counters threshold p
+  let entries := collectAboveThreshold counters threshold p Name.lt
   if entries.isEmpty then
     return {}
   else

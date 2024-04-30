@@ -51,7 +51,9 @@ where
     val.x
 
 /--
-error: (deterministic) timeout at 'whnf', maximum number of heartbeats (400) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (400) has been reached
+use `set_option maxHeartbeats <num>` to set the limit
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 set_option backward.isDefEq.lazyWhnfCore false in

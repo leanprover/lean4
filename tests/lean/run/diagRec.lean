@@ -7,15 +7,16 @@ termination_by n
 /--
 info: 89
 ---
-info: unfolded declarations:
-  Nat.rec ↦ 407
+info: [reduction] unfolded declarations (max: 407, num: 3):
+    Nat.rec ↦ 407
+  ⏎
   Or.rec ↦ 144
-  Acc.rec ↦ 108
-unfolded reducible declarations:
-  Nat.casesOn ↦ 352
+  ⏎
+  Acc.rec ↦ 108[reduction] unfolded reducible declarations (max: 352, num: 3):
+    Nat.casesOn ↦ 352
+  ⏎
   Or.casesOn ↦ 144
-  PProd.fst ↦ 126
-use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+   PProd.fst ↦ 126use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics true in

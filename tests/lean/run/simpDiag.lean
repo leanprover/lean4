@@ -11,11 +11,9 @@ axiom q_eq (x : Nat) : q x = x
 info: [simp] used theorems (max: 50, num: 2):
     f_eq ↦ 50
   ⏎
-  q_eq ↦ 50[simp] tried theorems (max: 261, num: 3):
-    BitVec.of_length_zero ↦ 261
-  ⏎
-  f_eq ↦ 101
-   q_eq ↦ 50use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  q_eq ↦ 50[simp] tried theorems (max: 101, num: 2):
+    f_eq ↦ 101, succeeded: 50
+   q_eq ↦ 50, succeeded: 50use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : f (x + 50) = f x := by
@@ -37,11 +35,10 @@ info: [simp] used theorems (max: 1201, num: 3):
   ⏎
   Nat.reduceAdd (builtin simproc) ↦ 771
   ⏎
-  ack.eq_1 ↦ 768[simp] tried theorems (max: 3262, num: 3):
-    BitVec.of_length_zero ↦ 3262
+  ack.eq_1 ↦ 768[simp] tried theorems (max: 1974, num: 2):
+    ack.eq_3 ↦ 1974, succeeded: 1201
   ⏎
-  ack.eq_3 ↦ 1973
-   ack.eq_1 ↦ 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
@@ -54,27 +51,27 @@ example : ack 4 4 = x := by
   simp [ack.eq_2, ack.eq_1, ack.eq_3]
 
 /--
-info: [simp] used theorems (max: 19, num: 5):
-    ack.eq_3 ↦ 19
+info: [simp] used theorems (max: 22, num: 5):
+    ack.eq_3 ↦ 22
   ⏎
-  Nat.reduceAdd (builtin simproc) ↦ 9
+  Nat.reduceAdd (builtin simproc) ↦ 14
   ⏎
-  ack.eq_1 ↦ 7
-  ⏎
-  ack.eq_2 ↦ 4
-  ⏎
-  Nat.zero_add ↦ 1[simp] tried theorems (max: 52, num: 5):
-    BitVec.of_length_zero ↦ 52
-  ⏎
-  ack.eq_3 ↦ 30
-  ⏎
-  ack.eq_1 ↦ 7
+  ack.eq_1 ↦ 11
   ⏎
   ack.eq_2 ↦ 4
-   Nat.zero_add ↦ 1use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  ⏎
+  Nat.zero_add ↦ 1[simp] tried theorems (max: 38, num: 4):
+    ack.eq_3 ↦ 38, succeeded: 22
+  ⏎
+  ack.eq_1 ↦ 11, succeeded: 11
+  ⏎
+  ack.eq_2 ↦ 4, succeeded: 4
+  ⏎
+  Nat.zero_add ↦ 1, succeeded: 1[reduction] unfolded reducible declarations (max: 7, num: 1):
+    outParam ↦ 7use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
-(deterministic) timeout at `simp`, maximum number of heartbeats (500) has been reached
+(deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached
 use `set_option maxHeartbeats <num>` to set the limit
 use `set_option diagnostics true` to get diagnostic information
 -/
@@ -95,16 +92,14 @@ opaque q1 : Nat → Nat → Prop
 
 /--
 info: [simp] used theorems (max: 1, num: 1):
-    q1_ax ↦ 1[simp] tried theorems (max: 7, num: 2):
-    BitVec.of_length_zero ↦ 7
+    q1_ax ↦ 1[simp] tried theorems (max: 1, num: 1):
+    q1_ax ↦ 1, succeeded: 1[reduction] unfolded declarations (max: 246, num: 2):
+    Nat.rec ↦ 246
   ⏎
-  q1_ax ↦ 1[reduction] unfolded declarations (max: 287, num: 2):
-    Nat.rec ↦ 287
-  ⏎
-  OfNat.ofNat ↦ 28[reduction] unfolded instances (max: 14, num: 1):
-    instOfNatNat ↦ 14[reduction] unfolded reducible declarations (max: 287, num: 2):
-    h ↦ 287
-   Nat.casesOn ↦ 287use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+  OfNat.ofNat ↦ 24[reduction] unfolded instances (max: 12, num: 1):
+    instOfNatNat ↦ 12[reduction] unfolded reducible declarations (max: 246, num: 2):
+    h ↦ 246
+   Nat.casesOn ↦ 246use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example : q1 x (h 40) := by

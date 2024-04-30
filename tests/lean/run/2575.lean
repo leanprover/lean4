@@ -4,9 +4,8 @@ structure AtLeastThirtySeven where
 
 theorem AtLeastThirtySeven.lt (x : AtLeastThirtySeven) : 36 < x.val := x.le
 
--- TODO: fix
 /--
-info: def AtLeastThirtySeven.le : ∀ (self : AtLeastThirtySeven), 37 ≤ self.val :=
+info: theorem AtLeastThirtySeven.le : ∀ (self : AtLeastThirtySeven), 37 ≤ self.val :=
 fun self => self.2
 -/
 #guard_msgs in

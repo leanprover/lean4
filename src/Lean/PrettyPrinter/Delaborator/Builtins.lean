@@ -551,43 +551,18 @@ structure AppMatchState where
   rhss        : Array Term := #[]
 
 /--
-Extracts arguments of motive applications from the matcher type.
-For the example below: `#[#[`([])], #[`(a::as)]]`
--/
-private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Term)) :=
-  withReader (fun ctx => { ctx with inPattern := true, subExpr := st.matcherTy }) do
-    -- Need to reduce since there can be `let`s that are lifted into the matcher type
-    forallTelescopeReducing (← getExpr) fun afterParams _ => do
-      -- Skip motive and discriminators
-      let alts := Array.ofSubarray afterParams[1 + st.discrs.size:]
-      -- Visit minor premises
-      alts.mapIdxM fun idx alt => do
-        let ty ← inferType alt
-        withTheReader SubExpr (fun ctx => { ctx with expr := ty, pos := ctx.pos.pushNthBindingDomain (1 + st.discrs.size + idx) }) <|
-          usingNames st.varNames[idx]! do
-            withAppFnArgs (pure #[]) (fun pats => do pure $ pats.push (← delab))
-where
-  usingNames {α} (varNames : Array Name) (x : DelabM α) : DelabM α :=
-    usingNamesAux 0 varNames x
-  usingNamesAux {α} (i : Nat) (varNames : Array Name) (x : DelabM α) : DelabM α :=
-    if i < varNames.size then
-      withBindingBody varNames[i]! <| usingNamesAux (i+1) varNames x
-    else
-      x
-
-/--
 Skips `numParams` binders, and execute `x varNames` where `varNames` contains the new binder names.
 The `hNames` array is used for the last params.
+Helper for `delabAppMatch`.
 -/
 private partial def skippingBinders {α} (numParams : Nat) (hNames : Array Name) (x : Array Name → DelabM α) : DelabM α := do
-  --IO.println s!"skippingBinders: {hNames}"
   loop 0 #[]
 where
   loop (i : Nat) (varNames : Array Name) : DelabM α := do
     let rec visitLambda : DelabM α := do
       let varName := (← getExpr).bindingName!.eraseMacroScopes
       if numParams - hNames.size ≤ i then
-        -- It is an "h name", so use the one we have already chosen.
+        -- It is an "h annotation", so use the one we have already chosen.
         let varName := hNames[i + hNames.size - numParams]!
         withBindingBody varName do
           loop (i + 1) (varNames.push varName)
@@ -604,7 +579,7 @@ where
       if e.isLambda then
         visitLambda
       else
-        -- eta expand `e`
+        -- Eta expand `e`
         let e ← forallTelescopeReducing (← inferType e) fun xs _ => do
           if xs.size == 1 && (← inferType xs[0]!).isConstOf ``Unit then
             -- `e` might be a thunk create by the dependent pattern matching compiler, and `xs[0]` may not even be a pattern variable.
@@ -679,8 +654,22 @@ partial def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption 
     if st.rhss.isEmpty then
       `(nomatch $(st.discrs),*)
     else
-      -- Third pass, delaborate patterns and assemble
-      let pats ← delabPatterns st
+      -- Third pass, delaborate patterns.
+      -- Extracts arguments of motive applications from the matcher type.
+      -- For the example in the docstring, yields `#[#[([])], #[(a::as)]]`.
+      let pats ← withReader (fun ctx => { ctx with inPattern := true, subExpr := st.matcherTy }) do
+        -- Need to reduce since there can be `let`s that are lifted into the matcher type
+        forallTelescopeReducing (← getExpr) fun afterParams _ => do
+          -- Skip motive and discriminators
+          let alts := Array.ofSubarray afterParams[1 + st.discrs.size:]
+          -- Visit minor premises
+          alts.mapIdxM fun idx alt => do
+            let altTy ← inferType alt
+            withTheReader SubExpr (fun ctx =>
+                { ctx with expr := altTy, pos := ctx.pos.pushNthBindingDomain (1 + st.discrs.size + idx) }) do
+              usingNames st.varNames[idx]! <|
+                withAppFnArgs (pure #[]) fun pats => return pats.push (← delab)
+      -- Finally, assemble
       let discrs ← (st.hNames?.zip st.discrs).mapM fun (hName?, discr) =>
         match hName? with
         | none => `(matchDiscr| $discr:term)
@@ -693,7 +682,7 @@ partial def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption 
       else
         `(match $[$discrs:matchDiscr],* with $[| $pats,* => $st.rhss]*)
 where
-  /-- For adding hNames to the local context to reserve their names. -/
+  /-- Adds hNames to the local context to reserve their names and runs `m` in that context. -/
   withDummyBinders {α : Type} (hNames? : Array (Option Name)) (body : Expr)
       (m : Array (Option Name) → DelabM α) (acc : Array (Option Name) := #[]) : DelabM α := do
     let i := acc.size
@@ -706,6 +695,12 @@ where
         withDummyBinders hNames? body m (acc.push none)
     else
       m acc
+
+  usingNames {α} (varNames : Array Name) (x : DelabM α) (i : Nat := 0) : DelabM α :=
+    if i < varNames.size then
+      withBindingBody varNames[i]! <| usingNames varNames x (i+1)
+    else
+      x
 
 /--
 Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.

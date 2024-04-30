@@ -65,10 +65,14 @@ theorem ite_some_none_eq_none [Decidable P] :
   split <;> simp_all
 
 -- This is not marked as `simp` as it is already handled by `dite_eq_right_iff`.
-theorem dite_some_none_eq_none {P : Prop} [Decidable P] {α : Type*} {x : P → α} :
+theorem dite_some_none_eq_none [Decidable P] {x : P → α} :
     (if h : P then some (x h) else none) = none ↔ ¬P := by
   simp only [dite_eq_right_iff]
+  rfl
 
-@[simp] theorem dite_some_none_eq_some {P : Prop} [Decidable P] {α : Type*} {x : P → α} {y : α} :
+@[simp] theorem dite_some_none_eq_some [Decidable P] {x : P → α} {y : α} :
     (if h : P then some (x h) else none) = some y ↔ ∃ h : P, x h = y := by
-  split <;> simp_all
+  by_cases h : P <;> simp only [h, dite_cond_eq_true, dite_cond_eq_false, Option.some.injEq,
+    false_iff, not_exists]
+  case pos => exact ⟨fun h_eq ↦ Exists.intro h h_eq, fun h_exists => h_exists.2⟩
+  case neg => exact fun h_false _ ↦ h_false

@@ -103,7 +103,13 @@ theorem eq_of_getMsb_eq {x y : BitVec w}
     have q := pred ⟨w - 1 - i, q_lt⟩
     simpa [q_lt, Nat.sub_sub_self, r] using q
 
-@[simp] theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
+-- This cannot be a `@[simp]` lemma, as it would be tried at every term.
+theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
+
+@[simp] theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+@[simp] theorem getLsb_zero_length (x : BitVec 0) : x.getLsb i = false := by simp [of_length_zero]
+@[simp] theorem getMsb_zero_length (x : BitVec 0) : x.getMsb i = false := by simp [of_length_zero]
+@[simp] theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
 
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -336,7 +342,7 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
 @[simp] theorem getMsb_zeroExtend_add {x : BitVec w} (h : k ≤ i) :
     (x.zeroExtend (w + k)).getMsb i = x.getMsb (i - k) := by
   by_cases h : w = 0
-  · subst h; simp
+  · subst h; simp [of_length_zero]
   simp only [getMsb, getLsb_zeroExtend]
   by_cases h₁ : i < w + k <;> by_cases h₂ : i - k < w <;> by_cases h₃ : w + k - 1 - i < w + k
     <;> simp [h₁, h₂, h₃]

@@ -324,6 +324,8 @@ jobs:
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
+          mkdir build
+          cd build
           ulimit -c unlimited # coredumps
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
@@ -350,9 +352,9 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B build ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          cmake --build build -j$NPROC
-          cmake --install build
+          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          make -j$NPROC
+          make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
       - name: List Install Tree
@@ -396,12 +398,12 @@ jobs:
       - name: Build Stage 2
         run: |
           ulimit -c unlimited # coredumps
-          cmake --build build -j$NPROC -t stage2
+          make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
           ulimit -c unlimited # coredumps
-          cmake --build build -j$NPROC -t stage3
+          make -C build -j$NPROC stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
@@ -414,7 +416,7 @@ jobs:
         run: |
           ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
-          cmake --build build -t update-stage0 && rm -rf ./stage* && cmake --build build -j$NPROC
+          make -C build update-stage0 && rm -rf ./stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s

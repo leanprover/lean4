@@ -517,7 +517,7 @@ def appendOptMessageData (m : MessageData) (header : String) (m? : Option Messag
 
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
-    let threshold := diag.threshold.get (← getOptions)
+    let threshold := diagnostics.threshold.get (← getOptions)
     let unfold? := mkMessageBodyFor? (← get).diag.unfoldCounter threshold
     let heu?    := mkMessageBodyFor? (← get).diag.heuristicCounter threshold
     let inst?   := mkMessageBodyFor? (← get).diag.instanceCounter threshold

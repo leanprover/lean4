@@ -13,13 +13,13 @@ import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 
 namespace Lean
-register_builtin_option diag : Bool := {
+register_builtin_option diagnostics : Bool := {
   defValue := false
   group    := "diagnostics"
   descr    := "collect diagnostic information"
 }
 
-register_builtin_option diag.threshold : Nat := {
+register_builtin_option diagnostics.threshold : Nat := {
   defValue := 20
   group    := "diagnostics"
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
@@ -223,7 +223,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default, diag := diag.get opts } { env := env }
+    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default, diag := diagnostics.get opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
@@ -390,7 +390,7 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
   compileDecl decl
 
 def getDiag (opts : Options) : Bool :=
-  diag.get opts
+  diagnostics.get opts
 
 /-- Return `true` if diagnostic information collection is enabled. -/
 def isDiagnosticsEnabled : CoreM Bool :=

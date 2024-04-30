@@ -63,3 +63,12 @@ theorem ite_some_none_eq_none [Decidable P] :
 @[simp] theorem ite_some_none_eq_some [Decidable P] :
     (if P then some x else none) = some y ↔ P ∧ x = y := by
   split <;> simp_all
+
+-- This is not marked as `simp` as it is already handled by `dite_eq_right_iff`.
+theorem dite_some_none_eq_none {P : Prop} [Decidable P] {α : Type*} {x : P → α} :
+    (if h : P then some (x h) else none) = none ↔ ¬P := by
+  simp only [dite_eq_right_iff]
+
+@[simp] theorem dite_some_none_eq_some {P : Prop} [Decidable P] {α : Type*} {x : P → α} {y : α} :
+    (if h : P then some (x h) else none) = some y ↔ ∃ h : P, x h = y := by
+  split <;> simp_all

@@ -17,6 +17,6 @@ info: unfolded declarations:
 use `set_option diag.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
-set_option diag true in
-set_option diag.threshold 100 in
+set_option diagnostics true in
+set_option diagnostics.threshold 100 in
 #reduce fib 10

@@ -4372,7 +4372,7 @@ def defaultMaxRecDepth := 512
 
 /-- The message to display on stack overflow. -/
 def maxRecDepthErrorMessage : String :=
-  "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
+  "maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information"
 
 namespace Syntax
 

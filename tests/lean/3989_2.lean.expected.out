@@ -1,0 +1,2 @@
+3989_2.lean:6:0: error: expected else-alternative for `match_expr`, i.e., `| _ => ...`
+Nat : Type

@@ -821,7 +821,9 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
   | .app f .. =>
-    match (← reduceProjOf? e structNames.contains) with
+    -- Recall that proposition fields are theorems. Thus, we must set transparency to .all
+    -- to ensure they are unfolded here
+    match (← withTransparency .all <| reduceProjOf? e structNames.contains) with
     | some r => reduce structNames r
     | none   =>
       let f := f.getAppFn

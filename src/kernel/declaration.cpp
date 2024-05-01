@@ -205,6 +205,10 @@ declaration mk_definition(environment const & env, name const & n, names const &
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
 }
 
+declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, lparams, type, val)));
+}
+
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v, is_unsafe, names(n))));
 }

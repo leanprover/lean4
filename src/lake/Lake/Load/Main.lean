@@ -133,6 +133,21 @@ private def resolveDepsAcyclic
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
+def stdMismatchError (newName : String) (rev : String) :=
+s!"the 'std' package has been renamed to '{newName}' and moved to the
+'leanprover-community' organization; downstream packages which wish to
+update to the new std should replace
+
+  require std from
+    git \"https://github.com/leanprover/std4\"{rev}
+
+in their Lake configuration file with
+
+  require {newName} from
+    git \"https://github.com/leanprover-community/{newName}\"{rev}
+
+"
+
 /--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
 
@@ -191,7 +206,19 @@ def Workspace.updateAndMaterialize
           -- Load the package
           let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
-            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+            if dep.name = .mkSimple "std" then
+              let rev :=
+                match dep.manifestEntry with
+                | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
+                | _ => ""
+              logError (stdMismatchError depPkg.name.toString rev)
+            try
+              IO.FS.removeDirAll depPkg.dir -- cleanup
+            catch e =>
+              -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
+              logError s!"'{dep.name}' was downloaded incorrectly; \
+                you will need to manually delete '{depPkg.dir}': {e}"
+            error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
           | .ok manifest =>

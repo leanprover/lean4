@@ -86,7 +86,8 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
             throw exception(sstream() << "generating projection '" << proj_name << "', '"
                             << n << "' does not have sufficient data");
         expr result_type   = consume_type_annotations(binding_domain(cnstr_type));
-        if (is_predicate && !type_checker(new_env, lctx).is_prop(result_type)) {
+        bool is_prop       = type_checker(new_env, lctx).is_prop(result_type);
+        if (is_predicate && !is_prop) {
             throw exception(sstream() << "failed to generate projection '" << proj_name << "' for '" << n << "', "
                             << "type is an inductive predicate, but field is not a proposition");
         }
@@ -97,13 +98,27 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         proj_type      = infer_implicit_params(proj_type, nparams, implicit_infer_kind::RelaxedImplicit);
         expr proj_val  = mk_proj(n, i, c);
         proj_val = lctx.mk_lambda(proj_args, proj_val);
-        declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
+        declaration new_d;
+        // TODO: replace `if (false) {` with `if (is_prop) {`.
+        // Mathlib is crashing when prop fields are theorems.
+        // The crash is in the ir_interpreter. Kyle suspects this is an use-after-free bug in the interpreter.
+        if (false) { // if (is_prop) {
+            bool unsafe = use_unsafe(env, proj_type) || use_unsafe(env, proj_val);
+            if (unsafe) {
+                // theorems cannot be unsafe
+                new_d = mk_opaque(proj_name, lvl_params, proj_type, proj_val, unsafe);
+            } else {
+                new_d = mk_theorem(proj_name, lvl_params, proj_type, proj_val);
+            }
+        } else {
+            new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
                                                            reducibility_hints::mk_abbreviation());
+        }
         new_env = new_env.add(new_d);
-        if (!inst_implicit)
+        if (!inst_implicit && !is_prop)
             new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
         new_env = save_projection_info(new_env, proj_name, cnstr_info.get_name(), nparams, i, inst_implicit);
-        expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
+        expr proj    = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
         cnstr_type   = instantiate(binding_body(cnstr_type), proj);
         i++;
     }

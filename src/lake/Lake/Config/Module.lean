@@ -80,6 +80,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] def logFile (self : Module) : FilePath :=
+  self.leanLibPath "log.json"
+
 @[inline] def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
 

@@ -409,6 +409,8 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
          let h ← elabTerm hStx none
          let hType ← inferType h
          let hTypeAbst ← kabstract hType lhs
+         unless hTypeAbst.hasLooseBVars do
+           throwError "invalid `▸` notation, the equality{indentExpr heq}\nhas type {indentExpr heqType}\nbut its left hand side is not mentioned in the type{indentExpr hType}"
          let motive ← mkMotive lhs hTypeAbst
          unless (← isTypeCorrect motive) do
            throwError "invalid `▸` notation, failed to compute motive for the substitution"

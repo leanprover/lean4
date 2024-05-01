@@ -85,6 +85,8 @@ v4.8.0 (development in progress)
   [#3798](https://github.com/leanprover/lean4/pull/3798) and
   [#3978](https://github.com/leanprover/lean4/pull/3978).
 
+* Hovers for terms in `match` expressions in the Infoview now reliably show the correct term.
+
 * Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
   for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
   Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`

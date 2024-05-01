@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/option_declarations.h"
 #include "kernel/environment.h"
 #include "kernel/local_ctx.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 
 namespace lean {
 static name_set *            g_trace_classes = nullptr;

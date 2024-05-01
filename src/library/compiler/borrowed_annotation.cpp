@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 #include "library/annotation.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"

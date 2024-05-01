@@ -267,7 +267,7 @@ extern_lib «target-name» (pkg : NPackage _package.name) :=
   -- a build function that produces its static library
 ```
 
-The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `IndexBuildM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
+The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `FetchM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
 
 ### Custom Targets
 
@@ -280,7 +280,7 @@ target «target-name» (pkg : NPackage _package.name) : α :=
   -- a build function that produces a `BuildJob α`
 ```
 
-The `pkg` parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
+The `pkg` parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
 
 ## Defining New Facets
 
@@ -299,7 +299,7 @@ library_facet «facet-name» (lib : LeanLib) : α :=
   -- a build function that produces a `BuildJob α`
 ```
 
-In all of these, the object parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`.
+In all of these, the object parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`.
 
 ## Adding Dependencies
 

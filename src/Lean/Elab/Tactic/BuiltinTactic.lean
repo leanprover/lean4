@@ -163,7 +163,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
 
 @[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
   let options ← Elab.elabSetOption stx[1] stx[3]
-  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
+  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options, diag := getDiag options }) do
     evalTactic stx[5]
 
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do

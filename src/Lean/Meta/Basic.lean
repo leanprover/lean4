@@ -266,6 +266,15 @@ structure PostponedEntry where
   ctx? : Option DefEqContext
   deriving Inhabited
 
+structure Diagnostics where
+  /-- Number of times each declaration has been unfolded -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
+  heuristicCounter : PHashMap Name Nat := {}
+  /-- Number of times a TC instance is used. -/
+  instanceCounter : PHashMap Name Nat := {}
+  deriving Inhabited
+
 /--
   `MetaM` monad state.
 -/
@@ -276,6 +285,7 @@ structure State where
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
+  diag             : Diagnostics := {}
   deriving Inhabited
 
 /--
@@ -313,6 +323,12 @@ structure Context where
   progress processing universe constraints.
   -/
   univApprox        : Bool := false
+  /--
+  `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
+   resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
+   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+  -/
+  inTypeClassResolution : Bool := false
 
 /--
 The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
@@ -434,7 +450,7 @@ section Methods
 variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
-  modify fun { mctx, cache, zetaDeltaFVarIds, postponed } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed }
+  modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
@@ -447,6 +463,28 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
+
+@[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache, zetaDeltaFVarIds, postponed, diag := f diag }
+
+/-- If diagnostics are enabled, record that `declName` has been unfolded. -/
+def recordUnfold (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter }
+
+/-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
+def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter }
+
+/-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
+def recordInstance (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

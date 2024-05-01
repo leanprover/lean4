@@ -110,7 +110,7 @@ jobs:
               },*/
               {
                 "name": "macOS",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "shell": "bash -euxo pipefail {0}",
@@ -121,7 +121,7 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "cross": true,
@@ -277,18 +277,18 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest' && !matrix.cmultilib
+        if: runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
           # `:p` means prefix with appropriate msystem prefix
           pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
-        if: matrix.os == 'windows-2022'
+        if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
           brew install ccache tree zstd coreutils gmp
-        if: matrix.os == 'macos-latest'
+        if: runner.os == 'macOS'
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:
@@ -312,13 +312,13 @@ jobs:
         run: |
           # open nix-shell once for initial setup
           true
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
       - name: Set up core dumps
         run: |
           mkdir -p $PWD/coredumps
           # store in current directory, for easy uploading together with binary
           echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
       - name: Build
         run: |
           mkdir build
@@ -423,7 +423,7 @@ jobs:
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
+        if: ${{ failure() && runner.os == 'Linux' }}
         run: |
           for c in coredumps/*; do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
@@ -433,7 +433,7 @@ jobs:
       # shared libs
       #- name: Upload coredumps
       #  uses: actions/upload-artifact@v3
-      #  if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
+      #  if: ${{ failure() && runner.os == 'Linux' }}
       #  with:
       #    name: coredumps-${{ matrix.name }}
       #    path: |

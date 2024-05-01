@@ -27,6 +27,7 @@ def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × 
       let as := as.swap! i hi
       (i, as)
     termination_by hi - j
+    decreasing_by all_goals simp_wf; decreasing_trivial_pre_omega
   loop as lo lo
 
 @[inline] partial def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=

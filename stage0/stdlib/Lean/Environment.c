@@ -239,7 +239,6 @@ LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtensionDescr_toArrayFn___de
 LEAN_EXPORT lean_object* l_Lean_registerEnvExtension(lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_mkEmptyEnvironment___spec__1___boxed(lean_object*);
-uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_236____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_mkMapDeclarationExtension___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Environment___hyg_2509____closed__16;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___lambda__1___closed__3;
@@ -342,6 +341,7 @@ static lean_object* l_Lean_Environment_displayStats___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedEnvExtensionInterface___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_importModules___lambda__2(lean_object*, lean_object*, uint32_t, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_SMap_contains___at_Lean_NameSSet_contains___spec__1(lean_object*, lean_object*);
+uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_343____spec__1(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSSet_instInhabited;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___closed__4;
@@ -355,6 +355,7 @@ LEAN_EXPORT lean_object* l___auto____x40_Lean_Environment___hyg_2912_;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_mkExtNameMap___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_list_to_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_MapDeclarationExtension_find_x3f___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_6417____closed__1;
 LEAN_EXPORT lean_object* l_Lean_withImportModules___rarg(lean_object*, lean_object*, uint32_t, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
@@ -478,7 +479,6 @@ LEAN_EXPORT lean_object* lean_environment_add(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Environment_getModuleIdx_x3f___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkModuleData___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
-lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Environment_displayStats___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_hasUnsafe___lambda__1___boxed(lean_object*, lean_object*);
@@ -11565,7 +11565,7 @@ else
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_15 = lean_ctor_get(x_5, 1);
 x_16 = lean_ctor_get(x_7, 1);
-x_17 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_236____spec__1(x_15, x_16);
+x_17 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_343____spec__1(x_15, x_16);
 if (x_17 == 0)
 {
 uint8_t x_18; 
@@ -11577,7 +11577,7 @@ else
 lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 x_19 = lean_ctor_get(x_3, 2);
 x_20 = lean_ctor_get(x_4, 2);
-x_21 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_236____spec__1(x_19, x_20);
+x_21 = l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40_Lean_Declaration___hyg_343____spec__1(x_19, x_20);
 return x_21;
 }
 }
@@ -15843,7 +15843,7 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Environment_hasUnsafe___lambda__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_1);
-x_4 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_3, x_2);
+x_4 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 

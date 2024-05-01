@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_definitionsMatching___rarg(lea
 lean_object* l_List_join___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Server_References_empty___spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_Server_combineIdents_useConstRepresentatives___spec__14___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Position_0__Lean_fromJsonPosition____x40_Lean_Data_Position___hyg_279____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Server_ModuleRefs_addRef___spec__5(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_RefInfo_empty;
@@ -352,7 +353,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_allRefs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_combineIdents_useConstRepresentatives___spec__3___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_toLspRefInfo___spec__6___closed__2;
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_439____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_References_updateWorkerRefs___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_definitionOf_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Server_References_addIlean___spec__3(lean_object*, lean_object*);
@@ -3601,7 +3601,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean____x40_Lean_Server_References___hyg_1316____closed__1;
-x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_439____spec__1(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Position_0__Lean_fromJsonPosition____x40_Lean_Data_Position___hyg_279____spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

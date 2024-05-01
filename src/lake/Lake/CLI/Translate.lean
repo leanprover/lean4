@@ -28,7 +28,7 @@ def Package.mkConfigString (pkg : Package) (lang : ConfigLang) : LogIO String :=
   | .lean => do
     let env ← importModulesUsingCache #[`Lake] {} 1024
     let pp := ppModule <| descopeTSyntax <| pkg.mkLeanConfig
-    match (← pp.toIO {fileName := "", fileMap := default, diag := false} {env} |>.toBaseIO) with
+    match (← pp.toIO {fileName := "", fileMap := default} {env} |>.toBaseIO) with
     | .ok (fmt, _) => pure <| (toString fmt).trim ++ "\n"
     | .error ex =>
       error s!"(internal) failed to pretty print Lean configuration: {ex.toString}"

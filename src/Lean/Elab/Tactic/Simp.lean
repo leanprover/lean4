@@ -414,10 +414,8 @@ where
     return stats
 
 def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
-  let origDiag := (← getThe Meta.State).diag
   let stats ← x
-  Simp.reportDiag stats origDiag
-  return ()
+  Simp.reportDiag stats
 
 /-
   "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?

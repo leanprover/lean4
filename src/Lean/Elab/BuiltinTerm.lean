@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Diagnostics
 import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.Eval
@@ -313,8 +314,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
   let options ← Elab.elabSetOption stx[1] stx[3]
-  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options, diag := getDiag options }) do
-    elabTerm stx[5] expectedType?
+  withOptions (fun _ => options) do
+    try
+      elabTerm stx[5] expectedType?
+    finally
+      if stx[1].getId == `diagnostics then
+        reportDiag
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with

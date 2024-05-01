@@ -156,7 +156,7 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
 @[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
-    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default, diag := false } { env := env }
+    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
     return some arity
   catch
    | IO.Error.userError _   => return none

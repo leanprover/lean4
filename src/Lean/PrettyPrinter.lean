@@ -51,9 +51,9 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO {
-    options := opts, fileName := "<PrettyPrinter>", fileMap := default, diag := getDiag opts
-  } { env := env }
+  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
+    { fileName := "<PrettyPrinter>", fileMap := default }
+    { env := env }
 
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 

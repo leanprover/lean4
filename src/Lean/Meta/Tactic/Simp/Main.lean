@@ -244,28 +244,26 @@ def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
 
 /--
 We use `withNewlemmas` whenever updating the local context.
-We use `withFreshCache` because the local context affects `simp` rewrites
-even when `contextual := false`.
-For example, the `discharger` may inspect the current local context. The default
-discharger does that when applying equational theorems, and the user may
-use `(discharger := assumption)` or `(discharger := omega)`.
-If the `wishFreshCache` introduces performance issues, we can design a better solution
-for the default discharger which is used most of the time.
 -/
-def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := withFreshCache do
+def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
   if (← getConfig).contextual then
-    let mut s ← getSimpTheorems
-    let mut updated := false
-    for x in xs do
-      if (← isProof x) then
-        s ← s.addTheorem (.fvar x.fvarId!) x
-        updated := true
-    if updated then
-      withTheReader Context (fun ctx => { ctx with simpTheorems := s }) f
-    else
-      f
-  else
+    withFreshCache do
+      let mut s ← getSimpTheorems
+      let mut updated := false
+      for x in xs do
+        if (← isProof x) then
+          s ← s.addTheorem (.fvar x.fvarId!) x
+          updated := true
+      if updated then
+        withTheReader Context (fun ctx => { ctx with simpTheorems := s }) f
+      else
+        f
+  else if (← getMethods).wellBehavedDischarge then
+    -- See comment at `Methods.wellBehavedDischarge` to understand why
+    -- we don't have to reset the cache
     f
+  else
+    withFreshCache do f
 
 def simpProj (e : Expr) : SimpM Result := do
   match (← reduceProj? e) with
@@ -654,12 +652,12 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
-@[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
+@[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
-  let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withSimpConfig ctx do
+  let ctx := { ctx with config := (← ctx.config.updateArith), lctxInitIndices := (← getLCtx).numIndices }
+  withSimpContext ctx do
     let (r, s) ← simpMain e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     return (r, { s with })
@@ -676,7 +674,7 @@ where
         throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
-  withSimpConfig ctx do
+  withSimpContext ctx do
     let (r, s) ← dsimpMain e methods.toMethodsRef ctx |>.run { stats with }
     pure (r, { s with })
 where
@@ -698,7 +696,7 @@ def simp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[]) (disc
     (stats : Stats := {}) : MetaM (Simp.Result × Stats) := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
   | none   => Simp.main e ctx stats (methods := Simp.mkDefaultMethodsCore simprocs)
-  | some d => Simp.main e ctx stats (methods := Simp.mkMethods simprocs d)
+  | some d => Simp.main e ctx stats (methods := Simp.mkMethods simprocs d (wellBehavedDischarge := false))
 
 def dsimp (e : Expr) (ctx : Simp.Context) (simprocs : SimprocsArray := #[])
     (stats : Stats := {}) : MetaM (Expr × Stats) := do profileitM Exception "dsimp" (← getOptions) do

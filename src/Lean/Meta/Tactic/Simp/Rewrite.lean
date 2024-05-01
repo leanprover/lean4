@@ -407,6 +407,7 @@ def mkSEvalMethods : CoreM Methods := do
     dpre       := dpreDefault #[s]
     dpost      := dpostDefault #[s]
     discharge? := dischargeGround
+    wellBehavedDischarge := true
   }
 
 def mkSEvalContext : CoreM Context := do
@@ -494,9 +495,15 @@ where
     | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
     | _ => e.isFalse
 
-def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
+private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
+  let lctxInitIndices := (← readThe Simp.Context).lctxInitIndices
+  let contextual := (← getConfig).contextual
   (← getLCtx).findDeclRevM? fun localDecl => do
     if localDecl.isImplementationDetail then
+      return none
+    -- The following test is needed to ensure `dischargeUsingAssumption?` is a
+    -- well-behaved discharger. See comment at `Methods.wellBehavedDischarge`
+    else if !contextual && localDecl.index >= lctxInitIndices then
       return none
     else if (← isDefEq e localDecl.type) then
       return some localDecl.toExpr
@@ -546,16 +553,17 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 
-def mkMethods (s : SimprocsArray) (discharge? : Discharge) : Methods := {
+def mkMethods (s : SimprocsArray) (discharge? : Discharge) (wellBehavedDischarge : Bool) : Methods := {
   pre        := preDefault s
   post       := postDefault s
   dpre       := dpreDefault s
   dpost      := dpostDefault s
-  discharge? := discharge?
+  discharge?
+  wellBehavedDischarge
 }
 
 def mkDefaultMethodsCore (simprocs : SimprocsArray) : Methods :=
-  mkMethods simprocs dischargeDefault?
+  mkMethods simprocs dischargeDefault? (wellBehavedDischarge := true)
 
 def mkDefaultMethods : CoreM Methods := do
   if simprocs.get (← getOptions) then

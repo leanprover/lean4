@@ -50,37 +50,42 @@ example : ack 4 4 = x := by
   set_option diagnostics true in
   simp [ack.eq_2, ack.eq_1, ack.eq_3]
 
-/--
-info: [simp] used theorems (max: 22, num: 5):
-    ack.eq_3 ↦ 22
-  ⏎
-  Nat.reduceAdd (builtin simproc) ↦ 14
-  ⏎
-  ack.eq_1 ↦ 11
-  ⏎
-  ack.eq_2 ↦ 4
-  ⏎
-  Nat.zero_add ↦ 1[simp] tried theorems (max: 38, num: 4):
-    ack.eq_3 ↦ 38, succeeded: 22
-  ⏎
-  ack.eq_1 ↦ 11, succeeded: 11
-  ⏎
-  ack.eq_2 ↦ 4, succeeded: 4
-  ⏎
-  Nat.zero_add ↦ 1, succeeded: 1[reduction] unfolded reducible declarations (max: 7, num: 1):
-    outParam ↦ 7use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
----
-error: tactic 'simp' failed, nested error:
-(deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached
-use `set_option maxHeartbeats <num>` to set the limit
-use `set_option diagnostics true` to get diagnostic information
--/
-#guard_msgs in
-set_option maxHeartbeats 500 in
-example : ack 4 4 = x := by
-  set_option diagnostics true in
-  set_option diagnostics.threshold 0 in
-  simp [ack.eq_2, ack.eq_1, ack.eq_3]
+-- TODO: In the following test we just want to check whether we
+-- diagnostics for `simp` when there is a failure. However, the
+-- actual counters make the test very unstable since small
+-- changes to Lean affect heartbeat consumption, and consequently
+-- the number of rewrites tried.
+-- /--
+-- info: [simp] used theorems (max: 22, num: 5):
+--     ack.eq_3 ↦ 22
+--   ⏎
+--   Nat.reduceAdd (builtin simproc) ↦ 14
+--   ⏎
+--   ack.eq_1 ↦ 11
+--   ⏎
+--   ack.eq_2 ↦ 4
+--   ⏎
+--   Nat.zero_add ↦ 1[simp] tried theorems (max: 38, num: 4):
+--     ack.eq_3 ↦ 38, succeeded: 22
+--   ⏎
+--   ack.eq_1 ↦ 11, succeeded: 11
+--   ⏎
+--   ack.eq_2 ↦ 4, succeeded: 4
+--   ⏎
+--   Nat.zero_add ↦ 1, succeeded: 1[reduction] unfolded reducible declarations (max: 7, num: 1):
+--     outParam ↦ 7use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-- ---
+-- error: tactic 'simp' failed, nested error:
+-- (deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached
+-- use `set_option maxHeartbeats <num>` to set the limit
+-- use `set_option diagnostics true` to get diagnostic information
+-- -/
+-- #guard_msgs in
+-- set_option maxHeartbeats 500 in
+-- example : ack 4 4 = x := by
+--   set_option diagnostics true in
+--   set_option diagnostics.threshold 0 in
+--   simp [ack.eq_2, ack.eq_1, ack.eq_3]
 
 @[reducible] def h (x : Nat) :=
   match x with

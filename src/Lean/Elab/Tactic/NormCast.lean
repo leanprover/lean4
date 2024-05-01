@@ -146,7 +146,9 @@ It tries to rewrite an expression using the elim and move lemmas.
 On failure, it calls the splitting procedure heuristic.
 -/
 partial def upwardAndElim (up : SimpTheorems) (e : Expr) : SimpM Simp.Step := do
-  let r ← withDischarger prove do
+  -- Remark: we set `wellBehavedDischarge := false` because `prove` may access arbitrary elements in the local context.
+  -- See comment at `Methods.wellBehavedDischarge`
+  let r ← withDischarger prove (wellBehavedDischarge := false) do
     Simp.rewrite? e up.post up.erased (tag := "squash") (rflOnly := false)
   let r := r.getD { expr := e }
   let r ← r.mkEqTrans (← splittingProcedure r.expr)

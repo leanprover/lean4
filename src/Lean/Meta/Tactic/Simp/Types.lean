@@ -90,7 +90,12 @@ structure Context where
   -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
-
+  /--
+  Number of indices in the local context when starting `simp`.
+  We use this information to decide which assumptions we can use without
+  invalidating the cache.
+  -/
+  lctxInitIndices   : Nat := 0
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
@@ -249,11 +254,18 @@ structure Simprocs where
   deriving Inhabited
 
 structure Methods where
-  pre        : Simproc                    := fun _ => return .continue
-  post       : Simproc                    := fun e => return .done { expr := e }
-  dpre       : DSimproc                   := fun _ => return .continue
-  dpost      : DSimproc                   := fun e => return .done e
+  pre        : Simproc  := fun _ => return .continue
+  post       : Simproc  := fun e => return .done { expr := e }
+  dpre       : DSimproc := fun _ => return .continue
+  dpost      : DSimproc := fun e => return .done e
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  /--
+  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
+  access local declarations with index >= `Context.lctxInitIndices` when
+  `contextual := false`.
+  Reason: it would prevent us from aggressively caching `simp` results.
+  -/
+  wellBehavedDischarge : Bool := true
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -307,8 +319,9 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   modify fun s => { s with cache := {} }
   try x finally modify fun s => { s with cache := cacheSaved }
 
-@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
-  withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
+@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (wellBehavedDischarge : Bool) (x : SimpM α) : SimpM α :=
+  withFreshCache <|
+  withReader (fun r => { MethodsRef.toMethods r with discharge?, wellBehavedDischarge }.toMethodsRef) x
 
 def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
   modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>

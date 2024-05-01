@@ -98,15 +98,21 @@ opaque q1 : Nat → Nat → Prop
 /--
 info: [simp] used theorems (max: 1, num: 1):
     q1_ax ↦ 1[simp] tried theorems (max: 1, num: 1):
-    q1_ax ↦ 1, succeeded: 1[reduction] unfolded declarations (max: 246, num: 2):
+    q1_ax ↦ 1, succeeded: 1use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+---
+info: [reduction] unfolded declarations (max: 246, num: 2):
     Nat.rec ↦ 246
   ⏎
-  OfNat.ofNat ↦ 24[reduction] unfolded instances (max: 12, num: 1):
-    instOfNatNat ↦ 12[reduction] unfolded reducible declarations (max: 246, num: 2):
+  OfNat.ofNat ↦ 24[reduction] unfolded reducible declarations (max: 246, num: 2):
     h ↦ 246
    Nat.casesOn ↦ 246use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
+example : q1 x (h 40) := by
+  set_option diagnostics true in
+  set_option diagnostics.threshold 0 in
+  simp
+
 example : q1 x (h 40) := by
   set_option diagnostics true in
   set_option diagnostics.threshold 0 in

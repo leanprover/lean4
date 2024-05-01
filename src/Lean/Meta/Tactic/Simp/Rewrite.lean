@@ -110,7 +110,6 @@ where
 
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
-  dbg_trace "{thm.origin.key}"
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do

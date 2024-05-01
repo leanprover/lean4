@@ -90,6 +90,7 @@ structure Context where
   -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
+
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=

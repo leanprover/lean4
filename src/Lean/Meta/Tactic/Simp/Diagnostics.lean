@@ -36,6 +36,7 @@ def reportDiag (diag : Simp.Diagnostics) (diagOrig : Meta.Diagnostics) : MetaM U
   if (← isDiagnosticsEnabled) then
     let used ← mkSimpDiagSummary diag.usedThmCounter
     let tried ← mkSimpDiagSummary diag.triedThmCounter diag.usedThmCounter
+    let congr ← mkDiagSummary diag.congrThmCounter
     let unfoldCounter := subCounters (← get).diag.unfoldCounter diagOrig.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
@@ -44,6 +45,7 @@ def reportDiag (diag : Simp.Diagnostics) (diagOrig : Meta.Diagnostics) : MetaM U
       let m := MessageData.nil
       let m := appendSection m `simp "used theorems" used
       let m := appendSection m `simp "tried theorems" tried
+      let m := appendSection m `simp "tried congruence theorems" congr
       let m := appendSection m `reduction "unfolded declarations" unfoldDefault
       let m := appendSection m `reduction "unfolded instances" unfoldInstance
       let m := appendSection m `reduction "unfolded reducible declarations" unfoldReducible

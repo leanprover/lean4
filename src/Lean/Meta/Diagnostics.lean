@@ -35,7 +35,8 @@ structure DiagSummary where
 def DiagSummary.isEmpty (s : DiagSummary) : Bool :=
   s.data.isEmpty
 
-def mkDiagSummary (counters : PHashMap Name Nat) (threshold : Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
+def mkDiagSummary (counters : PHashMap Name Nat) (p : Name → Bool := fun _ => true) : MetaM DiagSummary := do
+  let threshold := diagnostics.threshold.get (← getOptions)
   let entries := collectAboveThreshold counters threshold p Name.lt
   if entries.isEmpty then
     return {}
@@ -46,21 +47,18 @@ def mkDiagSummary (counters : PHashMap Name Nat) (threshold : Nat) (p : Name →
     return { data, max := entries[0]!.2 }
 
 def mkDiagSummaryForUnfolded (counters : PHashMap Name Nat) (instances := false) : MetaM DiagSummary := do
-  let threshold := diagnostics.threshold.get (← getOptions)
   let env ← getEnv
-  mkDiagSummary counters threshold fun declName =>
+  mkDiagSummary counters fun declName =>
     getReducibilityStatusCore env declName matches .semireducible
     && isInstanceCore env declName == instances
 
 def mkDiagSummaryForUnfoldedReducible (counters : PHashMap Name Nat) : MetaM DiagSummary := do
-  let threshold := diagnostics.threshold.get (← getOptions)
   let env ← getEnv
-  mkDiagSummary counters threshold fun declName =>
+  mkDiagSummary counters fun declName =>
     getReducibilityStatusCore env declName matches .reducible
 
 def mkDiagSummaryForUsedInstances : MetaM DiagSummary := do
-  let threshold := diagnostics.threshold.get (← getOptions)
-  mkDiagSummary (← get).diag.heuristicCounter threshold
+  mkDiagSummary (← get).diag.heuristicCounter
 
 def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSummary) : MessageData :=
   if s.isEmpty then
@@ -71,12 +69,11 @@ def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSumm
 
 def reportDiag : MetaM Unit := do
   if (← isDiagnosticsEnabled) then
-    let threshold := diagnostics.threshold.get (← getOptions)
     let unfoldCounter := (← get).diag.unfoldCounter
     let unfoldDefault ← mkDiagSummaryForUnfolded unfoldCounter
     let unfoldInstance ← mkDiagSummaryForUnfolded unfoldCounter (instances := true)
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
-    let heu ← mkDiagSummary (← get).diag.heuristicCounter threshold
+    let heu ← mkDiagSummary (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
     unless unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty && heu.isEmpty && inst.isEmpty do
       let m := MessageData.nil

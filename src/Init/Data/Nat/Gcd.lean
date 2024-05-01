@@ -55,9 +55,13 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) := by
     -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
     rw [gcd_succ]
     exact gcd_zero_left _
+instance : Std.LawfulIdentity gcd 0 where
+  left_id := gcd_zero_left
+  right_id := gcd_zero_right
 
 @[simp] theorem gcd_self (n : Nat) : gcd n n = n := by
   cases n <;> simp [gcd_succ]
+instance : Std.IdempotentOp gcd := ⟨gcd_self⟩
 
 theorem gcd_rec (m n : Nat) : gcd m n = gcd (n % m) m :=
   match m with
@@ -98,6 +102,7 @@ theorem gcd_comm (m n : Nat) : gcd m n = gcd n m :=
   Nat.dvd_antisymm
     (dvd_gcd (gcd_dvd_right m n) (gcd_dvd_left m n))
     (dvd_gcd (gcd_dvd_right n m) (gcd_dvd_left n m))
+instance : Std.Commutative gcd := ⟨gcd_comm⟩
 
 theorem gcd_eq_left_iff_dvd : m ∣ n ↔ gcd m n = m :=
   ⟨fun h => by rw [gcd_rec, mod_eq_zero_of_dvd h, gcd_zero_left],

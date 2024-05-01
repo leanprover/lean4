@@ -30,7 +30,6 @@ int compare(reducibility_hints const & h1, reducibility_hints const & h2) {
                 return -1; /* unfold f1 */
             else
                 return 1;  /* unfold f2 */
-            return h1.get_height() > h2.get_height() ? -1 : 1;
         } else {
             return 0; /* reduce both */
         }
@@ -204,6 +203,10 @@ declaration mk_definition(name const & n, names const & params, expr const & t, 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
                           expr const & v, definition_safety safety) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
+}
+
+declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, lparams, type, val)));
 }
 
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {

@@ -66,12 +66,13 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
     descr := "builtin and foreign functions"
     getParam := fun _ stx => syntaxToExternAttrData stx
     afterSet := fun declName _ => do
-      let mut env ← getEnv
-      if env.isProjectionFn declName || env.isConstructor declName then do
-        env ← ofExcept <| addExtern env declName
+      let env ← getEnv
+      if env.isProjectionFn declName || env.isConstructor declName then
+        if let some (.thmInfo ..) := env.find? declName then
+          -- We should not mark theorems as extern
+          return ()
+        let env ← ofExcept <| addExtern env declName
         setEnv env
-      else
-        pure ()
   }
 
 @[export lean_get_extern_attr_data]
@@ -155,7 +156,7 @@ private def getExternConstArity (declName : Name) : CoreM Nat := do
 @[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
-    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
+    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default, diag := false } { env := env }
     return some arity
   catch
    | IO.Error.userError _   => return none

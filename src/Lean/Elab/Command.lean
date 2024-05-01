@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
 prelude
+import Lean.Meta.Diagnostics
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.SetOption
@@ -138,7 +139,8 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     currNamespace  := scope.currNamespace
     openDecls      := scope.openDecls
     initHeartbeats := heartbeats
-    currMacroScope := ctx.currMacroScope }
+    currMacroScope := ctx.currMacroScope
+    diag           := getDiag scope.opts }
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
@@ -411,7 +413,7 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   -- make sure `observing` below also catches runtime exceptions (like we do by default in
   -- `CommandElabM`)
   let _ := MonadAlwaysExcept.except (m := TermElabM)
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s) { levelNames := scope.levelNames }
+  let x : MetaM _      := (observing (try x finally Meta.reportDiag)).run (mkTermContext ctx s) { levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled, traceState := s.traceState }
   let (((ea, _), _), coreS) ← liftEIO x

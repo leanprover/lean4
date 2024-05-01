@@ -127,6 +127,9 @@ instance : Append (List α) := ⟨List.append⟩
   | nil => rfl
   | cons a as ih =>
     simp_all [HAppend.hAppend, Append.append, List.append]
+instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
+  left_id := nil_append
+  right_id := append_nil
 
 @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := rfl
 
@@ -136,6 +139,7 @@ theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) 
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
+instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
   induction as with

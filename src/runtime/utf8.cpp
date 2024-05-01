@@ -247,7 +247,7 @@ bool validate_utf8(uint8_t const * str, size_t size) {
             if ((c1 & 0xc0) != 0x80 || (c2 & 0xc0) != 0x80) return false;
 
             unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-            if (r < 0x800 || (r >= 0xD800 && r < 0xDFFF)) return false;
+            if (r < 0x800 || (r >= 0xD800 && r <= 0xDFFF)) return false;
 
             i += 3;
         } else if ((c & 0xf8) == 0xf0) {

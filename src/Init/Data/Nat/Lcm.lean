@@ -14,6 +14,7 @@ def lcm (m n : Nat) : Nat := m * n / gcd m n
 
 theorem lcm_comm (m n : Nat) : lcm m n = lcm n m := by
   rw [lcm, lcm, Nat.mul_comm n m, gcd_comm n m]
+instance : Std.Commutative lcm := ⟨lcm_comm⟩
 
 @[simp] theorem lcm_zero_left (m : Nat) : lcm 0 m = 0 := by simp [lcm]
 
@@ -22,11 +23,15 @@ theorem lcm_comm (m n : Nat) : lcm m n = lcm n m := by
 @[simp] theorem lcm_one_left (m : Nat) : lcm 1 m = m := by simp [lcm]
 
 @[simp] theorem lcm_one_right (m : Nat) : lcm m 1 = m := by simp [lcm]
+instance : Std.LawfulIdentity lcm 1 where
+  left_id := lcm_one_left
+  right_id := lcm_one_right
 
 @[simp] theorem lcm_self (m : Nat) : lcm m m = m := by
   match eq_zero_or_pos m with
   | .inl h => rw [h, lcm_zero_left]
   | .inr h => simp [lcm, Nat.mul_div_cancel _ h]
+instance : Std.IdempotentOp lcm := ⟨lcm_self⟩
 
 theorem dvd_lcm_left (m n : Nat) : m ∣ lcm m n :=
   ⟨n / gcd m n, by rw [← Nat.mul_div_assoc m (Nat.gcd_dvd_right m n)]; rfl⟩
@@ -54,6 +59,7 @@ Nat.dvd_antisymm
     (Nat.dvd_trans (dvd_lcm_left m n) (dvd_lcm_left (lcm m n) k))
     (lcm_dvd (Nat.dvd_trans (dvd_lcm_right m n) (dvd_lcm_left (lcm m n) k))
       (dvd_lcm_right (lcm m n) k)))
+instance : Std.Associative lcm := ⟨lcm_assoc⟩
 
 theorem lcm_ne_zero (hm : m ≠ 0) (hn : n ≠ 0) : lcm m n ≠ 0 := by
   intro h

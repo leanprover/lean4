@@ -1,4 +1,4 @@
-import Lake.Build.Monad
+import Lake.Build.Run
 
 partial def busyWaitFile (file : System.FilePath) : BaseIO PUnit := do
   if (← file.pathExists) then

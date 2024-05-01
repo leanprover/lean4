@@ -296,7 +296,7 @@ macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
--- exponentiation should be considered a right action (#2220)
+-- exponentiation should be considered a right action (#2854)
 macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
@@ -492,9 +492,12 @@ The attribute `@[deprecated]` on a declaration indicates that the declaration
 is discouraged for use in new code, and/or should be migrated away from in
 existing code. It may be removed in a future version of the library.
 
-`@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef]` means that `myBetterDef` is the suggested replacement.
+* `@[deprecated myBetterDef "use myBetterDef instead"]` allows customizing the deprecation message.
+* `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
-syntax (name := deprecated) "deprecated" (ppSpace ident)? : attr
+syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
 
 /--
 The `@[coe]` attribute on a function (which should also appear in a

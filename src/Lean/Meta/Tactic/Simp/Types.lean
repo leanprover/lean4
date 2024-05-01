@@ -90,6 +90,7 @@ structure Context where
   -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
+
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
@@ -103,6 +104,8 @@ structure Diagnostics where
   usedThmCounter : PHashMap Origin Nat := {}
   /-- Number of times each simp theorem has been tried. -/
   triedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each congr theorem has been tried. -/
+  congrThmCounter : PHashMap Name Nat := {}
   deriving Inhabited
 
 structure State where
@@ -308,14 +311,14 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
 def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter } =>
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
     let cNew := if let some c := triedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew }
+    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew, congrThmCounter }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter } =>
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
     let cNew := if let some c := usedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter }
+    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter, congrThmCounter }
   /-
   If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.
@@ -334,6 +337,11 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
   modify fun s => if s.usedTheorems.contains thmId then s else
     let n := s.usedTheorems.size
     { s with usedTheorems := s.usedTheorems.insert thmId n }
+
+def recordCongrTheorem (declName : Name) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
+    let cNew := if let some c := congrThmCounter.find? declName then c + 1 else 1
+    { congrThmCounter := congrThmCounter.insert declName cNew, triedThmCounter, usedThmCounter }
 
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with

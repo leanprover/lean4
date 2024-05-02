@@ -92,6 +92,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
      moveEntries (i+1) source target
   else target
 termination_by source.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨
@@ -122,7 +123,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if let some b := bkt.find? a then
-      (m, some b)
+      (⟨size, buckets⟩, some b)
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h
@@ -137,8 +138,10 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
   | ⟨ size, buckets ⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
-    if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
-    else m
+    if bkt.contains a then
+      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+    else
+      ⟨size, buckets⟩
 
 inductive WellFormed [BEq α] [Hashable α] : HashMapImp α β → Prop where
   | mkWff          : ∀ n,                    WellFormed (mkHashMapImp n)

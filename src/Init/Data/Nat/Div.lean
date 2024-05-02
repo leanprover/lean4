@@ -28,7 +28,7 @@ protected def div (x y : @& Nat) : Nat :=
     0
 decreasing_by apply div_rec_lemma; assumption
 
-instance : Div Nat := ⟨Nat.div⟩
+instance instDiv : Div Nat := ⟨Nat.div⟩
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
   show Nat.div x y = _
@@ -90,7 +90,7 @@ protected def mod : @& Nat → @& Nat → Nat
   | 0, _ => 0
   | x@(_ + 1), y => Nat.modCore x y
 
-instance : Mod Nat := ⟨Nat.mod⟩
+instance instMod : Mod Nat := ⟨Nat.mod⟩
 
 protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
   cases x with

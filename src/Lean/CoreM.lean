@@ -13,12 +13,24 @@ import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
 
 namespace Lean
-namespace Core
+register_builtin_option diagnostics : Bool := {
+  defValue := false
+  group    := "diagnostics"
+  descr    := "collect diagnostic information"
+}
+
+register_builtin_option diagnostics.threshold : Nat := {
+  defValue := 20
+  group    := "diagnostics"
+  descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
+}
 
 register_builtin_option maxHeartbeats : Nat := {
   defValue := 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
+
+namespace Core
 
 builtin_initialize registerTraceClass `Kernel
 
@@ -72,6 +84,11 @@ structure Context where
   Recall that runtime exceptions are `maxRecDepth` or `maxHeartbeats`.
   -/
   catchRuntimeEx : Bool := false
+  /--
+  If `diag := true`, different parts of the system collect diagnostics.
+  Use the `set_option diag true` to set it to true.
+  -/
+  diag           : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -104,7 +121,15 @@ instance : MonadOptions CoreM where
   getOptions := return (← read).options
 
 instance : MonadWithOptions CoreM where
-  withOptions f x := withReader (fun ctx => { ctx with options := f ctx.options }) x
+  withOptions f x :=
+    withReader
+      (fun ctx =>
+        let options := f ctx.options
+        { ctx with
+          options
+          diag := diagnostics.get options
+          maxRecDepth := maxRecDepth.get options })
+      x
 
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
@@ -177,6 +202,13 @@ instance : MonadTrace CoreM where
 def restore (b : State) : CoreM Unit :=
   modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def restoreFull (b : State) : CoreM Unit :=
+  set b
+
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
   return addMacroScope (← getEnv).mainModule n fresh
@@ -199,7 +231,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default } { env := env }
+    let (a, s) ← (withOptions (fun _ => opts) x).toIO { fileName := "<CoreM>", fileMap := default } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
@@ -212,7 +244,7 @@ protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m �
     throw <| Exception.error .missing "elaboration interrupted"
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let msg := s!"(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
+  let msg := s!"(deterministic) timeout at `{moduleName}`, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -244,6 +276,13 @@ def resetMessageLog : CoreM Unit :=
 
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
+
+/--
+Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+for incremental reporting during elaboration of a single command.
+-/
+def getAndEmptyMessageLog : CoreM MessageLog :=
+  modifyGet fun log => ({ log with msgs := {} }, log)
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -330,10 +369,13 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let opts ← getOptions
+  let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
-    compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
-  match (← getEnv).compileDecl opts decl with
-  | Except.ok env   => setEnv env
+    compileDeclsNew decls
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return (← getEnv).compileDecl opts decl
+  match res with
+  | Except.ok env => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg
@@ -355,9 +397,16 @@ def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl;
   compileDecl decl
 
+def getDiag (opts : Options) : Bool :=
+  diagnostics.get opts
+
+/-- Return `true` if diagnostic information collection is enabled. -/
+def isDiagnosticsEnabled : CoreM Bool :=
+  return (← read).diag
+
 def ImportM.runCoreM (x : CoreM α) : ImportM α := do
   let ctx ← read
-  let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
+  let (a, _) ← (withOptions (fun _ => ctx.opts) x).toIO { fileName := "<ImportM>", fileMap := default } { env := ctx.env }
   return a
 
 /-- Return `true` if the exception was generated by one our resource limits. -/

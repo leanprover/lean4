@@ -5,6 +5,7 @@ Authors: Mario Carneiro
 -/
 prelude
 import Init.Data.Nat.MinMax
+import Init.Data.Nat.Lemmas
 import Init.Data.List.Lemmas
 import Init.Data.Fin.Basic
 import Init.Data.Array.Mem
@@ -130,6 +131,7 @@ where
       simp [aux (i+1), map_eq_pure_bind]; rfl
     · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
+  decreasing_by decreasing_trivial_pre_omega
 
 @[simp] theorem map_data (f : α → β) (arr : Array α) : (arr.map f).data = arr.data.map f := by
   rw [map, mapM_eq_foldlM]
@@ -187,7 +189,8 @@ theorem anyM_stop_le_start [Monad m] (p : α → m Bool) (as : Array α) (start 
 theorem mem_def (a : α) (as : Array α) : a ∈ as ↔ a ∈ as.data :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
 
-/-- # get -/
+/-! # get -/
+
 @[simp] theorem get_eq_getElem (a : Array α) (i : Fin _) : a.get i = a[i.1] := rfl
 
 theorem getElem?_lt
@@ -217,7 +220,7 @@ theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default
 @[simp] theorem get!_eq_getElem? [Inhabited α] (a : Array α) (i : Nat) : a.get! i = (a.get? i).getD default := by
   by_cases p : i < a.size <;> simp [getD_get?, get!_eq_getD, p]
 
-/-- # set -/
+/-! # set -/
 
 @[simp] theorem getElem_set_eq (a : Array α) (i : Fin a.size) (v : α) {j : Nat}
       (eq : i.val = j) (p : j < (a.set i v).size) :
@@ -240,7 +243,7 @@ theorem getElem_set (a : Array α) (i : Fin a.size) (v : α) (j : Nat)
     (ne : i.val ≠ j) : (a.set i v)[j]? = a[j]? := by
   by_cases h : j < a.size <;> simp [getElem?_lt, getElem?_ge, Nat.ge_of_not_lt, ne, h]
 
-/- # setD -/
+/-! # setD -/
 
 @[simp] theorem set!_is_setD : @set! = @setD := rfl
 
@@ -265,5 +268,45 @@ theorem getElem?_setD_eq (a : Array α) {i : Nat} (p : i < a.size) (v : α) : (a
   Option.getD (setD a i v)[i]? d = if i < a.size then v else d := by
   by_cases h : i < a.size <;>
     simp [setD, Nat.not_lt_of_le, h,  getD_get?]
+
+/-! # ofFn -/
+
+@[simp] theorem size_ofFn_go {n} (f : Fin n → α) (i acc) :
+    (ofFn.go f i acc).size = acc.size + (n - i) := by
+  if hin : i < n then
+    unfold ofFn.go
+    have : 1 + (n - (i + 1)) = n - i :=
+      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
+    rw [dif_pos hin, size_ofFn_go f (i+1), size_push, Nat.add_assoc, this]
+  else
+    have : n - i = 0 := Nat.sub_eq_zero_of_le (Nat.le_of_not_lt hin)
+    unfold ofFn.go
+    simp [hin, this]
+termination_by n - i
+
+@[simp] theorem size_ofFn (f : Fin n → α) : (ofFn f).size = n := by simp [ofFn]
+
+theorem getElem_ofFn_go (f : Fin n → α) (i) {acc k}
+    (hki : k < n) (hin : i ≤ n) (hi : i = acc.size)
+    (hacc : ∀ j, ∀ hj : j < acc.size, acc[j] = f ⟨j, Nat.lt_of_lt_of_le hj (hi ▸ hin)⟩) :
+    haveI : acc.size + (n - acc.size) = n := Nat.add_sub_cancel' (hi ▸ hin)
+    (ofFn.go f i acc)[k]'(by simp [*]) = f ⟨k, hki⟩ := by
+  unfold ofFn.go
+  if hin : i < n then
+    have : 1 + (n - (i + 1)) = n - i :=
+      Nat.sub_sub .. ▸ Nat.add_sub_cancel' (Nat.le_sub_of_add_le (Nat.add_comm .. ▸ hin))
+    simp only [dif_pos hin]
+    rw [getElem_ofFn_go f (i+1) _ hin (by simp [*]) (fun j hj => ?hacc)]
+    cases (Nat.lt_or_eq_of_le <| Nat.le_of_lt_succ (by simpa using hj)) with
+    | inl hj => simp [get_push, hj, hacc j hj]
+    | inr hj => simp [get_push, *]
+  else
+    simp [hin, hacc k (Nat.lt_of_lt_of_le hki (Nat.le_of_not_lt (hi ▸ hin)))]
+termination_by n - i
+
+@[simp] theorem getElem_ofFn (f : Fin n → α) (i : Nat) (h) :
+    (ofFn f)[i] = f ⟨i, size_ofFn f ▸ h⟩ :=
+  getElem_ofFn_go _ _ _ (by simp) (by simp) nofun
+
 
 end Array

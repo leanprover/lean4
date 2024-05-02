@@ -49,10 +49,7 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhsCont := fun rhs => `(match compare $a $b with
-              | Ordering.lt => Ordering.lt
-              | Ordering.gt => Ordering.gt
-              | Ordering.eq => $rhs) >>= rhsCont
+            rhsCont := fun rhs => `(Ordering.then (compare $a $b) $rhs) >>= rhsCont
         let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1:term*)
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]

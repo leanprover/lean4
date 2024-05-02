@@ -136,8 +136,8 @@ static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__1___closed__12;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__1___closed__15;
 lean_object* l_String_toSubstring_x27(lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___closed__1;
-lean_object* l_Nat_repr(lean_object*);
 lean_object* l_Lean_Syntax_mkNumLit(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix_withAttrKindGlobal(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMixfix_withAttrKindGlobal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1276,7 +1276,7 @@ if (lean_is_exclusive(x_16)) {
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_add(x_17, x_20);
 lean_dec(x_17);
-x_22 = l_Nat_repr(x_21);
+x_22 = l___private_Init_Data_Repr_0__Nat_reprFast(x_21);
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkNumLit(x_22, x_23);
 x_25 = lean_ctor_get(x_10, 5);
@@ -1709,7 +1709,7 @@ if (lean_is_exclusive(x_16)) {
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_add(x_17, x_20);
 lean_dec(x_17);
-x_22 = l_Nat_repr(x_21);
+x_22 = l___private_Init_Data_Repr_0__Nat_reprFast(x_21);
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkNumLit(x_22, x_23);
 x_25 = lean_ctor_get(x_10, 5);
@@ -2142,7 +2142,7 @@ if (lean_is_exclusive(x_16)) {
 x_20 = lean_unsigned_to_nat(1u);
 x_21 = lean_nat_add(x_17, x_20);
 lean_dec(x_17);
-x_22 = l_Nat_repr(x_21);
+x_22 = l___private_Init_Data_Repr_0__Nat_reprFast(x_21);
 x_23 = lean_box(2);
 x_24 = l_Lean_Syntax_mkNumLit(x_22, x_23);
 x_25 = lean_ctor_get(x_10, 5);

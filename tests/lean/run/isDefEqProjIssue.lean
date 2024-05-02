@@ -50,6 +50,22 @@ where
     have : val.x = (bar c1 key).x := rfl
     val.x
 
+/--
+error: (deterministic) timeout at `whnf`, maximum number of heartbeats (400) has been reached
+use `set_option maxHeartbeats <num>` to set the limit
+use `set_option diagnostics true` to get diagnostic information
+-/
+#guard_msgs in
+set_option backward.isDefEq.lazyWhnfCore false in
+set_option maxHeartbeats 400 in
+def test' (c1 : Cache) (key : Nat) : Nat :=
+  go c1 key
+where
+  go (c1 : Cache) (key : Nat) : Nat :=
+    let val : Test := bar c1 key
+    have : val.x = (bar c1 key).x := rfl
+    val.x
+
 def ack : Nat → Nat → Nat
   | 0,   y   => y+1
   | x+1, 0   => ack x 1

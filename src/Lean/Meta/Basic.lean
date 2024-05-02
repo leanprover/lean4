@@ -110,6 +110,14 @@ structure Config where
   trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
   etaStruct          : EtaStructMode := .all
+  /--
+  When `univApprox` is set to true,
+  we use approximations when solving postponed universe constraints.
+  Examples:
+  - `max u ?v =?= u` is solved with `?v := u` and ignoring the solution `?v := 0`.
+  - `max u w =?= mav u ?v` is solved with `?v := w` ignoring the solution `?v := max u w`
+  -/
+  univApprox : Bool := true
 
 /--
   Function parameter information cache.
@@ -258,6 +266,15 @@ structure PostponedEntry where
   ctx? : Option DefEqContext
   deriving Inhabited
 
+structure Diagnostics where
+  /-- Number of times each declaration has been unfolded -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- Number of times `f a =?= f b` heuristic has been used per function `f`. -/
+  heuristicCounter : PHashMap Name Nat := {}
+  /-- Number of times a TC instance is used. -/
+  instanceCounter : PHashMap Name Nat := {}
+  deriving Inhabited
+
 /--
   `MetaM` monad state.
 -/
@@ -268,6 +285,7 @@ structure State where
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
+  diag             : Diagnostics := {}
   deriving Inhabited
 
 /--
@@ -300,7 +318,56 @@ structure Context where
     A predicate to control whether a constant can be unfolded or not at `whnf`.
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
   canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
+  /--
+  When `Config.univApprox := true`, this flag is set to `true` when there is no
+  progress processing universe constraints.
+  -/
+  univApprox        : Bool := false
+  /--
+  `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
+   resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
+   This is not a great solution, but a proper solution would require a more sophisticased caching mechanism.
+  -/
+  inTypeClassResolution : Bool := false
 
+/--
+The `MetaM` monad is a core component of Lean's metaprogramming framework, facilitating the
+construction and manipulation of expressions (`Lean.Expr`) within Lean.
+
+It builds on top of `CoreM` and additionally provides:
+- A `LocalContext` for managing free variables.
+- A `MetavarContext` for managing metavariables.
+- A `Cache` for caching results of the key `MetaM` operations.
+
+The key operations provided by `MetaM` are:
+- `inferType`, which attempts to automatically infer the type of a given expression.
+- `whnf`, which reduces an expression to the point where the outermost part is no longer reducible
+  but the inside may still contain unreduced expression.
+- `isDefEq`, which determines whether two expressions are definitionally equal, possibly assigning
+  meta variables in the process.
+- `forallTelescope` and `lambdaTelescope`, which make it possible to automatically move into
+  (nested) binders while updating the local context.
+
+The following is a small example that demonstrates how to obtain and manipulate the type of a
+`Fin` expression:
+```
+import Lean
+
+open Lean Meta
+
+def getFinBound (e : Expr) : MetaM (Option Expr) := do
+  let type ← whnf (← inferType e)
+  let_expr Fin bound := type | return none
+  return bound
+
+def a : Fin 100 := 42
+
+run_meta
+  match ← getFinBound (.const ``a []) with
+  | some limit => IO.println (← ppExpr limit)
+  | none => IO.println "no limit found"
+```
+-/
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -332,6 +399,14 @@ protected def saveState : MetaM SavedState :=
 def SavedState.restore (b : SavedState) : MetaM Unit := do
   Core.restore b.core
   modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
+
+/--
+Restores full state including sources for unique identifiers. Only intended for incremental reuse
+between elaboration runs, not for backtracking within a single run.
+-/
+def SavedState.restoreFull (b : SavedState) : MetaM Unit := do
+  Core.restoreFull b.core
+  set b.meta
 
 instance : MonadBacktrack SavedState MetaM where
   saveState      := Meta.saveState
@@ -375,7 +450,7 @@ section Methods
 variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
-  modify fun { mctx, cache, zetaDeltaFVarIds, postponed } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed }
+  modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
@@ -388,6 +463,28 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def resetDefEqPermCaches : MetaM Unit :=
   modifyDefEqPermCache fun _ => {}
+
+@[inline] def modifyDiag (f : Diagnostics → Diagnostics) : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache, zetaDeltaFVarIds, postponed, diag := f diag }
+
+/-- If diagnostics are enabled, record that `declName` has been unfolded. -/
+def recordUnfold (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter }
+
+/-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
+def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter }
+
+/-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
+def recordInstance (declName : Name) : MetaM Unit := do
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+    let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
+    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -1644,6 +1741,10 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
               return true
             else if numPostponed' < numPostponed then
               loop
+            -- If we cannot pospone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
+            -- then try approximations before failing.
+            else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
+              withReader (fun ctx => { ctx with univApprox := true }) loop
             else
               trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
               return mayPostpone

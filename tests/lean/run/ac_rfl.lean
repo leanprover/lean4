@@ -1,65 +1,3 @@
-open Std
-
-instance : Associative (α := Nat) HAdd.hAdd := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) HAdd.hAdd := ⟨Nat.add_comm⟩
-instance : LawfulCommIdentity HAdd.hAdd 0 where right_id := Nat.add_zero
-
-instance : Associative (α := Nat) HMul.hMul := ⟨Nat.mul_assoc⟩
-instance : Commutative (α := Nat) HMul.hMul := ⟨Nat.mul_comm⟩
-instance : LawfulCommIdentity HMul.hMul 1 where right_id := Nat.mul_one
-
-@[simp] theorem succ_le_succ_iff {x y : Nat} : x.succ ≤ y.succ ↔ x ≤ y :=
-  ⟨Nat.le_of_succ_le_succ, Nat.succ_le_succ⟩
-
-@[simp] theorem add_le_add_right_iff {x y z : Nat} : x + z ≤ y + z ↔ x ≤ y := by
-  induction z <;> simp_all [← Nat.add_assoc]
-
-set_option linter.unusedVariables false in
-theorem le_ext : ∀ {x y : Nat} (h : ∀ z, z ≤ x ↔ z ≤ y), x = y
-  | 0, 0, _ => rfl
-  | x+1, y+1, h => congrArg (· + 1) <| le_ext fun z => have := h (z + 1); by simp at this; assumption
-  | 0, y+1, h => have := h 1; by clear h; simp_all
-  | x+1, 0, h => have := h 1; by simp at this
-
-theorem le_or_le : ∀ (a b : Nat), a ≤ b ∨ b ≤ a
-  | x+1, y+1 => by simp [le_or_le x y]
-  | 0, 0 | x+1, 0 | 0, y+1 => by simp
-
-theorem le_of_not_le {a b : Nat} (h : ¬ a ≤ b) : b ≤ a :=
-  match le_or_le a b with | .inl ab => (h ab).rec | .inr ba => ba
-
-@[simp] theorem le_max_iff {x y z : Nat} : x ≤ max y z ↔ x ≤ y ∨ x ≤ z := by
-  simp only [Nat.max_def]
-  split
-  · exact Iff.intro .inr fun | .inl xy => Nat.le_trans ‹_› ‹_› | .inr xz => ‹_›
-  · exact Iff.intro .inl fun | .inl xy => ‹_› | .inr xz => Nat.le_trans ‹_› (le_of_not_le ‹_›)
-
-theorem max_assoc (n m k : Nat) : max (max n m) k = max n (max m k) :=
-  le_ext (by simp [or_assoc])
-
-theorem max_comm (n m : Nat) : max n m = max m n :=
-  le_ext (by simp [or_comm])
-
-theorem max_idem (n : Nat) : max n n = n := le_ext (by simp)
-
-instance : Associative (α := Nat) max := ⟨max_assoc⟩
-instance : Commutative (α := Nat) max := ⟨max_comm⟩
-instance : IdempotentOp (α := Nat) max := ⟨max_idem⟩
-instance : LawfulCommIdentity max 0 where
-  right_id := Nat.max_zero
-
-instance : Associative And := ⟨λ _p _q _r => propext ⟨λ ⟨⟨hp, hq⟩, hr⟩ => ⟨hp, hq, hr⟩, λ ⟨hp, hq, hr⟩ => ⟨⟨hp, hq⟩, hr⟩⟩⟩
-instance : Commutative And := ⟨λ _p _q => propext ⟨λ ⟨hp, hq⟩ => ⟨hq, hp⟩, λ ⟨hq, hp⟩ => ⟨hp, hq⟩⟩⟩
-instance : IdempotentOp And := ⟨λ _p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, hp⟩⟩⟩
-instance : LawfulCommIdentity And True where
-  right_id _p := propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, True.intro⟩⟩
-
-instance : Associative Or := ⟨by simp [or_assoc]⟩
-instance : Commutative Or := ⟨λ_p _q => propext ⟨λ hpq => hpq.elim Or.inr Or.inl, λ hqp => hqp.elim Or.inr Or.inl⟩⟩
-instance : IdempotentOp Or := ⟨λ_p => propext ⟨λ hp => hp.elim id id, Or.inl⟩⟩
-instance : LawfulCommIdentity Or False where
-  right_id _p := propext ⟨λ hpf => hpf.elim id False.elim, Or.inl⟩
-
 example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_rfl
 
 example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_rfl
@@ -96,3 +34,5 @@ example (p q : Prop) : (p ∨ p ∨ q ∧ True) = (q ∨ p) := by
 
 -- Repro: missing withContext
 example : ∀ x : Nat, x = x := by intro x; ac_rfl
+
+example : [1, 2] ++ ([] ++ [2+4, 8] ++ [4]) = [1, 2] ++ [4+2, 8] ++ [4] := by ac_rfl

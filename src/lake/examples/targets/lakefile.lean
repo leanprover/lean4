@@ -30,9 +30,9 @@ target caw pkg : Unit := do
   IO.FS.writeFile (pkg.buildDir / "caw.txt") "Caw!"
   return .nil
 
-target bark : Unit := do
+target bark : Unit := Job.async do
   logInfo "Bark!"
-  return .nil
+  return ((), .nil)
 
 target bark_bark : Unit := do
   bark.fetch

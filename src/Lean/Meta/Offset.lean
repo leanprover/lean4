@@ -87,8 +87,8 @@ partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
     let (s, k) ← getOffset a
     return (s, k+1)
   | Nat.add a b => add a b
-  | Add.add _ i a b => guard (← matchesInstance i Nat.instAdd); add a b
-  | HAdd.hAdd _ _ _ i a b => guard (← matchesInstance i Nat.instHAdd); add a b
+  | Add.add _ i a b => guard (← matchesInstance i Nat.mkInstAdd); add a b
+  | HAdd.hAdd _ _ _ i a b => guard (← matchesInstance i Nat.mkInstHAdd); add a b
   | _ => failure
 
 end

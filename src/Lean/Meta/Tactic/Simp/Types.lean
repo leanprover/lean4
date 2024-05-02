@@ -21,7 +21,11 @@ structure Result where
   /-- A proof that `$e = $expr`, where the simplified expression is on the RHS.
   If `none`, the proof is assumed to be `refl`. -/
   proof?         : Option Expr := none
-  /-- If `cache := true` the result is cached. -/
+  /--
+  If `cache := true` the result is cached.
+  Warning: we will remove this field in the future. It is currently used by
+  `arith := true`, but we can now refactor the code to avoid the hack.
+  -/
   cache          : Bool := true
   deriving Inhabited
 
@@ -86,6 +90,12 @@ structure Context where
   -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
+  /--
+  Number of indices in the local context when starting `simp`.
+  We use this information to decide which assumptions we can use without
+  invalidating the cache.
+  -/
+  lctxInitIndices   : Nat := 0
   deriving Inhabited
 
 def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
@@ -94,11 +104,25 @@ def Context.isDeclToUnfold (ctx : Context) (declName : Name) : Bool :=
 -- We should use `PHashMap` because we backtrack the contents of `UsedSimps`
 abbrev UsedSimps := PHashMap Origin Nat
 
+structure Diagnostics where
+  /-- Number of times each simp theorem has been used/applied. -/
+  usedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each simp theorem has been tried. -/
+  triedThmCounter : PHashMap Origin Nat := {}
+  /-- Number of times each congr theorem has been tried. -/
+  congrThmCounter : PHashMap Name Nat := {}
+  deriving Inhabited
+
 structure State where
   cache        : Cache := {}
   congrCache   : CongrCache := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
+  diag         : Diagnostics := {}
+
+structure Stats where
+  usedTheorems : UsedSimps := {}
+  diag : Diagnostics := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
@@ -113,6 +137,10 @@ opaque simp (e : Expr) : SimpM Result
 
 @[extern "lean_dsimp"]
 opaque dsimp (e : Expr) : SimpM Expr
+
+@[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
+  if (← isDiagnosticsEnabled) then
+    modify fun { cache, congrCache, usedTheorems, numSteps, diag } => { cache, congrCache, usedTheorems, numSteps, diag := f diag }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
@@ -226,11 +254,18 @@ structure Simprocs where
   deriving Inhabited
 
 structure Methods where
-  pre        : Simproc                    := fun _ => return .continue
-  post       : Simproc                    := fun e => return .done { expr := e }
-  dpre       : DSimproc                   := fun _ => return .continue
-  dpost      : DSimproc                   := fun e => return .done e
+  pre        : Simproc  := fun _ => return .continue
+  post       : Simproc  := fun e => return .done { expr := e }
+  dpre       : DSimproc := fun _ => return .continue
+  dpost      : DSimproc := fun e => return .done e
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  /--
+  `wellBehavedDischarge` must **not** be set to `true` IF `discharge?`
+  access local declarations with index >= `Context.lctxInitIndices` when
+  `contextual := false`.
+  Reason: it would prevent us from aggressively caching `simp` results.
+  -/
+  wellBehavedDischarge : Bool := true
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -284,13 +319,19 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   modify fun s => { s with cache := {} }
   try x finally modify fun s => { s with cache := cacheSaved }
 
-@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
-  withFreshCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
+@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (wellBehavedDischarge : Bool) (x : SimpM α) : SimpM α :=
+  withFreshCache <|
+  withReader (fun r => { MethodsRef.toMethods r with discharge?, wellBehavedDischarge }.toMethodsRef) x
 
-@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
-  withFreshCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
+def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
+    let cNew := if let some c := triedThmCounter.find? thmId then c + 1 else 1
+    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew, congrThmCounter }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
+    let cNew := if let some c := usedThmCounter.find? thmId then c + 1 else 1
+    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter, congrThmCounter }
   /-
   If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.
@@ -309,6 +350,11 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
   modify fun s => if s.usedTheorems.contains thmId then s else
     let n := s.usedTheorems.size
     { s with usedTheorems := s.usedTheorems.insert thmId n }
+
+def recordCongrTheorem (declName : Name) : SimpM Unit := do
+  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
+    let cNew := if let some c := congrThmCounter.find? declName then c + 1 else 1
+    { congrThmCounter := congrThmCounter.insert declName cNew, triedThmCounter, usedThmCounter }
 
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with

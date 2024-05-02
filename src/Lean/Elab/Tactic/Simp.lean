@@ -15,7 +15,6 @@ import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 open TSyntax.Compat
-open Simp (UsedSimps)
 
 declare_config_elab elabSimpConfigCore    Meta.Simp.Config
 declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
@@ -327,7 +326,7 @@ If `stx` is the syntax of a `simp`, `simp_all` or `dsimp` tactic invocation, and
 creates the syntax of an equivalent `simp only`, `simp_all only` or `dsimp only`
 invocation.
 -/
-def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
+def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   let isSimpAll := stx.isOfKind ``Parser.Tactic.simpAll
   let mut stx := stx
   if stx[3].isNone then
@@ -379,7 +378,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
   let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
   return stx.setArg 4 (mkNullNode argsStx)
 
-def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
 /--
@@ -396,7 +395,7 @@ For many tactics other than the simplifier,
 one should use the `withLocation` tactic combinator
 when working with a `location`.
 -/
-def simpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM UsedSimps := do
+def simpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (discharge? : Option Simp.Discharge := none) (loc : Location) : TacticM Simp.Stats := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
@@ -406,33 +405,39 @@ def simpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (discharge
     withMainContext do
       go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM UsedSimps := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Simp.Stats := do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← simpGoal mvarId ctx (simprocs := simprocs) (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, stats) ← simpGoal mvarId ctx (simprocs := simprocs) (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some (_, mvarId) => replaceMainGoal [mvarId]
-    return usedSimps
+    return stats
+
+def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
+  let stats ← x
+  Simp.reportDiag stats
 
 /-
   "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
   (location)?
 -/
-@[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
-  let usedSimps ← dischargeWrapper.with fun discharge? =>
+  let stats ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx simprocs discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
-    traceSimpCall stx usedSimps
+    traceSimpCall stx stats.usedTheorems
+  return stats.diag
 
-@[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   let { ctx, simprocs, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
-  let (result?, usedSimps) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
+  let (result?, stats) ← simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
   if tactic.simp.trace.get (← getOptions) then
-    traceSimpCall stx usedSimps
+    traceSimpCall stx stats.usedTheorems
+  return stats.diag
 
 def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Location) : TacticM Unit := do
   match loc with
@@ -444,14 +449,15 @@ def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Lo
     withMainContext do
       go (← (← getMainGoal).getNondepPropHyps) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := withSimpDiagnostics do
     let mvarId ← getMainGoal
-    let (result?, usedSimps) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
+    let (result?, stats) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
     if tactic.simp.trace.get (← getOptions) then
-      mvarId.withContext <| traceSimpCall (← getRef) usedSimps
+      mvarId.withContext <| traceSimpCall (← getRef) stats.usedTheorems
+    return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
   let { ctx, simprocs, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)

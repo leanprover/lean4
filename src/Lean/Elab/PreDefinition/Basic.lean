@@ -7,6 +7,7 @@ prelude
 import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.ForEachExpr
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.WF.TerminationHint

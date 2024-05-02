@@ -10,6 +10,18 @@ import Lean.Util.OccursCheck
 
 namespace Lean.Meta
 
+register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
+}
+
+register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -1173,6 +1185,35 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
   trace[Meta.isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
+/-- Helper predicate for `tryHeuristic`. -/
+private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
+  match info.hints with
+  | .regular d =>
+    if (← isProjectionFn info.name) then
+      -- All projections are considered trivial
+      return false
+    if d > 2 then
+      -- If definition depth is greater than 2, we claim it is not a trivial definition
+      return true
+    -- After consuming the lambda expressions, we consider a regular definition non-trivial if it is not "simple".
+    -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
+    let val := consumeDefnPreamble info.value
+    return !isSimple val (allowApp := true)
+  | _ => return false
+where
+  consumeDefnPreamble (e : Expr) : Expr :=
+    match e with
+    | .mdata _ e => consumeDefnPreamble e
+    | .lam _ _ b _ => consumeDefnPreamble b
+    | _ => e
+  isSimple (e : Expr) (allowApp : Bool) : Bool :=
+    match e with
+    | .bvar .. | .sort .. | .lit .. | .fvar .. | .mvar .. => true
+    | .app f a => isSimple a false && isSimple f allowApp
+    | .proj _ _ b => isSimple b false
+    | .mdata _ b => isSimple b allowApp
+    | .lam .. | .letE .. | .forallE .. | .const .. => false
+
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
 
     Auxiliary method for isDefEqDelta -/
@@ -1181,22 +1222,36 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let mut s := s
   let tFn := t.getAppFn
   let sFn := s.getAppFn
-  let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
-     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
-     We check whether terms contain metavariables to make sure we can solve constraints such
-     as `S.proj ?x =?= S.proj t` without performing delta-reduction.
-     That is, we are assuming the heuristic implemented by this method is seldom effective
-     when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms.
+  -- If `f` (i.e., `tFn`) is not a definition, we do not apply the heuristic.
+  let .defnInfo info ← getConstInfo tFn.constName! | return false
+  /-
+  We apply the heuristic in the following cases:
+  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  2- `f` is `match` application.
+  3- `t` or `s` contain meta-variables.
 
-     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
-     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
-     case is used to help the kernel type checker. -/
-  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
+  The third case is important to make sure we can solve constraints such as
+  `S.proj ?x =?= S.proj t` without performing delta-reduction.
+
+  When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
+  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+
+  Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+  them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+  case is used to help the kernel type checker.
+
+  The `isNonTrivialRegular` predicate is also useful to avoid applying the heuristic to very simple definitions that
+  have not been marked as abbreviations by the user. Example:
+  ```
+  protected def Mem (a : α) (s : Set α) : Prop := s a
+  ```
+  at test 3807.lean
+  -/
+  unless (← isNonTrivialRegular info) || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
+    recordDefEqHeuristic tFn.constName!
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 
@@ -1689,8 +1744,88 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
+/--
+Result type for `isDefEqDelta`
+-/
+inductive DeltaStepResult where
+  | eq | unknown
+  | cont (t s : Expr)
+  | diff (t s : Expr)
+
+/--
+Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
+It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
+in the kernel.
+-/
+private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => return .unknown
+  | some _,     none       => unfold t (return .unknown) (k · s)
+  | none,       some _     => unfold s (return .unknown) (k t ·)
+  | some tInfo, some sInfo =>
+    match compare tInfo.hints sInfo.hints with
+    | .lt => unfold t (return .unknown) (k · s)
+    | .gt => unfold s (return .unknown) (k t ·)
+    | .eq =>
+      -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
+      -- if `f` is not a projection. The projection case generates a performance regression.
+      if tInfo.name == sInfo.name then
+        if t.isApp && s.isApp && (← tryHeuristic t s) then
+          return .eq
+        else
+          unfoldBoth t s
+      else
+        unfoldBoth t s
+where
+  unfoldBoth (t s : Expr) : MetaM DeltaStepResult := do
+    unfold t
+      (unfold s (return .unknown) (k t ·))
+      (fun t => unfold s (k t s) (k t ·))
+
+  k (t s : Expr) : MetaM DeltaStepResult := do
+    let t ← whnfCore t
+    let s ← whnfCore s
+    match (← isDefEqQuick t s) with
+    | .true  => return .eq
+    | .false => return .diff t s
+    | .undef => return .cont t s
+
+/--
+Helper function for solving contraints of the form `t.i =?= s.i`.
+-/
+private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
+  let t ← whnfCore t
+  let s ← whnfCore s
+  match (← isDefEqQuick t s) with
+  | .true  => return true
+  | .false | .undef  => loop t s
+where
+  loop (t s : Expr) : MetaM Bool := do
+    match (← isDefEqDeltaStep t s) with
+    | .cont t s => loop t s
+    | .eq => return true
+    | .unknown => tryReduceProjs t s
+    | .diff t s => tryReduceProjs t s
+
+  tryReduceProjs (t s : Expr) : MetaM Bool := do
+    match (← projectCore? t i), (← projectCore? s i) with
+    | some t, some s => Meta.isExprDefEqAux t s
+    | _, _ => Meta.isExprDefEqAux t s
+
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | .proj m i t, .proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+  | .proj m i t, .proj n j s => do
+    if (← read).inTypeClassResolution then
+      -- See comment at `inTypeClassResolution`
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if i == j && m == n then
+      isDefEqProjDelta t s i
+    else
+      return false
   | .proj structName 0 s, v  => isDefEqSingleton structName s v
   | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false
@@ -1860,6 +1995,12 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
     modifyDefEqTransientCache fun c => c.update mode key result
 
+private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
+  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+    whnfCore e (config := { proj := .yesWithDeltaI })
+  else
+    whnfCore e
+
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
@@ -1872,7 +2013,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
 
-    Note that ew use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    Note that we use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
     We added this refinement to address a performance issue in code such as
     ```
     let val : Test := bar c1 key
@@ -1901,8 +2042,8 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
     and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t (config := { proj := .yesWithDeltaI })
-  let s' ← whnfCore s (config := { proj := .yesWithDeltaI })
+  let t' ← whnfCoreAtDefEq t
+  let s' ← whnfCoreAtDefEq s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

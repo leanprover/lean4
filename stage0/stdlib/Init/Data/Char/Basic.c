@@ -15,12 +15,11 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT uint32_t l_Char_instInhabitedChar;
 LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
-LEAN_EXPORT lean_object* l_Char_instDecidableLtCharInstLTChar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
+LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_toLower(uint32_t);
 LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
 LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
@@ -28,25 +27,26 @@ LEAN_EXPORT lean_object* l_Char_toUpper(uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_instLEChar;
+LEAN_EXPORT uint32_t l_Char_instInhabited;
 LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_instLE;
 LEAN_EXPORT uint8_t l_Char_isDigit(uint32_t);
-LEAN_EXPORT lean_object* l_Char_instLTChar;
-LEAN_EXPORT uint8_t l_Char_instDecidableLtCharInstLTChar(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-LEAN_EXPORT lean_object* l_Char_instDecidableLeCharInstLEChar___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_instDecidableLt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
 uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
-LEAN_EXPORT uint8_t l_Char_instDecidableLeCharInstLEChar(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_instLT;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
 lean_object* l_Char_ofNat(lean_object*);
-static lean_object* _init_l_Char_instLTChar() {
+static lean_object* _init_l_Char_instLT() {
 _start:
 {
 lean_object* x_1; 
@@ -54,7 +54,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-static lean_object* _init_l_Char_instLEChar() {
+static lean_object* _init_l_Char_instLE() {
 _start:
 {
 lean_object* x_1; 
@@ -62,7 +62,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l_Char_instDecidableLtCharInstLTChar(uint32_t x_1, uint32_t x_2) {
+LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -70,7 +70,7 @@ x_3 = lean_uint32_dec_lt(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Char_instDecidableLtCharInstLTChar___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Char_instDecidableLt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -78,12 +78,12 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_instDecidableLtCharInstLTChar(x_3, x_4);
+x_5 = l_Char_instDecidableLt(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_Char_instDecidableLeCharInstLEChar(uint32_t x_1, uint32_t x_2) {
+LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -91,7 +91,7 @@ x_3 = lean_uint32_dec_le(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Char_instDecidableLeCharInstLEChar___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Char_instDecidableLe___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint32_t x_3; uint32_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -99,7 +99,7 @@ x_3 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox_uint32(x_2);
 lean_dec(x_2);
-x_5 = l_Char_instDecidableLeCharInstLEChar(x_3, x_4);
+x_5 = l_Char_instDecidableLe(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -122,7 +122,7 @@ x_3 = l_Char_toNat(x_2);
 return x_3;
 }
 }
-static uint32_t _init_l_Char_instInhabitedChar() {
+static uint32_t _init_l_Char_instInhabited() {
 _start:
 {
 uint32_t x_1; 
@@ -449,11 +449,11 @@ _G_initialized = true;
 res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Char_instLTChar = _init_l_Char_instLTChar();
-lean_mark_persistent(l_Char_instLTChar);
-l_Char_instLEChar = _init_l_Char_instLEChar();
-lean_mark_persistent(l_Char_instLEChar);
-l_Char_instInhabitedChar = _init_l_Char_instInhabitedChar();
+l_Char_instLT = _init_l_Char_instLT();
+lean_mark_persistent(l_Char_instLT);
+l_Char_instLE = _init_l_Char_instLE();
+lean_mark_persistent(l_Char_instLE);
+l_Char_instInhabited = _init_l_Char_instInhabited();
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

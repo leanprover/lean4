@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
 prelude
+import Lean.Meta.Diagnostics
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.SetOption
+import Lean.Language.Basic
 
 namespace Lean.Elab.Command
 
@@ -30,7 +32,6 @@ structure State where
   scopes         : List Scope := [{ header := "" }]
   nextMacroScope : Nat := firstFrontendMacroScope + 1
   maxRecDepth    : Nat
-  nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
@@ -45,6 +46,16 @@ structure Context where
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
+  /--
+  Snapshot for incremental reuse and reporting of command elaboration. Currently unused in Lean
+  itself.
+
+  Definitely resolved in `Language.Lean.process.doElab`.
+
+  Invariant: if the bundle's `old?` is set, the context and state at the beginning of current and
+  old elaboration are identical.
+  -/
+  snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -128,7 +139,8 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     currNamespace  := scope.currNamespace
     openDecls      := scope.openDecls
     initHeartbeats := heartbeats
-    currMacroScope := ctx.currMacroScope }
+    currMacroScope := ctx.currMacroScope
+    diag           := getDiag scope.opts }
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
@@ -147,10 +159,13 @@ private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceStat
 
 private def addTraceAsMessages : CommandElabM Unit := do
   let ctx ← read
-  modify fun s => { s with
-    messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-    traceState.traces := {}
-  }
+  -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
+  -- pretty printing the trace messages is expensive
+  if trace.profiler.output.get? (← getOptions) |>.isNone then
+    modify fun s => { s with
+      messages          := addTraceAsMessagesCore ctx s.messages s.traceState
+      traceState.traces := {}
+    }
 
 def liftCoreM (x : CoreM α) : CommandElabM α := do
   let s ← get
@@ -207,7 +222,8 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}") do
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+              (tag := linter.name.toString) do
             let savedState ← get
             try
               linter.run stx
@@ -279,7 +295,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
         args.forM elabCommand
-      else withTraceNode `Elab.command (fun _ => return stx) do
+      else withTraceNode `Elab.command (fun _ => return stx) (tag :=
+        -- special case: show actual declaration kind for `declaration` commands
+        (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew?) =>
@@ -395,7 +413,7 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   -- make sure `observing` below also catches runtime exceptions (like we do by default in
   -- `CommandElabM`)
   let _ := MonadAlwaysExcept.except (m := TermElabM)
-  let x : MetaM _      := (observing x).run (mkTermContext ctx s) { levelNames := scope.levelNames }
+  let x : MetaM _      := (observing (try x finally Meta.reportDiag)).run (mkTermContext ctx s) { levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled, traceState := s.traceState }
   let (((ea, _), _), coreS) ← liftEIO x
@@ -515,6 +533,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
       fileMap := ← getFileMap
       ref := ← getRef
       tacticCache? := none
+      snap? := none
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth

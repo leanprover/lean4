@@ -17,32 +17,132 @@ def toNat! (s : String) : Nat :=
   else
     panic! "Nat expected"
 
-/--
-  Convert a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`.
-  The result is unspecified if `a` is not properly UTF-8 encoded.
--/
-@[extern "lean_string_from_utf8_unchecked"]
-opaque fromUTF8Unchecked (a : @& ByteArray) : String
+def utf8DecodeChar? (a : ByteArray) (i : Nat) : Option Char := do
+  let c ← a[i]?
+  if c &&& 0x80 == 0 then
+    some ⟨c.toUInt32, .inl (Nat.lt_trans c.1.2 (by decide))⟩
+  else if c &&& 0xe0 == 0xc0 then
+    let c1 ← a[i+1]?
+    guard (c1 &&& 0xc0 == 0x80)
+    let r := ((c &&& 0x1f).toUInt32 <<< 6) ||| (c1 &&& 0x3f).toUInt32
+    guard (0x80 ≤ r)
+    -- TODO: Prove h from the definition of r once we have the necessary lemmas
+    if h : r < 0xd800 then some ⟨r, .inl h⟩ else none
+  else if c &&& 0xf0 == 0xe0 then
+    let c1 ← a[i+1]?
+    let c2 ← a[i+2]?
+    guard (c1 &&& 0xc0 == 0x80 && c2 &&& 0xc0 == 0x80)
+    let r :=
+      ((c &&& 0x0f).toUInt32 <<< 12) |||
+      ((c1 &&& 0x3f).toUInt32 <<< 6) |||
+      (c2 &&& 0x3f).toUInt32
+    guard (0x800 ≤ r)
+    -- TODO: Prove `r < 0x110000` from the definition of r once we have the necessary lemmas
+    if h : r < 0xd800 ∨ 0xdfff < r ∧ r < 0x110000 then some ⟨r, h⟩ else none
+  else if c &&& 0xf8 == 0xf0 then
+    let c1 ← a[i+1]?
+    let c2 ← a[i+2]?
+    let c3 ← a[i+3]?
+    guard (c1 &&& 0xc0 == 0x80 && c2 &&& 0xc0 == 0x80 && c3 &&& 0xc0 == 0x80)
+    let r :=
+      ((c &&& 0x07).toUInt32 <<< 18) |||
+      ((c1 &&& 0x3f).toUInt32 <<< 12) |||
+      ((c2 &&& 0x3f).toUInt32 <<< 6) |||
+      (c3 &&& 0x3f).toUInt32
+    if h : 0x10000 ≤ r ∧ r < 0x110000 then
+      some ⟨r, .inr ⟨Nat.lt_of_lt_of_le (by decide) h.1, h.2⟩⟩
+    else none
+  else
+    none
 
-/-- Convert the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
+/-- Returns true if the given byte array consists of valid UTF-8. -/
+@[extern "lean_string_validate_utf8"]
+def validateUTF8 (a : @& ByteArray) : Bool :=
+  (loop 0).isSome
+where
+  loop (i : Nat) : Option Unit := do
+    if i < a.size then
+      let c ← utf8DecodeChar? a i
+      loop (i + csize c)
+    else pure ()
+  termination_by a.size - i
+  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right (one_le_csize c))
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`. -/
+@[extern "lean_string_from_utf8"]
+def fromUTF8 (a : @& ByteArray) (h : validateUTF8 a) : String :=
+  loop 0 ""
+where
+  loop (i : Nat) (acc : String) : String :=
+    if i < a.size then
+      let c := (utf8DecodeChar? a i).getD default
+      loop (i + csize c) (acc.push c)
+    else acc
+  termination_by a.size - i
+  decreasing_by exact Nat.sub_lt_sub_left ‹_› (Nat.lt_add_of_pos_right (one_le_csize c))
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or returns `none` if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8? (a : ByteArray) : Option String :=
+  if h : validateUTF8 a then fromUTF8 a h else none
+
+/-- Converts a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded `ByteArray` string to `String`,
+or panics if `a` is not properly UTF-8 encoded. -/
+@[inline] def fromUTF8! (a : ByteArray) : String :=
+  if h : validateUTF8 a then fromUTF8 a h else panic! "invalid UTF-8 string"
+
+def utf8EncodeChar (c : Char) : List UInt8 :=
+  let v := c.val
+  if v ≤ 0x7f then
+    [v.toUInt8]
+  else if v ≤ 0x7ff then
+    [(v >>>  6).toUInt8 &&& 0x1f ||| 0xc0,
+              v.toUInt8 &&& 0x3f ||| 0x80]
+  else if v ≤ 0xffff then
+    [(v >>> 12).toUInt8 &&& 0x0f ||| 0xe0,
+     (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
+              v.toUInt8 &&& 0x3f ||| 0x80]
+  else
+    [(v >>> 18).toUInt8 &&& 0x07 ||| 0xf0,
+     (v >>> 12).toUInt8 &&& 0x3f ||| 0x80,
+     (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
+              v.toUInt8 &&& 0x3f ||| 0x80]
+
+@[simp] theorem length_utf8EncodeChar (c : Char) : (utf8EncodeChar c).length = csize c := by
+  simp [csize, utf8EncodeChar, Char.utf8Size]
+  cases Decidable.em (c.val ≤ 0x7f) <;> simp [*]
+  cases Decidable.em (c.val ≤ 0x7ff) <;> simp [*]
+  cases Decidable.em (c.val ≤ 0xffff) <;> simp [*]
+
+/-- Converts the given `String` to a [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoded byte array. -/
 @[extern "lean_string_to_utf8"]
-opaque toUTF8 (a : @& String) : ByteArray
+def toUTF8 (a : @& String) : ByteArray :=
+  ⟨⟨a.data.bind utf8EncodeChar⟩⟩
+
+@[simp] theorem size_toUTF8 (s : String) : s.toUTF8.size = s.utf8ByteSize := by
+  simp [toUTF8, ByteArray.size, Array.size, utf8ByteSize, List.bind]
+  induction s.data <;> simp [List.map, List.join, utf8ByteSize.go, Nat.add_comm, *]
 
 /-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/
 @[extern "lean_string_get_byte_fast"]
-opaque getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
+def getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8 :=
+  (toUTF8 s).get ⟨n, size_toUTF8 _ ▸ h⟩
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   exact Nat.sub_lt_sub_left h (String.lt_next s pos)
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
+macro_rules
+| `(tactic| decreasing_trivial) =>
+  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
 
 theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
   have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
   sizeOf_next_lt_of_hasNext i h
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
+macro_rules
+| `(tactic| decreasing_trivial) =>
+  `(tactic| with_reducible apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
 namespace Iterator
 

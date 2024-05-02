@@ -344,7 +344,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
-#testDelabN instMonadReaderOf
+#testDelabN instMonadReaderOfOfMonadLift
 #testDelabN instInhabitedPUnit
 #testDelabN Lean.Syntax.getOptionalIdent?
 #testDelabN Lean.Meta.ppExpr

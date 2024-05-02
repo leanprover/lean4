@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_log(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_193____closed__3;
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___rarg___lambda__14___closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfoAt(lean_object*);
@@ -50,12 +51,9 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__3___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_logWarningAt(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_193____closed__2;
-LEAN_EXPORT lean_object* l_Lean_instMonadLog(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getRefPosition(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_193____closed__6;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__14(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,6 +66,8 @@ LEAN_EXPORT lean_object* l_Lean_getRefPos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logWarning___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_logUnknownDecl___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_193____closed__5;
 LEAN_EXPORT lean_object* l_Lean_logUnknownDecl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -103,7 +103,7 @@ LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__13(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getRefPos___rarg___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -115,7 +115,7 @@ x_6 = lean_apply_2(x_2, lean_box(0), x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadLog___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -135,7 +135,7 @@ x_9 = lean_ctor_get(x_2, 3);
 lean_inc(x_9);
 lean_inc(x_1);
 x_10 = lean_apply_2(x_1, lean_box(0), x_9);
-x_11 = lean_alloc_closure((void*)(l_Lean_instMonadLog___rarg___lambda__1), 3, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_instMonadLogOfMonadLift___rarg___lambda__1), 3, 2);
 lean_closure_set(x_11, 0, x_2);
 lean_closure_set(x_11, 1, x_1);
 x_12 = lean_alloc_ctor(0, 5, 0);
@@ -147,11 +147,11 @@ lean_ctor_set(x_12, 4, x_11);
 return x_12;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instMonadLog(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadLogOfMonadLift(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_instMonadLog___rarg), 2, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_instMonadLogOfMonadLift___rarg), 2, 0);
 return x_3;
 }
 }

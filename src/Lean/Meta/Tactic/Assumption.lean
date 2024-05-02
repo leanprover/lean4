@@ -33,7 +33,7 @@ def assumptionCore (mvarId : MVarId) : MetaM Bool :=
 /-- Close goal `mvarId` using an assumption. Throw error message if failed. -/
 def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← mvarId.assumptionCore) do
-    throwTacticEx `assumption mvarId ""
+    throwTacticEx `assumption mvarId
 
 @[deprecated MVarId.assumption]
 def assumption (mvarId : MVarId) : MetaM Unit :=

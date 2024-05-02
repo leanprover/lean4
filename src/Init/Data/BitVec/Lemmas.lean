@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joe Hendrix
+Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
 -/
 prelude
 import Init.Data.Bool
@@ -103,7 +103,13 @@ theorem eq_of_getMsb_eq {x y : BitVec w}
     have q := pred ⟨w - 1 - i, q_lt⟩
     simpa [q_lt, Nat.sub_sub_self, r] using q
 
-@[simp] theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
+-- This cannot be a `@[simp]` lemma, as it would be tried at every term.
+theorem of_length_zero {x : BitVec 0} : x = 0#0 := by ext; simp
+
+@[simp] theorem toNat_zero_length (x : BitVec 0) : x.toNat = 0 := by simp [of_length_zero]
+@[simp] theorem getLsb_zero_length (x : BitVec 0) : x.getLsb i = false := by simp [of_length_zero]
+@[simp] theorem getMsb_zero_length (x : BitVec 0) : x.getMsb i = false := by simp [of_length_zero]
+@[simp] theorem msb_zero_length (x : BitVec 0) : x.msb = false := by simp [BitVec.msb, of_length_zero]
 
 theorem eq_of_toFin_eq : ∀ {x y : BitVec w}, x.toFin = y.toFin → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -336,7 +342,7 @@ theorem nat_eq_toNat (x : BitVec w) (y : Nat)
 @[simp] theorem getMsb_zeroExtend_add {x : BitVec w} (h : k ≤ i) :
     (x.zeroExtend (w + k)).getMsb i = x.getMsb (i - k) := by
   by_cases h : w = 0
-  · subst h; simp
+  · subst h; simp [of_length_zero]
   simp only [getMsb, getLsb_zeroExtend]
   by_cases h₁ : i < w + k <;> by_cases h₂ : i - k < w <;> by_cases h₃ : w + k - 1 - i < w + k
     <;> simp [h₁, h₂, h₃]
@@ -817,23 +823,41 @@ Definition of bitvector addition as a nat.
   .ofFin x + y = .ofFin (x + y.toFin) := rfl
 @[simp] theorem add_ofFin (x : BitVec n) (y : Fin (2^n)) :
   x + .ofFin y = .ofFin (x.toFin + y) := rfl
-@[simp] theorem ofNat_add_ofNat {n} (x y : Nat) : x#n + y#n = (x + y)#n := by
+
+theorem ofNat_add {n} (x y : Nat) : (x + y)#n = x#n + y#n := by
   apply eq_of_toNat_eq ; simp [BitVec.ofNat]
+
+theorem ofNat_add_ofNat {n} (x y : Nat) : x#n + y#n = (x + y)#n :=
+  (ofNat_add x y).symm
 
 protected theorem add_assoc (x y z : BitVec n) : x + y + z = x + (y + z) := by
   apply eq_of_toNat_eq ; simp [Nat.add_assoc]
+instance : Std.Associative (α := BitVec n) (· + ·) := ⟨BitVec.add_assoc⟩
 
 protected theorem add_comm (x y : BitVec n) : x + y = y + x := by
   simp [add_def, Nat.add_comm]
+instance : Std.Commutative (α := BitVec n) (· + ·) := ⟨BitVec.add_comm⟩
 
 @[simp] protected theorem add_zero (x : BitVec n) : x + 0#n = x := by simp [add_def]
 
 @[simp] protected theorem zero_add (x : BitVec n) : 0#n + x = x := by simp [add_def]
+instance : Std.LawfulIdentity (α := BitVec n) (· + ·) 0#n where
+  left_id := BitVec.zero_add
+  right_id := BitVec.add_zero
 
 theorem truncate_add (x y : BitVec w) (h : i ≤ w) :
     (x + y).truncate i = x.truncate i + y.truncate i := by
   have dvd : 2^i ∣ 2^w := Nat.pow_dvd_pow _ h
   simp [bv_toNat, h, Nat.mod_mod_of_dvd _ dvd]
+
+@[simp, bv_toNat] theorem toInt_add (x y : BitVec w) :
+  (x + y).toInt = (x.toInt + y.toInt).bmod (2^w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
+    BitVec.ofInt n x + BitVec.ofInt n y := by
+  apply eq_of_toInt_eq
+  simp
 
 /-! ### sub/neg -/
 
@@ -910,6 +934,15 @@ instance : Std.Associative (fun (x y : BitVec w) => x * y) := ⟨BitVec.mul_asso
 
 instance : Std.LawfulCommIdentity (fun (x y : BitVec w) => x * y) (1#w) where
   right_id := BitVec.mul_one
+
+@[simp, bv_toNat] theorem toInt_mul (x y : BitVec w) :
+  (x * y).toInt = (x.toInt * y.toInt).bmod (2^w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem ofInt_mul {n} (x y : Int) : BitVec.ofInt n (x * y) =
+    BitVec.ofInt n x * BitVec.ofInt n y := by
+  apply eq_of_toInt_eq
+  simp
 
 /-! ### le and lt -/
 

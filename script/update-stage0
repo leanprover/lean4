@@ -16,7 +16,8 @@ for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do
     fi
 done
 
-for f in $(git ls-files 'src/lake/*'); do
+mkdir -p stage0/src/lake
+for f in $(git ls-files 'src/lake/Lake/*' src/lake/Lake.lean); do
     if [[ $f == *.lean ]]; then
         f=${f#src/lake}
         f=${f%.lean}.c

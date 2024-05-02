@@ -1012,7 +1012,7 @@ def Submodule.toLocalizedQuotient' : M ⧸ M' →ₗ[R] N ⧸ M'.localized' S p 
 set_option maxHeartbeats 100000 in
 set_option backward.isDefEq.lazyWhnfCore false in
 theorem Submodule.toLocalizedQuotient'_mk₁ (x : M) :
-    M'.toLocalizedQuotient' S p f (Submodule.Quotient.mk x) = Submodule.Quotient.mk (p := (Submodule.localized' S p f M')) (f x) := rfl
+    M'.toLocalizedQuotient' S p f (Submodule.Quotient.mk x) = Submodule.Quotient.mk (f x) := rfl
 
 -- If we specify the `p` argument of `Quotient.mk` on the RHS it is instant:
 set_option maxHeartbeats 1000 in
@@ -1023,7 +1023,7 @@ theorem Submodule.toLocalizedQuotient'_mk₂ (x : M) :
 set_option maxHeartbeats 1000 in
 attribute [local irreducible] Membership.mem AddSubgroup.op in
 theorem Submodule.toLocalizedQuotient'_mk₃ (x : M) :
-    M'.toLocalizedQuotient' S p f (Submodule.Quotient.mk x) = Submodule.Quotient.mk (p := (Submodule.localized' S p f M')) (f x) := rfl
+    M'.toLocalizedQuotient' S p f (Submodule.Quotient.mk x) = Submodule.Quotient.mk (f x) := rfl
 
 -- However with the default `isDefEq` algorithm it blows out:
 set_option maxHeartbeats 700000 in

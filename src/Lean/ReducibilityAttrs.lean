@@ -89,7 +89,7 @@ Reason: the second one is problematic if user has add simp theorems or TC instan
 Recall that the discrimination trees unfold `[reducible]` declarations while indexing new entries.
 -/
 
-register_builtin_option allowUnsafeReductibility : Bool := {
+register_builtin_option allowUnsafeReducibility : Bool := {
   defValue := false
   descr    := "enables users to modify the reducibility settings for declarations even when such changes are deemed potentially hazardous. For example, `simp` and type class resolution maintain term indices where reducible declarations are expanded."
 }

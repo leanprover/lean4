@@ -625,7 +625,13 @@ partial def FS.removeDirAll (p : FilePath) : IO Unit := do
 
 namespace Process
 
-/-- Returns the process ID of the current process. -/
+/-- Returns the current working directory of the calling process. -/
+@[extern "lean_io_process_get_current_dir"] opaque getCurrentDir : IO FilePath
+
+/-- Sets the current working directory of the calling process. -/
+@[extern "lean_io_process_set_current_dir"] opaque setCurrentDir (path : @& FilePath) : IO Unit
+
+/-- Returns the process ID of the calling process. -/
 @[extern "lean_io_process_get_pid"] opaque getPID : BaseIO UInt32
 
 inductive Stdio where

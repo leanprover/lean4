@@ -293,11 +293,13 @@ def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
 /--
-Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+Returns the current log and then resets its messages while adjusting `MessageLog.hadErrors`. Used
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun s => (s.messages, { s with messages.msgs := {} })
+  modifyGet fun s => (s.messages, { s with
+    messages.msgs := {}
+    messages.hadErrors := s.messages.hasErrors })
 
 instance : MonadLog CoreM where
   getRef      := getRef

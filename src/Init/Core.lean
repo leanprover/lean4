@@ -1114,9 +1114,6 @@ theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
 
-instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} where
-  default := ⟨a, h⟩
-
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)

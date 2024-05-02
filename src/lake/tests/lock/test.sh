@@ -47,4 +47,4 @@ test3_pid=$!
 grep -q "Building" < <($TAIL --pid=$$ -f test3.log)
 rm .lake/build/lake.lock
 wait $test3_pid
-cat test3.log | grep "deleted before the lock"
+cat test3.log | grep --color "deleted before the lock"

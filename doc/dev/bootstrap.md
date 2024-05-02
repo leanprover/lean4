@@ -84,16 +84,19 @@ gh workflow run update-stage0.yml
 Leaving stage0 updates to the CI automation is preferable, but should you need
 to do it locally, you can use `make update-stage0-commit` in `build/release` to
 update `stage0` from `stage1` or `make -C stageN update-stage0-commit` to
-update from another stage.
+update from another stage. This command will automatically stage the updated files
+and introduce a commit,so make sure to commit your work before that.
 
-This command will automatically stage the updated files and introduce a commit,
-so make sure to commit your work before that.
+If you rebased the branch (either onto a newer version of `master`, or fixing
+up some commits prior to the stage0 update, recreate the stage0 update commits.
+The script `script/rebase-stage0.sh` can be used for that.
 
 The CI should prevent PRs with changes to stage0 (besides `stdlib_flags.h`)
 from entering `master` through the (squashing!) merge queue, and label such PRs
 with the `changes-stage0` label. Such PRs should have a cleaned up history,
 with separate stage0 update commits; then coordinate with the admins to merge
 your PR using rebase merge, bypassing the merge queue.
+
 
 ## Further Bootstrapping Complications
 

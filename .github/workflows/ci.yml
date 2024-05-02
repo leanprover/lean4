@@ -55,8 +55,8 @@ jobs:
           script: |
             const quick = ${{ steps.set-quick.outputs.quick }};
             console.log(`quick: ${quick}`);
-            # use large runners outside PRs where available (original repo)
-            # for now Windows only, which is the slowest non-debug job
+            // use large runners outside PRs where available (original repo)
+            // for now Windows only, which is the slowest non-debug job
             let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
             let matrix = [
               {
@@ -138,7 +138,7 @@ jobs:
               },
               {
                 "name": "Windows",
-                "os": `windows-latest${large}`,
+                "os": `windows-2022${large}`,
                 "release": true,
                 "quick": false,
                 "shell": "msys2 {0}",

@@ -352,7 +352,7 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make -j$NPROC
           make install
       - name: Check Binaries

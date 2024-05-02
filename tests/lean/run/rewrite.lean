@@ -40,7 +40,7 @@ example : f 1 = f 2 := by
 example : f 1 = f 2 := by
   rw [s 1 3, s 3 4] -- Closes the goal via `rfl`
 
-set_option allowUnsafeReductibility true
+set_option allowUnsafeReducibility true
 -- For the remaining tests we prevent `rfl` from closing the goal.
 attribute [irreducible] f
 

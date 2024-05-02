@@ -95,8 +95,8 @@ register_builtin_option allowUnsafeReducibility : Bool := {
 }
 
 private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do
-  let suffix := "use `set_option allowUnsafeReductibility true` to override reducibility status validation"
-  unless allowUnsafeReductibility.get (← getOptions) do
+  let suffix := "use `set_option allowUnsafeReducibility true` to override reducibility status validation"
+  unless allowUnsafeReducibility.get (← getOptions) do
     match (← getConstInfo declName) with
     | .defnInfo _ =>
       let statusOld := getReducibilityStatusCore (← getEnv) declName

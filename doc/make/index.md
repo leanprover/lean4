@@ -23,9 +23,9 @@ Setting up a basic parallelized release build:
 git clone https://github.com/leanprover/lean4
 cd lean4
 cmake --preset release
-cmake --build --preset release -j$(nproc)
+make -C build/release -j$(nproc)  # see below for macOS
 ```
-On macOS, replace `$(nproc)` with the desired parallelism amount.
+You can replace `$(nproc)`, which is not available on macOS and some alternative shells, with the desired parallelism amount.
 
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details.
@@ -54,4 +54,4 @@ redundant builds, especially after stage 0 has been updated.
 Troubleshooting
 ---------------
 
-* Call `cmake --build` with an additional `-- VERBOSE=1` argument to print executed commands.
+* Call `make` with an additional `VERBOSE=1` argument to print executed commands.

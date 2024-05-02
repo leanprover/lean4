@@ -343,6 +343,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
 
 @[builtin_term_elab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType? ← tryPostponeIfHasMVars? expectedType?
+  trace[Elab.subst] "Elaborating {stx} with expected type {expectedType?}"
   match stx with
   | `($heqStx ▸ $hStx) => do
      synthesizeSyntheticMVars
@@ -365,6 +366,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
            expectedAbst ← kabstract expectedType lhs
            unless expectedAbst.hasLooseBVars do
              throwError "invalid `▸` notation, expected result type of cast is {indentExpr expectedType}\nhowever, the equality {indentExpr heq}\nof type {indentExpr heqType}\ndoes not contain the expected result type on either the left or the right hand side"
+           trace[Elab.subst] "Swapping orientation"
            heq ← mkEqSymm heq
            (lhs, rhs) := (rhs, lhs)
          let hExpectedType := expectedAbst.instantiate1 lhs
@@ -373,6 +375,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
            try
              return (← ensureHasType hExpectedType h, none)
            catch ex =>
+             trace[Elab.subst] "Argument{indentExpr h}\ndid not elaborate to expected type{indentExpr hExpectedType}"
              -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
              let hType ← inferType h
              let hTypeAbst ← kabstract hType rhs
@@ -380,6 +383,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                throw ex
              let hTypeNew := hTypeAbst.instantiate1 lhs
              unless (← isDefEq hExpectedType hTypeNew) do
+               trace[Elab.subst] "Rewritten argument type{indentExpr hTypeNew}\ndid not elaborate to expected type{indentExpr hExpectedType}"
                throw ex
              let motive ← mkMotive rhs hTypeAbst
              if !(← isTypeCorrect motive) then
@@ -388,6 +392,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                return (← mkEqRec motive h (← mkEqSymm heq), none)
          let motive ← mkMotive lhs expectedAbst
          if badMotive?.isSome || !(← isTypeCorrect motive) then
+           trace[Elab.subst] "Motive{indentExpr motive}\nnot type correct, trying to use `subst"
            -- Before failing try tos use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
              withLocalIdentFor heqStx heq fun heqStx => do

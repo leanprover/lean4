@@ -231,5 +231,6 @@ builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step
   registerTraceClass `Elab.step.result (inherited := true)
+  registerTraceClass `Elab.subst
 
 end Lean.Elab

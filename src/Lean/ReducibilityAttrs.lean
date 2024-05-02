@@ -48,7 +48,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     | none => .semireducible
   | none => (reducibilityCoreExt.getState env).find? declName |>.getD .semireducible
 
-def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
+private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then
     match env.getModuleIdxFor? declName with
     | some _ =>

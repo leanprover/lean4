@@ -48,7 +48,8 @@ def Workspace.runFetchM
   let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
   let failed := log.any (·.level ≥ failLv)
   if !failed && io.isEmpty && !log.hasVisibleEntries verbosity then
-    if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
+    if showProgress then
+      if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
   else
     unless showProgress do
       out.putStr header
@@ -72,7 +73,8 @@ def Workspace.runFetchM
     let failed := log.any (·.level ≥ failLv)
     if failed then modify (·.push caption)
     if !(failed || log.hasVisibleEntries verbosity) then
-      if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
+      if showProgress then
+        if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
     else
       unless showProgress do
         out.putStr header

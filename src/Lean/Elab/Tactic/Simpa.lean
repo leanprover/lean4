@@ -31,7 +31,7 @@ deriving instance Repr for UseImplicitLambdaResult
 @[builtin_tactic Lean.Parser.Tactic.simpa] def evalSimpa : Tactic := fun stx => do
   match stx with
   | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $(cfg)? $(disch)? $[only%$only]?
-        $[[$args,*]]? $[using $usingArg]?) => Elab.Tactic.focus do
+        $[[$args,*]]? $[using $usingArg]?) => Elab.Tactic.focus do withSimpDiagnostics do
     let stx ← `(tactic| simp $(cfg)? $(disch)? $[only%$only]? $[[$args,*]]?)
     let { ctx, simprocs, dischargeWrapper } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false)
@@ -39,12 +39,13 @@ deriving instance Repr for UseImplicitLambdaResult
     -- TODO: have `simpa` fail if it doesn't use `simp`.
     let ctx := { ctx with config := { ctx.config with failIfUnchanged := false } }
     dischargeWrapper.with fun discharge? => do
-      let (some (_, g), usedSimps) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs)
+      let (some (_, g), stats) ← simpGoal (← getMainGoal) ctx (simprocs := simprocs)
           (simplifyTarget := true) (discharge? := discharge?)
         | if getLinterUnnecessarySimpa (← getOptions) then
             logLint linter.unnecessarySimpa (← getRef) "try 'simp' instead of 'simpa'"
+          return {}
       g.withContext do
-      let usedSimps ← if let some stx := usingArg then
+      let stats ← if let some stx := usingArg then
         setGoals [g]
         g.withContext do
         let e ← Tactic.elabTerm stx none (mayPostpone := true)
@@ -52,8 +53,8 @@ deriving instance Repr for UseImplicitLambdaResult
           pure (h, g)
         else
           (← g.assert `h (← inferType e) e).intro1
-        let (result?, usedSimps) ← simpGoal g ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
-          (simplifyTarget := false) (usedSimps := usedSimps) (discharge? := discharge?)
+        let (result?, stats) ← simpGoal g ctx (simprocs := simprocs) (fvarIdsToSimp := #[h])
+          (simplifyTarget := false) (stats := stats) (discharge? := discharge?)
         match result? with
         | some (xs, g) =>
           let h := match xs with | #[h] | #[] => h | _ => unreachable!
@@ -66,18 +67,18 @@ deriving instance Repr for UseImplicitLambdaResult
             if (← getLCtx).getRoundtrippingUserName? h |>.isSome then
               logLint linter.unnecessarySimpa (← getRef)
                 m!"try 'simp at {Expr.fvar h}' instead of 'simpa using {Expr.fvar h}'"
-        pure usedSimps
+        pure stats
       else if let some ldecl := (← getLCtx).findFromUserName? `this then
-        if let (some (_, g), usedSimps) ← simpGoal g ctx (simprocs := simprocs)
-            (fvarIdsToSimp := #[ldecl.fvarId]) (simplifyTarget := false) (usedSimps := usedSimps)
+        if let (some (_, g), stats) ← simpGoal g ctx (simprocs := simprocs)
+            (fvarIdsToSimp := #[ldecl.fvarId]) (simplifyTarget := false) (stats := stats)
             (discharge? := discharge?) then
-          g.assumption; pure usedSimps
+          g.assumption; pure stats
         else
-          pure usedSimps
+          pure stats
       else
-        g.assumption; pure usedSimps
+        g.assumption; pure stats
       if tactic.simp.trace.get (← getOptions) || squeeze.isSome then
-        let stx ← match ← mkSimpOnly stx usedSimps with
+        let stx ← match ← mkSimpOnly stx stats.usedTheorems with
           | `(tactic| simp $(cfg)? $(disch)? $[only%$only]? $[[$args,*]]?) =>
             if unfold.isSome then
               `(tactic| simpa! $(cfg)? $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
@@ -85,6 +86,7 @@ deriving instance Repr for UseImplicitLambdaResult
               `(tactic| simpa $(cfg)? $(disch)? $[only%$only]? $[[$args,*]]? $[using $usingArg]?)
           | _ => unreachable!
         TryThis.addSuggestion tk stx (origSpan? := ← getRef)
+      return stats.diag
     | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Simpa

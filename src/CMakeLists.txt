@@ -315,6 +315,12 @@ endif()
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
+# in local builds, link executables and not just dynlibs against C++ stdlib as well,
+# which is required for e.g. asan
+if(NOT LEAN_STANDALONE)
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+endif()
+
 # flags for user binaries = flags for toolchain binaries + Lake
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 

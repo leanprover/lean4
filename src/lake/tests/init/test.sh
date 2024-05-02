@@ -15,25 +15,25 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Test `new` and `init` with bad template/langauge (should error)
 
-($LAKE new foo bar 2>&1 && false || true) | grep "unknown package template"
-($LAKE new foo .baz 2>&1 && false || true) | grep "unknown configuration language"
-($LAKE init foo bar 2>&1 && false || true) | grep "unknown package template"
-($LAKE init foo std.baz 2>&1 && false || true) | grep "unknown configuration language"
+($LAKE new foo bar 2>&1 && exit 1 || true) | grep "unknown package template"
+($LAKE new foo .baz 2>&1 && exit 1 || true) | grep "unknown configuration language"
+($LAKE init foo bar 2>&1 && exit 1 || true) | grep "unknown package template"
+($LAKE init foo std.baz 2>&1 && exit 1 || true) | grep "unknown configuration language"
 
 # Test package name validation (should error)
 # https://github.com/leanprover/lean4/issues/2637
 
-($LAKE new  .    2>&1 && false || true) | grep "illegal package name"
+($LAKE new  .    2>&1 && exit 1 || true) | grep "illegal package name"
 for cmd in new init; do
-($LAKE $cmd ..   2>&1 && false || true) | grep "illegal package name"
-($LAKE $cmd .... 2>&1 && false || true) | grep "illegal package name"
-($LAKE $cmd '  ' 2>&1 && false || true) | grep "illegal package name"
-($LAKE $cmd a/bc 2>&1 && false || true) | grep "illegal package name"
-($LAKE $cmd a\\b 2>&1 && false || true) | grep "illegal package name"
-($LAKE $cmd init 2>&1 && false || true) | grep "reserved package name"
-($LAKE $cmd Lean 2>&1 && false || true) | grep "reserved package name"
-($LAKE $cmd Lake 2>&1 && false || true) | grep "reserved package name"
-($LAKE $cmd main 2>&1 && false || true) | grep "reserved package name"
+($LAKE $cmd ..   2>&1 && exit 1 || true) | grep "illegal package name"
+($LAKE $cmd .... 2>&1 && exit 1 || true) | grep "illegal package name"
+($LAKE $cmd '  ' 2>&1 && exit 1 || true) | grep "illegal package name"
+($LAKE $cmd a/bc 2>&1 && exit 1 || true) | grep "illegal package name"
+($LAKE $cmd a\\b 2>&1 && exit 1 || true) | grep "illegal package name"
+($LAKE $cmd init 2>&1 && exit 1 || true) | grep "reserved package name"
+($LAKE $cmd Lean 2>&1 && exit 1 || true) | grep "reserved package name"
+($LAKE $cmd Lake 2>&1 && exit 1 || true) | grep "reserved package name"
+($LAKE $cmd main 2>&1 && exit 1 || true) | grep "reserved package name"
 done
 
 # Test default (std) template
@@ -142,4 +142,4 @@ popd
 
 # Test bare `init` on existing package (should error)
 
-($LAKE -d hello_world init 2>&1 && false || true) | grep "package already initialized"
+($LAKE -d hello_world init 2>&1 && exit 1 || true) | grep "package already initialized"

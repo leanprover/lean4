@@ -11,10 +11,10 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Test `run_io`
 $LAKE resolve-deps -R 2>&1 | grep impure
-$LAKE resolve-deps 2>&1 | (grep impure && false || true)
+$LAKE resolve-deps 2>&1 | (grep impure && exit 1 || true)
 
 # Test `meta if` and command `do`
-$LAKE resolve-deps -R 2>&1 | (grep -E "foo|bar|baz|1|2" && false || true)
+$LAKE resolve-deps -R 2>&1 | (grep -E "foo|bar|baz|1|2" && exit 1 || true)
 $LAKE resolve-deps -R -Kbaz 2>&1 | grep baz
 $LAKE resolve-deps -R -Kenv=foo 2>&1 | grep foo
 $LAKE run print_env 2>&1 | grep foo

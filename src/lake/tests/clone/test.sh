@@ -51,7 +51,7 @@ $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 # See https://github.com/leanprover/lake/issues/167
 
 sed_i "s/world/changes/" .lake/packages/hello/Hello/Basic.lean
-git -C .lake/packages/hello diff --exit-code && false || true
+git -C .lake/packages/hello diff --exit-code && exit 1 || true
 $LAKE build 3>&1 1>&2 2>&3 | grep "has local changes"
 ./.lake/build/bin/test | grep "Hello, changes"
 git -C .lake/packages/hello reset --hard

@@ -20,7 +20,7 @@ fi
 ./clean.sh
 
 # Test error on nonexistent facet
-$LAKE build targets:noexistent && false || true
+$LAKE build targets:noexistent && exit 1 || true
 
 # Test custom targets and package, library, and module facets
 $LAKE build bark | awk '/bark/,/Bark!/' | wc -l | grep -q 2

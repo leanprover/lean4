@@ -22,7 +22,7 @@ test1_pid=$!
 grep -q "Building" < <($TAIL --pid=$$ -f test1.log)
 test -f .lake/build/lake.lock
 kill $test1_pid
-! wait $test1_pid
+wait $test1_pid  && exit 1 || true
 
 # Test build waits when lock file present
 touch test2.log
@@ -37,7 +37,7 @@ wait $test2_pid
 test ! -f .lake/build/lake.lock
 
 # Test build error still deletes lock file
-! $LAKE build Error
+$LAKE build Error && exit 1 || true
 test ! -f .lake/build/lake.lock
 
 # Test that removing the lock during build does not cause it to fail

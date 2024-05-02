@@ -109,7 +109,7 @@ popd
 pushd d
 $LAKE update -v
 # test 70: we do not update transitive depednecies
-! grep 'third commit in a' .lake/packages/a/A.lean
+grep 'third commit in a' .lake/packages/a/A.lean && exit 1 || true
 git diff --exit-code
 popd
 
@@ -138,5 +138,5 @@ grep 'third commit in a' .lake/packages/a/A.lean
 grep "\"c\"" lake-manifest.json
 sed_i '/require c/d' lakefile.lean
 $LAKE update c -v
-grep "\"c\"" lake-manifest.json && false || true
+grep "\"c\"" lake-manifest.json && exit 1 || true
 popd

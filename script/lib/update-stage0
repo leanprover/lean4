@@ -16,8 +16,9 @@ for f in $(git ls-files src ':!:src/lake/*' ':!:src/Leanc.lean'); do
     fi
 done
 
-mkdir -p stage0/src/lake
-for f in $(git ls-files 'src/lake/Lake/*' src/lake/Lake.lean); do
+# special handling for Lake files due to its nested directory
+# copy the README to ensure the `stage0/src/lake` is comitted
+for f in $(git ls-files 'src/lake/Lake/*' src/lake/Lake.lean src/lake/README.md); do
     if [[ $f == *.lean ]]; then
         f=${f#src/lake}
         f=${f%.lean}.c

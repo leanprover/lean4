@@ -58,7 +58,7 @@ def mkDiagSummaryForUnfoldedReducible (counters : PHashMap Name Nat) : MetaM Dia
     getReducibilityStatusCore env declName matches .reducible
 
 def mkDiagSummaryForUsedInstances : MetaM DiagSummary := do
-  mkDiagSummary (← get).diag.heuristicCounter
+  mkDiagSummary (← get).diag.instanceCounter
 
 def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSummary) : MessageData :=
   if s.isEmpty then

@@ -24,6 +24,7 @@ example : f (x + 50) = f x := by
   set_option diagnostics true in
   simp [f_eq, q_eq]
 
+
 def ack : Nat → Nat → Nat
   | 0,   y   => y+1
   | x+1, 0   => ack x 1
@@ -51,19 +52,19 @@ example : ack 4 4 = x := by
   simp [ack.eq_2, ack.eq_1, ack.eq_3]
 
 /--
-info: [simp] used theorems (max: 22, num: 5):
-    ack.eq_3 ↦ 22
+info: [simp] used theorems (max: 77, num: 5):
+    ack.eq_3 ↦ 77
   ⏎
-  Nat.reduceAdd (builtin simproc) ↦ 14
+  Nat.reduceAdd (builtin simproc) ↦ 45
   ⏎
-  ack.eq_1 ↦ 11
+  ack.eq_1 ↦ 42
   ⏎
   ack.eq_2 ↦ 4
   ⏎
-  Nat.zero_add ↦ 1[simp] tried theorems (max: 38, num: 4):
-    ack.eq_3 ↦ 38, succeeded: 22
+  Nat.zero_add ↦ 1[simp] tried theorems (max: 124, num: 4):
+    ack.eq_3 ↦ 124, succeeded: 77
   ⏎
-  ack.eq_1 ↦ 11, succeeded: 11
+  ack.eq_1 ↦ 42, succeeded: 42
   ⏎
   ack.eq_2 ↦ 4, succeeded: 4
   ⏎
@@ -71,7 +72,7 @@ info: [simp] used theorems (max: 22, num: 5):
     outParam ↦ 7use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
-(deterministic) timeout at `whnf`, maximum number of heartbeats (500) has been reached
+(deterministic) timeout at `isDefEq`, maximum number of heartbeats (500) has been reached
 use `set_option maxHeartbeats <num>` to set the limit
 use `set_option diagnostics true` to get diagnostic information
 -/

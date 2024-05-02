@@ -14,8 +14,7 @@ info: [reduction] unfolded declarations (max: 346, num: 3):
   ⏎
   Acc.rec ↦ 104[reduction] unfolded reducible declarations (max: 296, num: 2):
     Nat.casesOn ↦ 296
-  ⏎
-  Or.casesOn ↦ 116use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+   Or.casesOn ↦ 116use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 set_option diagnostics true in

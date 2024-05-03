@@ -12,15 +12,15 @@ if [[ ! $(lean --features) =~ LLVM ]]; then
 fi
 
 $LAKE update
-$LAKE build -v | grep "Main.bc.o" # check that we build using the bitcode object file.
+$LAKE build -v | grep --color "Main.bc.o" # check that we build using the bitcode object file.
 
 # If we have the LLVM backend, check that the `lakefile.lean` is aware of this.
-lake script run llvm-bitcode-gen/hasLLVMBackend | grep "true"
+lake script run llvm-bitcode-gen/hasLLVMBackend | grep --color true
 
 # If we have the LLVM backend in the Lean toolchain, then we expect this to
 # print `true`, as this queries the same flag that Lake queries to check the presence
 # of the LLVM toolchian.
-./.lake/build/bin/llvm-bitcode-gen | grep 'true'
+./.lake/build/bin/llvm-bitcode-gen | grep --color true
 
 # If we have the LLVM backend, check that lake builds bitcode artefacts.
 test -f .lake/build/ir/LlvmBitcodeGen.bc

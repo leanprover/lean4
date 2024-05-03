@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package test
+package «foo-bar»
 
 require foo from "foo"
 require bar from git "bar"

@@ -11,6 +11,6 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 echo "root" > toolchain
 echo "dep" > dep/toolchain
-$LAKE update | grep -F "post-update hello w/ arguments: [get]"
+$LAKE update | grep --color -F "post-update hello w/ arguments: [get]"
 test "`cat toolchain`" = dep
 

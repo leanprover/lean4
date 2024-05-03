@@ -8,7 +8,7 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.8.0 (development in progress)
+v4.8.0
 ---------
 
 * **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**

@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Parser.Command
 import Lake.DSL.Extensions
+import Lake.DSL.DeclUtil
 
 namespace Lake.DSL
 open Lean Parser Command
@@ -18,24 +19,25 @@ syntax fromGit :=
 syntax depSpec :=
   ident " from " (fromGit <|> fromPath) (" with " term)?
 
-def expandDepSpec : TSyntax ``depSpec → MacroM Command
-| `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) => do
-  let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
-  let path ← match path? with | some path => `(some $path) | none => `(none)
-  let opts := opts?.getD <| ← `({})
-  `(@[package_dep] def $name : Dependency := {
-    name := $(quote name.getId),
-    src := Source.git $url $rev $path,
-    opts := $opts
-  })
-| `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
-  let opts := opts?.getD <| ← `({})
-  `(@[package_dep] def $name : Dependency := {
-    name :=  $(quote name.getId),
-    src := Source.path $path,
-    opts := $opts
-  })
-| _ => Macro.throwUnsupported
+def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
+  match stx with
+  | `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) =>
+    let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
+    let path ← match path? with | some path => `(some $path) | none => `(none)
+    let opts := opts?.getD <| ← `({})
+    `($[$doc?:docComment]? @[package_dep] def $name : Dependency := {
+      name := $(quote name.getId),
+      src := Source.git $url $rev $path,
+      opts := $opts
+    })
+  | `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
+    let opts := opts?.getD <| ← `({})
+    `($[$doc?:docComment]? @[package_dep] def $name : Dependency := {
+      name :=  $(quote name.getId),
+      src := Source.path $path,
+      opts := $opts
+    })
+  | _ => Macro.throwUnsupported
 
 /--
 Adds a new package dependency to the workspace. Has two forms:
@@ -53,8 +55,9 @@ The elements of both the `from` and `with` clauses are proper terms so
 normal computation is supported within them (though parentheses made be
 required to disambiguate the syntax).
 -/
-scoped macro (name := requireDecl) "require " spec:depSpec : command =>
-  expandDepSpec spec
+scoped macro (name := requireDecl)
+doc?:(docComment)? "require " spec:depSpec : command =>
+  expandDepSpec spec doc?
 
 @[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl
 

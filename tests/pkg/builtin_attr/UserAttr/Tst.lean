@@ -3,7 +3,7 @@ import UserAttr.BlaAttr
 @[bar] def f (x : Nat) := x + 2
 @[bar] def g (x : Nat) := x + 1
 
-attribute [irreducible] myFun
+attribute [local irreducible] myFun
 
 /--
 error: type mismatch

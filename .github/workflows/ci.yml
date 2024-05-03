@@ -385,7 +385,7 @@ jobs:
         id: test
         run: |
           ulimit -c unlimited # coredumps
-          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Test Summary
         uses: test-summary/action@v2

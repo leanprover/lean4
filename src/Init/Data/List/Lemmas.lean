@@ -1271,7 +1271,7 @@ theorem get?_zero (l : List α) : l.get? 0 = l.head? := by cases l <;> rfl
 /--
 If one has `get l i hi` in a formula and `h : l = l'`, one can not `rw h` in the formula as
 `hi` gives `i < l.length` and not `i < l'.length`. The theorem `get_of_eq` can be used to make
-such a rewrite, with `rw (get_of_eq h)`.
+such a rewrite, with `rw [get_of_eq h]`.
 -/
 theorem get_of_eq {l l' : List α} (h : l = l') (i : Fin l.length) :
     get l i = get l' ⟨i, h ▸ i.2⟩ := by cases h; rfl

@@ -26,7 +26,9 @@ def onlyZeros : Tree → Prop
   | .node [] => True
   | .node (x::s) => onlyZeros x ∧ onlyZeros (.node s)
 
-/-- Pattern-matching on `OnlyZeros` works despite `below` and `brecOn` not being generated. -/
+attribute [semireducible] onlyZeros
+/-- Pattern-matching on `OnlyZeros` works despite `below` and `brecOn` not being generated
+if we make `onlyZeros` semireducible-/
 def toFixPoint : OnlyZeros t → onlyZeros t
   | .leaf => rfl
   | .node [] _ => True.intro

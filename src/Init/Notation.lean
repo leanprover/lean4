@@ -687,4 +687,27 @@ syntax (name := checkSimp) "#check_simp " term "~>" term : command
 -/
 syntax (name := checkSimpFailure) "#check_simp " term "!~>" : command
 
+/--
+The `seal foo` command ensures that the definition of `foo` is sealed, meaning it is marked as `[irreducible]`.
+This command is particularly useful in contexts where you want to prevent the reduction of `foo` in proofs.
+
+In terms of functionality, `seal foo` is equivalent to `attribute [local irreducible] foo`.
+This attribute specifies that `foo` should be treated as irreducible only within the local scope,
+which helps in maintaining the desired abstraction level without affecting global settings.
+-/
+syntax "seal " (ppSpace ident)+ : command
+
+/--
+The `unseal foo` command ensures that the definition of `foo` is unsealed, meaning it is marked as `[semireducible]`, the
+default reducibility setting. This command is useful when you need to allow some level of reduction of `foo` in proofs.
+
+Functionally, `unseal foo` is equivalent to `attribute [local semireducible] foo`.
+Applying this attribute makes `foo` semireducible only within the local scope.
+-/
+syntax "unseal " (ppSpace ident)+ : command
+
+macro_rules
+  | `(seal $fs:ident*) => `(attribute [local irreducible] $fs:ident*)
+  | `(unseal $fs:ident*) => `(attribute [local semireducible] $fs:ident*)
+
 end Parser

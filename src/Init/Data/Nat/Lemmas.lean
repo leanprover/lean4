@@ -699,7 +699,6 @@ theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
 
 theorem log2_self_le (h : n ≠ 0) : 2 ^ n.log2 ≤ n := (le_log2 h).1 (Nat.le_refl _)
 
--- attribute [semireducible] Nat.log2 in
 theorem lt_log2_self : n < 2 ^ (n.log2 + 1) :=
   match n with
   | 0 => by simp

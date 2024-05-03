@@ -142,13 +142,14 @@ theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
-attribute [semireducible] Nat.div in
+attribute [local semireducible] Nat.div in
 @[simp] protected theorem div_zero : ∀ a : Int, div a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => rfl
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
+attribute [local semireducible] Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
   | succ _ => rfl
@@ -177,7 +178,7 @@ theorem fdiv_eq_div {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = div a
 
 @[simp] theorem zero_mod (b : Int) : mod 0 b = 0 := by cases b <;> simp [mod]
 
-attribute [semireducible] Nat.modCore in
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem mod_zero : ∀ a : Int, mod a 0 = a
   | ofNat _ => congrArg ofNat <| Nat.mod_zero _
   | -[_+1] => rfl
@@ -222,6 +223,7 @@ theorem ediv_add_emod' (a b : Int) : a / b * b + a % b = a := by
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
   rw [← Int.add_sub_cancel (a % b), emod_add_ediv]
 
+attribute [local semireducible] Nat.div Nat.modCore in
 theorem mod_add_div : ∀ a b : Int, mod a b + b * (a.div b) = a
   | ofNat _, ofNat _ => congrArg ofNat (Nat.mod_add_div ..)
   | ofNat m, -[n+1] => by
@@ -765,11 +767,13 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
   | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
+attribute [local semireducible] Nat.div Nat.modCore in
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
   | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
 
+attribute [local semireducible] Nat.div Nat.modCore in
 @[simp] protected theorem neg_div : ∀ a b : Int, (-a).div b = -(a.div b)
   | 0, n => by simp [Int.neg_zero]
   | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl
@@ -938,7 +942,7 @@ theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :
   match a, b, eq_ofNat_of_zero_le Ha, eq_ofNat_of_zero_le Hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_fdiv .. ▸ ofNat_zero_le _
 
-attribute [semireducible] Nat.div in
+attribute [local semireducible] Nat.div in
 theorem fdiv_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
   | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
 

@@ -116,6 +116,7 @@ theorem mk_le_of_le_val {b : Fin n} {a : Nat} (h : a ≤ b) :
 
 @[simp] theorem zero_le (a : Fin (n + 1)) : 0 ≤ a := Nat.zero_le a.val
 
+attribute [local semireducible] Nat.modCore in
 theorem zero_lt_one : (0 : Fin (n + 2)) < 1 := Nat.zero_lt_one
 
 @[simp] theorem not_lt_zero (a : Fin (n + 1)) : ¬a < 0 := nofun
@@ -170,8 +171,10 @@ theorem val_lt_last {i : Fin (n + 1)} : i ≠ last n → (i : Nat) < n :=
 
 /-! ### addition, numerals, and coercion from Nat -/
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem val_one (n : Nat) : (1 : Fin (n + 2)).val = 1 := rfl
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem mk_one : (⟨1, Nat.succ_lt_succ (Nat.succ_pos n)⟩ : Fin (n + 2)) = (1 : Fin _) := rfl
 
 theorem subsingleton_iff_le_one : Subsingleton (Fin n) ↔ n ≤ 1 := by
@@ -205,6 +208,7 @@ theorem val_add_one {n : Nat} (i : Fin (n + 1)) :
   | .inl h => cases Fin.eq_of_val_eq h; simp
   | .inr h => simpa [Fin.ne_of_lt h] using val_add_one_of_lt h
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem val_two {n : Nat} : (2 : Fin (n + 3)).val = 2 := rfl
 
 theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) < i + 1 := by
@@ -215,6 +219,7 @@ theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) <
     rw [Fin.lt_def, val_add, val_zero, val_one, Nat.mod_eq_of_lt h]
     exact Nat.zero_lt_succ _
 
+attribute [local semireducible] Nat.modCore in
 theorem one_pos : (0 : Fin (n + 2)) < 1 := Nat.succ_pos 0
 
 theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
@@ -237,8 +242,10 @@ theorem zero_ne_one : (0 : Fin (n + 2)) ≠ 1 := Fin.ne_of_lt one_pos
 theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
   | ⟨k, _⟩, heq => Nat.succ_ne_zero k <| ext_iff.1 heq
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
 
+attribute [local semireducible] Nat.modCore in
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
 @[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
 
@@ -390,6 +397,7 @@ theorem castSucc_lt_last (a : Fin n) : castSucc a < last n := a.is_lt
 
 @[simp] theorem castSucc_zero : castSucc (0 : Fin (n + 1)) = 0 := rfl
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := rfl
 
 /-- `castSucc i` is positive when `i` is positive -/
@@ -543,6 +551,7 @@ theorem pred_mk {n : Nat} (i : Nat) (h : i < n + 1) (w) : Fin.pred ⟨i, h⟩ w 
   | ⟨i + 1, _⟩, ⟨0, _⟩, _, hb => by simp only [mk_zero, ne_eq, not_true] at hb
   | ⟨i + 1, hi⟩, ⟨j + 1, hj⟩, ha, hb => by simp [ext_iff, Nat.succ.injEq]
 
+attribute [local semireducible] Nat.modCore in
 @[simp] theorem pred_one {n : Nat} :
     Fin.pred (1 : Fin (n + 2)) (Ne.symm (Fin.ne_of_lt one_pos)) = 0 := rfl
 

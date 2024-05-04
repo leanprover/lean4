@@ -12,13 +12,13 @@ def mkCheckGoalType (val type : Expr) : MetaM Expr := do
   let lvl ← mkFreshLevelMVar
   pure <| mkApp2 (mkConst ``CheckGoalType [lvl]) type val
 
-def matchCheckGoalType (stx : Syntax) (goalType : Expr) : MetaM (Expr × Expr × Level) := do
+def matchCheckGoalType (goalType : Expr) : MetaM (Expr × Expr × Level) := do
   let u ← mkFreshLevelMVar
   let type ← mkFreshExprMVar (some (.sort u))
   let val  ← mkFreshExprMVar (some type)
   let extType := mkAppN (.const ``CheckGoalType [u]) #[type, val]
   if !(← isDefEq goalType extType) then
-    throwErrorAt stx "Goal{indentExpr goalType}\nis expected to match {indentExpr extType}"
+    throwError "Goal{indentExpr goalType}\nis expected to match {indentExpr extType}"
   pure (val, type, u)
 
 end Lean.Meta.CheckTactic

@@ -43,7 +43,7 @@ $ pdflatex test.tex
 
 ## Example with `minted`
 
-First [install Pygments](https://pygments.org/download/).
+First [install Pygments](https://pygments.org/download/) (version 2.18 or newer).
 Then save the following sample LaTeX file `test.tex` into the same directory:
 
 ```latex

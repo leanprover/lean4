@@ -313,18 +313,22 @@ section Initialization
   def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let mut mainModuleName := Name.anonymous
-    try
-      if let some path := System.Uri.fileUriToPath? meta.uri then
-        mainModuleName ← moduleNameOfFileName path none
-    catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
-    let freshRequestIdRef ← IO.mkRef 0
+    let freshRequestIdRef ← IO.mkRef (0 : Int)
     let chanIsProcessing ← IO.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
 
+    let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
+      BaseIO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath =>
+        EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
+          if let some mod ← searchModuleNameOfFileName path srcSearchPath then
+            pure mod
+          else
+            moduleNameOfFileName path none
+    else
+      pure (.pure Name.anonymous)
     let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
     let initSnap ← processor meta.mkInputContext

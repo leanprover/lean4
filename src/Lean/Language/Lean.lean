@@ -366,7 +366,7 @@ where
       if msgLog.hasErrors then
         return { diagnostics, result? := none }
 
-      let headerEnv := headerEnv.setMainModule ctx.mainModuleName
+      let headerEnv := headerEnv.setMainModule ctx.mainModuleName.get
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with infoState := {
         enabled := true

@@ -248,7 +248,7 @@ def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
 /-- Metadata that does not change during the lifetime of the language processing process. -/
 structure ModuleProcessingContext where
   /-- Module name of the file being processed. -/
-  mainModuleName : Name
+  mainModuleName : Task Name
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/

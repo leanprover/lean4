@@ -150,12 +150,12 @@ new variables are added, but they are only tagged with their own term equivalent
 that this function squash is parameterized over a specific `rep` choice.
 -/
 def squash : Term' (Term' rep) ty → Term' rep ty
- | .var e    => e
- | .const n  => .const n
- | .plus a b => .plus (squash a) (squash b)
- | .lam f    => .lam fun x => squash (f (.var x))
- | .app f a  => .app (squash f) (squash a)
- | .let a b  => .let (squash a) fun x => squash (b (.var x))
+  | .var e    => e
+  | .const n  => .const n
+  | .plus a b => .plus (squash a) (squash b)
+  | .lam f    => .lam fun x => squash (f (.var x))
+  | .app f a  => .app (squash f) (squash a)
+  | .let a b  => .let (squash a) fun x => squash (b (.var x))
 
 /-!
 To define the final substitution function over terms with single free variables, we define

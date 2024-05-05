@@ -1,11 +1,11 @@
 mutual
 inductive Foo
- | somefoo : Foo
- | bar : Bar → Foo
+  | somefoo : Foo
+  | bar : Bar → Foo
 
 inductive Bar
- | somebar : Bar
- | foobar : Foo → Bar → Bar
+  | somebar : Bar
+  | foobar : Foo → Bar → Bar
 end
 
 mutual
@@ -21,12 +21,12 @@ end
 namespace Ex2
 mutual
 inductive Foo
- | somefoo : Foo
- | bar : Bar → Foo → Foo
+  | somefoo : Foo
+  | bar : Bar → Foo → Foo
 
 inductive Bar
- | somebar : Bar
- | foobar : Foo → Bar → Bar
+  | somebar : Bar
+  | foobar : Foo → Bar → Bar
 end
 
 mutual

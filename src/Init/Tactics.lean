@@ -368,7 +368,7 @@ for new reflexive relations.
 Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
 reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| fail "The rfl tactic failed. Possible reasons:
+macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
 - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
 - The arguments of the relation are not equal.
 Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")

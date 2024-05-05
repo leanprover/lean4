@@ -370,22 +370,19 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
          let hExpectedType := expectedAbst.instantiate1 lhs
          let (h, badMotive?) ← withRef hStx do
            let h ← elabTerm hStx hExpectedType
-           try
-             return (← ensureHasType hExpectedType h, none)
-           catch ex =>
-             -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
-             let hType ← inferType h
-             let hTypeAbst ← kabstract hType rhs
-             unless hTypeAbst.hasLooseBVars do
-               throw ex
-             let hTypeNew := hTypeAbst.instantiate1 lhs
-             unless (← isDefEq hExpectedType hTypeNew) do
-               throw ex
-             let motive ← mkMotive rhs hTypeAbst
-             if !(← isTypeCorrect motive) then
-               return (h, some motive)
-             else
-               return (← mkEqRec motive h (← mkEqSymm heq), none)
+           -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
+           -- NB: We do not check if `isDefEq hExpectedType hType` already here,
+           -- the defeq check can be more expensive than a noop kabstract
+           let hType ← inferType h
+           let hTypeAbst ← kabstract hType rhs
+           let h' ← if !hTypeAbst.hasLooseBVars then pure h else
+              let motive ← mkMotive rhs hTypeAbst
+              if !(← isTypeCorrect motive) then
+                return (h, some motive)
+              mkEqRec motive h (← mkEqSymm heq)
+
+            return (← ensureHasType hExpectedType h', none)
+
          let motive ← mkMotive lhs expectedAbst
          if badMotive?.isSome || !(← isTypeCorrect motive) then
            -- Before failing try to use `subst`

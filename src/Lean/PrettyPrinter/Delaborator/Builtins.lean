@@ -257,6 +257,22 @@ private partial def withoutParentProjections (explicit : Bool) (d : DelabM α) :
   else
     d
 
+-- TODO(kmill): make sure that we only strip projections so long as it doesn't change how it elaborates.
+-- This affects `withoutParentProjections` as well.
+
+/-- Strips parent projections from `s`. Assumes that the current SubExpr is the same as the one used when delaborating `s`. -/
+private partial def stripParentProjections (s : Term) : DelabM Term :=
+  match s with
+  | `($x.$f:ident) => do
+    if let some field ← try parentProj? false (← getExpr) catch _ => pure none then
+      if f.getId == field then
+        withAppArg <| stripParentProjections x
+      else
+        return s
+    else
+      return s
+  | _ => return s
+
 /--
 In explicit mode, decides whether or not the applied function needs `@`,
 where `numArgs` is the number of arguments actually supplied to `f`.
@@ -313,6 +329,27 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   else
     return Syntax.mkApp fnStx argStxs
 
+/-- Records how a particular argument to a function is delaborated, in non-explicit mode. -/
+inductive AppImplicitArg
+  /-- An argument to skip, like an implicit argument. -/
+  | skip
+  /-- A regular argument. -/
+  | regular (s : Term)
+  /-- It's a named argument. Named arguments inhibit applying unexpanders. -/
+  | named (s : TSyntax ``Parser.Term.namedArgument)
+  deriving Inhabited
+
+/-- Whether unexpanding is allowed with this argument. -/
+def AppImplicitArg.canUnexpand : AppImplicitArg → Bool
+  | .regular .. | .skip => true
+  | .named .. => false
+
+/-- If the argument has associated syntax, returns it. -/
+def AppImplicitArg.syntax? : AppImplicitArg → Option Syntax
+  | .skip => none
+  | .regular s => s
+  | .named s => s
+
 /--
 Delaborates a function application in the standard mode, where implicit arguments are generally not
 included, unless `pp.analysis.namedArg` is set at that argument.
@@ -330,76 +367,74 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
       appFieldNotationCandidate?
     else
       pure none
-  let (shouldUnexpand, fnStx, fieldIdx?, _, _, argStxs, argData) ←
+  let (fnStx, args) ←
     withBoundedAppFnArgs numArgs
-      (do return (unexpand, ← delabHead, none, 0, paramKinds.toList, Array.mkEmpty numArgs, (Array.mkEmpty numArgs).push (unexpand, 0)))
-      (fun (shouldUnexpand, fnStx, fieldIdx?, idx, paramKinds, argStxs, argData) => do
-        /-
-        - `argStxs` is the accumulated array of arguments that should be pretty printed
-        - `argData` is a list of `Bool × Nat` used to figure out:
-          1. whether an unexpander could be used for the prefix up to this argument and
-          2. how many arguments we need to include after this one when annotating the result of unexpansion.
-          Argument `argStxs[i]` corresponds to `argData[i+1]`, with `argData[0]` being for the head itself.
-        -/
-        if some idx = field?.map Prod.fst then
-          -- This is the object for field notation.
-          let fieldObj ← withoutParentProjections (explicit := false) delab
-          return (false, fnStx, some argStxs.size, idx + 1, paramKinds.tailD [], argStxs.push fieldObj, argData.push (false, 1))
-        let (argUnexpandable, stx?) ← mkArgStx (numArgs - idx - 1) paramKinds
-        let shouldUnexpand := shouldUnexpand && argUnexpandable
-        let (argStxs, argData) :=
-          match stx?, argData.back with
-          -- By default, a pretty-printed argument accounts for just itself.
-          | some stx, _ => (argStxs.push stx, argData.push (shouldUnexpand, 1))
-          -- A non-pretty-printed argument is accounted for by the previous pretty printed one.
-          | none, (_, argCount) => (argStxs, argData.pop.push (shouldUnexpand, argCount + 1))
-        return (shouldUnexpand, fnStx, fieldIdx?, idx + 1, paramKinds.tailD [], argStxs, argData))
-  if let some fieldIdx := fieldIdx? then
-    -- Delaborate using field notation
-    let field := field?.get!.2
-    let obj := argStxs[fieldIdx]!
-    let mut head : Term ← `($obj.$(mkIdent field))
-    if fieldIdx == 0 then
-      -- If it's the first argument (after some implicit arguments), we can tag `obj.field` with a prefix of the application
-      -- including the implicit arguments immediately before and after `obj`.
-      head ← withBoundedAppFn (numArgs - argData[0]!.2 - argData[1]!.2) <| annotateTermInfo <| head
-    return Syntax.mkApp head (argStxs.eraseIdx fieldIdx)
-  if ← pure (argData.any Prod.fst) <&&> getPPOption getPPNotation then
+      (do return ((← delabHead), Array.mkEmpty numArgs))
+      (fun (fnStx, args) => do
+        let idx := args.size
+        let arg ← mkArg (numArgs - idx - 1) paramKinds[idx]!
+        return (fnStx, args.push arg))
+
+  -- App unexpanders
+  if ← pure unexpand <&&> getPPOption getPPNotation then
     -- Try using an app unexpander for a prefix of the arguments.
-    if let some stx ← (some <$> tryAppUnexpanders fnStx argStxs argData) <|> pure none then
+    if let some stx ← (some <$> tryAppUnexpanders fnStx args) <|> pure none then
       return stx
-  let stx := Syntax.mkApp fnStx argStxs
-  if ← pure shouldUnexpand <&&> getPPOption getPPStructureInstances then
+
+  let stx := Syntax.mkApp fnStx (args.filterMap (·.syntax?))
+
+  -- Structure instance notation
+  if ← pure (unexpand && args.all (·.canUnexpand)) <&&> getPPOption getPPStructureInstances then
     -- Try using the structure instance unexpander.
-    -- It only makes sense applying this to the entire application, since structure instances cannot themselves be applied.
     if let some stx ← (some <$> unexpandStructureInstance stx) <|> pure none then
       return stx
+
+  -- Field notation
+  if let some (fieldIdx, field) := field? then
+    if fieldIdx < args.size then
+      let obj? : Option Term ← do
+        let arg := args[fieldIdx]!
+        if let .regular s := arg then
+          withNaryArg fieldIdx <| some <$> stripParentProjections s
+        else
+          pure none
+      if let some obj := obj? then
+        let isFirst := args[0:fieldIdx].all (· matches .skip)
+        -- Clear the `obj` argument from `args`.
+        let args' := args.set! fieldIdx .skip
+        let mut head : Term ← `($obj.$(mkIdent field))
+        if isFirst then
+          -- If the object is the first argument (after some implicit arguments),
+          -- we can annotate `obj.field` with the prefix of the application
+          -- that includes all the implicit arguments immediately before and after `obj`.
+          let objArity := args'.findIdx? (fun a => !(a matches .skip)) |>.getD args'.size
+          head ← withBoundedAppFn (numArgs - objArity) <| annotateTermInfo <| head
+        return Syntax.mkApp head (args'.filterMap (·.syntax?))
+
+  -- Normal application
   return stx
 where
-  mkNamedArg (name : Name) (argStx : Syntax) : DelabM (Bool × Option Syntax) :=
-    return (false, ← `(Parser.Term.namedArgument| ($(mkIdent name) := $argStx)))
+  mkNamedArg (name : Name) : DelabM AppImplicitArg :=
+    return .named <| ← `(Parser.Term.namedArgument| ($(mkIdent name) := $(← delab)))
   /--
-  If the argument should be pretty printed then it returns the syntax for that argument.
-  The boolean is `false` if an unexpander should not be used for the application due to this argument.
-  The argumnet `remainingArgs` is the number of arguments in the application after this one.
+  Delaborates the current argument.
+  The argument `remainingArgs` is the number of arguments in the application after this one.
   -/
-  mkArgStx (remainingArgs : Nat) (paramKinds : List ParamKind) : DelabM (Bool × Option Syntax) := do
-    if ← getPPOption getPPAnalysisSkip then return (true, none)
-    else if ← getPPOption getPPAnalysisHole then return (true, ← `(_))
+  mkArg (remainingArgs : Nat) (param : ParamKind) : DelabM AppImplicitArg := do
+    let arg ← getExpr
+    if ← getPPOption getPPAnalysisSkip then return .skip
+    else if ← getPPOption getPPAnalysisHole then return .regular (← `(_))
+    else if ← getPPOption getPPAnalysisNamedArg then
+      mkNamedArg param.name
+    else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
+      -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
+      return .skip
+    else if param.bInfo.isExplicit then
+      return .regular (← delab)
+    else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
+      mkNamedArg param.name
     else
-      let arg ← getExpr
-      let param :: _ := paramKinds | unreachable!
-      if ← getPPOption getPPAnalysisNamedArg then
-        mkNamedArg param.name (← delab)
-      else if param.defVal.isSome && remainingArgs == 0 && param.defVal.get! == arg then
-        -- Assumption: `useAppExplicit` has already detected whether it is ok to omit this argument
-        return (true, none)
-      else if param.bInfo.isExplicit then
-        return (true, ← delab)
-      else if ← pure (param.name == `motive) <&&> shouldShowMotive arg (← getOptions) then
-        mkNamedArg param.name (← delab)
-      else
-        return (true, none)
+      return .skip
   /--
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
@@ -414,23 +449,26 @@ where
   try applying an app unexpander using some prefix of the arguments, longest prefix first.
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
   -/
-  tryAppUnexpanders (fnStx : Term) (argStxs : Array Syntax) (argData : Array (Bool × Nat)) : Delab := do
+  tryAppUnexpanders (fnStx : Term) (args : Array AppImplicitArg) : Delab := do
     let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
     let fs := appUnexpanderAttribute.getValues (← getEnv) c
     if fs.isEmpty then failure
-    let rec go (prefixArgs : Nat) : DelabM Term := do
-      let (unexpand, argCount) := argData[prefixArgs]!
-      match prefixArgs with
+    let rec go (i : Nat) (implicitArgs : Nat) (argStxs : Array Syntax) : DelabM Term := do
+      match i with
       | 0 =>
-        guard unexpand
         let stx ← tryUnexpand fs fnStx
-        return Syntax.mkApp (← annotateTermInfo stx) argStxs
-      | prefixArgs' + 1 =>
-        (do guard unexpand
-            let stx ← tryUnexpand fs <| Syntax.mkApp fnStx (argStxs.extract 0 prefixArgs)
-            return Syntax.mkApp (← annotateTermInfo stx) (argStxs.extract prefixArgs argStxs.size))
-        <|> withBoundedAppFn argCount (go prefixArgs')
-    go argStxs.size
+        return Syntax.mkApp (← annotateTermInfo stx) (args.filterMap (·.syntax?))
+      | i' + 1 =>
+        if args[i']!.syntax?.isSome then
+          (do let stx ← tryUnexpand fs <| Syntax.mkApp fnStx argStxs
+              let argStxs' := args.extract i args.size |>.filterMap (·.syntax?)
+              return Syntax.mkApp (← annotateTermInfo stx) argStxs')
+          <|> withBoundedAppFn (implicitArgs + 1) (go i' 0 argStxs.pop)
+        else
+          go i' (implicitArgs + 1) argStxs
+    let maxUnexpand := args.findIdx? (!·.canUnexpand) |>.getD args.size
+    withBoundedAppFn (args.size - maxUnexpand) <|
+      go maxUnexpand 0 (args.extract 0 maxUnexpand |>.filterMap (·.syntax?))
 
 /--
 Returns true if an application should use explicit mode when delaborating.

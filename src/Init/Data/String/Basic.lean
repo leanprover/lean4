@@ -25,7 +25,7 @@ instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.hasDecidableLt s₁.data s₂.data
 
 /--
-Returns the length of a string.
+Returns the length of a string in Unicode code points.
 * `"".length = 0`
 * `"abc".length = 3`
 -/

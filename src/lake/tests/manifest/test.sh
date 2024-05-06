@@ -25,7 +25,7 @@ git commit -m "initial commit"
 GIT_REV=`git rev-parse HEAD`
 popd
 
-LATEST_VER=v7
+LATEST_VER=v1.0.0
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test an update produces the expected manifest of the latest version
@@ -41,10 +41,10 @@ test_update() {
 
 # Test loading of a V4 manifest fails
 cp lake-manifest-v4.json lake-manifest.json
-($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '4'"
+($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
 
 # Test package update fails as well
-($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '4'"
+($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
 
 # Test bare update works
 test_update
@@ -57,11 +57,12 @@ rm -rf .lake
 # Test successful load & update of a supported manifest version
 test_manifest() {
   cp lake-manifest-$1.json lake-manifest.json
-  sed_i "s/$2/$GIT_REV/g" lake-manifest.json
+  sed_i "s/$LOCKED_REV/$GIT_REV/g" lake-manifest.json
   $LAKE resolve-deps
   test_update
 }
 
-test_manifest v5 253735aaee71d8bb0f29ae5cfc3ce086a4b9e64f
-test_manifest v6 dab525a78710d185f3d23622b143bdd837e44ab0
-test_manifest v7 0538596b94a0510f55dc820cabd3bde41ad93c3e
+test_manifest v5
+test_manifest v6
+test_manifest v7
+test_manifest v1.0.0

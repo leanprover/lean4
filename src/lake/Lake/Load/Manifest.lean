@@ -6,6 +6,8 @@ Authors: Mac Malone, Gabriel Ebner
 import Lake.Util.Log
 import Lake.Util.Name
 import Lake.Util.FilePath
+import Lake.Util.JsonObject
+import Lake.Util.Version
 import Lake.Load.Config
 import Lake.Config.Workspace
 
@@ -18,139 +20,139 @@ to create, modify, serialize, and deserialize it.
 
 namespace Lake
 
-/-- Current version of the manifest format. -/
-def Manifest.version : Nat := 7
+/--
+The current version of the manifest format.
+Three-part semantic versions were introduced in `v1.0.0`.
+Major version increments indicate breaking changes
+(e.g., new required fields and semantic changes to existing fields).
+Minor version increments (after `0.x`) indicate backwards-compatible extensions
+(e.g., adding optional fields, removing fields).
 
-/-- An entry for a package stored in the manifest. -/
+**VERSION HISTORY**
+
+**v0.x.0** (versioned by a natural number)
+- `1`: First version
+- `2`: Adds optional `inputRev` package entry field
+- `3`: Changes entry to inductive (with `path`/`git`)
+- `4`: Adds required `packagesDir` manifest field
+- `5`: Adds optional `inherited` package entry field (and removed `opts`)
+- `6`: Adds optional package root `name` manifest field
+- `7`: `type` refactor, custom to/fromJson
+
+**v1.x.x** (versioned by a string)
+- `"1.0.0"`: Switches to a semantic versioning scheme
+-/
+@[inline] def Manifest.version : SemVerCore := v!"1.0.0"
+
+/-- Manifest version 6 package entry. For backwards compatibility. -/
 inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
 deriving FromJson, ToJson, Inhabited
 
-/-- An entry for a package stored in the manifest. -/
-inductive PackageEntry
+/--
+The package source for an entry in the manifest.
+Describes exactly how Lake should materialize the package.
+-/
+inductive PackageEntrySrc
   /--
   A local filesystem package. `dir` is relative to the package directory
   of the package containing the manifest.
   -/
   | path
-    (name : Name)
-    (inherited : Bool)
-    (configFile : FilePath)
-    (manifestFile? : Option FilePath)
     (dir : FilePath)
   /-- A remote Git package. -/
   | git
-    (name : Name)
-    (inherited : Bool)
-    (configFile : FilePath)
-    (manifestFile? : Option FilePath)
     (url : String)
     (rev : String)
     (inputRev? : Option String)
     (subDir? : Option FilePath)
   deriving Inhabited
 
+/-- An entry for a package stored in the manifest. -/
+structure PackageEntry where
+  name : Name
+  inherited : Bool
+  configFile : FilePath := defaultConfigFile
+  manifestFile? : Option FilePath := none
+  src : PackageEntrySrc
+  deriving Inhabited
+
 namespace PackageEntry
 
-protected def toJson : PackageEntry → Json
-| .path name inherited configFile manifestFile? dir => Json.mkObj [
-  ("type", "path"),
-  ("inherited", toJson inherited),
-  ("name", toJson name),
-  ("configFile" , toJson configFile),
-  ("manifestFile", toJson manifestFile?),
-  ("inherited", toJson inherited),
-  ("dir", toJson dir)
-]
-| .git name inherited configFile manifestFile? url rev inputRev? subDir? => Json.mkObj [
-  ("type", "git"),
-  ("inherited", toJson inherited),
-  ("name", toJson name),
-  ("configFile" , toJson configFile),
-  ("manifestFile", toJson manifestFile?),
-  ("url", toJson url),
-  ("rev", toJson rev),
-  ("inputRev", toJson inputRev?),
-  ("subDir", toJson subDir?)
-]
+protected def toJson (entry : PackageEntry) : Json :=
+  let fields := [
+    ("name", toJson entry.name),
+    ("configFile" , toJson entry.configFile),
+    ("manifestFile", toJson entry.manifestFile?),
+    ("inherited", toJson entry.inherited),
+  ]
+  let fields :=
+    match entry.src with
+    | .path  dir =>
+      ("type", "path") :: fields.append [
+        ("dir", toJson dir),
+      ]
+    | .git url rev inputRev? subDir? =>
+      ("type", "git") :: fields.append [
+        ("url", toJson url),
+        ("rev", toJson rev),
+        ("inputRev", toJson inputRev?),
+        ("subDir", toJson subDir?),
+      ]
+  Json.mkObj fields
 
 instance : ToJson PackageEntry := ⟨PackageEntry.toJson⟩
 
 protected def fromJson? (json : Json) : Except String PackageEntry := do
-  let obj ← json.getObj?
-  let type ← get obj "type"
-  let name ← get obj "name"
-  let inherited ← get obj "inherited"
-  let configFile ← getD obj "configFile" defaultConfigFile
-  let manifestFile ← getD obj "manifestFile" defaultManifestFile
-  match type with
-  | "path"=>
-    let dir ← get obj "dir"
-    return .path name inherited configFile manifestFile dir
-  | "git" =>
-    let url ← get obj "url"
-    let rev ← get obj "rev"
-    let inputRev? ← get? obj "inputRev"
-    let subDir? ← get? obj "subDir"
-    return .git name inherited configFile manifestFile url rev inputRev? subDir?
-  | _ =>
-    throw s!"unknown package entry type '{type}'"
-where
-  get {α} [FromJson α] obj prop : Except String α :=
-    match obj.find compare prop with
-    | none => throw s!"package entry missing required property '{prop}'"
-    | some val => fromJson? val |>.mapError (s!"in package entry property '{prop}': {·}")
-  get? {α} [FromJson α] obj prop : Except String (Option α) :=
-    match obj.find compare prop with
-    | none => pure none
-    | some val => fromJson? val |>.mapError (s!"in package entry property '{prop}': {·}")
-  getD {α} [FromJson α] obj prop (default : α) : Except String α :=
-    (Option.getD · default) <$> get? obj prop
+  let obj ← JsonObject.fromJson? json |>.mapError (s!"package entry: {·}")
+  let name ← obj.get "name" |>.mapError (s!"package entry: {·}")
+  try
+    let type ← obj.get "type"
+    let inherited ← obj.get "inherited"
+    let configFile ← obj.getD "configFile" defaultConfigFile
+    let manifestFile ← obj.getD "manifestFile" defaultManifestFile
+    let src : PackageEntrySrc ← id do
+      match type with
+      | "path" =>
+        let dir ← obj.get "dir"
+        return .path dir
+      | "git" =>
+        let url ← obj.get "url"
+        let rev ← obj.get "rev"
+        let inputRev? ← obj.get? "inputRev"
+        let subDir? ← obj.get? "subDir"
+        return .git url rev inputRev? subDir?
+      | _ =>
+        throw s!"unknown package entry type '{type}'"
+    return {
+      name, inherited,
+      configFile, manifestFile? := manifestFile, src
+      : PackageEntry
+    }
+  catch e =>
+    throw s!"package entry '{name}': {e}"
 
 instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
-@[inline] protected def name : PackageEntry → Name
-| .path (name := name) .. | .git (name := name) .. => name
+@[inline] def setInherited (entry : PackageEntry) : PackageEntry :=
+  {entry with inherited := true}
 
-@[inline] protected def inherited : PackageEntry → Bool
-| .path (inherited := inherited) .. | .git (inherited := inherited) .. => inherited
+@[inline] def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
+  {entry with configFile := path}
 
-def setInherited : PackageEntry → PackageEntry
-| .path name _ configFile manifestFile? dir =>
-  .path name true configFile manifestFile? dir
-| .git name _ configFile manifestFile? url rev inputRev? subDir? =>
-  .git name true configFile manifestFile? url rev inputRev? subDir?
+@[inline] def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
+  {entry with manifestFile? := path?}
 
-@[inline] protected def configFile : PackageEntry → FilePath
-| .path (configFile := configFile) .. | .git (configFile := configFile) .. => configFile
-
-@[inline] protected def manifestFile? : PackageEntry →  Option FilePath
-| .path (manifestFile? := manifestFile?) .. | .git (manifestFile? := manifestFile?) .. => manifestFile?
-
-def setConfigFile (path : FilePath) : PackageEntry → PackageEntry
-| .path name inherited _ manifestFile? dir =>
-  .path name inherited path manifestFile? dir
-| .git name inherited _ manifestFile? url rev inputRev? subDir? =>
-  .git name inherited path manifestFile? url rev inputRev? subDir?
-
-def setManifestFile (path? : Option FilePath) : PackageEntry → PackageEntry
-| .path name inherited configFile _ dir =>
-  .path name inherited configFile path? dir
-| .git name inherited configFile _ url rev inputRev? subDir? =>
-  .git name inherited configFile path? url rev inputRev? subDir?
-
-def inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
-| .path name inherited configFile manifestFile? dir =>
-  .path name inherited configFile manifestFile? (pkgDir / dir)
-| entry => entry
+@[inline] def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
+  {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 
 def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
-  .path name inherited defaultConfigFile none dir
+  {name, inherited, src := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
-  .git name inherited defaultConfigFile none url rev inputRev? subDir?
+  {name, inherited, src := .git url rev inputRev? subDir?}
 
 end PackageEntry
 
@@ -169,50 +171,38 @@ def addPackage (entry : PackageEntry) (self : Manifest) : Manifest :=
 
 protected def toJson (self : Manifest) : Json :=
   Json.mkObj [
-    ("version", version),
+    ("version", toJson version),
     ("name", toJson self.name),
     ("lakeDir", toJson self.lakeDir),
     ("packagesDir", toJson self.packagesDir?),
-    ("packages", toJson self.packages)
+    ("packages", toJson self.packages),
   ]
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
 protected def fromJson? (json : Json) : Except String Manifest := do
-  let .ok obj := json.getObj?
-    | throw "manifest not a JSON object"
-  let ver : Json ← get obj "version"
-  let .ok ver := ver.getNat?
-    | throw s!"unknown manifest version '{ver}'"
-  if ver < 5 then
+  let obj ← JsonObject.fromJson? json
+  let ver : SemVerCore ← id do
+    match (← obj.get "version" : Json) with
+    | (n : Nat) => return {major := 0, minor := n, patch := 0}
+    | (s : String) => SemVerCore.parse s
+    | ver => throw s!"unknown manifest version format '{ver}'; \
+      you may need to update your 'lean-toolchain'"
+  if ver.major > 1 then
+    throw s!"manifest version '{ver}' is of a higher major version than this \
+      Lake's '{Manifest.version}'; you may need to update your 'lean-toolchain'"
+  else if ver < v!"0.5.0" then
     throw s!"incompatible manifest version '{ver}'"
-  else if ver ≤ 6 then
-    let name ← getD obj "name" Name.anonymous
-    let lakeDir ← getD obj "lakeDir" defaultLakeDir
-    let packagesDir? ← get? obj "packagesDir"
-    let pkgs : Array PackageEntryV6 ← getD obj "packages" #[]
-    return {name, lakeDir, packagesDir?, packages := pkgs.map PackageEntry.ofV6}
-  else if ver = 7 then
-    let name ← getD obj "name" Name.anonymous
-    let lakeDir ← get obj "lakeDir"
-    let packagesDir ← get obj "packagesDir"
-    let packages : Array PackageEntry ← getD obj "packages" #[]
-    return {name, lakeDir, packagesDir? := packagesDir, packages}
   else
-    throw <|
-      s!"manifest version `{ver}` is higher than this Lake's '{Manifest.version}'; " ++
-      "you may need to update your `lean-toolchain`"
-where
-  get {α} [FromJson α] obj prop : Except String α :=
-    match obj.find compare prop with
-    | none => throw s!"manifest missing required property '{prop}'"
-    | some val => fromJson? val |>.mapError (s!"in manifest property '{prop}': {·}")
-  get? {α} [FromJson α] obj prop : Except String (Option α) :=
-    match obj.find compare prop with
-    | none => pure none
-    | some val => fromJson? val |>.mapError (s!"in manifest property '{prop}': {·}")
-  getD {α} [FromJson α] obj prop (default : α) : Except String α :=
-    (Option.getD · default) <$> get? obj prop
+    let name ← obj.getD "name" Name.anonymous
+    let lakeDir ← obj.getD "lakeDir" defaultLakeDir
+    let packagesDir? ← obj.get? "packagesDir"
+    let packages ←
+      if ver < v!"0.7.0" then
+        pure <| (← obj.getD "packages" #[]).map PackageEntry.ofV6
+      else
+        obj.getD "packages" #[]
+    return {name, lakeDir, packagesDir?, packages}
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

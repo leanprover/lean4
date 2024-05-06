@@ -65,6 +65,7 @@ static lean_object* l_Lean_Widget_elabWidgetInstanceSpec___closed__13;
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean_Widget_WidgetInstance_fromJsonRpcEncodablePacket____x40_Lean_Widget_UserWidget___hyg_3900_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_174____lambda__2___boxed(lean_object*);
+lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__15;
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__18;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__11;
@@ -305,7 +306,6 @@ static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean_Widge
 static lean_object* l_Lean_Widget_eraseWidgetSpec___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Widget_widgetCmd;
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetLocal___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____closed__5;
@@ -554,7 +554,6 @@ static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetGlobal___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__8(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__3___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_declareBuiltin___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpec___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232_(lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____lambda__4___closed__29;
@@ -811,6 +810,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Widget_elabShowPanelWidge
 LEAN_EXPORT lean_object* l_Lean_Widget_getWidgetSource___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__7;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonGetWidgetSourceParams____x40_Lean_Widget_UserWidget___hyg_855____closed__11;
+lean_object* l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_getWidgets___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJsonUserWidgetDefinition____x40_Lean_Widget_UserWidget___hyg_3536____boxed(lean_object*);
@@ -6280,14 +6280,14 @@ if (x_9 == 0)
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
-x_11 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
+x_11 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
 return x_11;
 }
 else
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 2;
-x_13 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
 return x_13;
 }
 }
@@ -6445,6 +6445,8 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_box(0);
 x_19 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____lambda__1(x_1, x_2, x_3, x_18, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 return x_19;
@@ -6480,6 +6482,8 @@ x_30 = lean_ctor_get(x_28, 1);
 lean_inc(x_30);
 lean_dec(x_28);
 x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____lambda__1(x_1, x_2, x_3, x_29, x_8, x_9, x_10, x_11, x_30);
+lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_29);
@@ -7914,6 +7918,8 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -12697,7 +12703,7 @@ x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
-x_28 = l_Lean_throwError___at_Lean_declareBuiltin___spec__1(x_27, x_4, x_5, x_14);
+x_28 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_27, x_4, x_5, x_14);
 return x_28;
 }
 else

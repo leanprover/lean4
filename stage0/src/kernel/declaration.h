@@ -112,12 +112,13 @@ public:
 typedef list_ref<definition_val> definition_vals;
 
 /*
-structure theorem_val extends constant_val :=
-(value : task expr)
+structure TheoremVal extends ConstantVal where
+  value : Expr
+  all : List Name := [name]
 */
 class theorem_val : public object_ref {
 public:
-    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val);
+    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all);
     theorem_val(theorem_val const & other):object_ref(other) {}
     theorem_val(theorem_val && other):object_ref(other) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }

@@ -75,6 +75,7 @@ def reportDiag : MetaM Unit := do
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
+    let unfoldKernel ← mkDiagSummary (Kernel.getDiagnostics (← getEnv)).unfoldCounter
     unless unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty && heu.isEmpty && inst.isEmpty do
       let m := MessageData.nil
       let m := appendSection m `reduction "unfolded declarations" unfoldDefault
@@ -82,6 +83,7 @@ def reportDiag : MetaM Unit := do
       let m := appendSection m `reduction "unfolded reducible declarations" unfoldReducible
       let m := appendSection m `type_class "used instances" inst
       let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
+      let m := appendSection m `kernel "unfolded declarations" unfoldKernel
       let m := m ++ "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
       logInfo m
 

@@ -157,7 +157,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
   let heartbeats ← IO.getNumHeartbeats
-  let env := s.env
+  let env := Kernel.resetDiag s.env
   let scope := s.scopes.head!
   let coreCtx : Core.Context := {
     fileName       := ctx.fileName

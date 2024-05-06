@@ -63,7 +63,9 @@ def append : String → (@& String) → String
 /--
 Converts a string to a list of characters.
 
-Even though the logical model of strings is as a structure that wraps a list of characters, this operation takes time and space linear in the length of the string, because the compiler uses an optimized representation as dynamic arrays.
+Even though the logical model of strings is as a structure that wraps a list of characters,
+this operation takes time and space linear in the length of the string, because the compiler
+uses an optimized representation as dynamic arrays.
 
 Example: `"abc".toList = ['a', 'b', 'c']`
 -/
@@ -85,7 +87,8 @@ def utf8GetAux : List Char → Pos → Pos → Char
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
 /--
-Returns the character at position `p` of a string. If `p` is not a valid position, returns `(default : Char)`.
+Returns the character at position `p` of a string. If `p` is not a valid position,
+returns `(default : Char)`.
 
 See `utf8GetAux` for the reference implementation.
 
@@ -93,7 +96,8 @@ Examples:
 * `"abc".get ⟨1⟩ = 'b'`
 * `"abc".get ⟨3⟩ = (default : Char) = 'A'`
 
-Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8 character. For example,`"L∃∀N".get ⟨2⟩ = (default : Char) = 'A'`.
+Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
+character. For example,`"L∃∀N".get ⟨2⟩ = (default : Char) = 'A'`.
 -/
 @[extern "lean_string_utf8_get"]
 def get (s : @& String) (p : @& Pos) : Char :=
@@ -111,14 +115,16 @@ Examples:
 * `"abc".get? ⟨1⟩ = some 'b'`
 * `"abc".get? ⟨3⟩ = none`
 
-Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8 character. For example, `"L∃∀N".get? ⟨2⟩ = none`
+Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
+character. For example, `"L∃∀N".get? ⟨2⟩ = none`
 -/
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char
   | ⟨s⟩, p => utf8GetAux? s 0 p
 
 /--
-Returns the character at position `p` of a string. If `p` is not a valid position, returns `(default : Char)` and produces a panic error message.
+Returns the character at position `p` of a string. If `p` is not a valid position,
+returns `(default : Char)` and produces a panic error message.
 
 Examples:
 * `"abc".get! ⟨1⟩ = 'b'`
@@ -138,23 +144,27 @@ def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
     if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
 
 /--
-Replaces the character at a specified position in a string with a new character. If the position is invalid, the string is returned unchanged.
+Replaces the character at a specified position in a string with a new character. If the position
+is invalid, the string is returned unchanged.
 
-If both the replacement character and the replaced character are ASCII characters and the string is not shared, destructive updates are used.
+If both the replacement character and the replaced character are ASCII characters and the string
+is not shared, destructive updates are used.
 
 Examples:
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
 * `"abc".set ⟨3⟩ 'D' = "abc"`
 * `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
 
-Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position, so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
+Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position,
+so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
 -/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
   | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
 
 /--
-Replaces the character at position `p` in the string `s` with the result of applying `f` to that character. If `p` is an invalid position, the string is returned unchanged.
+Replaces the character at position `p` in the string `s` with the result of applying `f` to that character.
+If `p` is an invalid position, the string is returned unchanged.
 
 Examples:
 * `abc.modify ⟨1⟩ Char.toUpper = "aBc"`
@@ -164,7 +174,8 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`, the result is unspecified.
+Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`,
+the result is unspecified.
 
 Examples:
 * `"abc".next ⟨1⟩ = String.Pos.mk 2`

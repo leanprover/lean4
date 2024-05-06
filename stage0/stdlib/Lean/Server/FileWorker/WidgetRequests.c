@@ -3264,7 +3264,6 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Widget_makePopup___lambda__5(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
-lean_dec(x_1);
 return x_6;
 }
 }
@@ -5259,7 +5258,6 @@ lean_closure_set(x_22, 1, x_21);
 lean_closure_set(x_22, 2, x_14);
 lean_closure_set(x_22, 3, x_3);
 x_23 = l_Lean_Elab_ContextInfo_runMetaM___rarg(x_15, x_16, x_22, x_6);
-lean_dec(x_15);
 if (lean_obj_tag(x_23) == 0)
 {
 uint8_t x_24; 

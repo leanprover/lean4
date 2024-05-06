@@ -124,6 +124,7 @@ optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr cons
 class add_inductive_fn {
     environment            m_env;
     name_generator         m_ngen;
+    diagnostics *          m_diag;
     local_ctx              m_lctx;
     names      m_lparams;
     unsigned               m_nparams;
@@ -158,8 +159,8 @@ class add_inductive_fn {
     buffer<rec_info>       m_rec_infos;
 
 public:
-    add_inductive_fn(environment const & env, inductive_decl const & decl, bool is_nested):
-        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
+    add_inductive_fn(environment const & env, diagnostics * diag, inductive_decl const & decl, bool is_nested):
+        m_env(env), m_ngen(*g_ind_fresh), m_diag(diag), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()),
         m_is_nested(is_nested) {
         if (!decl.get_nparams().is_small())
             throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
@@ -167,7 +168,7 @@ public:
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
+    type_checker tc() { return type_checker(m_env, m_lctx, m_diag, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {
@@ -1112,10 +1113,11 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
 environment environment::add_inductive(declaration const & d) const {
     elim_nested_inductive_result res = elim_nested_inductive_fn(*this, d)();
     bool is_nested = !res.m_aux2nested.empty();
-    environment aux_env = add_inductive_fn(*this, inductive_decl(res.m_aux_decl), is_nested)();
+    scoped_diagnostics diag(*this, true);
+    environment aux_env = add_inductive_fn(*this, diag.get(), inductive_decl(res.m_aux_decl), is_nested)();
     if (!is_nested) {
         /* `d` did not contain nested inductive types. */
-        return aux_env;
+        return diag.update(aux_env);
     } else {
         /* Restore nested inductives. */
         inductive_decl ind_d(d);
@@ -1170,7 +1172,7 @@ environment environment::add_inductive(declaration const & d) const {
         for (name const & aux_rec : aux_rec_names) {
             process_rec(aux_rec);
         }
-        return new_env;
+        return diag.update(new_env);
     }
 }
 

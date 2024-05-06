@@ -148,7 +148,6 @@ Examples:
 * `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
 
 Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position, so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
-
 -/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
@@ -177,7 +176,6 @@ Cases where the result is unspecified:
 Since `3 = s.endPos`, the result is an invalid position
 * `"L∃∀N".next ⟨2⟩ = String.Pos.mk 3`
 Since `2` points into the middle of a multi-byte UTF-8 character the result is an invalid position
-
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=

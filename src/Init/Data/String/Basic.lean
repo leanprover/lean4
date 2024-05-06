@@ -30,6 +30,7 @@ Returns the length of a string in Unicode code points.
 Examples:
 * `"".length = 0`
 * `"abc".length = 3`
+* `"L∃∀N".length = 4`
 -/
 @[extern "lean_string_length"]
 def length : (@& String) → Nat
@@ -61,7 +62,7 @@ def append : String → (@& String) → String
 
 /--
  Converts a string to a list of characters.
- 
+
  Even though the logical model of strings is as a structure that wraps a list of characters, this operation takes time and space linear in the length of the string, because the compiler uses an optimized representation as dynamic arrays.
 
 Example: `"abc".toList = ['a', 'b', 'c']`

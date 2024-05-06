@@ -167,10 +167,18 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`, the result is unspecified.
-* `"abc".next ⟨1⟩ = String.Pos.mk 2`
-* `"abc".next ⟨3⟩ = String.Pos.mk 4`
-* `"L∃∀N".next ⟨1⟩ => String.Pos.mk 4 -- '∃' is a mutli-byte character`
+Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos - 1`, the result is unspecified.
+
+Examples:
+```
+"abc".next ⟨1⟩ = String.Pos.mk 2
+
+-- '∃' is a mutli-byte character
+"L∃∀N".next ⟨1⟩ = String.Pos.mk 4
+
+-- Since `2 = s.endPos - 1`, the result is an invalid postion
+"abc".next ⟨2⟩ = String.Pos.mk 3
+```
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=

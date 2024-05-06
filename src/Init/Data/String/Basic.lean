@@ -105,9 +105,7 @@ def utf8GetAux? : List Char → Pos → Pos → Option Char
   | c::cs, i, p => if i = p then c else utf8GetAux? cs (i + c) p
 
 /--
-Returns the character at position `p`.
-
-If `p` is not a valid position, returns `none`.
+Returns the character at position `p`. If `p` is not a valid position, returns `none`.
 
 Examples:
 * `"abc".get? ⟨1⟩ = some 'b'`
@@ -149,7 +147,7 @@ Examples:
 * `"abc".set ⟨3⟩ 'D' = "abc"`
 * `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
 
-Because `'∃'` is a multi-byte character, the byte index `2` is an invalid position, so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
+Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position, so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
 
 -/
 @[extern "lean_string_utf8_set"]
@@ -170,12 +168,16 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
 Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`, the result is unspecified.
 
 Examples:
-```
-"abc".next ⟨1⟩ = String.Pos.mk 2
+* `"abc".next ⟨1⟩ = String.Pos.mk 2`
+* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`
+`'∃'` is a mutli-byte character
 
--- '∃' is a mutli-byte character
-"L∃∀N".next ⟨1⟩ = String.Pos.mk 4
-```
+Cases where the result is unspecified:
+* `"abc".next ⟨3⟩ = String.Pos.mk 4`
+Since `3 = s.endPos`, the result is an invalid position
+* `"L∃∀N".next ⟨2⟩ = String.Pos.mk 3`
+Since `2` points into the middle of a multi-byte UTF-8 character the result is an invalid position
+
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=

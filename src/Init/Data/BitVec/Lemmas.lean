@@ -864,6 +864,7 @@ theorem truncate_add (x y : BitVec w) (h : i ≤ w) :
 theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
     BitVec.ofInt n x + BitVec.ofInt n y := by
   apply eq_of_toInt_eq
+  asdsd
   simp
 
 /-! ### sub/neg -/

@@ -61,9 +61,9 @@ def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
 /--
- Converts a string to a list of characters.
+Converts a string to a list of characters.
 
- Even though the logical model of strings is as a structure that wraps a list of characters, this operation takes time and space linear in the length of the string, because the compiler uses an optimized representation as dynamic arrays.
+Even though the logical model of strings is as a structure that wraps a list of characters, this operation takes time and space linear in the length of the string, because the compiler uses an optimized representation as dynamic arrays.
 
 Example: `"abc".toList = ['a', 'b', 'c']`
 -/
@@ -147,7 +147,7 @@ If both the replacement character and the replaced character are ASCII character
 Examples:
 * `"abc".set ⟨1⟩ 'B' = "aBc"`
 * `"abc".set ⟨3⟩ 'D' = "abc"`
-* `"L∃∀N".set ⟨1⟩ 'X' = "LX∀N"`
+* `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
 
 Because `'∃'` is a multi-byte character, the byte index `2` is an invalid position, so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
 
@@ -167,7 +167,7 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
 /--
-Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos - 1`, the result is unspecified.
+Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`, the result is unspecified.
 
 Examples:
 ```
@@ -175,9 +175,6 @@ Examples:
 
 -- '∃' is a mutli-byte character
 "L∃∀N".next ⟨1⟩ = String.Pos.mk 4
-
--- Since `2 = s.endPos - 1`, the result is an invalid postion
-"abc".next ⟨2⟩ = String.Pos.mk 3
 ```
 -/
 @[extern "lean_string_utf8_next"]

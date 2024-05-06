@@ -44,7 +44,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-def isEmpty (a : Array α) : Bool :=
+@[simp] def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 def singleton (v : α) : Array α :=
@@ -53,7 +53,7 @@ def singleton (v : α) : Array α :=
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern "lean_array_uget"]
+@[extern "lean_array_uget", simp]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 

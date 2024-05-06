@@ -901,6 +901,55 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet â†
     addEntryFn      := fun s n => s.insert n
   }
 
+structure Kernel.Diagnostics where
+  /-- Number of times each declaration has been unfolded by the kernel. -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
+  enabled : Bool := false
+  deriving Inhabited
+
+/--
+Extension for storting diagnostic information.
+
+Remark: We store kernel diagnostic information in an environment extension to simplify
+the interface with the kernel implemented in C/C++. Thus, we can only track
+declarations in methods, such as `addDecl`, which return a new environment.
+`Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
+this is ok since these methods are mainly used for debugging.
+-/
+builtin_initialize diagExt : EnvExtension Kernel.Diagnostics â†
+  registerEnvExtension (pure {})
+
+@[export lean_kernel_diag_is_enabled]
+def Kernel.Diagnostics.isEnabled (d : Diagnostics) : Bool :=
+  d.enabled
+
+/-- Enables/disables kernel diagnostics. -/
+def Kernel.enableDiag (env : Environment) (flag : Bool) : Environment :=
+  diagExt.modifyState env fun s => { s with enabled := flag }
+
+def Kernel.isDiagnosticsEnabled (env : Environment) : Bool :=
+  diagExt.getState env |>.enabled
+
+def Kernel.resetDiag (env : Environment) : Environment :=
+  diagExt.modifyState env fun s => { s with unfoldCounter := {} }
+
+@[export lean_kernel_record_unfold]
+def Kernel.Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
+  if d.enabled then
+    let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
+    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+  else
+    d
+
+@[export lean_kernel_get_diag]
+def Kernel.getDiagnostics (env : Environment) : Diagnostics :=
+  diagExt.getState env
+
+@[export lean_kernel_set_diag]
+def Kernel.setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
+  diagExt.setState env diag
+
 namespace Environment
 
 /-- Register a new namespace in the environment. -/

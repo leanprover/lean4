@@ -121,13 +121,16 @@ instance : MonadOptions CoreM where
   getOptions := return (← read).options
 
 instance : MonadWithOptions CoreM where
-  withOptions f x :=
+  withOptions f x := do
+    let options := f (← read).options
+    let diag := diagnostics.get options
+    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
+      modifyEnv fun env => Kernel.enableDiag env diag
     withReader
       (fun ctx =>
-        let options := f ctx.options
         { ctx with
           options
-          diag := diagnostics.get options
+          diag
           maxRecDepth := maxRecDepth.get options })
       x
 

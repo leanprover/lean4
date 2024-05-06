@@ -733,17 +733,15 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   if h : i.val + 1 < a.size then
     let a' := a.swap ⟨i.val + 1, h⟩ i
     let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
-    have : a'.size - i' < a.size - i := by
-      simp [a', Nat.sub_succ_lt_self _ _ i.isLt]
     a'.feraseIdx i'
   else
     a.pop
 termination_by a.size - i.val
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
-  | @case1 a i h a' _ _ ih =>
+  | @case1 a i h a' _ ih =>
     unfold feraseIdx
     simp [h, a', ih]
   | case2 a i h =>

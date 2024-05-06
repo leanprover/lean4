@@ -54,7 +54,7 @@ theorem eq_nil_of_length_eq_zero (_ : length l = 0) : l = [] := match l with | [
 
 theorem ne_nil_of_length_eq_succ (_ : length l = succ n) : l ≠ [] := fun _ => nomatch l
 
-theorem length_eq_zero : length l = 0 ↔ l = [] :=
+@[simp] theorem length_eq_zero : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
 
 /-! ### mem -/
@@ -783,8 +783,6 @@ theorem length_pos_iff_exists_cons :
 theorem exists_cons_of_length_succ :
     ∀ {l : List α}, l.length = n + 1 → ∃ h t, l = h :: t
   | _::_, _ => ⟨_, _, rfl⟩
-
-attribute [simp] length_eq_zero -- TODO: suggest to core
 
 @[simp]
 theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=

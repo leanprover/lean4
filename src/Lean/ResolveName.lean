@@ -393,21 +393,19 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do
-    match (← unresolveNameCore initialName) with
-    | none => continue
-    | some n => return n
+    if let some n := (← unresolveNameCore initialName) then
+      return n
   return n₀ -- if can't resolve, return the original
 where
   unresolveNameCore (n : Name) : m (Option Name) := do
+    if n.hasMacroScopes then return none
     let mut revComponents := n.componentsRev
     let mut candidate := Name.anonymous
-    for _ in [:revComponents.length] do
-      match revComponents with
-      | [] => return none
-      | cmpt::rest => candidate := Name.appendCore cmpt candidate; revComponents := rest
-      match (← resolveGlobalName candidate) with
-      | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
-      | _ => continue
+    for cmpt in revComponents do
+      candidate := Name.appendCore cmpt candidate
+      if let [(potentialMatch, _)] := (← resolveGlobalName candidate) then
+        if potentialMatch == n₀ then
+          return some candidate
     return none
 
 end Lean

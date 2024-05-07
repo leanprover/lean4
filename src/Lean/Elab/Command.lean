@@ -82,7 +82,7 @@ instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); 
   try
     x
   catch ex =>
-    if ex.isInternalExceptionOf Core.interruptExceptionId then
+    if ex.isInterrupt then
       throw ex
     else
       h ex

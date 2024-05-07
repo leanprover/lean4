@@ -404,7 +404,7 @@ where
     for _ in [:revComponents.length] do
       match revComponents with
       | [] => return none
-      | cmpt::rest => candidate := cmpt ++ candidate; revComponents := rest
+      | cmpt::rest => candidate := Name.appendCore cmpt candidate; revComponents := rest
       match (← resolveGlobalName candidate) with
       | [(potentialMatch, _)] => if potentialMatch == n₀ then return some candidate else continue
       | _ => continue

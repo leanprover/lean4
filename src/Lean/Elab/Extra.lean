@@ -96,7 +96,7 @@ Here are brief descriptions of each of the operator types:
 - `rightact% f a b` elaborates `f a b` as a right action (the `b` operand "acts upon" the `a` operand).
   Only `a` participates in the protocol since `b` can have an unrelated type.
   This is used by `HPow` since, for example, there are both `Real -> Nat -> Real` and `Real -> Real -> Real`
-  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2220)
+  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2854)
 - There are also `binrel%` and `binrel_no_prop%` (see the docstring for `elabBinRelCore`).
 
 The elaborator works as follows:
@@ -449,7 +449,7 @@ def elabOp : TermElab := fun stx expectedType? => do
 
   - `binrel% R x y` elaborates `R x y` using the `binop%/...` expression trees in both `x` and `y`.
     It is similar to how `binop% R x y` elaborates but with a significant difference:
-    it does not use the expected type when computing the types of the operads.
+    it does not use the expected type when computing the types of the operands.
   - `binrel_no_prop% R x y` elaborates `R x y` like `binrel% R x y`, but if the resulting type for `x` and `y`
     is `Prop` they are coerced to `Bool`.
     This is used for relations such as `==` which do not support `Prop`, but we still want

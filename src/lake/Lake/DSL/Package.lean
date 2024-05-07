@@ -59,7 +59,7 @@ post_update pkg do
   let wsToolchainFile := (← getRootPackage).dir / "lean-toolchain"
   let mathlibToolchain ← IO.FS.readFile <| pkg.dir / "lean-toolchain"
   IO.FS.writeFile wsToolchainFile mathlibToolchain
-  let exeFile ← runBuild cache.build >>= (·.await)
+  let exeFile ← runBuild cache.fetch
   let exitCode ← env exeFile.toString #["get"]
   if exitCode ≠ 0 then
     error s!"{pkg.name}: failed to fetch cache"

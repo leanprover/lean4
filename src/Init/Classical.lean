@@ -15,6 +15,13 @@ namespace Classical
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
+/--
+Given that there exists an element satisfying `p`, returns one such element.
+
+This is a straightforward consequence of, and equivalent to, `Classical.choice`.
+
+See also `choose_spec`, which asserts that the returned value has property `p`.
+-/
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 

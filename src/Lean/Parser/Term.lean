@@ -870,7 +870,7 @@ def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (ho
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
-    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

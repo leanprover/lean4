@@ -133,6 +133,21 @@ private def resolveDepsAcyclic
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
+def stdMismatchError (newName : String) (rev : String) :=
+s!"the 'std' package has been renamed to '{newName}' and moved to the
+'leanprover-community' organization; downstream packages which wish to
+update to the new std should replace
+
+  require std from
+    git \"https://github.com/leanprover/std4\"{rev}
+
+in their Lake configuration file with
+
+  require {newName} from
+    git \"https://github.com/leanprover-community/{newName}\"{rev}
+
+"
+
 /--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
 
@@ -174,6 +189,8 @@ def Workspace.updateAndMaterialize
         liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
       logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
     resolveDepsAcyclic ws.root fun pkg resolve => do
+      if let some pkg := (← getThe Workspace).findPackage? pkg.name then
+        return pkg
       let inherited := pkg.name != ws.root.name
       -- Materialize this package's dependencies first
       let deps ← pkg.depConfigs.mapM fun dep => fetchOrCreate dep.name do
@@ -189,7 +206,19 @@ def Workspace.updateAndMaterialize
           -- Load the package
           let depPkg ← liftM <| loadDepPackage dep leanOpts reconfigure
           if depPkg.name ≠ dep.name then
-            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+            if dep.name = .mkSimple "std" then
+              let rev :=
+                match dep.manifestEntry with
+                | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
+                | _ => ""
+              logError (stdMismatchError depPkg.name.toString rev)
+            try
+              IO.FS.removeDirAll depPkg.dir -- cleanup
+            catch e =>
+              -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
+              logError s!"'{dep.name}' was downloaded incorrectly; \
+                you will need to manually delete '{depPkg.dir}': {e}"
+            error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
           | .ok manifest =>
@@ -243,6 +272,8 @@ def Workspace.materializeDeps
   let rootPkg := ws.root
   let (root, ws) ← StateT.run (s := ws) <| StateT.run' (s := mkNameMap Package) do
     resolveDepsAcyclic rootPkg fun pkg resolve => do
+      if let some pkg := (← getThe Workspace).findPackage? pkg.name then
+        return pkg
       let topLevel := pkg.name = rootPkg.name
       let deps := pkg.depConfigs
       if topLevel then

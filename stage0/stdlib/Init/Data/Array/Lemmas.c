@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: Init.Data.Nat.MinMax Init.Data.List.Lemmas Init.Data.Fin.Basic Init.Data.Array.Mem Init.TacticsExtra
+// Imports: Init.Data.Nat.MinMax Init.Data.Nat.Lemmas Init.Data.List.Lemmas Init.Data.Fin.Basic Init.Data.Array.Mem Init.TacticsExtra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -284,6 +284,7 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Data_Nat_MinMax(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Fin_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin, lean_object*);
@@ -294,6 +295,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_Nat_MinMax(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Lemmas(builtin, lean_io_mk_world());

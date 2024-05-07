@@ -11,7 +11,7 @@ project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 8)
 set(LEAN_VERSION_PATCH 0)
-set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
+set(LEAN_VERSION_IS_RELEASE 1)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
 if (LEAN_SPECIAL_VERSION_DESC)
@@ -314,6 +314,12 @@ endif()
 
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+# in local builds, link executables and not just dynlibs against C++ stdlib as well,
+# which is required for e.g. asan
+if(NOT LEAN_STANDALONE)
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+endif()
 
 # flags for user binaries = flags for toolchain binaries + Lake
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")

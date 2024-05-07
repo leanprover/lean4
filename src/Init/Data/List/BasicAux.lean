@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
+import Init.Ext
 
 universe u
 
@@ -42,6 +43,14 @@ See also `get?` and `get!`.
 -/
 def getD (as : List α) (i : Nat) (fallback : α) : α :=
   (as.get? i).getD fallback
+
+@[ext] theorem ext : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+  | [], [], _ => rfl
+  | a :: l₁, [], h => nomatch h 0
+  | [], a' :: l₂, h => nomatch h 0
+  | a :: l₁, a' :: l₂, h => by
+    have h0 : some a = some a' := h 0
+    injection h0 with aa; simp only [aa, ext fun n => h (n+1)]
 
 /--
 Returns the first element in the list.
@@ -148,6 +157,13 @@ def getLastD : (as : List α) → (fallback : α) → α
   | [],   a₀ => a₀
   | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
 
+/--
+`O(n)`. Rotates the elements of `xs` to the left such that the element at
+`xs[i]` rotates to `xs[(i - n) % l.length]`.
+* `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
+* `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
+-/
 def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -158,6 +174,13 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
+/--
+`O(n)`. Rotates the elements of `xs` to the right such that the element at
+`xs[i]` rotates to `xs[(i + n) % l.length]`.
+* `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
+* `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
+* `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
+-/
 def rotateRight (xs : List α) (n : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
@@ -203,9 +226,10 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
 over a nested inductive like `inductive T | mk : List T → T`. -/
 macro "sizeOf_list_dec" : tactic =>
   `(tactic| first
-    | apply sizeOf_lt_of_mem; assumption; done
-    | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
-      case' h => assumption
+    | with_reducible apply sizeOf_lt_of_mem; assumption; done
+    | with_reducible
+        apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+        case' h => assumption
       simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| sizeOf_list_dec)
@@ -288,6 +312,15 @@ def mapMono (as : List α) (f : α → α) : List α :=
 Monadic generalization of `List.partition`.
 
 This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+```
+def posOrNeg (x : Int) : Except String Bool :=
+  if x > 0 then pure true
+  else if x < 0 then pure false
+  else throw "Zero is not positive or negative"
+
+partitionM posOrNeg [-1, 2, 3] = Except.ok ([2, 3], [-1])
+partitionM posOrNeg [0, 2, 3] = Except.error "Zero is not positive or negative"
+```
 -/
 @[inline] def partitionM [Monad m] (p : α → m Bool) (l : List α) : m (List α × List α) :=
   go l #[] #[]

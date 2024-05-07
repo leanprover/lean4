@@ -50,6 +50,9 @@ def Origin.key : Origin → Name
 
 instance : BEq Origin := ⟨(·.key == ·.key)⟩
 instance : Hashable Origin := ⟨(hash ·.key)⟩
+instance : LT Origin := ⟨(·.key.lt ·.key)⟩
+instance (a b : Origin) : Decidable (a < b) :=
+  inferInstanceAs (Decidable (a.key.lt b.key = true))
 
 /-
 Note: we want to use iota reduction when indexing instances. Otherwise,

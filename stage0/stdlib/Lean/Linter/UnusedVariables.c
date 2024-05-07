@@ -177,7 +177,6 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterUnusedVariablesFunArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__18___lambda__4___boxed(lean_object**);
-lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_593____lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__3(lean_object*, size_t, size_t, lean_object*);
@@ -275,6 +274,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 static lean_object* l_panic___at_Lean_Linter_UnusedVariables_collectReferences___spec__24___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_593____closed__14;
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_collectReferences_skipDeclIdIfPresent(lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1273____lambda__5___closed__12;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Linter_UnusedVariables_References_fvarDefs___default___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_collectReferences___spec__26___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -760,7 +760,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_9____closed__3;
 x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_9____closed__6;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_9____closed__9;
-x_5 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -826,7 +826,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_47____closed__2;
 x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_47____closed__4;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_47____closed__5;
-x_5 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -892,7 +892,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_85____closed__2;
 x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_85____closed__4;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_85____closed__5;
-x_5 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

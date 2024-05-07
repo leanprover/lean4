@@ -10803,7 +10803,7 @@ static lean_object* _init_l_Lean_maxRecDepthErrorMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("maximum recursion depth has been reached\nuse `set_option maxRecDepth <num>` to increase limit\nuse `set_option diagnostics true` to get diagnostic information", 157);
+x_1 = lean_mk_string_from_bytes("maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)", 95);
 return x_1;
 }
 }

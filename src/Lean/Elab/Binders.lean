@@ -7,6 +7,7 @@ prelude
 import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
+import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.WF.TerminationHint
 
 namespace Lean.Elab.Term
@@ -646,7 +647,26 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
     (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
   let (type, val, binders) ← elabBindersEx binders fun xs => do
     let (binders, fvars) := xs.unzip
-    let type ← elabType typeStx
+    /-
+    We use `withSynthesize` to ensure that any postponed elaboration problem
+    and nested tactics in `type` are resolved before elaborating `val`.
+    Resolved: we want to avoid synthethic opaque metavariables in `type`.
+    Recall that this kind of metavariable is non-assignable, and `isDefEq`
+    may waste a lot of time unfolding declarations before failing.
+    See issue #4051 for an example.
+
+    Here is the analysis for issue #4051.
+    - Given `have x : type := value; body`, we were previously elaborating `value` even
+      if `type` contained postponed elaboration problems.
+    - Moreover, the metavariables in `type` corresponding to postponed elaboration
+      problems cannot be assigned by `isDefEq` since the elaborator is supposed to assign them.
+    - Then, when checking whether type of `value` is definitionally equal to `type`,
+      a very long-time was spent unfolding a bunch of declarations before it failed.
+      In #4051, it was unfolding `Array.swaps` which is defined by well-founded recursion.
+      After the failure, the elaborator inserted a postponed coercion
+      that would be resolved later as soon as the types don't have unassigned metavariables.
+    -/
+    let type ← withSynthesize <| elabType typeStx
     registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type

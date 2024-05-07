@@ -489,7 +489,6 @@ where
         -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
         -- still-running elaboration steps?
         if let some tk := ctx.oldCancelTk? then
-          dbg_trace "set"
           tk.set
 
       -- definitely resolved in `doElab` task

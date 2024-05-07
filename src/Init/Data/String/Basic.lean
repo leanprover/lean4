@@ -179,8 +179,7 @@ the result is unspecified.
 
 Examples:
 * `"abc".next ⟨1⟩ = String.Pos.mk 2`
-* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`
-`'∃'` is a multi-byte character
+* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`, since `'∃'` is a multi-byte UTF-8 character
 
 Cases where the result is unspecified:
 * `"abc".next ⟨3⟩`, since `3 = s.endPos`

@@ -33,7 +33,7 @@ where
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
         cmdState := finished.cmdState
-      } (match cmdParsed.next? with
+      } (match cmdParsed.nextCmdSnap? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)
 

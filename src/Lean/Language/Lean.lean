@@ -202,7 +202,7 @@ deriving Nonempty
 abbrev CommandParsedSnapshot.data : CommandParsedSnapshot → CommandParsedSnapshotData
   | mk data _ => data
 /-- Next command, unless this is a terminal command. -/
-abbrev CommandParsedSnapshot.next? : CommandParsedSnapshot →
+abbrev CommandParsedSnapshot.nextCmdSnap? : CommandParsedSnapshot →
     Option (SnapshotTask CommandParsedSnapshot)
   | mk _ next? => next?
 partial instance : ToSnapshotTree CommandParsedSnapshot where
@@ -210,7 +210,7 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
     go s := ⟨s.data.toSnapshot,
       #[s.data.elabSnap.map (sync := true) toSnapshotTree,
         s.data.finishedSnap.map (sync := true) toSnapshotTree] |>
-        pushOpt (s.next?.map (·.map (sync := true) go))⟩
+        pushOpt (s.nextCmdSnap?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/
 structure HeaderProcessedState where
@@ -456,7 +456,7 @@ where
 
     let unchanged old : BaseIO CommandParsedSnapshot :=
       -- when syntax is unchanged, reuse command processing task as is
-      if let some oldNext := old.next? then
+      if let some oldNext := old.nextCmdSnap? then
         return .mk (data := old.data)
           (nextCmdSnap? := (← old.data.finishedSnap.bindIO (sync := true) fun oldFinished =>
             -- also wait on old command parse snapshot as parsing is cheap and may allow for
@@ -467,7 +467,7 @@ where
 
     -- fast path, do not even start new task for this snapshot
     if let some old := old? then
-      if let some nextCom ← old.next?.bindM (·.get?) then
+      if let some nextCom ← old.nextCmdSnap?.bindM (·.get?) then
         if (← isBeforeEditPos nextCom.data.parserState.pos) then
           return .pure (← unchanged old)
 
@@ -598,7 +598,7 @@ partial def waitForFinalEnv? (snap : InitialSnapshot) : Option Environment := do
   let snap ← snap.processedSnap.get.result?
   goCmd snap.firstCmdSnap.get
 where goCmd snap :=
-  if let some next := snap.next? then
+  if let some next := snap.nextCmdSnap? then
     goCmd next.get
   else
     snap.data.finishedSnap.get.cmdState.env

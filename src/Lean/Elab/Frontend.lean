@@ -119,7 +119,7 @@ where
   go initialSnap t commands :=
     let snap := t.get
     let commands := commands.push snap.data.stx
-    if let some next := snap.next? then
+    if let some next := snap.nextCmdSnap? then
       go initialSnap next commands
     else
       -- Opting into reuse also enables incremental reporting, so make sure to collect messages from

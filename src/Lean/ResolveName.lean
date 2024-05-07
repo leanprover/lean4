@@ -393,7 +393,7 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do
-    if let some n := (← unresolveNameCore initialName) then
+    if let some n ← unresolveNameCore initialName then
       return n
   return n₀ -- if can't resolve, return the original
 where
@@ -403,7 +403,7 @@ where
     let mut candidate := Name.anonymous
     for cmpt in revComponents do
       candidate := Name.appendCore cmpt candidate
-      if let [(potentialMatch, _)] := (← resolveGlobalName candidate) then
+      if let [(potentialMatch, _)] ← resolveGlobalName candidate then
         if potentialMatch == n₀ then
           return some candidate
     return none

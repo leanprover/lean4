@@ -384,6 +384,16 @@ After `open Foo open Boo`, we have
 def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m Name := do
   ensureNonAmbiguous id (← resolveGlobalConst id)
 
+/--
+Finds a name that unambiguously resolves to the given name `n₀`.
+Considers suffixes of `n₀` and suffixes of aliases of `n₀` when "unresolving".
+Aliases are considered first.
+
+When `fullNames` is true, returns either `n₀` or `_root_.n₀`.
+
+This function is meant to be used for pretty printing.
+If `n₀` is an accessible name, then the result will be an accessible name.
+-/
 def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) : m Name := do
   if n₀.hasMacroScopes then return n₀
   if fullNames then

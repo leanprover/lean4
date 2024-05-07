@@ -171,7 +171,7 @@ scoped macro (name := familyDef) doc?:optional(Parser.Command.docComment)
   let tid := extractMacroScopes fam.getId |>.name
   if let (tid, _) :: _ ← Macro.resolveGlobalName tid then
     let app := Syntax.mkApp fam #[key]
-    let axm := mkIdentFrom fam <| `_root_ ++ tid ++ id.getId
+    let axm := mkIdentFrom id (canonical := true) <| `_root_ ++ tid ++ id.getId
     `($[$doc?]? @[simp] axiom $axm : $app = $ty
     instance : FamilyDef $fam $key $ty := ⟨$axm⟩)
   else

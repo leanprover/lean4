@@ -273,7 +273,33 @@ where
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
-             unless (← withNewMCtxDepth <| isDefEqGuarded max type) do
+             /-
+              Remark: Previously, we used `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
+
+              Reason: This is a heuristic procedure for introducing coercions in scenarios such as:
+              - Given `(n : Nat) (i : Int)`, elaborate `n = i`. The coercion must be inserted at `n`.
+                Consider the elaboration problem `(n + 0) + i`, where the type of term `0` is a metavariable.
+                We do not want it to be elaborated as `(Int.ofNat n + Int.ofNat (0 : Nat)) + i`; instead, we prefer the result to be `(Int.ofNat n + (0 : Int)) + i`.
+                Here is another example where we avoid assigning metavariables: `max := BitVec n` and `type := BitVec ?m`.
+
+              However, the combination `withNewMCtxDepth <| isDefEqGuarded max type` introduced performance issues in several
+              Mathlib files because `isDefEq` was spending a lot of time unfolding definitions in `max` and `type` before failing.
+
+              To address this issue, we allowed only reducible definitions to be unfolded during this check, using
+              `withNewMCtxDepth <| withReducible <| isDefEqGuarded max type`. This change fixed some performance issues but created new ones.
+              Lean was now spending time trying to use `hasCoe`, likely occurring in places where `withNewMCtxDepth <| isDefEqGuarded max type`
+              used to succeed but was now failing after we introduced `withReducible`.
+
+              We then considered using just `isDefEqGuarded max type` and changing the definition of `isUnknown`. In the new definition,
+              the else-case would be `| e => e.hasExprMVar` instead of `| _ => false`. However, we could not even compile this repo using
+              this configuration. The problem arises because some files require coercions even when `max` contains metavariables,
+              for example: `max := Option ?m` and `type := Name`.
+
+              As a result, rather than restricting reducibility, we decided to set `Meta.Config.isDefEqStuckEx := true`.
+              This means that if `isDefEq` encounters a subproblem `?m =?= a` where `?m` is non-assignable, it aborts the test
+              instead of unfolding definitions.
+             -/
+             unless (← withNewMCtxDepth <| withConfig (fun config => { config with isDefEqStuckEx := true }) <| isDefEqGuarded max type) do
                if (← hasCoe type max) then
                  return ()
                else if (← hasCoe max type) then

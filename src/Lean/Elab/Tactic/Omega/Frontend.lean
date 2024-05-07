@@ -666,7 +666,6 @@ open Lean Elab Tactic Parser.Tactic
 def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
   liftMetaFinishingTactic fun g => do
     let g ← g.falseOrByContra
-      (useClassical := false) -- because all the hypotheses we can make use of are decidable
     g.withContext do
       let hyps := (← getLocalHyps).toList
       trace[omega] "analyzing {hyps.length} hypotheses:\n{← hyps.mapM inferType}"

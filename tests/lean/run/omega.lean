@@ -377,8 +377,12 @@ example (i j : Nat) (p : i ≥ j) : True := by
 -- From https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/Nat.2Emul_sub_mod/near/428107094
 example (a b : Nat) (h : a % b + 1 = 0) : False := by omega
 
-/-! ### Fin -/
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression.20in.204.2E8.2E0-rc1/near/437150155
+example (x : Nat) : x < 2 →
+    (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2) ∧ (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2 → x < 3) := by
+  omega
 
+/-! ### Fin -/
 
 -- Test `<`
 example (n : Nat) (i j : Fin n) (h : i < j) : (i : Nat) < n - 1 := by omega

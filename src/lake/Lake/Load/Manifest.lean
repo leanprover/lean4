@@ -50,7 +50,7 @@ That is, Lake ignores the `-` suffix.
 -/
 @[inline] def Manifest.version : LeanVer := v!"1.0.0"
 
-/-- Manifest version 6 package entry. For backwards compatibility. -/
+/-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)

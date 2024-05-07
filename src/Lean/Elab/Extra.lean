@@ -273,7 +273,16 @@ where
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
-             unless (← withNewMCtxDepth <| isDefEqGuarded max type) do
+             /-
+             Remark: we use `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
+             Reason: this is a heuristic procedure for introducing coercions in problems such as:
+             - Given `(n : Nat) (i : Int)`, elaborate `n = i`. The coercion must be inserted at `n`.
+
+             However, this introduced a performance issue in several Mathlib files because `isDefEq` would
+             spend a lot of time unfolding definitions occurring in `max` and `type` before failing.
+             We addressed this issue by allowing only reducible definitions to be unfolded during this check.
+             -/
+             unless (← withNewMCtxDepth <| withReducible <| isDefEqGuarded max type) do
                if (← hasCoe type max) then
                  return ()
                else if (← hasCoe max type) then

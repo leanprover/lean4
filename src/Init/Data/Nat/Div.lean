@@ -102,7 +102,7 @@ protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
   | 1, 0 => rw [Nat.modCore]; rfl
   | 1, 1 => rw [Nat.modCore, Nat.modCore]; rfl
-  | 1, (y+2) => rw [Nat.modCore]; rfl
+  | 1, (_+2) => rw [Nat.modCore]; rfl
   | (_ + 2), _ => rfl
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by

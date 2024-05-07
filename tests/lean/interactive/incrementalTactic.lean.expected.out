@@ -5,3 +5,22 @@ b 2.5
 t 0
 t 1
 t 2
+{"version": 3,
+ "uri": "file:///incrementalTactic.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}},
+   "message":
+   "tactic 'introN' failed, insufficient number of binders\na n : Nat\n⊢ True",
+   "fullRange":
+   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}}},
+  {"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 2, "character": 22}, "end": {"line": 3, "character": 0}},
+   "message": "unsolved goals\nthis : Nat → Nat → True\n⊢ True",
+   "fullRange":
+   {"start": {"line": 2, "character": 22},
+    "end": {"line": 10, "character": 11}}}]}

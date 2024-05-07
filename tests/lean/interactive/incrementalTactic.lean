@@ -18,3 +18,16 @@ def trailingWhitespace : True := by
   dbg_trace "t 2"
                --^ sync
                --^ insert: "\n "
+
+
+-- RESET
+-- this used to restore the wrong elab state because of input context mis-tracking
+def haveBug : True := by
+  have (a : Nat) : Nat → True := by
+    intro n m
+  --^ sync
+  --^ delete: "intro n m"
+  --^ sync
+  --^ insert: "intro n m"
+  --^ collectDiagnostics
+    exact m

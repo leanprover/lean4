@@ -111,8 +111,12 @@ partial def main (args : List String) : IO Unit := do
           let pos : Lsp.Position := { line := line, character := column.byteIdx }
           let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
           match method with
+          -- `delete: "foo"` deletes the given string's number of characters at the given position.
+          -- We do NOT check currently that the text at this position is indeed that string.
+          | "delete"
+          -- `insert: "foo"` inserts the given string at the given position.
           | "insert" =>
-            let some insertion := Syntax.decodeStrLit params
+            let some text := Syntax.decodeStrLit params
               | throw <| IO.userError s!"failed to parse {params}"
             let params : DidChangeTextDocumentParams := {
               textDocument := {
@@ -121,8 +125,12 @@ partial def main (args : List String) : IO Unit := do
               }
               contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
                 start := pos
-                «end» := pos
-              } insertion]
+                «end» := match method with
+                  | "delete" => { pos with character := pos.character + text.length }
+                  | _ => pos
+              } (match method with
+                | "delete" => ""
+                | _ => text)]
             }
             let params := toJson params
             Ipc.writeNotification ⟨"textDocument/didChange", params⟩

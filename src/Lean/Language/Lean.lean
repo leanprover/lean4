@@ -333,7 +333,7 @@ where
       -- parsing the first command, synchronously if possible
       if let some oldSuccess := old.result? then
         return {
-          ictx := old.ictx
+          ictx
           stx := old.stx
           diagnostics := old.diagnostics
           cancelTk? := ctx.newCancelTk

@@ -183,10 +183,8 @@ Examples:
 `'∃'` is a mutli-byte character
 
 Cases where the result is unspecified:
-* `"abc".next ⟨3⟩ = String.Pos.mk 4`
-Since `3 = s.endPos`, the result is an invalid position
-* `"L∃∀N".next ⟨2⟩ = String.Pos.mk 3`
-Since `2` points into the middle of a multi-byte UTF-8 character the result is an invalid position
+* `"abc".next ⟨3⟩`, since `3 = s.endPos`
+* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
 -/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=

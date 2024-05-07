@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Toml
 import Lake.Util.Message
-import Lake.Util.Newline
 
 /-!
 ## TOML Test Runner

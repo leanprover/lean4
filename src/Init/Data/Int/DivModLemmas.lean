@@ -178,10 +178,9 @@ theorem fdiv_eq_div {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = div a
 
 @[simp] theorem zero_mod (b : Int) : mod 0 b = 0 := by cases b <;> simp [mod]
 
-unseal Nat.modCore in
 @[simp] theorem mod_zero : ∀ a : Int, mod a 0 = a
   | ofNat _ => congrArg ofNat <| Nat.mod_zero _
-  | -[_+1] => rfl
+  | -[_+1] => congrArg (fun n => -ofNat n) <| Nat.mod_zero _
 
 @[simp] theorem zero_fmod (b : Int) : fmod 0 b = 0 := by cases b <;> rfl
 
@@ -223,13 +222,14 @@ theorem ediv_add_emod' (a b : Int) : a / b * b + a % b = a := by
 theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
   rw [← Int.add_sub_cancel (a % b), emod_add_ediv]
 
-unseal Nat.div Nat.modCore in
 theorem mod_add_div : ∀ a b : Int, mod a b + b * (a.div b) = a
   | ofNat _, ofNat _ => congrArg ofNat (Nat.mod_add_div ..)
   | ofNat m, -[n+1] => by
     show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat (Nat.mod_add_div ..)
-  | -[_+1], 0 => rfl
+  | -[m+1], 0 => by
+    show -(↑((succ m) % 0) : Int) + 0 * -↑(succ m / 0) = -↑(succ m)
+    rw [Nat.mod_zero, Int.zero_mul, Int.add_zero]
   | -[m+1], ofNat n => by
     show -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
     rw [Int.mul_neg, ← Int.neg_add]
@@ -767,13 +767,13 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
   | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
-unseal Nat.div Nat.modCore in
+unseal Nat.div in
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
   | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
 
-unseal Nat.div Nat.modCore in
+unseal Nat.div in
 @[simp] protected theorem neg_div : ∀ a b : Int, (-a).div b = -(a.div b)
   | 0, n => by simp [Int.neg_zero]
   | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl

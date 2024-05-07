@@ -22,11 +22,17 @@ namespace Lake
 
 /--
 The current version of the manifest format.
+
 Three-part semantic versions were introduced in `v1.0.0`.
 Major version increments indicate breaking changes
 (e.g., new required fields and semantic changes to existing fields).
 Minor version increments (after `0.x`) indicate backwards-compatible extensions
 (e.g., adding optional fields, removing fields).
+
+Lake supports reading manifests with versions that have `-` suffixes.
+When checking for version compatibility, Lake expects a manifest with version
+`x.y.z-foo` to have all the features of the official manifest version `x.y.z`.
+That is, Lake ignores the `-` suffix.
 
 **VERSION HISTORY**
 
@@ -42,7 +48,7 @@ Minor version increments (after `0.x`) indicate backwards-compatible extensions
 **v1.x.x** (versioned by a string)
 - `"1.0.0"`: Switches to a semantic versioning scheme
 -/
-@[inline] def Manifest.version : SemVerCore := v!"1.0.0"
+@[inline] def Manifest.version : LeanVer := v!"1.0.0"
 
 /-- Manifest version 6 package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -182,10 +188,10 @@ instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
 protected def fromJson? (json : Json) : Except String Manifest := do
   let obj ← JsonObject.fromJson? json
-  let ver : SemVerCore ← id do
+  let ver : SemVerCore ←
     match (← obj.get "version" : Json) with
-    | (n : Nat) => return {major := 0, minor := n, patch := 0}
-    | (s : String) => SemVerCore.parse s
+    | (n : Nat) => pure {minor := n}
+    | (s : String) => LeanVer.parse s
     | ver => throw s!"unknown manifest version format '{ver}'; \
       you may need to update your 'lean-toolchain'"
   if ver.major > 1 then
@@ -199,7 +205,7 @@ protected def fromJson? (json : Json) : Except String Manifest := do
     let packagesDir? ← obj.get? "packagesDir"
     let packages ←
       if ver < v!"0.7.0" then
-        pure <| (← obj.getD "packages" #[]).map PackageEntry.ofV6
+        (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
       else
         obj.getD "packages" #[]
     return {name, lakeDir, packagesDir?, packages}

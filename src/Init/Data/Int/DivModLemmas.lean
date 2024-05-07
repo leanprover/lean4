@@ -178,7 +178,7 @@ theorem fdiv_eq_div {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = div a
 
 @[simp] theorem mod_zero : ∀ a : Int, mod a 0 = a
   | ofNat _ => congrArg ofNat <| Nat.mod_zero _
-  | -[_+1] => rfl
+  | -[_+1] => congrArg (fun n => -ofNat n) <| Nat.mod_zero _
 
 @[simp] theorem zero_fmod (b : Int) : fmod 0 b = 0 := by cases b <;> rfl
 
@@ -225,7 +225,9 @@ theorem mod_add_div : ∀ a b : Int, mod a b + b * (a.div b) = a
   | ofNat m, -[n+1] => by
     show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat (Nat.mod_add_div ..)
-  | -[_+1], 0 => rfl
+  | -[m+1], 0 => by
+    show -(↑((succ m) % 0) : Int) + 0 * -↑(succ m / 0) = -↑(succ m)
+    rw [Nat.mod_zero, Int.zero_mul, Int.add_zero]
   | -[m+1], ofNat n => by
     show -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
     rw [Int.mul_neg, ← Int.neg_add]

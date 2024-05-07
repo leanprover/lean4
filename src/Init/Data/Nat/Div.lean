@@ -82,22 +82,35 @@ decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
-  /- This case is not needed mathematically as the case below is equal to it; however, it makes
-  `0 % n = 0` true definitionally rather than just propositionally.
-  This property is desirable for `Fin n`, as it means `(ofNat 0 : Fin n).val = 0` by definition.
-  Primarily, this is valuable because mathlib in Lean3 assumed this was true definitionally, and so
-  keeping this definitional equality makes mathlib easier to port to mathlib4. -/
+  /- These four cases are not needed mathematically, they are just special cases of the
+  general case. However, it makes `0 % n = 0` etc. true definitionally rather than just
+  propositionally.
+  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
+  definition. This was true in lean3 and it simplified things for mathlib if it remains true. -/
   | 0, _ => 0
-  | x@(_ + 1), y => Nat.modCore x y
+  | 1, 0 => 0
+  | 1, 1 => 0
+  | 1, (_+2) => 1
+  | x@(_ + 2), y => Nat.modCore x y
 
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
+unseal Nat.modCore in
 protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
-  cases x with
-  | zero =>
+  match x, y with
+  | 0, y =>
     rw [Nat.modCore]
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
-  | succ x => rfl
+  | 1, 0 =>
+    rw [Nat.modCore]
+    exact if_neg fun ⟨hlt, _⟩ => Nat.lt_irrefl _ hlt
+  | 1, 1 =>
+    rw [Nat.modCore]
+    exact if_pos ⟨Nat.one_pos, Nat.le_refl _⟩
+  | 1, (y+2) =>
+    rw [Nat.modCore]
+    exact if_neg fun ⟨_, hle⟩ => Nat.not_succ_le_zero _ (Nat.le_of_succ_le_succ hle)
+  | (_ + 2), _ => rfl
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]

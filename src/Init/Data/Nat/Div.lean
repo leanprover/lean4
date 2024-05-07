@@ -95,7 +95,6 @@ protected def mod : @& Nat → @& Nat → Nat
 
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
-unseal Nat.modCore in
 protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
   match x, y with
   | 0, y =>

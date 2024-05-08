@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.AddDecl
 import Lean.Util.CollectLevelParams
 import Lean.Meta.Reduce
 import Lean.Elab.DeclarationRange
@@ -123,7 +124,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl Declaration.quotDecl with
+  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 

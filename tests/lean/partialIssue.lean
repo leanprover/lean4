@@ -1,4 +1,4 @@
-import Lean.CoreM
+import Lean.AddDecl
 
 #eval Lean.addDecl <| .mutualDefnDecl [{
   name := `False_intro

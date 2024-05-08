@@ -246,7 +246,7 @@ namespace Environment
 
 /-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
+opaque addDeclCore (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 

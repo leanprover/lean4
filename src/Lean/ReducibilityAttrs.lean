@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Attributes
 import Lean.ScopedEnvExtension
+import Lean.Util.CollectConsts
 
 namespace Lean
-
 /--
 Reducibility status for a definition.
 -/
@@ -183,5 +183,65 @@ def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getReducibilityStatus declName) with
   | .irreducible => return true
   | _ => return false
+
+register_builtin_option kernel.irreducibleHints : Bool := {
+  defValue := true
+  descr    := "use `[irreducible]` annotations as hints when type-checking in the kernel"
+}
+
+/--
+Set reducibility hints override fields at the given declaration using the
+current status of `reducibilityCoreExt` and `reducibilityExtraExt`.
+-/
+def setReducibilityHintsOverride (env : Environment) (opts : Options) (d : Declaration) : Declaration :=
+  let override := go d.collectConsts
+  match d with
+  | .defnDecl val => .defnDecl { val with override }
+  | .thmDecl val => .thmDecl { val with override }
+  | .opaqueDecl val => .opaqueDecl { val with override }
+  | .mutualDefnDecl vals => .mutualDefnDecl <| vals.map fun val => { val with override }
+  | _ => d
+where
+  go (declNames : Array Name) : ReducibilityHintsOverride := Id.run do
+    if kernel.irreducibleHints.get opts then
+      let mut sealed := #[]
+      let mut unsealed := #[]
+      for declName in declNames do
+        let currentStatus := getReducibilityStatusCore env declName
+        match env.getModuleIdxFor? declName with
+        | some modIdx =>
+          let importedStatus :=
+            match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+            | some (_, status) => status
+            | none => .semireducible
+          if currentStatus != importedStatus then
+            if currentStatus matches .irreducible then
+              sealed := sealed.push declName
+            else
+              unsealed := unsealed.push declName
+        | none =>
+          -- `declName` was declared in the current module
+          if currentStatus matches .irreducible then
+            sealed := sealed.push declName
+      return .override sealed.toList unsealed.toList
+    else
+      return .ignore
+
+/--
+Auxiliary function used by the kernel to decide whether `declName` should be
+treated as irreducible or not.
+-/
+@[export lean_kernel_is_irreducible_override]
+def isIrreducibleOverride (env : Environment) (override : ReducibilityHintsOverride) (declName : Name) : Bool :=
+  match override with
+  | .ignore => false
+  | .override sealed unsealed =>
+    sealed.contains declName ||
+    match env.getModuleIdxFor? declName with
+    | none => false
+    | some modIdx =>
+      match (reducibilityCoreExt.getModuleEntries env modIdx).binSearch (declName, .semireducible) (fun a b => Name.quickLt a.1 b.1) with
+      | some (_, status) => status == .irreducible && !unsealed.contains declName
+      | none => false
 
 end Lean

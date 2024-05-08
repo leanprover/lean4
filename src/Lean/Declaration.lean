@@ -79,11 +79,34 @@ def isRegular : ReducibilityHints → Bool
 
 end ReducibilityHints
 
+/--
+When type checking definitions and theorems, we allow users
+to provide reducibility overrides.
+The overrides come from two different sources:
+- Attribute `[irreducible]` attached to imported declarations.
+- Locally sealed/unsealed declarations.
+-/
+inductive ReducibilityHintsOverride where
+  /--
+  Instruct the kernel to use only `ReducibilityHints` in the
+  convertibility checker.
+  -/
+  | ignore
+  /--
+  Instruct the kernel to treat a constant `c` as irreducible/opaque IF
+  1- It comes from an imported file, has the attribute `[irreducible]`
+     and is **not** in `unsealed`.
+  2- It is in `sealed`.
+  -/
+  | override (sealed : List Name) (unsealed : List Name)
+  deriving Repr, Inhabited, BEq
+
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal where
   name : Name
   levelParams : List Name
   type : Expr
+  override : ReducibilityHintsOverride := .ignore
   deriving Inhabited, BEq
 
 structure AxiomVal extends ConstantVal where

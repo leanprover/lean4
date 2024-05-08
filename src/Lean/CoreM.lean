@@ -338,15 +338,6 @@ def mkArrow (d b : Expr) : CoreM Expr :=
 /-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
 def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
 
-def addDecl (decl : Declaration) : CoreM Unit := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl decl with
-      | Except.ok    env => setEnv env
-      | Except.error ex  => throwKernelException ex
-
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
 
@@ -399,10 +390,6 @@ def compileDecls (decls : List Name) : CoreM Unit := do
     throwError msg
   | Except.error ex =>
     throwKernelException ex
-
-def addAndCompile (decl : Declaration) : CoreM Unit := do
-  addDecl decl;
-  compileDecl decl
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts

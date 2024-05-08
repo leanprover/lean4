@@ -246,7 +246,7 @@ theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
   split <;> split <;> omega
 
 theorem toInt_inj (x y : BitVec n) : x.toInt = y.toInt ↔ x = y :=
-  Iff.intro (congrArg BitVec.toInt) eq_of_toInt_eq
+  Iff.intro eq_of_toInt_eq (congrArg BitVec.toInt)
 
 theorem toInt_ne (x y : BitVec n) : x.toInt ≠ y.toInt ↔ x ≠ y  := by
   rw [Ne, toInt_eq]

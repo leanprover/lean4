@@ -21,14 +21,12 @@ def getM [Alternative m] : Option α → m α
 @[deprecated getM] def toMonad [Monad m] [Alternative m] : Option α → m α :=
   getM
 
-@[inline] def toBool : Option α → Bool
-  | some _ => true
-  | none   => false
-
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
+
+@[deprecated isSome, inline] def toBool : Option α → Bool := isSome
 
 /-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool

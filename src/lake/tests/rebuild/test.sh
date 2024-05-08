@@ -15,9 +15,9 @@ mkdir -p Foo
 echo $'def a := "a"' > Foo/Test.lean
 echo $'import Foo.Test def hello := a' > Foo.lean
 ${LAKE} build
-./.lake/build/bin/foo | grep -m1 a
+./.lake/build/bin/foo | grep --color a
 echo $'def b := "b"' > Foo/Test.lean
 echo $'import Foo.Test def hello := b' > Foo.lean
 ${LAKE} build Foo
 ${LAKE} build
-./.lake/build/bin/foo | grep -m1 b
+./.lake/build/bin/foo | grep --color b

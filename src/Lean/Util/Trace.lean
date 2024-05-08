@@ -148,22 +148,27 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
   modifyTraces fun _ =>
     oldTraces.push { ref, msg }
 
-def withStartStopSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float × Float) := do
-  let start ← IO.monoNanosNow
-  let a ← act
-  let stop ← IO.monoNanosNow
-  return (a, start.toFloat / 1000000000, stop.toFloat / 1000000000)
-
 register_builtin_option trace.profiler : Bool := {
   defValue := false
   group    := "profiler"
-  descr    := "activate nested traces with execution time over threshold"
+  descr    :=
+    "activate nested traces with execution time above `trace.profiler.threshold` and annotate with \
+    time"
 }
 
 register_builtin_option trace.profiler.threshold : Nat := {
   defValue := 10
   group    := "profiler"
-  descr    := "threshold in milliseconds, traces below threshold will not be activated"
+  descr    :=
+    "threshold in milliseconds (or heartbeats if `trace.profiler.useHeartbeats` is true), \
+    traces below threshold will not be activated"
+}
+
+register_builtin_option trace.profiler.useHearbeats : Bool := {
+  defValue := false
+  group    := "profiler"
+  descr    :=
+    "if true, measure and report heartbeats instead of seconds"
 }
 
 register_builtin_option trace.profiler.output : String := {
@@ -177,20 +182,31 @@ register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
   group    := "profiler"
   descr    :=
-    "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any"
+    "if false, limit text in exported trace nodes to trace class name and `TraceData.tag`, if any
+
+This is useful when we are interested in the time taken by specific subsystems instead of specific \
+invocations, which is the common case."
 }
 
-def trace.profiler.threshold.getSecs (o : Options) : Float :=
-  (trace.profiler.threshold.get o).toFloat / 1000
+@[inline] private def withStartStop [Monad m] [MonadLiftT BaseIO m] (opts : Options) (act : m α) :
+    m (α × Float × Float) := do
+  if trace.profiler.useHearbeats.get opts then
+    let start ← IO.getNumHeartbeats
+    let a ← act
+    let stop ← IO.getNumHeartbeats
+    return (a, start.toFloat, stop.toFloat)
+  else
+    let start ← IO.monoNanosNow
+    let a ← act
+    let stop ← IO.monoNanosNow
+    return (a, start.toFloat / 1000000000, stop.toFloat / 1000000000)
 
-@[inline]
-def shouldProfile : m Bool := do
-  let opts ← getOptions
-  return profiler.get opts || trace.profiler.get opts
-
-@[inline]
-def shouldEnableNestedTrace (cls : Name) (secs : Float) : m Bool := do
-  return (← isTracingEnabledFor cls) || secs < trace.profiler.threshold.getSecs (← getOptions)
+@[inline] def trace.profiler.threshold.unitAdjusted (o : Options) : Float :=
+  if trace.profiler.useHearbeats.get o then
+    (trace.profiler.threshold.get o).toFloat
+  else
+    -- milliseconds to seconds
+    (trace.profiler.threshold.get o).toFloat / 1000
 
 /--
 `MonadExcept` variant that is expected to catch all exceptions of the given type in case the
@@ -229,8 +245,9 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
-  let (res, start, stop) ← withStartStopSeconds <| observing k
-  let aboveThresh := trace.profiler.get opts && stop - start > trace.profiler.threshold.getSecs opts
+  let (res, start, stop) ← withStartStop opts <| observing k
+  let aboveThresh := trace.profiler.get opts &&
+    stop - start > trace.profiler.threshold.unitAdjusted opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)
@@ -325,8 +342,9 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
   let ref ← getRef
   -- make sure to preserve context *before* running `k`
   let msg ← withRef ref do addMessageContext (← msg)
-  let (res, start, stop) ← withStartStopSeconds <| observing k
-  let aboveThresh := trace.profiler.get opts && stop - start > trace.profiler.threshold.getSecs opts
+  let (res, start, stop) ← withStartStop opts <| observing k
+  let aboveThresh := trace.profiler.get opts &&
+    stop - start > trace.profiler.threshold.unitAdjusted opts
   unless clsEnabled || aboveThresh do
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)

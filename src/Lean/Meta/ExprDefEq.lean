@@ -10,6 +10,18 @@ import Lean.Util.OccursCheck
 
 namespace Lean.Meta
 
+register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
+}
+
+register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -108,9 +120,9 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
     let bType ← inferType b
     let bType ← whnfD bType
     match bType with
-    | Expr.forallE n d _ c =>
+    | .forallE n d _ c =>
       let b' := mkLambda n c d (mkApp b (mkBVar 0))
-      toLBoolM <| checkpointDefEq <| Meta.isExprDefEqAux a b'
+      toLBoolM <| Meta.isExprDefEqAux a b'
     | _ => return .undef
   else
     return .undef
@@ -334,10 +346,12 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       k
   loop 0
 
-/-- Auxiliary function for `isDefEqBinding` for handling binders `forall/fun`.
-   It accumulates the new free variables in `fvars`, and declare them at `lctx`.
-   We use the domain types of `e₁` to create the new free variables.
-   We store the domain types of `e₂` at `ds₂`. -/
+/--
+Auxiliary function for `isDefEqBinding` for handling binders `forall/fun`.
+It accumulates the new free variables in `fvars`, and declare them at `lctx`.
+We use the domain types of `e₁` to create the new free variables.
+We store the domain types of `e₂` at `ds₂`.
+-/
 private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr) (e₁ e₂ : Expr) (ds₂ : Array Expr) : MetaM Bool :=
   let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) : MetaM Bool := do
     let d₁     := d₁.instantiateRev fvars
@@ -374,34 +388,34 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
         pure false
 
 /--
-  Auxiliary method for solving constraints of the form `?m xs := v`.
-  It creates a lambda using `mkLambdaFVars ys v`, where `ys` is a superset of `xs`.
-  `ys` is often equal to `xs`. It is a bigger when there are let-declaration dependencies in `xs`.
-  For example, suppose we have `xs` of the form `#[a, c]` where
-  ```
-  a : Nat
-  b : Nat := f a
-  c : b = a
-  ```
-  In this scenario, the type of `?m` is `(x1 : Nat) -> (x2 : f x1 = x1) -> C[x1, x2]`,
-  and type of `v` is `C[a, c]`. Note that, `?m a c` is type correct since `f a = a` is definitionally equal
-  to the type of `c : b = a`, and the type of `?m a c` is equal to the type of `v`.
-  Note that `fun xs => v` is the term `fun (x1 : Nat) (x2 : b = x1) => v` which has type
-  `(x1 : Nat) -> (x2 : b = x1) -> C[x1, x2]` which is not definitionally equal to the type of `?m`,
-  and may not even be type correct.
-  The issue here is that we are not capturing the `let`-declarations.
+Auxiliary method for solving constraints of the form `?m xs := v`.
+It creates a lambda using `mkLambdaFVars ys v`, where `ys` is a superset of `xs`.
+`ys` is often equal to `xs`. It is a bigger when there are let-declaration dependencies in `xs`.
+For example, suppose we have `xs` of the form `#[a, c]` where
+```
+a : Nat
+b : Nat := f a
+c : b = a
+```
+In this scenario, the type of `?m` is `(x1 : Nat) -> (x2 : f x1 = x1) -> C[x1, x2]`,
+and type of `v` is `C[a, c]`. Note that, `?m a c` is type correct since `f a = a` is definitionally equal
+to the type of `c : b = a`, and the type of `?m a c` is equal to the type of `v`.
+Note that `fun xs => v` is the term `fun (x1 : Nat) (x2 : b = x1) => v` which has type
+`(x1 : Nat) -> (x2 : b = x1) -> C[x1, x2]` which is not definitionally equal to the type of `?m`,
+and may not even be type correct.
+The issue here is that we are not capturing the `let`-declarations.
 
-  This method collects let-declarations `y` occurring between `xs[0]` and `xs.back` s.t.
-  some `x` in `xs` depends on `y`.
-  `ys` is the `xs` with these extra let-declarations included.
+This method collects let-declarations `y` occurring between `xs[0]` and `xs.back` s.t.
+some `x` in `xs` depends on `y`.
+`ys` is the `xs` with these extra let-declarations included.
 
-  In the example above, `ys` is `#[a, b, c]`, and `mkLambdaFVars ys v` produces
-  `fun a => let b := f a; fun (c : b = a) => v` which has a type definitionally equal to the type of `?m`.
+In the example above, `ys` is `#[a, b, c]`, and `mkLambdaFVars ys v` produces
+`fun a => let b := f a; fun (c : b = a) => v` which has a type definitionally equal to the type of `?m`.
 
-  Recall that the method `checkAssignment` ensures `v` does not contain offending `let`-declarations.
+Recall that the method `checkAssignment` ensures `v` does not contain offending `let`-declarations.
 
-  This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that `index of xs[i]` < `index of xs[j]`.
-  where the index is the position in the local context.
+This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that `index of xs[i]` < `index of xs[j]`.
+where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if not (← hasLetDeclsInBetween) then
@@ -435,13 +449,13 @@ where
     let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT FVarIdHashSet MetaM)) Unit :=
       checkCache e fun _ => do
         match e with
-        | Expr.forallE _ d b _   => visit d; visit b
-        | Expr.lam _ d b _       => visit d; visit b
-        | Expr.letE _ t v b _    => visit t; visit v; visit b
-        | Expr.app f a           => visit f; visit a
-        | Expr.mdata _ b         => visit b
-        | Expr.proj _ _ b        => visit b
-        | Expr.fvar fvarId       =>
+        | .forallE _ d b _   => visit d; visit b
+        | .lam _ d b _       => visit d; visit b
+        | .letE _ t v b _    => visit t; visit v; visit b
+        | .app f a           => visit f; visit a
+        | .mdata _ b         => visit b
+        | .proj _ _ b        => visit b
+        | .fvar fvarId       =>
           let localDecl ← fvarId.getDecl
           if localDecl.isLet && localDecl.index > (← read) then
             modify fun s => s.insert localDecl.fvarId
@@ -834,18 +848,18 @@ mutual
       return e
     else checkCache e fun _ =>
       match e with
-      | Expr.mdata _ b       => return e.updateMData! (← check b)
-      | Expr.proj _ _ s      => return e.updateProj! (← check s)
-      | Expr.lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
-      | Expr.forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | Expr.letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
-      | Expr.bvar ..         => return e
-      | Expr.sort ..         => return e
-      | Expr.const ..        => return e
-      | Expr.lit ..          => return e
-      | Expr.fvar ..         => checkFVar e
-      | Expr.mvar ..         => checkMVar e
-      | Expr.app ..          =>
+      | .mdata _ b       => return e.updateMData! (← check b)
+      | .proj _ _ s      => return e.updateProj! (← check s)
+      | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
+      | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
+      | .letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | .bvar ..         => return e
+      | .sort ..         => return e
+      | .const ..        => return e
+      | .lit ..          => return e
+      | .fvar ..         => checkFVar e
+      | .mvar ..         => checkMVar e
+      | .app ..          =>
         try
           checkApp e
         catch ex => match ex with
@@ -890,24 +904,24 @@ partial def check
     if !e.hasExprMVar && !e.hasFVar then
       true
     else match e with
-    | Expr.mdata _ b       => visit b
-    | Expr.proj _ _ s      => visit s
-    | Expr.app f a         => visit f && visit a
-    | Expr.lam _ d b _     => visit d && visit b
-    | Expr.forallE _ d b _ => visit d && visit b
-    | Expr.letE _ t v b _  => visit t && visit v && visit b
-    | Expr.bvar ..         => true
-    | Expr.sort ..         => true
-    | Expr.const ..        => true
-    | Expr.lit ..          => true
-    | Expr.fvar fvarId ..  =>
+    | .mdata _ b       => visit b
+    | .proj _ _ s      => visit s
+    | .app f a         => visit f && visit a
+    | .lam _ d b _     => visit d && visit b
+    | .forallE _ d b _ => visit d && visit b
+    | .letE _ t v b _  => visit t && visit v && visit b
+    | .bvar ..         => true
+    | .sort ..         => true
+    | .const ..        => true
+    | .lit ..          => true
+    | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
         | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
         | _ =>
           if fvars.any fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
-    | Expr.mvar mvarId'    =>
+    | .mvar mvarId'    =>
       match mctx.getExprAssignmentCore? mvarId' with
       | some _ => false -- use CheckAssignment.check to instantiate
       | none   =>
@@ -1239,6 +1253,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
+    recordDefEqHeuristic tFn.constName!
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 
@@ -1462,8 +1477,8 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
 
 private def isAssignable : Expr → MetaM Bool
-  | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
-  | _                => pure false
+  | .mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
+  | _            => pure false
 
 private def etaEq (t s : Expr) : Bool :=
   match t.etaExpanded? with
@@ -1538,7 +1553,7 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
 Removes unnecessary let-decls (both true `let`s and `let_fun`s).
 -/
 private partial def consumeLet : Expr → Expr
-  | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
+  | e@(.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
   | e =>
     if let some (_, _, _, b) := e.letFun? then
       if b.hasLooseBVars then e else consumeLet b
@@ -1708,11 +1723,10 @@ private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
 end
 
 @[inline] def whenUndefDo (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool := do
-  let status ← x
-  match status with
-  | LBool.true  => pure true
-  | LBool.false => pure false
-  | LBool.undef => k
+  match (← x) with
+  | .true  => return true
+  | .false => return false
+  | .undef => k
 
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
@@ -1757,10 +1771,21 @@ private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
     | .lt => unfold t (return .unknown) (k · s)
     | .gt => unfold s (return .unknown) (k t ·)
     | .eq =>
-      unfold t
-        (unfold s (return .unknown) (k t ·))
-        (fun t => unfold s (k t s) (k t ·))
+      -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
+      -- if `f` is not a projection. The projection case generates a performance regression.
+      if tInfo.name == sInfo.name then
+        if t.isApp && s.isApp && (← tryHeuristic t s) then
+          return .eq
+        else
+          unfoldBoth t s
+      else
+        unfoldBoth t s
 where
+  unfoldBoth (t s : Expr) : MetaM DeltaStepResult := do
+    unfold t
+      (unfold s (return .unknown) (k t ·))
+      (fun t => unfold s (k t s) (k t ·))
+
   k (t s : Expr) : MetaM DeltaStepResult := do
     let t ← whnfCore t
     let s ← whnfCore s
@@ -1792,8 +1817,13 @@ where
     | _, _ => Meta.isExprDefEqAux t s
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | .proj m i t, .proj n j s =>
-    if i == j && m == n then
+  | .proj m i t, .proj n j s => do
+    if (← read).inTypeClassResolution then
+      -- See comment at `inTypeClassResolution`
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if i == j && m == n then
       isDefEqProjDelta t s i
     else
       return false
@@ -1966,6 +1996,12 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
     modifyDefEqTransientCache fun c => c.update mode key result
 
+private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
+  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+    whnfCore e (config := { proj := .yesWithDeltaI })
+  else
+    whnfCore e
+
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
@@ -1978,7 +2014,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
 
-    Note that ew use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    Note that we use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
     We added this refinement to address a performance issue in code such as
     ```
     let val : Test := bar c1 key
@@ -2007,8 +2043,8 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
     and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t (config := { proj := .yesWithDeltaI })
-  let s' ← whnfCore s (config := { proj := .yesWithDeltaI })
+  let t' ← whnfCoreAtDefEq t
+  let s' ← whnfCoreAtDefEq s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/inductive.h"
-#include "library/trace.h"
+#include "kernel/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/closed_term_cache.h"
 #include "library/compiler/reduce_arity.h"

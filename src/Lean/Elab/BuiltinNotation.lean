@@ -388,7 +388,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                return (← mkEqRec motive h (← mkEqSymm heq), none)
          let motive ← mkMotive lhs expectedAbst
          if badMotive?.isSome || !(← isTypeCorrect motive) then
-           -- Before failing try tos use `subst`
+           -- Before failing try to use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
              withLocalIdentFor heqStx heq fun heqStx => do
                let h ← instantiateMVars h
@@ -408,7 +408,13 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
        | none =>
          let h ← elabTerm hStx none
          let hType ← inferType h
-         let hTypeAbst ← kabstract hType lhs
+         let mut hTypeAbst ← kabstract hType lhs
+         unless hTypeAbst.hasLooseBVars do
+           hTypeAbst ← kabstract hType rhs
+           unless hTypeAbst.hasLooseBVars do
+             throwError "invalid `▸` notation, the equality{indentExpr heq}\nhas type {indentExpr heqType}\nbut neither side of the equality is mentioned in the type{indentExpr hType}"
+           heq ← mkEqSymm heq
+           (lhs, rhs) := (rhs, lhs)
          let motive ← mkMotive lhs hTypeAbst
          unless (← isTypeCorrect motive) do
            throwError "invalid `▸` notation, failed to compute motive for the substitution"

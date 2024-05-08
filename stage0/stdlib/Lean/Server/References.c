@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_definitionsMatching___rarg(lea
 lean_object* l_List_join___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Server_References_empty___spec__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_Server_combineIdents_useConstRepresentatives___spec__14___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Position_0__Lean_fromJsonPosition____x40_Lean_Data_Position___hyg_279____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Server_ModuleRefs_addRef___spec__5(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_findReferences___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_RefInfo_empty;
@@ -352,7 +353,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_References_allRefs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Server_combineIdents_useConstRepresentatives___spec__3___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_RefInfo_toLspRefInfo___spec__6___closed__2;
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_439____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_References_updateWorkerRefs___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_References_definitionOf_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Server_References_addIlean___spec__3(lean_object*, lean_object*);
@@ -1046,7 +1046,6 @@ x_68 = lean_box(0);
 x_69 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Server_RefInfo_toLspRefInfo___spec__2___rarg___boxed), 4, 1);
 lean_closure_set(x_69, 0, x_68);
 x_70 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_10, x_69, x_4);
-lean_dec(x_10);
 if (lean_obj_tag(x_70) == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
@@ -1084,7 +1083,6 @@ lean_inc(x_77);
 x_78 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3), 4, 1);
 lean_closure_set(x_78, 0, x_77);
 x_79 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_10, x_78, x_4);
-lean_dec(x_10);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; 
@@ -1325,7 +1323,6 @@ x_85 = lean_box(0);
 x_86 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Server_RefInfo_toLspRefInfo___spec__2___rarg___boxed), 4, 1);
 lean_closure_set(x_86, 0, x_85);
 x_87 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_26, x_86, x_2);
-lean_dec(x_26);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; 
@@ -1363,7 +1360,6 @@ lean_inc(x_94);
 x_95 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3), 4, 1);
 lean_closure_set(x_95, 0, x_94);
 x_96 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_26, x_95, x_2);
-lean_dec(x_26);
 if (lean_obj_tag(x_96) == 0)
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; 
@@ -3601,7 +3597,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l___private_Lean_Server_References_0__Lean_Server_fromJsonIlean____x40_Lean_Server_References___hyg_1316____closed__1;
-x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonPosition____x40_Lean_Data_Lsp_Basic___hyg_439____spec__1(x_1, x_2);
+x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Position_0__Lean_fromJsonPosition____x40_Lean_Data_Position___hyg_279____spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -5910,7 +5906,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__1;
 x_2 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__2;
-x_3 = lean_unsigned_to_nat(212u);
+x_3 = lean_unsigned_to_nat(213u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

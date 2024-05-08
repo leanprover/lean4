@@ -229,11 +229,10 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       Lean.writeModule env olean
       h.unlock
       return env
-    | .error e =>
+    | .error e => errorWithLog do
       logError <| toString e
       h.unlock
       IO.FS.removeFile traceFile
-      failure
   let validateTrace h : LogIO Environment := id do
     if cfg.reconfigure then
       elabConfig (← acquireTrace h) cfg.lakeOpts

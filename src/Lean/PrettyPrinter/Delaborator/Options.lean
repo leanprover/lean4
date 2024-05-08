@@ -82,7 +82,8 @@ register_builtin_option pp.instantiateMVars : Bool := {
 register_builtin_option pp.mvars : Bool := {
   defValue := true
   group    := "pp"
-  descr    := "(pretty printer) display names of metavariables when true, and otherwise display them as '?_'"
+  descr    := "(pretty printer) display names of metavariables when true, \
+    and otherwise display them as '?_' (for expression metavariables) and as '_' (for universe level metavariables)"
 }
 register_builtin_option pp.mvars.withType : Bool := {
   defValue := false

@@ -159,4 +159,29 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
+/-! ### Negation -/
+
+theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
+  getLsb (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) i.val = !(getLsb x i.val) := by
+  apply iunfoldr_getLsb (fun _ => ()) i (by simp)
+
+theorem bit_not_add_self (x : BitVec w) :
+  ((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd + x  = -1 := by
+  simp only [add_eq_adc]
+  apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
+  intro i; simp only [ BitVec.not, adcb, testBit_toNat]
+  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x.getLsb i)))) ()).snd)]
+  <;> simp [bit_not_testBit, negOne_eq_allOnes, getLsb_allOnes]
+
+theorem bit_not_eq_not (x : BitVec w) :
+  ((iunfoldr (fun i c => (c, !(x.getLsb i)))) ()).snd = ~~~ x := by
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+
+theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
+  simp only [← add_eq_adc]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) _ rfl]
+  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
+    simp [← sub_toAdd, BitVec.sub_add_cancel]
+  · simp [bit_not_testBit x _]
+
 end BitVec

@@ -275,7 +275,7 @@ def reduceLTLE (nm : Name) (arity : Nat) (isLT : Bool) (e : Expr) : SimpM Step :
       applySimprocConst (mkConst ``True) ``Nat.Simproc.le_add_le #[x, yb, yo, leProof]
     else
       let finExpr := mkLENat (toExpr (xn - yn)) yb
-      let geProof ← mkOfDecideEqTrue (mkGENat yo x)
+      let geProof ← mkOfDecideEqTrue (mkGENat x yo)
       applySimprocConst finExpr ``Nat.Simproc.le_add_ge #[x, yb, yo, geProof]
   | .offset xb xo xn, .offset yb yo yn => do
     if xn ≤ yn then

@@ -745,7 +745,6 @@ instance : Append (PreDiscrTree α) where
 end PreDiscrTree
 
 /-- Initial entry in lazy discrimination tree -/
-@[reducible]
 structure InitEntry (α : Type) where
   /-- Return root key for an entry. -/
   key : Key
@@ -978,12 +977,13 @@ def createImportedDiscrTree [Monad m] [MonadLog m] [AddMessageContext m] [MonadO
 
 /-- Creates the core context used for initializing a tree using the current context. -/
 private def createTreeCtx (ctx : Core.Context) : Core.Context := {
-    fileName := ctx.fileName,
-    fileMap := ctx.fileMap,
-    options := ctx.options,
-    maxRecDepth := ctx.maxRecDepth,
-    maxHeartbeats := 0,
-    ref := ctx.ref,
+    fileName := ctx.fileName
+    fileMap := ctx.fileMap
+    options := ctx.options
+    maxRecDepth := ctx.maxRecDepth
+    maxHeartbeats := 0
+    ref := ctx.ref
+    diag := getDiag ctx.options
   }
 
 def findImportMatches

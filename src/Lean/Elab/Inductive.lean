@@ -686,8 +686,8 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
               maskRef.modify fun mask => mask.set! i false
           for x in xs[numParams:] do
             let xType ← inferType x
-            let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar) && e.getAppNumArgs > numParams
-            xType.forEachWhere cond fun e => do
+            let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar)
+            xType.forEachWhere (stopWhenVisited := true) cond fun e => do
               let eArgs := e.getAppArgs
               for i in [numParams:eArgs.size] do
                 if i >= typeArgs.size then
@@ -695,6 +695,19 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                 else
                   unless eArgs[i]! == typeArgs[i]! do
                     maskRef.modify (resetMaskAt · i)
+              /-If an index is missing in the arguments of the inductive type, then it must be non-fixed.
+                Consider the following example:
+                ```lean
+                inductive All {I : Type u} (P : I → Type v) : List I → Type (max u v) where
+                  | cons : P x → All P xs → All P (x :: xs)
+
+                inductive Iμ {I : Type u}  : I → Type (max u v) where
+                  | mk : (i : I)  → All Iμ [] → Iμ i
+                ```
+                because `i` doesn't appear in `All Iμ []`, the index shouldn't be fixed.
+              -/
+              for i in [eArgs.size:arity] do
+                maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
 

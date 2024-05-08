@@ -602,6 +602,7 @@ A version of `Fin.succRec` taking `i : Fin n` as the first argument. -/
     @Fin.succRecOn (n + 1) i.succ motive zero succ = succ n i (Fin.succRecOn i zero succ) := by
   cases i; rfl
 
+
 /-- Define `motive i` by induction on `i : Fin (n + 1)` via induction on the underlying `Nat` value.
 This function has two arguments: `zero` handles the base case on `motive 0`,
 and `succ` defines the inductive step using `motive i.castSucc`.
@@ -610,8 +611,12 @@ and `succ` defines the inductive step using `motive i.castSucc`.
 @[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
-  | ⟨0, hi⟩ => by rwa [Fin.mk_zero]
-  | ⟨i+1, hi⟩ => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (induction zero succ ⟨i, Nat.lt_of_succ_lt hi⟩)
+  | ⟨i, hi⟩ => go i hi
+where
+  -- Use a curried function so that this is structurally recursive
+  go : ∀ (i : Nat) (hi : i < n + 1), motive ⟨i, hi⟩
+  | 0, hi => by rwa [Fin.mk_zero]
+  | i+1, hi => succ ⟨i, Nat.lt_of_succ_lt_succ hi⟩ (go i (Nat.lt_of_succ_lt hi))
 
 @[simp] theorem induction_zero {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (hs : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
@@ -793,15 +798,20 @@ protected theorem mul_one (k : Fin (n + 1)) : k * 1 = k := by
 
 protected theorem mul_comm (a b : Fin n) : a * b = b * a :=
   ext <| by rw [mul_def, mul_def, Nat.mul_comm]
+instance : Std.Commutative (α := Fin n) (· * ·) := ⟨Fin.mul_comm⟩
 
 protected theorem mul_assoc (a b c : Fin n) : a * b * c = a * (b * c) := by
   apply eq_of_val_eq
   simp only [val_mul]
   rw [← Nat.mod_eq_of_lt a.isLt, ← Nat.mod_eq_of_lt b.isLt, ← Nat.mod_eq_of_lt c.isLt]
   simp only [← Nat.mul_mod, Nat.mul_assoc]
+instance : Std.Associative (α := Fin n) (· * ·) := ⟨Fin.mul_assoc⟩
 
 protected theorem one_mul (k : Fin (n + 1)) : (1 : Fin (n + 1)) * k = k := by
   rw [Fin.mul_comm, Fin.mul_one]
+instance : Std.LawfulIdentity (α := Fin (n + 1)) (· * ·) 1 where
+  left_id := Fin.one_mul
+  right_id := Fin.mul_one
 
 protected theorem mul_zero (k : Fin (n + 1)) : k * 0 = 0 := by simp [ext_iff, mul_def]
 

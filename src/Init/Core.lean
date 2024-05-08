@@ -1114,9 +1114,6 @@ theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
 
-instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} where
-  default := ⟨a, h⟩
-
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
     if h : a = b then isTrue (by subst h; exact rfl)
@@ -2039,5 +2036,9 @@ identity should just add a `LawfulIdentity` constraint.
 class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
+
+instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
+instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
+instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
 
 end Std

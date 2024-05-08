@@ -344,7 +344,7 @@ inductive ProjReductionKind where
   | yesWithDelta
   /--
   Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
-  Recall that `whnfAtMostII` is like `whnf` but uses transparency at most `instances`.
+  Recall that `whnfAtMostI` is like `whnf` but uses transparency at most `instances`.
   This option is stronger than `yes`, but weaker than `yesWithDelta`.
   We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
   When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
@@ -608,10 +608,11 @@ where
           | .notMatcher   =>
             matchConstAux f' (fun _ => return e) fun cinfo lvls =>
               match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) go
+              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
               | c@(.defnInfo _) => do
                 if (← isAuxDef c.name) then
+                  recordUnfold c.name
                   deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
                 else
                   return e
@@ -706,7 +707,7 @@ mutual
         | some e =>
           match (← withReducibleAndInstances <| reduceProj? e.getAppFn) with
           | none   => return none
-          | some r => return mkAppN r e.getAppArgs |>.headBeta
+          | some r => recordUnfold declName; return mkAppN r e.getAppArgs |>.headBeta
       | _ => return none
     | _ => return none
 
@@ -729,8 +730,9 @@ mutual
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
-          let unfoldDefault (_ : Unit) : MetaM (Option Expr) :=
+          let unfoldDefault (_ : Unit) : MetaM (Option Expr) := do
             if fInfo.hasValue then
+              recordUnfold fInfo.name
               deltaBetaDefinition fInfo fLvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
             else
               return none
@@ -778,11 +780,13 @@ mutual
                   Thus, we should keep `return some r` until Mathlib has been ported to Lean 3.
                   Note that the `Vector` example above does not even work in Lean 3.
                 -/
-                let some recArgPos ← getStructuralRecArgPos? fInfo.name | return some r
+                let some recArgPos ← getStructuralRecArgPos? fInfo.name
+                  | recordUnfold fInfo.name; return some r
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
                 if !(← isConstructorApp (← whnfMatcher recArg)) then return none
+                recordUnfold fInfo.name
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
@@ -800,7 +804,7 @@ mutual
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
-          (fun e => pure (some e))
+          (fun e => do recordUnfold declName; pure (some e))
     | _ => return none
 end
 
@@ -833,11 +837,11 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     | .reduced e => return e
     | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
       match cinfo with
-      | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
-      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => pure (some e))
+      | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
+      | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | c@(.defnInfo _) =>
         if (← isAuxDef c.name) then
-          deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => pure (some e))
+          deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => pure none) (fun e => do recordUnfold c.name; pure (some e))
         else
           return none
       | _ => return none

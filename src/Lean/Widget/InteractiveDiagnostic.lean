@@ -143,7 +143,9 @@ where
   | ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,       group d                  => Format.group <$> go nCtx ctx d
   | ctx,       .trace data header children => do
-    let header := (← go nCtx ctx header).nest 4
+    let mut header := (← go nCtx ctx header).nest 4
+    if data.startTime != 0 then
+      header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←
       if data.collapsed && !children.isEmpty then
         let children := children.map fun child =>

@@ -11,6 +11,9 @@ import Init.ByCases
 import Init.Conv
 import Init.Omega
 
+-- Remove after the next stage0 update
+set_option allowUnsafeReducibility true
+
 namespace Fin
 
 /-- If you actually have an element of `Fin n`, then the `n` is always positive -/

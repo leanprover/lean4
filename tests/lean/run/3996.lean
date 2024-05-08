@@ -17,6 +17,7 @@ instance instB10000 : B 10000 where
 /--
 error: failed to synthesize
   A
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
 #synth A -- should fail quickly

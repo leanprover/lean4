@@ -95,7 +95,6 @@ example : foo = bar := rfl
 
 
 -- Attributes on the definition take precedence
-
 @[semireducible] def baz : Nat → Nat
   | 0 => 0
   | n+1 => baz n
@@ -124,6 +123,7 @@ termination_by n => n
 
 example : quux 0 = 0 := rfl
 
+set_option allowUnsafeReducibility true in
 seal quux in
 /--
 error: type mismatch

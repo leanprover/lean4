@@ -28,6 +28,7 @@ info: [reduction] unfolded declarations (max: 1725, num: 4):
    Acc.rec ↦ 754use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
+unseal ack in
 set_option diagnostics.threshold 500 in
 set_option diagnostics true in
 theorem ex : ack 3 2 = 29 :=

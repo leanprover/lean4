@@ -72,12 +72,11 @@ This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
 This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
 
 There is special support for `letFun`.
-Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled,
-despite the fact it is marked `irreducible`.
+Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enabled.
 For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
 to extract its parts as if it were a `let` expression.
 -/
-@[irreducible] def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
 
 set_option checkBinderAnnotations false in
 /--

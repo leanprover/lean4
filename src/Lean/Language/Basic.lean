@@ -245,17 +245,8 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
-/-- Metadata that does not change during the lifetime of the language processing process. -/
-structure ModuleProcessingContext where
-  /-- Module name of the file being processed. -/
-  mainModuleName : Task Name
-  /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
-  opts : Options
-  /-- Kernel trust level. -/
-  trustLevel : UInt32 := 0
-
 /-- Context of an input processing invocation. -/
-structure ProcessingContext extends ModuleProcessingContext, Parser.InputContext
+structure ProcessingContext extends Parser.InputContext
 
 /-- Monad transformer holding all relevant data for processing. -/
 abbrev ProcessingT m := ReaderT ProcessingContext m
@@ -296,10 +287,10 @@ end Language
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
-    (ctx : ModuleProcessingContext) : BaseIO (Parser.InputContext → BaseIO InitSnap) := do
+def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap) :
+    BaseIO (Parser.InputContext → BaseIO InitSnap) := do
   let oldRef ← IO.mkRef none
   return fun ictx => do
-    let snap ← process (← oldRef.get) { ctx, ictx with }
+    let snap ← process (← oldRef.get) { ictx with }
     oldRef.set (some snap)
     return snap

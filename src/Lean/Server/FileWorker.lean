@@ -265,9 +265,9 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
+def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
+    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -306,7 +306,23 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
   | _ => pure ()
 
   srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-  return .ok fileSetupResult.fileOptions
+
+  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
+    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
+      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
+        pure mod
+      else
+        moduleNameOfFileName path none
+  else
+    pure Name.anonymous
+
+  -- override cmdline options with file options
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+
+  return .ok {
+    mainModuleName
+    opts
+  }
 
 /- Worker initialization sequence. -/
 section Initialization
@@ -320,17 +336,8 @@ section Initialization
     let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
 
-    let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
-      BaseIO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath =>
-        EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
-          if let some mod ← searchModuleNameOfFileName path srcSearchPath then
-            pure mod
-          else
-            moduleNameOfFileName path none
-    else
-      pure (.pure Name.anonymous)
-    let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
-    let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
+    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
     let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap

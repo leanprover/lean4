@@ -735,7 +735,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    match s.cache.synthInstance.find? (localInsts, type) with
+    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    match s.cache.synthInstance.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -782,7 +783,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
       pure result?
 
 /--

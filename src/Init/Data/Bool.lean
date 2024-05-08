@@ -341,6 +341,9 @@ theorem and_or_inj_left_iff :
 
 /-! ## toNat -/
 
+/-- convert a `Bool` to a `Nat`, `false -> 0`, `true -> 1` -/
+def Bool.toNat (b : Bool) : Nat := cond b 1 0
+
 @[simp] theorem toNat_false : false.toNat = 0 := rfl
 
 @[simp] theorem toNat_true : true.toNat = 1 := rfl

@@ -8,9 +8,6 @@ import Init.Data.Nat.Basic
 import Init.Data.Nat.Div
 import Init.Coe
 
-/-- convert a `Bool` to a `Nat`, `false => 0`, `true => 1` -/
-def Bool.toNat (b : Bool) : Nat := cond b 1 0
-
 namespace Nat
 
 theorem bitwise_rec_lemma {n : Nat} (hNe : n ≠ 0) : n / 2 < n :=
@@ -90,12 +87,6 @@ def testBit (m n : Nat) : Bool :=
   -- `1 &&& n` is faster than `n &&& 1` for big `n`. This may change in the future.
   1 &&& (m >>> n) != 0
 
-theorem bit_val (b n) : bit b n = 2 * n + b.toNat := by
-  rw [Nat.mul_comm]
-  induction b with
-  | false => exact congrArg (· + n) n.zero_add.symm
-  | true => exact congrArg (· + n + 1) n.zero_add.symm
-
 theorem shiftRight_one (n) : n >>> 1 = n / 2 := rfl
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
@@ -114,11 +105,10 @@ theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
 @[simp] theorem testBit_zero (n : Nat) : testBit n 0 = decide (n % 2 = 1) := by
   cases mod_two_eq_zero_or_one n with | _ h => simp [testBit, h]
 
-@[simp] theorem decide_mod_two_eq_one_toNat (n : Nat) : (decide (n % 2 = 1)).toNat = n % 2 := by
-  cases mod_two_eq_zero_or_one n with | _ h => simp [h]; rfl
-
 theorem bit_testBit_zero_shiftRight_one (n : Nat) : bit (n.testBit 0) (n >>> 1) = n := by
-  simp [bit_val, shiftRight_one, Nat.div_add_mod]
+  simp only [bit, testBit_zero]
+  cases mod_two_eq_zero_or_one n with | _ h =>
+    simpa [h, shiftRight_one] using Eq.trans (by simp [h, Nat.two_mul]) (Nat.div_add_mod n 2)
 
 theorem bit_eq_zero_iff {n : Nat} {b : Bool} : bit b n = 0 ↔ n = 0 ∧ b = false := by
   cases n <;> cases b <;> simp [bit, ← Nat.add_assoc]

@@ -59,6 +59,12 @@ theorem bitwise_zero : bitwise f 0 0 = 0 := by
 
 /-! ### bit -/
 
+theorem bit_val (b n) : bit b n = 2 * n + b.toNat := by
+  rw [Nat.mul_comm]
+  induction b with
+  | false => exact congrArg (· + n) n.zero_add.symm
+  | true => exact congrArg (· + n + 1) n.zero_add.symm
+
 @[simp]
 theorem bit_div_two (b n) : bit b n / 2 = n := by
   rw [bit_val, Nat.add_comm, add_mul_div_left, div_eq_of_lt, Nat.zero_add]

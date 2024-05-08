@@ -665,8 +665,11 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       In #4051, it was unfolding `Array.swaps` which is defined by well-founded recursion.
       After the failure, the elaborator inserted a postponed coercion
       that would be resolved later as soon as the types don't have unassigned metavariables.
+
+    We use `postpone := .partial` to allow type class (TC) resolution problems to be postponed
+    Recall that TC resolution does **not** produce synthetic opaque metavariables.
     -/
-    let type ← withSynthesize <| elabType typeStx
+    let type ← withSynthesize (postpone := .partial) <| elabType typeStx
     registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type"
     if elabBodyFirst then
       let type ← mkForallFVars fvars type

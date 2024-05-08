@@ -196,16 +196,48 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
     let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
 
+/--
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`.
+If `p` is not a valid position, the result is unspecified.
+
+Examples:
+* `"abc".prev ⟨2⟩ = String.Pos.mk 1`
+* `"abc".prev ⟨0⟩ = String.Pos.mk 0`
+* `"L∃∀N".prev ⟨4⟩ = String.Pos.mk 1`, since `'∃'` is a multi-byte UTF-8 character
+-/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
   | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
 
+/--
+Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".front = 'a'`
+* `"".front = (default : Char) = 'A'`
+-/
 def front (s : String) : Char :=
   get s 0
 
+/--
+Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".back = 'c'`
+* `"".back = (default : Char) = 'A'`
+-/
 def back (s : String) : Char :=
   get s (prev s s.endPos)
 
+/--
+Returns `true` if a specified position is greater than or equal to the position which
+points to the end of a string. Otherwise, returns `false`.
+
+Examples:
+* `"abc".atEnd ⟨2⟩ = false`
+* `"abc".atEnd ⟨3⟩ = true `
+* `"L∃∀N".atEnd ⟨8⟩ = true `
+-/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s

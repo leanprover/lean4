@@ -160,7 +160,7 @@ An exception ID that indicates further speculation on candidate lemmas should st
 and current results should be returned.
 -/
 private builtin_initialize abortSpeculationId : InternalExceptionId ←
-  registerInternalExceptionId `Std.Tactic.LibrarySearch.abortSpeculation
+  registerInternalExceptionId `Lean.Meta.LibrarySearch.abortSpeculation
 
 /--
 Called to abort speculative execution in library search.

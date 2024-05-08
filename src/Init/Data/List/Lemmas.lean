@@ -16,13 +16,6 @@ namespace List
 
 open Nat
 
-/-!
-# Bootstrapping theorems for lists
-
-These are theorems used in the definitions of `Std.Data.List.Basic` and tactics.
-New theorems should be added to `Std.Data.List.Lemmas` if they are not needed by the bootstrap.
--/
-
 attribute [simp] concat_eq_append append_assoc
 
 @[simp] theorem get?_nil : @get? α [] n = none := rfl

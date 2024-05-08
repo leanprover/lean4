@@ -458,8 +458,24 @@ Return an array containing its alternatives.
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
   inductionAlts[2].getArgs
 
-private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax :=
-  if optInductionAlts.isNone then #[] else getAltsOfInductionAlts optInductionAlts[0]
+/--
+Given `inductionAlts` of the form
+```
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+```
+runs `cont alts` where `alts` is an array containing all `inductionAlt`s while disabling incremental
+reuse if any other syntax changed.
+-/
+private def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
+    (cont : Array Syntax → TacticM α) : TacticM α :=
+  Term.withNarrowedTacticReuse (stx := optInductionAlts) (fun optInductionAlts =>
+    if optInductionAlts.isNone then
+      -- if there are no alternatives, what to compare is irrelevant as there will be no reuse
+      (mkNullNode #[], mkNullNode #[])
+    else
+      -- `with` and tactic applied to all branches must be unchanged for reuse
+      (mkNullNode optInductionAlts[0].getArgs[:2], optInductionAlts[0].getArg 2))
+    (fun alts => cont alts.getArgs)
 
 private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
@@ -629,14 +645,8 @@ builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.inducti
     -- unchanged
     -- everything up to the alternatives must be unchanged for reuse
     Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
-    Term.withNarrowedTacticReuse (stx := optInductionAlts) (fun optInductionAlts =>
-      if optInductionAlts.isNone then
-        -- if there are no alternatives, what to compare is irrelevant as there will be no reuse
-        (mkNullNode #[], mkNullNode #[])
-      else
-        -- `with` and tactic applied to all branches must be unchanged for reuse
-        (mkNullNode optInductionAlts[0].getArgs[:2], optInductionAlts[0].getArg 2)) fun alts => do
-    let alts := alts.getArgs
+    withAltsOfOptInductionAlts optInductionAlts fun alts => do
+    -- NOTE: access to `stx[i]` for `i < 4` is guarded by the above reuse check
     let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
     let targets ← generalizeTargets targets
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
@@ -699,15 +709,20 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Id
     else
       return (args.map (·.expr), #[])
 
+builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.cases
 @[builtin_tactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
   match expandCases? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
     -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
+    -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
+    -- unchanged
+    -- everything up to the alternatives must be unchanged for reuse
+    Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 3) fun optInductionAlts => do
+    withAltsOfOptInductionAlts optInductionAlts fun alts => do
     let (targets, toTag) ← elabCasesTargets stx[1].getSepArgs
-    let optInductionAlts := stx[3]
     let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-    let alts :=  getAltsOfOptInductionAlts optInductionAlts
+    -- NOTE: access to `stx[i]` for `i < 3` is guarded by the above reuse check
     let targetRef := stx[1]
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
     let mvarId ← getMainGoal

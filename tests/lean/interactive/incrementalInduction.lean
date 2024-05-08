@@ -57,3 +57,16 @@ theorem preTacMulti (x : Nat × Nat × Nat) : True := by
     dbg_trace "pm 1"
                  --^ sync
                  --^ insert: ".5"
+
+-- RESET
+theorem cases (n : Nat) : True := by
+  cases n with
+  | zero =>
+    dbg_trace "c 0"
+    dbg_trace "c 1"
+                --^ sync
+                --^ insert: ".5"
+  | succ =>
+    dbg_trace "c 2"
+                --^ sync
+                --^ insert: ".5"

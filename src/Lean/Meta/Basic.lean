@@ -283,6 +283,8 @@ structure Diagnostics where
   heuristicCounter : PHashMap Name Nat := {}
   /-- Number of times a TC instance is used. -/
   instanceCounter : PHashMap Name Nat := {}
+  /-- Pending instances that were not synthesized because `maxSynthPendingDepth` has been reached. -/
+  synthPendingFailures : PHashMap Expr MessageData := {}
   deriving Inhabited
 
 /--
@@ -306,6 +308,11 @@ structure SavedState where
   meta        : State
   deriving Nonempty
 
+register_builtin_option maxSynthPendingDepth : Nat := {
+  defValue := 2
+  descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
+}
+
 /--
   Contextual information for the `MetaM` monad.
 -/
@@ -321,8 +328,8 @@ structure Context where
     Track the number of nested `synthPending` invocations. Nested invocations can happen
     when the type class resolution invokes `synthPending`.
 
-    Remark: in the current implementation, `synthPending` fails if `synthPendingDepth > 0`.
-    We will add a configuration option if necessary. -/
+    Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
+  -/
   synthPendingDepth : Nat                  := 0
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
@@ -480,21 +487,30 @@ variable [MonadControlT MetaM n] [Monad n]
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter }
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter }
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
 def recordInstance (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
+    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
+
+/-- If diagnostics are enabled, record that synth pending failures. -/
+def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    unless (← get).diag.synthPendingFailures.contains type do
+      -- We need to save the full context since type class resolution uses multiple metavar contexts and different local contexts
+      let msg ← addMessageContextFull m!"{type}"
+      modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+        { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances

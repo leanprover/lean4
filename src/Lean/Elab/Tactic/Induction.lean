@@ -326,7 +326,7 @@ where
           applyAltStx tacSnaps altStxIdx altStx alt
         alts := #[]
       else
-        throwError "unused alternative '{altName}'"
+        throwErrorAt altStx "unused alternative '{altName}'"
 
     -- now process remaining alternatives; these might either be unreachable or we're in `induction`
     -- without `with`. In all other cases, remaining alternatives are flagged as errors.
@@ -641,12 +641,6 @@ builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.inducti
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
-    -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-    -- unchanged
-    -- everything up to the alternatives must be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
-    withAltsOfOptInductionAlts optInductionAlts fun alts => do
-    -- NOTE: access to `stx[i]` for `i < 4` is guarded by the above reuse check
     let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
     let targets ← generalizeTargets targets
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
@@ -664,10 +658,15 @@ builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.inducti
           ElimApp.mkElimApp elimInfo targets tag
         trace[Elab.induction] "elimApp: {result.elimApp}"
         ElimApp.setMotiveArg mvarId result.motive targetFVarIds
-        let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-        mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
-        appendGoals result.others.toList
+        -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
+        -- unchanged
+        -- everything up to the alternatives must be unchanged for reuse
+        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
+        withAltsOfOptInductionAlts optInductionAlts fun alts => do
+          let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+          mvarId.assign result.elimApp
+          ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
+          appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
     let mut foundFVars : FVarIdSet := {}
@@ -715,14 +714,7 @@ builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.cases
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
     -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
-    -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-    -- unchanged
-    -- everything up to the alternatives must be unchanged for reuse
-    Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 3) fun optInductionAlts => do
-    withAltsOfOptInductionAlts optInductionAlts fun alts => do
     let (targets, toTag) ← elabCasesTargets stx[1].getSepArgs
-    let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-    -- NOTE: access to `stx[i]` for `i < 3` is guarded by the above reuse check
     let targetRef := stx[1]
     let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
     let mvarId ← getMainGoal
@@ -740,8 +732,14 @@ builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.cases
       mvarId.withContext do
         ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
-          (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
+        -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
+        -- unchanged
+        -- everything up to the alternatives must be unchanged for reuse
+        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 3) fun optInductionAlts => do
+        withAltsOfOptInductionAlts optInductionAlts fun alts => do
+          let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+          ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
+            (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 builtin_initialize
   registerTraceClass `Elab.cases

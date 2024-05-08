@@ -11,7 +11,7 @@ assignees: ''
 
 Please put an X between the brackets as you perform the following steps:
 
-* [ ] Check that your issue is not already files:
+* [ ] Check that your issue is not already filed:
       https://github.com/leanprover/lean4/issues
 * [ ] Reduce the issue to a minimal, self-contained, reproducible test case.
       Avoid dependencies to Mathlib or Batteries.

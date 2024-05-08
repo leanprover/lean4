@@ -11,7 +11,7 @@ assignees: ''
 
 * [ ] Put an X between the brackets on this line if you have done all of the following:
     * Check that your issue is not already [filed](https://github.com/leanprover/lean4/issues).
-    * Reduce the issue to a minimal, self-contained, reproducible test case. Avoid dependencies to mathlib4 or std4.
+    * Reduce the issue to a minimal, self-contained, reproducible test case. Avoid dependencies to Mathlib or Batteries.
 
 ### Description
 

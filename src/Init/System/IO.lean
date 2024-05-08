@@ -213,11 +213,15 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 /-- The current state of a `Task` in the Lean runtime's task manager. -/
 inductive TaskState
   /--
-  The `Task` is waiting for dependencies to complete or
+  The `Task` is waiting to be run.
+  It can be waiting for dependencies to complete or
   sitting in the task manager queue waiting for a thread to run on.
   -/
   | waiting
-  /-- The `Task` is actively running on a thread. -/
+  /--
+  The `Task` is actively running on a thread or,
+  in the case of a `Promise`, waiting for a call to `IO.Promise.resolve`.
+  -/
   | running
   /--
   The `Task` has finished running and its result is available.
@@ -230,6 +234,13 @@ instance : LT TaskState := ltOfOrd
 instance : LE TaskState := leOfOrd
 instance : Min TaskState := minOfLe
 instance : Max TaskState := maxOfLe
+
+protected def TaskState.toString : TaskState → String
+  | .waiting => "waiting"
+  | .running => "running"
+  | .finished => "finished"
+
+instance : ToString TaskState := ⟨TaskState.toString⟩
 
 /-- Returns current state of the `Task` in the Lean runtime's task manager. -/
 @[extern "lean_io_get_task_state"] opaque getTaskState : @& Task α → BaseIO TaskState

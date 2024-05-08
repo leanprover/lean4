@@ -1034,9 +1034,9 @@ extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
     lean_task_object * o = lean_to_task(t);
     if (o->m_imp) {
         if (o->m_imp->m_closure) {
-            return 0; // waiting (waiting/queued/promised)
+            return 0; // waiting (waiting/queued)
         } else {
-            return 1; // running
+            return 1; // running (running/promised)
         }
     } else {
         return 2; // finished

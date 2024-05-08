@@ -54,7 +54,10 @@ jobs:
         with:
           script: |
             const quick = ${{ steps.set-quick.outputs.quick }};
-            console.log(`quick: ${quick}`)
+            console.log(`quick: ${quick}`);
+            // use large runners outside PRs where available (original repo)
+            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
+            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
             let matrix = [
               {
                 // portable release build: use channel with older glibc (2.27)

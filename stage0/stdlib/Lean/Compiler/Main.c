@@ -18,6 +18,7 @@ lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__7___boxed(lean_objec
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__6;
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__2;
+lean_object* l_Lean_profileitM___at_Lean_addDecl___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,7 +48,6 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89___
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__14;
 static lean_object* l_Lean_Compiler_compile___closed__3;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__11;
-lean_object* l_Lean_profileitM___at_Lean_addDecl___spec__13___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_compile___closed__1;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_89____closed__13;
@@ -213,7 +213,7 @@ lean_closure_set(x_12, 3, x_11);
 lean_closure_set(x_12, 4, x_10);
 x_13 = l_Lean_Compiler_compile___closed__3;
 x_14 = lean_box(0);
-x_15 = l_Lean_profileitM___at_Lean_addDecl___spec__13___rarg(x_13, x_5, x_12, x_14, x_2, x_3, x_4);
+x_15 = l_Lean_profileitM___at_Lean_addDecl___spec__12___rarg(x_13, x_5, x_12, x_14, x_2, x_3, x_4);
 lean_dec(x_5);
 return x_15;
 }

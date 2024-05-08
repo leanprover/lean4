@@ -948,6 +948,8 @@ public:
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
     }
 
+    interpreter(interpreter const &) = delete;
+
     ~interpreter() {
         for_each(m_constant_cache, [](name const &, constant_cache_entry const & e) {
             if (!e.m_is_scalar) {

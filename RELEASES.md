@@ -22,7 +22,7 @@ v4.9.0 (development in progress)
   definition itself can be marked as `@[semireducible]` to get the previous
   behavor.
 
-v4.8.0 
+v4.8.0
 ---------
 
 * **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**

@@ -128,20 +128,6 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
   let endPos := ref.getTailPos?.getD pos
   mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
 
-private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.Context :=
-  let scope        := s.scopes.head!
-  { fileName       := ctx.fileName
-    fileMap        := ctx.fileMap
-    options        := scope.opts
-    currRecDepth   := ctx.currRecDepth
-    maxRecDepth    := s.maxRecDepth
-    ref            := ctx.ref
-    currNamespace  := scope.currNamespace
-    openDecls      := scope.openDecls
-    initHeartbeats := heartbeats
-    currMacroScope := ctx.currMacroScope
-    diag           := getDiag scope.opts }
-
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
   let mut traces : HashMap (String.Pos × String.Pos) (Array MessageData) := ∅
@@ -167,30 +153,48 @@ private def addTraceAsMessages : CommandElabM Unit := do
       traceState.traces := {}
     }
 
-def liftCoreM (x : CoreM α) : CommandElabM α := do
+private def runCore (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
   let heartbeats ← IO.getNumHeartbeats
-  let Eα := Except Exception α
-  let x : CoreM Eα := try let a ← x; pure <| Except.ok a catch ex => pure <| Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState, messages := {}, infoState.enabled := s.infoState.enabled }
+  let env := Kernel.resetDiag s.env
+  let scope := s.scopes.head!
+  let coreCtx : Core.Context := {
+    fileName       := ctx.fileName
+    fileMap        := ctx.fileMap
+    currRecDepth   := ctx.currRecDepth
+    maxRecDepth    := s.maxRecDepth
+    ref            := ctx.ref
+    currNamespace  := scope.currNamespace
+    openDecls      := scope.openDecls
+    initHeartbeats := heartbeats
+    currMacroScope := ctx.currMacroScope
+    options        := scope.opts
+  }
+  let x : EIO _ _ := x.run coreCtx {
+    env
+    ngen := s.ngen
+    nextMacroScope := s.nextMacroScope
+    infoState.enabled := s.infoState.enabled
+    traceState := s.traceState
+  }
   let (ea, coreS) ← liftM x
   modify fun s => { s with
-    env := coreS.env
-    ngen := coreS.ngen
-    messages := s.messages ++ coreS.messages
+    env               := coreS.env
+    nextMacroScope    := coreS.nextMacroScope
+    ngen              := coreS.ngen
+    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
     traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    infoState.trees := s.infoState.trees.append coreS.infoState.trees
+    messages          := s.messages ++ coreS.messages
   }
-  match ea with
-  | Except.ok a    => pure a
-  | Except.error e => throw e
+  return ea
+
+def liftCoreM (x : CoreM α) : CommandElabM α := do
+  MonadExcept.ofExcept (← runCore (observing x))
 
 private def ioErrorToMessage (ctx : Context) (ref : Syntax) (err : IO.Error) : Message :=
   let ref := getBetterRef ref ctx.macroStack
   mkMessageAux ctx ref (toString err) MessageSeverity.error
-
-@[inline] def liftEIO {α} (x : EIO Exception α) : CommandElabM α := liftM x
 
 @[inline] def liftIO {α} (x : IO α) : CommandElabM α := do
   let ctx ← read
@@ -271,7 +275,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
-def withMacroExpansion {α} (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
+def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
   withInfoContext (mkInfo := pure <| .ofMacroExpansionInfo { stx := beforeStx, output := afterStx, lctx := .empty }) do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
@@ -404,7 +408,6 @@ def printExpr (e : Expr) : MetaM Unit := do
 def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
-  let heartbeats ← IO.getNumHeartbeats
   -- dbg_trace "heartbeats: {heartbeats}"
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.
@@ -413,18 +416,9 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   -- make sure `observing` below also catches runtime exceptions (like we do by default in
   -- `CommandElabM`)
   let _ := MonadAlwaysExcept.except (m := TermElabM)
-  let x : MetaM _      := (observing (try x finally Meta.reportDiag)).run (mkTermContext ctx s) { levelNames := scope.levelNames }
-  let x : CoreM _      := x.run mkMetaContext {}
-  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled, traceState := s.traceState }
-  let (((ea, _), _), coreS) ← liftEIO x
-  modify fun s => { s with
-    env               := coreS.env
-    nextMacroScope    := coreS.nextMacroScope
-    ngen              := coreS.ngen
-    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
-    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
-    messages          := s.messages ++ coreS.messages
-  }
+  let x : MetaM _ := (observing (try x finally Meta.reportDiag)).run (mkTermContext ctx s) { levelNames := scope.levelNames }
+  let x : CoreM _ := x.run mkMetaContext {}
+  let ((ea, _), _) ← runCore x
   MonadExcept.ofExcept ea
 
 /--

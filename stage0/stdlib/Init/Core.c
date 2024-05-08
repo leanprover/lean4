@@ -376,7 +376,6 @@ static lean_object* l_term___u2248_____closed__2;
 LEAN_EXPORT lean_object* l_instInhabitedMProd(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PEmpty_elim___rarg(uint8_t);
-LEAN_EXPORT lean_object* l_Subtype_instInhabited___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___x5c____1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Iff_elim(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Decidable_byCases(lean_object*, lean_object*);
@@ -446,7 +445,6 @@ LEAN_EXPORT lean_object* l_Quot_hrecOn___rarg(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2260____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term_x7b_x7d__1___closed__3;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Subtype_instInhabited(lean_object*, lean_object*);
 static lean_object* l_term___u2283_____closed__6;
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__5;
 LEAN_EXPORT lean_object* l_Quotient_recOnSubsingleton_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -512,7 +510,6 @@ static lean_object* l___aux__Init__Core______macroRules__Lean__Parser__Tactic__t
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__HasEquiv__Equiv__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableIte___rarg(uint8_t, uint8_t, uint8_t);
 static lean_object* l_term___u2283_____closed__4;
-LEAN_EXPORT lean_object* l_Subtype_instInhabited___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_term_u2205;
 static lean_object* l___aux__Init__Core______macroRules__term___x3c_x2d_x3e____1___closed__1;
 static lean_object* l_term___u2260_____closed__2;
@@ -6163,30 +6160,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_instInhabitedForInStep__1___rarg), 1, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Subtype_instInhabited___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Subtype_instInhabited(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Subtype_instInhabited___rarg___boxed), 2, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Subtype_instInhabited___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Subtype_instInhabited___rarg(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Subtype_instDecidableEq___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

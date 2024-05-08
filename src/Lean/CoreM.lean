@@ -121,15 +121,22 @@ instance : MonadOptions CoreM where
   getOptions := return (← read).options
 
 instance : MonadWithOptions CoreM where
-  withOptions f x :=
+  withOptions f x := do
+    let options := f (← read).options
+    let diag := diagnostics.get options
+    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
+      modifyEnv fun env => Kernel.enableDiag env diag
     withReader
       (fun ctx =>
-        let options := f ctx.options
         { ctx with
           options
-          diag := diagnostics.get options
+          diag
           maxRecDepth := maxRecDepth.get options })
       x
+
+-- Helper function for ensuring fields that depend on `options` have the correct value.
+@[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
+  withOptions id x
 
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
@@ -217,7 +224,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 
 @[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
-  (x ctx).run s
+  ((withConsistentCtx x) ctx).run s
 
 @[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
   Prod.fst <$> x.run ctx s
@@ -231,7 +238,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← (withOptions (fun _ => opts) x).toIO { fileName := "<CoreM>", fileMap := default } { env := env }
+    let (a, s) ← (withConsistentCtx x).toIO { fileName := "<CoreM>", fileMap := default, options := opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`

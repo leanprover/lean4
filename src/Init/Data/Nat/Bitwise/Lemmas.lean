@@ -405,12 +405,12 @@ theorem and_pow_two_identity {x : Nat} (lt : x < 2^n) : x &&& 2^n-1 = x := by
 
 /-! ### lor -/
 
-@[simp] theorem or_zero (x : Nat) : 0 ||| x = x := by
+@[simp] theorem zero_or (x : Nat) : 0 ||| x = x := by
   simp only [HOr.hOr, OrOp.or, lor]
   unfold bitwise
   simp [@eq_comm _ 0]
 
-@[simp] theorem zero_or (x : Nat) : x ||| 0 = x := by
+@[simp] theorem or_zero (x : Nat) : x ||| 0 = x := by
   simp only [HOr.hOr, OrOp.or, lor]
   unfold bitwise
   simp [@eq_comm _ 0]

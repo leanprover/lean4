@@ -1046,7 +1046,6 @@ x_68 = lean_box(0);
 x_69 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Server_RefInfo_toLspRefInfo___spec__2___rarg___boxed), 4, 1);
 lean_closure_set(x_69, 0, x_68);
 x_70 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_10, x_69, x_4);
-lean_dec(x_10);
 if (lean_obj_tag(x_70) == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
@@ -1084,7 +1083,6 @@ lean_inc(x_77);
 x_78 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3), 4, 1);
 lean_closure_set(x_78, 0, x_77);
 x_79 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_10, x_78, x_4);
-lean_dec(x_10);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; 
@@ -1325,7 +1323,6 @@ x_85 = lean_box(0);
 x_86 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Server_RefInfo_toLspRefInfo___spec__2___rarg___boxed), 4, 1);
 lean_closure_set(x_86, 0, x_85);
 x_87 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_26, x_86, x_2);
-lean_dec(x_26);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; 
@@ -1363,7 +1360,6 @@ lean_inc(x_94);
 x_95 = lean_alloc_closure((void*)(l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3), 4, 1);
 lean_closure_set(x_95, 0, x_94);
 x_96 = l_Lean_Elab_ContextInfo_runCoreM___rarg(x_26, x_95, x_2);
-lean_dec(x_26);
 if (lean_obj_tag(x_96) == 0)
 {
 lean_object* x_97; lean_object* x_98; lean_object* x_99; 
@@ -5910,7 +5906,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__1;
 x_2 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__2;
-x_3 = lean_unsigned_to_nat(212u);
+x_3 = lean_unsigned_to_nat(213u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_Loop_forIn_loop___at_Lean_Server_combineIdents_findCanonicalRepresentative___spec__6___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

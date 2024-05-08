@@ -16,5 +16,5 @@
    "inputRev": null,
    "inherited": false,
    "configFile": "lakefile.lean"}],
- "name": "test",
+ "name": "«foo-bar»",
  "lakeDir": ".lake"}

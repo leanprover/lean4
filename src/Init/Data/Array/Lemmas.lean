@@ -943,7 +943,7 @@ theorem anyM_loop_iff_exists (p : α → Bool) (as : Array α) (start stop) (h :
     omega
 termination_by stop - start
 
--- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Std.Data.Array.Init.Monadic`
+-- This could also be proved from `SatisfiesM_anyM_iff_exists` in `Batteries.Data.Array.Init.Monadic`
 theorem any_iff_exists (p : α → Bool) (as : Array α) (start stop) :
     any as p start stop ↔ ∃ i : Fin as.size, start ≤ i.1 ∧ i.1 < stop ∧ p as[i] := by
   dsimp [any, anyM, Id.run]

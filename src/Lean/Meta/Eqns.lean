@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.ReservedNameAction
+import Lean.AddDecl
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.Match.MatcherInfo

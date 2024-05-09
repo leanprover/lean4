@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.MetavarContext
 import Lean.Environment
+import Lean.AddDecl
 import Lean.Util.FoldConsts
 import Lean.Meta.Basic
 import Lean.Meta.Check

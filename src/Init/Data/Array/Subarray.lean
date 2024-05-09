@@ -22,7 +22,7 @@ abbrev Subarray.as (s : Subarray α) : Array α := s.array
 theorem Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
 
 @[deprecated Subarray.stop_le_array_size]
-theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.as.size := s.stop_le_array_size
+theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.array.size := s.stop_le_array_size
 
 namespace Subarray
 

@@ -177,10 +177,13 @@ instance : EmptyCollection Log := ⟨Log.empty⟩
 instance : Append Log := ⟨Log.append⟩
 
 @[inline] def shrink (log : Log) (n : Nat) : Log :=
-  (.mk <| log.entries.shrink n)
+  .mk <| log.entries.shrink n
+
+@[inline] def extract (log : Log) (start stop : Nat)  : Log :=
+  .mk <| log.entries.extract start stop
 
 @[inline] def split (log : Log) (n : Nat) : Log × Log :=
-  (.mk <| log.entries.extract 0 n, log.shrink n)
+  (log.shrink n, log.extract n log.entries.size)
 
 def toString (log : Log) : String :=
   log.entries.foldl (· ++ ·.toString ++ "\n") ""
@@ -227,6 +230,11 @@ instance [Monad m] : MonadGetLog (LogT m) := ⟨get⟩
 
 instance [Monad m] : MonadLog (LogT m) := ⟨LogT.log⟩
 
+@[inline] def replayLog [Monad n] [logger : MonadLog n] [MonadLiftT m n] (self : LogT m α) : n α := do
+  let (a, log) ← self {}
+  log.replay (logger := logger)
+  return a
+
 end LogT
 
 abbrev ELogT (m : Type → Type) :=
@@ -257,6 +265,9 @@ instance [Monad m] : MonadError (ELogT m) := ⟨ELogT.error⟩
   | .ok a log => log.replay (logger := logger) *> pure a
   | .error _ log => log.replay (logger := logger) *> failure
 
+@[inline] def replayLog? [Monad n] [logger : MonadLog n] [MonadLiftT m n] (self : ELogT m α) : n (Option α) := do
+  OptionT.run <| self.replayLog (logger := logger.lift)
+
 @[inline] def catchFailure [Monad m] (f : Log → LogT m α) (self : ELogT m α) : LogT m α := fun log => do
   match (← self log) with
   | .error n log => let (h,t) := log.split n; f h t
@@ -274,3 +285,21 @@ export ELogT (errorWithLog)
 abbrev LogIO := ELogT BaseIO
 
 instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
+
+/--
+Runs a `LogIO` action in `BaseIO`.
+Prints logs message at `verbosity` to stderr or stdout (if `useStdout`).
+-/
+@[inline] def LogIO.toBaseIO
+  (x : LogIO α) (verbosity := Verbosity.normal) (useStdout := false)
+: BaseIO (Option α) :=
+  let logger := if useStdout then .stdout verbosity else .stderr verbosity
+  x.replayLog? (logger := logger)
+
+/-- Captures IO in `x` into an informational log entry. -/
+@[inline] def withLoggedIO
+  [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
+: m α := do
+  let (out, a) ← IO.FS.withIsolatedStreams x
+  unless out.isEmpty do logInfo s!"stdout/stderr:\n{out}"
+  return a

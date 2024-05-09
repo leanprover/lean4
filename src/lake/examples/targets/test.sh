@@ -23,11 +23,26 @@ fi
 $LAKE build targets:noexistent && exit 1 || true
 
 # Test custom targets and package, library, and module facets
-$LAKE build bark | awk '/bark/,/Bark!/' | wc -l | grep -q 2
-$LAKE build targets/bark_bark | awk '/bark/,/bark_bark/' | wc -l | grep -q 3
-$LAKE build targets:print_name | awk '/targets/,/print_name/' | wc -l | grep -q 2
-$LAKE build Foo.Bar:print_src | grep Bar.lean
-$LAKE build Foo:print_name | grep Foo
+$LAKE build bark | awk '/Building/,/Bark!/'  | diff --strip-trailing-cr - <(cat << EOF
+[1/1] Building targets/bark
+info: Bark!
+EOF )
+$LAKE build targets/bark_bark | awk '/Building/,/bark_bark/'  | diff --strip-trailing-cr - <(cat << EOF
+[1/2] Building targets/bark
+info: Bark!
+[2/2] Building targets/bark_bark
+EOF )
+$LAKE build targets:print_name | sed -n '/Building/,$p' - | diff --strip-trailing-cr - <(cat << EOF
+[1/1] Building targets:print_name
+info: stdout/stderr:
+targets
+EOF )
+$LAKE build Foo:print_name | sed -n '/Building/,$p' - | diff --strip-trailing-cr - <(cat << EOF
+[1/1] Building Foo:print_name
+info: stdout/stderr:
+Foo
+EOF )
+$LAKE build Foo.Bar:print_src | grep --color Bar.lean
 
 # Test the module `deps` facet
 $LAKE build +Foo:deps

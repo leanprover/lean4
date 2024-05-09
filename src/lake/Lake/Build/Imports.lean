@@ -33,11 +33,13 @@ def recBuildImports (imports : Array Module)
   return (modJobs, precompileJobs, externJobs)
 
 /--
-Builds an `Array` of module imports. Used by `lake setup-file` to build modules
-for the Lean server and by `lake lean` to build the imports of a file.
+Builds an `Array` of module imports for a Lean file.
+Used by `lake setup-file` to build modules for the Lean server and
+by `lake lean` to build the imports of a file.
 Returns the set of module dynlibs built (so they can be loaded by Lean).
 -/
-def buildImportsAndDeps (imports : Array Module) : FetchM (BuildJob (Array FilePath)) := do
+def buildImportsAndDeps (leanFile : FilePath) (imports : Array Module) : FetchM (BuildJob (Array FilePath)) := do
+  withRegisterJob s!"Building imports of '{leanFile}'" do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
     (← getRootPackage).extraDep.fetch <&> (·.map fun _ => #[])

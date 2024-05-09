@@ -27,47 +27,11 @@ def recBuildExternDynlibs (pkgs : Array Package)
   return (jobs, libDirs)
 
 /--
-Build the dynlibs of the transitive imports that want precompilation
-and the dynlibs of *their* imports.
--/
-partial def recBuildPrecompileDynlibs (imports : Array Module)
-: FetchM (Array (BuildJob Dynlib) × Array (BuildJob Dynlib) × Array FilePath) := do
-  let (pkgs, _, jobs) ←
-    go imports OrdPackageSet.empty ModuleSet.empty #[] false
-  return (jobs, ← recBuildExternDynlibs pkgs.toArray)
-where
-  go imports pkgs modSet jobs shouldPrecompile := do
-    let mut pkgs := pkgs
-    let mut modSet := modSet
-    let mut jobs := jobs
-    for mod in imports do
-      if modSet.contains mod then
-        continue
-      modSet := modSet.insert mod
-      let shouldPrecompile := shouldPrecompile || mod.shouldPrecompile
-      if shouldPrecompile then
-        pkgs := pkgs.insert mod.pkg
-        jobs := jobs.push <| (←  mod.dynlib.fetch)
-      let recImports ← mod.imports.fetch
-      (pkgs, modSet, jobs) ← go recImports pkgs modSet jobs shouldPrecompile
-    return (pkgs, modSet, jobs)
-
-/--
 Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : FetchM (Array Module) := do
-  let callstack ← getCallStack
-  let contents ← liftM <| tryCatch (IO.FS.readFile mod.leanFile) fun err =>
-    -- filter out only modules from build key, and remove adjacent duplicates (squeeze),
-    -- since Lake visits multiple nested facets of the same module.
-    let callstack := callstack.filterMap (fun bk =>
-      match bk with
-      | .moduleFacet mod .. => .some s!"'{mod.toString}'"
-      | _ => .none
-    ) |> List.squeeze
-    let breadcrumb := String.intercalate " ▸ " callstack.reverse
-    error s!"{breadcrumb}: {err}"
+  let contents ← IO.FS.readFile mod.leanFile
   let imports ← Lean.parseImports' contents mod.leanFile.toString
   let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
     findModule? imp.module <&> fun | some mod => set.insert mod | none => set
@@ -77,10 +41,23 @@ def Module.recParseImports (mod : Module) : FetchM (Array Module) := do
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetConfig (·.recParseImports)
 
+@[inline] def Module.recCollectImportsCore
+  (f : Module → FetchM (Bool × Array Module)) (mod : Module)
+: FetchM (Array Module) := do
+  let directImports ← mod.imports.fetch
+  (·.toArray) <$> directImports.foldlM (init := OrdModuleSet.empty) fun set imp => do
+    try
+      let (includeSelf, transImps) ← f imp
+      let set := set.appendArray transImps
+      return if includeSelf then set.insert imp else set
+    catch n =>
+      modifyThe Log (·.shrink n)
+      logError s!"{mod.leanFile}: bad import '{imp.name}'"
+      return set
+
 /-- Recursively compute a module's transitive imports. -/
 def Module.recComputeTransImports (mod : Module) : FetchM (Array Module) := do
-  (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
-    return set.appendArray (← imp.transImports.fetch) |>.insert imp
+  mod.recCollectImportsCore fun imp => (true, ·) <$> imp.transImports.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
@@ -88,11 +65,11 @@ def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
 
 /-- Recursively compute a module's precompiled imports. -/
 def Module.recComputePrecompileImports (mod : Module) : FetchM (Array Module) := do
-  (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
+  mod.recCollectImportsCore fun imp =>
     if imp.shouldPrecompile then
-      return set.appendArray (← imp.transImports.fetch) |>.insert imp
+      (true, ·) <$> imp.transImports.fetch
     else
-      return set.appendArray (← imp.precompileImports.fetch)
+      (false, ·) <$> imp.precompileImports.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
@@ -105,14 +82,20 @@ Recursively build a module's dependencies, including:
 * `extraDepTargets` of its library
 -/
 def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array FilePath)) := do
-  let imports ← mod.imports.fetch
   let extraDepJob ← mod.lib.extraDep.fetch
-  let precompileImports ← mod.precompileImports.fetch
+
+  let (precompileImports, directImports) ←
+    try
+      pure (← mod.precompileImports.fetch, ← mod.imports.fetch)
+    catch n =>
+      return Job.error <| ← modifyGetThe Log fun log =>
+        match log.split n with | (s,e) => (e,s)
+
   let modJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
-  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.olean.fetch)
+  let importJob ← BuildJob.mixArray <| ← directImports.mapM (·.olean.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 

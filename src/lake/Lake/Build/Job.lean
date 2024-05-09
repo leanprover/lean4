@@ -21,7 +21,7 @@ instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 @[inline] protected def nop : Job Unit :=
   pure ()
 
-@[inline] protected def error (l : Log) : Job α :=
+@[inline] protected def error (l : Log := {}) : Job α :=
   {task := Task.pure (.error 0 l)}
 
 @[inline] def mapResult
@@ -57,7 +57,7 @@ instance : Functor Job where map := Job.map
 @[inline] protected def async
   (act : JobM α) (prio := Task.Priority.default)
 : SpawnM (Job α) := fun ctx => Job.mk <$> do
-  BaseIO.asTask (act ctx {}) prio
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {}
 
 /-- Wait a the job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -87,9 +87,8 @@ after the job `a` completes.
   (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := fun ctx => Job.mk <$> do
-  BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun r=>
-    match r with
-    | EResult.ok a l => f a ctx l
+  BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun
+    | EResult.ok a l => (withLoggedIO (f a)) ctx l
     | EResult.error n l => return .error n l
 
 /--
@@ -118,23 +117,12 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
   (prio := Task.Priority.default) (sync := false)
 : BaseIO (Job γ) := Job.mk <$> do
   BaseIO.bindTask x.task (prio := prio) (sync := true) fun rx =>
-  BaseIO.bindTask y.task (prio := prio) (sync := sync) fun ry =>
+  BaseIO.mapTask (t := y.task) (prio := prio) (sync := sync) fun ry =>
   match rx, ry with
-  | .ok a la, .ok b lb => return Task.pure (EResult.ok (f a b) (la ++ lb))
-  | rx, ry => return Task.pure (EResult.error 0 (rx.state ++ ry.state))
+  | .ok a la, .ok b lb => return .ok (f a b) (la ++ lb)
+  | rx, ry => return .error 0 (rx.state ++ ry.state)
 
 end Job
-
-/-- Register the produced job for the CLI progress UI.  -/
-@[inline] def withRegisterJob
-  [Monad m] [MonadReaderOf BuildContext m] [MonadLiftT BaseIO m]
-  (caption : String) (x : m (Job α))
-: m (Job α) := do
-  let job ← x
-  let ctx ← read
-  liftM (m := BaseIO) do
-  ctx.registeredJobs.modify (·.push (caption, discard job))
-  return job.clearLog
 
 /-- A Lake build job. -/
 abbrev BuildJob α := Job (α × BuildTrace)

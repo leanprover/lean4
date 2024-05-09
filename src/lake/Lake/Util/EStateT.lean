@@ -27,9 +27,12 @@ instance [Inhabited ε] [Inhabited σ] : Inhabited (EResult ε σ α) where
 | .ok _ s => s
 | .error _ s => s
 
-@[inline] def EResult.setState (s : σ') : EResult ε σ α → EResult ε σ' α
-| .ok a _ => .ok a s
-| .error e _ => .error e s
+@[inline] def EResult.modifyState (f : σ → σ') : EResult ε σ α → EResult ε σ' α
+| .ok a s => .ok a (f s)
+| .error e s => .error e (f s)
+
+@[inline] def EResult.setState (s : σ') (r : EResult ε σ α) : EResult ε σ' α :=
+  r.modifyState fun _ => s
 
 /-- Extract the result `α` from a `EResult ε σ α`. -/
 @[inline] def EResult.result? : EResult ε σ α → Option α

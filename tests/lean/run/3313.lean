@@ -29,6 +29,8 @@ instance Synonym.module (M : Type) {R : Type} [Zero R] [Zero M] [Module R M] :
 
 variable (R : Type) [Ring R]
 
+
+set_option maxSynthPendingDepth 2 in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- works
 
 /--
@@ -40,8 +42,8 @@ error: failed to synthesize
 use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs in
-set_option maxSynthPendingDepth 1 in
 set_option diagnostics true in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- fails
 
-#synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- works
+set_option maxSynthPendingDepth 2 in
+#synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- still works

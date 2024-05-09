@@ -309,7 +309,7 @@ structure SavedState where
   deriving Nonempty
 
 register_builtin_option maxSynthPendingDepth : Nat := {
-  defValue := 2
+  defValue := 1
   descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
 }
 

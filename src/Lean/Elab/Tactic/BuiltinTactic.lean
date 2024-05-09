@@ -270,7 +270,7 @@ where
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
-        let type ← Term.withSynthesize (mayPostpone := true) <| Term.elabType typeStx
+        let type ← Term.withSynthesize (postpone := .yes) <| Term.elabType typeStx
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do

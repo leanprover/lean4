@@ -664,18 +664,6 @@ private def preprocess (type : Expr) : MetaM Expr :=
     let type ← whnf type
     mkForallFVars xs type
 
-private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := do
-  let mut r := #[]
-  let mut modified := false
-  for u in us do
-    let u ← instantiateLevelMVars u
-    if u.hasMVar then
-      r := r.push (← mkFreshLevelMVar)
-      modified := true
-    else
-      r := r.push u
-  return (r.toList, modified)
-
 private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
   if h : i < args.size then
     let type ← whnf type

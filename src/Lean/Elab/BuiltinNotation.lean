@@ -98,7 +98,7 @@ open Meta
       show Nat from 0
     ```
     -/
-    let type ← withSynthesize (mayPostpone := true) do
+    let type ← withSynthesize (postpone := .yes) do
       let type ← elabType type
       if let some expectedType := expectedType? then
         -- Recall that a similar approach is used when elaborating applications
@@ -314,11 +314,11 @@ where
 
 @[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
   | `(($e : $type)), _ => do
-    let type ← withSynthesize (mayPostpone := true) <| elabType type
+    let type ← withSynthesize (postpone := .yes) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
   | `(($e :)), expectedType? => do
-    let e ← withSynthesize (mayPostpone := false) <| elabTerm e none
+    let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e
   | _, _ => throwUnsupportedSyntax
 

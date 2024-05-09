@@ -188,7 +188,7 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
   the macro declaration names in the `op` nodes.
   -/
   let result ← go s
-  synthesizeSyntheticMVars (mayPostpone := true)
+  synthesizeSyntheticMVars (postpone := .yes)
   return result
 where
   go (s : Syntax) := do
@@ -486,7 +486,6 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
   | some f => withSynthesizeLight do
     /-
     We used to use `withSynthesize (mayPostpone := true)` here instead of `withSynthesizeLight` here.
-    Recall that `withSynthesizeLight` is equivalent to `withSynthesize (mayPostpone := true) (synthesizeDefault := false)`.
     It seems too much to apply default instances at binary relations. For example, we cannot elaborate
     ```
     def as : List Int := [-1, 2, 0, -3, 4]

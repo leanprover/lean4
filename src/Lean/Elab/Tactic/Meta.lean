@@ -14,7 +14,7 @@ open Term
 def runTactic (mvarId : MVarId) (tacticCode : Syntax) (ctx : Context := {}) (s : State := {}) : MetaM (List MVarId × State) := do
   instantiateMVarDeclMVars mvarId
   let go : TermElabM (List MVarId) :=
-    withSynthesize (mayPostpone := false) do Tactic.run mvarId (Tactic.evalTactic tacticCode *> Tactic.pruneSolvedGoals)
+    withSynthesize do Tactic.run mvarId (Tactic.evalTactic tacticCode *> Tactic.pruneSolvedGoals)
   go.run ctx s
 
 end Lean.Elab

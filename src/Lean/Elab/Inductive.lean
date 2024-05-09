@@ -324,7 +324,7 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           | some ctorType =>
             let type ← Term.elabType ctorType
             trace[Elab.inductive] "elabType {ctorView.declName} : {type} "
-            Term.synthesizeSyntheticMVars (mayPostpone := true)
+            Term.synthesizeSyntheticMVars (postpone := .yes)
             let type ← instantiateMVars type
             let type ← checkParamOccs type
             forallTelescopeReducing type fun _ resultingType => do

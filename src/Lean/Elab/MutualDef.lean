@@ -358,7 +358,11 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
           -- skip auto-bound prefix in `xs`
           addLocalVarInfo header.binderIds[i]! xs[header.numParams - header.binderIds.size + i]!
         let val ← withReader ({ · with tacSnap? := header.tacSnap? }) do
-          elabTermEnsuringType valStx type <* Term.synthesizeSyntheticMVarsNoPostponing
+          -- synthesize mvars here to force the top-level tactic block (if any) to run
+          elabTermEnsuringType valStx type <* synthesizeSyntheticMVarsNoPostponing
+        -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
+        -- leads to more section variables being included than necessary
+        let val ← instantiateMVars val
         let val ← mkLambdaFVars xs val
         if let some snap := header.bodySnap? then
           snap.new.resolve <| some {

@@ -158,12 +158,6 @@ register_builtin_option stderrAsMessages : Bool := {
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
 }
 
-/-- Option for showing elaboration errors from partial syntax errors. -/
-register_builtin_option showPartialSyntaxErrors : Bool := {
-  defValue := false
-  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
-}
-
 /-! The hierarchy of Lean snapshot types -/
 
 /-- Snapshot after elaboration of the entire command. -/
@@ -495,7 +489,7 @@ where
       let elabPromise ← IO.Promise.new
       let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
       let finishedSnap ←
-        doElab stx cmdState msgLog.hasErrors beginPos
+        doElab stx cmdState beginPos
           { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
           tacticCache
           ctx
@@ -513,7 +507,7 @@ where
         tacticCache
       }
 
-  doElab (stx : Syntax) (cmdState : Command.State) (hasParseError : Bool) (beginPos : String.Pos)
+  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (tacticCache : IO.Ref Tactic.Cache) :
       LeanProcessingM (SnapshotTask CommandFinishedSnapshot) := do
     let ctx ← read
@@ -551,16 +545,6 @@ where
       tacticCache.modify fun _ => { pre := postNew, post := {} }
       let cmdState ← cmdStateRef.get
       let mut messages := cmdState.messages
-      -- `stx.hasMissing` should imply `hasParseError`, but the latter should be cheaper to check in
-      -- general
-      if !showPartialSyntaxErrors.get cmdState.scopes[0]!.opts && hasParseError &&
-          stx.hasMissing then
-        -- discard elaboration errors, except for a few important and unlikely misleading ones, on
-        -- parse error
-        messages := { messages with
-          msgs := messages.msgs.filter fun msg =>
-            msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-              tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag) }
       if !output.isEmpty then
         messages := messages.add {
           fileName := ctx.fileName

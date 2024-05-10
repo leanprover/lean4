@@ -46,16 +46,6 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
     let mut msgs := (← get).messages
-    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check
-    -- in general
-    if !Language.Lean.showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors &&
-        stx.hasMissing then
-      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
-      -- parse error
-      msgs := { msgs with
-        msgs := msgs.msgs.filter fun msg =>
-          msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-            tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag) }
     modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do

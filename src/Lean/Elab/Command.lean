@@ -59,6 +59,11 @@ structure Context where
   snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
   /-- Cancellation token forwarded to `Core.cancelTk?`. -/
   cancelTk?      : Option IO.CancelToken
+  /--
+  If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
+  errors; see also `logMessage` below.
+  -/
+  suppressElabErrors : Bool := false
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -159,7 +164,8 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     initHeartbeats := heartbeats
     currMacroScope := ctx.currMacroScope
     diag           := getDiag scope.opts
-    cancelTk?      := ctx.cancelTk? }
+    cancelTk?      := ctx.cancelTk?
+    suppressElabErrors := ctx.suppressElabErrors }
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog := Id.run do
   if traceState.traces.isEmpty then return log
@@ -230,6 +236,11 @@ instance : MonadLog CommandElabM where
   getFileName := return (← read).fileName
   hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
+    if (← read).suppressElabErrors then
+      -- discard elaboration errors on parse error
+      -- NOTE: unlike `CoreM`'s `logMessage`, we do not currently have any command-level errors that
+      -- we want to allowlist
+      return
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
@@ -336,11 +347,19 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
 
 builtin_initialize registerTraceClass `Elab.input
 
+/-- Option for showing elaboration errors from partial syntax errors. -/
+register_builtin_option showPartialSyntaxErrors : Bool := {
+  defValue := false
+  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
+}
+
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
+  withReader ({ · with suppressElabErrors :=
+    stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try

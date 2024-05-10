@@ -31,3 +31,8 @@ def haveBug : True := by
   --^ insert: "intro n m"
   --^ collectDiagnostics
     exact m
+
+/-! incremental reporting should obey `showPartialSyntaxErrors` -/
+-- RESET
+def partialSyntax : True := by apply (
+--^ collectDiagnostics

@@ -2,8 +2,9 @@ def foo : Nat → Nat
 | 0 => 0
 | n+1 => foo n + 1
 
+set_option debug.moduleNameAtTimeout false
 /--
-error: (deterministic) timeout at `isDefEq`, maximum number of heartbeats (100) has been reached
+error: (deterministic) timeout, maximum number of heartbeats (100) has been reached
 use `set_option maxHeartbeats <num>` to set the limit
 use `set_option diagnostics true` to get diagnostic information
 -/

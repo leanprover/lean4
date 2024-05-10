@@ -58,6 +58,9 @@ def occursOrInType (e : Expr) (t : Expr) : MetaM Bool := do
       return s == e
     let ty ← inferType s
     return s == e || e.occurs ty
+  -- Note here that we are calling `findM?` with a non-pure function, which is dangerous!
+  -- The non-pure behaviour arises from `inferType` interacting with caches,
+  -- however `inferType` is only called on `Expr.fvar`s, which should be effectively pure.
   return (← t.findM? f).isSome
 
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do

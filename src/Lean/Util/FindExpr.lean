@@ -40,8 +40,21 @@ unsafe def findUnsafeM? {m} [Monad m] (p : Expr → m Bool) (e : Expr) : m (Opti
 
 end FindImpl
 
+/--
+Find a subexpression on which the (monadic) predicate `p` returns true.
+
+In compiled code, this is replaced by a fast implementation which uses a cache.
+
+Note that if `p` is not pure (e.g. it uses a cache), then this reference implementation may not
+match the compiled behavior! In particular, the compiled implementation will not re-evaluate `p`
+on repeated subterms.
+
+Please use this function cautiously; if it becomes a source of bugs, we may remove it.
+
+(See `find?` below for a pure version.)
+-/
+
 @[implemented_by FindImpl.findUnsafeM?]
-/- This is a reference implementation for the unsafe one above -/
 def findM? [Monad m] (p : Expr → m Bool) (e : Expr) : m (Option Expr) := do
   if ← p e then
     return some e

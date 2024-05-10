@@ -662,30 +662,30 @@ def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := 
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
     return (r, { s with })
 where
-  simpMain (e : Expr) : SimpM Result := withCatchingRuntimeEx do
-    try
-      withoutCatchingRuntimeEx <| simp e
-    catch ex =>
-      reportDiag (← get).diag
-      if ex.isRuntime then
-        throwNestedTacticEx `simp ex
-      else
-        throw ex
+  simpMain (e : Expr) : SimpM Result :=
+    tryCatchRuntimeEx
+      (simp e)
+      fun ex => do
+        reportDiag (← get).diag
+        if ex.isRuntime then
+          throwNestedTacticEx `simp ex
+        else
+          throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
     let (r, s) ← dsimpMain e methods.toMethodsRef ctx |>.run { stats with }
     pure (r, { s with })
 where
-  dsimpMain (e : Expr) : SimpM Expr := withCatchingRuntimeEx do
-    try
-      withoutCatchingRuntimeEx <| dsimp e
-    catch ex =>
-      reportDiag (← get).diag
-      if ex.isRuntime then
-        throwNestedTacticEx `simp ex
-      else
-        throw ex
+  dsimpMain (e : Expr) : SimpM Expr :=
+    tryCatchRuntimeEx
+      (dsimp e)
+      fun ex => do
+        reportDiag (← get).diag
+        if ex.isRuntime then
+          throwNestedTacticEx `simp ex
+        else
+          throw ex
 
 end Simp
 open Simp (SimprocsArray Stats)

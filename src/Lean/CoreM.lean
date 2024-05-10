@@ -79,12 +79,6 @@ structure Context where
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
-  If `catchRuntimeEx = false`, then given `try x catch ex => h ex`,
-  an runtime exception occurring in `x` is not handled by `h`.
-  Recall that runtime exceptions are `maxRecDepth` or `maxHeartbeats`.
-  -/
-  catchRuntimeEx : Bool := false
-  /--
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.
   -/
@@ -428,30 +422,36 @@ in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `M
   try
     x
   catch ex =>
-    if ex.isRuntime && !(← read).catchRuntimeEx then
-      throw ex
+    if ex.isRuntime then
+      throw ex -- We should use `tryCatchRuntimeEx` for catching runtime exceptions
     else
       h ex
+
+@[inline] protected def Core.tryCatchRuntimeEx (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
+  try
+    x
+  catch ex =>
+    h ex
 
 instance : MonadExceptOf Exception CoreM where
   throw    := throw
   tryCatch := Core.tryCatch
 
-@[inline] def Core.withCatchingRuntimeEx (flag : Bool) (x : CoreM α) : CoreM α :=
-  withReader (fun ctx => { ctx with catchRuntimeEx := flag }) x
+class MonadRuntimeException (m : Type → Type) where
+  tryCatchRuntimeEx (body : m α) (handler : Exception → m α) : m α
+
+export MonadRuntimeException (tryCatchRuntimeEx)
+
+instance : MonadRuntimeException CoreM where
+  tryCatchRuntimeEx := Core.tryCatchRuntimeEx
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (ReaderT ρ m) where
+  tryCatchRuntimeEx := fun x c r => tryCatchRuntimeEx (x r) (fun e => (c e) r)
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (StateRefT' ω σ m) where
+  tryCatchRuntimeEx := fun x c s => tryCatchRuntimeEx (x s) (fun e => c e s)
 
 @[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
   controlAt CoreM fun runInBase => f <| runInBase x
-
-/--
-Execute `x` with `catchRuntimeEx = flag`. That is, given `try x catch ex => h ex`,
-if `x` throws a runtime exception, the handler `h` will be invoked if `flag = true`
-Recall that
--/
-@[inline] def withCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx true) x
-
-@[inline] def withoutCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx false) x
 
 end Lean

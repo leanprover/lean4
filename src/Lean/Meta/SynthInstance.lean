@@ -633,12 +633,9 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
-     -- TODO: it would be nice to have a nice notation for the following idiom
-     withCatchingRuntimeEx
-       try
-         withoutCatchingRuntimeEx do
-           action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
-       catch ex =>
+     tryCatchRuntimeEx
+       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
+       fun ex =>
          if ex.isRuntime then
            throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
          else

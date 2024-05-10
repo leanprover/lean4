@@ -29,7 +29,7 @@ package test where
   buildArchive? := none
   preferReleaseBuild := false
   packagesDir := defaultPackagesDir
-  toLeanConfig := testLeanConfig
+  leanOptions := #[⟨`pp.unicode.fun, true⟩]
 
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"

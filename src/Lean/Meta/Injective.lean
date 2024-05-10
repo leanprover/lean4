@@ -52,13 +52,13 @@ def elimOptParam (type : Expr) : CoreM Expr := do
   Instead of checking the type of every subterm, we only need to check the type of free variables, since free variables introduced in
   the constructor may only appear in the type of other free variables introduced after them.
 -/
-def occursOrInType (e : Expr) (t : Expr) : MetaM Bool := do
-  let_fun f (s : Expr) := do
-    if !s.isFVar then
-      return s == e
-    let ty ← inferType s
-    return s == e || e.occurs ty
-  return (← t.findM? f).isSome
+def occursOrInType (lctx : LocalContext) (e : Expr) (t : Expr) : Bool :=
+  t.find? go |>.isSome
+where
+  go s := Id.run do
+    let .fvar fvarId := s | s == e
+    let some decl := lctx.find? fvarId | s == e
+    return s == e || e.occurs decl.type
 
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
@@ -87,7 +87,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         match (← whnf type) with
         | Expr.forallE n d b _ =>
           let arg1 := args1.get ⟨i, h⟩
-          if ← occursOrInType arg1 resultType then
+          if occursOrInType (← getLCtx) arg1 resultType then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>

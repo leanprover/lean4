@@ -97,6 +97,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnInf
 lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_registerCoercion___lambda__1___closed__15;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_436____closed__5;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_16____closed__14;
 static lean_object* l_Lean_Meta_instToExprCoeFnInfo___lambda__1___closed__3;
@@ -198,7 +199,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_instDecidableEqCoeFnType___boxed(lean_objec
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_16____closed__11;
 static lean_object* l_Lean_Meta_instToExprCoeFnType___lambda__1___closed__11;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_763____closed__7;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_instReprCoeFnInfo;
 static lean_object* l___private_Lean_Meta_CoeAttr_0__Lean_Meta_reprCoeFnType____x40_Lean_Meta_CoeAttr___hyg_16____closed__15;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2588,7 +2588,7 @@ _start:
 {
 uint8_t x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; 
 x_7 = 0;
-x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(x_3, x_7);
+x_8 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(x_3, x_7);
 x_9 = l_Lean_Meta_initFn____x40_Lean_Meta_CoeAttr___hyg_763____lambda__2___closed__13;
 x_10 = lean_st_mk_ref(x_9, x_6);
 if (x_8 == 0)

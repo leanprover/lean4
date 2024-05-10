@@ -4553,7 +4553,7 @@ lean_object* x_11; uint8_t x_12; uint8_t x_13; lean_object* x_14;
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec(x_10);
-x_12 = 1;
+x_12 = 0;
 x_13 = 0;
 lean_inc(x_8);
 lean_inc(x_7);
@@ -45853,7 +45853,7 @@ x_65 = l_Lean_Elab_Term_SavedState_restore(x_44, x_64, x_5, x_6, x_7, x_8, x_9, 
 x_66 = lean_ctor_get(x_65, 1);
 lean_inc(x_66);
 lean_dec(x_65);
-x_67 = 1;
+x_67 = 0;
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);

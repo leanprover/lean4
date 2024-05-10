@@ -1043,6 +1043,7 @@ lean_inc(x_33);
 lean_dec(x_31);
 x_34 = l_Lean_Elab_Rewrites_evalExact___lambda__2___closed__2;
 x_35 = lean_unsigned_to_nat(90u);
+lean_inc(x_5);
 x_36 = l_Lean_reportOutOfHeartbeats(x_34, x_5, x_35, x_13, x_14, x_33);
 x_37 = lean_ctor_get(x_36, 1);
 lean_inc(x_37);
@@ -2221,6 +2222,7 @@ lean_inc(x_30);
 lean_dec(x_28);
 x_31 = l_Lean_Elab_Rewrites_evalExact___lambda__2___closed__2;
 x_32 = lean_unsigned_to_nat(90u);
+lean_inc(x_4);
 x_33 = l_Lean_reportOutOfHeartbeats(x_31, x_4, x_32, x_11, x_12, x_30);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
@@ -2483,6 +2485,7 @@ lean_dec(x_16);
 x_19 = 0;
 x_20 = l_Lean_Elab_Rewrites_evalExact___lambda__7___closed__3;
 x_21 = lean_unsigned_to_nat(90u);
+lean_inc(x_1);
 x_22 = l_Lean_reportOutOfHeartbeats(x_20, x_1, x_21, x_11, x_12, x_18);
 if (lean_obj_tag(x_4) == 0)
 {

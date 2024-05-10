@@ -666,6 +666,7 @@ _start:
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; size_t x_21; lean_object* x_22; lean_object* x_23; 
 x_16 = l_Lean_Elab_LibrarySearch_exact_x3f___lambda__5___closed__2;
 x_17 = lean_unsigned_to_nat(90u);
+lean_inc(x_1);
 x_18 = l_Lean_reportOutOfHeartbeats(x_16, x_1, x_17, x_13, x_14, x_15);
 x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);

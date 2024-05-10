@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedClassState;
 LEAN_EXPORT lean_object* l_Lean_ClassEntry_lt___boxed(lean_object*, lean_object*);
 size_t lean_ptr_addr(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_768____closed__18;
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(uint8_t, uint8_t);
 static lean_object* l_Lean_mkOutParamArgsImplicit_go___closed__6;
 static lean_object* l_Lean_SMap_empty___at_Lean_ClassState_outParamMap___default___spec__1___closed__3;
 size_t lean_usize_of_nat(lean_object*);
@@ -169,7 +170,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_768____lambda__3___clo
 static lean_object* l_Lean_addClass___lambda__2___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_78____closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Class___hyg_78____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_getOutParamPositions_x3f___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isClass___boxed(lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
@@ -3499,7 +3499,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = 0;
-x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(x_3, x_13);
+x_14 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(x_3, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; 

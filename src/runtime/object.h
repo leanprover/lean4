@@ -288,7 +288,7 @@ inline b_obj_res task_get(b_obj_arg t) { return lean_task_get(t); }
 
 inline bool io_check_canceled_core() { return lean_io_check_canceled_core(); }
 inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
-inline bool io_has_finished_core(b_obj_arg t) { return lean_io_has_finished_core(t); }
+inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
 inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
 // =======================================

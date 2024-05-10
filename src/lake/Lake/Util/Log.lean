@@ -50,11 +50,10 @@ protected def LogLevel.ofMessageSeverity : MessageSeverity → LogLevel
 
 instance : ToString LogLevel := ⟨LogLevel.toString⟩
 
-def LogLevel.visibleAtVerbosity (self : LogLevel) (verbosity : Verbosity) : Bool :=
-  match self with
-  | .trace => verbosity == .verbose
-  | .info => verbosity != .quiet
-  | _ => true
+def Verbosity.minLogLevel : Verbosity → LogLevel
+| .quiet => .warning
+| .normal =>  .info
+| .verbose => .trace
 
 structure LogEntry where
   level : LogLevel
@@ -83,23 +82,17 @@ export MonadLog (logEntry)
 @[inline] def logError  [MonadLog m] (message : String) : m PUnit :=
   logEntry {level := .error, message}
 
-def logToIO (e : LogEntry) (verbosity : Verbosity) : BaseIO PUnit := do
+def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
   match e.level with
-  | .trace => if verbosity == .verbose then
+  | .trace => if minLv ≥ .trace then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .info => if verbosity != .quiet then
+  | .info => if minLv ≥ .info then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
-  | .warning => IO.eprintln s!"warning: {e.message.trim}" |>.catchExceptions fun _ => pure ()
-  | .error => IO.eprintln s!"error: {e.message.trim}" |>.catchExceptions fun _ => pure ()
+  | .warning => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
+  | .error => IO.eprintln e.toString |>.catchExceptions fun _ => pure ()
 
-def logToStream (e : LogEntry) (h : IO.FS.Stream) (verbosity : Verbosity) : BaseIO PUnit := do
-  match e.level with
-  | .trace => if verbosity == .verbose then
-    h.putStrLn s!"trace: {e.message.trim}" |>.catchExceptions fun _ => pure ()
-  | .info => if verbosity != .quiet then
-    h.putStrLn s!"info: {e.message.trim}" |>.catchExceptions fun _ => pure ()
-  | .warning => h.putStrLn s!"warning: {e.message.trim}" |>.catchExceptions fun _ => pure ()
-  | .error => h.putStrLn s!"error: {e.message.trim}" |>.catchExceptions fun _ => pure ()
+def logToStream (e : LogEntry) (h : IO.FS.Stream) (minLv : LogLevel) : BaseIO PUnit := do
+  if e.level ≥ minLv then h.putStrLn e.toString |>.catchExceptions fun _ => pure ()
 
 @[specialize] def logSerialMessage (msg : SerialMessage) [MonadLog m] : m PUnit :=
   let str := msg.data
@@ -117,17 +110,17 @@ namespace MonadLog
 
 instance [Pure m] : Inhabited (MonadLog m) := ⟨MonadLog.nop⟩
 
-@[specialize] def io [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
-  logEntry e := logToIO e verbosity
+@[specialize] def io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+  logEntry e := logToIO e minLv
 
-@[inline] def stream [MonadLiftT BaseIO m] (h : IO.FS.Stream) (verbosity := Verbosity.normal) : MonadLog m where
-  logEntry e := logToStream e h verbosity
+@[inline] def stream [MonadLiftT BaseIO m] (h : IO.FS.Stream) (minLv := LogLevel.info) : MonadLog m where
+  logEntry e := logToStream e h minLv
 
-@[inline] def stdout [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
-  logEntry e := liftM (m := BaseIO) do logToStream e (← IO.getStdout) verbosity
+@[inline] def stdout [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+  logEntry e := liftM (m := BaseIO) do logToStream e (← IO.getStdout) minLv
 
-@[inline] def stderr [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
-  logEntry e := liftM (m := BaseIO) do logToStream e (← IO.getStderr) verbosity
+@[inline] def stderr [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+  logEntry e := liftM (m := BaseIO) do logToStream e (← IO.getStderr) minLv
 
 @[inline] def lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
   logEntry e := liftM <| self.logEntry e
@@ -220,14 +213,12 @@ instance : ToString Log := ⟨Log.toString⟩
 @[inline] def filter (f : LogEntry → Bool) (log : Log) : Log :=
   .mk <| log.entries.filter f
 
-def filterByVerbosity (log : Log) (verbosity := Verbosity.normal) : Log :=
-  log.filter (·.level.visibleAtVerbosity verbosity)
-
 @[inline] def any (f : LogEntry → Bool) (log : Log) : Bool :=
   log.entries.any f
 
-def hasVisibleEntries (log : Log) (verbosity := Verbosity.normal) : Bool :=
-  log.any (·.level.visibleAtVerbosity verbosity)
+/-- Whether the log has entries of at least `lv`. -/
+def hasEntriesGe (log : Log) (lv : LogLevel) : Bool :=
+  log.any (·.level ≥ lv)
 
 end Log
 
@@ -310,6 +301,12 @@ abbrev ELogResult (α) := EResult Log.Pos Log α
 
 namespace ELogT
 
+@[inline] def toLogT [Monad m] (self : ELogT m α) : LogT m (Except Log.Pos α) := do
+  self.toStateT
+
+@[inline] def toLogT? [Monad m] (self : ELogT m α) : LogT m (Option α) := do
+  self.toStateT?
+
 @[inline] protected def log [Monad m] (e : LogEntry) : ELogT m PUnit :=
   modify (·.push e)
 
@@ -358,9 +355,7 @@ a `failure` in the new monad.
   | .ok a log => return (a, log)
 
 @[inline] def captureLog [Monad m] (self : ELogT m α) : m (Option α × Log) := do
- match (← self {}) with
- | .ok a log => return (some a, log)
- | .error _ log => return (none, log)
+  self.toLogT?.run {}
 
 end ELogT
 
@@ -370,13 +365,13 @@ instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
 /--
 Runs a `LogIO` action in `BaseIO`.
-Prints logs message at `verbosity` to stderr or stdout (if `useStdout`).
+Prints log entries of at least `minLv` to stderr or stdout (if `useStdout`).
 -/
 @[inline] def LogIO.toBaseIO
-  (x : LogIO α) (verbosity := Verbosity.normal) (useStdout := false)
-: BaseIO (Option α) :=
-  let logger := if useStdout then .stdout verbosity else .stderr verbosity
-  x.replayLog? (logger := logger)
+  (x : LogIO α) (minLv := LogLevel.info) (useStdout := false)
+: BaseIO (Option α) := do
+  let s ← if useStdout then IO.getStdout else IO.getStderr
+  x.replayLog? (logger := .stream s minLv)
 
 /-- Captures IO in `x` into an informational log entry. -/
 @[inline] def withLoggedIO

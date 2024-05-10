@@ -25,6 +25,55 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
+/-- The job monitor function. An auxiliary definition for `runFetchM`. -/
+partial def monitorJobs
+  (jobs : Array (String × Job Unit))
+  (out : IO.FS.Stream)
+  (failLv outLv : LogLevel)
+  (showANSIProgress : Bool)
+  (resetCtrl : String := "")
+  (initFailures : Array String := #[])
+  (totalJobs := jobs.size)
+  (updateMs := 100)
+: IO (Array String) := do
+  loop jobs resetCtrl (← IO.monoMsNow) initFailures
+where
+  loop jobs resetCtrl lastUpdate initFailures := do
+    let mut unfinishedJobs := #[]
+    let mut failures := initFailures
+    let mut resetCtrl := resetCtrl
+    for jobEntry@(caption, job) in jobs do
+      if (← IO.hasFinished job.task) then
+        let log := job.task.get.state
+        let failed := log.hasEntriesGe failLv
+        if failed then
+          failures := failures.push caption
+        if log.hasEntriesGe outLv then
+          let jobsDone := totalJobs - jobs.size + unfinishedJobs.size + 1
+          out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {caption}\n"
+          resetCtrl := ""
+          let outLv := if failed then .trace else outLv
+          log.replay (logger := MonadLog.stream out outLv)
+          out.flush
+      else
+        unfinishedJobs := unfinishedJobs.push jobEntry
+    if h : 0 < unfinishedJobs.size then
+      if showANSIProgress then
+        let jobsDone := totalJobs - jobs.size
+        let (caption, _) := unfinishedJobs[0]'h
+        out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {caption}"
+        resetCtrl := "\x1B[2K\r"
+        out.flush
+      let now ← IO.monoMsNow
+      let sleepTime : Nat := updateMs - (now - lastUpdate)
+      if sleepTime > 0 then
+        IO.sleep sleepTime.toUInt32
+      loop unfinishedJobs resetCtrl now failures
+    else
+      unless resetCtrl.isEmpty do
+        out.putStr resetCtrl
+      return failures
+
 /--
 Run a build function in the Workspace's context using the provided configuration.
 Reports incremental build progress and build logs. In quiet mode, only reports
@@ -33,58 +82,44 @@ failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
 : IO α := do
+  -- Configure
   let ctx ← mkBuildContext ws cfg
   let out ← if cfg.useStdout then IO.getStdout else IO.getStderr
   let useANSI ← out.isTty
   let verbosity := cfg.verbosity
+  let outLv := verbosity.minLogLevel
+  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
   let showProgress :=
-    (cfg.noBuild && verbosity == .verbose) ||
+    (cfg.noBuild ∧ verbosity == .verbose) ∨
     verbosity != .quiet
+  let showANSIProgress := showProgress ∧ useANSI
+  -- Job Computation
   let caption := "Computing build jobs"
   let header := s!"[?/?] {caption}"
-  if showProgress then
-    out.putStr header; out.flush
-  let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run.run'.run ctx).captureLog
-  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
-  let failed := log.any (·.level ≥ failLv)
-  if !failed && io.isEmpty && !log.hasVisibleEntries verbosity then
-    if showProgress then
-      if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
-  else
-    unless showProgress do
+  if showANSIProgress then
+    out.putStr header
+    out.flush
+  let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).captureLog
+  let failed := log.hasEntriesGe failLv
+  if log.hasEntriesGe outLv then
+    unless showANSIProgress do
       out.putStr header
-    out.putStr "\n"
-    if failed || log.hasVisibleEntries verbosity then
-      let v := if failed then .verbose else verbosity
-      log.replay (logger := MonadLog.stream out v)
-    unless io.isEmpty do
-      out.putStr "stdout/stderr:\n"
-      out.putStr io
+      out.putStr "\n"
+    let outLv := if failed then .trace else outLv
+    log.replay (logger := MonadLog.stream out outLv)
     out.flush
   let failures := if failed then #[caption] else #[]
+  -- Job Monitor
   let jobs ← ctx.registeredJobs.get
-  let numJobs := jobs.size
-  let failures ← numJobs.foldM (init := failures) fun i s => Prod.snd <$> StateT.run (s := s) do
-    let (caption, job) := jobs[i]!
-    let header := s!"[{i+1}/{numJobs}] {caption}"
-    if showProgress then
-      out.putStr header; out.flush
-    let log := (← job.wait).state
-    let failed := log.any (·.level ≥ failLv)
-    if failed then modify (·.push caption)
-    if !(failed || log.hasVisibleEntries verbosity) then
-      if showProgress then
-        if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
-    else
-      unless showProgress do
-        out.putStr header
-      out.putStr "\n"
-      let v := if failed then .verbose else verbosity
-      log.replay (logger := MonadLog.stream out v)
-      out.flush
+  let resetCtrl := if showANSIProgress then "\x1B[2K\r" else ""
+  let failures ← monitorJobs jobs out failLv outLv showANSIProgress
+    (resetCtrl := resetCtrl) (initFailures := failures)
+  -- Failure Report
   if failures.isEmpty then
     let some a := a?
-      | error "build failed"
+      | error "top-level build failed"
+    if showProgress then
+      out.putStr s!"All builds jobs completed successfully.\n"
     return a
   else
     out.putStr "Some build steps logged failures:\n"

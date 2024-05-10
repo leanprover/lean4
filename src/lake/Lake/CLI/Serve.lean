@@ -36,10 +36,12 @@ def setupFile
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
-    let ws ← MainM.runLogIO (loadWorkspace loadConfig) verbosity
+    let ws ← MainM.runLogIO (minLv := verbosity.minLogLevel) do
+      loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (ws.runBuild (buildImportsAndDeps path imports) buildConfig) verbosity
+    let dynlibs ← MainM.runLogIO (minLv := verbosity.minLogLevel) do
+      ws.runBuild (buildImportsAndDeps path imports) buildConfig
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath

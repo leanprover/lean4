@@ -98,7 +98,7 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   main.run
 
 instance : MonadLift LogIO CliStateM :=
-  ⟨fun x => do MainM.runLogIO x (← get).verbosity⟩
+  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLevel⟩
 
 /-! ## Argument Parsing -/
 

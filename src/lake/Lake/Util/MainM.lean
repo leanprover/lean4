@@ -76,7 +76,7 @@ instance : MonadLog MainM := MonadLog.stderr
 instance : MonadError MainM := ⟨MainM.error⟩
 instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 
-@[inline] def runLogIO (x : LogIO α) (verbosity := Verbosity.normal) : MainM α :=
-  x.replayLog (logger := MonadLog.stderr verbosity)
+@[inline] def runLogIO (x : LogIO α) (minLv := LogLevel.info) : MainM α :=
+  x.replayLog (logger := MonadLog.stderr minLv)
 
 instance : MonadLift LogIO MainM := ⟨runLogIO⟩

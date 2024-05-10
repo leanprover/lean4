@@ -3,7 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Index
+import Lake.Build.Module
 
 /-!
 Definitions to support `lake setup-file` builds.
@@ -11,26 +11,6 @@ Definitions to support `lake setup-file` builds.
 
 open System
 namespace Lake
-
-/--
-Recursively build a set of imported modules and return their build jobs,
-the build jobs of their precompiled modules and the build jobs of said modules'
-external libraries.
--/
-def recBuildImports (imports : Array Module)
-: FetchM (Array (BuildJob Unit) × Array (BuildJob Dynlib) × Array (BuildJob Dynlib)) := do
-  let mut modJobs := #[]
-  let mut precompileImports := OrdModuleSet.empty
-  for mod in imports do
-    if mod.shouldPrecompile then
-      precompileImports := precompileImports.appendArray (← mod.transImports.fetch) |>.insert mod
-    else
-      precompileImports := precompileImports.appendArray (← mod.precompileImports.fetch)
-    modJobs := modJobs.push <| ← mod.leanArts.fetch
-  let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
-  let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.dynlib.fetch))
-  let precompileJobs ← precompileImports.toArray.mapM (·.dynlib.fetch)
-  return (modJobs, precompileJobs, externJobs)
 
 /--
 Builds an `Array` of module imports for a Lean file.
@@ -45,11 +25,13 @@ def buildImportsAndDeps (leanFile : FilePath) (imports : Array Module) : FetchM 
     (← getRootPackage).extraDep.fetch <&> (·.map fun _ => #[])
   else
     -- build local imports from list
-    let (modJobs, precompileJobs, externLibJobs) ←
-      recBuildImports imports
-    let modJob ← BuildJob.mixArray modJobs
-    let precompileJob ← BuildJob.collectArray precompileJobs
-    let externLibJob ← BuildJob.collectArray externLibJobs
+    let modJob ← BuildJob.mixArray <| ← imports.mapM (·.olean.fetch)
+    let precompileImports ← computePrecompileImportsAux leanFile imports
+    let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
+    let externLibJob ← BuildJob.collectArray <| ←
+      pkgs.concatMapM (·.externLibs.mapM (·.dynlib.fetch))
+    let precompileJob ← BuildJob.collectArray <| ←
+      precompileImports.mapM (·.dynlib.fetch)
     let job ←
       modJob.bindAsync fun _ modTrace =>
       precompileJob.bindAsync fun modLibs modLibTrace =>

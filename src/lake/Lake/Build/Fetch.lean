@@ -73,18 +73,18 @@ abbrev FetchM := IndexT RecBuildM
 export BuildInfo (fetch)
 
 /-- Register the produced job for the CLI progress UI.  -/
-@[inline] def withRegisterJob
+def withRegisterJob
   (caption : String) (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack ctx log store => do
-  let iniSz := log.size
-  match (← (withLoggedIO <| x fetch stack ctx) log store) with
+  let iniPos := log.endPos
+  match (← (withLoggedIO x) fetch stack ctx log store) with
   | (.ok job log, store) =>
-    let (log, jobLog) := log.split iniSz
+    let (log, jobLog) := log.split iniPos
     let regJob := job.mapResult (discard <| ·.modifyState (jobLog ++  ·))
     ctx.registeredJobs.modify (·.push (caption, regJob))
     return (.ok job.clearLog log, store)
   | (.error _ log, store) =>
-    let (log, jobLog) := log.split iniSz
+    let (log, jobLog) := log.split iniPos
     let regJob := ⟨Task.pure <| .error 0 jobLog⟩
     ctx.registeredJobs.modify (·.push (caption, regJob))
     return (.ok .error log, store)

@@ -45,12 +45,12 @@ instance : Functor Job where map := Job.map
 
 @[inline] def attempt (self : Job α) : Job Bool :=
   self.mapResult (sync := true) fun
-  | .error n l => .ok false (l.shrink n)
+  | .error n l => .ok false (l.dropFrom n)
   | .ok _ l => .ok true l
 
 @[inline] def attempt? (self : Job α) : Job (Option α) :=
   self.mapResult (sync := true) fun
-  | .error n l => .ok none (l.shrink n)
+  | .error n l => .ok none (l.dropFrom n)
   | .ok a l => .ok (some a) l
 
 /-- Spawn a job that asynchronously performs `act`. -/
@@ -105,7 +105,7 @@ after the job `a` completes and then merges into the job produced by `b`.
       if l.isEmpty then return job.task else
       return job.task.map (prio := prio) (sync := true) fun
       | EResult.ok a l' => .ok a (l ++ l')
-      | EResult.error n l' => .error (l.size + n) (l ++ l')
+      | EResult.error n l' => .error ⟨l.size + n.val⟩ (l ++ l')
     | .error n l => return Task.pure (.error n l)
 
 /--

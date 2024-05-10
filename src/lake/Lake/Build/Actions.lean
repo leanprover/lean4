@@ -41,7 +41,7 @@ def compileLeanModule
     args := args.push s!"--load-dynlib={dynlib}"
   args := args.push "--json"
   show LogIO _ from do
-  let iniSz ← getLogSize
+  withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
@@ -66,8 +66,7 @@ def compileLeanModule
   unless out.stderr.isEmpty do
     logInfo s!"stderr:\n{out.stderr}"
   if out.exitCode ≠ 0 then
-    logError s!"Lean exited with code {out.exitCode}"
-    throw iniSz
+    error s!"Lean exited with code {out.exitCode}"
 
 def compileO
   (oFile srcFile : FilePath)

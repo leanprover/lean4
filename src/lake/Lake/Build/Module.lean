@@ -41,35 +41,48 @@ def Module.recParseImports (mod : Module) : FetchM (Array Module) := do
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetConfig (·.recParseImports)
 
-@[inline] def Module.recCollectImportsCore
-  (f : Module → FetchM (Bool × Array Module)) (mod : Module)
+@[inline] def collectImportsAux
+  (leanFile : FilePath) (imports : Array Module)
+  (f : Module → FetchM (Bool × Array Module))
 : FetchM (Array Module) := do
-  let directImports ← mod.imports.fetch
-  (·.toArray) <$> directImports.foldlM (init := OrdModuleSet.empty) fun set imp => do
+  withLogErrorPos do
+  let mut didError := false
+  let mut importSet := OrdModuleSet.empty
+  for imp in imports do
     try
       let (includeSelf, transImps) ← f imp
-      let set := set.appendArray transImps
-      return if includeSelf then set.insert imp else set
-    catch n =>
-      modifyThe Log (·.shrink n)
-      logError s!"{mod.leanFile}: bad import '{imp.name}'"
-      return set
+      importSet := importSet.appendArray transImps
+      if includeSelf then importSet := importSet.insert imp
+    catch errPos =>
+      dropLogFrom errPos
+      logError s!"{leanFile}: bad import '{imp.name}'"
+      didError := true
+  if didError then
+    failure
+  else
+    return importSet.toArray
 
 /-- Recursively compute a module's transitive imports. -/
 def Module.recComputeTransImports (mod : Module) : FetchM (Array Module) := do
-  mod.recCollectImportsCore fun imp => (true, ·) <$> imp.transImports.fetch
+  collectImportsAux mod.leanFile (← mod.imports.fetch) fun imp =>
+    (true, ·) <$> imp.transImports.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
   mkFacetConfig (·.recComputeTransImports)
 
-/-- Recursively compute a module's precompiled imports. -/
-def Module.recComputePrecompileImports (mod : Module) : FetchM (Array Module) := do
-  mod.recCollectImportsCore fun imp =>
+@[inline] def computePrecompileImportsAux
+  (leanFile : FilePath) (imports : Array Module)
+: FetchM (Array Module) := do
+  collectImportsAux leanFile imports fun imp =>
     if imp.shouldPrecompile then
       (true, ·) <$> imp.transImports.fetch
     else
       (false, ·) <$> imp.precompileImports.fetch
+
+/-- Recursively compute a module's precompiled imports. -/
+def Module.recComputePrecompileImports (mod : Module) : FetchM (Array Module) := do
+  computePrecompileImportsAux mod.leanFile (← mod.imports.fetch)
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
@@ -84,18 +97,23 @@ Recursively build a module's dependencies, including:
 def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array FilePath)) := do
   let extraDepJob ← mod.lib.extraDep.fetch
 
-  let (precompileImports, directImports) ←
-    try
-      pure (← mod.precompileImports.fetch, ← mod.imports.fetch)
-    catch n =>
-      return Job.error <| ← modifyGetThe Log fun log =>
-        match log.split n with | (s,e) => (e,s)
-
+  /-
+  Remark: We must build direct imports before we fetch the transitive
+  precompiled imports so that errors in the import block of transitive imports
+  will not kill this job before the direct imports are built.
+  -/
+  let directImports ← try mod.imports.fetch
+    catch errPos => return Job.error (← takeLogFrom errPos)
+  let importJob ← BuildJob.mixArray <| ← directImports.mapM fun imp => do
+    if imp.name = mod.name then
+      logError s!"{mod.leanFile}: module imports itself"
+    imp.olean.fetch
+  let precompileImports ← try mod.precompileImports.fetch
+    catch errPos => return Job.error (← takeLogFrom errPos)
   let modJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
-  let importJob ← BuildJob.mixArray <| ← directImports.mapM (·.olean.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 

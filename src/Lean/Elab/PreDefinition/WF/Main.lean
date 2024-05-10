@@ -151,7 +151,7 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
     -- Unless the user asks for something else, mark the definition as irreducible
     unless preDef.modifiers.attrs.any fun a =>
-      a.name = `semireducible || a.name = `reducible || a.name = `semireducible do
+      a.name = `reducible || a.name = `semireducible do
       setIrreducibleAttribute preDef.declName
 
 builtin_initialize registerTraceClass `Elab.definition.wf

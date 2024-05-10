@@ -11,6 +11,9 @@ import Init.ByCases
 import Init.Conv
 import Init.Omega
 
+-- Remove after the next stage0 update
+set_option allowUnsafeReducibility true
+
 namespace Fin
 
 /-- If you actually have an element of `Fin n`, then the `n` is always positive -/
@@ -205,6 +208,7 @@ theorem val_add_one {n : Nat} (i : Fin (n + 1)) :
   | .inl h => cases Fin.eq_of_val_eq h; simp
   | .inr h => simpa [Fin.ne_of_lt h] using val_add_one_of_lt h
 
+unseal Nat.modCore in
 @[simp] theorem val_two {n : Nat} : (2 : Fin (n + 3)).val = 2 := rfl
 
 theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) < i + 1 := by
@@ -239,6 +243,7 @@ theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
 
 @[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
 
+unseal Nat.modCore in
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
 @[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
 
@@ -390,6 +395,7 @@ theorem castSucc_lt_last (a : Fin n) : castSucc a < last n := a.is_lt
 
 @[simp] theorem castSucc_zero : castSucc (0 : Fin (n + 1)) = 0 := rfl
 
+unseal Nat.modCore in
 @[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := rfl
 
 /-- `castSucc i` is positive when `i` is positive -/

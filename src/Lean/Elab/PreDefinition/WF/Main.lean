@@ -132,12 +132,15 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
       return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
-    addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-  else
-    withEnableInfoTree false do
+  -- Do not complain if the user sets @[semireducible], which usually is a noop,
+  -- we recognize that below and then do not set @[irreducible]
+  withOptions (allowUnsafeReducibility.set · true) do
+    if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-    addNonRecPreDefs fixedPrefixSize argsPacker preDefs preDefNonRec
+    else
+      withEnableInfoTree false do
+        addNonRec preDefNonRec (applyAttrAfterCompilation := false)
+      addNonRecPreDefs fixedPrefixSize argsPacker preDefs preDefNonRec
   -- We create the `_unsafe_rec` before we abstract nested proofs.
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
@@ -146,6 +149,10 @@ def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     markAsRecursive preDef.declName
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    -- Unless the user asks for something else, mark the definition as irreducible
+    unless preDef.modifiers.attrs.any fun a =>
+      a.name = `semireducible || a.name = `reducible || a.name = `semireducible do
+      setIrreducibleAttribute preDef.declName
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

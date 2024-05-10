@@ -245,6 +245,12 @@ theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
   have _jlt := j.isLt
   split <;> split <;> omega
 
+theorem toInt_inj (x y : BitVec n) : x.toInt = y.toInt ↔ x = y :=
+  Iff.intro eq_of_toInt_eq (congrArg BitVec.toInt)
+
+theorem toInt_ne (x y : BitVec n) : x.toInt ≠ y.toInt ↔ x ≠ y  := by
+  rw [Ne, toInt_inj]
+
 @[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
   unfold BitVec.ofInt

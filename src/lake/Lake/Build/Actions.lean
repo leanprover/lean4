@@ -40,7 +40,6 @@ def compileLeanModule
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
   args := args.push "--json"
-  show LogIO _ from do
   withLogErrorPos do
   let out ← rawProc {
     args

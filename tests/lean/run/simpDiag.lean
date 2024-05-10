@@ -35,8 +35,8 @@ info: [simp] used theorems (max: 1201, num: 3):
   ⏎
   Nat.reduceAdd (builtin simproc) ↦ 771
   ⏎
-  ack.eq_1 ↦ 768[simp] tried theorems (max: 1974, num: 2):
-    ack.eq_3 ↦ 1974, succeeded: 1201
+  ack.eq_1 ↦ 768[simp] tried theorems (max: 1973, num: 2):
+    ack.eq_3 ↦ 1973, succeeded: 1201
   ⏎
   ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---

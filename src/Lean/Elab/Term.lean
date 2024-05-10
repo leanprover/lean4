@@ -1523,7 +1523,8 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   let flag := autoImplicit.get (← getOptions)
   if flag then
     withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
-      let rec loop (s : SavedState) : TermElabM α := do
+      let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
+        checkSystem "auto-implicit"
         try
           k
         catch

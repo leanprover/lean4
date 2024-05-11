@@ -90,6 +90,11 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
+def ensureFunIndReservedNamesAvailable (preDefs : Array PreDefinition) : MetaM Unit := do
+  preDefs.forM fun preDef =>
+    withRef preDef.ref <| ensureReservedNameAvailable preDef.declName "induct"
+  withRef preDefs[0]!.ref <| ensureReservedNameAvailable preDefs[0]!.declName "mutual_induct"
+
 def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
@@ -121,6 +126,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       addAndCompilePartial preDefs
       preDefs.forM (·.termination.ensureNone "partial")
     else
+      ensureFunIndReservedNamesAvailable preDefs
       try
         let hasHints := preDefs.any fun preDef => preDef.termination.isNotNone
         if hasHints then

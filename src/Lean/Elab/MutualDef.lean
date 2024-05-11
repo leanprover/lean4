@@ -162,7 +162,9 @@ private def elabHeaders (views : Array DefView)
           reuseBody := reuseBody &&
             view.value.structRangeEqWithTraceReuse (← getOptions) old.bodyStx
           let header := { old.view, view with
-            tacSnap? := some {
+            -- We should only forward the promise if we are actually waiting on the corresponding
+            -- task; otherwise, diagnostics assigned to it will be lost
+            tacSnap? := guard newTacTask?.isSome *> some {
               old? := do
                 guard reuseTac
                 some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
@@ -228,7 +230,9 @@ private def elabHeaders (views : Array DefView)
                 bodySnap := mkBodyTask view.value bodyPromise
               }
               newHeader := { newHeader with
-                tacSnap? := some { old? := none, new := tacPromise }
+                -- We should only forward the promise if we are actually waiting on the
+                -- corresponding task; otherwise, diagnostics assigned to it will be lost
+                tacSnap? := guard newTacTask?.isSome *> some { old? := none, new := tacPromise }
                 bodySnap? := some { old? := none, new := bodyPromise }
               }
             check headers newHeader

@@ -87,8 +87,9 @@ partial def main (args : List String) : IO Unit := do
     for text in text.splitOn "-- RESET" do
       Ipc.writeNotification ⟨"textDocument/didOpen", {
         textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
-      let _ ← Ipc.collectDiagnostics requestNo uri 1
+      let initialDiags ← Ipc.collectDiagnostics requestNo uri 1
       requestNo := requestNo + 1
+      let initialRequestNo := requestNo
       let mut lineNo := 0
       let mut lastActualLineNo := 0
       let mut versionNo : Nat := 2
@@ -139,7 +140,9 @@ partial def main (args : List String) : IO Unit := do
             requestNo := requestNo + 1
             versionNo := versionNo + 1
           | "collectDiagnostics" =>
-            if let some diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
+            if let some diags ←
+                if requestNo = initialRequestNo then pure initialDiags
+                else Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
               IO.eprintln (toJson diags.param)
             requestNo := requestNo + 1
           | "sync" =>  -- wait for processing but do not print diagnostics

@@ -36,3 +36,10 @@ def haveBug : True := by
 -- RESET
 def partialSyntax : True := by apply (
 --^ collectDiagnostics
+
+/-! A tactic block not supported by incrementality should not accidentally swallow messages. -/
+-- RESET
+def otherMessage : Nat × Nat where
+  fst := no
+  snd := by skip
+--^ collectDiagnostics

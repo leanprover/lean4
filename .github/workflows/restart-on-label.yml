@@ -12,7 +12,7 @@ jobs:
     - run: |
         # Finding latest Ci workflow run on pull request
         # (unfortunately cannot search by PR number, only base branch)
-        run_id=$(gh run list -e pull_request -b "$base_branch" --workflow 'CI' --limit 1 \
+        run_id=$(gh run list -e pull_request -b "$head_ref" --workflow 'CI' --limit 1 \
           --limit 1 --json databaseId --jq '.[0].databaseId')
         echo "Run id: ${run_id}"
         gh run view "$run_id"
@@ -24,6 +24,6 @@ jobs:
         gh run rerun "$run_id"
       shell: bash
       env:
-        base_branch: ${{ github.head_ref }}
+        head_ref: ${{ github.head_ref }}
         GH_TOKEN: ${{ github.token }}
         GH_REPO: ${{ github.repository }}

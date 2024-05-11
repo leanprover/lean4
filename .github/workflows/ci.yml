@@ -46,7 +46,7 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == 'pull_request' ]
           then
-            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci")')" >> "$GITHUB_OUTPUT"
+            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci") | not')" >> "$GITHUB_OUTPUT"
           else
             echo "quick=false" >> "$GITHUB_OUTPUT"
           fi

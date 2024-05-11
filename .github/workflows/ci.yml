@@ -40,10 +40,9 @@ jobs:
     steps:
       - name: Run quick CI?
         id: set-quick
-        env:
-          quick: ${{
-            github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
-           }}
+        # We do not use github.event.pull_request.labels.*.name here because
+        # re-running a run does not update that list, and we do want to be able to
+        # rerun the workflow run after settings the `full-ci` label.
         run: |
           if [ "${{ github.event_name }}" == 'pull_request' ]
           then
@@ -51,6 +50,8 @@ jobs:
           else
             echo "quick=false" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Configure build matrix
         id: set-matrix

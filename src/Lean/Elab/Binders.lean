@@ -211,8 +211,9 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       let id := binderView.id.getId
       let kind := kindOfBinderName id
       withLocalDecl id binderView.bi type (kind := kind) fun fvar => do
-        addLocalVarInfo binderView.ref fvar
-        loop (i+1) (fvars.push (binderView.id, fvar))
+        withSaveInfoContext do
+          addLocalVarInfo binderView.ref fvar
+          loop (i+1) (fvars.push (binderView.id, fvar))
     else
       k fvars
   loop 0 fvars

@@ -244,8 +244,16 @@ protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m �
     -- should never be visible to users!
     throw <| Exception.error .missing "elaboration interrupted"
 
+register_builtin_option debug.moduleNameAtTimeout : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
+}
+
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let msg := s!"(deterministic) timeout at `{moduleName}`, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
+  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
+  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do

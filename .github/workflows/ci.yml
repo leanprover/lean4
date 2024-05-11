@@ -45,7 +45,12 @@ jobs:
             github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
            }}
         run: |
-          echo "quick=${{env.quick}}" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" == 'pull_request' ]
+          then
+            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci")')" >> "$GITHUB_OUTPUT"
+          else
+            echo "quick=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Configure build matrix
         id: set-matrix

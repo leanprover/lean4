@@ -1904,8 +1904,8 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
 -/
 private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   if (← getTransparency) != .instances then return .undef
-  let t? ← unfoldProjInstWhenIntances? t
-  let s? ← unfoldProjInstWhenIntances? s
+  let t? ← unfoldProjInstWhenInstances? t
+  let s? ← unfoldProjInstWhenInstances? s
   if t?.isSome || s?.isSome then
     toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
   else

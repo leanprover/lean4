@@ -60,20 +60,6 @@ where
     | some e' => return Simp.Step.done { expr := e' }
     | none    => Simp.simpMatchCore app.matcherName e
 
-/--
-  Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
-  where `f` is a constant named `declName`, and `n = info.fixedPrefixSize`.
--/
-private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := mvarId.withContext do
-  let target ← mvarId.getType'
-  let some (_, lhs, _) := target.eq? | unreachable!
-  let lhsArgs := lhs.getAppArgs
-  if lhsArgs.size < info.fixedPrefixSize || !lhs.getAppFn matches .const .. then
-    throwError "failed to generate equational theorem for '{declName}', unexpected number of arguments in the equation left-hand-side\n{mvarId}"
-  let result := lhsArgs[:info.fixedPrefixSize]
-  trace[Elab.definition.wf.eqns] "fixedPrefix: {result}"
-  return (lhs.getAppFn.constLevels!, result)
-
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.wf.eqns] "proving: {type}"
   withNewMCtxDepth do

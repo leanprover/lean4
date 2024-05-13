@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
+import Init.Data.Array.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -71,7 +72,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
         return ()
       else if (← tryContradiction mvarId) then
         return ()
-      else if let some mvarId ← simpMatchWF? mvarId then
+      else if let some mvarId ← simpMatch? mvarId then
         go mvarId
       else if let some mvarId ← simpIf? mvarId then
         go mvarId

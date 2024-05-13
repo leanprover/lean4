@@ -683,13 +683,15 @@ def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos)
   off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos) :=
-    if h : off1.byteIdx < stop1.byteIdx then
+    if _h : off1.byteIdx < stop1.byteIdx then
       let c₁ := s1.get off1
       let c₂ := s2.get off2
-      have := Nat.sub_lt_sub_left h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
   termination_by stop1.1 - off1.1
+  decreasing_by
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
+    decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=

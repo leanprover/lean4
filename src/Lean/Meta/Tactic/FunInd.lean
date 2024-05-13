@@ -513,7 +513,7 @@ Like `mkLambdaFVars (usedOnly := true)`, but
 The result `r` can be applied with `r.beta (maskArray mask args)`.
 
 We use this when generating the functional induction principle to refine the goal through a `match`,
-here `xs` are the discriminans of the `match`.
+here `xs` are the discriminants of the `match`.
 We do not expect non-trivial discriminants to appear in the goal (and if they do, the user will
 get a helpful equality into the context).
 -/

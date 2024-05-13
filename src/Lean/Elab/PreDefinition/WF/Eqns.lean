@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
+import Init.Data.Array.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -39,41 +40,6 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
-/--
-  Simplify `match`-expressions when trying to prove equation theorems for a recursive declaration defined using well-founded recursion.
-  It is similar to `simpMatch?`, but is also tries to fold `WellFounded.fix` applications occurring in discriminants.
-  See comment at `tryToFoldWellFoundedFix`.
--/
-def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
-  mvarId.withContext do
-    let target ← instantiateMVars (← mvarId.getType)
-    let discharge? ← mvarId.withContext do SplitIf.mkDischarge?
-    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? })
-    let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
-    if mvarId != mvarIdNew then return some mvarIdNew else return none
-where
-  pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e
-      | return Simp.Step.continue
-    -- First try to reduce matcher
-    match (← reduceRecMatcher? e) with
-    | some e' => return Simp.Step.done { expr := e' }
-    | none    => Simp.simpMatchCore app.matcherName e
-
-/--
-  Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
-  where `f` is a constant named `declName`, and `n = info.fixedPrefixSize`.
--/
-private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := mvarId.withContext do
-  let target ← mvarId.getType'
-  let some (_, lhs, _) := target.eq? | unreachable!
-  let lhsArgs := lhs.getAppArgs
-  if lhsArgs.size < info.fixedPrefixSize || !lhs.getAppFn matches .const .. then
-    throwError "failed to generate equational theorem for '{declName}', unexpected number of arguments in the equation left-hand-side\n{mvarId}"
-  let result := lhsArgs[:info.fixedPrefixSize]
-  trace[Elab.definition.wf.eqns] "fixedPrefix: {result}"
-  return (lhs.getAppFn.constLevels!, result)
-
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.wf.eqns] "proving: {type}"
   withNewMCtxDepth do
@@ -85,7 +51,7 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
         return ()
       else if (← tryContradiction mvarId) then
         return ()
-      else if let some mvarId ← simpMatchWF? mvarId then
+      else if let some mvarId ← simpMatch? mvarId then
         go mvarId
       else if let some mvarId ← simpIf? mvarId then
         go mvarId

@@ -608,7 +608,7 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     (shiftLeftZeroExtend x i).msb = x.msb := by
   simp [shiftLeftZeroExtend_eq, BitVec.msb]
 
-theorem BitVec.shiftLeft_shiftLeft (w : Nat) (x : BitVec w) (n m : Nat) :
+theorem BitVec.shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
     (x <<< n) <<< m = x <<< (n + m) := by
   ext i
   simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]

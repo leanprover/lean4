@@ -49,7 +49,7 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig Package.recBuildExtraDepTargets
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchRelease (self : Package) : SpawnM (BuildJob Unit) :=
+def Package.fetchRelease (self : Package) : FetchM (BuildJob Unit) :=
   withRegisterJob s!"Fetching {self.name} cloud release" <| Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?

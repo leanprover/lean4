@@ -210,8 +210,44 @@ def sleep (ms : UInt32) : BaseIO Unit :=
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
 @[extern "lean_io_cancel"] opaque cancel : @& Task α → BaseIO Unit
 
+/-- The current state of a `Task` in the Lean runtime's task manager. -/
+inductive TaskState
+  /--
+  The `Task` is waiting to be run.
+  It can be waiting for dependencies to complete or
+  sitting in the task manager queue waiting for a thread to run on.
+  -/
+  | waiting
+  /--
+  The `Task` is actively running on a thread or,
+  in the case of a `Promise`, waiting for a call to `IO.Promise.resolve`.
+  -/
+  | running
+  /--
+  The `Task` has finished running and its result is available.
+  Calling `Task.get` or `IO.wait` on the task will not block.
+  -/
+  | finished
+  deriving Inhabited, Repr, DecidableEq, Ord
+
+instance : LT TaskState := ltOfOrd
+instance : LE TaskState := leOfOrd
+instance : Min TaskState := minOfLe
+instance : Max TaskState := maxOfLe
+
+protected def TaskState.toString : TaskState → String
+  | .waiting => "waiting"
+  | .running => "running"
+  | .finished => "finished"
+
+instance : ToString TaskState := ⟨TaskState.toString⟩
+
+/-- Returns current state of the `Task` in the Lean runtime's task manager. -/
+@[extern "lean_io_get_task_state"] opaque getTaskState : @& Task α → BaseIO TaskState
+
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] opaque hasFinished : @& Task α → BaseIO Bool
+@[inline] def hasFinished (task : Task α) : BaseIO Bool := do
+  return (← getTaskState task) matches .finished
 
 /-- Wait for the task to finish, then return its result. -/
 @[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=

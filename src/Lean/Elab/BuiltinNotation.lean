@@ -205,7 +205,7 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   | _                                        => Macro.throwUnsupported
 
 @[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(sorryAx _ false)
+  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auot params
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/

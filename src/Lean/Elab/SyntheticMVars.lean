@@ -340,26 +340,26 @@ mutual
     Regarding issue #1380, we addressed the issue by avoiding the elaboration postponement step. However, the same issue can happen
     in more complicated scenarios.
     -/
-    try
-      let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-        withTacticInfoContext tacticCode do
-          -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
-          -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
-          withTacticInfoContext tacticCode[0] do
-            evalTactic code
-        synthesizeSyntheticMVars (postpone := .no)
-      unless remainingGoals.isEmpty do
-        if report then
-          reportUnsolvedGoals remainingGoals
+    tryCatchRuntimeEx
+      (do let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
+            withTacticInfoContext tacticCode do
+              -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
+              -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
+              withTacticInfoContext tacticCode[0] do
+                evalTactic code
+            synthesizeSyntheticMVars (postpone := .no)
+          unless remainingGoals.isEmpty do
+            if report then
+              reportUnsolvedGoals remainingGoals
+            else
+              throwError "unsolved goals\n{goalsToMessageData remainingGoals}")
+      fun ex => do
+        if report && (← read).errToSorry then
+          for mvarId in (← getMVars (mkMVar mvarId)) do
+            mvarId.admit
+          logException ex
         else
-          throwError "unsolved goals\n{goalsToMessageData remainingGoals}"
-    catch ex =>
-      if report && (← read).errToSorry then
-        for mvarId in (← getMVars (mkMVar mvarId)) do
-          mvarId.admit
-        logException ex
-      else
-        throw ex
+          throw ex
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
   private partial def synthesizeSyntheticMVar (mvarId : MVarId) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do

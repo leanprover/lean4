@@ -231,15 +231,15 @@ def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   /- Important: we must define `closeUsingOrAdmit` before we define
      the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages. -/
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  try
-    focusAndDone tac
-  catch ex =>
-    if (← read).recover then
-      logException ex
-      admitGoal mvarId
-      setGoals mvarIds
-    else
-      throw ex
+  tryCatchRuntimeEx
+    (focusAndDone tac)
+    fun ex => do
+      if (← read).recover then
+        logException ex
+        admitGoal mvarId
+        setGoals mvarIds
+      else
+        throw ex
 
 instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState

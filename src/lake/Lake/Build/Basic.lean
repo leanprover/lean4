@@ -33,7 +33,7 @@ structure BuildConfig where
   /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
   useStdout : Bool := false
 
-abbrev JobResult α := EResult Nat Log α
+abbrev JobResult α := ELogResult α
 abbrev JobTask α := BaseIOTask (JobResult α)
 
 /-- A Lake job. -/
@@ -51,11 +51,14 @@ abbrev BuildT := ReaderT BuildContext
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 
+@[inline] def getBuildContext [Monad m] : BuildT m BuildContext :=
+  readThe BuildContext
+
 @[inline] def getLeanTrace [Monad m] : BuildT m BuildTrace :=
-  (·.leanTrace) <$> readThe BuildContext
+  (·.leanTrace) <$> getBuildContext
 
 @[inline] def getBuildConfig [Monad m] : BuildT m BuildConfig :=
-  (·.toBuildConfig) <$> readThe BuildContext
+  (·.toBuildConfig) <$> getBuildContext
 
 @[inline] def getIsOldMode [Monad m] : BuildT m Bool :=
   (·.oldMode) <$> getBuildConfig

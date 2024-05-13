@@ -1,9 +1,8 @@
 import Lake
 open Lake DSL
 
-package targets {
+package targets where
   srcDir := "src"
-}
 
 @[default_target]
 lean_lib Foo where
@@ -30,16 +29,16 @@ target caw pkg : Unit := do
   IO.FS.writeFile (pkg.buildDir / "caw.txt") "Caw!"
   return .nil
 
-target bark : Unit := Job.async do
+target bark : Unit := do
   logInfo "Bark!"
-  return ((), .nil)
+  return .nil
 
 target bark_bark : Unit := do
   bark.fetch
 
-package_facet print_name pkg : Unit := do
+package_facet print_name pkg : Unit := Job.async do
   IO.println pkg.name
-  return .nil
+  return ((), .nil)
 
 module_facet get_src mod : FilePath := do
   inputFile mod.leanFile

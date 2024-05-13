@@ -97,12 +97,12 @@ def replayBuildLog (logFile : FilePath) : LogIO PUnit := do
 
 /-- Saves the log produce by `build` as JSON to `logFile`. -/
 def cacheBuildLog (logFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  let iniSz ← getLogSize
-  build
-  let log ← getLog
-  let log := log.entries.extract iniSz log.entries.size
+  let iniPos ← getLogPos
+  let errPos? ← try build; pure none catch errPos => pure (some errPos)
+  let log := (← getLog).takeFrom iniPos
   unless log.isEmpty do
     IO.FS.writeFile logFile (toJson log).pretty
+  if let some errPos := errPos? then throw errPos
 
 /--
 Builds `file` using `build` unless it already exists and `depTrace` matches
@@ -115,8 +115,8 @@ For example, given `file := "foo.c"`, compares `depTrace` with that in
 `foo.c.trace` with the hash cache in `foo.c.hash` and the log cache in
 `foo.c.log.json`.
 -/
-def buildFileUnlessUpToDate (
-  file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
+def buildFileUnlessUpToDate
+  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let logFile := FilePath.mk <| file.toString ++ ".log.json"

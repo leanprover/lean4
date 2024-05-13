@@ -790,6 +790,7 @@ structure State where
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
+  cacheEntries   : Array ((LocalInstances × Expr) × Expr) := #[]
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -1130,20 +1131,16 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   | []      => addAnswer cNode
   | mvar::_ =>
     let waiter := Waiter.consumerNode cNode
-    let key ← mkTableKeyFor cNode.mctx mvar
-    let entry? ← findEntry? key
 
     match ← checkGlobalCache mvar cNode.mctx with
     | some result =>
-      if let some entry := entry? then
-        throwError "entry {key}/{repr key} is in global cache and in the table:
-          table answers: {entry.answers.map (·.result) |>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}
-          cache answer: {result.map (·.result)|>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}"
       if let some answer := result then
         modify fun s =>
         { s with
           resumeStack := s.resumeStack.push (cNode, answer) }
     | none =>
+    let key ← mkTableKeyFor cNode.mctx mvar
+    let entry? ← findEntry? key
     match entry? with
     | none       =>
       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
@@ -1182,6 +1179,14 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
+    unless gNode.typeHasMVars do
+      if let some entry := (← get).tableEntries.find? gNode.key then
+        if h : entry.answers.size > 0 then
+          let answer := entry.answers[0].result
+          if answer.numMVars == 0 then
+            let inst := answer.expr
+            let cacheKey := (← getLocalInstances, gNode.mvarType)
+            modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -1192,13 +1197,18 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          if entry.answers.size > 0 then
+          if h : entry.answers.size > 0 then
             /-
             We already have an answer for this node, and since its type does not have metavariables,
             we can skip other solutions because we assume instances are "morally canonical".
             We have added this optimization to address issue #3996.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
+            let answer := entry.answers[0].result
+            if answer.numMVars == 0 then
+              let inst := answer.expr
+              let cacheKey := (← getLocalInstances, gNode.mvarType)
+              modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
             return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
@@ -1264,13 +1274,16 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
       synth
-    let (result, _) ← tryCatchRuntimeEx
+    let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
       fun ex =>
         if ex.isRuntime then
           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
         else
           throw ex
+    let cache := (← get).cache.synthInstance
+    let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
+    modify fun s => { s with cache.synthInstance := cache}
     return result
 
 end UseGlobalCache
@@ -1353,14 +1366,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    match s.cache.synthInstance.find? (localInsts, type) with
-    | some result =>
-      trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          return none
-      pure result
-    | none        =>
+    let uncached := do
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         let result₁ ← SynthInstance.main normType maxResultSize
@@ -1406,6 +1412,17 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure none
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
       pure result?
+    match s.cache.synthInstance.find? (localInsts, type) with
+    | some result =>
+      trace[Meta.synthInstance] "result {result} (cached)"
+      if let some inst := result then
+        unless (← assignOutParams inst) do
+          throwError "This isn't supposed to be possible: cached instance {inst} for {type} doesn't work"
+      -- let result' ← uncached
+      -- if result' != result then
+      --   throwError "cached {result'} doesn't match with generated {result}"
+      pure result
+    | none        => uncached
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

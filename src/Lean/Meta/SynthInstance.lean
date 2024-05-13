@@ -1130,16 +1130,20 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   | []      => addAnswer cNode
   | mvar::_ =>
     let waiter := Waiter.consumerNode cNode
+    let key ← mkTableKeyFor cNode.mctx mvar
+    let entry? ← findEntry? key
 
     match ← checkGlobalCache mvar cNode.mctx with
     | some result =>
+      if let some entry := entry? then
+        throwError "entry {key}/{repr key} is in global cache and in the table:
+          table answers: {entry.answers.map (·.result) |>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}
+          cache answer: {result.map (·.result)|>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}"
       if let some answer := result then
         modify fun s =>
         { s with
           resumeStack := s.resumeStack.push (cNode, answer) }
     | none =>
-    let key ← mkTableKeyFor cNode.mctx mvar
-    let entry? ← findEntry? key
     match entry? with
     | none       =>
       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
@@ -1256,8 +1260,6 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
-    if let some result ← checkGlobalCache mvar (← getMCtx) then
-      throwError m! "an instance for {type} has been found in the cache when looking for the second time: {result.map (·.result) |>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}"
     let key  ← mkTableKey type
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root

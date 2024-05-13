@@ -40,27 +40,6 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
-/--
-  Simplify `match`-expressions when trying to prove equation theorems for a recursive declaration defined using well-founded recursion.
-  It is similar to `simpMatch?`, but is also tries to fold `WellFounded.fix` applications occurring in discriminants.
-  See comment at `tryToFoldWellFoundedFix`.
--/
-def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
-  mvarId.withContext do
-    let target ← instantiateMVars (← mvarId.getType)
-    let discharge? ← mvarId.withContext do SplitIf.mkDischarge?
-    let (targetNew, _) ← Simp.main target (← Split.getSimpMatchContext) (methods := { pre, discharge? })
-    let mvarIdNew ← applySimpResultToTarget mvarId target targetNew
-    if mvarId != mvarIdNew then return some mvarIdNew else return none
-where
-  pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e
-      | return Simp.Step.continue
-    -- First try to reduce matcher
-    match (← reduceRecMatcher? e) with
-    | some e' => return Simp.Step.done { expr := e' }
-    | none    => Simp.simpMatchCore app.matcherName e
-
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.wf.eqns] "proving: {type}"
   withNewMCtxDepth do

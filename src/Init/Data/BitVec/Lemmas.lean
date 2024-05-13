@@ -612,27 +612,12 @@ theorem BitVec.shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
     (x <<< n) <<< m = x <<< (n + m) := by
   ext i
   simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]
-  -- omega claims that the system cannot be proven, so we case bash.
-  -- The entire proof below should be redundant once omega is complete.
-  rw [Bool.eq_iff_iff]
-  have hgetLsbIndex : i - (n + m) = (i - m - n) := by omega
-  rw [hgetLsbIndex]
-  apply Iff.intro
-  . intro h
-    simp_all only [Bool.and_eq_true, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt,
-      decide_eq_true_eq]
-    rcases h with ⟨h₁, h₂, _⟩
-    constructor
-    . omega
-    . trivial
-  . intro h
-    simp_all only [Bool.and_eq_true, Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt,
-      decide_eq_true_eq]
-    rcases h with ⟨h₁, h₂⟩
-    constructor
-    . omega
-    . simp only [h₂, and_true]
-      omega
+  rw [show i - (n + m) = (i - m - n) by omega]
+  cases h₂ : decide (i < m) <;>
+  cases h₃ : decide (i - m < w) <;>
+  cases h₄ : decide (i - m < n) <;>
+  cases h₅ : decide (i < n + m) <;>
+    simp at * <;> omega
 
 /-! ### ushiftRight -/
 

@@ -1225,6 +1225,40 @@ def generate : SynthM Unit := do
         return some ()
       return none
 
+/-- Try the next instance in the node on the top of the generator stack. -/
+partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
+  if gNode.currInstanceIdx == 0 then
+    unless gNode.typeHasMVars do
+      if let some entry := (← get).tableEntries.find? gNode.key then
+        if h : entry.answers.size > 0 then
+          let answer := entry.answers[0].result
+          if answer.numMVars == 0 then
+            let inst := answer.expr
+            let cacheKey := (← getLocalInstances, gNode.mvarType)
+            modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+            return
+      throwError m! "generator node {gNode.mvarType} can't be closed"
+  else
+    let key  := gNode.key
+    /- See comment at `typeHasMVars` -/
+    if backward.synthInstance.canonInstances.get (← getOptions) then
+      unless gNode.typeHasMVars do
+        if let some entry := (← get).tableEntries.find? key then
+          if h : entry.answers.size > 0 then
+            /-
+            We already have an answer for this node, and since its type does not have metavariables,
+            we can skip other solutions because we assume instances are "morally canonical".
+            We have added this optimization to address issue #3996.
+            -/
+            let answer := entry.answers[0].result
+            if answer.numMVars == 0 then
+              let inst := answer.expr
+              let cacheKey := (← getLocalInstances, gNode.mvarType)
+              modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+              return
+            else
+              throwError "this answer {answer |> fun ⟨a,b,c⟩ => (a,b,c)} shouldn't have any mvars"
+        throwError m! "generator node {gNode.mvarType} can't be found"
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
   let r := (← get).resumeStack.back
   modify fun s => { s with resumeStack := s.resumeStack.pop }
@@ -1269,7 +1303,9 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
     | none        => synth
-    | some result => return result
+    | some result =>
+      (← get).generatorStack.forM closeGenerator
+      return result
   else
     return none
 

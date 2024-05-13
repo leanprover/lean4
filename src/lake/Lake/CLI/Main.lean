@@ -413,7 +413,7 @@ protected def lean : CliM PUnit := do
   let ws ← loadWorkspace (← mkLoadConfig opts)
   let imports ← Lean.parseImports' (← IO.FS.readFile leanFile) leanFile
   let imports := imports.filterMap (ws.findModule? ·.module)
-  let dynlibs ← ws.runBuild (buildImportsAndDeps imports) (mkBuildConfig opts)
+  let dynlibs ← ws.runBuild (buildImportsAndDeps leanFile imports) (mkBuildConfig opts)
   let spawnArgs := {
     args :=
       #[leanFile] ++ dynlibs.map (s!"--load-dynlib={·}") ++

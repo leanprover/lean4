@@ -39,7 +39,7 @@ def setupFile
     let ws ← MainM.runLogIO (loadWorkspace loadConfig) verbosity
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (ws.runBuild (buildImportsAndDeps imports) buildConfig) verbosity
+    let dynlibs ← MainM.runLogIO (ws.runBuild (buildImportsAndDeps path imports) buildConfig) verbosity
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath

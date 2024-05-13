@@ -23,21 +23,18 @@ def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
     log s!"stderr:\n{out.stderr}"
 
 @[inline] def rawProc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO IO.Process.Output := do
-  let iniSz ← getLogSize
+  withLogErrorPos do
   unless quiet do logVerbose (mkCmdLog args)
   match (← IO.Process.output args |>.toBaseIO) with
   | .ok out => return out
-  | .error err =>
-    logError s!"failed to execute '{args.cmd}': {err}"
-    throw iniSz
+  | .error err => error s!"failed to execute '{args.cmd}': {err}"
 
 def proc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO Unit := do
-  let iniSz ← getLogSize
+  withLogErrorPos do
   let out ← rawProc args
   logOutput out (if quiet then logVerbose else logInfo)
   if out.exitCode ≠ 0 then
-    logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
-    throw iniSz
+    error s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
 def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
   let out ← rawProc args (quiet := true)

@@ -20,6 +20,11 @@ syntax buildDeclSig :=
 /-! ## Facet Declarations                                                      -/
 --------------------------------------------------------------------------------
 
+@[inline] def mkModuleFacetJob
+  (mod : Module) (facet : Name) (f : Module → FetchM (BuildJob α))
+: FetchM (BuildJob α) := do
+  withRegisterJob s!"Building {mod.name}:{facet}" (f mod)
+
 /--
 Define a new module facet. Has one form:
 
@@ -39,15 +44,19 @@ kw:"module_facet " sig:buildDeclSig : command => do
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_modFacet")
-    let cap := quote s!"Building {id.getId}"
     let mod ← expandOptSimpleBinder mod?
     `(module_data $id : BuildJob $ty
       $[$doc?:docComment]? @[$attrs,*] abbrev $facetId : ModuleFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig fun $mod =>
-          Lake.withRegisterJob $cap ($defn : FetchM (BuildJob $ty))
+        config := Lake.mkFacetJobConfig fun mod =>
+          Lake.DSL.mkModuleFacetJob (α := $ty) mod $name (fun $mod => $defn)
       } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
+
+@[inline] def mkPackageFacetJob
+  (pkg : Package) (facet : Name) (f : Package → FetchM (BuildJob α))
+: FetchM (BuildJob α) := do
+  withRegisterJob s!"Building {pkg.name}:{facet}" (f pkg)
 
 /--
 Define a new package facet. Has one form:
@@ -68,15 +77,19 @@ kw:"package_facet " sig:buildDeclSig : command => do
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
-    let cap := quote s!"Building {id.getId}"
     let pkg ← expandOptSimpleBinder pkg?
     `(package_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] abbrev $facetId : PackageFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig fun $pkg =>
-          Lake.withRegisterJob $cap ($defn : FetchM (BuildJob $ty))
+        config := Lake.mkFacetJobConfig fun pkg =>
+          Lake.DSL.mkPackageFacetJob (α := $ty) pkg $name (fun $pkg => $defn)
       } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
+
+@[inline] def mkLibraryFacetJob
+  (lib : LeanLib) (facet : Name) (f : LeanLib → FetchM (BuildJob α))
+: FetchM (BuildJob α) := do
+  withRegisterJob s!"Building {lib.name}:{facet}" (f lib)
 
 /--
 Define a new library facet. Has one form:
@@ -97,19 +110,23 @@ kw:"library_facet " sig:buildDeclSig : command => do
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_libFacet")
-    let cap := quote s!"Building {id.getId}"
     let lib ← expandOptSimpleBinder lib?
     `(library_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] abbrev $facetId : LibraryFacetDecl := {
         name := $name
-        config := Lake.mkFacetJobConfig fun $lib =>
-          Lake.withRegisterJob $cap ($defn : FetchM (BuildJob $ty))
+        config := Lake.mkFacetJobConfig fun lib =>
+          Lake.DSL.mkLibraryFacetJob (α := $ty) lib $name (fun $lib => $defn)
       } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
 --------------------------------------------------------------------------------
 /-! ## Custom Target Declaration                                              -/
 --------------------------------------------------------------------------------
+
+@[inline] def mkTargetJob
+  (pkg : NPackage n) (target : Name) (f : NPackage n → FetchM (BuildJob α))
+: FetchM (BuildJob α) := do
+  withRegisterJob s!"Building {n}/{target}" (f pkg)
 
 /--
 Define a new custom target for the package. Has one form:
@@ -132,14 +149,13 @@ kw:"target " sig:buildDeclSig : command => do
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
-    let cap := quote s!"Building {id.getId}"
     let pkg ← expandOptSimpleBinder pkg?
     `(family_def $id : CustomData ($pkgName, $name) := BuildJob $ty
       $[$doc?]? @[$attrs,*] abbrev $id : TargetDecl := {
         pkg := $pkgName
         name := $name
-        config := Lake.mkTargetJobConfig fun $pkg =>
-          Lake.withRegisterJob $cap ($defn : FetchM (BuildJob $ty))
+        config := Lake.mkTargetJobConfig fun pkg =>
+          Lake.DSL.mkTargetJob (α := $ty) pkg $name (fun $pkg => $defn)
       }  $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 

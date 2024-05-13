@@ -99,13 +99,13 @@ protected def mod : @& Nat → @& Nat → Nat
 
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
-protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
-  show Nat.modCore x y = Nat.mod x y
-  match x, y with
-  | 0, y =>
+protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
+  show Nat.modCore n m = Nat.mod n m
+  match n, m with
+  | 0, _ =>
     rw [Nat.modCore]
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
-  | (x + 1), y =>
+  | (_ + 1), _ =>
     rw [Nat.mod]; dsimp
     refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
     rw [Nat.modCore]

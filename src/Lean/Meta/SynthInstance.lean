@@ -673,18 +673,22 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-     let mvar ← mkFreshExprMVar type
-     let key  ← mkTableKey type
-     let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal (← getMCtx) key mvar Waiter.root
-       synth
-     tryCatchRuntimeEx
-       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
-       fun ex =>
-         if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
-         else
-           throw ex
+    let mvar ← mkFreshExprMVar type
+    let key  ← mkTableKey type
+    let action : SynthM (Option AbstractMVarsResult) := do
+      newSubgoal (← getMCtx) key mvar Waiter.root
+      synth
+    let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
+      (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
+      fun ex =>
+        if ex.isRuntime then
+          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+        else
+          throw ex
+    let cache := (← get).cache.synthInstance
+    let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
+    modify fun s => { s with cache.synthInstance := cache}
+    return result
 
 end SynthInstance
 
@@ -765,7 +769,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    match s.cache.synthInstance.find? (localInsts, type) with
+    match (← get).cache.synthInstance.find? (localInsts, type) with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then

@@ -1220,7 +1220,7 @@ def generate : SynthM Unit := do
       return none
 
 /-- Try the next instance in the node on the top of the generator stack. -/
-partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
+partial def closeGenerator (type : Expr) (gNode : GeneratorNode) : SynthM Unit := do
   if gNode.currInstanceIdx == 0 then
     unless gNode.typeHasMVars do
       if let some entry := (← get).tableEntries.find? gNode.key then
@@ -1252,7 +1252,7 @@ partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
               return
             else
               throwError "this answer {answer |> fun ⟨a,b,c⟩ => (a,b,c)} shouldn't have any mvars"
-        throwError m! "generator node {gNode.mvarType} can't be found"
+          throwError m! "after solving {type}, generator node {gNode.mvarType} can't be found"
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
   let r := (← get).resumeStack.back
   modify fun s => { s with resumeStack := s.resumeStack.pop }
@@ -1293,12 +1293,12 @@ def step : SynthM Bool := do
 def getResult : SynthM (Option AbstractMVarsResult) :=
   return (← get).result?
 
-partial def synth : SynthM (Option AbstractMVarsResult) := do
+partial def synth (type : Expr) : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
-    | none        => synth
+    | none        => synth type
     | some result =>
-      (← get).generatorStack.forM closeGenerator
+      (← get).generatorStack.forM (closeGenerator type)
       return result
   else
     return none
@@ -1309,7 +1309,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
     let key  ← mkTableKey type
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
-      synth
+      synth type
     let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
       fun ex =>

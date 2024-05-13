@@ -1262,6 +1262,8 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
+    if let some result ← checkGlobalCache mvar (← getMCtx) then
+      throwError m! "an instance for {type} has been found in the cache when looking for the second time: {result.map (·.result) |>.map fun ⟨a,b,c⟩ => (a,b,c,repr c)}"
     let key  ← mkTableKey type
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root

@@ -586,7 +586,7 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          if h : entry.answers.size > 0 then
+          if entry.answers.size > 0 then
             /-
             We already have an answer that:
               1. its result does not have metavariables.

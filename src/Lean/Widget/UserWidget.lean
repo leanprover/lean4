@@ -352,6 +352,7 @@ instance : ToModule UserWidgetDefinition where
   applicationTime := AttributeApplicationTime.afterCompilation
   add := widgetModuleAttrImpl.add
 
+set_option linter.deprecated false in
 builtin_initialize registerBuiltinAttribute widgetAttrImpl
 
 private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]

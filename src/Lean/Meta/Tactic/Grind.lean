@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
+import Lean.Meta.Tactic.Grind.EnsureNoMVar

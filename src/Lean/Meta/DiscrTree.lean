@@ -578,10 +578,9 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result config
-      let result ← visitStar result
       match k with
-      | .star  => return result
-      | _      => visitNonStar k args result
+      | .star  => visitStar  result
+      | _      => visitStar (← visitNonStar k args result)
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) :=
   match d.root.find? k with

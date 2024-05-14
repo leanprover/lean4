@@ -348,6 +348,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_22 = lean_ctor_get(x_10, 0);
+lean_inc(x_22);
 x_23 = l_Nat_Linear_ExprCnstr_toPoly(x_22);
 x_24 = l_Nat_Linear_PolyCnstr_norm(x_23);
 x_25 = l_Nat_Linear_PolyCnstr_isUnsat(x_24);
@@ -889,6 +890,7 @@ lean_object* x_136; lean_object* x_137; lean_object* x_138; uint8_t x_139;
 x_136 = lean_ctor_get(x_10, 0);
 lean_inc(x_136);
 lean_dec(x_10);
+lean_inc(x_136);
 x_137 = l_Nat_Linear_ExprCnstr_toPoly(x_136);
 x_138 = l_Nat_Linear_PolyCnstr_norm(x_137);
 x_139 = l_Nat_Linear_PolyCnstr_isUnsat(x_138);
@@ -1247,6 +1249,7 @@ if (lean_is_exclusive(x_10)) {
  lean_dec_ref(x_10);
  x_210 = lean_box(0);
 }
+lean_inc(x_209);
 x_211 = l_Nat_Linear_ExprCnstr_toPoly(x_209);
 x_212 = l_Nat_Linear_PolyCnstr_norm(x_211);
 x_213 = l_Nat_Linear_PolyCnstr_isUnsat(x_212);

@@ -510,6 +510,7 @@ _start:
 {
 lean_object* x_8; 
 lean_dec(x_2);
+lean_inc(x_1);
 x_8 = l_Lean_Meta_getStringValue_x3f(x_1);
 if (lean_obj_tag(x_8) == 0)
 {

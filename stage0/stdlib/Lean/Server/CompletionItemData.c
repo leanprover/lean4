@@ -22,7 +22,6 @@ static lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJ
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceCompletionItem;
 static lean_object* l_Lean_Lsp_instFileSourceCompletionItem___closed__1;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____boxed(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2175_(lean_object*);
 static lean_object* l_Lean_Lsp_CompletionItem_getFileSource_x21___closed__2;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -61,7 +60,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Json_getObjValD(x_1, x_2);
 x_4 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonCompletionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_2075_(x_3);
-lean_dec(x_3);
 return x_4;
 }
 }
@@ -245,24 +243,14 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____spec__1(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14_(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Lsp_instFromJsonCompletionItemData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14_), 1, 0);
 return x_1;
 }
 }
@@ -386,7 +374,6 @@ x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
 lean_dec(x_2);
 x_15 = l___private_Lean_Server_CompletionItemData_0__Lean_Lsp_fromJsonCompletionItemData____x40_Lean_Server_CompletionItemData___hyg_14_(x_14);
-lean_dec(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 

@@ -175,7 +175,15 @@ structure TableEntry where
 structure Context where
   maxResultSize : Nat
   maxHeartbeats : Nat
-
+structure SynthInstanceCacheKey where
+  localInsts        : LocalInstances
+  type              : Expr
+  /--
+  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
+  See issue #2522.
+  -/
+  synthPendingDepth : Nat
+  deriving Hashable, BEq
 /--
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
   The field `postponed` is not needed, and the field `mctx` is misleading since
@@ -188,7 +196,7 @@ structure State where
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
-  cacheEntries   : Array ((LocalInstances × Expr) × Expr) := #[]
+  cacheEntries   : Array (SynthInstanceCacheKey × Expr) := #[]
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -498,7 +506,8 @@ def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Opti
   let mvarType ← instantiateMVars mvarType
   if mvarType.hasMVar then
     return none
-  match (← get).cache.synthInstance.find? (← getLocalInstances, mvarType) with
+  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← read).synthPendingDepth }
+  match (← get).cache.synthInstance.find? cacheKey with
   | none => return none
   | some none => return some none
   | some (some inst) => return some $ some {
@@ -583,7 +592,7 @@ def generate : SynthM Unit := do
           let answer := entry.answers[0].result
           if answer.numMVars == 0 then
             let inst := answer.expr
-            let cacheKey := (← getLocalInstances, gNode.mvarType)
+            let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← read).synthPendingDepth }
             modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
   else
     let key  := gNode.key
@@ -611,7 +620,7 @@ def generate : SynthM Unit := do
             let answer := entry.answers[0].result
             if answer.numMVars == 0 then
               let inst := answer.expr
-              let cacheKey := (← getLocalInstances, gNode.mvarType)
+              let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← read).synthPendingDepth }
               modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
             return
     discard do withMCtx mctx do

@@ -1030,8 +1030,17 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
     g_task_manager->cancel(lean_to_task(t));
 }
 
-extern "C" LEAN_EXPORT bool lean_io_has_finished_core(b_obj_arg t) {
-    return lean_to_task(t)->m_value != nullptr;
+extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
+    lean_task_object * o = lean_to_task(t);
+    if (o->m_imp) {
+        if (o->m_imp->m_closure) {
+            return 0; // waiting (waiting/queued)
+        } else {
+            return 1; // running (running/promised)
+        }
+    } else {
+        return 2; // finished
+    }
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {

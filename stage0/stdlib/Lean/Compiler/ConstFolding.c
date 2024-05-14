@@ -1023,28 +1023,38 @@ lean_inc(x_9);
 lean_dec(x_1);
 if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-return x_11;
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_9);
+if (x_10 == 0)
+{
+lean_ctor_set_tag(x_9, 1);
+return x_9;
 }
 else
 {
-lean_object* x_12; 
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
 return x_12;
+}
+}
+else
+{
+lean_object* x_13; 
+lean_dec(x_9);
+x_13 = lean_box(0);
+return x_13;
 }
 }
 default: 
 {
-lean_object* x_13; 
+lean_object* x_14; 
 lean_dec(x_1);
-x_13 = lean_box(0);
-return x_13;
+x_14 = lean_box(0);
+return x_14;
 }
 }
 }

@@ -3369,37 +3369,72 @@ return x_10;
 }
 else
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; size_t x_24; size_t x_25; 
+lean_object* x_11; uint8_t x_12; 
 x_11 = lean_array_uget(x_3, x_5);
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_11, 1);
-lean_inc(x_13);
-lean_dec(x_11);
-x_14 = lean_ctor_get(x_7, 5);
-lean_inc(x_14);
-x_15 = 0;
-x_16 = l_Lean_SourceInfo_fromRef(x_14, x_15);
-x_17 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__3;
-lean_inc(x_16);
-x_18 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_18, 0, x_16);
-lean_ctor_set(x_18, 1, x_17);
+x_12 = !lean_is_exclusive(x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; size_t x_24; size_t x_25; 
+x_13 = lean_ctor_get(x_11, 0);
+x_14 = lean_ctor_get(x_11, 1);
+x_15 = lean_ctor_get(x_7, 5);
+lean_inc(x_15);
+x_16 = 0;
+x_17 = l_Lean_SourceInfo_fromRef(x_15, x_16);
+x_18 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__3;
+lean_inc(x_17);
+lean_ctor_set_tag(x_11, 2);
+lean_ctor_set(x_11, 1, x_18);
+lean_ctor_set(x_11, 0, x_17);
 lean_inc(x_2);
-lean_inc(x_16);
-x_19 = l_Lean_Syntax_node3(x_16, x_2, x_12, x_18, x_13);
+lean_inc(x_17);
+x_19 = l_Lean_Syntax_node3(x_17, x_2, x_13, x_11, x_14);
 x_20 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__4;
-lean_inc(x_16);
+lean_inc(x_17);
 x_21 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_21, 0, x_16);
+lean_ctor_set(x_21, 0, x_17);
 lean_ctor_set(x_21, 1, x_20);
 x_22 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__2;
-x_23 = l_Lean_Syntax_node3(x_16, x_22, x_19, x_21, x_6);
+x_23 = l_Lean_Syntax_node3(x_17, x_22, x_19, x_21, x_6);
 x_24 = 1;
 x_25 = lean_usize_add(x_5, x_24);
 x_5 = x_25;
 x_6 = x_23;
 goto _start;
+}
+else
+{
+lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; size_t x_39; size_t x_40; 
+x_27 = lean_ctor_get(x_11, 0);
+x_28 = lean_ctor_get(x_11, 1);
+lean_inc(x_28);
+lean_inc(x_27);
+lean_dec(x_11);
+x_29 = lean_ctor_get(x_7, 5);
+lean_inc(x_29);
+x_30 = 0;
+x_31 = l_Lean_SourceInfo_fromRef(x_29, x_30);
+x_32 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__3;
+lean_inc(x_31);
+x_33 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_33, 0, x_31);
+lean_ctor_set(x_33, 1, x_32);
+lean_inc(x_2);
+lean_inc(x_31);
+x_34 = l_Lean_Syntax_node3(x_31, x_2, x_27, x_33, x_28);
+x_35 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__4;
+lean_inc(x_31);
+x_36 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_36, 0, x_31);
+lean_ctor_set(x_36, 1, x_35);
+x_37 = l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__5___closed__2;
+x_38 = l_Lean_Syntax_node3(x_31, x_37, x_34, x_36, x_6);
+x_39 = 1;
+x_40 = lean_usize_add(x_5, x_39);
+x_5 = x_40;
+x_6 = x_38;
+goto _start;
+}
 }
 }
 }

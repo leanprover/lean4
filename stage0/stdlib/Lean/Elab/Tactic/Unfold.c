@@ -351,7 +351,6 @@ x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_Elab_Tactic_evalUnfold_go___lambda__1___closed__2;
 x_19 = l_Lean_Meta_throwTacticEx___rarg(x_18, x_2, x_17, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_17);
 return x_19;
 }
 }

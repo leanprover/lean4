@@ -212,7 +212,17 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-abbrev SynthInstanceCache := PersistentHashMap (LocalInstances × Expr) (Option Expr)
+structure SynthInstanceCacheKey where
+  localInsts        : LocalInstances
+  type              : Expr
+  /--
+  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
+  See issue #2522.
+  -/
+  synthPendingDepth : Nat
+  deriving Hashable, BEq
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -273,6 +283,8 @@ structure Diagnostics where
   heuristicCounter : PHashMap Name Nat := {}
   /-- Number of times a TC instance is used. -/
   instanceCounter : PHashMap Name Nat := {}
+  /-- Pending instances that were not synthesized because `maxSynthPendingDepth` has been reached. -/
+  synthPendingFailures : PHashMap Expr MessageData := {}
   deriving Inhabited
 
 /--
@@ -296,6 +308,11 @@ structure SavedState where
   meta        : State
   deriving Nonempty
 
+register_builtin_option maxSynthPendingDepth : Nat := {
+  defValue := 1
+  descr    := "maximum number of nested `synthPending` invocations. When resolving unification constraints, pending type class problems may need to be synthesized. These type class problems may create new unification constraints that again require solving new type class problems. This option puts a threshold on how many nested problems are created."
+}
+
 /--
   Contextual information for the `MetaM` monad.
 -/
@@ -311,8 +328,8 @@ structure Context where
     Track the number of nested `synthPending` invocations. Nested invocations can happen
     when the type class resolution invokes `synthPending`.
 
-    Remark: in the current implementation, `synthPending` fails if `synthPendingDepth > 0`.
-    We will add a configuration option if necessary. -/
+    Remark: `synthPending` fails if `synthPendingDepth > maxSynthPendingDepth`.
+  -/
   synthPendingDepth : Nat                  := 0
   /--
     A predicate to control whether a constant can be unfolded or not at `whnf`.
@@ -470,21 +487,30 @@ variable [MonadControlT MetaM n] [Monad n]
 
 /-- If diagnostics are enabled, record that `declName` has been unfolded. -/
 def recordUnfold (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := unfoldCounter.find? declName then c + 1 else 1
-    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter }
+    { unfoldCounter := unfoldCounter.insert declName newC, heuristicCounter, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that heuristic for solving `f a =?= f b` has been used. -/
 def recordDefEqHeuristic (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := heuristicCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter }
+    { unfoldCounter, heuristicCounter := heuristicCounter.insert declName newC, instanceCounter, synthPendingFailures }
 
 /-- If diagnostics are enabled, record that instance `declName` was used during TC resolution. -/
 def recordInstance (declName : Name) : MetaM Unit := do
-  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter } =>
+  modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
     let newC := if let some c := instanceCounter.find? declName then c + 1 else 1
-    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC }
+    { unfoldCounter, heuristicCounter, instanceCounter := instanceCounter.insert declName newC, synthPendingFailures }
+
+/-- If diagnostics are enabled, record that synth pending failures. -/
+def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
+  if (← isDiagnosticsEnabled) then
+    unless (← get).diag.synthPendingFailures.contains type do
+      -- We need to save the full context since type class resolution uses multiple metavar contexts and different local contexts
+      let msg ← addMessageContextFull m!"{type}"
+      modifyDiag fun { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
+        { unfoldCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -629,7 +655,7 @@ Return `none` if `mvarId` has no declaration in the current metavariable context
 def _root_.Lean.MVarId.findDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   return (← getMCtx).findDecl? mvarId
 
-@[deprecated MVarId.findDecl?]
+@[deprecated MVarId.findDecl? (since := "2022-07-15")]
 def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
   mvarId.findDecl?
 
@@ -642,7 +668,7 @@ def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   | some d => pure d
   | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
-@[deprecated MVarId.getDecl]
+@[deprecated MVarId.getDecl (since := "2022-07-15")]
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   mvarId.getDecl
 
@@ -652,7 +678,7 @@ Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the curr
 def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
   return (← mvarId.getDecl).kind
 
-@[deprecated MVarId.getKind]
+@[deprecated MVarId.getKind (since := "2022-07-15")]
 def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
   mvarId.getKind
 
@@ -669,7 +695,7 @@ Set `mvarId` kind in the current metavariable context.
 def _root_.Lean.MVarId.setKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
 
-@[deprecated MVarId.setKind]
+@[deprecated MVarId.setKind (since := "2022-07-15")]
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   mvarId.setKind kind
 
@@ -678,7 +704,7 @@ def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
 def _root_.Lean.MVarId.setType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.setMVarType mvarId type
 
-@[deprecated MVarId.setType]
+@[deprecated MVarId.setType (since := "2022-07-15")]
 def setMVarType (mvarId : MVarId) (type : Expr) : MetaM Unit := do
   mvarId.setType type
 
@@ -689,7 +715,7 @@ That is, its `depth` is different from the current metavariable context depth.
 def _root_.Lean.MVarId.isReadOnly (mvarId : MVarId) : MetaM Bool := do
   return (← mvarId.getDecl).depth != (← getMCtx).depth
 
-@[deprecated MVarId.isReadOnly]
+@[deprecated MVarId.isReadOnly (since := "2022-07-15")]
 def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
   mvarId.isReadOnly
 
@@ -704,7 +730,7 @@ def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Boo
   | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
   | _ => return mvarDecl.depth != (← getMCtx).depth
 
-@[deprecated MVarId.isReadOnlyOrSyntheticOpaque]
+@[deprecated MVarId.isReadOnlyOrSyntheticOpaque (since := "2022-07-15")]
 def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
   mvarId.isReadOnlyOrSyntheticOpaque
 
@@ -716,7 +742,7 @@ def _root_.Lean.LMVarId.getLevel (mvarId : LMVarId) : MetaM Nat := do
   | some depth => return depth
   | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
-@[deprecated LMVarId.getLevel]
+@[deprecated LMVarId.getLevel (since := "2022-07-15")]
 def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat :=
   mvarId.getLevel
 
@@ -727,7 +753,7 @@ That is, its `depth` is different from the current metavariable context depth.
 def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool :=
   return (← mvarId.getLevel) < (← getMCtx).levelAssignDepth
 
-@[deprecated LMVarId.isReadOnly]
+@[deprecated LMVarId.isReadOnly (since := "2022-07-15")]
 def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
   mvarId.isReadOnly
 
@@ -737,7 +763,7 @@ Set the user-facing name for the given metavariable.
 def _root_.Lean.MVarId.setUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
-@[deprecated MVarId.setUserName]
+@[deprecated MVarId.setUserName (since := "2022-07-15")]
 def setMVarUserName (mvarId : MVarId) (userNameNew : Name) : MetaM Unit :=
   mvarId.setUserName userNameNew
 
@@ -747,7 +773,7 @@ Throw an exception saying `fvarId` is not declared in the current local context.
 def _root_.Lean.FVarId.throwUnknown (fvarId : FVarId) : CoreM α :=
   throwError "unknown free variable '{mkFVar fvarId}'"
 
-@[deprecated FVarId.throwUnknown]
+@[deprecated FVarId.throwUnknown (since := "2022-07-15")]
 def throwUnknownFVar (fvarId : FVarId) : MetaM α :=
   fvarId.throwUnknown
 
@@ -757,7 +783,7 @@ Return `some decl` if `fvarId` is declared in the current local context.
 def _root_.Lean.FVarId.findDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   return (← getLCtx).find? fvarId
 
-@[deprecated FVarId.findDecl?]
+@[deprecated FVarId.findDecl? (since := "2022-07-15")]
 def findLocalDecl? (fvarId : FVarId) : MetaM (Option LocalDecl) :=
   fvarId.findDecl?
 
@@ -770,7 +796,7 @@ def _root_.Lean.FVarId.getDecl (fvarId : FVarId) : MetaM LocalDecl := do
   | some d => return d
   | none   => fvarId.throwUnknown
 
-@[deprecated FVarId.getDecl]
+@[deprecated FVarId.getDecl (since := "2022-07-15")]
 def getLocalDecl (fvarId : FVarId) : MetaM LocalDecl := do
   fvarId.getDecl
 
@@ -837,7 +863,7 @@ contain a metavariable `?m` s.t. local context of `?m` contains a free variable 
 def _root_.Lean.Expr.abstractRangeM (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
   liftMkBindingM <| MetavarContext.abstractRange e n xs
 
-@[deprecated Expr.abstractRangeM]
+@[deprecated Expr.abstractRangeM (since := "2022-07-15")]
 def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM n xs
 
@@ -848,7 +874,7 @@ Similar to `Expr.abstract`, but handles metavariables correctly.
 def _root_.Lean.Expr.abstractM (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractRangeM xs.size xs
 
-@[deprecated Expr.abstractM]
+@[deprecated Expr.abstractM (since := "2022-07-15")]
 def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
   e.abstractM xs
 
@@ -1487,7 +1513,7 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
 
-@[deprecated MVarId.withContext]
+@[deprecated MVarId.withContext (since := "2022-07-15")]
 def withMVarContext (mvarId : MVarId) : n α → n α :=
   mvarId.withContext
 

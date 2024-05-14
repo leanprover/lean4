@@ -94,7 +94,6 @@ x_6 = lean_array_to_list(lean_box(0), x_1);
 x_7 = lean_box(0);
 x_8 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_6, x_7);
 x_9 = l_Lean_MessageData_ofList(x_8);
-lean_dec(x_8);
 x_10 = l_Lean_Compiler_compile___lambda__1___closed__2;
 x_11 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_11, 0, x_10);

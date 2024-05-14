@@ -6,7 +6,6 @@ on:
     tags:
       - '*'
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
@@ -41,12 +40,18 @@ jobs:
     steps:
       - name: Run quick CI?
         id: set-quick
-        env:
-          quick: ${{
-            github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
-           }}
+        # We do not use github.event.pull_request.labels.*.name here because
+        # re-running a run does not update that list, and we do want to be able to
+        # rerun the workflow run after settings the `full-ci` label.
         run: |
-          echo "quick=${{env.quick}}" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" == 'pull_request' ]
+          then
+            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci") | not')" >> "$GITHUB_OUTPUT"
+          else
+            echo "quick=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Configure build matrix
         id: set-matrix

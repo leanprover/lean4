@@ -30,6 +30,8 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
@@ -253,7 +255,7 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
+  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do

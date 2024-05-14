@@ -278,22 +278,47 @@ return x_14;
 }
 else
 {
-uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-lean_dec(x_9);
-x_15 = 1;
-x_16 = l_Lean_Name_toString(x_3, x_15);
-x_17 = l_Lean_addDocString___rarg___lambda__3___closed__1;
-x_18 = lean_string_append(x_17, x_16);
+uint8_t x_15; 
+x_15 = !lean_is_exclusive(x_9);
+if (x_15 == 0)
+{
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_16 = lean_ctor_get(x_9, 0);
 lean_dec(x_16);
-x_19 = l_Lean_addDocString___rarg___lambda__3___closed__2;
-x_20 = lean_string_append(x_18, x_19);
-x_21 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_21, 0, x_20);
-x_22 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
-x_23 = l_Lean_throwError___rarg(x_4, x_6, x_22);
-x_24 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_23, x_8);
-return x_24;
+x_17 = 1;
+x_18 = l_Lean_Name_toString(x_3, x_17);
+x_19 = l_Lean_addDocString___rarg___lambda__3___closed__1;
+x_20 = lean_string_append(x_19, x_18);
+lean_dec(x_18);
+x_21 = l_Lean_addDocString___rarg___lambda__3___closed__2;
+x_22 = lean_string_append(x_20, x_21);
+lean_ctor_set_tag(x_9, 3);
+lean_ctor_set(x_9, 0, x_22);
+x_23 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_23, 0, x_9);
+x_24 = l_Lean_throwError___rarg(x_4, x_6, x_23);
+x_25 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_24, x_8);
+return x_25;
+}
+else
+{
+uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_dec(x_9);
+x_26 = 1;
+x_27 = l_Lean_Name_toString(x_3, x_26);
+x_28 = l_Lean_addDocString___rarg___lambda__3___closed__1;
+x_29 = lean_string_append(x_28, x_27);
+lean_dec(x_27);
+x_30 = l_Lean_addDocString___rarg___lambda__3___closed__2;
+x_31 = lean_string_append(x_29, x_30);
+x_32 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_32, 0, x_31);
+x_33 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_33, 0, x_32);
+x_34 = l_Lean_throwError___rarg(x_4, x_6, x_33);
+x_35 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_34, x_8);
+return x_35;
+}
 }
 }
 }

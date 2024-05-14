@@ -27,9 +27,12 @@ instance [Inhabited ε] [Inhabited σ] : Inhabited (EResult ε σ α) where
 | .ok _ s => s
 | .error _ s => s
 
-@[inline] def EResult.setState (s : σ') : EResult ε σ α → EResult ε σ' α
-| .ok a _ => .ok a s
-| .error e _ => .error e s
+@[inline] def EResult.modifyState (f : σ → σ') : EResult ε σ α → EResult ε σ' α
+| .ok a s => .ok a (f s)
+| .error e s => .error e (f s)
+
+@[inline] def EResult.setState (s : σ') (r : EResult ε σ α) : EResult ε σ' α :=
+  r.modifyState fun _ => s
 
 /-- Extract the result `α` from a `EResult ε σ α`. -/
 @[inline] def EResult.result? : EResult ε σ α → Option α
@@ -71,6 +74,14 @@ instance [Inhabited ε] [Pure m] : Inhabited (EStateT ε σ m α) where
 protected def lift {ε σ α : Type u} [Monad m] (x : m α) : EStateT ε σ m α := fun s => do
   let a ← x; pure (.ok a s)
 
+@[inline] def toStateT {ε σ α : Type u} [Monad m] (x : EStateT ε σ m α) : StateT σ m (Except ε α) := fun s => do
+  match (← x s) with
+  | .ok a s => return (.ok a, s)
+  | .error e s => return (.error e, s)
+
+@[inline] def toStateT? {ε σ α : Type u} [Monad m] (x : EStateT ε σ m α) : StateT σ m (Option α) := do
+  (·.toOption) <$> x.toStateT
+
 instance [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
 
 variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
@@ -82,8 +93,8 @@ def run (init : σ) (self : EStateT ε σ m α) : m (EResult ε σ α) :=
 
 /-- Execute an `EStateT` on initial state `s` to get an `Except` result. -/
 @[always_inline, inline]
-def run' {σ : Type max u w} [Functor m] (init : σ) (self : EStateT ε σ m α) : m (Except ε α) :=
-  EResult.toExcept <$> self init
+def run' {σ : Type max u w} [Functor m] (init : σ) (x : EStateT ε σ m α) : m (Except ε α) :=
+  EResult.toExcept <$> x init
 
 /-- The `pure` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]
@@ -129,7 +140,7 @@ protected def set [Pure m] (s : σ) : EStateT ε σ m PUnit.{w+1} := fun _ =>
 
 /-- The `get` operation of the `EStateT` monad. -/
 @[always_inline, inline]
-protected def get [Pure m]  : EStateT ε σ m σ := fun s =>
+protected def get [Pure m] : EStateT ε σ m σ := fun s =>
   pure <| .ok s s
 
 /-- The `modifyGet` operation of the `EStateT` monad transformer. -/

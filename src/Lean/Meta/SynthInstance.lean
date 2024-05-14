@@ -691,7 +691,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
        fun ex =>
          if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
          else
            throw ex
      let cache := (← get).cache.synthInstance
@@ -885,6 +885,7 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
+  registerTraceClass `Meta.synthInstance.answer (inherited := true)
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer

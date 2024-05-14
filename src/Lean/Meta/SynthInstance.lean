@@ -637,7 +637,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
        fun ex =>
          if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
          else
            throw ex
 
@@ -720,7 +720,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    match s.cache.synthInstance.find? (localInsts, type) with
+    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    match s.cache.synthInstance.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -767,7 +768,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
       pure result?
 
 /--
@@ -778,14 +779,17 @@ def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM
     (toLOptionM <| synthInstance? type maxResultSize?)
     (fun _ => pure LOption.undef)
 
+def throwFailedToSynthesize (type : Expr) : MetaM Expr :=
+  throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+
 def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId
     (do
       let result? ← synthInstance? type maxResultSize?
       match result? with
       | some result => pure result
-      | none        => throwError "failed to synthesize{indentExpr type}")
-    (fun _ => throwError "failed to synthesize{indentExpr type}")
+      | none        => throwFailedToSynthesize type)
+    (fun _ => throwFailedToSynthesize type)
 
 @[export lean_synth_pending]
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
@@ -799,9 +803,10 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
-      /- TODO: use a configuration option instead of the hard-coded limit `1`. -/
-      if (← read).synthPendingDepth > 1 then
+      let max := maxSynthPendingDepth.get (← getOptions)
+      if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"
+        recordSynthPendingFailure mvarDecl.type
         return false
       else
         withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 }) do

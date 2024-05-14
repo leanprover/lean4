@@ -1,2 +1,3 @@
-297.lean:1:10-1:11: error: failed to synthesize instance
+297.lean:1:10-1:11: error: failed to synthesize
   OfNat (Sort ?u) 0
+use `set_option diagnostics true` to get diagnostic information

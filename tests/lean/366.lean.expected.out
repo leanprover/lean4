@@ -3,4 +3,5 @@
     [Meta.synthInstance.instances] #[@instInhabitedOfMonad, instInhabitedNat]
   [Meta.synthInstance] ✅ apply instInhabitedNat to Inhabited Nat
     [Meta.synthInstance.tryResolve] ✅ Inhabited Nat ≟ Inhabited Nat
+    [Meta.synthInstance.answer] ✅ Inhabited Nat
   [Meta.synthInstance] result instInhabitedNat

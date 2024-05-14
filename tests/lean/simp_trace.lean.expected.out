@@ -1,15 +1,16 @@
-Try this: simp only [f]
+Try this: simp only [f, eq_iff_iff, false_iff, not_false_eq_true]
 [Meta.Tactic.simp.rewrite] unfold f, f (a :: b = []) ==> a :: b = []
-[Meta.Tactic.simp.rewrite] @eq_self:1000, False = False ==> True
+[Meta.Tactic.simp.rewrite] @eq_iff_iff:1000, False = False ==> False ↔ False
+[Meta.Tactic.simp.rewrite] false_iff:1000, False ↔ False ==> ¬False
+[Meta.Tactic.simp.rewrite] not_false_eq_true:1000, ¬False ==> True
 Try this: simp only [length, gt_iff_lt]
 [Meta.Tactic.simp.rewrite] unfold length, length (a :: b :: as) ==> length (b :: as) + 1
 [Meta.Tactic.simp.rewrite] unfold length, length (b :: as) ==> length as + 1
 [Meta.Tactic.simp.rewrite] @gt_iff_lt:1000, length as + 1 + 1 > length as ==> length as < length as + 1 + 1
-Try this: simp only [fact, gt_iff_lt, Nat.zero_lt_succ, Nat.mul_pos_iff_of_pos_left]
+Try this: simp only [fact, Nat.zero_lt_succ, Nat.mul_pos_iff_of_pos_left]
 [Meta.Tactic.simp.rewrite] unfold fact, fact (x + 1) ==> (x + 1) * fact x
-[Meta.Tactic.simp.rewrite] @gt_iff_lt:1000, (x + 1) * fact x > 0 ==> 0 < (x + 1) * fact x
 [Meta.Tactic.simp.rewrite] Nat.zero_lt_succ:1000, 0 < x + 1 ==> True
-[Meta.Tactic.simp.rewrite] @Nat.mul_pos_iff_of_pos_left:1000, 0 < (x + 1) * fact x ==> 0 < fact x
+[Meta.Tactic.simp.rewrite] @Nat.mul_pos_iff_of_pos_left:1000, (x + 1) * fact x > 0 ==> 0 < fact x
 Try this: simp only [head]
 [Meta.Tactic.simp.rewrite] unfold head, head (a :: as) ==> match a :: as with
     | [] => default
@@ -54,9 +55,11 @@ Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite
 [Meta.Tactic.simp.rewrite] @dite_eq_ite:1000, if h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
 [Meta.Tactic.simp.rewrite] @dite_eq_ite:1000, if _h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (if 1 ≤ x then x else 0) = if 1 ≤ x then x else 0 ==> True
-Try this: simp only [and_self]
+Try this: simp only [and_self, and_congr_right_iff, implies_true]
 [Meta.Tactic.simp.rewrite] and_self:1000, b ∧ b ==> b
-[Meta.Tactic.simp.rewrite] iff_self:1000, a ∧ b ↔ a ∧ b ==> True
+[Meta.Tactic.simp.rewrite] @and_congr_right_iff:1000, a ∧ b ↔ a ∧ b ==> a → (b ↔ b)
+[Meta.Tactic.simp.rewrite] iff_self:1000, b ↔ b ==> True
+[Meta.Tactic.simp.rewrite] implies_true:1000, a → True ==> True
 Try this: simp only [my_thm]
 [Meta.Tactic.simp.rewrite] @my_thm:1000, b ∧ b ==> b
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (a ∧ b) = (a ∧ b) ==> True

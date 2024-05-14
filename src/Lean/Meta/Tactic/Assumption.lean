@@ -26,7 +26,7 @@ def _root_.Lean.MVarId.assumptionCore (mvarId : MVarId) : MetaM Bool :=
     | none => return false
     | some fvarId => mvarId.assign (mkFVar fvarId); return true
 
-@[deprecated MVarId.assumptionCore]
+@[deprecated MVarId.assumptionCore (since := "2022-07-15")]
 def assumptionCore (mvarId : MVarId) : MetaM Bool :=
   mvarId.assumptionCore
 
@@ -35,7 +35,7 @@ def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← mvarId.assumptionCore) do
     throwTacticEx `assumption mvarId
 
-@[deprecated MVarId.assumption]
+@[deprecated MVarId.assumption (since := "2022-07-15")]
 def assumption (mvarId : MVarId) : MetaM Unit :=
   mvarId.assumption
 

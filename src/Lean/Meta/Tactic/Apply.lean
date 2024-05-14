@@ -185,7 +185,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     result.forM (·.headBetaType)
     return result
 
-@[deprecated MVarId.apply]
+@[deprecated MVarId.apply (since := "2022-07-15")]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   mvarId.apply e cfg
 
@@ -227,7 +227,7 @@ Apply `And.intro` as much as possible to goal `mvarId`.
 abbrev splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   splitAndCore mvarId
 
-@[deprecated splitAnd]
+@[deprecated splitAnd] -- 2024-03-17
 def _root_.Lean.Meta.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.splitAnd
 

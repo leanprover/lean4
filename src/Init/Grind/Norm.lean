@@ -8,7 +8,7 @@ import Init.SimpLemmas
 import Init.Classical
 import Init.ByCases
 
-namespace Lean.Meta.Grind
+namespace Lean.Grind
 /-!
 Normalization theorems for the `grind` tactic.
 
@@ -107,4 +107,4 @@ attribute [grind_norm] Nat.le_zero_eq
 -- GT GE
 attribute [grind_norm] GT.gt GE.ge
 
-end Lean.Meta.Grind
+end Lean.Grind

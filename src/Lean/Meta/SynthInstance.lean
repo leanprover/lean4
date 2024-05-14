@@ -41,7 +41,6 @@ structure Instance where
   synthOrder : Array Nat
   deriving Inhabited
 
-
 structure GeneratorNode where
   mvar            : Expr
   mvarType        : Expr
@@ -785,7 +784,15 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    let uncached := do
+    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    match s.cache.synthInstance.find? cacheKey with
+    | some result =>
+      trace[Meta.synthInstance] "result {result} (cached)"
+      if let some inst := result then
+        unless (← assignOutParams inst) do
+          return none
+      pure result
+    | none        =>
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
@@ -827,17 +834,6 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure none
       modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
       pure result?
-    match s.cache.synthInstance.find? (localInsts, type) with
-    | some result =>
-      trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          throwError "This isn't supposed to be possible: cached instance {inst} for {type} doesn't work"
-      -- let result' ← uncached
-      -- if result' != result then
-      --   throwError "cached {result'} doesn't match with generated {result}"
-      pure result
-    | none        => uncached
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

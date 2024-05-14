@@ -41,7 +41,6 @@ structure Instance where
   synthOrder : Array Nat
   deriving Inhabited
 
-
 structure GeneratorNode where
   mvar            : Expr
   mvarType        : Expr
@@ -779,7 +778,15 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    let uncached := do
+    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    match s.cache.synthInstance.find? cacheKey with
+    | some result =>
+      trace[Meta.synthInstance] "result {result} (cached)"
+      if let some inst := result then
+        unless (← assignOutParams inst) do
+          return none
+      pure result
+    | none        =>
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
@@ -819,19 +826,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
       pure result?
-    match s.cache.synthInstance.find? (localInsts, type) with
-    | some result =>
-      trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          throwError "This isn't supposed to be possible: cached instance {inst} for {type} doesn't work"
-      -- let result' ← uncached
-      -- if result' != result then
-      --   throwError "cached {result'} doesn't match with generated {result}"
-      pure result
-    | none        => uncached
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if
@@ -841,14 +837,17 @@ def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM
     (toLOptionM <| synthInstance? type maxResultSize?)
     (fun _ => pure LOption.undef)
 
+def throwFailedToSynthesize (type : Expr) : MetaM Expr :=
+  throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+
 def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId
     (do
       let result? ← synthInstance? type maxResultSize?
       match result? with
       | some result => pure result
-      | none        => throwError "failed to synthesize{indentExpr type}")
-    (fun _ => throwError "failed to synthesize{indentExpr type}")
+      | none        => throwFailedToSynthesize type)
+    (fun _ => throwFailedToSynthesize type)
 
 @[export lean_synth_pending]
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
@@ -862,9 +861,10 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
-      /- TODO: use a configuration option instead of the hard-coded limit `1`. -/
-      if (← read).synthPendingDepth > 1 then
+      let max := maxSynthPendingDepth.get (← getOptions)
+      if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"
+        recordSynthPendingFailure mvarDecl.type
         return false
       else
         withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 }) do

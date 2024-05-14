@@ -688,22 +688,22 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-    let mvar ← mkFreshExprMVar type
-    let key  ← mkTableKey type
-    let action : SynthM (Option AbstractMVarsResult) := do
-      newSubgoal (← getMCtx) key mvar Waiter.root
-      synth
-    let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
-      (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
-      fun ex =>
-        if ex.isRuntime then
-          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
-        else
-          throw ex
-    let cache := (← get).cache.synthInstance
-    let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
-    modify fun s => { s with cache.synthInstance := cache}
-    return result
+     let mvar ← mkFreshExprMVar type
+     let key  ← mkTableKey type
+     let action : SynthM (Option AbstractMVarsResult) := do
+       newSubgoal (← getMCtx) key mvar Waiter.root
+       synth
+     let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
+       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
+       fun ex =>
+         if ex.isRuntime then
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+         else
+           throw ex
+     let cache := (← get).cache.synthInstance
+     let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
+     modify fun s => { s with cache.synthInstance := cache}
+     return result
 
 end SynthInstance
 

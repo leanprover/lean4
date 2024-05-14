@@ -175,15 +175,7 @@ structure TableEntry where
 structure Context where
   maxResultSize : Nat
   maxHeartbeats : Nat
-structure SynthInstanceCacheKey where
-  localInsts        : LocalInstances
-  type              : Expr
-  /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
-  -/
-  synthPendingDepth : Nat
-  deriving Hashable, BEq
+
 /--
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
   The field `postponed` is not needed, and the field `mctx` is misleading since
@@ -506,7 +498,7 @@ def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Opti
   let mvarType ← instantiateMVars mvarType
   if mvarType.hasMVar then
     return none
-  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← read).synthPendingDepth }
+  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
   match (← get).cache.synthInstance.find? cacheKey with
   | none => return none
   | some none => return some none
@@ -592,7 +584,7 @@ def generate : SynthM Unit := do
           let answer := entry.answers[0].result
           if answer.numMVars == 0 then
             let inst := answer.expr
-            let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← read).synthPendingDepth }
+            let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
             modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
   else
     let key  := gNode.key
@@ -620,7 +612,7 @@ def generate : SynthM Unit := do
             let answer := entry.answers[0].result
             if answer.numMVars == 0 then
               let inst := answer.expr
-              let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← read).synthPendingDepth }
+              let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
               modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
             return
     discard do withMCtx mctx do

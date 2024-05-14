@@ -632,7 +632,7 @@ partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
         let answer := answer.result
         if answer.numMVars == 0 then
           let inst := answer.expr
-          let cacheKey := (← getLocalInstances, gNode.mvarType)
+          let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
           modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do

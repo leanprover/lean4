@@ -272,7 +272,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (lang : Config
   -- Initialize a README.md file if none exists.
   let readmeFile := dir / "README.md"
   unless (← readmeFile.pathExists) do
-    IO.FS.writeFile readmeFile (readmeFileContents pkgName)
+    IO.FS.writeFile readmeFile (readmeFileContents pkgName.toString)
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then

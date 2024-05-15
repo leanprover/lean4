@@ -178,9 +178,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let id := arg[1]
-            let declNames? ← try pure (some (← realizeGlobalConst id)) catch _ => pure none
-            if let some declNames := declNames? then
-              let declName ← ensureNonAmbiguous id declNames
+            if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
               if (← Simp.isSimproc declName) then
                 simprocs := simprocs.erase declName
               else if ctx.config.autoUnfold then

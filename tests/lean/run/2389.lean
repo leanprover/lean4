@@ -14,6 +14,8 @@ inductive Tree : Type :=
 
 set_option trace.Meta.IndPredBelow true in
 
+/-- info: [Meta.IndPredBelow] Nested or not recursive -/
+#guard_msgs in
 /-- Despite not having `.below` and `.brecOn`,
 the type is still usable thanks to well-founded recursion. -/
 inductive OnlyZeros : Tree → Prop :=

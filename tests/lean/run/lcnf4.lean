@@ -11,7 +11,7 @@ partial def bar (n : Nat) : Nat := Id.run do
 
 #print foo._unsafe_rec
 
-#eval Lean.Compiler.compile #[``foo]
+run_meta Lean.Compiler.compile #[``foo]
 
 def xyz : BaseIO UInt32 := do
   let ref ← IO.mkRef 42
@@ -19,7 +19,7 @@ def xyz : BaseIO UInt32 := do
   ref.get
 
 -- set_option trace.Compiler.simp true in
-#eval Lean.Compiler.compile #[``xyz]
+run_meta Lean.Compiler.compile #[``xyz]
 
 @[extern "f_imp"]
 opaque f : Nat → Nat
@@ -35,7 +35,7 @@ def bla (ty : Ty) :=
   | .c1 => true
   | _ => true
 
-#eval Lean.Compiler.compile #[``bla]
+run_meta Lean.Compiler.compile #[``bla]
 
 def boo (ty ty' : Ty) (a b : Nat) :=
   let d := match ty with
@@ -50,7 +50,7 @@ def boo (ty ty' : Ty) (a b : Nat) :=
 -- set_option trace.Compiler.simp.inline true in
 -- set_option trace.Compiler.simp.inline.stats true in
 -- set_option trace.Compiler.simp true in
-#eval Lean.Compiler.compile #[``boo]
+run_meta Lean.Compiler.compile #[``boo]
 
 def f' (x y : Nat) :=
   let s := (x, y)
@@ -58,10 +58,10 @@ def f' (x y : Nat) :=
   y + s.2
 
 -- set_option trace.Compiler.simp true in
-#eval Lean.Compiler.compile #[``f']
+run_meta Lean.Compiler.compile #[``f']
 
-#eval Lean.Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
+run_meta Lean.Compiler.compile #[``Lean.Meta.isExprDefEqAuxImpl]
 
 set_option trace.Meta.debug true
 set_option trace.Compiler true
-#eval Lean.Compiler.compile #[``Lean.MetavarContext.MkBinding.collectForwardDeps]
+run_meta Lean.Compiler.compile #[``Lean.MetavarContext.MkBinding.collectForwardDeps]

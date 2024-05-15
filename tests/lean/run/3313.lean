@@ -31,6 +31,8 @@ variable (R : Type) [Ring R]
 
 
 set_option maxSynthPendingDepth 2 in
+/-- info: Submodule.hasQuotient -/
+#guard_msgs in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- works
 
 /--
@@ -46,4 +48,6 @@ set_option diagnostics true in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- fails
 
 set_option maxSynthPendingDepth 2 in
+/-- info: Submodule.hasQuotient -/
+#guard_msgs in
 #synth HasQuotient (Synonym (Synonym R)) (Submodule R (Synonym (Synonym R))) -- still works

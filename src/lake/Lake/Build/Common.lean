@@ -49,6 +49,7 @@ Returns whether `info` was already up-to-date.
     IO.Process.exit noBuildCode.toUInt8
   else
     build
+    markBuilt
     depTrace.writeToFile traceFile
     return false
 

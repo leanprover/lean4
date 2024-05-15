@@ -25,54 +25,80 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
+/-- State of the Lake build monitor. -/
+structure MonitorState where
+  jobs : Array (Job Unit)
+  failures : Array String
+  resetCtrl : String
+  lastUpdate : Nat
+
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
 partial def monitorJobs
   (jobs : Array (Job Unit))
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
-  (showANSIProgress : Bool)
+  (useANSI showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (totalJobs := jobs.size)
   (updateMs := 100)
 : IO (Array String) := do
-  loop jobs resetCtrl (← IO.monoMsNow) initFailures
+  let (_,s) ← StateT.run loop {
+      jobs, resetCtrl
+      lastUpdate := ← IO.monoMsNow
+      failures := initFailures
+  }
+  return s.failures
 where
-  loop jobs resetCtrl lastUpdate initFailures := do
-    let mut unfinishedJobs := #[]
-    let mut failures := initFailures
-    let mut resetCtrl := resetCtrl
-    for job in jobs do
+  loop : StateT MonitorState IO PUnit := do
+    let jobs ← modifyGet fun s => (s.jobs, {s with jobs := #[]})
+    for h : i in [0:jobs.size] do
+      let job := jobs[i]'h.upper
       if (← IO.hasFinished job.task) then
-        let log := job.task.get.state
-        let failed := log.hasEntriesGe failLv
+        let {log, built, ..} := (← job.wait).state
+        let maxLv := log.maxLogLevel
+        let failed := !log.isEmpty ∧ maxLv ≥ failLv
         if failed then
-          failures := failures.push job.caption
-        if log.hasEntriesGe outLv then
-          let jobsDone := totalJobs - jobs.size + unfinishedJobs.size + 1
-          out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {job.caption}\n"
-          resetCtrl := ""
-          let outLv := if failed then .trace else outLv
-          log.replay (logger := MonadLog.stream out outLv)
+          modify fun s => {s with failures := s.failures.push job.caption}
+        let hasOutput := !log.isEmpty ∧ maxLv ≥ outLv
+        if hasOutput ∨ (showProgress ∧ built) then
+          let icon := if hasOutput then maxLv.icon else '✔'
+          let verb :=
+            if built then "Built"
+            else if failed then "Building"
+            else "Fetched"
+          let jobNo := (totalJobs - jobs.size) + (i - (← get).jobs.size) + 1
+          let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
+          let caption :=
+            if useANSI then
+              let color := if hasOutput then maxLv.ansiColor else "32"
+              s!"\x1B[{color}m{caption}\x1B[39;49m"
+            else
+              caption
+          let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl :=""})
+          out.putStr s!"{resetCtrl}{caption}\n"
+          if hasOutput then
+            let outLv := if failed then .trace else outLv
+            log.replay (logger := MonadLog.stream out outLv)
           out.flush
       else
-        unfinishedJobs := unfinishedJobs.push job
-    if h : 0 < unfinishedJobs.size then
-      if showANSIProgress then
+        modify fun s => {s with jobs := s.jobs.push job}
+    let jobs := (← get).jobs
+    if h : 0 < jobs.size then
+      if showProgress ∧ useANSI then
         let jobsDone := totalJobs - jobs.size
-        let caption := unfinishedJobs[0]'h |>.caption
-        out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {caption}"
-        resetCtrl := "\x1B[2K\r"
+        let caption := jobs[0]'h |>.caption
+        let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := "\x1B[2K\r"})
+        out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] Checking {caption}"
         out.flush
       let now ← IO.monoMsNow
+      let lastUpdate ← modifyGet fun s => (s.lastUpdate, {s with lastUpdate := now})
       let sleepTime : Nat := updateMs - (now - lastUpdate)
       if sleepTime > 0 then
         IO.sleep sleepTime.toUInt32
-      loop unfinishedJobs resetCtrl now failures
-    else
-      unless resetCtrl.isEmpty do
-        out.putStr resetCtrl
-      return failures
+      loop
+    else unless resetCtrl.isEmpty do
+      out.putStr resetCtrl
 
 /--
 Whether the build should show progress information.
@@ -118,14 +144,14 @@ def Workspace.runFetchM
   -- Job Monitor
   let jobs ← ctx.registeredJobs.get
   let resetCtrl := if showANSIProgress then "\x1B[2K\r" else ""
-  let failures ← monitorJobs jobs out failLv outLv showANSIProgress
+  let failures ← monitorJobs jobs out failLv outLv useANSI showProgress
     (resetCtrl := resetCtrl) (initFailures := failures)
   -- Failure Report
   if failures.isEmpty then
     let some a := a?
       | error "top-level build failed"
     if showProgress then
-      out.putStr s!"All builds jobs completed successfully.\n"
+      out.putStr s!"Build completed successfully.\n"
     return a
   else
     out.putStr "Some build steps logged failures:\n"

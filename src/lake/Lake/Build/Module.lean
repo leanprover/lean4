@@ -149,7 +149,7 @@ Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
-  withRegisterJob s!"Building {mod.name}" do
+  withRegisterJob mod.name.toString do
   (← mod.deps.fetch).bindSync fun (dynlibPath, dynlibs) depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
@@ -204,7 +204,7 @@ Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
 -/
 def Module.recBuildLeanCToOExport (self : Module) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"Compiling {self.name}" do
+  withRegisterJob s!"{self.name}:c (with exports)" do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
   buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
@@ -218,7 +218,7 @@ Recursively build the module's object file from its C file produced by `lean`.
 This version does not export any Lean symbols.
 -/
 def Module.recBuildLeanCToONoExport (self : Module) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"Compiling {self.name}" do
+  withRegisterJob s!"{self.name}:c (without exports)" do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
 
@@ -233,7 +233,7 @@ def Module.coFacetConfig : ModuleFacetConfig coFacet :=
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : FetchM (BuildJob FilePath) := do
-  withRegisterJob s!"Compiling {self.name}" do
+  withRegisterJob s!"{self.name}:bc" do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
@@ -265,7 +265,7 @@ def Module.oFacetConfig : ModuleFacetConfig oFacet :=
 -- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
 def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) :=
-  withRegisterJob s!"Linking {mod.name} dynlib" do
+  withRegisterJob s!"{mod.name}:dynlib" do
 
   -- Compute dependencies
   let transImports ← mod.transImports.fetch

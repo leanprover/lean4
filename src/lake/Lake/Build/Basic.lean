@@ -33,7 +33,33 @@ structure BuildConfig where
   /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
   useStdout : Bool := false
 
-abbrev JobResult α := ELogResult α
+/-- Mutable state of a Lake job. -/
+structure JobState where
+  /-- The job's log. -/
+  log : Log := {}
+  /-- Tracks whether this job performed any significant build action. -/
+  built : Bool := false
+
+/--
+Resets the job state after a checkpoint (e.g., registering the job).
+Preserves state that downstream jobs want to depend on while resetting
+job-local state that should not be inherited by downstream jobs.
+-/
+@[inline] def JobState.renew (_ : JobState) : JobState where
+  log := {}
+  built := false
+
+def JobState.merge (a b : JobState) : JobState where
+  log := a.log ++ b.log
+  built := a.built || b.built
+
+@[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) :=
+  {s with log := f s.log}
+
+/-- The result of a Lake job. -/
+abbrev JobResult α := EResult Log.Pos JobState α
+
+/-- The `Task` of a Lake job. -/
 abbrev JobTask α := BaseIOTask (JobResult α)
 
 /-- A Lake job. -/
@@ -49,41 +75,61 @@ structure BuildContext extends BuildConfig, Context where
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
 
+/-- The monad of asynchronous Lake jobs. Lifts into `FetchM`. -/
+abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
+
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
 
-@[inline] def getBuildContext [Monad m] : BuildT m BuildContext :=
+instance : MonadStateOf Log JobM where
+  get := (·.log) <$> get
+  set log := modify fun s => {s with log}
+  modifyGet f := modifyGet fun s => let (a, log) := f s.log; (a, {s with log})
+
+instance : MonadStateOf JobState JobM := inferInstance
+
+instance : MonadLog JobM := .ofMonadState
+instance : MonadError JobM := ELog.monadError
+instance : Alternative JobM := ELog.alternative
+instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
+
+/-- Record that this job has performed some significant build action. -/
+@[inline] def markBuilt : JobM PUnit :=
+  modify fun s => {s with built := true}
+
+/-- A monad equipped with a Lake build context. -/
+abbrev MonadBuild (m : Type → Type u) :=
+  MonadReaderOf BuildContext m
+
+@[inline] def getBuildContext [MonadBuild m] : m BuildContext :=
   readThe BuildContext
 
-@[inline] def getLeanTrace [Monad m] : BuildT m BuildTrace :=
+@[inline] def getLeanTrace [Functor m] [MonadBuild m] : m BuildTrace :=
   (·.leanTrace) <$> getBuildContext
 
-@[inline] def getBuildConfig [Monad m] : BuildT m BuildConfig :=
+@[inline] def getBuildConfig [Functor m] [MonadBuild m] : m BuildConfig :=
   (·.toBuildConfig) <$> getBuildContext
 
-@[inline] def getIsOldMode [Monad m] : BuildT m Bool :=
+@[inline] def getIsOldMode [Functor m] [MonadBuild m] : m Bool :=
   (·.oldMode) <$> getBuildConfig
 
-@[inline] def getTrustHash [Monad m] : BuildT m Bool :=
+@[inline] def getTrustHash [Functor m] [MonadBuild m] : m Bool :=
   (·.trustHash) <$> getBuildConfig
 
-@[inline] def getNoBuild [Monad m] : BuildT m Bool :=
+@[inline] def getNoBuild [Functor m] [MonadBuild m] : m Bool :=
   (·.noBuild) <$> getBuildConfig
 
-@[inline] def getVerbosity [Monad m] : BuildT m Verbosity :=
+@[inline] def getVerbosity [Functor m] [MonadBuild m] : m Verbosity :=
   (·.verbosity) <$> getBuildConfig
 
-@[inline] def getIsVerbose [Monad m] : BuildT m Bool :=
+@[inline] def getIsVerbose [Functor m] [MonadBuild m] : m Bool :=
   (· == .verbose) <$> getVerbosity
 
-@[inline] def getIsQuiet [Monad m] : BuildT m Bool :=
+@[inline] def getIsQuiet [Functor m] [MonadBuild m] : m Bool :=
   (· == .quiet) <$> getVerbosity
 
 /-- The internal core monad of Lake builds.  Not intended for user use. -/
 abbrev CoreBuildM := BuildT LogIO
-
-/-- The monad of asynchronous Lake jobs. Lifts into `FetchM`. -/
-abbrev JobM := CoreBuildM
 
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
 abbrev SpawnM := BuildT BaseIO

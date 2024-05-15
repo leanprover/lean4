@@ -74,15 +74,28 @@ instance [Inhabited ε] [Pure m] : Inhabited (EStateT ε σ m α) where
 protected def lift {ε σ α : Type u} [Monad m] (x : m α) : EStateT ε σ m α := fun s => do
   let a ← x; pure (.ok a s)
 
-@[inline] def toStateT {ε σ α : Type u} [Monad m] (x : EStateT ε σ m α) : StateT σ m (Except ε α) := fun s => do
-  match (← x s) with
-  | .ok a s => return (.ok a, s)
-  | .error e s => return (.error e, s)
-
-@[inline] def toStateT? {ε σ α : Type u} [Monad m] (x : EStateT ε σ m α) : StateT σ m (Option α) := do
-  (·.toOption) <$> x.toStateT
-
 instance [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
+
+@[inline] def toStateT {ε σ α : Type u}
+  [Functor m] (x : EStateT ε σ m α) : StateT σ m (Except ε α)
+:= fun s =>
+  x s <&> fun
+  | .ok a s => (.ok a, s)
+  | .error e s => (.error e, s)
+
+@[inline] def toStateT? {ε σ α : Type u}
+  [Functor m] (x : EStateT ε σ m α) : StateT σ m (Option α)
+:= fun s =>
+  x s <&> fun
+  | .ok a s => (some a, s)
+  | .error _ s => (none, s)
+
+@[inline] def catchExceptions {ε σ α : Type u}
+  [Monad m] (x : EStateT ε σ m α) (h : ε → StateT σ m α)
+: StateT σ m α := fun s => do
+  match (← x s) with
+  | .ok a s => return (a, s)
+  | .error e s => h e s
 
 variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
 

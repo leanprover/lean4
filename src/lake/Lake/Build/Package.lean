@@ -32,16 +32,16 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
   let mut job := BuildJob.nil
   -- Build dependencies' extra dep targets
   for dep in self.deps do
-    job ← job.mix <| ← dep.extraDep.fetch
+    job := job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job ← job.add <| ← (← self.optRelease.fetch).bindSync fun success t => do
+    job := job.add <| ← (← self.optRelease.fetch).bindSync fun success t => do
       unless success do
         logWarning "failed to fetch cloud release; falling back to local build"
       return ((), t)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
-    job ← job.mix <| ← self.fetchTargetJob target
+    job := job.mix <| ← self.fetchTargetJob target
   return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
@@ -79,7 +79,7 @@ def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
   mkFacetJobConfig fun pkg =>
-    withRegisterJob s!"Fetching {pkg.name} cloud release" do
+    withRegisterJob s!"{pkg.name}:release" do
       (← pkg.optRelease.fetch).bindSync fun success t => do
         unless success do
           error "failed to fetch cloud release"

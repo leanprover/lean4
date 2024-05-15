@@ -7,3 +7,5 @@ prelude
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.EnsureNoMVar
+import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Preprocessor

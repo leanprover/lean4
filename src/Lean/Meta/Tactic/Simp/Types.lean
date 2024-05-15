@@ -123,6 +123,7 @@ structure State where
 structure Stats where
   usedTheorems : UsedSimps := {}
   diag : Diagnostics := {}
+  deriving Inhabited
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 

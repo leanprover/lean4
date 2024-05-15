@@ -12,23 +12,39 @@ namespace Lake
 
 namespace Job
 
-@[inline] protected def pure (a : α) : Job α :=
-  {task := Task.pure (.ok a {})}
+@[inline] def ofTask (task : JobTask α) (caption := "") : Job α :=
+  {task, caption}
+
+@[inline] protected def error (l : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.error 0 l), caption}
+
+@[inline] protected def pure (a : α) (l : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.ok a l), caption}
 
 instance : Pure Job := ⟨Job.pure⟩
 instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 
-@[inline] protected def nop : Job Unit :=
-  pure ()
+@[inline] protected def nop (l : Log := {}) (caption := "") : Job Unit :=
+  .pure () l caption
 
-@[inline] protected def error (l : Log := {}) : Job α :=
-  {task := Task.pure (.error 0 l)}
+/-- Sets the job's caption. -/
+@[inline] def setCaption (caption : String) (job : Job α) : Job α :=
+  {job with caption}
+
+/-- Sets the job's caption if the job's current caption is empty. -/
+@[inline] def setCaption? (caption : String) (job : Job α) : Job α :=
+  if job.caption.isEmpty then {job with caption} else job
 
 @[inline] def mapResult
   (f : JobResult α → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β :=
-  {task := self.task.map f prio sync}
+  {self with task := self.task.map f prio sync}
+
+@[inline] def bindTask [Monad m]
+  (f : JobTask α → m (JobTask β)) (self : Job α)
+: m (Job β) :=
+  return {self with task := ← f self.task}
 
 @[inline] protected def map
   (f : α → β) (self : Job α)
@@ -56,7 +72,7 @@ instance : Functor Job where map := Job.map
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
   (act : JobM α) (prio := Task.Priority.default)
-: SpawnM (Job α) := fun ctx => Job.mk <$> do
+: SpawnM (Job α) := fun ctx => .ofTask <$> do
   BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {}
 
 /-- Wait a the job to complete and return the result. -/
@@ -86,8 +102,8 @@ after the job `a` completes.
 @[inline] protected def bindSync
   (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := fun ctx => Job.mk <$> do
-  BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun
+: SpawnM (Job β) := fun ctx => self.bindTask fun task => do
+  BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
     | EResult.ok a l => (withLoggedIO (f a)) ctx l
     | EResult.error n l => return .error n l
 
@@ -98,8 +114,8 @@ after the job `a` completes and then merges into the job produced by `b`.
 @[inline] protected def bindAsync
   (self : Job α) (f : α → SpawnM (Job β))
   (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := fun ctx => Job.mk <$> do
-  BaseIO.bindTask self.task (prio := prio) (sync := sync) fun
+: SpawnM (Job β) := fun ctx => self.bindTask fun task => do
+  BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a l => do
       let job ← f a ctx
       if l.isEmpty then return job.task else
@@ -115,7 +131,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 @[inline] def zipWith
   (f : α → β → γ) (x : Job α) (y : Job β)
   (prio := Task.Priority.default) (sync := false)
-: BaseIO (Job γ) := Job.mk <$> do
+: BaseIO (Job γ) := Job.ofTask <$> do
   BaseIO.bindTask x.task (prio := prio) (sync := true) fun rx =>
   BaseIO.mapTask (t := y.task) (prio := prio) (sync := sync) fun ry =>
   match rx, ry with
@@ -147,14 +163,14 @@ namespace BuildJob
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
 
 @[inline] def attempt (self : BuildJob α) : BuildJob Bool :=
-  {task := self.toJob.task.map fun
+  self.mapResult fun
     | .error _ l => .ok (false, nilTrace) l
-    | .ok (_, t) l => .ok (true, t) l}
+    | .ok (_, t) l => .ok (true, t) l
 
 @[inline] def attempt? (self : BuildJob α) : BuildJob (Option α) :=
-  {task := self.toJob.task.map fun
+  self.mapResult fun
     | .error _ l => .ok (none, nilTrace) l
-    | .ok (a, t) l => .ok (some a, t) l}
+    | .ok (a, t) l => .ok (some a, t) l
 
 @[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => (f a,t)) <$> self.toJob

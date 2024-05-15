@@ -39,11 +39,12 @@ abbrev JobTask α := BaseIOTask (JobResult α)
 /-- A Lake job. -/
 structure Job (α : Type u)  where
   task : JobTask α
+  caption : String
 
 /-- A Lake context with a build configuration and additional build data. -/
 structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
-  registeredJobs : IO.Ref (Array (String × Job Unit))
+  registeredJobs : IO.Ref (Array (Job Unit))
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
@@ -81,7 +82,7 @@ instance [Pure m] : MonadLift LakeM (BuildT m) where
 /-- The internal core monad of Lake builds.  Not intended for user use. -/
 abbrev CoreBuildM := BuildT LogIO
 
-/-- The monad of asynchronous Lake jobs. -/
+/-- The monad of asynchronous Lake jobs. Lifts into `FetchM`. -/
 abbrev JobM := CoreBuildM
 
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
@@ -89,3 +90,13 @@ abbrev SpawnM := BuildT BaseIO
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
 @[deprecated SpawnM] abbrev SchedulerM := SpawnM
+
+/--
+Logs a build step with `message`.
+
+**Deprecated:**  Build steps are now managed by a top-level build monitor.
+As a result, this no longer functions the way it used to. It now just logs the
+`message` via `logVerbose`.
+-/
+@[deprecated] def logStep (message : String) : JobM Unit := do
+  logVerbose message

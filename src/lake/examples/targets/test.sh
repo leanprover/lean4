@@ -28,20 +28,20 @@ $LAKE build bark | awk '/Building/,/Bark!/' | diff -u --strip-trailing-cr <(cat 
 info: Bark!
 EOF
 ) -
-$LAKE build targets/bark_bark | awk '/Building/,/bark_bark/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+$LAKE build targets/bark_bark | awk '/Building/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
 [1/2] Building targets/bark
 info: Bark!
-[2/2] Building targets/bark_bark
+All builds jobs completed successfully.
 EOF
 ) -
-$LAKE build targets:print_name | awk '/Building/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
+$LAKE build targets:print_name | awk '/Building/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'
 [1/1] Building targets:print_name
 info: stdout/stderr:
 targets
 EOF
 ) -
-$LAKE build Foo:print_name | awk '/Building/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
-[1/1] Building Foo:print_name
+$LAKE build Foo:print_name | awk '/Building/,/^Foo/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+[1/1] Building targets/Foo:print_name
 info: stdout/stderr:
 Foo
 EOF

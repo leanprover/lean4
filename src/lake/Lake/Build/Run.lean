@@ -27,7 +27,7 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
 partial def monitorJobs
-  (jobs : Array (String × Job Unit))
+  (jobs : Array (Job Unit))
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
   (showANSIProgress : Bool)
@@ -42,25 +42,25 @@ where
     let mut unfinishedJobs := #[]
     let mut failures := initFailures
     let mut resetCtrl := resetCtrl
-    for jobEntry@(caption, job) in jobs do
+    for job in jobs do
       if (← IO.hasFinished job.task) then
         let log := job.task.get.state
         let failed := log.hasEntriesGe failLv
         if failed then
-          failures := failures.push caption
+          failures := failures.push job.caption
         if log.hasEntriesGe outLv then
           let jobsDone := totalJobs - jobs.size + unfinishedJobs.size + 1
-          out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {caption}\n"
+          out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {job.caption}\n"
           resetCtrl := ""
           let outLv := if failed then .trace else outLv
           log.replay (logger := MonadLog.stream out outLv)
           out.flush
       else
-        unfinishedJobs := unfinishedJobs.push jobEntry
+        unfinishedJobs := unfinishedJobs.push job
     if h : 0 < unfinishedJobs.size then
       if showANSIProgress then
         let jobsDone := totalJobs - jobs.size
-        let (caption, _) := unfinishedJobs[0]'h
+        let caption := unfinishedJobs[0]'h |>.caption
         out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] {caption}"
         resetCtrl := "\x1B[2K\r"
         out.flush
@@ -75,6 +75,15 @@ where
       return failures
 
 /--
+Whether the build should show progress information.
+
+`Verbosity.quiet` hides progress and, for a `noBuild`,
+`Verbosity.verbose` shows progress.
+-/
+def BuildConfig.showProgress (cfg : BuildConfig) : Bool :=
+  (cfg.noBuild ∧ cfg.verbosity == .verbose) ∨ cfg.verbosity != .quiet
+
+/--
 Run a build function in the Workspace's context using the provided configuration.
 Reports incremental build progress and build logs. In quiet mode, only reports
 failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
@@ -86,12 +95,9 @@ def Workspace.runFetchM
   let ctx ← mkBuildContext ws cfg
   let out ← if cfg.useStdout then IO.getStdout else IO.getStderr
   let useANSI ← out.isTty
-  let verbosity := cfg.verbosity
-  let outLv := verbosity.minLogLevel
-  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
-  let showProgress :=
-    (cfg.noBuild ∧ verbosity == .verbose) ∨
-    verbosity != .quiet
+  let outLv := cfg.verbosity.minLogLevel
+  let failLv : LogLevel := if cfg.failIfWarnings then .warning else .error
+  let showProgress := cfg.showProgress
   let showANSIProgress := showProgress ∧ useANSI
   -- Job Computation
   let caption := "Computing build jobs"
@@ -104,7 +110,7 @@ def Workspace.runFetchM
   if log.hasEntriesGe outLv then
     unless showANSIProgress do
       out.putStr header
-      out.putStr "\n"
+    out.putStr "\n"
     let outLv := if failed then .trace else outLv
     log.replay (logger := MonadLog.stream out outLv)
     out.flush

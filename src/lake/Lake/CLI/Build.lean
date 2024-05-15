@@ -29,8 +29,9 @@ structure BuildSpec where
     | throw <| CliError.nonCliFacet facetType facet
   return {info, getBuildJob := h ▸ getJob}
 
-@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) :=
-  self.getBuildJob <$> self.info.fetch
+@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) := do
+  maybeRegisterJob s!"Building {self.info.key.toSimpleString}" <| ← do
+    self.getBuildJob <$> self.info.fetch
 
 def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
   BuildJob.mixArray (← specs.mapM (·.fetch))

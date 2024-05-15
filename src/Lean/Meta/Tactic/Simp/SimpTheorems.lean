@@ -221,13 +221,14 @@ partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpThe
   else
     d
 
-def SimpTheorems.erase [Monad m] [MonadError m] (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
+def SimpTheorems.erase [Monad m] [MonadLog m]  [AddMessageContext m] [MonadOptions m]
+    (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
   unless d.isLemma thmId ||
     match thmId with
     | .decl declName .. => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
     | _ => false
   do
-    throwError "'{thmId.key}' does not have [simp] attribute"
+    logWarning m!"'{thmId.key}' does not have [simp] attribute"
   return d.eraseCore thmId
 
 private partial def isPerm : Expr → Expr → MetaM Bool

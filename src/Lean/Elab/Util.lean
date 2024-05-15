@@ -209,9 +209,20 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
       let name ← id.getName
       logError m!"internal exception: {name}"
 
+/--
+If `x` throws an exception, catch it, turn it into a log message (using `logException`), and returns
+the given default value.
+-/
+def withLoggingD [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
+    (d : α) (x : m α) : m α := do
+  try x catch ex => logException ex; pure d
+
+/--
+If `x` throws an exception, catch it, turn it into a log message (using `logException`).
+-/
 def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
-    (x : m Unit) : m Unit := do
-  try x catch ex => logException ex
+    (x : m Unit) : m Unit := withLoggingD .unit x
+
 
 def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
   let pos ← getRefPos

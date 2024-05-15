@@ -153,6 +153,7 @@ inductive ResolveSimpIdResult where
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
   this option only makes sense for `simp_all` or `*` is used.
+  Try to recover from errors as much as possible so that users keep seeing the current goal.
 -/
 def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
@@ -172,8 +173,8 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
       let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
-          let fvar ← if eraseLocal || starArg then Term.isLocalIdent? arg[1] else pure none
-          if let some fvar := fvar then
+          let fvar? ← if eraseLocal || starArg then Term.isLocalIdent? arg[1] else pure none
+          if let some fvar := fvar? then
             -- We use `eraseCore` because the simp theorem for the hypothesis was not added yet
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
@@ -184,7 +185,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               else if ctx.config.autoUnfold then
                 thms := thms.eraseCore (.decl declName)
               else
-                thms ← thms.erase (.decl declName)
+                thms ← withRef id <| thms.erase (.decl declName)
             else
               -- If `id` could not be resolved, we should check whether it is a builtin simproc.
               -- before returning error.
@@ -192,7 +193,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               if (← Simp.isBuiltinSimproc name) then
                 simprocs := simprocs.erase name
               else
-                throwUnknownConstant name
+                withLogging <| withRef id <| throwUnknownConstant name
         else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then
@@ -201,7 +202,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           let inv  := !arg[1].isNone
           let term := arg[2]
-          match (← resolveSimpIdTheorem? term) with
+          match ← resolveSimpIdTheorem? term with
           | .expr e  =>
             let name ← mkFreshId
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
@@ -216,7 +217,8 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             simprocs  := simprocs.push (← ext₂.getSimprocs)
           | .none    =>
             let name ← mkFreshId
-            thms ← addSimpTheorem thms (.stx name arg) term post inv
+            thms ← withLoggingD thms <|
+              addSimpTheorem thms (.stx name arg) term post inv
         else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
           starArg := true
         else

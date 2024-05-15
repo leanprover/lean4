@@ -10,6 +10,7 @@ import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
+import Init.Data.Int.Bitwise.Lemmas
 
 namespace BitVec
 
@@ -278,6 +279,9 @@ theorem toInt_ofNat {n : Nat} (x : Nat) :
   have _ := Nat.two_pow_pos n
   have p : 0 ≤ i % (2^n : Nat) := by omega
   simp [toInt_eq_toNat_bmod, Int.toNat_of_nonneg p]
+
+@[simp] theorem ofInt_natCast (w n : Nat) :
+  BitVec.ofInt w (n : Int) = BitVec.ofNat w n := rfl
 
 /-! ### zeroExtend and truncate -/
 
@@ -640,6 +644,78 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
 @[simp] theorem getLsb_ushiftRight (x : BitVec n) (i j : Nat) :
     getLsb (x >>> i) j = getLsb x (i+j) := by
   unfold getLsb ; simp
+
+/-! ### sshiftRight -/
+
+theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
+    x.sshiftRight i = BitVec.ofInt n (x.toInt >>> i) := by
+  apply BitVec.eq_of_toInt_eq
+  simp [BitVec.sshiftRight]
+
+/-- Equation theorem for 'Int.mod' -/
+private theorem Int.mod_negSucc_eq (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+
+/-- if the msb is false, the arithmetic shift right equals logical shift right -/
+theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false) :
+    (x.sshiftRight s) = x >>> s := by
+  apply BitVec.eq_of_toNat_eq
+  rw [BitVec.sshiftRight_eq]
+  rw [BitVec.toInt_eq_toNat_cond]
+  have hxbound : 2 * x.toNat < 2 ^ w := (BitVec.msb_eq_false_iff_two_mul_lt x).mp h
+  simp only [hxbound, ↓reduceIte, Int.shiftRight_ofNat, Int.ofNat_eq_coe, ofInt_natCast,
+    toNat_ofNat, toNat_ushiftRight]
+  rw [Nat.mod_eq_of_lt]
+  rw [Nat.shiftRight_eq_div_pow]
+  suffices x.toNat / 2^s ≤ x.toNat by
+    apply Nat.lt_of_le_of_lt this x.isLt
+  apply Nat.div_le_self
+
+
+/-- If the msb is `true`, the arithmetic shift right equals negating, then logical shifting right, then negating again.
+  The double negation preserves the lower bits that have been shifted,
+  and the outer negation ensures that the high bits are '1'. -/
+theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
+    (x.sshiftRight s) = ~~~((~~~x) >>> s) := by
+  apply BitVec.eq_of_toNat_eq
+  rcases w with rfl | w
+  · simp
+  · rw [BitVec.sshiftRight_eq]
+    rw [BitVec.toInt_eq_toNat_cond]
+    have hxbound : (2 * x.toNat ≥ 2 ^ (w + 1)) := (BitVec.msb_eq_true_iff_two_mul_ge x).mp h
+    have hxbound' : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
+    simp only [hxbound', ↓reduceIte, toNat_ofInt, toNat_not, toNat_ushiftRight]
+    rw [← Int.subNatNat_eq_coe]
+    rw [Int.subNatNat_of_lt (by omega)]
+    simp only [Nat.pred_eq_sub_one, Int.shiftRight_negSucc]
+    rw [Int.mod_negSucc_eq]
+    simp [Int.natAbs_ofNat, Nat.succ_eq_add_one]
+    rw [Int.subNatNat_of_le (by omega)]
+    simp only [Int.toNat_ofNat]
+    rw [Nat.mod_eq_of_lt]
+    · rw [Nat.sub_right_comm]
+      omega
+    · rw [Nat.shiftRight_eq_div_pow]
+      apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
+
+theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
+  getLsb (x.sshiftRight s) i =  (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
+  rcases hmsb:x.msb with rfl | rfl
+  · simp only [sshiftRight_eq_of_msb_false hmsb, getLsb_ushiftRight, Bool.if_false_right]
+    by_cases hi : i ≥ w
+    · simp only [hi, decide_True, Bool.not_true, Bool.false_and]
+      apply getLsb_ge
+      omega
+    · simp only [hi, decide_False, Bool.not_false, Bool.true_and, Bool.iff_and_self,
+      decide_eq_true_eq]
+      intros hlsb
+      apply BitVec.lt_of_getLsb _ _ hlsb
+  · by_cases hi : i ≥ w
+    · simp [hi]
+    · simp only [sshiftRight_eq_of_msb_true hmsb, getLsb_not, getLsb_ushiftRight, Bool.not_and,
+      Bool.not_not, hi, decide_False, Bool.not_false, Bool.if_true_right, Bool.true_and,
+      Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
+      Nat.not_lt, decide_eq_true_eq] <;> omega
 
 /-! ### append -/
 

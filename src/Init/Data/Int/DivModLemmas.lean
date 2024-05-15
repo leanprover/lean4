@@ -1197,7 +1197,7 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
     | 0 => rw [if_pos] <;> simp (config := {decide := true})
     | (x+1) =>
       rw [if_neg]
-      · simp [← Int.sub_sub]
+      · rw [← Int.sub_sub, Int.sub_self]; simp
       · refine Int.not_lt.mpr ?_
         simp only [← natCast_add, ← ofNat_one, ← ofNat_two, ← ofNat_ediv]
         match x with

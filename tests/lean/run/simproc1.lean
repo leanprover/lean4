@@ -30,7 +30,7 @@ example : x + foo 2 = 12 + x := by
 
 example : x + foo 2 = 12 + x := by
   -- We can use `-` to disable `simproc`s
-  fail_if_success simp [-reduce_foo]
+  fail_if_success simp [-reduceFoo]
   simp_arith
 
 example (x : Nat) (h : x < 86) : ¬100 ≤ x + 14 := by simp; exact h

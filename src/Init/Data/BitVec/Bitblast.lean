@@ -184,4 +184,18 @@ theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c
     simp [← sub_toAdd, BitVec.sub_add_cancel]
   · simp [bit_not_testBit x _]
 
+/-! ### Inequalities (le / lt) -/
+
+theorem ult_eq_not_carry (x y : BitVec w) : x.ult y = !carry w x (~~~y) true := by
+  simp only [BitVec.ult, carry, toNat_mod_cancel, toNat_not, toNat_true, ge_iff_le, ← decide_not,
+    Nat.not_le, decide_eq_decide]
+  rw [Nat.mod_eq_of_lt (by omega)]
+  omega
+
+theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
+  simp [BitVec.ule, BitVec.ult, ← decide_not]
+
+theorem ule_eq_carry (x y : BitVec w) : x.ule y = carry w y (~~~x) true := by
+  simp [ule_eq_not_ult, ult_eq_not_carry]
+
 end BitVec

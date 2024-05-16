@@ -6,14 +6,14 @@ Authors: Mac Malone
 namespace Lake
 
 /-- A monad equipped with a dependently typed key-value store for a particular key. -/
-class MonadStore1 {κ : Type u} (k : κ) (α : outParam $ Type v) (m : Type v → Type w) where
+class MonadStore1 {κ : Type u} (k : κ) (α : semiOutParam $ Type v) (m : Type v → Type w) where
   fetch? : m (Option α)
   store : α → m PUnit
 
 export MonadStore1 (fetch? store)
 
 /-- A monad equipped with a dependently typed key-object store. -/
-class MonadDStore (κ : Type u) (β : outParam $ κ → Type v) (m : Type v → Type w) where
+class MonadDStore (κ : Type u) (β : semiOutParam $ κ → Type v) (m : Type v → Type w) where
   fetch? : (key : κ) → m (Option (β key))
   store : (key : κ) → β key → m PUnit
 

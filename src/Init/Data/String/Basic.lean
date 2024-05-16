@@ -235,8 +235,8 @@ points to the end of a string. Otherwise, returns `false`.
 
 Examples:
 * `"abc".atEnd ⟨2⟩ = false`
-* `"abc".atEnd ⟨3⟩ = true `
-* `"L∃∀N".atEnd ⟨8⟩ = true `
+* `"abc".atEnd ⟨3⟩ = true`
+* `"L∃∀N".atEnd ⟨8⟩ = true`
 -/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool

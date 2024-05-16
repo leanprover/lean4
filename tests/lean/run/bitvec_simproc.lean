@@ -113,3 +113,7 @@ example (h : -5#10 = x) : signExtend 10 (-5#8) = x := by
   simp; guard_target =ₛ1019#10 = x; assumption
 example (h : 5#10 = x) : -signExtend 10 (-5#8) = x := by
   simp; guard_target =ₛ5#10 = x; assumption
+example (h : 40#32 = b) : 10#32 <<< 2#32 = b := by
+  simp; guard_target =ₛ 40#32 = b; assumption
+example (h : 3#32 = b) : 12#32 >>> 2#32 = b := by
+  simp; guard_target =ₛ 3#32 = b; assumption

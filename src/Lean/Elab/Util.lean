@@ -213,7 +213,7 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
 If `x` throws an exception, catch it, turn it into a log message (using `logException`).
 -/
 def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
-    (x : m Unit) : m Unit :=
+    (x : m Unit) : m Unit := do
   try x catch ex => logException ex
 
 def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do

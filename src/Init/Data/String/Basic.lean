@@ -214,7 +214,7 @@ Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
 
 Examples:
 * `"abc".front = 'a'`
-* `"".front = (default : Char) = 'A'`
+* `"".front = (default : Char)`
 -/
 def front (s : String) : Char :=
   get s 0
@@ -224,7 +224,7 @@ Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
 
 Examples:
 * `"abc".back = 'c'`
-* `"".back = (default : Char) = 'A'`
+* `"".back = (default : Char)`
 -/
 def back (s : String) : Char :=
   get s (prev s s.endPos)

@@ -51,7 +51,7 @@ v4.8.0
         acc
     ```
     is recognized without having to say `termination_by arr.size - i`.
-    * [#3630](https://github.com/leanprover/lean4/pull/3630) makes `sizeOf` less necessary in termination arguments.
+    * [#3630](https://github.com/leanprover/lean4/pull/3630) makes `termination_by?` not use `sizeOf` when not needed
     * [#3652](https://github.com/leanprover/lean4/pull/3652) improves the `termination_by` syntax.
     * [#3658](https://github.com/leanprover/lean4/pull/3658) changes how termination arguments are elaborated.
     * [#3665](https://github.com/leanprover/lean4/pull/3665) refactors GuessLex to allow inferring more complex termination arguments

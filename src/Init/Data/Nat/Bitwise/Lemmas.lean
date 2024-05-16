@@ -60,21 +60,18 @@ noncomputable def div2Induction {motive : Nat → Sort u}
   unfold bitwise
   simp
 
-@[simp] theorem and_one_is_mod (x : Nat) : x &&& 1 = x % 2 := by
-  if xz : x = 0 then
-    simp [xz, zero_and]
-  else
-    have andz := and_zero (x/2)
-    simp only [HAnd.hAnd, AndOp.and, land] at andz
+@[simp] theorem one_and_eq_mod_two (n : Nat) : 1 &&& n = n % 2 := by
+  match Nat.decEq n 0 with
+  | isTrue n0 => subst n0; decide
+  | isFalse n0 =>
     simp only [HAnd.hAnd, AndOp.and, land]
     unfold bitwise
-    cases mod_two_eq_zero_or_one x with | _ p =>
-      simp [xz, p, andz, one_div_two, mod_eq_of_lt]
+    cases mod_two_eq_zero_or_one n with | _ h => simp [n0, h]; rfl
 
 /-! ### testBit -/
 
 @[simp] theorem zero_testBit (i : Nat) : testBit 0 i = false := by
-  simp only [testBit, zero_shiftRight, zero_and, bne_self_eq_false]
+  simp only [testBit, zero_shiftRight, and_zero, bne_self_eq_false]
 
 @[simp] theorem testBit_zero (x : Nat) : testBit x 0 = decide (x % 2 = 1) := by
   cases mod_two_eq_zero_or_one x with | _ p => simp [testBit, p]

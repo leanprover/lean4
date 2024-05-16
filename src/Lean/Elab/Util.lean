@@ -216,7 +216,6 @@ def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageCont
     (x : m Unit) : m Unit :=
   try x catch ex => logException ex
 
-
 def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
   let pos ← getRefPos
   match ex.getRef.getPos? with

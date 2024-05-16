@@ -50,6 +50,7 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.async do
+  updateAction .fetch
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
@@ -64,7 +65,7 @@ def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.asy
   let logName := s!"{self.name}/{tag}/{self.buildArchive}"
   let depTrace := Hash.ofString url
   let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-  let upToDate ← buildUnlessUpToDate? self.buildArchiveFile depTrace traceFile do
+  let upToDate ← buildUnlessUpToDate? (action := .fetch) self.buildArchiveFile depTrace traceFile do
     logVerbose s!"downloading {logName}"
     download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do

@@ -24,13 +24,23 @@ and will be rebuilt on different host platforms.
 -/
 def platformTrace := pureHash System.Platform.target
 
-/-- Check if the `info` is up-to-date by comparing `depTrace` with `traceFile`. -/
+/--
+Checks if the `info` is up-to-date by comparing `depTrace` with `traceFile`.
+If old mode is enabled (e.g., `--old`), uses the modification time of `oldTrace`
+as the point of comparison instead.
+-/
 @[specialize] def BuildTrace.checkUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (traceFile : FilePath)
+  (oldTrace := depTrace)
 : JobM Bool := do
   if (← getIsOldMode) then
-    depTrace.checkAgainstTime info
+    if (← oldTrace.checkAgainstTime info) then
+      return true
+    else if let some hash ← Hash.load? traceFile then
+      depTrace.checkAgainstHash info hash
+    else
+      return false
   else
     depTrace.checkAgainstFile info traceFile
 
@@ -42,14 +52,15 @@ Returns whether `info` was already up-to-date.
 @[inline] def buildUnlessUpToDate?
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
+  (action : JobAction := .build) (oldTrace := depTrace)
 : JobM Bool := do
-  if (← depTrace.checkUpToDate info traceFile) then
+  if (← depTrace.checkUpToDate info traceFile oldTrace) then
     return true
   else if (← getNoBuild) then
     IO.Process.exit noBuildCode.toUInt8
   else
+    updateAction action
     build
-    markBuilt
     depTrace.writeToFile traceFile
     return false
 
@@ -123,6 +134,7 @@ def buildFileUnlessUpToDate
   let logFile := FilePath.mk <| file.toString ++ ".log.json"
   let build := cacheBuildLog logFile build
   if (← buildUnlessUpToDate? file depTrace traceFile build) then
+    updateAction .cache
     replayBuildLog logFile
     fetchFileTrace file
   else

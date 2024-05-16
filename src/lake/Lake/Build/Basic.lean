@@ -33,12 +33,38 @@ structure BuildConfig where
   /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
   useStdout : Bool := false
 
+/-- Information on what this job did. -/
+inductive JobAction
+/-- No information about this job's action is available. -/
+| unknown
+/-- Tried to load a cached build action (set by `buildFileUnlessUpToDate`) -/
+| cache
+/-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
+| fetch
+/-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
+| build
+deriving Inhabited, Repr, DecidableEq, Ord
+
+instance : LT JobAction := ltOfOrd
+instance : LE JobAction := leOfOrd
+instance : Min JobAction := minOfLe
+instance : Max JobAction := maxOfLe
+
+@[inline] def JobAction.merge (a b : JobAction) : JobAction :=
+  max a b
+
+def JobAction.verb (failed : Bool) : JobAction → String
+| .unknown => if failed then "Running" else "Ran"
+| .cache => if failed then "Revisiting" else "Revisited"
+| .fetch => if failed then "Fetching" else "Fetched"
+| .build => if failed then "Building" else "Built"
+
 /-- Mutable state of a Lake job. -/
 structure JobState where
   /-- The job's log. -/
   log : Log := {}
   /-- Tracks whether this job performed any significant build action. -/
-  built : Bool := false
+  action : JobAction := .unknown
 
 /--
 Resets the job state after a checkpoint (e.g., registering the job).
@@ -47,11 +73,11 @@ job-local state that should not be inherited by downstream jobs.
 -/
 @[inline] def JobState.renew (_ : JobState) : JobState where
   log := {}
-  built := false
+  action := .unknown
 
 def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
-  built := a.built || b.built
+  action := a.action.merge b.action
 
 @[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) :=
   {s with log := f s.log}
@@ -93,9 +119,9 @@ instance : MonadError JobM := ELog.monadError
 instance : Alternative JobM := ELog.alternative
 instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
 
-/-- Record that this job has performed some significant build action. -/
-@[inline] def markBuilt : JobM PUnit :=
-  modify fun s => {s with built := true}
+/-- Record that this job is trying to perform some action. -/
+@[inline] def updateAction (action : JobAction) : JobM PUnit :=
+  modify fun s => {s with action := s.action.merge action}
 
 /-- A monad equipped with a Lake build context. -/
 abbrev MonadBuild (m : Type → Type u) :=

@@ -154,7 +154,7 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-    let upToDate ← buildUnlessUpToDate? mod modTrace mod.traceFile do
+    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace) mod modTrace mod.traceFile do
       let hasLLVM := Lean.Internal.hasLLVMBackend ()
       let bcFile? := if hasLLVM then some mod.bcFile else none
       cacheBuildLog mod.logFile do
@@ -166,6 +166,7 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
       if hasLLVM then
         discard <| cacheFileHash mod.bcFile
     if upToDate then
+      updateAction .cache
       replayBuildLog mod.logFile
     return ((), depTrace)
 

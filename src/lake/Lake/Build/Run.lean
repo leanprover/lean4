@@ -55,18 +55,15 @@ where
     for h : i in [0:jobs.size] do
       let job := jobs[i]'h.upper
       if (← IO.hasFinished job.task) then
-        let {log, built, ..} := (← job.wait).state
+        let {log, action, ..} := (← job.wait).state
         let maxLv := log.maxLogLevel
         let failed := !log.isEmpty ∧ maxLv ≥ failLv
         if failed then
           modify fun s => {s with failures := s.failures.push job.caption}
         let hasOutput := !log.isEmpty ∧ maxLv ≥ outLv
-        if hasOutput ∨ (showProgress ∧ built) then
+        if hasOutput ∨ (showProgress ∧ action == .build) then
+          let verb := action.verb failed
           let icon := if hasOutput then maxLv.icon else '✔'
-          let verb :=
-            if built then "Built"
-            else if failed then "Building"
-            else "Fetched"
           let jobNo := (totalJobs - jobs.size) + (i - (← get).jobs.size) + 1
           let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
           let caption :=
@@ -154,7 +151,7 @@ def Workspace.runFetchM
       out.putStr s!"Build completed successfully.\n"
     return a
   else
-    out.putStr "Some build steps logged failures:\n"
+    out.putStr "Some builds logged failures:\n"
     failures.forM (out.putStr s!"- {·}\n")
     error "build failed"
 

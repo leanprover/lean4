@@ -384,7 +384,7 @@ v4.8.0
   * [#3612](https://github.com/leanprover/lean4/pull/3612) avoids argument limits when building on Windows.
   * [#3682](https://github.com/leanprover/lean4/pull/3682) builds Lean's `.o` files in parallel to rest of core.
   * [#3601](https://github.com/leanprover/lean4/pull/3601)
-    changes the way Lean is build on Windows (see breaking changes below).
+    changes the way Lean is built on Windows (see breaking changes below).
     As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows
     to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run
     unless those shared libraries are co-located with the executables or part of `PATH`.

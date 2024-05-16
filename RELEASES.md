@@ -11,104 +11,368 @@ of each version.
 v4.8.0
 ---------
 
-* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
+* Library
+  * `Bool`/`Prop`
+    * PR #3508 improves `simp` confluence for `Bool` and `Prop` terms.
+    * Theorems: PR #3604
+  * `Nat`
+    * PR #3579 makes `Nat.succ_eq_add_one` be a simp lemma, now that `induction`/cases` uses `n + 1` instead of `Nat.succ n`.
+    * PR #3808 replaces `Nat.succ` simp rules with simprocs.
+    * PR #3876 adds faster `Nat.repr` C implementation
+  * `Int`
+    * Theorems: PR #3890
+  * `UInt`s
+    * PR #3960 improves performance of upcasting
+  * `Array` and `Subarray`
+    * PR #3676 removes `Array.eraseIdxAux`, `Array.eraseIdxSzAux`, and `Array.eraseIdx'`.
+    * PR #3648 simplifes `Array.findIdx?`
+    * PR #3851 renames fields of `Subarray`
+  * `List`
+    * PR #3785 upstreams tail-recursive List operations and `@[csimp]` lemmas
+  * `BitVec`
+    * Theorems: PR #3593, PR #3593, PR #3597, PR #3598, PR #3721, PR #3729, PR #3880, PR #4039.
+    * PR #3884 protects `Std.BitVec`
+  * `String`
+    * PR #3832 fixes `String.splitOn`
+    * PR #3959 adds `String.Pos.isValid`
+    * PR #3959 UTF-8 string validation
+    * PR #3961 adds a model implementation for UTF-8 encoding and decoding
+  * Refactors
+    * PR #3605 reduces imports for `Init.Data.Nat` and `Init.Data.Int`
+    * PR #3613 reduces imports for `Init.Omega.Int`
+    * PR #3634 upstreams `Std.Data.Nat` and PR #3635 upstreams `Std.Data.Int`
+    * PR #3790 reduces more imports for `omega`
+    * PR #3694 extends `GetElem` interface with `getElem!` and `getElem?` to simplify containers like `RBMap`
+    * PR #3865 renames `Option.toMonad` (see breaking changes below)
+    * PR #3882 unifies `lexOrd` with `compareLex`
+  * Other fixes or improvements
+    * PR #3765 makes `Quotient.sound` be a `theorem`.
+    * PR #3645 fixes `System.FilePath.parent` in the case of absolute paths
+    * PR #3660 `ByteArray.toUInt64LE!` and `ByteArray.toUInt64BE!` were swapped
+    * PR #3881, PR #3887 fixes linearity issues in `HashMap.insertIfNew`, `HashSet.erase`, and `HashMap.erase`.
+      The `HashMap.insertIfNew` fix improves `import` performance.
+    * PR #3830 ensures linearity in `Parsec.many*Core`
+    * PR #3930 adds `FS.Stream.isTty` field
+    * PR #3866 deprecates `Option.toBool` in favor of `Option.isSome`
+    * PR #3975 upstreams `Data.List.Init` and `Data.Array.Init` material from Std.
+    * PR #3942 adds instances that make `ac_rfl` work without Mathlib.
+    * PR #4010 changes `Fin.induction` to use structural induction
+    * [02753f](https://github.com/leanprover/lean4/commit/02753f6e4c510c385efcbf71fa9a6bec50fce9ab)
+      fixes bug in `reduceLeDiff` simproc
+    * PR #4097 adds `IO.TaskState` and `IO.getTaskState` to get the task from the Lean runtime's task manager.
+  * Docs: PR #3615, PR #3664, PR #3707, PR #3734, PR #3868, PR #3861, PR #3869, PR #3858, PR #3856, PR #3857,
+    PR #3867, PR #3864, PR #3860, PR #3859, PR #3871, PR #3919
 
-  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+* Language server and IDE extensions
+  * PR #3432 enables `import` auto-completions
+  * PR #3608 fixes issue [leanprover/vscode-lean4#392](https://github.com/leanprover/vscode-lean4/issues/392).
+    Diagnostic ranges were had an off-by-one error that would misplace, for example, goal states.
+  * PR #3014 introduces snapshot trees, foundational work for incremental tactics and parallelism.
+    PR #3849 adds basic incrementality API.
+  * PR #3271 adds support for server-to-client requests.
+  * PR #3656 fixes jump to definition when there are conflicting names from different files.
+    Fixes issue [#1170](https://github.com/leanprover/lean4/issues/1170).
+  * PR #3691, PR #3925, PR #3932 keeps semantic tokens updated, with performance improvements
+  * PR #3247 and PR #3730 adds diagnostics to run "Restart File" when a file dependency is saved
+  * PR #3722 uses the correct module names when displaying references
+  * PR #3728 makes errors in header reliably appear and makes the "Import out of date" warning be at "hint" severity.
+    PR #3739 simplifies the text of this warning.
+  * PR #3778 fixes [#3462](https://github.com/leanprover/lean4/issues/3462),
+    where info nodes from before the cursor would be used for computing completions.
+  * PR #3985 makes trace timings appear in Infoview
 
-  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+* Language features, tactics, and metaprograms
+  * Functional induction principles.
+    PR #3432, PR #3620, PR #3754, PR #3762, PR #3738, PR #3776, PR #3898.
 
-* Lean now generates an error if the type of a theorem is **not** a proposition.
+    Derived from the definition of a (possibly mutually) recursive function,
+    a **functional induction principle** is created that is tailored to proofs about that function.
 
-* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+    For example from:
+    ```
+    def ackermann : Nat → Nat → Nat
+      | 0, m => m + 1
+      | n+1, 0 => ackermann n 1
+      | n+1, m+1 => ackermann n (ackermann (n + 1) m)
+    ```
+    we get
+    ```
+    ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
+      (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
+      (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
+      (x x : Nat) : motive x x
+    ```
 
-* Functional induction principles.
+    It can be used in the `induction` tactic using the `using` syntax:
+    ```
+    induction n, m using ackermann.induct
+    ```
+  * The termination checker now recognizes more recursion patterns without an
+    explicit `termination_by`. In particular the idiom of counting up to an upper
+    bound, as in
+    ```
+    def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
+      if _ : i < arr.size then
+        Array.sum arr (i+1) (acc + arr[i])
+      else
+        acc
+    ```
+    is recognized without having to say `termination_by arr.size - i`.
+    * PR #3630 makes `sizeOf` less necessary in termination arguments.
+    * PR #3652 improves the `termination_by` syntax.
+    * PR #3658 changes how termination arguments are elaborated.
+    * PR #3665 refactors GuessLex to allow inferring more complex termination arguments
+    * PR #3666 infers termination arguments such as `xs.size - i`
+  * Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
+    for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
+    Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
+    rather than `Nat.zero` and `Nat.succ n`.
+    Added option `tactic.customEliminators` to control whether to use custom eliminators.
+    Added a hack for `rcases`/`rintro`/`obtain` to use the custom eliminator for `Nat`.
+    PR [#3629](https://github.com/leanprover/lean4/pull/3629),
+    PR [#3655](https://github.com/leanprover/lean4/pull/3655), and
+    PR [#3747](https://github.com/leanprover/lean4/pull/3747).
+  * Shorter instances names. There is a new algorithm for generating names for anonymous instances.
+    Across Std and Mathlib, the median ratio between lengths of new names and of old names is about 72%.
+    With the old algorithm, the longest name was 1660 characters, and now the longest name is 202 characters.
+    The new algorithm's 95th percentile name length is 67 characters, versus 278 for the old algorithm.
+    While the new algorithm produces names that are 1.2% less unique,
+    it avoids cross-project collisions by adding a module-based suffix
+    when it does not refer to declarations from the same "project" (modules that share the same root).
+    PR [#3089](https://github.com/leanprover/lean4/pull/3089)
+    and PR [#3934](https://github.com/leanprover/lean4/pull/3934).
+  * [8d2adf](https://github.com/leanprover/lean4/commit/8d2adf521d2b7636347a5b01bfe473bf0fcfaf31)
+    Importing two different files containing proofs of the same theorem is no longer considered an error.
+    This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
+  * [84b091](https://github.com/leanprover/lean4/commit/84b0919a116e9be12f933e764474f45d964ce85c)
+    Lean now generates an error if the type of a theorem is **not** a proposition.
+  * Definition transparency
+    * [47a343](https://github.com/leanprover/lean4/commit/47a34316fc03ce936fddd2d3dce44784c5bcdfa9).
+      makes `@[reducible]`, `@[semireducible]`, and `@[irreducible]` scoped and able to be set for imported declarations.
+  * `simp`/`dsimp`
+    * PR #3607 enables kernel projection reduction in `dsimp`
+    * [b24fbf](https://github.com/leanprover/lean4/commit/b24fbf44f3aaa112f5d799ef2a341772d1eb222d)
+      and [acdb00](https://github.com/leanprover/lean4/commit/acdb0054d5a0efa724cff596ac26852fad5724c4):
+      `dsimproc` command
+      to define defeq-preserving simplification procedures.
+    * PR #3624 makes `dsimp` normalize raw nat literals as `OfNat.ofNat` applications.
+    * PR #3628 makes `simp` correctly handle `OfScientific.ofScientific` literals.
+    * PR #3654 makes `dsimp?` report used simprocs
+    * [dee074](https://github.com/leanprover/lean4/commit/dee074dcde03a37b7895a4901df2e4fa490c73c7) fixes equation theorem
+      handling in `simp` for non-recursive definitions
+    * PR #3819 improved performance of simp loops
+    * PR #3821 fixes discharge/cache interaction
+    * PR #3824 keeps `simp` from breaking `Char` literals
+    * PR #3838 allows `Nat` instances matching to be more lenient
+    * PR #3870 documentation for `simp` configuration options
+    * PR #3972 fixes simp caching
+    * PR #4044 improves cache behavior for "well-behaved" dischargers
+  * `omega`
+    * PR #3639, PR #3766, PR #3853, PR #3875: introduces a term canonicalizer.
+    * PR #3736 improves handling of `Int` modulo positivity
+    * PR #3828 makes it work as a `simp` discharger
+    * PR #3847 adds helpful error messages
+  * `rfl`
+    * PR #3671, PR #3708: upstreams the `@[refl]` attribute and the `rfl` tactic.
+    * PR #3751 makes `apply_rfl` not operate on `Eq` itself
+    * PR #4067 improves error message when there are no goals
+  * PR #3719 upstreams the `rw?` tactic, with fixes and improvements in PR #3783, PR #3794, PR #3911
+  * `conv`
+    * PR #3659 adds a `conv` version of the `calc` tactic
+    * PR #3763 makes `conv` clean up using `try with_reducible rfl` instead of `try rfl`.
+  * `#guard_msgs`
+    * PR #3617 introduces whitespace protection using the `⏎` character
+    * PR [#3883](https://github.com/leanprover/lean4/pull/3883).
+      The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
+      For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
+      and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
+    * PR #3931 adds an unused variables ignore function for `#guard_msgs`
+    * PR #3912 adds a diff between the expected and actual outputs. This feature is currently
+      disabled by default, but can be enabled with `set_option guard_msgs.diff true`.
+      Depending on user feedback, this option may default to `true` in a future version of Lean.
+  * `do` notation
+    * PR #3820 makes it an error to lift `(<- ...)` out of a pure `if ... then ... else ...`
+  * Lazy discrimination trees
+    * PR #3610 fixes a name collision for `LazyDiscrTree` that could lead to cache poisoning
+    * PR #3677 simplifies and fixes `LazyDiscrTree` handling for `exact?`/`apply?`
+    * PR #3685 moves general `exact?`/`apply?` functionality into `LazyDiscrTree`
+    * PR #3769 has lemma selection improvements for `rw?` and `LazyDiscrTree`
+    * PR #3818 improves ordering of matches
+  * PR #3590 adds `inductive.autoPromoteIndices` option to be able to disable this feature.
+  * Miscellaneous bug fixes and improvements
+    * PR #3606 preserves `cache` and `dischargeDepth` fields in `Lean.Meta.Simp.Result.mkEqSymm`
+    * PR #3633 makes `elabTermEnsuringType` respect `errToSorry`, improving error recovery of the `have` tactic.
+    * PR #3647 enables `noncomputable unsafe` definitions, for deferring implementations until later.
+    * PR #3672 adjust namespaces of tactics
+    * PR #3725 fixes `Ord` derive handler for indexed inductive types with unused alternatives
+    * PR #3893 improves performance of derived `Ord` instances
+    * PR #3771 changes error reporting for failing tactic macros. Improves `rfl` error message.
+    * PR #3745 fixes elaboration of generalized field notation if the object of the notation is an optional parameter.
+    * PR #3799 makes commands such as `universe`, `variable`, `namespace`, etc. require that their argument appear in a later column.
+      Commands that can optionally parse an `ident` or parse any number of `ident`s generally should require
+      that the `ident` use `colGt`. This keeps typos in commands from being interpreted as identifiers.
+    * PR #3815 lets the `split` tactic be used for writing code
+    * PR #3822 adds missing info in `induction` tactic for `with` clauses of the form `| cstr a b c => ?_`
+    * PR #3806 fixes `withSetOptionIn` combinator
+    * PR #3844 removes unused `trace.Elab.syntax` option
+    * PR #3896 improves hover and go-to-def for `attribute` command
+    * PR #3989 makes linter options more discoverable
+    * PR #3916 fixes go-to-def for syntax defined with `@[builtin_term_parser]`
+    * PR #3962 fixes how `solveByElim` handles `symm` lemmas, making `exact?` usable again
+    * PR #3968 improves the `@[deprecated]` attribute, adding `(since := "<date>")` field
+    * PR #3768 makes `#print` command show structure fields
+    * PR #3974 makes `exact?%` behave like `by exact?` rather than `by apply?`
+    * PR #3994 makes elaboration of `he ▸ h` notation more predictable
+    * PR #3991 adjusts transparency for `decreasing_trivial` macros
+    * PR #4092 improves performance of `binop%` and `binrel%` expression tree elaborators
+  * Docs: PR #3748, PR #3796, PR #3800, PR #3874, PR #3863, PR #3862, PR #3891, PR #3873, PR #3908, PR #3872
 
-  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
+* Pretty printing
+  * PR #3797 fixes the hovers over binders so that they show their types
+  * PR #3640 and PR #3735 adds attribute `@[pp_using_anonymous_constructor]` to make structures pretty print as `⟨x, y, z⟩`
+    rather than as `{a := x, b := y, c := z}`.
+    This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
+  * PR #3749
+    Now structure instances pretty print with parent structures' fields inlined.
+    That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
+    Setting option `pp.structureInstances.flatten` to false turns this off.
+  * PR #3737, PR #3744 and PR #3750:
+    Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
+    to enable pretty printing function applications using generalized field notation (defaults to true).
+    Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
+    The notation is not used for theorems.
+  * PR #4071 fixes interaction between app unexpanders and `pp.fieldNotation.generalized`
+  * PR #3625 makes `delabConstWithSignature` (used by `#check`) have the ability to put arguments "after the colon"
+    to avoid printing inaccessible names.
+  * PRs [#3798](https://github.com/leanprover/lean4/pull/3798),
+    [#3978](https://github.com/leanprover/lean4/pull/3978),
+    [#3798](https://github.com/leanprover/lean4/pull/3980).
+    Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
+    When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
+    When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
+    These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
+  * PR #3917 makes binders hoverable and gives them docstrings
+  * PR #4034 makes hovers for RHS terms in `match` expressions in the Infoview reliably show the correct term.
 
-  For example from:
-  ```
-  def ackermann : Nat → Nat → Nat
-    | 0, m => m + 1
-    | n+1, 0 => ackermann n 1
-    | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  ```
-  we get
-  ```
-  ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-    (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
-    (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
-    (x x : Nat) : motive x x
-  ```
+* Lean internals
+  * Defeq and WHNF algorithms
+    * PR #3616 gives better support for reducing `Nat.rec` expressions
+    * PR #3774 add tracing for "non-easy" WHNF cases
+    * PR #3807 fixes an `isDefEq` performance issue, now trying structure eta *after* lazy delta reduction.
+    * PR #3816 fixes `.yesWithDeltaI` behavior to prevent increasing transparency level when reducing projections.
+    * PR #3837 improves heuristic at `isDefEq`
+    * PR #3965 improves `isDefEq` for constraints of the form `t.i =?= s.i`
+    * PR #3977 improves `isDefEqProj`
+    * PR #3981 adds universe constraint approximations to be able to solve `u =?= max u ?v` using `?v = u`.
+      These approximations are only applied when universe constraints cannot be postponed anymore.
+    * PR #4004 improves `isDefEqProj` during typeclass resolution
+    * PR #4012 adds `backward.isDefEq.lazyProjDelta` and `backward.isDefEq.lazyWhnfCore` backwards compatibility flags.
+  * Kernel
+    * PR #3966 removes dead code
+    * PR #4035 fixes mismatch for `TheoremVal` between Lean and C++.
+  * Discrimination trees
+    * [423fed](https://github.com/leanprover/lean4/commit/423fed79a9de75705f34b3e8648db7e076c688d7)
+      and [3218b2](https://github.com/leanprover/lean4/commit/3218b25974d33e92807af3ce42198911c256ff1d):
+      simplify handling of dependent/non-dependent pi types
+  * Typeclass instance synthesis
+    * PR #3638 eta-reduces synthesized instances
+    * [ce350f](https://github.com/leanprover/lean4/commit/ce350f348161e63fccde6c4a5fe1fd2070e7ce0f) fixes a linearity issue
+    * [917a31](https://github.com/leanprover/lean4/commit/917a31f694f0db44d6907cc2b1485459afe74d49)
+      improves performance by considering at most one answer for subgoals not containing metavariables.
+      PR #4008 adds `backward.synthInstance.canonInstances` backward compatibility flag.
+  * Definition processing
+    * PR #3661, PR #3767 changes automatically generated equational theorems to be named
+      using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.eq_def` instead of `._unfold`. (See breaking changes below.)
+      PR #3675 adds a mechanism to reserve names.
+      PR #3803 fixes reserved name resolution inside namespaces and fixes handling of `match`er declarations and equation lemmas.
+    * PR #3662 causes auxiliary definitions nested inside theorems to become `def`s if they are not proofs.
+    * PR #4006 makes proposition fields of `structure`s be theorems
+    * PR #4018 makes it an error for a theorem to be `extern`
+    * PR #4047 improves performance making equations for well-founded recursive definitions
+  * Refactors
+    * PR #3614 avoids unfolding in `Lean.Meta.evalNat`
+    * PR #3621 centralizes functionality for `Fix`/`GuessLex`/`FunInd` in the `ArgsPacker` module.
+    * PR #3186 rewrites the UnusedVariable linter to be more performant
+    * PR #3589 removes coercion from `String` to `Name` (see breaking changes below).
+    * PR #3237 removes the `lines` field from `FileMap`
+    * PR #3951 makes msg parameter to `throwTacticEx` optional
+  * Diagnostics
+    * PR #4016, PR #4019, PR #4020, PR #4030, PR #4031, [c3714b](https://github.com/leanprover/lean4/commit/c3714bdc6d46845c0428735b283c5b48b23cbcf7), PR #4049 adds `set_option diagnostics true` for diagnostic counters.
+      Tracks number of unfolded declarations, instances, reducible declarations, used instances, recursor reductions,
+      `isDefEq` heuristic applications, among others.
+      This option is suggested in exceptional situations, such as at deterministic timeout and maximum recursion depth.
+    * [283587](https://github.com/leanprover/lean4/commit/283587987ab2eb3b56fbc3a19d5f33ab9e04a2ef)
+      adds diagnostic information for `simp`.
+    * PR #4043 adds diagnostic information for congruence theorems
+    * PR #4048 display diagnostic information
+      for `set_option diagnostics true in <tactic>` and `set_option diagnostics true in <term>`.
+  * Other features
+    * PR #3800 adds environment extension to record which definitions use structural or well-founded recursion
+    * PR #3801 `trace.profiler` can now export to Firefox Profiler
+    * PR #3918, PR #3953 adds `@[builtin_doc]` attribute to make docs and location of a declaration available as a builtin.
+    * PR #3075 improves `test_extern` command
+    * PR #3970 gives monadic generalization of `FindExpr`
+  * Docs: PR #3743, PR #3921, PR #3954
+  * Other fixes: PR #3622, PR #3726, PR #3823, PR #3897, PR #3964, PR #3946, PR #4007, PR #4026
 
-  It can be used in the `induction` tactic using the `using` syntax:
-  ```
-  induction n, m using ackermann.induct
-  ```
+* Compiler, runtime, and FFI
+  * PR #3632 makes it possible to allocate and free thread-local runtime resources for threads not started by Lean itself.
+  * PR #3627 improves error message about compacting closures
+  * PR #3692 fixes deadlock in `IO.Promise.resolve`
+  * PR #3753 catches error code from `MoveFileEx` on Windows
+  * PR #4028 fixes a double `reset` bug in `ResetReuse` transformation
+  * [6e731b](https://github.com/leanprover/lean4/commit/6e731b4370000a8e7a5cfb675a7f3d7635d21f58)
+    removes `interpreter` copy constructor to avoid potential memory safety issues.
 
-* The termination checker now recognizes more recursion patterns without an
-  explicit `termination_by`. In particular the idiom of counting up to an upper
-  bound, as in
-  ```
-  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
-    if _ : i < arr.size then
-      Array.sum arr (i+1) (acc + arr[i])
-    else
-      acc
-  ```
-  is recognized without having to say `termination_by arr.size - i`.
+* Lake
+  * PR #3609 `LEAN_GITHASH` environment variable to override the detected Git hash for Lean when computing traces,
+    useful for testing custom builds of Lean.
+  * PR #3298, PR #4104 adds alternative TOML configurations
+  * PR #3795 improves relative package directory path normalization in the pre-rename check.
+  * PR #3779 adds `lake test` CLI command
+  * PR #3793 adds `lake lean` CLI command to build a single Lean file
+  * PR #3939 adds CLI option to print messages as JSON
+  * PR #3957 fixes handling of packages that appear multiple times in a dependency tree
+  * PR #3999 makes it an error for there to be a mismatch between a package name and what it is required as.
+    Adds a special message for the `std`-to-`batteries` rename.
+  * PR #3835 is a major refactor of Lake with many improvements to log handling. See the PR message for more details.
+    Adds a `--wfail` option that causes a build to fail if there are any warnings.
+  * PR #4033 fixes quiet mode
+  * PR #4115 improves job captions, groupings of logs, and import error handling.
+  * Docs: PR #3704
 
-* Shorter instances names. There is a new algorithm for generating names for anonymous instances.
-  Across Std and Mathlib, the median ratio between lengths of new names and of old names is about 72%.
-  With the old algorithm, the longest name was 1660 characters, and now the longest name is 202 characters.
-  The new algorithm's 95th percentile name length is 67 characters, versus 278 for the old algorithm.
-  While the new algorithm produces names that are 1.2% less unique,
-  it avoids cross-project collisions by adding a module-based suffix
-  when it does not refer to declarations from the same "project" (modules that share the same root).
-  PR [#3089](https://github.com/leanprover/lean4/pull/3089).
+* DevOps
+  * PR #3536, PR #3833 adds checklist for release process.
+  * PR #3600 runs nix-ci more uniformly.
+  * PR #3612 avoids argument limits when building on Windows.
+  * PR #3682 builds Lean's `.o` files in parallel to rest of core.
+  * PR [#3601](https://github.com/leanprover/lean4/pull/3601)
+    changes the way Lean is build on Windows (see breaking changes below).
+    As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows
+    to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run
+    unless those shared libraries are co-located with the executables or part of `PATH`.
+    Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
 
-* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
-  rather than `{a := x, b := y, c := z}`.
-  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
+    In a related change, the signature of the `nativeFacets` Lake configuration options has changed
+    from a static `Array` to a function `(shouldExport : Bool) → Array`.
+    See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
+  * PR #3690 marks "Build matrix complete" as canceled if the build is canceled.
+  * PR #3700, PR #3702, PR #3701, PR #3834, PR #3923 fixes and improvements for std and mathlib CI
+  * PR #3712 fixes `nix build .` on macOS
+  * PR #3717 replaces `shell.nix` in devShell with `flake.nix`
+  * PR #3715 and PR #3790 adds test result summaries
+  * PR #3971 prevents stage0 changes via the merge queue
+  * PR #3979 for `changes-stage0` label
+  * PR #3952 adds a script to summarize GitHub issues
+  * [18a699](https://github.com/leanprover/lean4/commit/18a69914da53dbe37c91bc2b9ce65e1dc01752b6)
+    fixes asan linking
 
-* Now structure instances pretty print with parent structures' fields inlined.
-  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
-  Setting option `pp.structureInstances.flatten` to false turns this off.
-
-* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
-  to enable pretty printing function applications using generalized field notation (defaults to true).
-  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
-
-* Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
-  When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
-  When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
-  These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
-  [#3798](https://github.com/leanprover/lean4/pull/3798) and
-  [#3978](https://github.com/leanprover/lean4/pull/3978).
-
-* Hovers for terms in `match` expressions in the Infoview now reliably show the correct term.
-
-* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
-  for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
-  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
-  rather than `Nat.zero` and `Nat.succ n`.
-  Added option `tactic.customEliminators` to control whether to use custom eliminators.
-  Added a hack for `rcases`/`rintro`/`obtain` to use the custom eliminator for `Nat`.
-  [#3629](https://github.com/leanprover/lean4/pull/3629),
-  [#3655](https://github.com/leanprover/lean4/pull/3655), and
-  [#3747](https://github.com/leanprover/lean4/pull/3747).
-
-* The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
-  For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
-  and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
-  PR [#3883](https://github.com/leanprover/lean4/pull/3883).
-
-* The `#guard_msgs` command now supports showing a diff between the expected and actual outputs. This feature is currently
-  disabled by default, but can be enabled with `set_option guard_msgs.diff true`. Depending on user feedback, this option
-  may default to `true` in a future version of Lean.
 
 Breaking changes:
 
-* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
+* Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.
+
+* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.eq_def` instead of `._unfold`. Example:
 ```
 def fact : Nat → Nat
   | 0 => 1
@@ -122,9 +386,9 @@ theorem ex : fact 0 = 1 := by unfold fact; decide
 #check fact.eq_2
 -- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
 
-#check fact.def
+#check fact.eq_def
 /-
-fact.def :
+fact.eq_def :
   ∀ (x : Nat),
     fact x =
       match x with

@@ -65,8 +65,7 @@ noncomputable def div2Induction {motive : Nat → Sort u}
   | isTrue n0 => subst n0; decide
   | isFalse n0 =>
     simp only [HAnd.hAnd, AndOp.and, land]
-    unfold bitwise
-    cases mod_two_eq_zero_or_one n with | _ h => simp [n0, h]; rfl
+    cases mod_two_eq_zero_or_one n with | _ h => simp [bitwise, n0, h]
 
 /-! ### testBit -/
 

@@ -66,7 +66,7 @@ instance : Alternative MainM where
 
 /-! # Logging and IO -/
 
-instance : MonadLog MainM := MonadLog.stderr
+instance : MonadLog MainM := .stderr
 
 /-- Print out a error line with the given message and then exit with an error code. -/
 @[inline] protected def error (msg : String) (rc : ExitCode := 1) : MainM α := do
@@ -76,7 +76,9 @@ instance : MonadLog MainM := MonadLog.stderr
 instance : MonadError MainM := ⟨MainM.error⟩
 instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 
-@[inline] def runLogIO (x : LogIO α) (minLv := LogLevel.info) : MainM α :=
-  x.replayLog (logger := MonadLog.stderr minLv)
+@[inline] def runLogIO (x : LogIO α)
+  (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
+: MainM α := do
+  x.replayLog (logger := ← out.getLogger minLv ansiMode)
 
 instance : MonadLift LogIO MainM := ⟨runLogIO⟩

@@ -44,6 +44,7 @@ OPTIONS:
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --wfail               report a build failure if warnings are logged
+  --ansi, --no-ansi     toggle ANSI escape codes used for pretty output
 
 See `lake help <command>` for more information on a specific command."
 

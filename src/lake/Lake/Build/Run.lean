@@ -37,7 +37,7 @@ partial def monitorJobs
   (jobs : Array (Job Unit))
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
-  (useANSI showProgress : Bool)
+  (useAnsi showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (totalJobs := jobs.size)
@@ -67,22 +67,22 @@ where
           let jobNo := (totalJobs - jobs.size) + (i - (← get).jobs.size) + 1
           let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
           let caption :=
-            if useANSI then
+            if useAnsi then
               let color := if hasOutput then maxLv.ansiColor else "32"
-              s!"\x1B[{color}m{caption}\x1B[39;49m"
+              Ansi.chalk color caption
             else
               caption
-          let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl :=""})
+          let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
           out.putStr s!"{resetCtrl}{caption}\n"
           if hasOutput then
             let outLv := if failed then .trace else outLv
-            log.replay (logger := MonadLog.stream out outLv)
+            log.replay (logger := .stream out outLv useAnsi)
           out.flush
       else
         modify fun s => {s with jobs := s.jobs.push job}
     let jobs := (← get).jobs
     if h : 0 < jobs.size then
-      if showProgress ∧ useANSI then
+      if showProgress ∧ useAnsi then
         let jobsDone := totalJobs - jobs.size
         let caption := jobs[0]'h |>.caption
         let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := "\x1B[2K\r"})
@@ -116,32 +116,32 @@ def Workspace.runFetchM
 : IO α := do
   -- Configure
   let ctx ← mkBuildContext ws cfg
-  let out ← if cfg.useStdout then IO.getStdout else IO.getStderr
-  let useANSI ← out.isTty
+  let out ← cfg.out.get
+  let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.verbosity.minLogLevel
-  let failLv : LogLevel := if cfg.failIfWarnings then .warning else .error
+  let failLv := cfg.failLevel
   let showProgress := cfg.showProgress
-  let showANSIProgress := showProgress ∧ useANSI
+  let showAnsiProgress := showProgress ∧ useAnsi
   -- Job Computation
   let caption := "Computing build jobs"
   let header := s!"[?/?] {caption}"
-  if showANSIProgress then
+  if showAnsiProgress then
     out.putStr header
     out.flush
   let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).captureLog
   let failed := log.hasEntriesGe failLv
   if log.hasEntriesGe outLv then
-    unless showANSIProgress do
+    unless showAnsiProgress do
       out.putStr header
     out.putStr "\n"
     let outLv := if failed then .trace else outLv
-    log.replay (logger := MonadLog.stream out outLv)
+    log.replay (logger := .stream out outLv useAnsi)
     out.flush
   let failures := if failed then #[caption] else #[]
   -- Job Monitor
   let jobs ← ctx.registeredJobs.get
-  let resetCtrl := if showANSIProgress then "\x1B[2K\r" else ""
-  let failures ← monitorJobs jobs out failLv outLv useANSI showProgress
+  let resetCtrl := if showAnsiProgress then "\x1B[2K\r" else ""
+  let failures ← monitorJobs jobs out failLv outLv useAnsi showProgress
     (resetCtrl := resetCtrl) (initFailures := failures)
   -- Failure Report
   if failures.isEmpty then

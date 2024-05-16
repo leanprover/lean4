@@ -29,18 +29,19 @@ The `setup-file` command is used internally by the Lean 4 server.
 -/
 def setupFile
   (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
-  (buildConfig : BuildConfig := {}) (verbosity : Verbosity := .normal)
+  (buildConfig : BuildConfig := {})
 : MainM PUnit := do
   if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
-    let ws ← MainM.runLogIO (minLv := verbosity.minLogLevel) do
+    let outLv := buildConfig.verbosity.minLogLevel
+    let ws ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (minLv := verbosity.minLogLevel) do
+    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
       ws.runBuild (buildImportsAndDeps path imports) buildConfig
     let paths : LeanPaths := {
       oleanPath := ws.leanPath

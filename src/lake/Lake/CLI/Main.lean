@@ -40,7 +40,15 @@ structure LakeOptions where
   oldMode : Bool := false
   trustHash : Bool := true
   noBuild : Bool := false
+  /--
+  Fail the top-level build if warnings have been logged.
+
+  Unlike some build systems, this does **NOT** convert warnings to errors,
+  and it does not abort jobs when warnings are logged (i.e., dependent jobs
+  will still continue unimpeded).
+  -/
   failIfWarnings : Bool := false
+  ansiMode : AnsiMode := .auto
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -75,13 +83,14 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
-def LakeOptions.mkBuildConfig (opts : LakeOptions) (useStdout := false) : BuildConfig where
+def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
   noBuild := opts.noBuild
   verbosity := opts.verbosity
-  failIfWarnings := opts.failIfWarnings
-  useStdout := useStdout
+  failLevel := if opts.failIfWarnings then .warning else .error
+  ansiMode := opts.ansiMode
+  out := out
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -98,7 +107,7 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   main.run
 
 instance : MonadLift LogIO CliStateM :=
-  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLevel⟩
+  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLevel (← get).ansiMode⟩
 
 /-! ## Argument Parsing -/
 
@@ -161,6 +170,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--wfail"       => modifyThe LakeOptions ({· with failIfWarnings := true})
+| "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
+| "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
 | "--dir"         => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"        => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
 | "--lean"        => do setLean <| ← takeOptArg "--lean" "path or command"
@@ -302,7 +313,7 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config opts.updateDeps
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
-  let buildConfig := mkBuildConfig opts (useStdout := true)
+  let buildConfig := mkBuildConfig opts (out := .stdout)
   ws.runBuild (buildSpecs specs) buildConfig
 
 protected def resolveDeps : CliM PUnit := do
@@ -333,7 +344,7 @@ protected def setupFile : CliM PUnit := do
   let buildConfig := mkBuildConfig opts
   let filePath ← takeArg "file path"
   let imports ← takeArgs
-  setupFile loadConfig filePath imports buildConfig opts.verbosity
+  setupFile loadConfig filePath imports buildConfig
 
 protected def test : CliM PUnit := do
   processOptions lakeOption

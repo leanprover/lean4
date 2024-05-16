@@ -24,14 +24,20 @@ structure BuildConfig where
   noBuild : Bool := false
   verbosity : Verbosity := .normal
   /--
-  Fail the top-level build if warnings have been logged.
-  Unlike some build systems, this does **NOT** convert warnings to errors,
-  and it does not abort jobs when warnings are logged (i.e., dependent jobs
-  will still continue unimpeded).
+  Fail the top-level build if entries of at least this level have been logged.
+
+  Unlike some build systems, this does **NOT** convert such log entries to
+  errors, and it does not abort jobs when warnings are logged (i.e.,
+  dependent jobs will still continue unimpeded).
   -/
-  failIfWarnings : Bool := false
-  /-- Report build output on `stdout`. Otherwise, Lake uses `stderr`. -/
-  useStdout : Bool := false
+  failLevel : LogLevel := .error
+  /--
+  The stream to which Lake reports build progress.
+  By default, Lake uses `stderr`.
+  -/
+  out : OutStream := .stderr
+  /-- Whether to use ANSI escape codes in build output. -/
+  ansiMode : AnsiMode := .auto
 
 /-- Information on what this job did. -/
 inductive JobAction

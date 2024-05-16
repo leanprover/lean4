@@ -8,6 +8,7 @@ import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
 import Init.Data.BitVec.Basic
+import Init.Data.BitVec.Lemmas
 
 namespace BitVec
 open Lean Meta Simp
@@ -302,5 +303,26 @@ builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => d
   let_expr BitVec.toFin _ v ← e | return .continue
   let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
   return .done <| toExpr v.toFin
+
+/--
+Helper function for reducing `(x <<< i) <<< j` (and `(x >>> i) >>> j`) where `i` and `j` are
+natural number literals.
+-/
+@[inline] def reduceShiftShift (declName : Name) (thmName : Name) (e : Expr) : SimpM Step := do
+  unless e.isAppOfArity declName 6 do return .continue
+  let aux := e.appFn!.appArg!
+  let some i ← Nat.fromExpr? e.appArg! | return .continue
+  unless aux.isAppOfArity declName 6 do return .continue
+  let x := aux.appFn!.appArg!
+  let some j ← Nat.fromExpr? aux.appArg! | return .continue
+  let i_add_j := toExpr (i + j)
+  let expr ← mkAppM declName #[x, i_add_j]
+  let proof ← mkAppM thmName #[x, aux.appArg!, e.appArg!]
+  return .visit { expr, proof? := some proof }
+
+builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
+  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_shiftLeft
+builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
+  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_shiftRight
 
 end BitVec

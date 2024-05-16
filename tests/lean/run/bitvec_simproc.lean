@@ -121,3 +121,19 @@ example (a : BitVec 32) (h : a >>> 2 = b) : a >>> 2#32 = b := by
   simp; guard_target =ₛ a >>> 2 = b; assumption
 example (a : BitVec 32) (h : a <<< 2 = b) : a <<< 2#32 = b := by
   simp; guard_target =ₛ a <<< 2 = b; assumption
+example (a : BitVec 32) (h : a <<< 3 = b) : (a <<< 1#32) <<< 2#32 = b := by
+  simp; guard_target =ₛ a <<< 3 = b; assumption
+example (a : BitVec 32) (h : a <<< 3 = b) : (a <<< 1) <<< 2#32 = b := by
+  simp; guard_target =ₛ a <<< 3 = b; assumption
+example (a : BitVec 32) (h : a <<< 3 = b) : (a <<< 1) <<< 2 = b := by
+  simp; guard_target =ₛ a <<< 3 = b; assumption
+example (a : BitVec 32) (h : a <<< 3 = b) : (a <<< 1#32) <<< 2 = b := by
+  simp; guard_target =ₛ a <<< 3 = b; assumption
+example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1#32) >>> 2#32 = b := by
+  simp; guard_target =ₛ a >>> 3 = b; assumption
+example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1) >>> 2#32 = b := by
+  simp; guard_target =ₛ a >>> 3 = b; assumption
+example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1) >>> 2 = b := by
+  simp; guard_target =ₛ a >>> 3 = b; assumption
+example (a : BitVec 32) (h : a >>> 3 = b) : (a >>> 1#32) >>> 2 = b := by
+  simp; guard_target =ₛ a >>> 3 = b; assumption

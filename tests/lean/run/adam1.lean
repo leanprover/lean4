@@ -16,10 +16,24 @@ def Expr.denote (e : Expr) : Nat :=
   | const v      => v
   | binOp op a b => op.denote a.denote b.denote
 
+/-- info: 42 -/
+#guard_msgs in
 #eval Expr.denote (Expr.const 42)
+
+/-- info: 42 -/
+#guard_msgs in
 #eval Expr.denote (.const 42)
+
+/-- info: 42 -/
+#guard_msgs in
 #eval Expr.denote <| .const 42
+
+/-- info: 5 -/
+#guard_msgs in
 #eval Expr.denote <| .binOp .plus (.const 2) (.const 3)
+
+/-- info: 6 -/
+#guard_msgs in
 #eval Expr.denote <| .binOp .times (.const 2) (.const 3)
 
 #eval (.binOp .times (.binOp .plus (.const 4) (.const 2)) (.const 3) : Expr).denote

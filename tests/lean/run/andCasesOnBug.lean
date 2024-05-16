@@ -25,4 +25,6 @@ def makePair?: (n m: (sz: Nat) × FinInt sz) → Option Pair
 
 def usePair: Pair → Bool := fun ⟨sz, lhs, rhs⟩ => lhs = rhs
 
+/-- info: some true -/
+#guard_msgs in
 #eval (makePair? ⟨8, zero 8⟩ ⟨8, zero 8⟩).map usePair

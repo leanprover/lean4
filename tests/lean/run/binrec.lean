@@ -61,4 +61,4 @@ def Nat.toBit (n : Nat) : List Bool :=
     (fun b n ih => b :: ih ())
     n
 
-#eval Nat.toBit 18
+#guard Nat.toBit 18 == [false, true, false, false, true]

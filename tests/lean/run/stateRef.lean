@@ -6,8 +6,18 @@ get
 def g : IO Nat :=
 f 5 |>.run' 20
 
+/--
+info: hello
+15
+-/
+#guard_msgs in
 #eval (f 5).run' 20
 
+/--
+info: hello
+95
+-/
+#guard_msgs in
 #eval (do set 100; f 5 : StateRefT Nat IO Nat).run' 0
 def f2 : ReaderT Nat (StateRefT Nat IO) Nat := do
 let v ← read
@@ -15,6 +25,11 @@ IO.println $ "context " ++ toString v
 modify fun s => s + v
 get
 
+/--
+info: context 10
+30
+-/
+#guard_msgs in
 #eval (f2.run 10).run' 20
 
 def f3 : StateT String (StateRefT Nat IO) Nat := do
@@ -26,6 +41,11 @@ IO.println s
 set (n+1)
 getThe Nat
 
+/--
+info: test, 10
+11
+-/
+#guard_msgs in
 #eval (f3.run' "test").run' 10
 
 structure Label {β : Type} (v : β) (α : Type) :=
@@ -50,6 +70,13 @@ IO.println $ "state1 " ++ toString a1
 IO.println $ "state1 " ++ toString a2
 pure (a0 + a1 + a2)
 
+/--
+info: state0 10
+state1 20
+state1 30
+60
+-/
+#guard_msgs in
 #eval f4.run' ⟨10⟩ |>.run' ⟨20⟩ |>.run' ⟨30⟩
 
 abbrev S (ω : Type) := StateRefT Nat $ StateRefT String $ ST ω
@@ -62,4 +89,6 @@ pure ()
 def f5Pure (n : Nat) (s : String) :=
 runST fun _ => f5.run n |>.run s
 
+/-- info: (((), 21), "hello world") -/
+#guard_msgs in
 #eval f5Pure 10 "hello world"

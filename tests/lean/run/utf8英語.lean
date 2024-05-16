@@ -56,4 +56,9 @@ def DecodeUTF8: IO Unit := do
   check_eq "utf-8 bytes" #[72, 101, 108, 108, 111, 44, 32, 232, 139, 177, 232, 170, 158, 33] str.toUTF8.data
   check_eq "string eq" (some str) (String.fromUTF8? str.toUTF8)
 
+/--
+info: [H, e, l, l, o, ,,  , 英, 語, !]
+[72, 101, 108, 108, 111, 44, 32, 33521, 35486, 33]
+-/
+#guard_msgs in
 #eval DecodeUTF8

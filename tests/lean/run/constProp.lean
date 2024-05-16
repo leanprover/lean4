@@ -109,6 +109,14 @@ def example1 := `[Stmt|
   }
 ]
 
+/--
+info: "x" ::= Expr.val (Val.int (Int.ofNat 8));;
+  "y" ::= Expr.val (Val.int (Int.ofNat 10));;
+    Stmt.ite ((Expr.var "x").bin BinOp.lt (Expr.var "y"))
+      ("x" ::= (Expr.var "x").bin BinOp.add (Expr.val (Val.int (Int.ofNat 1))))
+      ("y" ::= (Expr.var "y").bin BinOp.add (Expr.val (Val.int (Int.ofNat 3))))
+-/
+#guard_msgs in
 #reduce example1
 
 def example2 := `[Stmt|
@@ -121,6 +129,19 @@ def example2 := `[Stmt|
   }
   y := x;]
 
+/--
+info: Stmt.seq
+  (Stmt.assign "x" (Expr.val (Val.int 8)))
+  (Stmt.seq
+    (Stmt.ite
+      (Expr.bin (Expr.var "x") (BinOp.lt) (Expr.var "y"))
+      (Stmt.assign "x" (Expr.bin (Expr.var "x") (BinOp.add) (Expr.val (Val.int 1))))
+      (Stmt.seq
+        (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.val (Val.int 3))))
+        (Stmt.assign "x" (Expr.val (Val.int 9)))))
+    (Stmt.assign "y" (Expr.var "x")))
+-/
+#guard_msgs in
 #eval example2
 
 abbrev State := List (Var × Val)
@@ -277,7 +298,12 @@ def evalExpr (e : Expr) : EvalM Val := do
       | .bool false => return ()
       | _ => throw "Boolean expected"
 
+/-- info: (Except.ok (), [("x", Val.int 8), ("y", Val.int 5)]) -/
+#guard_msgs in
 #eval `[Stmt| x := 3; y := 5; x := x + y;].eval |>.run {}
+
+/-- info: (Except.error "out of fuel", [("x", Val.int 98)]) -/
+#guard_msgs in
 #eval `[Stmt| x := 0; while (true) { x := x + 1; }].eval |>.run {}
 
 instance : Repr State where
@@ -290,6 +316,8 @@ instance : Repr State where
         | (x, .bool v) => f!"{x} ↦ {v}"
       Std.Format.bracket "[" (Std.Format.joinSep fs ("," ++ Std.Format.line)) "]"
 
+/-- info: (Except.ok (), [x ↦ 8, y ↦ 5]) -/
+#guard_msgs in
 #eval `[Stmt| x := 3; y := 5; x := x + y; ].eval |>.run {}
 
 @[simp] def BinOp.simplify : BinOp → Expr → Expr → Expr
@@ -341,6 +369,10 @@ def example3 := `[Stmt|
   }
 ]
 
+/--
+info: Stmt.seq (Stmt.assign "x" (Expr.val (Val.int 4))) (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.var "x")))
+-/
+#guard_msgs in
 #eval example3.simplify
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
@@ -612,6 +644,14 @@ def example4 := `[Stmt|
   }
 ]
 
+/--
+info: Stmt.seq
+  (Stmt.assign "x" (Expr.val (Val.int 2)))
+  (Stmt.seq
+    (Stmt.assign "x" (Expr.val (Val.int 3)))
+    (Stmt.assign "y" (Expr.bin (Expr.var "y") (BinOp.add) (Expr.val (Val.int 3)))))
+-/
+#guard_msgs in
 #eval example4.constPropagation.simplify
 
 #exit

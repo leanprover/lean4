@@ -19,4 +19,4 @@ def ex {G: Fin 0} : {n: Nat} → {Γ: Finset <| Foo G n} → Bar Γ → Nat
   | Nat.succ _, _, Bar.insert => 2
   | Nat.succ _, _, _          => 3
 
-#eval Lean.Compiler.compile #[``ex]
+run_meta Lean.Compiler.compile #[``ex]

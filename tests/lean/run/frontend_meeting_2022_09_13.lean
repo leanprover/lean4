@@ -85,15 +85,45 @@ elab "seq" s:tacticSeq : tactic => do
     withRef tac <| addRawTrace (goalsToMessageData gs)
     evalTactic tac
 
+/--
+info: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+info: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq rw [h]; rw [Nat.zero_add]
   done
 
+/--
+info: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+info: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq rw [h]
       rw [Nat.zero_add]
   done
 
+/--
+info: x y : Nat
+h : x = y
+⊢ 0 + x = y
+---
+info: x y : Nat
+h : x = y
+⊢ 0 + y = y
+-/
+#guard_msgs in
 example (h : x = y) : 0 + x = y := by
   seq { rw [h]; rw [Nat.zero_add] }
   done

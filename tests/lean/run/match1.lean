@@ -22,9 +22,12 @@ def f (xs : List Nat) : List Bool :=
 xs.map fun
   | 0 => true
   | _ => false
+
+/-- info: -/
+#guard_msgs in
 #eval checkWithMkMatcherInput ``f.match_1
 
-#eval f [1, 2, 0, 2]
+#guard f [1, 2, 0, 2] == [false, false, true, false]
 
 theorem ex1 : f [1, 0, 2] = [false, true, false] :=
 rfl
@@ -109,9 +112,10 @@ inductive Foo
 def Foo.z : Foo → Nat
 | mk₁ (z := z) .. => z
 | mk₂ (z := z) .. => z
+
 #eval checkWithMkMatcherInput ``Foo.z.match_1
 
-#eval (Foo.mk₁ 10 20 30 40).z
+#guard (Foo.mk₁ 10 20 30 40).z == 30
 
 theorem ex7 : (Foo.mk₁ 10 20 30 40).z = 30 :=
 rfl
@@ -119,9 +123,10 @@ rfl
 def Foo.addY? : Foo × Foo → Option Nat
 | (mk₁ (y := y₁) .., mk₁ (y := y₂) ..) => some (y₁ + y₂)
 | _ => none
+
 #eval checkWithMkMatcherInput ``Foo.addY?.match_1
 
-#eval Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40)
+#guard Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) == some 22
 
 theorem ex8 : Foo.addY? (Foo.mk₁ 1 2 3 4, Foo.mk₁ 10 20 30 40) = some 22 :=
 rfl

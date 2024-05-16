@@ -117,3 +117,7 @@ example (h : 40#32 = b) : 10#32 <<< 2#32 = b := by
   simp; guard_target =ₛ 40#32 = b; assumption
 example (h : 3#32 = b) : 12#32 >>> 2#32 = b := by
   simp; guard_target =ₛ 3#32 = b; assumption
+example (a : BitVec 32) (h : a >>> 2 = b) : a >>> 2#32 = b := by
+  simp; guard_target =ₛ a >>> 2 = b; assumption
+example (a : BitVec 32) (h : a <<< 2 = b) : a <<< 2#32 = b := by
+  simp; guard_target =ₛ a <<< 2 = b; assumption

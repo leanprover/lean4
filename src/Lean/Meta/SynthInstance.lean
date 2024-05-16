@@ -43,6 +43,7 @@ structure Instance where
 
 structure GeneratorNode where
   mvar            : Expr
+  mvarType        : Expr
   key             : Expr
   mctx            : MetavarContext
   instances       : Array Instance
@@ -187,6 +188,7 @@ structure State where
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
+  cacheEntries   : Array (SynthInstanceCacheKey × Expr) := #[]
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -247,7 +249,7 @@ def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
   else
     let mctx ← getMCtx
     return some {
-      mvar, key, mctx, instances
+      mvar, mvarType, key, mctx, instances
       typeHasMVars := mvarType.hasMVar
       currInstanceIdx := instances.size
     }
@@ -490,6 +492,23 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
+def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Option Answer)) :=
+  withMCtx mctx do
+  let mvarType ← inferType mvar
+  let mvarType ← instantiateMVars mvarType
+  if mvarType.hasMVar then
+    return none
+  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
+  match (← get).cache.synthInstance.find? cacheKey with
+  | none => return none
+  | some none => return some none
+  | some (some inst) => return some $ some {
+    result := ← abstractMVars inst
+    resultType := mvarType
+    size := 1 }
+
+
+
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
   /- Filter out subgoals that have already been assigned when solving typing constraints.
@@ -510,35 +529,43 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   match cNode.subgoals with
   | []      => addAnswer cNode
   | mvar::_ =>
-     let waiter := Waiter.consumerNode cNode
-     let key ← mkTableKeyFor cNode.mctx mvar
-     let entry? ← findEntry? key
-     match entry? with
-     | none       =>
-       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
-       match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar waiter
-       | some (mvarType', transformer) =>
-         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
-         match (← findEntry? key') with
-         | none =>
-           let (mctx', mvar') ← withMCtx cNode.mctx do
-             let mvar' ← mkFreshExprMVar mvarType'
-             return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
-         | some entry' =>
-           let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
-             let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
-             let trAnswrType ← inferType trAnswr
-             pure { a with result.expr := trAnswr, resultType := trAnswrType }
-           modify fun s =>
-             { s with
-               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
-     | some entry => modify fun s =>
-       { s with
-         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+    let waiter := Waiter.consumerNode cNode
+
+    match ← checkGlobalCache mvar cNode.mctx with
+    | some result =>
+      if let some answer := result then
+        modify fun s =>
+        { s with
+          resumeStack := s.resumeStack.push (cNode, answer) }
+    | none =>
+    let key ← mkTableKeyFor cNode.mctx mvar
+    let entry? ← findEntry? key
+    match entry? with
+    | none       =>
+      -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
+      match (← removeUnusedArguments? cNode.mctx mvar) with
+      | none => newSubgoal cNode.mctx key mvar waiter
+      | some (mvarType', transformer) =>
+        let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
+        match (← findEntry? key') with
+        | none =>
+          let (mctx', mvar') ← withMCtx cNode.mctx do
+            let mvar' ← mkFreshExprMVar mvarType'
+            return (← getMCtx, mvar')
+          newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+        | some entry' =>
+          let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
+            let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
+            let trAnswrType ← inferType trAnswr
+            pure { a with result.expr := trAnswr, resultType := trAnswrType }
+          modify fun s =>
+            { s with
+              resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+              tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+    | some entry => modify fun s =>
+      { s with
+        resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+        tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
@@ -551,6 +578,14 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
+    unless gNode.typeHasMVars do
+      if let some entry := (← get).tableEntries.find? gNode.key then
+        if h : entry.answers.size > 0 then
+          let answer := entry.answers[0].result
+          if answer.numMVars == 0 then
+            let inst := answer.expr
+            let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
+            modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -561,13 +596,18 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          unless entry.answers.isEmpty do
+          if h : entry.answers.size > 0 then
             /-
             We already have an answer for this node, and since its type does not have metavariables,
             we can skip other solutions because we assume instances are "morally canonical".
             We have added this optimization to address issue #3996.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
+            let answer := entry.answers[0].result
+            if answer.numMVars == 0 then
+              let inst := answer.expr
+              let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
+              modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
             return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
@@ -578,6 +618,17 @@ def generate : SynthM Unit := do
         return some ()
       return none
 
+/-- Try the next instance in the node on the top of the generator stack. -/
+partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
+  unless gNode.typeHasMVars do
+    if let some entry := (← get).tableEntries.find? gNode.key then
+      if let some answer := entry.answers[0]? then
+        let answer := answer.result
+        if answer.numMVars == 0 then
+          let inst := answer.expr
+          let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
+          modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
   let r := (← get).resumeStack.back
   modify fun s => { s with resumeStack := s.resumeStack.pop }
@@ -586,7 +637,7 @@ def getNextToResume : SynthM (ConsumerNode × Answer) := do
 /--
   Given `(cNode, answer)` on the top of the resume stack, continue execution by using `answer` to solve the
   next subgoal. -/
-def resume : SynthM Unit := do
+partial def resume : SynthM Unit := do
   let (cNode, answer) ← getNextToResume
   match cNode.subgoals with
   | []         => panic! "resume found no remaining subgoals"
@@ -602,6 +653,8 @@ def resume : SynthM Unit := do
           return m!"propagating {← instantiateMVars answer.resultType} to subgoal {← instantiateMVars subgoal} of {← instantiateMVars goal}") do
       trace[Meta.synthInstance.resume] "size: {cNode.size + answer.size}"
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
+  if !(← get).resumeStack.isEmpty then
+    resume
 
 def step : SynthM Bool := do
   checkSystem
@@ -622,7 +675,9 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
     | none        => synth
-    | some result => return result
+    | some result =>
+      (← get).generatorStack.forM (closeGenerator)
+      return result
   else
     return none
 
@@ -633,13 +688,17 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
-     tryCatchRuntimeEx
-       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
+     let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
+       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
        fun ex =>
          if ex.isRuntime then
            throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
          else
            throw ex
+     let cache := (← get).cache.synthInstance
+     let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
+     modify fun s => { s with cache.synthInstance := cache}
+     return result
 
 end SynthInstance
 

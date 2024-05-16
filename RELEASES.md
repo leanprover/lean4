@@ -78,7 +78,7 @@ v4.8.0
 * Language server and IDE extensions
   * PR [#3432](https://github.com/leanprover/lean4/pull/3432) enables `import` auto-completions.
   * PR [#3608](https://github.com/leanprover/lean4/pull/3608) fixes issue [leanprover/vscode-lean4#392](https://github.com/leanprover/vscode-lean4/issues/392).
-    Diagnostic ranges were had an off-by-one error that would misplace, for example, goal states.
+    Diagnostic ranges had an off-by-one error that would misplace goal states for example.
   * PR [#3014](https://github.com/leanprover/lean4/pull/3014) introduces snapshot trees, foundational work for incremental tactics and parallelism.
     PR [#3849](https://github.com/leanprover/lean4/pull/3849) adds basic incrementality API.
   * PR [#3271](https://github.com/leanprover/lean4/pull/3271) adds support for server-to-client requests.

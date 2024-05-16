@@ -234,9 +234,12 @@ Returns `true` if a specified position is greater than or equal to the position 
 points to the end of a string. Otherwise, returns `false`.
 
 Examples:
-* `"abc".atEnd ⟨2⟩ = false`
-* `"abc".atEnd ⟨3⟩ = true`
-* `"L∃∀N".atEnd ⟨8⟩ = true`
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `0 |> abc.next |> abc.next |> abc.atEnd = false`
+* `0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd = true`
+* `0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd = true`
+
+Because "L∃∀N" contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
 -/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool

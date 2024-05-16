@@ -85,7 +85,7 @@ v4.8.0
   * [#3656](https://github.com/leanprover/lean4/pull/3656) fixes jump to definition when there are conflicting names from different files.
     Fixes issue [#1170](https://github.com/leanprover/lean4/issues/1170).
   * [#3691](https://github.com/leanprover/lean4/pull/3691), [#3925](https://github.com/leanprover/lean4/pull/3925),
-    [#3932](https://github.com/leanprover/lean4/pull/3932) keep semantic tokens updated, with performance improvements
+    [#3932](https://github.com/leanprover/lean4/pull/3932) keep semantic tokens synchronized (used for semantic highlighting), with performance improvements.
   * [#3247](https://github.com/leanprover/lean4/pull/3247) and [#3730](https://github.com/leanprover/lean4/pull/3730)
     add diagnostics to run "Restart File" when a file dependency is saved.
   * [#3722](https://github.com/leanprover/lean4/pull/3722) uses the correct module names when displaying references.

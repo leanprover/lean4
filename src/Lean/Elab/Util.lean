@@ -210,7 +210,7 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
       logError m!"internal exception: {name}"
 
 /--
-If `x` throws an exception, catch it, turn it into a log message (using `logException`).
+If `x` throws an exception, catch it and turn it into a log message (using `logException`).
 -/
 def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
     (x : m Unit) : m Unit := do

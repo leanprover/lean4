@@ -296,5 +296,4 @@ info: [Meta.debug] ----- tst12 -----
 #guard_msgs in
 #eval tst12
 
-/-- info: @Add.add : {α : Type u_1} → [self : Add α] → α → α → α -/
- @Add.add
+#check @Add.add

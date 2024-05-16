@@ -23,10 +23,9 @@ elab "try" t:tactic : tactic => do
   let t' ← `(tactic| first | $t:tactic | skip);
   Lean.Elab.Tactic.evalTactic t'
 
+set_option linter.unusedVariables false
+
 /--
-warning: unused variable `h2`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
----
 info: case h₁
 x y z : Nat
 h1 : y = z

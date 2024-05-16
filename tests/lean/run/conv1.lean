@@ -131,13 +131,8 @@ example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f
   trace_state
   simp [h₁, h₂]
 
+set_option linter.unusedVariables false
 /--
-warning: unused variable `y`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
----
-warning: unused variable `h₂`
-note: this linter can be disabled with `set_option linter.unusedVariables false`
----
 info: x y : Nat
 f : Nat → Nat → Nat
 g : Nat → Nat

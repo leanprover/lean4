@@ -25,77 +25,118 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
+/-- Context of the Lake build monitor. -/
+structure MonitorContext where
+  totalJobs : Nat
+  out : IO.FS.Stream
+  outLevel : LogLevel
+  failLevel : LogLevel
+  showProgress : Bool
+  useAnsi : Bool
+  /-- How often to poll jobs (in milliseconds). -/
+  updateFrequency : Nat := 100
+
 /-- State of the Lake build monitor. -/
 structure MonitorState where
+  jobNo : Nat := 1
   jobs : Array (Job Unit)
   failures : Array String
   resetCtrl : String
   lastUpdate : Nat
 
+/-- Monad of the Lake build monitor. -/
+abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState IO
+
+namespace Monitor
+
+def renderProgress : MonitorM PUnit := do
+  let {jobNo, jobs, ..} ← get
+  let {totalJobs, out, useAnsi, showProgress, ..} ← read
+  if showProgress ∧ useAnsi then
+    if h : 0 < jobs.size then
+      let caption := jobs[0]'h |>.caption
+      let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := "\x1B[2K\r"})
+      out.putStr s!"{resetCtrl}[{jobNo}/{totalJobs}] Checking {caption}"
+      out.flush
+
+def reportJob (job : Job Unit) : MonitorM PUnit := do
+  let {jobNo, ..} ← get
+  let {totalJobs, failLevel, outLevel, out, useAnsi, showProgress, ..} ← read
+  let {log, action, ..} := job.task.get.state
+  let maxLv := log.maxLogLevel
+  let failed := !log.isEmpty ∧ maxLv ≥ failLevel
+  if failed then
+    modify fun s => {s with failures := s.failures.push job.caption}
+  let hasOutput := !log.isEmpty ∧ maxLv ≥ outLevel
+  if hasOutput ∨ (showProgress ∧ action == .build) then
+    let verb := action.verb failed
+    let icon := if hasOutput then maxLv.icon else '✔'
+    let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
+    let caption :=
+      if useAnsi then
+        let color := if hasOutput then maxLv.ansiColor else "32"
+        Ansi.chalk color caption
+      else
+        caption
+    let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
+    out.putStr s!"{resetCtrl}{caption}\n"
+    if hasOutput then
+      let outLv := if failed then .trace else outLevel
+      log.replay (logger := .stream out outLv useAnsi)
+    out.flush
+
+def pollJobs : MonitorM PUnit := do
+  let prevJobs ← modifyGet fun s => (s.jobs, {s with jobs := #[]})
+  for h : i in [0:prevJobs.size] do
+    let job := prevJobs[i]'h.upper
+    if (← IO.hasFinished job.task) then
+      reportJob job
+      modify fun s => {s with jobNo := s.jobNo + 1}
+    else
+      modify fun s => {s with jobs := s.jobs.push job}
+
+def sleep : MonitorM PUnit := do
+  let now ← IO.monoMsNow
+  let lastUpdate ← modifyGet fun s => (s.lastUpdate, {s with lastUpdate := now})
+  let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
+  if sleepTime > 0 then
+    IO.sleep sleepTime.toUInt32
+
+partial def loop : MonitorM PUnit := do
+  renderProgress
+  pollJobs
+  if 0 < (← get).jobs.size then
+    renderProgress
+    sleep
+    loop
+
+end Monitor
+
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
-partial def monitorJobs
+def monitorJobs
   (jobs : Array (Job Unit))
   (out : IO.FS.Stream)
-  (failLv outLv : LogLevel)
+  (failLevel outLevel : LogLevel)
   (useAnsi showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
   (totalJobs := jobs.size)
-  (updateMs := 100)
+  (updateFrequency := 100)
 : IO (Array String) := do
-  let (_,s) ← StateT.run loop {
-      jobs, resetCtrl
-      lastUpdate := ← IO.monoMsNow
-      failures := initFailures
+  let ctx := {
+    totalJobs, out, failLevel, outLevel,
+    useAnsi, showProgress, updateFrequency
   }
+  let s := {
+    jobs, resetCtrl
+    lastUpdate := ← IO.monoMsNow
+    failures := initFailures
+  }
+  let (_,s) ← Monitor.loop.run ctx |>.run s
+  unless s.resetCtrl.isEmpty do
+    out.putStr resetCtrl
+    out.flush
   return s.failures
-where
-  loop : StateT MonitorState IO PUnit := do
-    let jobs ← modifyGet fun s => (s.jobs, {s with jobs := #[]})
-    for h : i in [0:jobs.size] do
-      let job := jobs[i]'h.upper
-      if (← IO.hasFinished job.task) then
-        let {log, action, ..} := (← job.wait).state
-        let maxLv := log.maxLogLevel
-        let failed := !log.isEmpty ∧ maxLv ≥ failLv
-        if failed then
-          modify fun s => {s with failures := s.failures.push job.caption}
-        let hasOutput := !log.isEmpty ∧ maxLv ≥ outLv
-        if hasOutput ∨ (showProgress ∧ action == .build) then
-          let verb := action.verb failed
-          let icon := if hasOutput then maxLv.icon else '✔'
-          let jobNo := (totalJobs - jobs.size) + (i - (← get).jobs.size) + 1
-          let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
-          let caption :=
-            if useAnsi then
-              let color := if hasOutput then maxLv.ansiColor else "32"
-              Ansi.chalk color caption
-            else
-              caption
-          let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
-          out.putStr s!"{resetCtrl}{caption}\n"
-          if hasOutput then
-            let outLv := if failed then .trace else outLv
-            log.replay (logger := .stream out outLv useAnsi)
-          out.flush
-      else
-        modify fun s => {s with jobs := s.jobs.push job}
-    let jobs := (← get).jobs
-    if h : 0 < jobs.size then
-      if showProgress ∧ useAnsi then
-        let jobsDone := totalJobs - jobs.size
-        let caption := jobs[0]'h |>.caption
-        let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := "\x1B[2K\r"})
-        out.putStr s!"{resetCtrl}[{jobsDone}/{totalJobs}] Checking {caption}"
-        out.flush
-      let now ← IO.monoMsNow
-      let lastUpdate ← modifyGet fun s => (s.lastUpdate, {s with lastUpdate := now})
-      let sleepTime : Nat := updateMs - (now - lastUpdate)
-      if sleepTime > 0 then
-        IO.sleep sleepTime.toUInt32
-      loop
-    else unless resetCtrl.isEmpty do
-      out.putStr resetCtrl
 
 /--
 Whether the build should show progress information.
@@ -149,10 +190,12 @@ def Workspace.runFetchM
       | error "top-level build failed"
     if showProgress then
       out.putStr s!"Build completed successfully.\n"
+      out.flush
     return a
   else
     out.putStr "Some builds logged failures:\n"
     failures.forM (out.putStr s!"- {·}\n")
+    out.flush
     error "build failed"
 
 /-- Run a build function in the Workspace's context and await the result. -/

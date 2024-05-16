@@ -221,7 +221,7 @@ partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpThe
   else
     d
 
-def SimpTheorems.erase [Monad m] [MonadLog m]  [AddMessageContext m] [MonadOptions m]
+def SimpTheorems.erase [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
   unless d.isLemma thmId ||
     match thmId with

@@ -501,11 +501,15 @@ def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Opti
   let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
   match (← get).cache.synthInstance.find? cacheKey with
   | none => return none
-  | some none => return some none
-  | some (some inst) => return some $ some {
-    result := ← abstractMVars inst
-    resultType := mvarType
-    size := 1 }
+  | some none =>
+    trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {mvarType} in global cache"
+    return some none
+  | some (some inst) =>
+    trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {mvarType} in global cache: {inst}"
+    return some $ some {
+      result := ← abstractMVars inst
+      resultType := mvarType
+      size := 1 }
 
 
 
@@ -582,7 +586,7 @@ def generate : SynthM Unit := do
       if let some entry := (← get).tableEntries.find? gNode.key then
         if h : entry.answers.size > 0 then
           let answer := entry.answers[0].result
-          if answer.numMVars == 0 then
+          if answer.numMVars == 0 && answer.paramNames.isEmpty then
             let inst := answer.expr
             let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
             modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
@@ -604,7 +608,7 @@ def generate : SynthM Unit := do
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
             let answer := entry.answers[0].result
-            if answer.numMVars == 0 then
+            if answer.numMVars == 0 && answer.paramNames.isEmpty then
               let inst := answer.expr
               let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
               modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
@@ -624,7 +628,7 @@ partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
     if let some entry := (← get).tableEntries.find? gNode.key then
       if let some answer := entry.answers[0]? then
         let answer := answer.result
-        if answer.numMVars == 0 then
+        if answer.numMVars == 0 && answer.paramNames.isEmpty then
           let inst := answer.expr
           let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
           modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
@@ -886,8 +890,10 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
+  registerTraceClass `Meta.synthInstance.answer (inherited := true)
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer
+  registerTraceClass `Meta.synthInstance.globalCache (inherited := true)
 
 end Lean.Meta

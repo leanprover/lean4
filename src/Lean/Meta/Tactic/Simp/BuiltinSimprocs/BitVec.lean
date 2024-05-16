@@ -79,6 +79,16 @@ Helper function for reducing bitvector functions such as `shiftLeft` and `rotate
   return .done <| toExpr (op v.value i)
 
 /--
+Helper function for reducing `x <<< i` and `x >>> i` where `i` is a bitvector literal,
+into one that is a natural number literal.
+-/
+@[inline] def reduceShiftWithBitVecLit (declName : Name) (e : Expr) : SimpM DStep := do
+  unless e.isAppOfArity declName 6 do return .continue
+  let v := e.appFn!.appArg!
+  let some i ← fromExpr? e.appArg! | return .continue
+  return .visit (← mkAppM declName #[v, toExpr i.value.toNat])
+
+/--
 Helper function for reducing bitvector predicates.
 -/
 @[inline] def reduceBinPred (declName : Name) (arity : Nat)
@@ -158,9 +168,15 @@ builtin_dsimproc [simp, seval] reduceSShiftRight (BitVec.sshiftRight _ _) :=
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftLeft ((_ <<< _ : BitVec _)) :=
   reduceShift ``HShiftLeft.hShiftLeft 6 (· <<< ·)
+/-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
+builtin_dsimproc [simp, seval] reduceHShiftLeft' ((_ <<< (_ : BitVec _) : BitVec _)) :=
+  reduceShiftWithBitVecLit ``HShiftLeft.hShiftLeft
 /-- Simplification procedure for shift right on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceHShiftRight ((_ >>> _ : BitVec _)) :=
   reduceShift ``HShiftRight.hShiftRight 6 (· >>> ·)
+/-- Simplification procedure for converting a shift with a bit-vector literal into a natural number literal. -/
+builtin_dsimproc [simp, seval] reduceHShiftRight' ((_ >>> (_ : BitVec _) : BitVec _)) :=
+  reduceShiftWithBitVecLit ``HShiftRight.hShiftRight
 /-- Simplification procedure for rotate left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceRotateLeft (BitVec.rotateLeft _ _) :=
   reduceShift ``BitVec.rotateLeft 3 BitVec.rotateLeft

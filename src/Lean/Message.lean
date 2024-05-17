@@ -78,8 +78,17 @@ inductive MessageData where
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
-  /-- Lazy message data production. The `Dynamic` is expected to be `MessageData`, which
-  is a workaround for the positivity restriction. -/
+  /-- A lazy message.
+  The provided thunk will not be run until it is about to be displayed.
+  This can save computation in cases where the message may never be seen,
+  e.g. when nested inside a collapsed trace.
+
+  The `Dynamic` value is expected to be a `MessageData`,
+  which is a workaround for the positivity restriction.
+     
+  If the thunked message is produced for a term that contains a synthetic sorry,
+  `hasSyntheticSorry` should return `true`.
+  This is used to filter out certain messages. -/
   | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
   deriving Inhabited, TypeName
 

@@ -21,12 +21,12 @@ instance [MonadDStore κ β m] : MonadStore1 k (β k) m where
   fetch? := MonadDStore.fetch? k
   store o := MonadDStore.store k o
 
+/-- A monad equipped with a key-object store. -/
+abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
+
 instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
   fetch? k := liftM (m := m) <| fetch? k
   store k a := liftM (m := m) <| store k a
-
-/-- A monad equipped with a key-object store. -/
-abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 
 @[inline] def fetchOrCreate [Monad m]
 (key : κ) [MonadStore1 key α m] (create : m α) : m α := do

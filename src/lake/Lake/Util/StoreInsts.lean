@@ -13,7 +13,7 @@ namespace Lake
 
 instance [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateT (DRBMap κ β cmp) m) where
   fetch? k := return (← get).find? k
-  store k a :=  modify (·.insert k a)
+  store k a := modify (·.insert k a)
 
 instance [Monad m] : MonadStore κ α (StateT (RBMap κ α cmp) m) where
   fetch? k := return (← get).find? k
@@ -21,11 +21,11 @@ instance [Monad m] : MonadStore κ α (StateT (RBMap κ α cmp) m) where
 
 instance [Monad m] : MonadStore κ α (StateT (RBArray κ α cmp) m) where
   fetch? k := return (← get).find? k
-  store k a :=  modify (·.insert k a)
+  store k a := modify (·.insert k a)
 
 instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) :=
   inferInstanceAs (MonadStore _ _ (StateT (RBMap ..) _))
 
 @[inline] instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1 k α m where
-  fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k
-  store a := store k <| cast t.family_key_eq_type.symm a
+  fetch? := cast (by rw [t.family_key_eq_type]) <| MonadDStore.fetch? (β := β) k
+  store a := MonadDStore.store k <| cast t.family_key_eq_type.symm a

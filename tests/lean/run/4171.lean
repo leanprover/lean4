@@ -717,20 +717,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
 
 /--
 info: [simp] theorems with bad keys
-    foo, key: [Quiver.Hom.unop,
-   *,
-   *,
-   *,
-   *,
-   Opposite.op,
-   Quiver.Hom,
-   *,
-   *,
-   Opposite.0,
-   *,
-   Opposite.0,
-   *,
-   *]use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+    foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
@@ -749,20 +736,7 @@ attribute [simp] foo
 
 /--
 info: [simp] theorems with bad keys
-    foo, key: [Quiver.Hom.unop,
-   *,
-   *,
-   *,
-   *,
-   Opposite.op,
-   Quiver.Hom,
-   *,
-   *,
-   Opposite.0,
-   *,
-   Opposite.0,
-   *,
-   *]use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+    foo, key: @Quiver.Hom.unop _ _ _ _ (@Opposite.op (@Quiver.Hom _ _ _.1 _.1) _)use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where

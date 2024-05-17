@@ -111,6 +111,13 @@ structure Diagnostics where
   triedThmCounter : PHashMap Origin Nat := {}
   /-- Number of times each congr theorem has been tried. -/
   congrThmCounter : PHashMap Name Nat := {}
+  /--
+  When using `Simp.Config.index := false`, and `set_option diagnostics true`,
+  for every theorem used by `simp`, we check whether the theorem would be
+  also applied if `index := true`, and we store it here if it would not have
+  been tried.
+  -/
+  thmsWithBadKeys : PArray SimpTheorem := {}
   deriving Inhabited
 
 structure State where
@@ -325,14 +332,14 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   withReader (fun r => { MethodsRef.toMethods r with discharge?, wellBehavedDischarge }.toMethodsRef) x
 
 def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := triedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew, congrThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.triedThmCounter.find? thmId then c + 1 else 1
+    { s with triedThmCounter := s.triedThmCounter.insert thmId cNew }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := usedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter, congrThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.usedThmCounter.find? thmId then c + 1 else 1
+    { s with usedThmCounter := s.usedThmCounter.insert thmId cNew }
   /-
   If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.
@@ -353,9 +360,17 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
     { s with usedTheorems := s.usedTheorems.insert thmId n }
 
 def recordCongrTheorem (declName : Name) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := congrThmCounter.find? declName then c + 1 else 1
-    { congrThmCounter := congrThmCounter.insert declName cNew, triedThmCounter, usedThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.congrThmCounter.find? declName then c + 1 else 1
+    { s with congrThmCounter := s.congrThmCounter.insert declName cNew }
+
+def recordTheoremWithBadKeys (thm : SimpTheorem) : SimpM Unit := do
+  modifyDiag fun s =>
+    -- check whether it is already there
+    if unsafe s.thmsWithBadKeys.any fun thm' => ptrEq thm thm' then
+      s
+    else
+      { s with thmsWithBadKeys := s.thmsWithBadKeys.push thm }
 
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with

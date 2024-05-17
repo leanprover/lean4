@@ -634,6 +634,55 @@ where
     else
       return result
 
+/--
+Return the root symbol for `e`, and the number of arguments after `reduceDT`.
+-/
+def getMatchKeyRootFor (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Nat) := do
+  let e ← reduceDT e (root := true) config
+  let numArgs := e.getAppNumArgs
+  let key := match e.getAppFn with
+    | .lit v         => .lit v
+    | .fvar fvarId   => .fvar fvarId numArgs
+    | .mvar _        => .other
+    | .proj s i _ .. => .proj s i numArgs
+    | .forallE ..    => .arrow
+    | .const c _     =>
+      -- This method is used by the simplifier only, we do **not** support
+      -- (← getConfig).isDefEqStuckEx
+      .const c numArgs
+    | _ => .other
+  return (key, numArgs)
+
+/--
+Get all results under key `k`.
+-/
+private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Array α) : Array α :=
+  match d.root.find? k with
+  | none      => result
+  | some trie => go trie result
+where
+  go (trie : Trie α) (result : Array α) : Array α := Id.run do
+    match trie with
+    | .node vs cs =>
+      let mut result := result ++ vs
+      for (_, trie) in cs do
+        result := go trie result
+      return result
+
+/--
+A liberal version of `getMatch` which only takes the root symbol of `e` into account.
+We use this method to simulate Lean 3's indexing.
+
+The natural number in the result is the number of arguments in `e` after `reduceDT`.
+-/
+def getMatchLiberal (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α × Nat) := do
+  withReducible do
+    let result := getStarResult d
+    let (k, numArgs) ← getMatchKeyRootFor e config
+    match k with
+    | .star  => return (result, numArgs)
+    | _      => return (getAllValuesForKey d k result, numArgs)
+
 partial def getUnify (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true) config

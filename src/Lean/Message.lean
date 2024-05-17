@@ -60,9 +60,8 @@ structure TraceData where
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
-  /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
-  | ofFormat          : Format → MessageData
-  /-- Formatted text with info annotations -/
+  /-- Eagerly formatted text with info annotations.
+  This constructor is inspected in various hacks. -/
   | ofFormatWithInfos : FormatWithInfos → MessageData
   | ofGoal            : MVarId → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
@@ -84,6 +83,9 @@ inductive MessageData where
   deriving Inhabited, TypeName
 
 namespace MessageData
+
+/-- Eagerly formatted text. -/
+def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty⟩
 
 /--
 Lazy message data production, with access to the context as given by
@@ -170,7 +172,6 @@ where
   | _                       => false
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _,  _,           ofFormat fmt             => return fmt
   | _, _,            ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId

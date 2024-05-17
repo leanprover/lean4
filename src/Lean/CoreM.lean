@@ -328,7 +328,8 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
   match ex with
-  | Exception.error _ (MessageData.ofFormat (Std.Format.text msg)) => "(deterministic) timeout".isPrefixOf msg
+  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
+    "(deterministic) timeout".isPrefixOf msg
   | _ => false
 
 /-- Creates the expression `d → b` -/

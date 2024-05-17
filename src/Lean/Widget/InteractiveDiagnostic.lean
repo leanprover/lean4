@@ -128,7 +128,6 @@ where
   }
 
   go (nCtx : NamingContext) : Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,         ofFormat fmt             => withIgnoreTags fmt
   | none,      ofFormatWithInfos ⟨fmt, _⟩ => withIgnoreTags fmt
   | some ctx,  ofFormatWithInfos ⟨fmt, infos⟩ => do
     let t ← pushEmbed <| EmbedFmt.code (mkContextInfo nCtx ctx) infos

@@ -32,6 +32,10 @@ instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
   fetch? k := liftM (m := m) <| fetch? k
   store k a := liftM (m := m) <| store k a
 
+instance [MonadLift m n] [MonadStore κ β m] : MonadStore κ β n where
+  fetch? k := liftM (m := m) <| fetch? k
+  store k a := liftM (m := m) <| store k a
+
 @[inline] def fetchOrCreate [Monad m]
 (key : κ) [MonadStore1 key α m] (create : m α) : m α := do
   if let some val ← fetch? key then

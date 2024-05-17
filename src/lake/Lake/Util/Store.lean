@@ -28,13 +28,6 @@ instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
 /-- A monad equipped with a key-object store. -/
 abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 
-/- In order to make unificiation work, we need to duplicate the dependent instances for `MonadDStore`
-to non-dependent instances for `MonadStore`. -/
-
-instance {k : κ} [MonadStore κ α m] : MonadStore1 k α m where
-  fetch? := MonadDStore.fetch? k (β := fun _ => α)
-  store o := MonadDStore.store k (β := fun _ => α) o
-
 @[inline] def fetchOrCreate [Monad m]
 (key : κ) [MonadStore1 key α m] (create : m α) : m α := do
   if let some val ← fetch? key then

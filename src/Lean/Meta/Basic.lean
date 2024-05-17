@@ -720,15 +720,18 @@ def isReadOnlyExprMVar (mvarId : MVarId) : MetaM Bool := do
   mvarId.isReadOnly
 
 /--
-Return true if `mvarId.isReadOnly` return true or if `mvarId` is a synthetic opaque metavariable.
+Returns true if `mvarId.isReadOnly` returns true or if `mvarId` is a synthetic opaque metavariable.
 
 Recall `isDefEq` will not assign a value to `mvarId` if `mvarId.isReadOnlyOrSyntheticOpaque`.
 -/
 def _root_.Lean.MVarId.isReadOnlyOrSyntheticOpaque (mvarId : MVarId) : MetaM Bool := do
   let mvarDecl ← mvarId.getDecl
-  match mvarDecl.kind with
-  | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
-  | _ => return mvarDecl.depth != (← getMCtx).depth
+  if mvarDecl.depth != (← getMCtx).depth then
+    return true
+  else
+    match mvarDecl.kind with
+    | MetavarKind.syntheticOpaque => return !(← getConfig).assignSyntheticOpaque
+    | _ => return false
 
 @[deprecated MVarId.isReadOnlyOrSyntheticOpaque (since := "2022-07-15")]
 def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do

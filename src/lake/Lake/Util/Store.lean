@@ -24,6 +24,10 @@ instance [MonadDStore κ β m] : MonadStore1 k (β k) m where
 /-- A monad equipped with a key-object store. -/
 abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 
+instance (priority := high) [MonadStore κ β m] : MonadStore1 (k : κ) β m where
+  fetch? := MonadDStore.fetch? (β := fun _ => β) k
+  store o := MonadDStore.store (β := fun _ => β) k o
+
 instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
   fetch? k := liftM (m := m) <| fetch? k
   store k a := liftM (m := m) <| store k a

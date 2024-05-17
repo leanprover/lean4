@@ -39,13 +39,6 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/-- Lazily formatted text to be used in `MessageData`. -/
-structure PPFormat where
-  /-- Pretty-prints text using surrounding context, if any. -/
-  pp : Option PPContext → IO FormatWithInfos
-  /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
-  hasSyntheticSorry : MetavarContext → Bool := fun _ => false
-
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
@@ -91,18 +84,13 @@ def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty�
 Lazy message data production, with access to the context as given by
 a surrounding `MessageData.withContext` (which is expected to exist).
 -/
-def lazy (f : PPContext → IO MessageData) (hasSyntheticSorry : MetavarContext → Bool) : MessageData :=
+def lazy (f : PPContext → IO MessageData)
+    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
   .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
     let msg ← match ctx? with
       | .none => pure (.ofFormat "(invalid MessageData.lazy, missing context)")
       | .some ctx => f ctx
     return Dynamic.mk msg
-
-/-- Lazily formatted text with Info annotations -/
-def ofPPFormat (f : PPFormat) : MessageData :=
-  ofLazy (hasSyntheticSorry := f.hasSyntheticSorry) fun ppctx => do
-    let md ← f.pp ppctx
-    return Dynamic.mk (MessageData.ofFormatWithInfos md)
 
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
@@ -134,26 +122,14 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 def ofSyntax (stx : Syntax) : MessageData :=
   -- discard leading/trailing whitespace
   let stx := stx.copyHeadTailInfoFrom .missing
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term
-      | none     => return stx.formatStx
-  }
+  .lazy fun ctx => ofFormat <$> ppTerm ctx ⟨stx⟩ -- HACK: might not be a term
 
 def ofExpr (e : Expr) : MessageData :=
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppExprWithInfos ctx e
-      | none     => return format (toString e)
-    hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
-  }
+  .lazy (fun ctx => ofFormatWithInfos <$> ppExprWithInfos ctx e)
+        (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
 
 def ofLevel (l : Level) : MessageData :=
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppLevel ctx l
-      | none => return format l
-  }
+  .lazy fun ctx => ofFormat <$> ppLevel ctx l
 
 def ofName (n : Name) : MessageData := ofFormat (format n)
 

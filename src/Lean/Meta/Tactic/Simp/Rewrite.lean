@@ -232,8 +232,19 @@ where
             tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+            diagnoseWhenNoIndex thm
             return some result
     return none
+
+  diagnoseWhenNoIndex (thm : SimpTheorem) : SimpM Unit := do
+    if (← isDiagnosticsEnabled) then
+      let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+      for (candidate, _) in candidates do
+        if unsafe ptrEq thm candidate then
+          return ()
+      -- `thm` would not have been applied if `index := true`
+      recordTheoremWithBadKeys thm
+
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 

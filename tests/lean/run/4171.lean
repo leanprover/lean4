@@ -714,14 +714,69 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
     ext
     simp [foo'] -- or adding a `no_index` in the statement
 
+
+/--
+info: [simp] theorems with bad keys
+    foo, key: [Quiver.Hom.unop,
+   *,
+   *,
+   *,
+   *,
+   Opposite.op,
+   Quiver.Hom,
+   *,
+   *,
+   Opposite.0,
+   *,
+   Opposite.0,
+   *,
+   *]use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
 example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   X := (toComon_ C).obj M
   one := { hom := M.X.one }
   mul := { hom := M.X.mul, }
   mul_one := by
     ext
+    -- increase the threshold to ensure the guard_msgs docstring is not too big.
+    set_option diagnostics.threshold 100000 in
+    set_option diagnostics true in
     -- `index := false` ignores most of the discrimination tree structure.
     simp (config := { index := false }) [foo]
+
+attribute [simp] foo
+
+/--
+info: [simp] theorems with bad keys
+    foo, key: [Quiver.Hom.unop,
+   *,
+   *,
+   *,
+   *,
+   Opposite.op,
+   Quiver.Hom,
+   *,
+   *,
+   Opposite.0,
+   *,
+   Opposite.0,
+   *,
+   *]use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
+example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
+  X := (toComon_ C).obj M
+  one := { hom := M.X.one }
+  mul := { hom := M.X.mul, }
+  mul_one := by
+    ext
+    -- increase the threshold to ensure the guard_msgs docstring is not too big.
+    set_option diagnostics.threshold 100000 in
+    set_option diagnostics true in
+    -- `index := false` ignores most of the discrimination tree structure.
+    simp (config := { index := false })
+
 end
 
 end Mathlib.CategoryTheory.Monoidal.Bimon_

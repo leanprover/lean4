@@ -19,7 +19,7 @@ by `lake lean` to build the imports of a file.
 Returns the set of module dynlibs built (so they can be loaded by Lean).
 -/
 def buildImportsAndDeps (leanFile : FilePath) (imports : Array Module) : FetchM (BuildJob (Array FilePath)) := do
-  withRegisterJob s!"Building imports of '{leanFile}'" do
+  withRegisterJob s!"imports ({leanFile})" do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
     (← getRootPackage).extraDep.fetch <&> (·.map fun _ => #[])

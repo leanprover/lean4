@@ -9,6 +9,7 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Mod
 
 namespace BitVec
 
@@ -222,9 +223,21 @@ theorem toInt_eq_toNat_cond (i : BitVec n) :
       if 2*i.toNat < 2^n then
         (i.toNat : Int)
       else
-        (i.toNat : Int) - (2^n : Nat) := by
-  unfold BitVec.toInt
-  split <;> omega
+        (i.toNat : Int) - (2^n : Nat) :=
+  rfl
+
+theorem msb_eq_false_iff_two_mul_lt (x : BitVec w) : x.msb = false ↔ 2 * x.toNat < 2^w := by
+  cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide]
+
+theorem msb_eq_true_iff_two_mul_ge (x : BitVec w) : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
+  simp [show x.msb = true ↔ ¬(x.msb = false) by simp, msb_eq_false_iff_two_mul_lt]
+
+/-- Characterize `x.toInt` in terms of `x.msb`. -/
+theorem toInt_eq_msb_cond (x : BitVec w) :
+    x.toInt = if x.msb then (x.toNat : Int) - (2^w : Nat) else (x.toNat : Int) := by
+  simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
+  cases x.msb <;> rfl
+
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]

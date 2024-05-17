@@ -421,9 +421,15 @@ abbrev ELog.alternative
 abbrev LogT (m : Type → Type) :=
   StateT Log m
 
+instance [Monad m] : MonadLog (LogT m) := .ofMonadState
+
 namespace LogT
 
-instance [Monad m] : MonadLog (LogT m) := .ofMonadState
+abbrev run [Functor m] (self : LogT m α) (log : Log := {})  : m (α × Log) :=
+  StateT.run self log
+
+abbrev run' [Functor m] (self : LogT m α) (log : Log := {}) :  m α :=
+  StateT.run' self log
 
 /--
 Run `self` with the log taken from the state of the monad `n`.
@@ -456,23 +462,34 @@ abbrev ELogT (m : Type → Type) :=
 
 abbrev ELogResult (α) := EResult Log.Pos Log α
 
-namespace ELogT
-
 instance [Monad m] : MonadLog (ELogT m) := .ofMonadState
 instance [Monad m] : MonadError (ELogT m) := ELog.monadError
 instance [Monad m] : Alternative (ELogT m) := ELog.alternative
 
-@[inline] def toLogT [Functor m] (self : ELogT m α) : LogT m (Except Log.Pos α) :=
+namespace ELogT
+
+abbrev run (self : ELogT m α) (log : Log := {})  : m (ELogResult α) :=
+  EStateT.run log self
+
+abbrev run' [Functor m] (self : ELogT m α) (log : Log := {}) :  m (Except Log.Pos α) :=
+  EStateT.run' log self
+
+abbrev toLogT [Functor m] (self : ELogT m α) : LogT m (Except Log.Pos α) :=
   self.toStateT
 
-@[inline] def toLogT? [Functor m] (self : ELogT m α) : LogT m (Option α) :=
+abbrev toLogT? [Functor m] (self : ELogT m α) : LogT m (Option α) :=
   self.toStateT?
+
+abbrev run? [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α × Log) :=
+  EStateT.run? log self
+
+abbrev run?' [Functor m] (self : ELogT m α) (log : Log := {}) : m (Option α) :=
+  EStateT.run?' log self
 
 @[inline] def catchLog [Monad m] (f : Log → LogT m α) (self : ELogT m α) : LogT m α := do
   self.catchExceptions fun errPos => do f (← takeLogFrom errPos)
 
-@[inline] def captureLog [Monad m] (self : ELogT m α) : m (Option α × Log) := do
-  self.toLogT?.run {}
+@[deprecated run?] abbrev captureLog := @run?
 
 /--
 Run `self` with the log taken from the state of the monad `n`,
@@ -511,15 +528,22 @@ a `failure` in the new monad.
 
 end ELogT
 
+/-- A monad equipped with a log, a log error position, and the ability to perform I/O. -/
 abbrev LogIO := ELogT BaseIO
 
 instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
+
+namespace LogIO
+
+@[deprecated ELogT.run?] abbrev captureLog := @ELogT.run?
 
 /--
 Runs a `LogIO` action in `BaseIO`.
 Prints log entries of at least `minLv` to `out`.
 -/
-@[inline] def LogIO.toBaseIO (self : LogIO α)
+@[inline] def toBaseIO (self : LogIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
 : BaseIO (Option α) := do
   self.replayLog? (logger := ← out.getLogger minLv ansiMode)
+
+end LogIO

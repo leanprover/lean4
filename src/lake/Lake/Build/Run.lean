@@ -156,20 +156,20 @@ def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
 : IO α := do
   -- Configure
-  let ctx ← mkBuildContext ws cfg
   let out ← cfg.out.get
   let useAnsi ← cfg.ansiMode.isEnabled out
   let outLv := cfg.verbosity.minLogLevel
   let failLv := cfg.failLevel
   let showProgress := cfg.showProgress
   let showAnsiProgress := showProgress ∧ useAnsi
+  let ctx ← mkBuildContext ws cfg
   -- Job Computation
   let caption := "Computing build jobs"
   let header := s!"[?/?] {caption}"
   if showAnsiProgress then
     out.putStr header
     out.flush
-  let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).captureLog
+  let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).run?
   let failed := log.hasEntriesGe failLv
   if log.hasEntriesGe outLv then
     unless showAnsiProgress do

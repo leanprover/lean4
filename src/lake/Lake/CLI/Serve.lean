@@ -70,7 +70,7 @@ with the given additional `args`.
 -/
 def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
-    let (ws?, log) ← (loadWorkspace config).captureLog
+    let (ws?, log) ← (loadWorkspace config).run?
     log.replay (logger := MonadLog.stderr)
     if let some ws := ws? then
       let ctx := mkLakeContext ws

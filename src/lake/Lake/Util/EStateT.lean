@@ -34,6 +34,16 @@ instance [Inhabited ε] [Inhabited σ] : Inhabited (EResult ε σ α) where
 @[inline] def EResult.setState (s : σ') (r : EResult ε σ α) : EResult ε σ' α :=
   r.modifyState fun _ => s
 
+/-- Convert a `EResult ε σ α` into `Except ε α × σ`. -/
+@[inline] def EResult.toProd : EResult ε σ α → Except ε α × σ
+| .ok a s => (.ok a, s)
+| .error e s => (.error e, s)
+
+/-- Convert an `EResult ε σ α` into `Option α × σ`, discarding the exception contents. -/
+@[inline] def EResult.toProd? : EResult ε σ α → Option α × σ
+| .ok a s => (some a, s)
+| .error _ s => (none, s)
+
 /-- Extract the result `α` from a `EResult ε σ α`. -/
 @[inline] def EResult.result? : EResult ε σ α → Option α
 | .ok a _ => some a
@@ -65,30 +75,47 @@ def EStateT (ε : Type u) (σ : Type v) (m : Type max u v w → Type x) (α : Ty
   σ → m (EResult ε σ α)
 
 namespace EStateT
+variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
 
 instance [Inhabited ε] [Pure m] : Inhabited (EStateT ε σ m α) where
   default := fun s => pure (EResult.error default s)
 
-/-- Lift the `m` monad into the `EStateT ε σ m` monad transformer. -/
+/-- Execute an `EStateT` on initial state `init` to get an `EResult` result. -/
 @[always_inline, inline]
-protected def lift {ε σ α : Type u} [Monad m] (x : m α) : EStateT ε σ m α := fun s => do
-  let a ← x; pure (.ok a s)
+def run (init : σ) (self : EStateT ε σ m α) : m (EResult ε σ α) :=
+  self init
 
-instance [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
+/--
+Execute an `EStateT` on initial state `init`
+to get an `Except` result, discarding the final state.
+-/
+@[always_inline, inline]
+def run' {σ : Type max u w} [Functor m] (init : σ) (x : EStateT ε σ m α) : m (Except ε α) :=
+  EResult.toExcept <$> x init
 
-@[inline] def toStateT {ε σ α : Type u}
-  [Functor m] (x : EStateT ε σ m α) : StateT σ m (Except ε α)
-:= fun s =>
-  x s <&> fun
-  | .ok a s => (.ok a, s)
-  | .error e s => (.error e, s)
+/-- Convert an `EStateT` to a `StateT`, returning an `Except` result. -/
+@[inline] def toStateT {ε σ α : Type u} [Functor m] (x : EStateT ε σ m α) : StateT σ m (Except ε α) :=
+  fun s => EResult.toProd <$> x s
 
-@[inline] def toStateT? {ε σ α : Type u}
-  [Functor m] (x : EStateT ε σ m α) : StateT σ m (Option α)
-:= fun s =>
-  x s <&> fun
-  | .ok a s => (some a, s)
-  | .error _ s => (none, s)
+/-- Convert an `EStateT` to a `StateT`, returning an `Option` result. -/
+@[inline] def toStateT? {ε σ α : Type u} [Functor m] (x : EStateT ε σ m α) : StateT σ m (Option α) :=
+  fun s => EResult.toProd? <$> x s
+
+/--
+Execute an `EStateT` on initial state `init`
+to get an `Option` result, discarding the exception contents.
+-/
+@[always_inline, inline]
+def run? {ε : Type max v w} [Functor m]  (init : σ) (x : EStateT ε σ m α) : m (Option α × σ) :=
+  EResult.toProd? <$> x init
+
+/--
+Execute an `EStateT` on initial state `init` to get an `Option` result,
+discarding the final state.
+-/
+@[always_inline, inline]
+def run?' {ε σ α : Type u} [Functor m] (init : σ) (x : EStateT ε σ m α) : m (Option α) :=
+  EResult.result? <$> x init
 
 @[inline] def catchExceptions {ε σ α : Type u}
   [Monad m] (x : EStateT ε σ m α) (h : ε → StateT σ m α)
@@ -97,17 +124,12 @@ instance [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
   | .ok a s => return (a, s)
   | .error e s => h e s
 
-variable {ε ε' : Type u} {σ : Type v} {α β : Type w}
-
-/-- Execute an `EStateT` on initial state `s` to get an `EResult` result. -/
+/-- Lift the `m` monad into the `EStateT ε σ m` monad transformer. -/
 @[always_inline, inline]
-def run (init : σ) (self : EStateT ε σ m α) : m (EResult ε σ α) :=
-  self init
+protected def lift {ε σ α : Type u} [Monad m] (x : m α) : EStateT ε σ m α := fun s => do
+  let a ← x; pure (.ok a s)
 
-/-- Execute an `EStateT` on initial state `s` to get an `Except` result. -/
-@[always_inline, inline]
-def run' {σ : Type max u w} [Functor m] (init : σ) (x : EStateT ε σ m α) : m (Except ε α) :=
-  EResult.toExcept <$> x init
+instance {ε σ : Type u} [Monad m] : MonadLift m (EStateT ε σ m) := ⟨EStateT.lift⟩
 
 /-- The `pure` operation of the `EStateT` monad transformer. -/
 @[always_inline, inline]

@@ -251,4 +251,11 @@ theorem slt_eq_not_carry (x y : BitVec w) :
   simp only [slt_eq_ult, bne, ult_eq_not_carry]
   cases x.msb == y.msb <;> simp
 
+theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
+  simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
+
+theorem sle_eq_carry (x y : BitVec w) :
+    x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
+  rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
+
 end BitVec

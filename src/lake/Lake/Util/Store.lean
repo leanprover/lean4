@@ -31,7 +31,7 @@ abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 /- In order to make unificiation work, we need to duplicate the dependent instances for `MonadDStore`
 to non-dependent instances for `MonadStore`. -/
 
-instance [MonadStore κ α m] (k : κ) : MonadStore1 k α m where
+instance {k : κ} [MonadStore κ α m] : MonadStore1 k α m where
   fetch? := MonadDStore.fetch? k (β := fun _ => α)
   store o := MonadDStore.store k (β := fun _ => α) o
 

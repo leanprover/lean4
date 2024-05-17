@@ -23,12 +23,7 @@ namespace Lake
 abbrev RecBuildM :=
   CallStackT BuildKey <| BuildT <| ELogT <| StateT BuildStore <| BaseIO
 
-instance : MonadLift IO RecBuildM := ⟨MonadError.runIO⟩
-
-@[inline] def RecBuildM.runLogIO (x : LogIO α) : RecBuildM α :=
-  fun _ _ log store => (·, store) <$> x log
-
-instance : MonadLift LogIO RecBuildM := ⟨RecBuildM.runLogIO⟩
+instance : MonadLift LogIO RecBuildM := ⟨ELogT.takeAndRun⟩
 
 /-- Run a recursive build. -/
 @[inline] def RecBuildM.run
@@ -64,7 +59,7 @@ abbrev FetchM := IndexT RecBuildM
 @[deprecated FetchM] abbrev IndexBuildM := FetchM
 
 /-- The old build monad. **Uses should generally be replaced by `FetchM`.** -/
-@[deprecated FetchM] abbrev BuildM := CoreBuildM
+@[deprecated FetchM] abbrev BuildM := BuildT LogIO
 
 /-- Fetch the result associated with the info using the Lake build index. -/
 @[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=
@@ -72,19 +67,46 @@ abbrev FetchM := IndexT RecBuildM
 
 export BuildInfo (fetch)
 
-/-- Register the produced job for the CLI progress UI.  -/
-def withRegisterJob
-  (caption : String) (x : FetchM (Job α))
+/-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
+def ensureJob (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack ctx log store => do
   let iniPos := log.endPos
   match (← (withLoggedIO x) fetch stack ctx log store) with
   | (.ok job log, store) =>
     let (log, jobLog) := log.split iniPos
-    let regJob := job.mapResult (discard <| ·.modifyState (jobLog ++  ·))
-    ctx.registeredJobs.modify (·.push (caption, regJob))
-    return (.ok job.clearLog log, store)
+    let job := if jobLog.isEmpty then job else job.mapResult (sync := true)
+      (·.modifyState (.modifyLog (jobLog ++  ·)))
+    return (.ok job log, store)
   | (.error _ log, store) =>
     let (log, jobLog) := log.split iniPos
-    let regJob := ⟨Task.pure <| .error 0 jobLog⟩
-    ctx.registeredJobs.modify (·.push (caption, regJob))
-    return (.ok .error log, store)
+    return (.ok (.error jobLog) log, store)
+
+/--
+Registers the produced job for the top-level build monitor
+(e.g., the Lake CLI progress UI), assigning it `caption`.
+
+Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
+-/
+@[inline] def withRegisterJob
+  (caption : String) (x : FetchM (Job α))
+: FetchM (Job α) := do
+  let job ← ensureJob x
+  let job := job.setCaption caption
+  let regJob := job.mapResult (sync := true) discard
+  (← readThe BuildContext).registeredJobs.modify (·.push regJob)
+  return job.renew
+
+/--
+Registers the produced job for the top-level build monitor
+if it is not already (i.e., it has an empty caption).
+-/
+@[inline] def maybeRegisterJob
+  (fallbackCaption : String) (job : Job α)
+: FetchM (Job α) := do
+  if job.caption.isEmpty then
+    let job := job.setCaption fallbackCaption
+    let regJob := job.mapResult (sync := true) discard
+    (← readThe BuildContext).registeredJobs.modify (·.push regJob)
+    return job.renew
+  else
+    return job

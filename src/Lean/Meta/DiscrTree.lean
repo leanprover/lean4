@@ -80,6 +80,51 @@ def Key.format : Key → Format
 
 instance : ToFormat Key := ⟨Key.format⟩
 
+/--
+Helper function for converting an entry (i.e., `Array Key`) to the discrimination tree into
+`MessageData` that is more user-friendly. We use this function to implement diagnostic information.
+-/
+partial def keysAsPattern (keys : Array Key) : CoreM MessageData := do
+  go (parenIfNonAtomic := false) |>.run' keys.toList
+where
+  next? : StateRefT (List Key) CoreM (Option Key) := do
+    let key :: keys ← get | return none
+    set keys
+    return some key
+
+  mkApp (f : MessageData) (args : Array MessageData) (parenIfNonAtomic : Bool) : CoreM MessageData := do
+    if args.isEmpty then
+      return f
+    else
+      let mut r := f
+      for arg in args do
+        r := r ++ m!" {arg}"
+      if parenIfNonAtomic then
+        return m!"({r})"
+      else
+        return r
+
+  go (parenIfNonAtomic := true) : StateRefT (List Key) CoreM MessageData := do
+    let some key ← next? | return .nil
+    match key with
+    | .const declName nargs =>
+      mkApp m!"{← mkConstWithLevelParams declName}" (← goN nargs) parenIfNonAtomic
+    | .fvar fvarId nargs =>
+      mkApp m!"{mkFVar fvarId}" (← goN nargs) parenIfNonAtomic
+    | .proj _ i nargs =>
+      mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
+    | .arrow => return "<arrow>"
+    | .star => return "_"
+    | .other => return "<other>"
+    | .lit (.natVal v) => return m!"{v}"
+    | .lit (.strVal v) => return m!"{v}"
+
+  goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
+    let mut r := #[]
+    for _ in [: num] do
+      r := r.push (← go)
+    return r
+
 def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a

@@ -41,7 +41,7 @@ private def mkTheoremsWithBadKeySummary (thms : PArray SimpTheorem) : MetaM Diag
   else
     let mut data := #[]
     for thm in thms do
-      data := data.push m!"{if data.isEmpty then "  " else "\n"}{← originToKey thm.origin}, key: {thm.keys.map (·.format)}"
+      data := data.push m!"{if data.isEmpty then "  " else "\n"}{← originToKey thm.origin}, key: {← DiscrTree.keysAsPattern thm.keys}"
       pure ()
     return { data }
 

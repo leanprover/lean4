@@ -36,7 +36,7 @@ def setupFile
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
-    let outLv := buildConfig.verbosity.minLogLevel
+    let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>

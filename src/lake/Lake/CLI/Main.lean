@@ -40,14 +40,7 @@ structure LakeOptions where
   oldMode : Bool := false
   trustHash : Bool := true
   noBuild : Bool := false
-  /--
-  Fail the top-level build if warnings have been logged.
-
-  Unlike some build systems, this does **NOT** convert warnings to errors,
-  and it does not abort jobs when warnings are logged (i.e., dependent jobs
-  will still continue unimpeded).
-  -/
-  failIfWarnings : Bool := false
+  failLv : LogLevel := .error
   ansiMode : AnsiMode := .auto
 
 /-- Get the Lean installation. Error if missing. -/
@@ -88,7 +81,7 @@ def LakeOptions.mkBuildConfig (opts : LakeOptions) (out := OutStream.stderr) : B
   trustHash := opts.trustHash
   noBuild := opts.noBuild
   verbosity := opts.verbosity
-  failLevel := if opts.failIfWarnings then .warning else .error
+  failLv := opts.failLv
   ansiMode := opts.ansiMode
   out := out
 
@@ -107,7 +100,7 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   main.run
 
 instance : MonadLift LogIO CliStateM :=
-  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLevel (← get).ansiMode⟩
+  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLv (← get).ansiMode⟩
 
 /-! ## Argument Parsing -/
 
@@ -169,7 +162,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
-| "--wfail"       => modifyThe LakeOptions ({· with failIfWarnings := true})
+| "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
+| "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
 | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
 | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
 | "--dir"         => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
@@ -314,7 +308,10 @@ protected def build : CliM PUnit := do
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
   let buildConfig := mkBuildConfig opts (out := .stdout)
+  let showProgress := buildConfig.showProgress
   ws.runBuild (buildSpecs specs) buildConfig
+  if showProgress then
+    IO.println "Build completed successfully."
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption

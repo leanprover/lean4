@@ -53,8 +53,12 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
 
 @[specialize] protected def LeanLib.recBuildStatic
 (self : LeanLib) (shouldExport : Bool) : FetchM (BuildJob FilePath) := do
-  let exports := if shouldExport then "with exports" else "without exports"
-  withRegisterJob s!"{self.name}:static ({exports})" do
+  let suffix :=
+    if (← getIsVerbose) then
+      if shouldExport then " (with exports)" else " (without exports)"
+    else
+      ""
+  withRegisterJob s!"{self.name}:static{suffix}" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name

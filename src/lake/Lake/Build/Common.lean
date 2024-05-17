@@ -134,7 +134,7 @@ def buildFileUnlessUpToDate
   let logFile := FilePath.mk <| file.toString ++ ".log.json"
   let build := cacheBuildLog logFile build
   if (← buildUnlessUpToDate? file depTrace traceFile build) then
-    updateAction .cache
+    updateAction .replay
     replayBuildLog logFile
     fetchFileTrace file
   else

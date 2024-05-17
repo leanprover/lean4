@@ -166,7 +166,7 @@ def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
       if hasLLVM then
         discard <| cacheFileHash mod.bcFile
     if upToDate then
-      updateAction .cache
+      updateAction .replay
       replayBuildLog mod.logFile
     return ((), depTrace)
 
@@ -204,8 +204,9 @@ def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
 Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
 -/
-def Module.recBuildLeanCToOExport (self : Module) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"{self.name}:c (with exports)" do
+def Module.recBuildLeanCToOExport (self : Module) : FetchM (BuildJob FilePath) := do
+  let suffix := if (← getIsVerbose) then " (with exports)" else ""
+  withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
   let leancArgs := self.leancArgs ++ #["-DLEAN_EXPORTING"]
   buildLeanO self.coExportFile (← self.c.fetch) self.weakLeancArgs leancArgs
@@ -218,8 +219,9 @@ def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
 Recursively build the module's object file from its C file produced by `lean`.
 This version does not export any Lean symbols.
 -/
-def Module.recBuildLeanCToONoExport (self : Module) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"{self.name}:c (without exports)" do
+def Module.recBuildLeanCToONoExport (self : Module) : FetchM (BuildJob FilePath) := do
+  let suffix := if (← getIsVerbose) then " (without exports)" else ""
+  withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.coNoExportFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
 
@@ -234,7 +236,7 @@ def Module.coFacetConfig : ModuleFacetConfig coFacet :=
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
 def Module.recBuildLeanBcToO (self : Module) : FetchM (BuildJob FilePath) := do
-  withRegisterJob s!"{self.name}:bc" do
+  withRegisterJob s!"{self.name}:bc.o" do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 

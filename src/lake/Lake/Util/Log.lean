@@ -43,16 +43,12 @@ def AnsiMode.isEnabled (out : IO.FS.Stream) : AnsiMode → BaseIO Bool
 | .ansi => pure true
 | .noAnsi => pure false
 
-/-- Wrap text in ANSI escape codes to color it the ANSI `colorCode`. -/
-def Ansi.colorText (colorCode text : String) : String :=
-  s!"\x1B[{colorCode}m{text}\x1B[39;49m"
-
 /--
-Wrap text in ANSI escape codes to make it bold and color it the ANSI `colorCode`.
+Wrap text in ANSI escape sequences to make it bold and color it the ANSI `colorCode`.
 Resets all terminal font attributes at the end of the text.
 -/
 def Ansi.chalk (colorCode text : String) : String :=
-  s!"\x1B[1m\x1B[{colorCode}m{text}\x1B[0m"
+  s!"\x1B[1;{colorCode}m{text}\x1B[m"
 
 /-- A pure representation of output stream. -/
 inductive OutStream
@@ -106,7 +102,7 @@ protected def LogLevel.ofMessageSeverity : MessageSeverity → LogLevel
 
 instance : ToString LogLevel := ⟨LogLevel.toString⟩
 
-def Verbosity.minLogLevel : Verbosity → LogLevel
+def Verbosity.minLogLv : Verbosity → LogLevel
 | .quiet => .warning
 | .normal =>  .info
 | .verbose => .trace
@@ -256,11 +252,14 @@ namespace Log
 
 instance : EmptyCollection Log := ⟨Log.empty⟩
 
-@[inline] def isEmpty (log : Log) : Bool :=
-  log.entries.isEmpty
-
 @[inline] def size (log : Log) : Nat :=
   log.entries.size
+
+@[inline] def isEmpty (log : Log) : Bool :=
+  log.size = 0
+
+@[inline] def hasEntries (log : Log) : Bool :=
+  log.size ≠ 0
 
 @[inline] def endPos (log : Log) : Log.Pos :=
   ⟨log.entries.size⟩
@@ -307,11 +306,8 @@ instance : ToString Log := ⟨Log.toString⟩
 @[inline] def any (f : LogEntry → Bool) (log : Log) : Bool :=
   log.entries.any f
 
-/-- Whether the log has entries of at least `lv`. -/
-def hasEntriesGe (log : Log) (lv : LogLevel) : Bool :=
-  log.any (·.level ≥ lv)
-
-def maxLogLevel (log : Log) : LogLevel :=
+/-- The max log level of entries in this log. If empty, returns `trace`. -/
+def maxLv (log : Log) : LogLevel :=
   log.entries.foldl (max · ·.level) .trace
 
 end Log

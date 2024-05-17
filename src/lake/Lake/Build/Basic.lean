@@ -30,7 +30,7 @@ structure BuildConfig where
   errors, and it does not abort jobs when warnings are logged (i.e.,
   dependent jobs will still continue unimpeded).
   -/
-  failLevel : LogLevel := .error
+  failLv : LogLevel := .error
   /--
   The stream to which Lake reports build progress.
   By default, Lake uses `stderr`.
@@ -39,12 +39,25 @@ structure BuildConfig where
   /-- Whether to use ANSI escape codes in build output. -/
   ansiMode : AnsiMode := .auto
 
+/-- The minimum log level for an log entry to be reported. -/
+@[inline] def BuildConfig.outLv (cfg : BuildConfig) : LogLevel :=
+  cfg.verbosity.minLogLv
+
+/--
+Whether the build should show progress information.
+
+`Verbosity.quiet` hides progress and, for a `noBuild`,
+`Verbosity.verbose` shows progress.
+-/
+def BuildConfig.showProgress (cfg : BuildConfig) : Bool :=
+  (cfg.noBuild ∧ cfg.verbosity == .verbose) ∨ cfg.verbosity != .quiet
+
 /-- Information on what this job did. -/
 inductive JobAction
 /-- No information about this job's action is available. -/
 | unknown
-/-- Tried to load a cached build action (set by `buildFileUnlessUpToDate`) -/
-| cache
+/-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
+| replay
 /-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
 | fetch
 /-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
@@ -61,7 +74,7 @@ instance : Max JobAction := maxOfLe
 
 def JobAction.verb (failed : Bool) : JobAction → String
 | .unknown => if failed then "Running" else "Ran"
-| .cache => if failed then "Revisiting" else "Revisited"
+| .replay => if failed then "Replaying" else "Replayed"
 | .fetch => if failed then "Fetching" else "Fetched"
 | .build => if failed then "Building" else "Built"
 

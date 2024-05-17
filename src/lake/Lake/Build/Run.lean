@@ -25,6 +25,150 @@ def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext
     leanTrace := Hash.ofString ws.lakeEnv.leanGithash
   }
 
+/-- Context of the Lake build monitor. -/
+structure MonitorContext where
+  totalJobs : Nat
+  out : IO.FS.Stream
+  outLv : LogLevel
+  failLv : LogLevel
+  showProgress : Bool
+  useAnsi : Bool
+  /-- How often to poll jobs (in milliseconds). -/
+  updateFrequency : Nat := 100
+
+/-- State of the Lake build monitor. -/
+structure MonitorState where
+  jobNo : Nat := 1
+  jobs : Array (Job Unit)
+  failures : Array String
+  resetCtrl : String
+  lastUpdate : Nat
+
+/-- Monad of the Lake build monitor. -/
+abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
+
+@[inline] def MonitorM.run
+  (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
+: BaseIO (α × MonitorState) :=
+  self ctx s
+
+/--
+The ANSI escape sequence for clearing the current line
+and resetting the cursor back to the start.
+-/
+def Ansi.resetLine : String :=
+  "\x1B[2K\r"
+
+/-- Like `IO.FS.Stream.flush`, but ignores errors. -/
+@[inline] def flush (out : IO.FS.Stream) : BaseIO PUnit :=
+  out.flush |>.catchExceptions fun _ => pure ()
+
+/-- Like `IO.FS.Stream.putStr`, but panics on errors. -/
+@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
+  out.putStr s |>.catchExceptions fun e =>
+    panic! s!"[{decl_name%} failed: {e}] {repr s}"
+
+namespace Monitor
+
+@[inline] def print (s : String) : MonitorM PUnit := do
+  print! (← read).out s
+
+@[inline] nonrec def flush : MonitorM PUnit := do
+  flush (← read).out
+
+def renderProgress : MonitorM PUnit := do
+  let {jobNo, jobs, ..} ← get
+  let {totalJobs, useAnsi, showProgress, ..} ← read
+  if showProgress ∧ useAnsi then
+    if h : 0 < jobs.size then
+      let caption := jobs[0]'h |>.caption
+      let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := Ansi.resetLine})
+      print s!"{resetCtrl}[{jobNo}/{totalJobs}] Checking {caption}"
+      flush
+
+def reportJob (job : Job Unit) : MonitorM PUnit := do
+  let {jobNo, ..} ← get
+  let {totalJobs, failLv, outLv, out, useAnsi, showProgress, ..} ← read
+  let {log, action, ..} := job.task.get.state
+  let maxLv := log.maxLv
+  let failed := log.hasEntries ∧ maxLv ≥ failLv
+  if failed then
+    modify fun s => {s with failures := s.failures.push job.caption}
+  let hasOutput := failed ∨ (log.hasEntries ∧ maxLv ≥ outLv)
+  if hasOutput ∨ (showProgress ∧ action ≥ .fetch) then
+    let verb := action.verb failed
+    let icon := if hasOutput then maxLv.icon else '✔'
+    let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
+    let caption :=
+      if useAnsi then
+        let color := if hasOutput then maxLv.ansiColor else "32"
+        Ansi.chalk color caption
+      else
+        caption
+    let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
+    print s!"{resetCtrl}{caption}\n"
+    if hasOutput then
+      let outLv := if failed then .trace else outLv
+      log.replay (logger := .stream out outLv useAnsi)
+    flush
+
+def pollJobs : MonitorM PUnit := do
+  let prevJobs ← modifyGet fun s => (s.jobs, {s with jobs := #[]})
+  for h : i in [0:prevJobs.size] do
+    let job := prevJobs[i]'h.upper
+    if (← IO.hasFinished job.task) then
+      reportJob job
+      modify fun s => {s with jobNo := s.jobNo + 1}
+    else
+      modify fun s => {s with jobs := s.jobs.push job}
+
+def sleep : MonitorM PUnit := do
+  let now ← IO.monoMsNow
+  let lastUpdate ← modifyGet fun s => (s.lastUpdate, {s with lastUpdate := now})
+  let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
+  if sleepTime > 0 then
+    IO.sleep sleepTime.toUInt32
+
+partial def loop : MonitorM PUnit := do
+  renderProgress
+  pollJobs
+  if 0 < (← get).jobs.size then
+    renderProgress
+    sleep
+    loop
+
+def main : MonitorM PUnit := do
+  loop
+  let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
+  unless resetCtrl.isEmpty do
+    print resetCtrl
+    flush
+
+end Monitor
+
+/-- The job monitor function. An auxiliary definition for `runFetchM`. -/
+def monitorJobs
+  (jobs : Array (Job Unit))
+  (out : IO.FS.Stream)
+  (failLv outLv : LogLevel)
+  (useAnsi showProgress : Bool)
+  (resetCtrl : String := "")
+  (initFailures : Array String := #[])
+  (totalJobs := jobs.size)
+  (updateFrequency := 100)
+: BaseIO (Array String) := do
+  let ctx := {
+    totalJobs, out, failLv, outLv,
+    useAnsi, showProgress, updateFrequency
+  }
+  let s := {
+    jobs, resetCtrl
+    lastUpdate := ← IO.monoMsNow
+    failures := initFailures
+  }
+  let (_,s) ← Monitor.main.run ctx s
+  return s.failures
+
 /--
 Run a build function in the Workspace's context using the provided configuration.
 Reports incremental build progress and build logs. In quiet mode, only reports
@@ -33,62 +177,51 @@ failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
 : IO α := do
+  -- Configure
+  let out ← cfg.out.get
+  let useAnsi ← cfg.ansiMode.isEnabled out
+  let outLv := cfg.outLv
+  let failLv := cfg.failLv
+  let showProgress := cfg.showProgress
+  let showAnsiProgress := showProgress ∧ useAnsi
   let ctx ← mkBuildContext ws cfg
-  let out ← if cfg.useStdout then IO.getStdout else IO.getStderr
-  let useANSI ← out.isTty
-  let verbosity := cfg.verbosity
-  let showProgress :=
-    (cfg.noBuild && verbosity == .verbose) ||
-    verbosity != .quiet
+  -- Job Computation
   let caption := "Computing build jobs"
-  let header := s!"[?/?] {caption}"
-  if showProgress then
-    out.putStr header; out.flush
-  let (io, a?, log) ← IO.FS.withIsolatedStreams (build.run.run'.run ctx).captureLog
-  let failLv : LogLevel := if ctx.failIfWarnings then .warning else .error
-  let failed := log.any (·.level ≥ failLv)
-  if !failed && io.isEmpty && !log.hasVisibleEntries verbosity then
-    if showProgress then
-      if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
-  else
-    unless showProgress do
-      out.putStr header
-    out.putStr "\n"
-    if failed || log.hasVisibleEntries verbosity then
-      let v := if failed then .verbose else verbosity
-      log.replay (logger := MonadLog.stream out v)
-    unless io.isEmpty do
-      out.putStr "stdout/stderr:\n"
-      out.putStr io
-    out.flush
-  let failures := if failed then #[caption] else #[]
-  let jobs ← ctx.registeredJobs.get
-  let numJobs := jobs.size
-  let failures ← numJobs.foldM (init := failures) fun i s => Prod.snd <$> StateT.run (s := s) do
-    let (caption, job) := jobs[i]!
-    let header := s!"[{i+1}/{numJobs}] {caption}"
-    if showProgress then
-      out.putStr header; out.flush
-    let log := (← job.wait).state
-    let failed := log.any (·.level ≥ failLv)
-    if failed then modify (·.push caption)
-    if !(failed || log.hasVisibleEntries verbosity) then
+  if showAnsiProgress then
+    print! out s!"[?/?] {caption}"
+    flush out
+  let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).run?
+  let failed := log.hasEntries ∧ log.maxLv ≥ failLv
+  if failed ∨ (log.hasEntries ∧ log.maxLv ≥ outLv) then
+    let icon := log.maxLv.icon
+    let caption := s!"{icon} [?/?] {caption}"
+    if useAnsi then
+      let caption := Ansi.chalk log.maxLv.ansiColor caption
       if showProgress then
-        if useANSI then out.putStr "\x1B[2K\r" else out.putStr "\n"
+        print! out s!"{Ansi.resetLine}{caption}"
+      else
+        print! out caption
     else
-      unless showProgress do
-        out.putStr header
-      out.putStr "\n"
-      let v := if failed then .verbose else verbosity
-      log.replay (logger := MonadLog.stream out v)
-      out.flush
+      print! out caption
+    print! out "\n"
+    let outLv := if failed then .trace else outLv
+    log.replay (logger := .stream out outLv useAnsi)
+    flush out
+  let failures := if failed then #[caption] else #[]
+  -- Job Monitor
+  let jobs ← ctx.registeredJobs.get
+  let resetCtrl := if showAnsiProgress then Ansi.resetLine else ""
+  let failures ← monitorJobs jobs out failLv outLv useAnsi showProgress
+    (resetCtrl := resetCtrl) (initFailures := failures)
+  -- Failure Report
   if failures.isEmpty then
     let some a := a?
-      | error "build failed"
+      | error "top-level build failed"
     return a
   else
-    out.putStr "Some build steps logged failures:\n"
-    failures.forM (out.putStr s!"- {·}\n")
+    print! out "Some builds logged failures:\n"
+    failures.forM (print! out s!"- {·}\n")
+    flush out
     error "build failed"
 
 /-- Run a build function in the Workspace's context and await the result. -/

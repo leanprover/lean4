@@ -220,6 +220,10 @@ abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
 abbrev Package.release (self : Package) : BuildInfo :=
   self.facet releaseFacet
 
+@[inherit_doc optReleaseFacet]
+abbrev Package.optRelease (self : Package) : BuildInfo :=
+  self.facet optReleaseFacet
+
 @[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet

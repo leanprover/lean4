@@ -23,6 +23,18 @@ def toString : (self : BuildKey) → String
 | targetFacet p t f => s!"{p}/{t}:{f}"
 | customTarget p t => s!"{p}/{t}"
 
+/-- Like the default `toString`, but without disambiguation markers. -/
+def toSimpleString : (self : BuildKey) → String
+| moduleFacet m f => s!"{m}:{f}"
+| packageFacet p f => s!"{p}:{f}"
+| targetFacet p t f => s!"{p}/{t}:{eraseHead f}"
+| customTarget p t => s!"{p}/{t}"
+where
+  eraseHead : Name → Name
+    | .anonymous | .str .anonymous _  | .num .anonymous _  => .anonymous
+    | .str p s => .str (eraseHead p) s
+    | .num p s => .num (eraseHead p) s
+
 instance : ToString BuildKey := ⟨(·.toString)⟩
 
 def quickCmp (k k' : BuildKey) : Ordering :=

@@ -308,29 +308,29 @@ where
                  trace[Elab.binop] "uncomparable types: {max}, {type}"
                  modify fun s => { s with hasUncomparable := true }
 
-private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
+private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) (maxType? : Option Expr) : TermElabM Expr := do
   let mut rhs := rhs
   if lazy then
     rhs ← mkFunUnit rhs
-  elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+  elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := maxType?) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
-private def mkUnOp (f : Expr) (arg : Expr) : TermElabM Expr := do
-  elabAppArgs f #[] #[Arg.expr arg] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+private def mkUnOp (f : Expr) (arg : Expr) (maxType? : Option Expr) : TermElabM Expr := do
+  elabAppArgs f #[] #[Arg.expr arg] (expectedType? := maxType?) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
-private def toExprCore (t : Tree) : TermElabM Expr := do
+private def toExprCore (t : Tree) (maxType? : Option Expr) : TermElabM Expr := do
   match t with
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+      mkBinOp (kind == .lazy) f (← toExprCore lhs maxType?) (← toExprCore rhs maxType?) maxType?
   | .unop ref f arg =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkUnOp f (← toExprCore arg)
+      mkUnOp f (← toExprCore arg maxType?) maxType?
   | .macroExpansion macroName stx stx' nested =>
     withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
       withMacroExpansion stx stx' do
-        toExprCore nested
+        toExprCore nested maxType?
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -424,7 +424,7 @@ mutual
           return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
         else
           let r ← withRef ref do
-            mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
+            mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none) maxType
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
       | .unop ref f arg =>
@@ -450,10 +450,10 @@ mutual
     let r ← analyze tree expectedType?
     trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
-      let result ← toExprCore tree
+      let result ← toExprCore tree none
       ensureHasType expectedType? result
     else
-      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false)) r.max?.get!
       trace[Elab.binop] "result: {result}"
       ensureHasType expectedType? result
 
@@ -522,8 +522,8 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
-      let lhs ← toExprCore lhs
-      let rhs ← toExprCore rhs
+      let lhs ← toExprCore lhs none
+      let rhs ← toExprCore rhs none
       let lhs ← withRef lhsStx <| toBoolIfNecessary lhs
       let rhs ← withRef rhsStx <| toBoolIfNecessary rhs
       let lhsType ← inferType lhs
@@ -535,7 +535,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       if noProp then
         if (← withNewMCtxDepth <| isDefEq maxType (mkSort levelZero)) then
           maxType := Lean.mkConst ``Bool
-      let result ← toExprCore (← applyCoe tree maxType (isPred := true))
+      let result ← toExprCore (← applyCoe tree maxType (isPred := true)) none
       trace[Elab.binrel] "result: {result}"
       return result
   | none   => throwUnknownConstant stx[1].getId

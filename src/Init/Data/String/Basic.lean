@@ -178,8 +178,9 @@ Returns the next position in a string after position `p`. If `p` is not a valid 
 the result is unspecified.
 
 Examples:
-* `"abc".next ⟨1⟩ = String.Pos.mk 2`
-* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`, since `'∃'` is a multi-byte UTF-8 character
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (0 |> abc.next) = 'b'`
+* `lean.get (0 |> lean.next |> lean.next) = '∀'`
 
 Cases where the result is unspecified:
 * `"abc".next ⟨3⟩`, since `3 = s.endPos`
@@ -201,9 +202,10 @@ Returns the position in a string before a specified position, `p`. If `p = ⟨0�
 If `p` is not a valid position, the result is unspecified.
 
 Examples:
-* `"abc".prev ⟨2⟩ = String.Pos.mk 1`
-* `"abc".prev ⟨0⟩ = String.Pos.mk 0`
-* `"L∃∀N".prev ⟨4⟩ = String.Pos.mk 1`, since `'∃'` is a multi-byte UTF-8 character
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (abc.endPos |> abc.prev) = 'c'`
+* `lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'`
+* `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte character `'∃'`.
 -/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
@@ -235,11 +237,11 @@ points to the end of a string. Otherwise, returns `false`.
 
 Examples:
 Given `def abc := "abc"` and `def lean := "L∃∀N"`,
-* `0 |> abc.next |> abc.next |> abc.atEnd = false`
-* `0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd = true`
-* `0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd = true`
+* `(0 |> abc.next |> abc.next |> abc.atEnd) = false`
+* `(0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true`
+* `(0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true`
 
-Because "L∃∀N" contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
+Because `"L∃∀N"` contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
 -/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool

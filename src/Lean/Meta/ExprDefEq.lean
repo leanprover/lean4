@@ -914,12 +914,11 @@ partial def check
     | .lit .. => return true
     | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then return true
-      match lctx.find? fvarId with
-      | some (LocalDecl.ldecl ..) => return false -- need expensive CheckAssignment.check
-      | _ =>
-        if fvars.any fun x => x.fvarId! == fvarId then
-          return true
-        return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
+      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+        return false -- need expensive CheckAssignment.check
+      if fvars.any fun x => x.fvarId! == fvarId then
+        return true
+      return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | .mvar mvarId'    =>
       let none := mctx.getExprAssignmentCore? mvarId' | return false -- use CheckAssignment.check to instantiate
       if mvarId' == mvarId then return false -- occurs check failed, use CheckAssignment.check to throw exception

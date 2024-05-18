@@ -826,6 +826,17 @@ def getFVarLocalDecl (fvar : Expr) : MetaM LocalDecl :=
   fvar.fvarId!.getDecl
 
 /--
+Returns `true` if another local declaration in the local context depends on `fvarId`.
+-/
+def _root_.Lean.FVarId.hasForwardDeps (fvarId : FVarId) : MetaM Bool := do
+  let decl ← fvarId.getDecl
+  (← getLCtx).foldlM (init := false) (start := decl.index + 1) fun found other =>
+    if found then
+      return true
+    else
+      localDeclDependsOn other fvarId
+
+/--
 Given a user-facing name for a free variable, return its declaration in the current local context.
 Throw an exception if free variable is not declared.
 -/

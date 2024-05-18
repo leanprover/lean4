@@ -1446,7 +1446,9 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
   for decl in decls do
     unless decl.isImplementationDetail do
       if let some className ← isClass? decl.type then
-        localInsts := localInsts.push { className, fvar := decl.toExpr }
+        -- Ensure we don't add the same local instance multiple times.
+        unless localInsts.any fun localInst => localInst.fvar.fvarId! == decl.fvarId do
+          localInsts := localInsts.push { className, fvar := decl.toExpr }
   if localInsts.size == size then
     k
   else

@@ -561,11 +561,17 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          unless entry.answers.isEmpty do
+          if entry.answers.any fun answer => answer.result.numMVars == 0 then
             /-
-            We already have an answer for this node, and since its type does not have metavariables,
-            we can skip other solutions because we assume instances are "morally canonical".
+            We already have an answer that:
+              1. its result does not have metavariables.
+              2. its types do not have metavariables.
+
+            Thus, we can skip other solutions because we assume instances are "morally canonical".
             We have added this optimization to address issue #3996.
+
+            Remark: Condition 1 is important since root nodes only take into account results
+            that do **not** contain metavariables. This extra check was added to address issue #4213.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
             return

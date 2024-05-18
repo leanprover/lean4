@@ -746,6 +746,11 @@ mutual
       | throwUnknownMVar mvarId
     if ctx.hasCtxLocals then
       throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
+    if let some d ← getDelayedMVarAssignment? mvarId then
+      -- we must perform occurs-check at `d.mvarIdPending`
+      unless (← occursCheck ctx.mvarId (mkMVar d.mvarIdPending)) do
+        traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
+        throwCheckAssignmentFailure
     if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
       /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
          We "subtract" variables being abstracted because we use `elimMVarDeps` -/

@@ -17,16 +17,12 @@ class MonadDStore (κ : Type u) (β : semiOutParam $ κ → Type v) (m : Type v 
   fetch? : (key : κ) → m (Option (β key))
   store : (key : κ) → β key → m PUnit
 
-instance [MonadDStore κ β m] : MonadStore1 k (β k) m where
-  fetch? := MonadDStore.fetch? k
-  store o := MonadDStore.store k o
-
 /-- A monad equipped with a key-object store. -/
 abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
 
 instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
-  fetch? k := liftM (m := m) <| fetch? k
-  store k a := liftM (m := m) <| store k a
+  fetch? k := liftM (m := m) <| MonadDStore.fetch? k
+  store k a := liftM (m := m) <| MonadDStore.store k a
 
 @[inline] def fetchOrCreate [Monad m]
 (key : κ) [MonadStore1 key α m] (create : m α) : m α := do

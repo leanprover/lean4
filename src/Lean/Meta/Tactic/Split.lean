@@ -320,10 +320,17 @@ def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MV
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else
-        let (fvarIds, mvarId) ← mvarId.revert #[fvarId]
-        let num := fvarIds.size
+        let mut mvarId := mvarId
+        let localDecl ← fvarId.getDecl
+        if (← pure localDecl.isLet <||> exprDependsOn (← mvarId.getType) fvarId <||> fvarId.hasForwardDeps) then
+          -- If `fvarId` has dependencies or is a let-decl, we create a copy.
+          mvarId ← mvarId.assert localDecl.userName localDecl.type localDecl.toExpr
+        else
+          let (fvarIds, mvarId') ← mvarId.revert #[fvarId]
+          assert! fvarIds.size == 1 -- fvarId does not have forward dependencies
+          mvarId := mvarId'
         let mvarIds ← splitMatch mvarId e
-        let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.introNP num).2
+        let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.intro1P).2
         return some mvarIds
     else
       return none

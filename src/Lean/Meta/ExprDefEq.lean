@@ -900,38 +900,34 @@ namespace CheckAssignmentQuick
 partial def check
     (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  let rec visit (e : Expr) : Bool :=
+  let rec visit (e : Expr) : Bool := Id.run do
     if !e.hasExprMVar && !e.hasFVar then
-      true
-    else match e with
+      return true
+    match e with
     | .mdata _ b       => visit b
     | .proj _ _ s      => visit s
     | .app f a         => visit f && visit a
     | .lam _ d b _     => visit d && visit b
     | .forallE _ d b _ => visit d && visit b
     | .letE _ t v b _  => visit t && visit v && visit b
-    | .bvar ..         => true
-    | .sort ..         => true
-    | .const ..        => true
-    | .lit ..          => true
+    | .bvar .. | .sort .. | .const ..
+    | .lit .. => return true
     | .fvar fvarId ..  =>
-      if mvarDecl.lctx.contains fvarId then true
-      else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
-        | _ =>
-          if fvars.any fun x => x.fvarId! == fvarId then true
-          else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
+      if mvarDecl.lctx.contains fvarId then return true
+      match lctx.find? fvarId with
+      | some (LocalDecl.ldecl ..) => return false -- need expensive CheckAssignment.check
+      | _ =>
+        if fvars.any fun x => x.fvarId! == fvarId then
+          return true
+        return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | .mvar mvarId'    =>
-      match mctx.getExprAssignmentCore? mvarId' with
-      | some _ => false -- use CheckAssignment.check to instantiate
-      | none   =>
-        if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
-        else match mctx.findDecl? mvarId' with
-          | none           => false
-          | some mvarDecl' =>
-            if hasCtxLocals then false -- use CheckAssignment.check
-            else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then true
-            else false -- use CheckAssignment.check
+      let none := mctx.getExprAssignmentCore? mvarId' | return false -- use CheckAssignment.check to instantiate
+      if mvarId' == mvarId then return false -- occurs check failed, use CheckAssignment.check to throw exception
+      let some mvarDecl' := mctx.findDecl? mvarId' | return false
+      if hasCtxLocals then return false -- use CheckAssignment.check
+      if !mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then return false -- use CheckAssignment.check
+      let none := mctx.getDelayedMVarAssignmentCore? mvarId' | return false -- use CheckAssignment.check
+      return true
   visit e
 
 end CheckAssignmentQuick

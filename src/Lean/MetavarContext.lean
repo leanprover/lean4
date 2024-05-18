@@ -360,8 +360,11 @@ def MetavarContext.getExprAssignmentCore? (m : MetavarContext) (mvarId : MVarId)
 def getExprMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option Expr) :=
   return (← getMCtx).getExprAssignmentCore? mvarId
 
+def MetavarContext.getDelayedMVarAssignmentCore? (mctx : MetavarContext) (mvarId : MVarId) : Option DelayedMetavarAssignment :=
+  mctx.dAssignment.find? mvarId
+
 def getDelayedMVarAssignment? [Monad m] [MonadMCtx m] (mvarId : MVarId) : m (Option DelayedMetavarAssignment) :=
-  return (← getMCtx).dAssignment.find? mvarId
+  return (← getMCtx).getDelayedMVarAssignmentCore? mvarId
 
 /-- Given a sequence of delayed assignments
    ```

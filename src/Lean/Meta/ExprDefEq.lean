@@ -740,58 +740,54 @@ mutual
     if mvarId == ctx.mvarId then
       traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
       throwCheckAssignmentFailure
-    else match (← getExprMVarAssignment? mvarId) with
-      | some v => check v
-      | none   =>
-        match (← mvarId.findDecl?) with
-        | none          => throwUnknownMVar mvarId
-        | some mvarDecl =>
-          if ctx.hasCtxLocals then
-            throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
-          else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
-            /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-               We "subtract" variables being abstracted because we use `elimMVarDeps` -/
-            pure mvar
-          else if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
-            traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-            throwCheckAssignmentFailure
-          else
-            let ctxMeta ← readThe Meta.Context
-            if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
-              /- Create an auxiliary metavariable with a smaller context and "checked" type.
-                 Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-                 a metavariable that we also need to reduce the context.
+    if let some v ← getExprMVarAssignment? mvarId then
+      return (← check v)
+    let some mvarDecl ← mvarId.findDecl?
+      | throwUnknownMVar mvarId
+    if ctx.hasCtxLocals then
+      throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
+    if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+         We "subtract" variables being abstracted because we use `elimMVarDeps` -/
+      return mvar
+    if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    let ctxMeta ← readThe Meta.Context
+    unless ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    /- Create an auxiliary metavariable with a smaller context and "checked" type.
+       Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+       a metavariable that we also need to reduce the context.
 
-                 We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
-                 or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
-                 `elimMVarDeps` will take care of them.
+       We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
+       or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
+       `elimMVarDeps` will take care of them.
 
-                 First, we collect `toErase` the variables that need to be erased.
-                 Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
-                 we must also erase it.
-              -/
-              let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
-                if ctx.mvarDecl.lctx.contains localDecl.fvarId then
-                  return toErase
-                else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
-                  if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
-                    -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-                    return toErase.push localDecl.fvarId
-                  else
-                    return toErase
-                else
-                  return toErase.push localDecl.fvarId
-              let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
-                lctx.erase toEraseFVar
-              /- Compute new set of local instances. -/
-              let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
-              let mvarType ← check mvarDecl.type
-              let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              mvarId.assign newMVar
-              pure newMVar
-            else
-              traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-              throwCheckAssignmentFailure
+       First, we collect `toErase` the variables that need to be erased.
+       Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
+       we must also erase it.
+    -/
+    let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
+      if ctx.mvarDecl.lctx.contains localDecl.fvarId then
+        return toErase
+      else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
+        if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
+          -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
+          return toErase.push localDecl.fvarId
+        else
+          return toErase
+      else
+        return toErase.push localDecl.fvarId
+    let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
+      lctx.erase toEraseFVar
+    /- Compute new set of local instances. -/
+    let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
+    let mvarType ← check mvarDecl.type
+    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    mvarId.assign newMVar
+    return newMVar
 
   /--
     Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
@@ -802,12 +798,10 @@ mutual
   partial def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
     let mvarType ← inferType mvar
     forallBoundedTelescope mvarType numArgs fun xs _ => do
-      if xs.size != numArgs then pure false
-      else
-        let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
-        match (← checkAssignmentAux mvar.mvarId! #[] false v) with
-        | some v => checkTypesAndAssign mvar v
-        | none   => return false
+      if xs.size != numArgs then return false
+      let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
+      let some v ← checkAssignmentAux mvar.mvarId! #[] false v | return false
+      checkTypesAndAssign mvar v
 
   -- See checkAssignment
   partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
@@ -825,19 +819,18 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← f.mvarId!.isDelayedAssigned) then
+            if (← f.mvarId!.isDelayedAssigned) then
               throw ex
+            let eType ← inferType e
+            let mvarType ← check eType
+            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+               Note that `mvarType` may be different from `eType`. -/
+            let ctx ← read
+            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            if (← assignToConstFun f args.size newMVar) then
+              pure newMVar
             else
-              let eType ← inferType e
-              let mvarType ← check eType
-              /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-                    Note that `mvarType` may be different from `eType`. -/
-              let ctx ← read
-              let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-              if (← assignToConstFun f args.size newMVar) then
-                pure newMVar
-              else
-                throw ex)
+              throw ex)
       else
         let f ← check f
         let args ← args.mapM check

@@ -128,10 +128,8 @@ where
   }
 
   go (nCtx : NamingContext) : Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,         ofFormat fmt             => withIgnoreTags fmt
-  | none,      ofPPFormat fmt           => (·.fmt) <$> fmt.pp none
-  | some ctx,  ofPPFormat fmt           => do
-    let ⟨fmt, infos⟩ ← fmt.pp (mkPPContext nCtx ctx)
+  | none,      ofFormatWithInfos ⟨fmt, _⟩ => withIgnoreTags fmt
+  | some ctx,  ofFormatWithInfos ⟨fmt, infos⟩ => do
     let t ← pushEmbed <| EmbedFmt.code (mkContextInfo nCtx ctx) infos
     return Format.tag t fmt
   | none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
@@ -162,6 +160,11 @@ where
         pure (.strict (← children.mapM (go nCtx ctx)))
     let e := .trace data.cls header data.collapsed nodes
     return .tag (← pushEmbed e) ".\n"
+  | ctx?,     ofLazy f _          => do
+    let dyn ← f (ctx?.map (mkPPContext nCtx))
+    let some msg := dyn.get? MessageData
+      | throw <| IO.userError "MessageData.ofLazy: expected MessageData in Dynamic"
+    go nCtx ctx? msg
 
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :

@@ -39,13 +39,6 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/-- Lazily formatted text to be used in `MessageData`. -/
-structure PPFormat where
-  /-- Pretty-prints text using surrounding context, if any. -/
-  pp : Option PPContext → IO FormatWithInfos
-  /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
-  hasSyntheticSorry : MetavarContext → Bool := fun _ => false
-
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
@@ -60,10 +53,9 @@ structure TraceData where
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
-  /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
-  | ofFormat          : Format → MessageData
-  /-- Lazily formatted text. -/
-  | ofPPFormat        : PPFormat → MessageData
+  /-- Eagerly formatted text with info annotations.
+  This constructor is inspected in various hacks. -/
+  | ofFormatWithInfos : FormatWithInfos → MessageData
   | ofGoal            : MVarId → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
@@ -78,12 +70,45 @@ inductive MessageData where
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
-  deriving Inhabited
+  /-- A lazy message.
+  The provided thunk will not be run until it is about to be displayed.
+  This can save computation in cases where the message may never be seen,
+  e.g. when nested inside a collapsed trace.
+
+  The `Dynamic` value is expected to be a `MessageData`,
+  which is a workaround for the positivity restriction.
+     
+  If the thunked message is produced for a term that contains a synthetic sorry,
+  `hasSyntheticSorry` should return `true`.
+  This is used to filter out certain messages. -/
+  | ofLazy (f : Option PPContext → IO Dynamic) (hasSyntheticSorry : MetavarContext → Bool)
+  deriving Inhabited, TypeName
 
 namespace MessageData
 
+/-- Eagerly formatted text. -/
+def ofFormat (fmt : Format) : MessageData := .ofFormatWithInfos ⟨fmt, .empty⟩
+
+/--
+Lazy message data production, with access to the context as given by
+a surrounding `MessageData.withContext` (which is expected to exist).
+-/
+def lazy (f : PPContext → IO MessageData)
+    (hasSyntheticSorry : MetavarContext → Bool := fun _ => false) : MessageData :=
+  .ofLazy (hasSyntheticSorry := hasSyntheticSorry) fun ctx? => do
+    let msg ← match ctx? with
+      | .none => pure (.ofFormat "(invalid MessageData.lazy, missing context)")
+      | .some ctx => f ctx
+    return Dynamic.mk msg
+
 variable (p : Name → Bool) in
-/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
+/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag`
+is true.
+
+This does not descend into lazily generated subtress (`.ofLazy`); message tags
+of interest (like those added by `logLinter`) are expected to be near the root
+of the `MessageData`, and not hidden inside `.ofLazy`.
+-/
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg
   | withNamingContext _ msg => hasTag msg
@@ -106,26 +131,14 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 def ofSyntax (stx : Syntax) : MessageData :=
   -- discard leading/trailing whitespace
   let stx := stx.copyHeadTailInfoFrom .missing
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term
-      | none     => return stx.formatStx
-  }
+  .lazy fun ctx => ofFormat <$> ppTerm ctx ⟨stx⟩ -- HACK: might not be a term
 
 def ofExpr (e : Expr) : MessageData :=
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppExprWithInfos ctx e
-      | none     => return format (toString e)
-    hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
-  }
+  .lazy (fun ctx => ofFormatWithInfos <$> ppExprWithInfos ctx e)
+        (fun mctx => instantiateMVarsCore mctx e |>.1.hasSyntheticSorry)
 
 def ofLevel (l : Level) : MessageData :=
-  .ofPPFormat {
-    pp := fun
-      | some ctx => ppLevel ctx l
-      | none => return format l
-  }
+  .lazy fun ctx => ofFormat <$> ppLevel ctx l
 
 def ofName (n : Name) : MessageData := ofFormat (format n)
 
@@ -133,7 +146,7 @@ partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
 where
   visit (mctx? : Option MetavarContext) : MessageData → Bool
-  | ofPPFormat f            => f.hasSyntheticSorry (mctx?.getD {})
+  | ofLazy _ f              => f (mctx?.getD {})
   | withContext ctx msg     => visit ctx.mctx msg
   | withNamingContext _ msg => visit mctx? msg
   | nest _ msg              => visit mctx? msg
@@ -144,8 +157,7 @@ where
   | _                       => false
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _,    _,         ofFormat fmt             => return fmt
-  | nCtx, ctx?,      ofPPFormat f             => (·.fmt) <$> f.pp (ctx?.map (mkPPContext nCtx))
+  | _, _,            ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
@@ -161,6 +173,11 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let children ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::children.toList) "\n")
+  | nCtx, ctx?,      ofLazy pp _             => do
+    let dyn ← pp (ctx?.map (mkPPContext nCtx))
+    let some msg := dyn.get? MessageData
+      | panic! s!"MessageData.ofLazy: expected MessageData in Dynamic, got {dyn.typeName}"
+    formatAux nCtx ctx? msg
 
 protected def format (msgData : MessageData) : IO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData

@@ -134,9 +134,6 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
     withInfoContext (pure ()) initInfo
     evalSepByIndentTactic stx[1]
 
--- TODO: delete after stage0
-@[builtin_tactic cdot] def evalTacticCDotOld : Tactic := evalTacticCDot
-
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
   focus do

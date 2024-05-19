@@ -33,8 +33,4 @@ def evalCalc : Tactic := fun stx => withMainContext do
   (← getMainGoal).assign val
   replaceMainGoal mvarIds
 
--- TODO: delete
-@[builtin_tactic calcTactic]
-def evalCalcOld : Tactic := evalCalc
-
 end Lean.Elab.Tactic

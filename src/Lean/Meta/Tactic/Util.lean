@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
@@ -14,14 +15,14 @@ namespace Lean.Meta
 def _root_.Lean.MVarId.getTag (mvarId : MVarId) : MetaM Name :=
   return (← mvarId.getDecl).userName
 
-@[deprecated MVarId.getTag]
+@[deprecated MVarId.getTag (since := "2022-07-15")]
 def getMVarTag (mvarId : MVarId) : MetaM Name :=
   mvarId.getTag
 
 def _root_.Lean.MVarId.setTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
 
-@[deprecated MVarId.setTag]
+@[deprecated MVarId.setTag (since := "2022-07-15")]
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   mvarId.setTag tag
 
@@ -35,11 +36,10 @@ def appendTagSuffix (mvarId : MVarId) (suffix : Name) : MetaM Unit := do
 def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) : MetaM Expr :=
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
-def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α :=
-  if msg.isEmpty then
-    throwError "tactic '{tacticName}' failed\n{mvarId}"
-  else
-    throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg? : Option MessageData := none) : MetaM α :=
+  match msg? with
+  | none => throwError "tactic '{tacticName}' failed\n{mvarId}"
+  | some msg => throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
@@ -49,7 +49,7 @@ def _root_.Lean.MVarId.checkNotAssigned (mvarId : MVarId) (tacticName : Name) : 
   if (← mvarId.isAssigned) then
     throwTacticEx tacticName mvarId "metavariable has already been assigned"
 
-@[deprecated MVarId.checkNotAssigned]
+@[deprecated MVarId.checkNotAssigned (since := "2022-07-15")]
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   mvarId.checkNotAssigned tacticName
 
@@ -57,7 +57,7 @@ def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
 def _root_.Lean.MVarId.getType (mvarId : MVarId) : MetaM Expr :=
   return (← mvarId.getDecl).type
 
-@[deprecated MVarId.getType]
+@[deprecated MVarId.getType (since := "2022-07-15")]
 def getMVarType (mvarId : MVarId) : MetaM Expr :=
   mvarId.getType
 
@@ -69,7 +69,7 @@ weak head normal form. -/
 def _root_.Lean.MVarId.getType' (mvarId : MVarId) : MetaM Expr := do
   instantiateMVars (← whnf (← mvarId.getType))
 
-@[deprecated MVarId.getType']
+@[deprecated MVarId.getType' (since := "2022-07-15")]
 def getMVarType' (mvarId : MVarId) : MetaM Expr := do
   mvarId.getType'
 
@@ -83,7 +83,7 @@ def _root_.Lean.MVarId.admit (mvarId : MVarId) (synthetic := true) : MetaM Unit 
     let val ← mkSorry mvarType synthetic
     mvarId.assign val
 
-@[deprecated MVarId.admit]
+@[deprecated MVarId.admit (since := "2022-07-15")]
 def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
   mvarId.admit synthetic
 
@@ -91,7 +91,7 @@ def admit (mvarId : MVarId) (synthetic := true) : MetaM Unit :=
 def _root_.Lean.MVarId.headBetaType (mvarId : MVarId) : MetaM Unit := do
   mvarId.setType (← mvarId.getType).headBeta
 
-@[deprecated MVarId.headBetaType]
+@[deprecated MVarId.headBetaType (since := "2022-07-15")]
 def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
   mvarId.headBetaType
 
@@ -123,7 +123,7 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
           result := result.push localDecl.fvarId
       return result
 
-@[deprecated MVarId.getNondepPropHyps]
+@[deprecated MVarId.getNondepPropHyps (since := "2022-07-15")]
 def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
   mvarId.getNondepPropHyps
 
@@ -167,5 +167,20 @@ inductive TacticResultCNM where
   | closed
   | noChange
   | modified (mvarId : MVarId)
+
+
+/-- Check if a goal is of a subsingleton type. -/
+def _root_.Lean.MVarId.isSubsingleton (g : MVarId) : MetaM Bool := do
+  try
+    discard <| synthInstance (← mkAppM ``Subsingleton #[← g.getType])
+    return true
+  catch _ =>
+    return false
+
+register_builtin_option tactic.skipAssignedInstances : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "in the `rw` and `simp` tactics, if an instance implicit argument is assigned, do not try to synthesize instance."
+}
 
 end Lean.Meta

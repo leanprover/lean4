@@ -3,7 +3,8 @@ set -exo pipefail
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -21,29 +22,46 @@ git config user.name test
 git config user.email test@example.com
 git add --all
 git commit -m "initial commit"
-REV=`git rev-parse HEAD`
+GIT_REV=`git rev-parse HEAD`
 popd
 
+LATEST_VER=v7
+LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
+
+# Test an update produces the expected manifest of the latest version
+test_update() {
+  $LAKE update
+  sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
+  diff --strip-trailing-cr lake-manifest-$LATEST_VER.json lake-manifest.json
+}
+
 # ---
-# Test manifest properly upgrades from supported versions
+# Test manifest manually upgrades from unsupported versions
 # ---
 
-# Test successful loading of a V5 manifest
-cp lake-manifest-v5.json lake-manifest.json
-sed_i "s/253735aaee71d8bb0f29ae5cfc3ce086a4b9e64f/$REV/g" lake-manifest.json
-$LAKE resolve-deps
+# Test loading of a V4 manifest fails
+cp lake-manifest-v4.json lake-manifest.json
+($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '4'"
 
-# Test update produces the expected V7 manifest
-$LAKE update
-sed_i "s/$REV/0538596b94a0510f55dc820cabd3bde41ad93c3e/g" lake-manifest.json
-diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
+# Test package update fails as well
+($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '4'"
 
-# Test successful loading of a V6 manifest
-cp lake-manifest-v6.json lake-manifest.json
-sed_i "s/dab525a78710d185f3d23622b143bdd837e44ab0/$REV/g" lake-manifest.json
-$LAKE resolve-deps
+# Test bare update works
+test_update
+rm -rf .lake
 
-# Test update produces the expected V7 manifest
-$LAKE update
-sed_i "s/$REV/0538596b94a0510f55dc820cabd3bde41ad93c3e/g" lake-manifest.json
-diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
+# ---
+# Test manifest automatically upgrades from supported versions
+# ---
+
+# Test successful load & update of a supported manifest version
+test_manifest() {
+  cp lake-manifest-$1.json lake-manifest.json
+  sed_i "s/$2/$GIT_REV/g" lake-manifest.json
+  $LAKE resolve-deps
+  test_update
+}
+
+test_manifest v5 253735aaee71d8bb0f29ae5cfc3ce086a4b9e64f
+test_manifest v6 dab525a78710d185f3d23622b143bdd837e44ab0
+test_manifest v7 0538596b94a0510f55dc820cabd3bde41ad93c3e

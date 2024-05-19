@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Command
 
 namespace Lean
@@ -103,6 +104,16 @@ def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ide
 @[builtin_command_parser] def «elab»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "elab" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> elabArg) >> elabTail
+
+/--
+Declares a binder predicate.  For example:
+```
+binder_predicate x " > " y:term => `($x > $y)
+```
+-/
+@[builtin_command_parser] def binderPredicate := leading_parser
+   optional docComment >>  optional Term.attributes >> optional Term.attrKind >>
+   "binder_predicate" >> optNamedName >> optNamedPrio >> ppSpace >> ident >> many (ppSpace >> macroArg) >> " => " >> termParser
 
 end Command
 

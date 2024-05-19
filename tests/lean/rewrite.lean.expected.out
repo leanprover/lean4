@@ -2,7 +2,7 @@
 as bs : List α
 ⊢ as ++ bs ++ bs = as ++ (bs ++ bs)
 rewrite.lean:18:20-18:29: error: tactic 'rewrite' failed, did not find instance of the pattern in the target expression
-  List.reverse (List.reverse ?as)
+  ?as.reverse.reverse
 α : Type u_1
 as bs : List α
 ⊢ as ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs)
@@ -33,7 +33,7 @@ h : p → a = b
 ⊢ p
 f : Nat → Nat
 w : ∀ (n : Nat), f n = 0
-⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]
+⊢ [f 1, 0, f 1, f 2] = [0, 0, 0, 0]
 f : Nat → Nat
 w : ∀ (n : Nat), f n = 0
 ⊢ [0, f 2, 0, f 2] = [0, 0, 0, 0]
@@ -42,10 +42,10 @@ w : ∀ (n : Nat), f n = 0
 ⊢ [0, f 2, 0, f 2] = [0, 0, 0, 0]
 f : Nat → Nat
 w : ∀ (n : Nat), f n = 0
-⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]
-f : Nat → Nat
-w : ∀ (n : Nat), f n = 0
-⊢ [f 1, f 2, f 1, f 2] = [0, 0, 0, 0]
+⊢ [f 1, 0, f 1, 0] = [0, 0, 0, 0]
 f : Nat → Nat
 w : ∀ (n : Nat), f n = 0
 ⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [f 1, 0, f 1, f 2] = [0, 0, 0, 0]

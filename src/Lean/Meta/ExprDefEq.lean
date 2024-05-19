@@ -3,11 +3,24 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Offset
 import Lean.Meta.UnificationHint
 import Lean.Util.OccursCheck
 
 namespace Lean.Meta
+
+register_builtin_option backward.isDefEq.lazyProjDelta : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "use lazy delta reduction when solving unification constrains of the form `(f a).i =?= (g b).i`"
+}
+
+register_builtin_option backward.isDefEq.lazyWhnfCore : Bool := {
+  defValue := true
+  group    := "backward compatibility"
+  descr    := "specifies transparency mode when normalizing constraints of the form `(f a).i =?= s`, if `true` only reducible definitions and instances are unfolded when reducing `f a`. Otherwise, the default setting is used"
+}
 
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
@@ -107,9 +120,9 @@ private def isDefEqEta (a b : Expr) : MetaM LBool := do
     let bType ← inferType b
     let bType ← whnfD bType
     match bType with
-    | Expr.forallE n d _ c =>
+    | .forallE n d _ c =>
       let b' := mkLambda n c d (mkApp b (mkBVar 0))
-      toLBoolM <| checkpointDefEq <| Meta.isExprDefEqAux a b'
+      toLBoolM <| Meta.isExprDefEqAux a b'
     | _ => return .undef
   else
     return .undef
@@ -333,10 +346,12 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       k
   loop 0
 
-/-- Auxiliary function for `isDefEqBinding` for handling binders `forall/fun`.
-   It accumulates the new free variables in `fvars`, and declare them at `lctx`.
-   We use the domain types of `e₁` to create the new free variables.
-   We store the domain types of `e₂` at `ds₂`. -/
+/--
+Auxiliary function for `isDefEqBinding` for handling binders `forall/fun`.
+It accumulates the new free variables in `fvars`, and declare them at `lctx`.
+We use the domain types of `e₁` to create the new free variables.
+We store the domain types of `e₂` at `ds₂`.
+-/
 private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr) (e₁ e₂ : Expr) (ds₂ : Array Expr) : MetaM Bool :=
   let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) : MetaM Bool := do
     let d₁     := d₁.instantiateRev fvars
@@ -373,34 +388,34 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
         pure false
 
 /--
-  Auxiliary method for solving constraints of the form `?m xs := v`.
-  It creates a lambda using `mkLambdaFVars ys v`, where `ys` is a superset of `xs`.
-  `ys` is often equal to `xs`. It is a bigger when there are let-declaration dependencies in `xs`.
-  For example, suppose we have `xs` of the form `#[a, c]` where
-  ```
-  a : Nat
-  b : Nat := f a
-  c : b = a
-  ```
-  In this scenario, the type of `?m` is `(x1 : Nat) -> (x2 : f x1 = x1) -> C[x1, x2]`,
-  and type of `v` is `C[a, c]`. Note that, `?m a c` is type correct since `f a = a` is definitionally equal
-  to the type of `c : b = a`, and the type of `?m a c` is equal to the type of `v`.
-  Note that `fun xs => v` is the term `fun (x1 : Nat) (x2 : b = x1) => v` which has type
-  `(x1 : Nat) -> (x2 : b = x1) -> C[x1, x2]` which is not definitionally equal to the type of `?m`,
-  and may not even be type correct.
-  The issue here is that we are not capturing the `let`-declarations.
+Auxiliary method for solving constraints of the form `?m xs := v`.
+It creates a lambda using `mkLambdaFVars ys v`, where `ys` is a superset of `xs`.
+`ys` is often equal to `xs`. It is a bigger when there are let-declaration dependencies in `xs`.
+For example, suppose we have `xs` of the form `#[a, c]` where
+```
+a : Nat
+b : Nat := f a
+c : b = a
+```
+In this scenario, the type of `?m` is `(x1 : Nat) -> (x2 : f x1 = x1) -> C[x1, x2]`,
+and type of `v` is `C[a, c]`. Note that, `?m a c` is type correct since `f a = a` is definitionally equal
+to the type of `c : b = a`, and the type of `?m a c` is equal to the type of `v`.
+Note that `fun xs => v` is the term `fun (x1 : Nat) (x2 : b = x1) => v` which has type
+`(x1 : Nat) -> (x2 : b = x1) -> C[x1, x2]` which is not definitionally equal to the type of `?m`,
+and may not even be type correct.
+The issue here is that we are not capturing the `let`-declarations.
 
-  This method collects let-declarations `y` occurring between `xs[0]` and `xs.back` s.t.
-  some `x` in `xs` depends on `y`.
-  `ys` is the `xs` with these extra let-declarations included.
+This method collects let-declarations `y` occurring between `xs[0]` and `xs.back` s.t.
+some `x` in `xs` depends on `y`.
+`ys` is the `xs` with these extra let-declarations included.
 
-  In the example above, `ys` is `#[a, b, c]`, and `mkLambdaFVars ys v` produces
-  `fun a => let b := f a; fun (c : b = a) => v` which has a type definitionally equal to the type of `?m`.
+In the example above, `ys` is `#[a, b, c]`, and `mkLambdaFVars ys v` produces
+`fun a => let b := f a; fun (c : b = a) => v` which has a type definitionally equal to the type of `?m`.
 
-  Recall that the method `checkAssignment` ensures `v` does not contain offending `let`-declarations.
+Recall that the method `checkAssignment` ensures `v` does not contain offending `let`-declarations.
 
-  This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that `index of xs[i]` < `index of xs[j]`.
-  where the index is the position in the local context.
+This method assumes that for any `xs[i]` and `xs[j]` where `i < j`, we have that `index of xs[i]` < `index of xs[j]`.
+where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if not (← hasLetDeclsInBetween) then
@@ -434,13 +449,13 @@ where
     let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT FVarIdHashSet MetaM)) Unit :=
       checkCache e fun _ => do
         match e with
-        | Expr.forallE _ d b _   => visit d; visit b
-        | Expr.lam _ d b _       => visit d; visit b
-        | Expr.letE _ t v b _    => visit t; visit v; visit b
-        | Expr.app f a           => visit f; visit a
-        | Expr.mdata _ b         => visit b
-        | Expr.proj _ _ b        => visit b
-        | Expr.fvar fvarId       =>
+        | .forallE _ d b _   => visit d; visit b
+        | .lam _ d b _       => visit d; visit b
+        | .letE _ t v b _    => visit t; visit v; visit b
+        | .app f a           => visit f; visit a
+        | .mdata _ b         => visit b
+        | .proj _ _ b        => visit b
+        | .fvar fvarId       =>
           let localDecl ← fvarId.getDecl
           if localDecl.isLet && localDecl.index > (← read) then
             modify fun s => s.insert localDecl.fvarId
@@ -725,58 +740,59 @@ mutual
     if mvarId == ctx.mvarId then
       traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
       throwCheckAssignmentFailure
-    else match (← getExprMVarAssignment? mvarId) with
-      | some v => check v
-      | none   =>
-        match (← mvarId.findDecl?) with
-        | none          => throwUnknownMVar mvarId
-        | some mvarDecl =>
-          if ctx.hasCtxLocals then
-            throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
-          else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
-            /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-               We "subtract" variables being abstracted because we use `elimMVarDeps` -/
-            pure mvar
-          else if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
-            traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-            throwCheckAssignmentFailure
-          else
-            let ctxMeta ← readThe Meta.Context
-            if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
-              /- Create an auxiliary metavariable with a smaller context and "checked" type.
-                 Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-                 a metavariable that we also need to reduce the context.
+    if let some v ← getExprMVarAssignment? mvarId then
+      return (← check v)
+    let some mvarDecl ← mvarId.findDecl?
+      | throwUnknownMVar mvarId
+    if ctx.hasCtxLocals then
+      throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
+    if let some d ← getDelayedMVarAssignment? mvarId then
+      -- we must perform occurs-check at `d.mvarIdPending`
+      unless (← occursCheck ctx.mvarId (mkMVar d.mvarIdPending)) do
+        traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
+        throwCheckAssignmentFailure
+    if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+         We "subtract" variables being abstracted because we use `elimMVarDeps` -/
+      return mvar
+    if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    let ctxMeta ← readThe Meta.Context
+    unless ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    /- Create an auxiliary metavariable with a smaller context and "checked" type.
+       Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+       a metavariable that we also need to reduce the context.
 
-                 We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
-                 or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
-                 `elimMVarDeps` will take care of them.
+       We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
+       or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
+       `elimMVarDeps` will take care of them.
 
-                 First, we collect `toErase` the variables that need to be erased.
-                 Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
-                 we must also erase it.
-              -/
-              let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
-                if ctx.mvarDecl.lctx.contains localDecl.fvarId then
-                  return toErase
-                else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
-                  if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
-                    -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-                    return toErase.push localDecl.fvarId
-                  else
-                    return toErase
-                else
-                  return toErase.push localDecl.fvarId
-              let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
-                lctx.erase toEraseFVar
-              /- Compute new set of local instances. -/
-              let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
-              let mvarType ← check mvarDecl.type
-              let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              mvarId.assign newMVar
-              pure newMVar
-            else
-              traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-              throwCheckAssignmentFailure
+       First, we collect `toErase` the variables that need to be erased.
+       Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
+       we must also erase it.
+    -/
+    let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
+      if ctx.mvarDecl.lctx.contains localDecl.fvarId then
+        return toErase
+      else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
+        if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
+          -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
+          return toErase.push localDecl.fvarId
+        else
+          return toErase
+      else
+        return toErase.push localDecl.fvarId
+    let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
+      lctx.erase toEraseFVar
+    /- Compute new set of local instances. -/
+    let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
+    let mvarType ← check mvarDecl.type
+    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    mvarId.assign newMVar
+    return newMVar
 
   /--
     Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
@@ -787,12 +803,10 @@ mutual
   partial def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
     let mvarType ← inferType mvar
     forallBoundedTelescope mvarType numArgs fun xs _ => do
-      if xs.size != numArgs then pure false
-      else
-        let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
-        match (← checkAssignmentAux mvar.mvarId! #[] false v) with
-        | some v => checkTypesAndAssign mvar v
-        | none   => return false
+      if xs.size != numArgs then return false
+      let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
+      let some v ← checkAssignmentAux mvar.mvarId! #[] false v | return false
+      checkTypesAndAssign mvar v
 
   -- See checkAssignment
   partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
@@ -810,19 +824,18 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← f.mvarId!.isDelayedAssigned) then
+            if (← f.mvarId!.isDelayedAssigned) then
               throw ex
+            let eType ← inferType e
+            let mvarType ← check eType
+            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+               Note that `mvarType` may be different from `eType`. -/
+            let ctx ← read
+            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            if (← assignToConstFun f args.size newMVar) then
+              pure newMVar
             else
-              let eType ← inferType e
-              let mvarType ← check eType
-              /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-                    Note that `mvarType` may be different from `eType`. -/
-              let ctx ← read
-              let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-              if (← assignToConstFun f args.size newMVar) then
-                pure newMVar
-              else
-                throw ex)
+              throw ex)
       else
         let f ← check f
         let args ← args.mapM check
@@ -833,18 +846,18 @@ mutual
       return e
     else checkCache e fun _ =>
       match e with
-      | Expr.mdata _ b       => return e.updateMData! (← check b)
-      | Expr.proj _ _ s      => return e.updateProj! (← check s)
-      | Expr.lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
-      | Expr.forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | Expr.letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
-      | Expr.bvar ..         => return e
-      | Expr.sort ..         => return e
-      | Expr.const ..        => return e
-      | Expr.lit ..          => return e
-      | Expr.fvar ..         => checkFVar e
-      | Expr.mvar ..         => checkMVar e
-      | Expr.app ..          =>
+      | .mdata _ b       => return e.updateMData! (← check b)
+      | .proj _ _ s      => return e.updateProj! (← check s)
+      | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
+      | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
+      | .letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | .bvar ..         => return e
+      | .sort ..         => return e
+      | .const ..        => return e
+      | .lit ..          => return e
+      | .fvar ..         => checkFVar e
+      | .mvar ..         => checkMVar e
+      | .app ..          =>
         try
           checkApp e
         catch ex => match ex with
@@ -885,38 +898,33 @@ namespace CheckAssignmentQuick
 partial def check
     (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  let rec visit (e : Expr) : Bool :=
+  let rec visit (e : Expr) : Bool := Id.run do
     if !e.hasExprMVar && !e.hasFVar then
-      true
-    else match e with
-    | Expr.mdata _ b       => visit b
-    | Expr.proj _ _ s      => visit s
-    | Expr.app f a         => visit f && visit a
-    | Expr.lam _ d b _     => visit d && visit b
-    | Expr.forallE _ d b _ => visit d && visit b
-    | Expr.letE _ t v b _  => visit t && visit v && visit b
-    | Expr.bvar ..         => true
-    | Expr.sort ..         => true
-    | Expr.const ..        => true
-    | Expr.lit ..          => true
-    | Expr.fvar fvarId ..  =>
-      if mvarDecl.lctx.contains fvarId then true
-      else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
-        | _ =>
-          if fvars.any fun x => x.fvarId! == fvarId then true
-          else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
-    | Expr.mvar mvarId'    =>
-      match mctx.getExprAssignmentCore? mvarId' with
-      | some _ => false -- use CheckAssignment.check to instantiate
-      | none   =>
-        if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
-        else match mctx.findDecl? mvarId' with
-          | none           => false
-          | some mvarDecl' =>
-            if hasCtxLocals then false -- use CheckAssignment.check
-            else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then true
-            else false -- use CheckAssignment.check
+      return true
+    match e with
+    | .mdata _ b       => visit b
+    | .proj _ _ s      => visit s
+    | .app f a         => visit f && visit a
+    | .lam _ d b _     => visit d && visit b
+    | .forallE _ d b _ => visit d && visit b
+    | .letE _ t v b _  => visit t && visit v && visit b
+    | .bvar .. | .sort .. | .const ..
+    | .lit .. => return true
+    | .fvar fvarId ..  =>
+      if mvarDecl.lctx.contains fvarId then return true
+      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+        return false -- need expensive CheckAssignment.check
+      if fvars.any fun x => x.fvarId! == fvarId then
+        return true
+      return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
+    | .mvar mvarId'    =>
+      let none := mctx.getExprAssignmentCore? mvarId' | return false -- use CheckAssignment.check to instantiate
+      if mvarId' == mvarId then return false -- occurs check failed, use CheckAssignment.check to throw exception
+      let some mvarDecl' := mctx.findDecl? mvarId' | return false
+      if hasCtxLocals then return false -- use CheckAssignment.check
+      if !mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then return false -- use CheckAssignment.check
+      let none := mctx.getDelayedMVarAssignmentCore? mvarId' | return false -- use CheckAssignment.check
+      return true
   visit e
 
 end CheckAssignmentQuick
@@ -1172,6 +1180,35 @@ private def isDefEqLeftRight (fn : Name) (t s : Expr) : MetaM LBool := do
   trace[Meta.isDefEq.delta.unfoldLeftRight] fn
   toLBoolM <| Meta.isExprDefEqAux t s
 
+/-- Helper predicate for `tryHeuristic`. -/
+private def isNonTrivialRegular (info : DefinitionVal) : MetaM Bool := do
+  match info.hints with
+  | .regular d =>
+    if (← isProjectionFn info.name) then
+      -- All projections are considered trivial
+      return false
+    if d > 2 then
+      -- If definition depth is greater than 2, we claim it is not a trivial definition
+      return true
+    -- After consuming the lambda expressions, we consider a regular definition non-trivial if it is not "simple".
+    -- Where simple is a bvar/lit/sort/proj or a single application where all arguments are bvar/lit/sort/proj.
+    let val := consumeDefnPreamble info.value
+    return !isSimple val (allowApp := true)
+  | _ => return false
+where
+  consumeDefnPreamble (e : Expr) : Expr :=
+    match e with
+    | .mdata _ e => consumeDefnPreamble e
+    | .lam _ _ b _ => consumeDefnPreamble b
+    | _ => e
+  isSimple (e : Expr) (allowApp : Bool) : Bool :=
+    match e with
+    | .bvar .. | .sort .. | .lit .. | .fvar .. | .mvar .. => true
+    | .app f a => isSimple a false && isSimple f allowApp
+    | .proj _ _ b => isSimple b false
+    | .mdata _ b => isSimple b allowApp
+    | .lam .. | .letE .. | .forallE .. | .const .. => false
+
 /-- Try to solve `f a₁ ... aₙ =?= f b₁ ... bₙ` by solving `a₁ =?= b₁, ..., aₙ =?= bₙ`.
 
     Auxiliary method for isDefEqDelta -/
@@ -1180,22 +1217,36 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let mut s := s
   let tFn := t.getAppFn
   let sFn := s.getAppFn
-  let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
-     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
-     We check whether terms contain metavariables to make sure we can solve constraints such
-     as `S.proj ?x =?= S.proj t` without performing delta-reduction.
-     That is, we are assuming the heuristic implemented by this method is seldom effective
-     when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms.
+  -- If `f` (i.e., `tFn`) is not a definition, we do not apply the heuristic.
+  let .defnInfo info ← getConstInfo tFn.constName! | return false
+  /-
+  We apply the heuristic in the following cases:
+  1- `f` is a non-trivial regular definition (see predicate `isNonTrivialRegular`)
+  2- `f` is `match` application.
+  3- `t` or `s` contain meta-variables.
 
-     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
-     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
-     case is used to help the kernel type checker. -/
-  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
+  The third case is important to make sure we can solve constraints such as
+  `S.proj ?x =?= S.proj t` without performing delta-reduction.
+
+  When the conditions 1&2&3 do not hold, we are assuming the heuristic implemented by this method is seldom effective
+  when `f` is not simple, `t` and `s` do not have metavariables, are not structurally equal.
+
+  Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+  them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+  case is used to help the kernel type checker.
+
+  The `isNonTrivialRegular` predicate is also useful to avoid applying the heuristic to very simple definitions that
+  have not been marked as abbreviations by the user. Example:
+  ```
+  protected def Mem (a : α) (s : Set α) : Prop := s a
+  ```
+  at test 3807.lean
+  -/
+  unless (← isNonTrivialRegular info) || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
+    recordDefEqHeuristic tFn.constName!
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 
@@ -1419,8 +1470,8 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   return some (mkAppRange (mkMVar mvarIdPending) fvars.size tArgs.size tArgs)
 
 private def isAssignable : Expr → MetaM Bool
-  | Expr.mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
-  | _                => pure false
+  | .mvar mvarId => do let b ← mvarId.isReadOnlyOrSyntheticOpaque; pure (!b)
+  | _            => pure false
 
 private def etaEq (t s : Expr) : Bool :=
   match t.etaExpanded? with
@@ -1495,7 +1546,7 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
 Removes unnecessary let-decls (both true `let`s and `let_fun`s).
 -/
 private partial def consumeLet : Expr → Expr
-  | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
+  | e@(.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
   | e =>
     if let some (_, _, _, b) := e.letFun? then
       if b.hasLooseBVars then e else consumeLet b
@@ -1665,11 +1716,10 @@ private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
 end
 
 @[inline] def whenUndefDo (x : MetaM LBool) (k : MetaM Bool) : MetaM Bool := do
-  let status ← x
-  match status with
-  | LBool.true  => pure true
-  | LBool.false => pure false
-  | LBool.undef => k
+  match (← x) with
+  | .true  => return true
+  | .false => return false
+  | .undef => k
 
 @[specialize] private def unstuckMVar (e : Expr) (successK : Expr → MetaM Bool) (failK : MetaM Bool): MetaM Bool := do
   match (← getStuckMVar? e) with
@@ -1688,10 +1738,90 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
     tryUnificationHints t s <||> tryUnificationHints s t
 
+/--
+Result type for `isDefEqDelta`
+-/
+inductive DeltaStepResult where
+  | eq | unknown
+  | cont (t s : Expr)
+  | diff (t s : Expr)
+
+/--
+Perform one step of lazy delta reduction. This function decides whether to perform delta-reduction on `t`, `s`, or both.
+It is currently used to solve contraints of the form `(f a).i =?= (g a).i` where `i` is a numeral at `isDefEqProjDelta`.
+It is also a simpler version of `isDefEqDelta`. In the future, we may decide to combine these two functions like we do
+in the kernel.
+-/
+private def isDefEqDeltaStep (t s : Expr) : MetaM DeltaStepResult := do
+  let tInfo? ← isDeltaCandidate? t
+  let sInfo? ← isDeltaCandidate? s
+  match tInfo?, sInfo? with
+  | none,       none       => return .unknown
+  | some _,     none       => unfold t (return .unknown) (k · s)
+  | none,       some _     => unfold s (return .unknown) (k t ·)
+  | some tInfo, some sInfo =>
+    match compare tInfo.hints sInfo.hints with
+    | .lt => unfold t (return .unknown) (k · s)
+    | .gt => unfold s (return .unknown) (k t ·)
+    | .eq =>
+      -- Remark: if `t` and `s` are both some `f`-application, we use `tryHeuristic`
+      -- if `f` is not a projection. The projection case generates a performance regression.
+      if tInfo.name == sInfo.name then
+        if t.isApp && s.isApp && (← tryHeuristic t s) then
+          return .eq
+        else
+          unfoldBoth t s
+      else
+        unfoldBoth t s
+where
+  unfoldBoth (t s : Expr) : MetaM DeltaStepResult := do
+    unfold t
+      (unfold s (return .unknown) (k t ·))
+      (fun t => unfold s (k t s) (k t ·))
+
+  k (t s : Expr) : MetaM DeltaStepResult := do
+    let t ← whnfCore t
+    let s ← whnfCore s
+    match (← isDefEqQuick t s) with
+    | .true  => return .eq
+    | .false => return .diff t s
+    | .undef => return .cont t s
+
+/--
+Helper function for solving contraints of the form `t.i =?= s.i`.
+-/
+private partial def isDefEqProjDelta (t s : Expr) (i : Nat) : MetaM Bool := do
+  let t ← whnfCore t
+  let s ← whnfCore s
+  match (← isDefEqQuick t s) with
+  | .true  => return true
+  | .false | .undef  => loop t s
+where
+  loop (t s : Expr) : MetaM Bool := do
+    match (← isDefEqDeltaStep t s) with
+    | .cont t s => loop t s
+    | .eq => return true
+    | .unknown => tryReduceProjs t s
+    | .diff t s => tryReduceProjs t s
+
+  tryReduceProjs (t s : Expr) : MetaM Bool := do
+    match (← projectCore? t i), (← projectCore? s i) with
+    | some t, some s => Meta.isExprDefEqAux t s
+    | _, _ => Meta.isExprDefEqAux t s
+
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | Expr.proj m i t, Expr.proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
-  | Expr.proj structName 0 s, v => isDefEqSingleton structName s v
-  | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
+  | .proj m i t, .proj n j s => do
+    if (← read).inTypeClassResolution then
+      -- See comment at `inTypeClassResolution`
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if !backward.isDefEq.lazyProjDelta.get (← getOptions) then
+      pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+    else if i == j && m == n then
+      isDefEqProjDelta t s i
+    else
+      return false
+  | .proj structName 0 s, v  => isDefEqSingleton structName s v
+  | v, .proj structName 0 s  => isDefEqSingleton structName s v
   | _, _ => pure false
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
@@ -1767,8 +1897,8 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
 -/
 private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   if (← getTransparency) != .instances then return .undef
-  let t? ← unfoldProjInstWhenIntances? t
-  let s? ← unfoldProjInstWhenIntances? s
+  let t? ← unfoldProjInstWhenInstances? t
+  let s? ← unfoldProjInstWhenInstances? s
   if t?.isSome || s?.isSome then
     toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
   else
@@ -1778,25 +1908,30 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
   if (← isDefEqProj t s) then return true
-  whenUndefDo (isDefEqNative t s) do
-  whenUndefDo (isDefEqNat t s) do
-  whenUndefDo (isDefEqOffset t s) do
-  whenUndefDo (isDefEqDelta t s) do
-  -- We try structure eta *after* lazy delta reduction;
-  -- otherwise we would end up applying it at every step of a reduction chain
-  -- as soon as one of the sides is a constructor application,
-  -- which is very costly because it requires us to unify the fields.
-  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
-    return true
-  if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-    return true
+  let t' ← whnfCore t
+  let s' ← whnfCore s
+  if t != t' || s != s' then
+    Meta.isExprDefEqAux t' s'
   else
-    whenUndefDo (isDefEqProjInst t s) do
-    whenUndefDo (isDefEqStringLit t s) do
-    if (← isDefEqUnitLike t s) then return true else
-    isDefEqOnFailure t s
+    whenUndefDo (isDefEqNative t s) do
+    whenUndefDo (isDefEqNat t s) do
+    whenUndefDo (isDefEqOffset t s) do
+    whenUndefDo (isDefEqDelta t s) do
+    -- We try structure eta *after* lazy delta reduction;
+    -- otherwise we would end up applying it at every step of a reduction chain
+    -- as soon as one of the sides is a constructor application,
+    -- which is very costly because it requires us to unify the fields.
+    if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+      return true
+    if t.isConst && s.isConst then
+      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
+      return true
+    else
+      whenUndefDo (isDefEqProjInst t s) do
+      whenUndefDo (isDefEqStringLit t s) do
+      if (← isDefEqUnitLike t s) then return true else
+      isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
   | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
@@ -1854,6 +1989,12 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
     modifyDefEqTransientCache fun c => c.update mode key result
 
+private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
+  if backward.isDefEq.lazyWhnfCore.get (← getOptions) then
+    whnfCore e (config := { proj := .yesWithDeltaI })
+  else
+    whnfCore e
+
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
@@ -1862,14 +2003,41 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   whenUndefDo (isDefEqProofIrrel t s) do
   /-
     We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
-    When unifying e.g. `@Neg.neg α (@Field.toNeg α inst1) =?= @Neg.neg α (@Field.toNeg α inst2)`,
+    When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
     we only want to unify negation (and not all other field operations as well).
     Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
-    We used to *not* reduce projections here, to support unifying `(?a).1 =?= (x, y).1`.
-    NOTE: this still seems to work because we don't eagerly unfold projection definitions to primitive projections.
+
+    Note that we use `proj := .yesWithDeltaI` to ensure `whnfAtMostI` is used to reduce the projection structure.
+    We added this refinement to address a performance issue in code such as
+    ```
+    let val : Test := bar c1 key
+    have : val.1 = (bar c1 key).1 := rfl
+    ```
+    where `bar` is a complex function that takes a long time to be reduced.
+
+    Note that the current solution times out at unification problems such as
+    `(f x).1 =?= (g x).1` where `f`, `g` are defined as
+    ```
+    structure Foo where
+      x : Nat
+      y : Nat
+
+    def f (x : Nat) : Foo :=
+      { x, y := ack 10 10 }
+
+    def g (x : Nat) : Foo :=
+      { x, y := ack 10 11 }
+    ```
+    and `ack` is ackermann. We claim this is an abuse of the unifier.
+    That being said, we could in principle address this issue by implementing
+    lazy-delta reduction at `isDefEqProj`.
+
+    The current solution should be sufficient. In the past, we have used
+    `whnfCore t (config := { proj := .yes })` which more conservative than `.yesWithDeltaI`,
+    and it only created performance issues when handling TC unification problems.
   -/
-  let t' ← whnfCore t
-  let s' ← whnfCore s
+  let t' ← whnfCoreAtDefEq t
+  let s' ← whnfCoreAtDefEq s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

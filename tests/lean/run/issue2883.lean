@@ -15,11 +15,10 @@ end
 mutual
   def foo : B → Prop
   | .fromA a => bar a 0
+  termination_by x => sizeOf x
 
   def bar : A → Nat → Prop
   | .baseA   => (fun _ => True)
   | .fromB b => (fun (c : Nat) => ∃ (t : Nat), foo b)
+  termination_by x => sizeOf x
 end
-termination_by
-  foo x => sizeOf x
-  bar x => sizeOf x

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Injection
@@ -221,15 +222,17 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
       }
 
 private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames) (ctx : Context)
-    : MetaM (Array CasesSubgoal) := mvarId.withContext do
+    (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) := mvarId.withContext do
   let majorType ← inferType (mkFVar majorFVarId)
   let (us, params) ← getInductiveUniverseAndParams majorType
-  let casesOn := mkCasesOnName ctx.inductiveVal.name
+  let mut casesOn := mkCasesOnName ctx.inductiveVal.name
+  if useNatCasesAuxOn && ctx.inductiveVal.name == ``Nat && (← getEnv).contains ``Nat.casesAuxOn then
+    casesOn := ``Nat.casesAuxOn
   let ctors   := ctx.inductiveVal.ctors.toArray
   let s ← mvarId.induction majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) := do
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) := do
   try
     mvarId.withContext do
       mvarId.checkNotAssigned `cases
@@ -242,7 +245,7 @@ def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNam
            allow callers to specify whether they want the `FVarSubst` or not. -/
         if ctx.inductiveVal.numIndices == 0 then
           -- Simple case
-          inductionCasesOn mvarId majorFVarId givenNames ctx
+          inductionCasesOn mvarId majorFVarId givenNames ctx (useNatCasesAuxOn := useNatCasesAuxOn)
         else
           let s₁ ← generalizeIndices mvarId majorFVarId
           trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
@@ -257,11 +260,16 @@ end Cases
 /--
 Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
 `givenNames` contains user-facing names for each alternative.
--/
-def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
-  Cases.cases mvarId majorFVarId givenNames
 
-@[deprecated MVarId.cases]
+- `useNatCasesAuxOn` is a temporary hack for the `rcases` family of tactics.
+  Do not use it, as it is subject to removal.
+  It enables using `Nat.casesAuxOn` instead of `Nat.casesOn`,
+  which causes case splits on `n : Nat` to be represented as `0` and `n' + 1` rather than as `Nat.zero` and `Nat.succ n'`.
+-/
+def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
+  Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)
+
+@[deprecated MVarId.cases (since := "2022-07-15")]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 

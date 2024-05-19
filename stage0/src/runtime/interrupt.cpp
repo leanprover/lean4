@@ -26,7 +26,7 @@ size_t get_max_heartbeat() { return g_max_heartbeat; }
 void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<size_t>(max) * 1000; }
 
 scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
-scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
+LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {
@@ -48,9 +48,10 @@ void check_interrupted() {
 void check_system(char const * component_name, bool do_check_interrupted) {
     check_stack(component_name);
     check_memory(component_name);
-    if (do_check_interrupted)
+    if (do_check_interrupted) {
         check_interrupted();
-    check_heartbeat();
+        check_heartbeat();
+    }
 }
 
 void sleep_for(unsigned ms, unsigned step_ms) {

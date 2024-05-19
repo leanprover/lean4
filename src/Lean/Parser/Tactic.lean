@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Parser.Term
 
 namespace Lean
@@ -65,12 +66,59 @@ doing a pattern match. This is equivalent to `fun` with match arms in term mode.
 @[builtin_tactic_parser] def introMatch := leading_parser
   nonReservedSymbol "intro" >> matchAlts
 
-/-- `decide` will attempt to prove a goal of type `p` by synthesizing an instance
-of `Decidable p` and then evaluating it to `isTrue ..`. Because this uses kernel
-computation to evaluate the term, it may not work in the presence of definitions
-by well founded recursion, since this requires reducing proofs.
-```
+/--
+`decide` attempts to prove the main goal (with target type `p`) by synthesizing an instance of `Decidable p`
+and then reducing that instance to evaluate the truth value of `p`.
+If it reduces to `isTrue h`, then `h` is a proof of `p` that closes the goal.
+
+Limitations:
+- The target is not allowed to contain local variables or metavariables.
+  If there are local variables, you can try first using the `revert` tactic with these local variables
+  to move them into the target, which may allow `decide` to succeed.
+- Because this uses kernel reduction to evaluate the term, `Decidable` instances defined
+  by well-founded recursion might not work, because evaluating them requires reducing proofs.
+  The kernel can also get stuck reducing `Decidable` instances with `Eq.rec` terms for rewriting propositions.
+  These can appear for instances defined using tactics (such as `rw` and `simp`).
+  To avoid this, use definitions such as `decidable_of_iff` instead.
+
+## Examples
+
+Proving inequalities:
+```lean
 example : 2 + 2 ≠ 5 := by decide
+```
+
+Trying to prove a false proposition:
+```lean
+example : 1 ≠ 1 := by decide
+/-
+tactic 'decide' proved that the proposition
+  1 ≠ 1
+is false
+-/
+```
+
+Trying to prove a proposition whose `Decidable` instance fails to reduce
+```lean
+opaque unknownProp : Prop
+
+open scoped Classical in
+example : unknownProp := by decide
+/-
+tactic 'decide' failed for proposition
+  unknownProp
+since its 'Decidable' instance reduced to
+  Classical.choice ⋯
+rather than to the 'isTrue' constructor.
+-/
+```
+
+## Properties and relations
+
+For equality goals for types with decidable equality, usually `rfl` can be used in place of `decide`.
+```lean
+example : 1 + 1 = 2 := by decide
+example : 1 + 1 = 2 := by rfl
 ```
 -/
 @[builtin_tactic_parser] def decide := leading_parser
@@ -91,6 +139,9 @@ example : (List.range 1000).length = 1000 := by native_decide
 -/
 @[builtin_tactic_parser] def nativeDecide := leading_parser
   nonReservedSymbol "native_decide"
+
+builtin_initialize
+  register_parser_alias "matchRhsTacticSeq" matchRhs
 
 end Tactic
 end Parser

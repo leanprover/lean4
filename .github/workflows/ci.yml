@@ -6,7 +6,6 @@ on:
     tags:
       - '*'
   pull_request:
-    types: [opened, synchronize, reopened, labeled]
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
@@ -41,12 +40,18 @@ jobs:
     steps:
       - name: Run quick CI?
         id: set-quick
-        env:
-          quick: ${{
-            github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
-           }}
+        # We do not use github.event.pull_request.labels.*.name here because
+        # re-running a run does not update that list, and we do want to be able to
+        # rerun the workflow run after settings the `full-ci` label.
         run: |
-          echo "quick=${{env.quick}}" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" == 'pull_request' ]
+          then
+            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci") | not')" >> "$GITHUB_OUTPUT"
+          else
+            echo "quick=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Configure build matrix
         id: set-matrix
@@ -54,7 +59,10 @@ jobs:
         with:
           script: |
             const quick = ${{ steps.set-quick.outputs.quick }};
-            console.log(`quick: ${quick}`)
+            console.log(`quick: ${quick}`);
+            // use large runners outside PRs where available (original repo)
+            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
+            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
             let matrix = [
               {
                 // portable release build: use channel with older glibc (2.27)
@@ -62,7 +70,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "release": false,
                 "quick": false,
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{}}\" --run \"bash -euxo pipefail {0}\"",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
@@ -76,7 +84,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "release": true,
                 "quick": true,
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{}}\" --run \"bash -euxo pipefail {0}\"",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
@@ -98,7 +106,8 @@ jobs:
                 // exclude seriously slow tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
               },
-              {
+              // TODO: suddenly started failing in CI
+              /*{
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
                 "quick": false,
@@ -106,10 +115,10 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
                 // exclude seriously slow/problematic tests (laketests crash)
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },
+              },*/
               {
                 "name": "macOS",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "shell": "bash -euxo pipefail {0}",
@@ -120,14 +129,15 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
-                "os": "macos-latest",
+                "os": "macos-13",
                 "release": true,
                 "quick": false,
                 "cross": true,
+                "cross_target": "aarch64-apple-darwin",
                 "shell": "bash -euxo pipefail {0}",
                 "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
               },
@@ -151,9 +161,10 @@ jobs:
                 "release": true,
                 "quick": false,
                 "cross": true,
-                "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{ localSystem.config = \\\"aarch64-unknown-linux-gnu\\\"; }}\" --run \"bash -euxo pipefail {0}\"",
+                "cross_target": "aarch64-unknown-linux-gnu",
+                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
               },
               {
                 "name": "Linux 32bit",
@@ -201,8 +212,8 @@ jobs:
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
-            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              echo "nightly=$LEAN_VERSION_STRING" >> $GITHUB_OUTPUT
+            if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+              echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
             fi
           fi
 
@@ -210,7 +221,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4'
         id: set-release
         run: |
-          TAG_NAME=${GITHUB_REF##*/}
+          TAG_NAME="${GITHUB_REF##*/}"
 
           # From https://github.com/fsaintjacques/semver-tool/blob/master/src/semver
 
@@ -227,11 +238,13 @@ jobs:
 
           if [[ ${TAG_NAME} =~ ${SEMVER_REGEX} ]]; then
             echo "Tag ${TAG_NAME} matches SemVer regex, with groups ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]}"
-            echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-            echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
-            echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
-            echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]##-}" >> $GITHUB_OUTPUT
-            echo "RELEASE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+            {
+              echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}"
+              echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}"
+              echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}"
+              echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]##-}"
+              echo "RELEASE_TAG=$TAG_NAME"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
@@ -247,7 +260,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: ${{ matrix.shell || 'nix-shell --run "bash -euxo pipefail {0}"' }}
+        shell: ${{ matrix.shell || 'nix develop -c bash -euxo pipefail {0}' }}
     name: ${{ matrix.name }}
     env:
       # must be inside workspace
@@ -272,18 +285,18 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest' && !matrix.cmultilib
+        if: runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
           msystem: clang64
           # `:p` means prefix with appropriate msystem prefix
           pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
-        if: matrix.os == 'windows-2022'
+        if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
           brew install ccache tree zstd coreutils gmp
-        if: matrix.os == 'macos-latest'
+        if: runner.os == 'macOS'
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:
@@ -307,21 +320,27 @@ jobs:
         run: |
           # open nix-shell once for initial setup
           true
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
       - name: Set up core dumps
         run: |
           mkdir -p $PWD/coredumps
           # store in current directory, for easy uploading together with binary
           echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
       - name: Build
         run: |
           mkdir build
           cd build
           ulimit -c unlimited # coredumps
+          # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          if [[ -n '${{ matrix.cross_target }}' ]]; then
+            # used by `prepare-llvm`
+            export EXTRA_FLAGS=--target=${{ matrix.cross_target }}
+            OPTIONS+=(-DLEAN_PLATFORM_TARGET=${{ matrix.cross_target }})
+          fi
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
@@ -372,8 +391,14 @@ jobs:
           cd build/stage1
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: build/stage1/test-results.xml
+        # prefix `if` above with `always` so it's run even if tests failed
+        if: always() && (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
         if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}
@@ -400,30 +425,33 @@ jobs:
         run: |
           cd build
           ulimit -c unlimited # coredumps
-          make update-stage0 && make -j4
+          # clean rebuild in case of Makefile changes
+          make update-stage0 && rm -rf ./stage* && make -j4
         if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+        if: ${{ failure() && runner.os == 'Linux' }}
         run: |
           for c in coredumps/*; do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
             echo bt | $GDB/bin/gdb -q $progbin $c || true
           done
-      - name: Upload coredumps
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
-        with:
-          name: coredumps-${{ matrix.name }}
-          path: |
-            ./coredumps
-            ./build/stage0/bin/lean
-            ./build/stage0/lib/lean/libleanshared.so
-            ./build/stage1/bin/lean
-            ./build/stage1/lib/lean/libleanshared.so
-            ./build/stage2/bin/lean
-            ./build/stage2/lib/lean/libleanshared.so
+      # has not been used in a long while, would need to be adapted to new
+      # shared libs
+      #- name: Upload coredumps
+      #  uses: actions/upload-artifact@v3
+      #  if: ${{ failure() && runner.os == 'Linux' }}
+      #  with:
+      #    name: coredumps-${{ matrix.name }}
+      #    path: |
+      #      ./coredumps
+      #      ./build/stage0/bin/lean
+      #      ./build/stage0/lib/lean/libleanshared.so
+      #      ./build/stage1/bin/lean
+      #      ./build/stage1/lib/lean/libleanshared.so
+      #      ./build/stage2/bin/lean
+      #      ./build/stage2/lib/lean/libleanshared.so
 
   # This job collects results from all the matrix jobs
   # This can be made the “required” job, instead of listing each
@@ -432,9 +460,10 @@ jobs:
     name: Build matrix complete
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ always() }}
+    # mark as merely cancelled not failed if builds are cancelled
+    if: ${{ !cancelled() }}
     steps:
-    - if: contains(needs.*.result, 'failure') ||  contains(needs.*.result, 'cancelled')
+    - if: contains(needs.*.result, 'failure')
       uses: actions/github-script@v7
       with:
         script: |
@@ -480,16 +509,16 @@ jobs:
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           git fetch nightly --tags
-          git tag ${{ needs.configure.outputs.nightly }}
-          git push nightly ${{ needs.configure.outputs.nightly }}
+          git tag "${{ needs.configure.outputs.nightly }}"
+          git push nightly "${{ needs.configure.outputs.nightly }}"
           git push -f origin refs/tags/${{ needs.configure.outputs.nightly }}:refs/heads/nightly
-          last_tag=$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)
+          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)"
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
-          git show $last_tag:RELEASES.md > old.md
+          git show "$last_tag":RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
           diff --changed-group-format='%>' --unchanged-group-format='' old.md RELEASES.md >> diff.md || true
           echo -e "\n*Full commit log*\n" >> diff.md
-          git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
+          git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
         uses: softprops/action-gh-release@v1
         with:

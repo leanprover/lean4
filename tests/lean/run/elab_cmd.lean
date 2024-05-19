@@ -23,6 +23,38 @@ elab "try" t:tactic : tactic => do
   let t' ← `(tactic| first | $t:tactic | skip);
   Lean.Elab.Tactic.evalTactic t'
 
+set_option linter.unusedVariables false
+
+/--
+info: case h₁
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ x = ?b
+
+case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ ?b = z
+
+case b
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ Nat
+---
+info: case h₂
+x y z : Nat
+h1 : y = z
+h2 : x = x
+h3 : x = y
+⊢ y = z
+-/
+#guard_msgs in
 theorem tst (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro h2; intro h3;

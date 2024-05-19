@@ -9,28 +9,45 @@ import Init.Data.Array.Basic
 universe u v w
 
 structure Subarray (α : Type u)  where
-  as : Array α
+  array : Array α
   start : Nat
   stop : Nat
-  h₁ : start ≤ stop
-  h₂ : stop ≤ as.size
+  start_le_stop : start ≤ stop
+  stop_le_array_size : stop ≤ array.size
+
+@[deprecated Subarray.array (since := "2024-04-13")]
+abbrev Subarray.as (s : Subarray α) : Array α := s.array
+
+@[deprecated Subarray.start_le_stop (since := "2024-04-13")]
+theorem Subarray.h₁ (s : Subarray α) : s.start ≤ s.stop := s.start_le_stop
+
+@[deprecated Subarray.stop_le_array_size (since := "2024-04-13")]
+theorem Subarray.h₂ (s : Subarray α) : s.stop ≤ s.array.size := s.stop_le_array_size
 
 namespace Subarray
 
 def size (s : Subarray α) : Nat :=
   s.stop - s.start
 
+theorem size_le_array_size {s : Subarray α} : s.size ≤ s.array.size := by
+  let {array, start, stop, start_le_stop, stop_le_array_size} := s
+  simp [size]
+  apply Nat.le_trans (Nat.sub_le stop start)
+  assumption
+
 def get (s : Subarray α) (i : Fin s.size) : α :=
-  have : s.start + i.val < s.as.size := by
-   apply Nat.lt_of_lt_of_le _ s.h₂
+  have : s.start + i.val < s.array.size := by
+   apply Nat.lt_of_lt_of_le _ s.stop_le_array_size
    have := i.isLt
    simp [size] at this
    rw [Nat.add_comm]
    exact Nat.add_lt_of_lt_sub this
-  s.as[s.start + i.val]
+  s.array[s.start + i.val]
 
 instance : GetElem (Subarray α) Nat α fun xs i => i < xs.size where
   getElem xs i h := xs.get ⟨i, h⟩
+
+instance : LawfulGetElem (Subarray α) Nat α fun xs i => i < xs.size where
 
 @[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
   if h : i < s.size then s.get ⟨i, h⟩ else v₀
@@ -40,7 +57,7 @@ abbrev get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
 
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then
-    { s with start := s.start + 1, h₁ := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
+    { s with start := s.start + 1, start_le_stop := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
   else
     s
 
@@ -48,7 +65,7 @@ def popFront (s : Subarray α) : Subarray α :=
   let sz := USize.ofNat s.stop
   let rec @[specialize] loop (i : USize) (b : β) : m β := do
     if i < sz then
-      let a := s.as.uget i lcProof
+      let a := s.array.uget i lcProof
       match (← f a b) with
       | ForInStep.done  b => pure b
       | ForInStep.yield b => loop (i+1) b
@@ -66,27 +83,27 @@ instance : ForIn m (Subarray α) α where
 
 @[inline]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Subarray α) : m β :=
-  as.as.foldlM f (init := init) (start := as.start) (stop := as.stop)
+  as.array.foldlM f (init := init) (start := as.start) (stop := as.stop)
 
 @[inline]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Subarray α) : m β :=
-  as.as.foldrM f (init := init) (start := as.stop) (stop := as.start)
+  as.array.foldrM f (init := init) (start := as.stop) (stop := as.start)
 
 @[inline]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Subarray α) : m Bool :=
-  as.as.anyM p (start := as.start) (stop := as.stop)
+  as.array.anyM p (start := as.start) (stop := as.stop)
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Subarray α) : m Bool :=
-  as.as.allM p (start := as.start) (stop := as.stop)
+  as.array.allM p (start := as.start) (stop := as.stop)
 
 @[inline]
 def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Subarray α) : m PUnit :=
-  as.as.forM f (start := as.start) (stop := as.stop)
+  as.array.forM f (start := as.start) (stop := as.stop)
 
 @[inline]
 def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Subarray α) : m PUnit :=
-  as.as.forRevM f (start := as.stop) (stop := as.start)
+  as.array.forRevM f (start := as.stop) (stop := as.start)
 
 @[inline]
 def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : Subarray α) : β :=
@@ -133,16 +150,27 @@ variable {α : Type u}
 
 def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Subarray α :=
   if h₂ : stop ≤ as.size then
-     if h₁ : start ≤ stop then
-       { as := as, start := start, stop := stop, h₁ := h₁, h₂ := h₂ }
-     else
-       { as := as, start := stop, stop := stop, h₁ := Nat.le_refl _, h₂ := h₂ }
+    if h₁ : start ≤ stop then
+      { array := as, start := start, stop := stop,
+        start_le_stop := h₁, stop_le_array_size := h₂ }
+    else
+      { array := as, start := stop, stop := stop,
+        start_le_stop := Nat.le_refl _, stop_le_array_size := h₂ }
   else
-     if h₁ : start ≤ as.size then
-       { as := as, start := start, stop := as.size, h₁ := h₁, h₂ := Nat.le_refl _ }
-     else
-       { as := as, start := as.size, stop := as.size, h₁ := Nat.le_refl _, h₂ := Nat.le_refl _ }
+    if h₁ : start ≤ as.size then
+      { array := as,
+        start := start,
+        stop := as.size,
+        start_le_stop := h₁,
+        stop_le_array_size := Nat.le_refl _ }
+    else
+      { array := as,
+        start := as.size,
+        stop := as.size,
+        start_le_stop := Nat.le_refl _,
+        stop_le_array_size := Nat.le_refl _ }
 
+@[coe]
 def ofSubarray (s : Subarray α) : Array α := Id.run do
   let mut as := mkEmpty (s.stop - s.start)
   for a in s do

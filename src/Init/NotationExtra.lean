@@ -6,13 +6,12 @@ Authors: Leonardo de Moura
 Extra notation that depends on Init/Meta
 -/
 prelude
-import Init.Meta
+import Init.Data.ToString.Basic
 import Init.Data.Array.Subarray
-import Init.Data.ToString
-namespace Lean
+import Init.Conv
+import Init.Meta
 
-macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
-  `(Macro.trace $(quote id.getId.eraseMacroScopes) (s! $s))
+namespace Lean
 
 -- Auxiliary parsers and functions for declaring notation with binders
 
@@ -88,6 +87,7 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 end
 
+namespace Lean
 -- first step of a `calc` block
 syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
@@ -123,7 +123,7 @@ calc abc
   _ = xyz := pwxyz
 ```
 
-`calc` has term mode and tactic mode variants. This is the term mode variant.
+`calc` works as a term, as a tactic or as a `conv` tactic.
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
@@ -131,44 +131,13 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calc) "calc" calcSteps : term
 
-/-- Step-wise reasoning over transitive relations.
-```
-calc
-  a = b := pab
-  b = c := pbc
-  ...
-  y = z := pyz
-```
-proves `a = z` from the given step-wise proofs. `=` can be replaced with any
-relation implementing the typeclass `Trans`. Instead of repeating the right-
-hand sides, subsequent left-hand sides can be replaced with `_`.
-```
-calc
-  a = b := pab
-  _ = c := pbc
-  ...
-  _ = z := pyz
-```
-It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols:
-```
-calc abc
-  _ = bce := pabce
-  _ = cef := pbcef
-  ...
-  _ = xyz := pwxyz
-```
-
-`calc` has term mode and tactic mode variants. This is the tactic mode variant,
-which supports an additional feature: it works even if the goal is `a = z'`
-for some other `z'`; in this case it will not close the goal but will instead
-leave a subgoal proving `z = z'`.
-
-See [Theorem Proving in Lean 4][tpil4] for more information.
-
-[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
--/
+@[inherit_doc «calc»]
 syntax (name := calcTactic) "calc" calcSteps : tactic
+
+@[inherit_doc «calc»]
+macro tk:"calc" steps:calcSteps : conv =>
+  `(conv| tactic => calc%$tk $steps)
+end Lean
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
@@ -177,9 +146,13 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
   | `($(_)) => `([])
 
 @[app_unexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x [])      => `([$x])
-  | `($(_) $x [$xs,*]) => `([$x, $xs,*])
-  | _                  => throw ()
+  | `($(_) $x $tail) =>
+    match tail with
+    | `([])      => `([$x])
+    | `([$xs,*]) => `([$x, $xs,*])
+    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    | _          => throw ()
+  | _ => throw ()
 
 @[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])
@@ -251,35 +224,35 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
   | _ => throw ()
 
 @[app_unexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a.getString}"]
+  | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++  a.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}"]
+  | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString)]
   | _  => throw ()
 
 @[app_unexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
-  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}.{a8.getString}"]
+  | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ a1.getString ++ "." ++ a2.getString ++ "." ++ a3.getString ++ "." ++ a4.getString ++ "." ++ a5.getString ++ "." ++ a6.getString ++ "." ++ a7.getString ++ "." ++ a8.getString)]
   | _  => throw ()
 
 @[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
@@ -373,6 +346,24 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
+macro_rules
+  | `(haveI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(haveI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(haveI _ $bs* := $val; $body) => `(haveI x $bs* : _ := $val; $body)
+  | `(haveI _ $bs* : $ty := $val; $body) => `(haveI x $bs* : $ty := $val; $body)
+  | `(haveI $x:ident $bs* := $val; $body) => `(haveI $x $bs* : _ := $val; $body)
+  | `(haveI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+macro_rules
+  | `(letI $hy:hygieneInfo $bs* $[: $ty]? := $val; $body) =>
+    `(letI $(HygieneInfo.mkIdent hy `this (canonical := true)) $bs* $[: $ty]? := $val; $body)
+  | `(letI _ $bs* := $val; $body) => `(letI x $bs* : _ := $val; $body)
+  | `(letI _ $bs* : $ty := $val; $body) => `(letI x $bs* : $ty := $val; $body)
+  | `(letI $x:ident $bs* := $val; $body) => `(letI $x $bs* : _ := $val; $body)
+  | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
+
+
+namespace Lean
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
@@ -380,12 +371,11 @@ syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+syntax (name := solveTactic) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
-namespace Lean
 /-! # `repeat` and `while` notation -/
 
 inductive Loop where
@@ -424,5 +414,27 @@ macro_rules
 
 macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))
+
+end Lean
+
+syntax "{" term,+ "}" : term
+
+macro_rules
+  | `({$x:term}) => `(singleton $x)
+  | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+namespace Lean
+
+/-- Unexpander for the `{ x }` notation. -/
+@[app_unexpander singleton]
+def singletonUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a) => `({ $a:term })
+  | _ => throw ()
+
+/-- Unexpander for the `{ x, y, ... }` notation. -/
+@[app_unexpander insert]
+def insertUnexpander : Lean.PrettyPrinter.Unexpander
+  | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
+  | _ => throw ()
 
 end Lean

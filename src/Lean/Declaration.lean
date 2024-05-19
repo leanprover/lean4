@@ -3,6 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Expr
 
 namespace Lean
@@ -48,12 +49,25 @@ def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
 
 namespace ReducibilityHints
 
+-- Recall that if `lt h₁ h₂`, we want to reduce declaration associated with `h₁`.
 def lt : ReducibilityHints → ReducibilityHints → Bool
   | .abbrev,     .abbrev     => false
   | .abbrev,     _           => true
-  | .regular d₁, .regular d₂ => d₁ < d₂
+  | .regular d₁, .regular d₂ => d₁ > d₂
   | .regular _,  .opaque     => true
   | _,           _           => false
+
+protected def compare : ReducibilityHints → ReducibilityHints → Ordering
+  | .abbrev,     .abbrev     => .eq
+  | .abbrev,     _           => .lt
+  | .regular _,  .abbrev     => .gt
+  | .regular d₁, .regular d₂ => Ord.compare d₂ d₁
+  | .regular _,  .opaque     => .lt
+  | .opaque,     .opaque     => .eq
+  | .opaque,     _           => .gt
+
+instance : Ord ReducibilityHints where
+  compare := ReducibilityHints.compare
 
 def isAbbrev : ReducibilityHints → Bool
   | .abbrev => true
@@ -120,6 +134,11 @@ structure TheoremVal extends ConstantVal where
     See comment at `DefinitionVal.all`. -/
   all : List Name := [name]
   deriving Inhabited, BEq
+
+@[export lean_mk_theorem_val]
+def mkTheoremValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (all : List Name) : TheoremVal := {
+  name, levelParams, type, value, all
+}
 
 /-- Value for an opaque constant declaration `opaque x : t := e` -/
 structure OpaqueVal extends ConstantVal where

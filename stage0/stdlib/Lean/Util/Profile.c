@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util.Profile
-// Imports: Init Lean.Data.Options
+// Imports: Init.Data.OfScientific Lean.Data.Options
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Profile___hyg_6____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("show execution times of various Lean components", 47);
+x_1 = lean_mk_string_from_bytes("show exclusive execution times of various Lean components\n  \nSee also `trace.profiler` for an alternative profiling system with structured output.", 146);
 return x_1;
 }
 }
@@ -660,14 +660,14 @@ lean_dec(x_1);
 return x_7;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_OfScientific(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Util_Profile(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_Data_OfScientific(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Options(builtin, lean_io_mk_world());

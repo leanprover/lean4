@@ -1,6 +1,20 @@
 {"textDocument": {"uri": "file:///533.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"label": "F", "kind": 6, "detail": "Sort ?u"},
-  {"label": "Foo", "kind": 6, "detail": "Sort ?u"}],
+ [{"sortText": "0",
+   "label": "F",
+   "kind": 6,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///533.lean"},
+     "position": {"line": 4, "character": 10}},
+    "id": {"fvar": {"id": "_uniq.6"}}}},
+  {"sortText": "1",
+   "label": "Foo",
+   "kind": 6,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///533.lean"},
+     "position": {"line": 4, "character": 10}},
+    "id": {"fvar": {"id": "_uniq.2"}}}}],
  "isIncomplete": true}

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.OpenDecl
-// Imports: Init Lean.Data.Name
+// Imports: Init.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,34 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2;
 LEAN_EXPORT uint8_t l___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39_(lean_object*, lean_object*);
-static lean_object* l_Lean_OpenDecl_instToStringOpenDecl___closed__1;
+static lean_object* l_Lean_OpenDecl_instInhabited___closed__1;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object*);
+static lean_object* l_Lean_OpenDecl_instToString___closed__3;
+LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_OpenDecl_instInhabited;
 lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(lean_object*, lean_object*);
+static lean_object* l_Lean_OpenDecl_instToString___closed__2;
 static lean_object* l_Lean_instBEqOpenDecl___closed__1;
-static lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3;
+static lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_removeRoot(lean_object*);
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_rootNamespace;
-static lean_object* l_Lean_OpenDecl_instToStringOpenDecl___closed__3;
 static lean_object* l_Lean_rootNamespace___closed__1;
+static lean_object* l_Lean_OpenDecl_instToString___closed__1;
+LEAN_EXPORT lean_object* l_List_foldl___at_Lean_OpenDecl_instToString___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1(lean_object*, lean_object*);
-static lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2;
-static lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1;
+static lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1;
 static lean_object* l_Lean_rootNamespace___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____boxed(lean_object*, lean_object*);
-static lean_object* l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1;
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl;
-static lean_object* l_Lean_OpenDecl_instToStringOpenDecl___closed__2;
-LEAN_EXPORT lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*);
+static lean_object* l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instBEqOpenDecl;
-static lean_object* l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -194,7 +194,7 @@ x_1 = l_Lean_instBEqOpenDecl___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1() {
+static lean_object* _init_l_Lean_OpenDecl_instInhabited___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -206,15 +206,15 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instInhabitedOpenDecl() {
+static lean_object* _init_l_Lean_OpenDecl_instInhabited() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1;
+x_1 = l_Lean_OpenDecl_instInhabited___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1() {
+static lean_object* _init_l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -222,7 +222,7 @@ x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at_Lean_OpenDecl_instToString___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -237,7 +237,7 @@ lean_inc(x_3);
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
 lean_dec(x_2);
-x_5 = l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1;
+x_5 = l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1;
 x_6 = lean_string_append(x_1, x_5);
 x_7 = 1;
 x_8 = l_Lean_Name_toString(x_3, x_7);
@@ -249,7 +249,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1() {
+static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -257,7 +257,7 @@ x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
-static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2() {
+static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -265,7 +265,7 @@ x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3() {
+static lean_object* _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -273,13 +273,13 @@ x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_toString___at_Lean_OpenDecl_instToString___spec__1(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
 lean_object* x_2; 
-x_2 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1;
+x_2 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1;
 return x_2;
 }
 else
@@ -295,10 +295,10 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = 1;
 x_6 = l_Lean_Name_toString(x_4, x_5);
-x_7 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2;
+x_7 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3;
+x_9 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -310,10 +310,10 @@ lean_inc(x_11);
 lean_dec(x_1);
 x_12 = 1;
 x_13 = l_Lean_Name_toString(x_11, x_12);
-x_14 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2;
+x_14 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
-x_16 = l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2(x_15, x_3);
+x_16 = l_List_foldl___at_Lean_OpenDecl_instToString___spec__2(x_15, x_3);
 x_17 = 93;
 x_18 = lean_string_push(x_16, x_17);
 return x_18;
@@ -321,7 +321,7 @@ return x_18;
 }
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1() {
+static lean_object* _init_l_Lean_OpenDecl_instToString___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -329,7 +329,7 @@ x_1 = lean_mk_string_from_bytes(" hiding ", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2() {
+static lean_object* _init_l_Lean_OpenDecl_instToString___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -337,7 +337,7 @@ x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__3() {
+static lean_object* _init_l_Lean_OpenDecl_instToString___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -345,7 +345,7 @@ x_1 = lean_mk_string_from_bytes(" → ", 5);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToStringOpenDecl(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_OpenDecl_instToString(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -363,8 +363,8 @@ x_7 = l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Le
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_3);
-x_9 = l_Lean_OpenDecl_instToStringOpenDecl___closed__1;
+x_8 = l_List_toString___at_Lean_OpenDecl_instToString___spec__1(x_3);
+x_9 = l_Lean_OpenDecl_instToString___closed__1;
 x_10 = lean_string_append(x_9, x_8);
 lean_dec(x_8);
 x_11 = lean_string_append(x_5, x_10);
@@ -375,7 +375,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_3);
-x_12 = l_Lean_OpenDecl_instToStringOpenDecl___closed__2;
+x_12 = l_Lean_OpenDecl_instToString___closed__2;
 x_13 = lean_string_append(x_5, x_12);
 return x_13;
 }
@@ -390,7 +390,7 @@ lean_inc(x_15);
 lean_dec(x_1);
 x_16 = 1;
 x_17 = l_Lean_Name_toString(x_14, x_16);
-x_18 = l_Lean_OpenDecl_instToStringOpenDecl___closed__3;
+x_18 = l_Lean_OpenDecl_instToString___closed__3;
 x_19 = lean_string_append(x_17, x_18);
 x_20 = l_Lean_Name_toString(x_15, x_16);
 x_21 = lean_string_append(x_19, x_20);
@@ -435,41 +435,37 @@ x_4 = l_Lean_Name_replacePrefix(x_1, x_2, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
+res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instBEqOpenDecl___closed__1 = _init_l_Lean_instBEqOpenDecl___closed__1();
 lean_mark_persistent(l_Lean_instBEqOpenDecl___closed__1);
 l_Lean_instBEqOpenDecl = _init_l_Lean_instBEqOpenDecl();
 lean_mark_persistent(l_Lean_instBEqOpenDecl);
-l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1 = _init_l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1();
-lean_mark_persistent(l_Lean_OpenDecl_instInhabitedOpenDecl___closed__1);
-l_Lean_OpenDecl_instInhabitedOpenDecl = _init_l_Lean_OpenDecl_instInhabitedOpenDecl();
-lean_mark_persistent(l_Lean_OpenDecl_instInhabitedOpenDecl);
-l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1 = _init_l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1();
-lean_mark_persistent(l_List_foldl___at_Lean_OpenDecl_instToStringOpenDecl___spec__2___closed__1);
-l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1 = _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1();
-lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__1);
-l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2 = _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2();
-lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__2);
-l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3 = _init_l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3();
-lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToStringOpenDecl___spec__1___closed__3);
-l_Lean_OpenDecl_instToStringOpenDecl___closed__1 = _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__1();
-lean_mark_persistent(l_Lean_OpenDecl_instToStringOpenDecl___closed__1);
-l_Lean_OpenDecl_instToStringOpenDecl___closed__2 = _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__2();
-lean_mark_persistent(l_Lean_OpenDecl_instToStringOpenDecl___closed__2);
-l_Lean_OpenDecl_instToStringOpenDecl___closed__3 = _init_l_Lean_OpenDecl_instToStringOpenDecl___closed__3();
-lean_mark_persistent(l_Lean_OpenDecl_instToStringOpenDecl___closed__3);
+l_Lean_OpenDecl_instInhabited___closed__1 = _init_l_Lean_OpenDecl_instInhabited___closed__1();
+lean_mark_persistent(l_Lean_OpenDecl_instInhabited___closed__1);
+l_Lean_OpenDecl_instInhabited = _init_l_Lean_OpenDecl_instInhabited();
+lean_mark_persistent(l_Lean_OpenDecl_instInhabited);
+l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1 = _init_l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1();
+lean_mark_persistent(l_List_foldl___at_Lean_OpenDecl_instToString___spec__2___closed__1);
+l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1 = _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1();
+lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__1);
+l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2 = _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2();
+lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__2);
+l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3 = _init_l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3();
+lean_mark_persistent(l_List_toString___at_Lean_OpenDecl_instToString___spec__1___closed__3);
+l_Lean_OpenDecl_instToString___closed__1 = _init_l_Lean_OpenDecl_instToString___closed__1();
+lean_mark_persistent(l_Lean_OpenDecl_instToString___closed__1);
+l_Lean_OpenDecl_instToString___closed__2 = _init_l_Lean_OpenDecl_instToString___closed__2();
+lean_mark_persistent(l_Lean_OpenDecl_instToString___closed__2);
+l_Lean_OpenDecl_instToString___closed__3 = _init_l_Lean_OpenDecl_instToString___closed__3();
+lean_mark_persistent(l_Lean_OpenDecl_instToString___closed__3);
 l_Lean_rootNamespace___closed__1 = _init_l_Lean_rootNamespace___closed__1();
 lean_mark_persistent(l_Lean_rootNamespace___closed__1);
 l_Lean_rootNamespace___closed__2 = _init_l_Lean_rootNamespace___closed__2();

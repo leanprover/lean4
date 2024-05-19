@@ -81,7 +81,7 @@ set_option pp.proofs true
   expecting Nat.brecOn (motive := fun x => Nat → Nat) 0 (fun x ih y => y + x) 0
 
 #testDelab let xs := #[]; xs.push (5 : Nat)
-  expecting let xs : Array Nat := #[]; Array.push xs 5
+  expecting let xs : Array Nat := #[]; xs.push 5
 
 #testDelab let x := Nat.zero; x + Nat.zero
   expecting let x := Nat.zero; x + Nat.zero
@@ -196,7 +196,7 @@ set_option pp.analyze.trustSubst true in
 
 set_option pp.analyze.trustId true in
 #testDelab Sigma.mk (β := fun α => α) Bool true
-  expecting { fst := _, snd := true }
+  expecting ⟨_, true⟩
 
 set_option pp.analyze.trustId false in
 #testDelab Sigma.mk (β := fun α => α) Bool true
@@ -257,14 +257,23 @@ structure S2 where x : Unit
 inductive NeedsAnalysis {α : Type} : Prop
   | mk : NeedsAnalysis
 
+section proofs
+/--
+The `#testDelab` expects it can elaborate the expression, so here is a macro rule to let that happen.
+-/
+local macro_rules | `(⋯) => `(_)
+
 set_option pp.proofs false in
+set_option pp.proofs.withType true in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting (_ : NeedsAnalysis (α := Unit))
+  expecting (⋯ : NeedsAnalysis (α := Unit))
 
 set_option pp.proofs false in
 set_option pp.proofs.withType false in
 #testDelab @NeedsAnalysis.mk Unit
-  expecting _
+  expecting ⋯
+
+end proofs
 
 #testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
   expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }
@@ -284,7 +293,7 @@ structure SubtypeLike1 {α : Sort u} (p : α → Prop) where
 --Note: currently we do not try "bottom-upping" inside lambdas
 --(so we will always annotate the binder type)
 #testDelab SubtypeLike1 fun (x : Nat) => Nat.succ x = x
-  expecting SubtypeLike1 fun (x : Nat) => Nat.succ x = x
+  expecting SubtypeLike1 fun (x : Nat) => x.succ = x
 
 structure SubtypeLike3 {α β γ : Sort u} (p : α → β → γ → Prop) where
 
@@ -321,7 +330,7 @@ set_option pp.analyze.explicitHoles false in
 
 set_option pp.analyze.trustSubtypeMk true in
 #testDelab fun (n : Nat) (val : List Nat) (property : List.length val = n) => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
-  expecting fun n val property => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n
+  expecting fun n val property => (Subtype.val (p := fun x => x.length = n) (⟨val, property⟩ : { x : List Nat // x.length = n })).length = n
 
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
@@ -335,7 +344,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType
 #testDelabN List.filterMapM.loop
-#testDelabN instMonadReaderOf
+#testDelabN instMonadReaderOfOfMonadLift
 #testDelabN instInhabitedPUnit
 #testDelabN Lean.Syntax.getOptionalIdent?
 #testDelabN Lean.Meta.ppExpr
@@ -349,13 +358,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Lean.PersistentHashMap.getCollisionNodeSize.match_1
 #testDelabN Lean.HashMap.size.match_1
 #testDelabN and_false
-
--- TODO: this one prints out a structure instance with keyword field `end`
-set_option pp.structureInstances false in
 #testDelabN Lean.Server.FileWorker.handlePlainTermGoal
-
--- TODO: this one desugars to a `doLet` in an assignment
-set_option pp.notation false in
 #testDelabN Lean.Server.FileWorker.handlePlainGoal
 
 -- TODO: this error occurs because we use a term's type to determine `blockImplicit` (@),

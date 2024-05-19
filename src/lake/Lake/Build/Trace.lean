@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Newline
 
 open System
 namespace Lake
@@ -10,6 +11,10 @@ namespace Lake
 --------------------------------------------------------------------------------
 /-! # Utilities -/
 --------------------------------------------------------------------------------
+
+/-- Creates any missing parent directories of `path`. -/
+@[inline] def createParentDirs (path : FilePath) : IO Unit := do
+  if let some dir := path.parent then IO.FS.createDirAll dir
 
 class CheckExists.{u} (i : Type u) where
   /-- Check whether there already exists an artifact for the given target info. -/
@@ -37,7 +42,7 @@ class NilTrace.{u} (t : Type u) where
 
 export NilTrace (nilTrace)
 
-instance [NilTrace t] : Inhabited t := ⟨nilTrace⟩
+instance inhabitedOfNilTrace [NilTrace t] : Inhabited t := ⟨nilTrace⟩
 
 class MixTrace.{u} (t : Type u) where
   /-- Combine two traces. The result should be dirty if either of the inputs is dirty. -/
@@ -127,23 +132,6 @@ def computeFileHash (file : FilePath) : IO Hash :=
   Hash.ofByteArray <$> IO.FS.readBinFile file
 
 instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
-
-/-- This is the same as `String.replace text "\r\n" "\n"`, but more efficient. -/
-@[inline] partial def crlf2lf (text : String) : String :=
-  go "" 0 0
-where
-  go (acc : String) (accStop pos : String.Pos) : String :=
-    if h : text.atEnd pos then
-      -- note: if accStop = 0 then acc is empty
-      if accStop = 0 then text else acc ++ text.extract accStop pos
-    else
-      let c := text.get' pos h
-      let pos' := text.next' pos h
-      if c == '\r' && text.get pos' == '\n' then
-        let acc := acc ++ text.extract accStop pos
-        go acc pos' (text.next pos')
-      else
-        go acc accStop pos'
 
 def computeTextFileHash (file : FilePath) : IO Hash := do
   let text ← IO.FS.readFile file
@@ -271,7 +259,8 @@ If not, check if the info is newer than this trace's modification time.
   else
     self.checkAgainstTime info
 
-@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
+@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+  createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 
 end BuildTrace

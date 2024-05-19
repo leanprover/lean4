@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   TAIL=gtail
 else
   TAIL=tail
@@ -35,7 +36,7 @@ echo "tested 49"
 # Test that `lake setup-file` produces the error from `LAKE_INVALID_CONFIG`
 set -x
 # NOTE: For some reason, using `!` here does not work on macOS
-(LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep foo
+(LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep --color foo
 set +x
 
 # Test that `lake serve` produces the `Invalid Lake configuration message`.

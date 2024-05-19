@@ -3,7 +3,7 @@ Copyright (c) 2021 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
-
+prelude
 import Lean.KeyedDeclsAttribute
 import Lean.Parser.Command  -- for `precheckedQuot`
 import Lean.Elab.Term
@@ -92,7 +92,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← resolveGlobalNameWithInfos stx val then
+    if let _::_ ← realizeGlobalNameWithInfos stx val then
       return
     if (← read).quotLCtx.contains val then
       return

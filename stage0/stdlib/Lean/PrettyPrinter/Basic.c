@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Basic
-// Imports: Init Lean.KeyedDeclsAttribute
+// Imports: Lean.KeyedDeclsAttribute
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,6 +33,7 @@ lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lea
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__9;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -178,27 +179,39 @@ _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_6, 0, x_5);
-x_7 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_7, 0, x_6);
-x_8 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_7, x_2, x_3, x_4);
-return x_8;
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_1);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+lean_ctor_set_tag(x_1, 3);
+x_6 = l_Lean_MessageData_ofFormat(x_1);
+x_7 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_6, x_2, x_3, x_4);
+return x_7;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
 lean_dec(x_1);
-x_10 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_10, 0, x_9);
-lean_ctor_set(x_10, 1, x_4);
-return x_10;
+x_9 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_9, 0, x_8);
+x_10 = l_Lean_MessageData_ofFormat(x_9);
+x_11 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg(x_10, x_2, x_3, x_4);
+return x_11;
+}
+}
+else
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_1, 0);
+lean_inc(x_12);
+lean_dec(x_1);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set(x_13, 1, x_4);
+return x_13;
 }
 }
 }
@@ -387,19 +400,19 @@ lean_inc(x_22);
 lean_dec(x_21);
 x_23 = l_Lean_MessageData_ofName(x_22);
 x_24 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
-x_25 = lean_alloc_ctor(7, 2, 0);
+x_25 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_23);
 x_26 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__9;
-x_27 = lean_alloc_ctor(7, 2, 0);
+x_27 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = l_Lean_MessageData_ofName(x_2);
-x_29 = lean_alloc_ctor(7, 2, 0);
+x_29 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_29, 0, x_27);
 lean_ctor_set(x_29, 1, x_28);
 x_30 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__11;
-x_31 = lean_alloc_ctor(7, 2, 0);
+x_31 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg(x_31, x_4, x_5, x_15);
@@ -586,19 +599,19 @@ lean_inc(x_67);
 lean_dec(x_66);
 x_68 = l_Lean_MessageData_ofName(x_67);
 x_69 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
-x_70 = lean_alloc_ctor(7, 2, 0);
+x_70 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_70, 0, x_69);
 lean_ctor_set(x_70, 1, x_68);
 x_71 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__9;
-x_72 = lean_alloc_ctor(7, 2, 0);
+x_72 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_72, 0, x_70);
 lean_ctor_set(x_72, 1, x_71);
 x_73 = l_Lean_MessageData_ofName(x_2);
-x_74 = lean_alloc_ctor(7, 2, 0);
+x_74 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_74, 0, x_72);
 lean_ctor_set(x_74, 1, x_73);
 x_75 = l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__11;
-x_76 = lean_alloc_ctor(7, 2, 0);
+x_76 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_76, 0, x_74);
 lean_ctor_set(x_76, 1, x_75);
 x_77 = l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg(x_76, x_4, x_5, x_60);
@@ -794,16 +807,12 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_KeyedDeclsAttribute(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_KeyedDeclsAttribute(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3,7 +3,7 @@ inductive Equality {α : Type u} : α → α → Type u
 
 open Equality
 
-@[eliminator]
+@[induction_eliminator]
 def ind {α : Type u} (motive : ∀ (a b : α) (p : Equality a b), Sort v)
   {a : α} (πrefl : motive a a refl) {b : α} (p : Equality a b) : motive a b p :=
 @Equality.casesOn α a (λ b p => motive a a refl → motive a b p) b p

@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
+prelude
 import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
 import Lean.Data.Position
+import Lean.DeclarationRange
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
@@ -84,5 +86,19 @@ def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)
 
+/-- Gets the LSP range from a `String.Range`. -/
+def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
+  { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
+
 end FileMap
 end Lean
+
+/--
+Convert the Lean `DeclarationRange` to an LSP `Range` by turning the 1-indexed line numbering into a
+0-indexed line numbering and converting the character offset within the line to a UTF-16 indexed
+offset.
+-/
+def Lean.DeclarationRange.toLspRange (r : Lean.DeclarationRange) : Lsp.Range := {
+  start := ⟨r.pos.line - 1, r.charUtf16⟩
+  «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩
+}

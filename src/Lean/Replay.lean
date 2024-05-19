@@ -3,7 +3,9 @@ Copyright (c) 2023 Scott Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
+prelude
 import Lean.CoreM
+import Lean.AddDecl
 import Lean.Util.FoldConsts
 
 /-!
@@ -55,7 +57,7 @@ def throwKernelException (ex : KernelException) : M Unit := do
 
 /-- Add a declaration, possibly throwing a `KernelException`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl d with
+  match (← get).env.addDecl {} d with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 

@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.CoreM
 import Lean.MonadEnv
 
@@ -182,7 +183,6 @@ structure ParametricAttribute (α : Type) where
   deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
-  /-- This is used as the target for go-to-definition queries for simple attributes -/
   getParam : Name → Syntax → AttrM α
   afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()

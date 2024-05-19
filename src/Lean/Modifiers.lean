@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Environment
 
 namespace Lean
@@ -46,7 +47,7 @@ def isPrivateNameExport (n : Name) : Bool :=
 Return `true` if `n` is of the form `_private.<module_name>.0`
 See comment above.
 -/
-private def isPrivatePrefix (n : Name) : Bool :=
+def isPrivatePrefix (n : Name) : Bool :=
   match n with
   | .num p 0 => go p
   | _ => false

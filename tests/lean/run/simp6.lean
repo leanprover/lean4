@@ -13,15 +13,26 @@ theorem ex4 (x : Nat) : (if 10 = 0 then 1 else 2) = 2 :=
 theorem ex5 : (10 = 20) = False :=
   by simp
 
+/--
+info: theorem ex5 : (10 = 20) = False :=
+of_eq_true (Eq.trans (congrArg (fun x => x = False) (eq_false_of_decide (Eq.refl false))) (eq_self False))
+-/
+#guard_msgs in
 #print ex5
 
 theorem ex6 : (if "hello" = "world" then 1 else 2) = 2 :=
   by simp (config := { decide := true })
 
+/--
+info: theorem ex6 : (if "hello" = "world" then 1 else 2) = 2 :=
+of_eq_true (eq_true_of_decide (Eq.refl true))
+-/
+#guard_msgs in
 #print ex6
 
 theorem ex7 : (if "hello" = "world" then 1 else 2) = 2 := by
-  fail_if_success simp (config := { decide := false })
+  simp (config := { decide := false })
+  -- Goal is now `⊢ "hello" = "world" → False`
   simp (config := { decide := true })
 
 theorem ex8 : (10 + 2000 = 20) = False :=

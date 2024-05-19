@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2022 Lars König. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Lars König
+-/
+prelude
 import Lean.Data.Options
 import Lean.Server.InfoUtils
 import Lean.Linter.Basic
@@ -8,7 +14,8 @@ open Lean.Elab
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
-  logWarningAt stx (.tagged linterOption.name m!"{msg} [{linterOption.name}]")
+  let disable := m!"note: this linter can be disabled with `set_option {linterOption.name} false`"
+  logWarningAt stx (.tagged linterOption.name m!"{msg}\n{disable}")
 
 /-- If `linterOption` is true, print a linter warning message at the position determined by `stx`.
 -/

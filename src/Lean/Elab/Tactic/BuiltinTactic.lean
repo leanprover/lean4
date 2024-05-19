@@ -3,14 +3,19 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Lean.Meta.Diagnostics
+import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Contradiction
 import Lean.Meta.Tactic.Refl
 import Lean.Elab.Binders
 import Lean.Elab.Open
+import Lean.Elab.Eval
 import Lean.Elab.SetOption
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.Do
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -118,7 +123,7 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
     withInfoContext (pure ()) initInfo
     evalSepByIndentTactic stx[1]
 
-@[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
+@[builtin_tactic Lean.cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
   -- but the token antiquotation does not copy trailing whitespace, leading to
@@ -158,9 +163,13 @@ private def getOptRotation (stx : Syntax) : Nat :=
     popScope
 
 @[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[2]
-  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
-    evalTactic stx[4]
+  let options ← Elab.elabSetOption stx[1] stx[3]
+  withOptions (fun _ => options) do
+    try
+      evalTactic stx[5]
+    finally
+      if stx[1].getId == `diagnostics then
+        reportDiag
 
 @[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
@@ -261,7 +270,7 @@ where
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
-        let type ← Term.withSynthesize (mayPostpone := true) <| Term.elabType typeStx
+        let type ← Term.withSynthesize (postpone := .yes) <| Term.elabType typeStx
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do
@@ -323,6 +332,9 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 @[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
+@[builtin_tactic Lean.Parser.Tactic.substEqs] def evalSubstEqs : Tactic := fun _ =>
+  Elab.Tactic.liftMetaTactic1 (·.substEqs)
+
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
@@ -345,12 +357,21 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
     let mut info  := #[]
     let mut found : NameSet := {}
     let n := lctx.numIndices
+    -- hypotheses are inaccessible if their scopes are different from the caller's (we assume that
+    -- the scopes are the same for all the hypotheses in `hs`, which is reasonable to expect in
+    -- practice and otherwise the expected semantics of `rename_i` really are not clear)
+    let some callerScopes := hs.findSome? (fun
+        | `(binderIdent| $h:ident) => some <| extractMacroScopes h.getId
+        | _ => none)
+      | return mvarId
     for i in [:n] do
       let j := n - i - 1
       match lctx.getAt? j with
       | none => pure ()
       | some localDecl =>
-        if localDecl.userName.hasMacroScopes || found.contains localDecl.userName then
+        let inaccessible := !(extractMacroScopes localDecl.userName |>.equalScope callerScopes)
+        let shadowed := found.contains localDecl.userName
+        if inaccessible || shadowed then
           if let `(binderIdent| $h:ident) := hs.back then
             let newName := h.getId
             lctx := lctx.setUserName localDecl.fvarId newName
@@ -467,5 +488,32 @@ where
   match stx[1].isNatLit? with
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32
+
+@[builtin_tactic left] def evalLeft : Tactic := fun _stx => do
+  liftMetaTactic (fun g => g.nthConstructor `left 0 (some 2))
+
+@[builtin_tactic right] def evalRight : Tactic := fun _stx => do
+  liftMetaTactic (fun g => g.nthConstructor `right 1 (some 2))
+
+@[builtin_tactic replace] def evalReplace : Tactic := fun stx => do
+  match stx with
+  | `(tactic| replace $decl:haveDecl) =>
+    withMainContext do
+      let vars ← Elab.Term.Do.getDoHaveVars <| mkNullNode #[.missing, decl]
+      let origLCtx ← getLCtx
+      evalTactic $ ← `(tactic| have $decl:haveDecl)
+      let mut toClear := #[]
+      for fv in vars do
+        if let some ldecl := origLCtx.findFromUserName? fv.getId then
+          toClear := toClear.push ldecl.fvarId
+      liftMetaTactic1 (·.tryClearMany toClear)
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic runTac] def evalRunTac : Tactic := fun stx => do
+  match stx with
+  | `(tactic| run_tac $e:doSeq) =>
+    ← unsafe Term.evalTerm (TacticM Unit) (mkApp (Lean.mkConst ``TacticM) (Lean.mkConst ``Unit))
+      (← `(discard do $e))
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

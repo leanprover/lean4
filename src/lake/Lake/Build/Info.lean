@@ -6,7 +6,6 @@ Authors: Mac Malone
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
 import Lake.Build.Facets
-import Lake.Util.EquipT
 
 /-!
 # Build Info
@@ -62,7 +61,7 @@ abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
 /-! ### Build Info to Key -/
 
 /-- The key that identifies the build in the Lake build store. -/
-abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
+@[reducible] def BuildInfo.key : (self : BuildInfo) → BuildKey
 | moduleFacet m f => m.facetBuildKey f
 | packageFacet p f => p.facetBuildKey f
 | libraryFacet l f => l.facetBuildKey f
@@ -108,27 +107,6 @@ instance [FamilyOut TargetData ExternLib.sharedFacet α]
 instance [FamilyOut TargetData ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
   family_key_eq_type := by unfold BuildData; simp
-
---------------------------------------------------------------------------------
-/-! ## Recursive Building                                                     -/
---------------------------------------------------------------------------------
-
-/-- A build function for any element of the Lake build index. -/
-abbrev IndexBuildFn (m : Type → Type v) :=
-  -- `DBuildFn BuildInfo (BuildData ·.key) m` with less imports
-  (info : BuildInfo) → m (BuildData info.key)
-
-/-- A transformer to equip a monad with a build function for the Lake index. -/
-abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
-
-/-- The monad for build functions that are part of the index. -/
-abbrev IndexBuildM := IndexT RecBuildM
-
-/-- Fetch the result associated with the info using the Lake build index. -/
-@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : IndexBuildM α :=
-  fun build => cast (by simp) <| build self
-
-export BuildInfo (fetch)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -211,8 +189,20 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 @[inherit_doc oFacet] abbrev o (self : Module) :=
   self.facet oFacet
 
+@[inherit_doc oExportFacet] abbrev oExport (self : Module) :=
+  self.facet oExportFacet
+
+@[inherit_doc oNoExportFacet] abbrev oNoExport (self : Module) :=
+  self.facet oNoExportFacet
+
 @[inherit_doc coFacet] abbrev co (self : Module) :=
   self.facet coFacet
+
+@[inherit_doc coExportFacet] abbrev coExport (self : Module) :=
+  self.facet coExportFacet
+
+@[inherit_doc coNoExportFacet] abbrev coNoExport (self : Module) :=
+  self.facet coNoExportFacet
 
 @[inherit_doc bcoFacet] abbrev bco (self : Module) :=
   self.facet bcoFacet
@@ -229,6 +219,10 @@ abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
 @[inherit_doc releaseFacet]
 abbrev Package.release (self : Package) : BuildInfo :=
   self.facet releaseFacet
+
+@[inherit_doc optReleaseFacet]
+abbrev Package.optRelease (self : Package) : BuildInfo :=
+  self.facet optReleaseFacet
 
 @[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=
@@ -253,6 +247,10 @@ abbrev LeanLib.leanArts (self : LeanLib) : BuildInfo :=
 @[inherit_doc staticFacet]
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
   self.facet staticFacet
+
+@[inherit_doc staticExportFacet]
+abbrev LeanLib.staticExport (self : LeanLib) : BuildInfo :=
+  self.facet staticExportFacet
 
 @[inherit_doc sharedFacet]
 abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=

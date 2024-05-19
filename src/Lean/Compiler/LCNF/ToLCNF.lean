@@ -3,7 +3,9 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ProjFns
+import Lean.Meta.CtorRecognizer
 import Lean.Compiler.BorrowedAnnotation
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
@@ -618,7 +620,7 @@ where
       let rhs ← liftMetaM do Meta.whnf args[inductVal.numParams + inductVal.numIndices + 2]!
       let lhs := lhs.toCtorIfLit
       let rhs := rhs.toCtorIfLit
-      match lhs.isConstructorApp? (← getEnv), rhs.isConstructorApp? (← getEnv) with
+      match (← liftMetaM <| Meta.isConstructorApp? lhs), (← liftMetaM <| Meta.isConstructorApp? rhs) with
       | some lhsCtorVal, some rhsCtorVal =>
         if lhsCtorVal.name == rhsCtorVal.name then
           etaIfUnderApplied e (arity+1) do

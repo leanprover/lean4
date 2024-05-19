@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.Import
 import Lean.Elab.Exception
 import Lean.Elab.Config
@@ -10,6 +11,7 @@ import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.App
 import Lean.Elab.Binders
+import Lean.Elab.BinderPredicates
 import Lean.Elab.LetRec
 import Lean.Elab.Frontend
 import Lean.Elab.BuiltinNotation
@@ -45,3 +47,6 @@ import Lean.Elab.Eval
 import Lean.Elab.Calc
 import Lean.Elab.InheritDoc
 import Lean.Elab.ParseImportsFast
+import Lean.Elab.GuardMsgs
+import Lean.Elab.CheckTactic
+import Lean.Elab.MatchExpr

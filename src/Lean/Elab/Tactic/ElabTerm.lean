@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Clear
@@ -28,7 +29,7 @@ def runTermElab (k : TermElabM α) (mayPostpone := false) : TacticM α := do
   else
     Term.withoutErrToSorry go
 where
-  go := k <* Term.synthesizeSyntheticMVars (mayPostpone := mayPostpone)
+  go := k <* Term.synthesizeSyntheticMVars (postpone := .ofBool mayPostpone)
 
 /-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
 elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/
@@ -356,7 +357,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
 
 /--
    Make sure `expectedType` does not contain free and metavariables.
-   It applies zeta-reduction to eliminate let-free-vars.
+   It applies zeta and zetaDelta-reduction to eliminate let-free-vars.
 -/
 private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
   let mut expectedType ← instantiateMVars expectedType
@@ -371,10 +372,24 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
     let d ← instantiateMVars d
-    let r ← withDefault <| whnf d
-    unless r.isConstOf ``true do
-      throwError "failed to reduce to 'true'{indentExpr r}"
-    let s := d.appArg! -- get instance from `d`
+    -- Get instance from `d`
+    let s := d.appArg!
+    -- Reduce the instance rather than `d` itself, since that gives a nicer error message on failure.
+    let r ← withDefault <| whnf s
+    if r.isAppOf ``isFalse then
+      throwError "\
+        tactic 'decide' proved that the proposition\
+        {indentExpr expectedType}\n\
+        is false"
+    unless r.isAppOf ``isTrue do
+      throwError "\
+        tactic 'decide' failed for proposition\
+        {indentExpr expectedType}\n\
+        since its 'Decidable' instance reduced to\
+        {indentExpr r}\n\
+        rather than to the 'isTrue' constructor."
+    -- While we have a proof from reduction, we do not embed it in the proof term,
+    -- but rather we let the kernel recompute it during type checking from a more efficient term.
     let rflPrf ← mkEqRefl (toExpr true)
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 

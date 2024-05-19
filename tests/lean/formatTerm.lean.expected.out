@@ -70,3 +70,4 @@ def foo✝ : a✝ b✝ c✝ d✝ e✝ f✝ g✝ a✝ b✝ c✝ d✝ e✝ f✝ g�
 calc
   1 = 1 := rfl✝
   1 = 1 := rfl✝
+by rw [] at h✝

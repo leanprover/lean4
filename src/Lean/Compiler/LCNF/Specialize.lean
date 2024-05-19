@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Compiler.Specialize
 import Lean.Compiler.LCNF.Simp
 import Lean.Compiler.LCNF.SpecInfo
@@ -181,8 +182,8 @@ def expandCodeDecls (decls : Array CodeDecl) (body : LetValue) : CompilerM Expr 
       go (i+1) (subst.push value)
     else
       (body.toExpr.abstract xs).instantiateRev subst
+    termination_by values.size - i
   return go 0 #[]
-termination_by go => values.size - i
 
 /--
 Create the "key" that uniquely identifies a code specialization.

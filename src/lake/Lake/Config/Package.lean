@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Config.Opaque
+import Lake.Config.Defaults
 import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
@@ -13,20 +14,10 @@ import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
-import Lake.Util.Platform
 
 open System Lean
 
 namespace Lake
-
-/--
-Platform-specific archive file with an optional name prefix
-(i.e., `{name}-{platformDescriptor}.tar.gz`).
--/
-def nameToArchive (name? : Option String) : String :=
-  match name? with
-  | none => s!"{platformDescriptor}.tar.gz"
-  | some name => s!"{name}-{platformDescriptor}.tar.gz"
 
 /--
 First tries to convert a string into a legal name.
@@ -36,24 +27,10 @@ Currently used for package and target names taken from the CLI.
 def stringToLegalOrSimpleName (s : String) : Name :=
   if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
 
---------------------------------------------------------------------------------
-/-! # Defaults -/
---------------------------------------------------------------------------------
 
-/-- The default setting for a `PackageConfig`'s `buildDir` option. -/
-def defaultBuildDir : FilePath := "build"
-
-/-- The default setting for a `PackageConfig`'s `leanLibDir` option. -/
-def defaultLeanLibDir : FilePath := "lib"
-
-/-- The default setting for a `PackageConfig`'s `nativeLibDir` option. -/
-def defaultNativeLibDir : FilePath := "lib"
-
-/-- The default setting for a `PackageConfig`'s `binDir` option. -/
-def defaultBinDir : FilePath := "bin"
-
-/-- The default setting for a `PackageConfig`'s `irDir` option. -/
-def defaultIrDir : FilePath := "ir"
+/-- The default `buildArchive` configuration for a package with `name`. -/
+@[inline] def defaultBuildArchive (name : Name) : String :=
+  s!"{name.toString false}-{System.Platform.target}.tar.gz"
 
 --------------------------------------------------------------------------------
 /-! # PackageConfig -/
@@ -112,9 +89,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The directory to which Lake should output the package's build results.
-  Defaults to `defaultLakeDir / defaultBuildDir` (i.e., `.lake/build`).
+  Defaults to `defaultBuildDir` (i.e., `.lake/build`).
   -/
-  buildDir : FilePath := defaultLakeDir / defaultBuildDir
+  buildDir : FilePath := defaultBuildDir
 
   /--
   The build subdirectory to which Lake should output the package's
@@ -151,10 +128,25 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   releaseRepo? : Option String := none
 
   /--
-  The name of the build archive on GitHub. Defaults to `none`.
-  The archive's full file name will be `nameToArchive buildArchive?`.
+  The URL of the GitHub repository to upload and download releases of this package.
+  If `none` (the default), for downloads, Lake uses the URL the package was download
+  from (if it is a dependency) and for uploads, uses `gh`'s default.
+  -/
+  releaseRepo : Option String := none
+
+  /--
+  A custom name for the build archive for the GitHub cloud release.
+  If `none` (the default), Lake uses `buildArchive`, which defaults to
+  `{(pkg-)name}-{System.Platform.target}.tar.gz`.
   -/
   buildArchive? : Option String := none
+
+  /--
+  A custom name for the build archive for the GitHub cloud release.
+  Defaults to `{(pkg-)name}-{System.Platform.target}.tar.gz`.
+  -/
+  buildArchive : String :=
+    if let some name := buildArchive? then name else defaultBuildArchive name
 
   /--
   Whether to prefer downloading a prebuilt release (from GitHub) rather than
@@ -179,18 +171,16 @@ structure Package where
   relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
-  /-- The elaboration environment of the package's configuration file. -/
-  configEnv : Environment
-  /-- The Lean `Options` the package configuration was elaborated with. -/
-  leanOpts : Options
-  /-- The path to the package's configuration file. -/
-  configFile : FilePath
+  /-- The path to the package's configuration file (relative to `dir`). -/
+  relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
   relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
+  /-- Dependency configurations for the package. -/
+  depConfigs : Array Dependency := #[]
   /-- Lean library configurations for the package. -/
   leanLibConfigs : OrdNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
@@ -213,6 +203,8 @@ structure Package where
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
   postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
+  /-- Name of the package's test runner script or executable (if any). -/
+  testRunner : Name := .anonymous
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
@@ -283,6 +275,10 @@ namespace Package
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
+/-- The full path to the package's configuration file. -/
+@[inline] def configFile (self : Package) : FilePath :=
+  self.dir / self.relConfigFile
+
 /-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=
   self.dir / self.relManifestFile
@@ -295,19 +291,19 @@ namespace Package
 @[inline] def extraDepTargets (self : Package) : Array Name :=
   self.config.extraDepTargets
 
-/-- The package's `releaseRepo?` configuration. -/
+/-- The package's `platformIndependent` configuration. -/
+@[inline] def platformIndependent (self : Package) : Option Bool :=
+  self.config.platformIndependent
+
+/-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
-  self.config.releaseRepo?
+  self.config.releaseRepo <|> self.config.releaseRepo?
 
-/-- The package's `buildArchive?` configuration. -/
-@[inline] def buildArchive? (self : Package) : Option String :=
-  self.config.buildArchive?
-
-/-- The file name of the package's build archive derived from `buildArchive?`. -/
+/-- The package's `buildArchive`/`buildArchive?` configuration. -/
 @[inline] def buildArchive (self : Package) : String :=
-  nameToArchive self.buildArchive?
+  self.config.buildArchive
 
-/-- The package's `lakeDir` joined with its `buildArchive` configuration. -/
+/-- The package's `lakeDir` joined with its `buildArchive`. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
   self.lakeDir / self.buildArchive
 

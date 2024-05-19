@@ -34,11 +34,11 @@ def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.add]
 def tst1 : MetaM Unit :=
 do let d : DiscrTree Nat := {};
    let mvar ← mkFreshExprMVar nat;
-   let d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1 {};
-   let d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2 {};
-   let d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 20]) 3 {};
-   let d ← d.insert (mkAppN add #[mvar, mkNatLit 20]) 4 {};
-   let d ← d.insert mvar 5 {};
+   let d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1 {}
+   let d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2 {}
+   let d ← d.insert (mkAppN (mkConst `Nat.add) #[mkNatLit 0, mkNatLit 20]) 3 {}
+   let d ← d.insert (mkAppN add #[mvar, mkNatLit 20]) 4 {}
+   let d ← d.insert mvar 5 {}
    print (format d);
    let vs ← d.getMatch (mkAppN add #[mkNatLit 1, mkNatLit 10]) {};
    print (format vs);
@@ -56,4 +56,20 @@ do let d : DiscrTree Nat := {};
    print (format vs);
    pure ()
 
-#eval run #[`Init.Data.Nat] tst1
+set_option trace.Meta.debug true in
+/--
+info: [Meta.debug] (Add.add => (node
+      (Nat => (node
+        (* => (node (* => (node (10 => (node #[1])) (20 => (node #[4])))) (0 => (node (10 => (node #[2]))))))))))
+    (* => (node #[5]))
+    (Nat.add => (node (0 => (node (20 => (node #[3]))))))
+[Meta.debug] #[5, 1]
+[Meta.debug] Add.add ?m.4904 ?m.4904
+[Meta.debug] #[5]
+[Meta.debug] #[5, 1, 4, 2]
+[Meta.debug] #[1, 4, 2, 5, 3]
+[Meta.debug] #[5, 1, 4, 2]
+[Meta.debug] #[5, 4]
+-/
+#guard_msgs in
+run_meta tst1

@@ -24,6 +24,7 @@ import Lean.Eval
 import Lean.Structure
 import Lean.PrettyPrinter
 import Lean.CoreM
+import Lean.ReservedNameAction
 import Lean.InternalExceptionId
 import Lean.Server
 import Lean.ScopedEnvExtension
@@ -35,3 +36,5 @@ import Lean.Widget
 import Lean.Log
 import Lean.Linter
 import Lean.SubExpr
+import Lean.LabelAttribute
+import Lean.AddDecl

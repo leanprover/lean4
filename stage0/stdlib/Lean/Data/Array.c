@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Array
-// Imports: Init Init.Data.Array
+// Imports: Init.Data.Range
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_filterPairsM___spec__1(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_filterPairsM___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,6 +22,7 @@ LEAN_EXPORT lean_object* l_Array_filterPairsM___rarg(lean_object*, lean_object*,
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern uint8_t l_instInhabitedBool;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_filterPairsM___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_filterPairsM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_filterPairsM___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -288,7 +288,7 @@ if (x_28 == 0)
 uint8_t x_63; lean_object* x_64; lean_object* x_65; uint8_t x_66; 
 x_63 = l_instInhabitedBool;
 x_64 = lean_box(x_63);
-x_65 = l___private_Init_Util_0__outOfBounds___rarg(x_64);
+x_65 = l___private_Init_GetElem_0__outOfBounds___rarg(x_64);
 x_66 = lean_unbox(x_65);
 lean_dec(x_65);
 if (x_66 == 0)
@@ -394,7 +394,7 @@ if (x_39 == 0)
 uint8_t x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; 
 x_40 = l_instInhabitedBool;
 x_41 = lean_box(x_40);
-x_42 = l___private_Init_Util_0__outOfBounds___rarg(x_41);
+x_42 = l___private_Init_GetElem_0__outOfBounds___rarg(x_41);
 x_43 = lean_unbox(x_42);
 lean_dec(x_42);
 if (x_43 == 0)
@@ -838,7 +838,7 @@ uint8_t x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30;
 lean_dec(x_7);
 x_27 = l_instInhabitedBool;
 x_28 = lean_box(x_27);
-x_29 = l___private_Init_Util_0__outOfBounds___rarg(x_28);
+x_29 = l___private_Init_GetElem_0__outOfBounds___rarg(x_28);
 x_30 = lean_unbox(x_29);
 lean_dec(x_29);
 if (x_30 == 0)
@@ -1151,17 +1151,13 @@ lean_dec(x_11);
 return x_15;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Array(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Array(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Range(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

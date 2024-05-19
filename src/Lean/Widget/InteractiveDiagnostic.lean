@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+prelude
 import Lean.Linter.UnusedVariables
 import Lean.Server.Utils
 import Lean.Widget.InteractiveGoal
@@ -53,6 +54,10 @@ where
       | .trace .., _ => .text "(trace)"
     tt.stripTags
 
+/-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
+def compareAsDiagnostics (a b : InteractiveDiagnostic) : Ordering :=
+  compareByUserVisible a.toDiagnostic b.toDiagnostic
+
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
@@ -91,6 +96,15 @@ private inductive EmbedFmt
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 
+/--
+Number of trace node children to display by default in the info view in order to prevent slowdowns
+from rendering.
+-/
+register_option infoview.maxTraceChildren : Nat := {
+  defValue := 50
+  descr := "Number of trace node children to display by default"
+}
+
 open MessageData in
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
@@ -114,10 +128,8 @@ where
   }
 
   go (nCtx : NamingContext) : Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,         ofFormat fmt             => withIgnoreTags fmt
-  | none,      ofPPFormat fmt           => (·.fmt) <$> fmt.pp none
-  | some ctx,  ofPPFormat fmt           => do
-    let ⟨fmt, infos⟩ ← fmt.pp (mkPPContext nCtx ctx)
+  | none,      ofFormatWithInfos ⟨fmt, _⟩ => withIgnoreTags fmt
+  | some ctx,  ofFormatWithInfos ⟨fmt, infos⟩ => do
     let t ← pushEmbed <| EmbedFmt.code (mkContextInfo nCtx ctx) infos
     return Format.tag t fmt
   | none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
@@ -129,20 +141,40 @@ where
   | ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,       group d                  => Format.group <$> go nCtx ctx d
-  | ctx,       .trace cls header children collapsed => do
-    let header := (← go nCtx ctx header).nest 4
+  | ctx,       .trace data header children => do
+    let mut header := (← go nCtx ctx header).nest 4
+    if data.startTime != 0 then
+      header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←
-      if collapsed && !children.isEmpty then
+      if data.collapsed && !children.isEmpty then
         let children := children.map fun child =>
           MessageData.withNamingContext nCtx <|
             match ctx with
             | some ctx => MessageData.withContext ctx child
             | none     => child
+        let blockSize := ctx.bind (infoview.maxTraceChildren.get? ·.opts)
+          |>.getD infoview.maxTraceChildren.defValue
+        let children := chopUpChildren data.cls blockSize children.toSubarray
         pure (.lazy children)
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
-    let e := .trace cls header collapsed nodes
+    let e := .trace data.cls header data.collapsed nodes
     return .tag (← pushEmbed e) ".\n"
+  | ctx?,     ofLazy f _          => do
+    let dyn ← f (ctx?.map (mkPPContext nCtx))
+    let some msg := dyn.get? MessageData
+      | throw <| IO.userError "MessageData.ofLazy: expected MessageData in Dynamic"
+    go nCtx ctx? msg
+
+  /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
+  chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
+      Array MessageData :=
+    if children.size > blockSize + 1 then  -- + 1 to make idempotent
+      let more := chopUpChildren cls blockSize children[blockSize:]
+      children[:blockSize].toArray.push <|
+        .trace { collapsed := true, cls }
+          f!"{children.size - blockSize} more entries..." more
+    else children
 
 partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
   if !hasWidgets then
@@ -167,7 +199,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   fmtToTT fmt indent
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do
+def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) :
+    BaseIO InteractiveDiagnostic := do
   let low : Lsp.Position := text.leanPosToLspPos m.pos
   let fullHigh := text.leanPosToLspPos <| m.endPos.getD m.pos
   let high : Lsp.Position := match m.endPos with
@@ -189,10 +222,9 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     if m.data.isDeprecationWarning then some #[.deprecated]
     else if m.data.isUnusedVariableWarning then some #[.unnecessary]
     else none
-  let message ← try
-      msgToInteractive m.data hasWidgets
-    catch ex =>
-      pure <| TaggedText.text s!"[error when printing message: {ex.toString}]"
+  let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
+    | .ok msg => msg
+    | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
   pure { range, fullRange? := some fullRange, severity?, source?, message, tags? }
 
 end Lean.Widget

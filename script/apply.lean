@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sebastian Ullrich
+-/
 import Lean.Runtime
 
 abbrev M := ReaderT IO.FS.Stream IO
@@ -16,7 +21,7 @@ def mkTypedefFn (i : Nat) : M Unit := do
   emit s!"typedef obj* (*fn{i})({args}); // NOLINT\n"
   emit s!"#define FN{i}(f) reinterpret_cast<fn{i}>(lean_closure_fun(f))\n"
 
-def genSeq (n : Nat) (f : Nat → String) (sep := ", ") : String := 
+def genSeq (n : Nat) (f : Nat → String) (sep := ", ") : String :=
   List.range n |>.map f |>.intersperse sep |> .join
 
 -- make string: "obj* a1, obj* a2, ..., obj* an"

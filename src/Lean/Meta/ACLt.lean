@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Meta.DiscrTree
@@ -49,7 +50,7 @@ mutual
    - We ignore metadata.
    - We ignore universe parameterst at constants.
 -/
-unsafe def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool :=
+partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
   lt a b
 where
   reduce (e : Expr) : MetaM Expr := do
@@ -65,7 +66,9 @@ where
       | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do
-    if ptrAddrUnsafe a == ptrAddrUnsafe b then
+    if a == b then
+      -- We used to have an "optimization" using only pointer equality.
+      -- This was a bad idea, `==` is often much cheaper than `acLt`.
       return false
     -- We ignore metadata
     else if a.isMData then
@@ -83,6 +86,16 @@ where
     else
       lt a₂ b₂
 
+  getParamsInfo (f : Expr) (numArgs : Nat) : MetaM (Array ParamInfo) := do
+    -- Ensure `f` does not have loose bound variables. This may happen in
+    -- since we go inside binders without extending the local context.
+    -- See `lexSameCtor` and `allChildrenLt`
+    -- See issue #3705.
+    if f.hasLooseBVars then
+      return #[]
+    else
+      return (← getFunInfoNArgs f numArgs).paramInfo
+
   ltApp (a b : Expr) : MetaM Bool := do
     let aFn := a.getAppFn
     let bFn := b.getAppFn
@@ -98,7 +111,7 @@ where
       else if aArgs.size > bArgs.size then
         return false
       else
-        let infos := (← getFunInfoNArgs aFn aArgs.size).paramInfo
+        let infos ← getParamsInfo aFn aArgs.size
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
@@ -136,7 +149,7 @@ where
     | .proj _ _ e ..    => lt e b
     | .app ..           =>
       a.withApp fun f args => do
-        let infos := (← getFunInfoNArgs f args.size).paramInfo
+        let infos ← getParamsInfo f args.size
         for i in [:infos.size] do
           -- We ignore instance implicit arguments during comparison
           if !infos[i]!.isInstImplicit then
@@ -175,7 +188,8 @@ end
 
 end ACLt
 
-@[implemented_by ACLt.main, inherit_doc ACLt.main]
-opaque Expr.acLt : Expr → Expr → (mode : ACLt.ReduceMode := .none) → MetaM Bool
+@[inherit_doc ACLt.main]
+def acLt (a b : Expr) (mode : ACLt.ReduceMode := .none) : MetaM Bool :=
+  ACLt.main a b mode
 
 end Lean.Meta

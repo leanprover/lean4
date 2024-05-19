@@ -3,6 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Control.StateRef
+import Init.Data.Array.BinSearch
+import Init.Data.Stream
 import Lean.Data.HashMap
 import Lean.ImportingFlag
 import Lean.Data.SMap
@@ -205,8 +209,13 @@ def getModuleIdxFor? (env : Environment) (declName : Name) : Option ModuleIdx :=
 
 def isConstructor (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | ConstantInfo.ctorInfo _ => true
-  | _                       => false
+  | some (.ctorInfo _) => true
+  | _                  => false
+
+def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
+  match env.find? declName with
+  | some (.defnInfo { safety := .safe, .. }) => true
+  | _ => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)
@@ -226,6 +235,7 @@ inductive KernelException where
   | exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
   | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
   | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
+  | thmTypeIsNotProp (env : Environment) (name : Name) (type : Expr)
   | other            (msg : String)
   | deterministicTimeout
   | excessiveMemory
@@ -236,7 +246,7 @@ namespace Environment
 
 /-- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
+opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration) : Except KernelException Environment
 
 end Environment
 
@@ -766,6 +776,33 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
     }
 
 /--
+Return `true` if `cinfo₁` and `cinfo₂` are theorems with the same name, universe parameters,
+and types. We allow different modules to prove the same theorem.
+
+Motivation: We want to generate equational theorems on demand and potentially
+in different files, and we want them to have non-private names.
+We may add support for other kinds of definitions in the future. For now, theorems are
+sufficient for our purposes.
+
+We may have to revise this design decision and eagerly generate equational theorems when
+we implement the module system.
+
+Remark: we do not check whether the theorem `value` field match. This feature is useful and
+ensures the proofs for equational theorems do not need to be identical. This decision
+relies on the fact that theorem types are propositions, we have proof irrelevance,
+and theorems are (mostly) opaque in Lean. For `Acc.rec`, we may unfold theorems
+during type-checking, but we are assuming this is not an issue in practice,
+and we are planning to address this issue in the future.
+-/
+private def equivInfo (cinfo₁ cinfo₂ : ConstantInfo) : Bool := Id.run do
+  let .thmInfo tval₁ := cinfo₁ | false
+  let .thmInfo tval₂ := cinfo₂ | false
+  return tval₁.name == tval₂.name
+    && tval₁.type == tval₂.type
+    && tval₁.levelParams == tval₂.levelParams
+    && tval₁.all == tval₂.all
+
+/--
   Construct environment from `importModulesCore` results.
 
   If `leakEnv` is true, we mark the environment as persistent, which means it
@@ -783,11 +820,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
   for h:modIdx in [0:s.moduleData.size] do
     let mod := s.moduleData[modIdx]'h.upper
     for cname in mod.constNames, cinfo in mod.constants do
-      match constantMap.insert' cname cinfo with
-      | (constantMap', replaced) =>
+      match constantMap.insertIfNew cname cinfo with
+      | (constantMap', cinfoPrev?) =>
         constantMap := constantMap'
-        if replaced then
-          throwAlreadyImported s const2ModIdx modIdx cname
+        if let some cinfoPrev := cinfoPrev? then
+          -- Recall that the map has not been modified when `cinfoPrev? = some _`.
+          unless equivInfo cinfoPrev cinfo do
+            throwAlreadyImported s const2ModIdx modIdx cname
       const2ModIdx := const2ModIdx.insert cname modIdx
     for cname in mod.extraConstNames do
       const2ModIdx := const2ModIdx.insert cname modIdx
@@ -861,6 +900,55 @@ builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet �
       SMap.fromHashMap map |>.switch
     addEntryFn      := fun s n => s.insert n
   }
+
+structure Kernel.Diagnostics where
+  /-- Number of times each declaration has been unfolded by the kernel. -/
+  unfoldCounter : PHashMap Name Nat := {}
+  /-- If `enabled = true`, kernel records declarations that have been unfolded. -/
+  enabled : Bool := false
+  deriving Inhabited
+
+/--
+Extension for storting diagnostic information.
+
+Remark: We store kernel diagnostic information in an environment extension to simplify
+the interface with the kernel implemented in C/C++. Thus, we can only track
+declarations in methods, such as `addDecl`, which return a new environment.
+`Kernel.isDefEq` and `Kernel.whnf` do not update the statistics. We claim
+this is ok since these methods are mainly used for debugging.
+-/
+builtin_initialize diagExt : EnvExtension Kernel.Diagnostics ←
+  registerEnvExtension (pure {})
+
+@[export lean_kernel_diag_is_enabled]
+def Kernel.Diagnostics.isEnabled (d : Diagnostics) : Bool :=
+  d.enabled
+
+/-- Enables/disables kernel diagnostics. -/
+def Kernel.enableDiag (env : Environment) (flag : Bool) : Environment :=
+  diagExt.modifyState env fun s => { s with enabled := flag }
+
+def Kernel.isDiagnosticsEnabled (env : Environment) : Bool :=
+  diagExt.getState env |>.enabled
+
+def Kernel.resetDiag (env : Environment) : Environment :=
+  diagExt.modifyState env fun s => { s with unfoldCounter := {} }
+
+@[export lean_kernel_record_unfold]
+def Kernel.Diagnostics.recordUnfold (d : Diagnostics) (declName : Name) : Diagnostics :=
+  if d.enabled then
+    let cNew := if let some c := d.unfoldCounter.find? declName then c + 1 else 1
+    { d with unfoldCounter := d.unfoldCounter.insert declName cNew }
+  else
+    d
+
+@[export lean_kernel_get_diag]
+def Kernel.getDiagnostics (env : Environment) : Diagnostics :=
+  diagExt.getState env
+
+@[export lean_kernel_set_diag]
+def Kernel.setDiagnostics (env : Environment) (diag : Diagnostics) : Environment :=
+  diagExt.setState env diag
 
 namespace Environment
 

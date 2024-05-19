@@ -41,22 +41,123 @@ def tstGetLine3 (str : String) : IO Unit := do
     IO.print "done";
     pure ()
 
+/--
+info: abc
+
+
+
+done
+-/
+#guard_msgs in
 #eval tstGetLine3 "abc"
 
+/--
+info: 40
+41
+αααααααααααααααααααααααααααααααααααααααα
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'α' 40)
+
+/--
+info: 1
+2
+a
+-/
+#guard_msgs in
 #eval tstGetLine "a"
+
+/--
+info: 0
+1
+-/
+#guard_msgs in
 #eval tstGetLine ""
+
+/--
+info: 20
+21
+αααααααααααααααααααα
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'α' 20)
+
+/--
+info: 61
+62
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 61)
+
+/--
+info: 61
+62
+ααααααααααααααααααααααααααααααααααααααααααααααααααααααααααααα
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'α' 61)
+
+/--
+info: 62
+63
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 62)
+
+/--
+info: 63
+64
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 63)
+
+/--
+info: 64
+65
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 64)
+
+/--
+info: 65
+66
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 65)
+
+/--
+info: 66
+67
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 66)
+
+/--
+info: 128
+129
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+-/
+#guard_msgs in
 #eval tstGetLine ("".pushn 'a' 128)
 
+/-- info: -/
+#guard_msgs in
 #eval tstGetLine2 ("".pushn 'α' 20) ("".pushn 'β' 20)
+
+/-- info: -/
+#guard_msgs in
 #eval tstGetLine2 ("".pushn 'α' 40) ("".pushn 'β' 40)
+
+/-- info: -/
+#guard_msgs in
 #eval tstGetLine2 ("".pushn 'a' 61) ("".pushn 'b' 61)
+
+/-- info: -/
+#guard_msgs in
 #eval tstGetLine2 ("".pushn 'a' 61) ("".pushn 'b' 62)

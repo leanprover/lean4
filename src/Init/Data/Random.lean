@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.System.IO
-import Init.Data.Int
 universe u
 
 /-!
@@ -42,17 +41,15 @@ instance : Repr StdGen where
 
 def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>
-    let s1   : Int := s1
-    let s2   : Int := s2
-    let k    : Int := s1 / 53668
-    let s1'  : Int := 40014 * ((s1 : Int) - k * 53668) - k * 12211
-    let s1'' : Int := if s1' < 0 then s1' + 2147483563 else s1'
-    let k'   : Int := s2 / 52774
-    let s2'  : Int := 40692 * ((s2 : Int) - k' * 52774) - k' * 3791
-    let s2'' : Int := if s2' < 0 then s2' + 2147483399 else s2'
-    let z    : Int := s1'' - s2''
-    let z'   : Int := if z < 1 then z + 2147483562 else z % 2147483562
-    (z'.toNat, ⟨s1''.toNat, s2''.toNat⟩)
+    let k    : Int := Int.ofNat (s1 / 53668)
+    let s1'  : Int := 40014 * (Int.ofNat s1 - k * 53668) - k * 12211
+    let s1'' : Nat := if s1' < 0 then (s1' + 2147483563).toNat else s1'.toNat
+    let k'   : Int := Int.ofNat (s2 / 52774)
+    let s2'  : Int := 40692 * (Int.ofNat s2 - k' * 52774) - k' * 3791
+    let s2'' : Nat := if s2' < 0 then (s2' + 2147483399).toNat else s2'.toNat
+    let z    : Int := Int.ofNat s1'' - Int.ofNat s2''
+    let z'   : Nat := if z < 1 then (z + 2147483562).toNat else z.toNat % 2147483562
+    (z', ⟨s1'', s2''⟩)
 
 def stdSplit : StdGen → StdGen × StdGen
   | g@⟨s1, s2⟩ =>

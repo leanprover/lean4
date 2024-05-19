@@ -3,6 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.List.BasicAux
 import Lean.Expr
 import Lean.Environment
 import Lean.Attributes
@@ -64,12 +66,13 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
     descr := "builtin and foreign functions"
     getParam := fun _ stx => syntaxToExternAttrData stx
     afterSet := fun declName _ => do
-      let mut env ← getEnv
-      if env.isProjectionFn declName || env.isConstructor declName then do
-        env ← ofExcept <| addExtern env declName
+      let env ← getEnv
+      if env.isProjectionFn declName || env.isConstructor declName then
+        if let some (.thmInfo ..) := env.find? declName then
+          -- We should not mark theorems as extern
+          return ()
+        let env ← ofExcept <| addExtern env declName
         setEnv env
-      else
-        pure ()
   }
 
 @[export lean_get_extern_attr_data]

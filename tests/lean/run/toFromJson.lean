@@ -2,13 +2,13 @@ import Lean
 
 open Lean
 
-declare_syntax_cat json
-syntax str : json
-syntax num : json
-syntax "{" (ident ": " json),* "}" : json
-syntax "[" json,* "]" : json
+declare_syntax_cat mjson
+syntax str : mjson
+syntax num : mjson
+syntax "{" (ident ": " mjson),* "}" : mjson
+syntax "[" mjson,* "]" : mjson
 
-syntax "json " json : term
+syntax "json " mjson : term
 
 /- declare a micro json parser, so we can write our tests in a more legible way. -/
 open Json in macro_rules
@@ -48,8 +48,8 @@ structure Foo where
   y : String
 deriving ToJson, FromJson, Repr, BEq
 
-#eval checkToJson { x := 1, y := "bla" : Foo} (json { y : "bla", x : 1 })
-#eval checkRoundTrip { x := 1, y := "bla" : Foo }
+run_meta checkToJson { x := 1, y := "bla" : Foo} (json { y : "bla", x : 1 })
+run_meta checkRoundTrip { x := 1, y := "bla" : Foo }
 
 -- set_option trace.Elab.command true
 structure WInfo where
@@ -67,62 +67,61 @@ inductive E
 | Z
 deriving ToJson, FromJson, Repr, BEq
 
-#eval checkToJson (E.W { a := 2, b := 3}) (json { W : { a : 2, b : 3 } })
-#eval checkRoundTrip (E.W { a := 2, b := 3 })
+run_meta checkToJson (E.W { a := 2, b := 3}) (json { W : { a : 2, b : 3 } })
+run_meta checkRoundTrip (E.W { a := 2, b := 3 })
 
-#eval checkToJson (E.WAlt 2 3) (json { WAlt : { a : 2, b : 3 } })
-#eval checkRoundTrip (E.WAlt 2 3)
+run_meta checkToJson (E.WAlt 2 3) (json { WAlt : { a : 2, b : 3 } })
+run_meta checkRoundTrip (E.WAlt 2 3)
 
-#eval checkToJson (E.X 2 3) (json { X : [2, 3] })
-#eval checkRoundTrip (E.X 2 3)
+run_meta checkToJson (E.X 2 3) (json { X : [2, 3] })
+run_meta checkRoundTrip (E.X 2 3)
 
-#eval checkToJson (E.Y 4) (json { Y : 4 })
-#eval checkRoundTrip (E.Y 4)
+run_meta checkToJson (E.Y 4) (json { Y : 4 })
+run_meta checkRoundTrip (E.Y 4)
 
-#eval checkToJson (E.YAlt 5) (json { YAlt : { a : 5 } })
-#eval checkRoundTrip (E.YAlt 5)
+run_meta checkToJson (E.YAlt 5) (json { YAlt : { a : 5 } })
+run_meta checkRoundTrip (E.YAlt 5)
 
-#eval checkToJson E.Z (json "Z")
-#eval checkRoundTrip E.Z
+run_meta checkToJson E.Z (json "Z")
+run_meta checkRoundTrip E.Z
 
 inductive ERec
 | mk : Nat → ERec
 | W : ERec → ERec
 deriving ToJson, FromJson, Repr, BEq
 
-#eval checkToJson (ERec.W (ERec.mk 6)) (json { W : { mk : 6 }})
-#eval checkRoundTrip (ERec.mk 7)
-#eval checkRoundTrip (ERec.W (ERec.mk 8))
+run_meta checkToJson (ERec.W (ERec.mk 6)) (json { W : { mk : 6 }})
+run_meta checkRoundTrip (ERec.mk 7)
+run_meta checkRoundTrip (ERec.W (ERec.mk 8))
 
 inductive ENest
 | mk : Nat → ENest
 | W : (Array ENest) → ENest
 deriving ToJson, FromJson, Repr, BEq
 
-#eval checkToJson (ENest.W #[ENest.mk 9]) (json { W : [{ mk : 9 }]})
-#eval checkRoundTrip (ENest.mk 10)
-#eval checkRoundTrip (ENest.W #[ENest.mk 11])
+run_meta checkToJson (ENest.W #[ENest.mk 9]) (json { W : [{ mk : 9 }]})
+run_meta checkRoundTrip (ENest.mk 10)
+run_meta checkRoundTrip (ENest.W #[ENest.mk 11])
 
 inductive EParam (α : Type)
 | mk : α → EParam α
 deriving ToJson, FromJson, Repr, BEq
 
-#eval checkToJson (EParam.mk 12) (json { mk : 12 })
-#eval checkToJson (EParam.mk "abcd") (json { mk : "abcd" })
-#eval checkRoundTrip (EParam.mk 13)
-#eval checkRoundTrip (EParam.mk "efgh")
+run_meta checkToJson (EParam.mk 12) (json { mk : 12 })
+run_meta checkToJson (EParam.mk "abcd") (json { mk : "abcd" })
+run_meta checkRoundTrip (EParam.mk 13)
+run_meta checkRoundTrip (EParam.mk "efgh")
 
 structure Minus where
   «i-love-lisp» : Nat
   deriving ToJson, FromJson, Repr, DecidableEq
 
-#eval checkRoundTrip { «i-love-lisp» := 1 : Minus }
-#eval checkToJson { «i-love-lisp» := 1 : Minus } (json { «i-love-lisp»: 1 })
+run_meta checkRoundTrip { «i-love-lisp» := 1 : Minus }
+run_meta checkToJson { «i-love-lisp» := 1 : Minus } (json { «i-love-lisp»: 1 })
 
 structure MinusAsk where
   «branches-ignore?» : Option (Array String)
   deriving ToJson, FromJson, Repr, DecidableEq
 
-#eval checkRoundTrip { «branches-ignore?» := #["master"] : MinusAsk }
-#eval checkToJson { «branches-ignore?» := #["master"] : MinusAsk }
-  (json { «branches-ignore» : ["master"] })
+run_meta checkRoundTrip { «branches-ignore?» := #["master"] : MinusAsk }
+run_meta checkToJson { «branches-ignore?» := #["master"] : MinusAsk } (json { «branches-ignore» : ["master"] })

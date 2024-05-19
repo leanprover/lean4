@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Reduce
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Replace
@@ -114,7 +115,7 @@ def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
     evalSepByIndentConv stx[1]
-    evalTactic (← `(tactic| all_goals (try rfl)))
+    evalTactic (← `(tactic| all_goals (try with_reducible rfl)))
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
   evalConvSeqBracketed stx[0]
@@ -162,7 +163,7 @@ private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
    let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId => mvarId.replaceTargetEq targetNew proof
-   evalTactic (← `(tactic| try rfl))
+   evalTactic (← `(tactic| try with_reducible rfl))
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
    let localDecl ← getLocalDeclFromUserName hUserName

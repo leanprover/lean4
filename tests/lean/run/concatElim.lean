@@ -43,7 +43,6 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     cases n with
     | zero   =>
       simp [lengthCons] at h
-      injection h
     | succ n =>
       have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
       have : xs.length = n := by rw [this] at h; injection h with h; injection h
@@ -76,4 +75,11 @@ def test (xs : List Nat) : IO Unit :=
     (fun xs x r => do IO.println s!"step xs: {xs} x: {x}"; r)
     xs
 
+/--
+info: step xs: [1, 2, 3] x: 4
+step xs: [1, 2] x: 3
+step xs: [1] x: 2
+step xs: [] x: 1
+-/
+#guard_msgs in
 #eval test [1, 2, 3, 4]

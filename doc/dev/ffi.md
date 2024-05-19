@@ -53,9 +53,58 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
   Its runtime value is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number (`lean_box`/`lean_unbox`).
 * A universe `Sort u`, type constructor `... → Sort u`, or proposition `p : Prop` is *irrelevant* and is either statically erased (see above) or represented as a `lean_object *` with the runtime value `lean_box(0)`
 * Any other type is represented by `lean_object *`.
-  Its runtime value is a pointer to an object of a subtype of `lean_object` (see respective declarations in `lean.h`) or the unboxed value `lean_box(cidx)` for the `cidx`th constructor of an inductive type if this constructor does not have any relevant parameters.
+  Its runtime value is a pointer to an object of a subtype of `lean_object` (see the "Inductive types" section below) or the unboxed value `lean_box(cidx)` for the `cidx`th constructor of an inductive type if this constructor does not have any relevant parameters.
 
   Example: the runtime value of `u : Unit` is always `lean_box(0)`.
+
+#### Inductive types
+
+For inductive types which are in the fallback `lean_object *` case above and not trivial constructors, the type is stored as a `lean_ctor_object`, and `lean_is_ctor` will return true. A `lean_ctor_object` stores the constructor index in the header, and the fields are stored in the `m_objs` portion of the object.
+
+The memory order of the fields is derived from the types and order of the fields in the declaration. They are ordered as follows:
+
+* Non-scalar fields stored as `lean_object *`
+* Fields of type `USize`
+* Other scalar fields, in decreasing order by size
+
+Within each group the fields are ordered in declaration order. **Warning**: Trivial wrapper types still count toward a field being treated as non-scalar for this purpose.
+
+* To access fields of the first kind, use `lean_ctor_get(val, i)` to get the `i`th non-scalar field.
+* To access `USize` fields, use `lean_ctor_get_usize(val, n+i)` to get the `i`th usize field and `n` is the total number of fields of the first kind.
+* To access other scalar fields, use `lean_ctor_get_uintN(val, off)` or `lean_ctor_get_usize(val, off)` as appropriate. Here `off` is the byte offset of the field in the structure, starting at `n*sizeof(void*)` where `n` is the number of fields of the first two kinds.
+
+For example, a structure such as
+```lean
+structure S where
+  ptr_1 : Array Nat
+  usize_1 : USize
+  sc64_1 : UInt64
+  ptr_2 : { x : UInt64 // x > 0 } -- wrappers don't count as scalars
+  sc64_2 : Float -- `Float` is 64 bit
+  sc8_1 : Bool
+  sc16_1 : UInt16
+  sc8_2 : UInt8
+  sc64_3 : UInt64
+  usize_2 : USize
+  ptr_3 : Char -- trivial wrapper around `UInt32`
+  sc32_1 : UInt32
+  sc16_2 : UInt16
+```
+would get re-sorted into the following memory order:
+
+* `S.ptr_1` - `lean_ctor_get(val, 0)`
+* `S.ptr_2` - `lean_ctor_get(val, 1)`
+* `S.ptr_3` - `lean_ctor_get(val, 2)`
+* `S.usize_1` - `lean_ctor_get_usize(val, 3)`
+* `S.usize_2` - `lean_ctor_get_usize(val, 4)`
+* `S.sc64_1` - `lean_ctor_get_uint64(val, sizeof(void*)*5)`
+* `S.sc64_2` - `lean_ctor_get_float(val, sizeof(void*)*5 + 8)`
+* `S.sc64_3` - `lean_ctor_get_uint64(val, sizeof(void*)*5 + 16)`
+* `S.sc32_1` - `lean_ctor_get_uint32(val, sizeof(void*)*5 + 24)`
+* `S.sc16_1` - `lean_ctor_get_uint16(val, sizeof(void*)*5 + 28)`
+* `S.sc16_2` - `lean_ctor_get_uint16(val, sizeof(void*)*5 + 30)`
+* `S.sc8_1` - `lean_ctor_get_uint8(val, sizeof(void*)*5 + 32)`
+* `S.sc8_2` - `lean_ctor_get_uint8(val, sizeof(void*)*5 + 33)`
 
 ### Borrowing
 
@@ -111,6 +160,15 @@ if (lean_io_result_is_ok(res)) {
 lean_io_mark_end_initialization();
 ```
 
+In addition, any other thread not spawned by the Lean runtime itself must be initialized for Lean use by calling
+```c
+void lean_initialize_thread();
+```
+and should be finalized in order to free all thread-local resources by calling
+```c
+void lean_finalize_thread();
+```
+
 ## `@[extern]` in the Interpreter
 
 The interpreter can run Lean declarations for which symbols are available in loaded shared libraries, which includes `@[extern]` declarations.
@@ -121,4 +179,4 @@ Thus to e.g. run `#eval` on such a declaration, you need to
 Note that it is not sufficient to load the foreign library containing the external symbol because the interpreter depends on code that is emitted for each `@[extern]` declaration.
 Thus it is not possible to interpret an `@[extern]` declaration in the same file.
 
-See `tests/compiler/foreign` for an example.
+See [`tests/compiler/foreign`](https://github.com/leanprover/lean4/tree/master/tests/compiler/foreign/) for an example.

@@ -3,9 +3,11 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Revert
+import Lean.Util.ForEachExpr
 
 namespace Lean.Meta
 
@@ -22,9 +24,14 @@ def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign (mkApp newMVar val)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assert]
+@[deprecated MVarId.assert (since := "2022-07-15")]
 def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
   mvarId.assert name type val
+
+/-- Add the hypothesis `h : t`, given `v : t`, and return the new `FVarId`. -/
+def _root_.Lean.MVarId.note (g : MVarId) (h : Name) (v : Expr) (t? : Option Expr := .none) :
+    MetaM (FVarId × MVarId) := do
+  (← g.assert h (← match t? with | some t => pure t | none => inferType v) v).intro1P
 
 /--
   Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.
@@ -39,7 +46,7 @@ def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val
     mvarId.assign newMVar
     return newMVar.mvarId!
 
-@[deprecated MVarId.define]
+@[deprecated MVarId.define (since := "2022-07-15")]
 def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
   mvarId.define name type val
 
@@ -59,7 +66,7 @@ def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (
     mvarId.assign (mkApp2 newMVar val rflPrf)
     return newMVar.mvarId!
 
-@[deprecated MVarId.assertExt]
+@[deprecated MVarId.assertExt (since := "2022-07-15")]
 def assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
   mvarId.assertExt name type val hName
 
@@ -83,7 +90,7 @@ def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName
     subst := subst.insert f (mkFVar fNew)
   return { fvarId := fvarIdNew, mvarId, subst }
 
-@[deprecated MVarId.assertAfter]
+@[deprecated MVarId.assertAfter (since := "2022-07-15")]
 def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
   mvarId.assertAfter fvarId userName type val
 
@@ -109,8 +116,39 @@ def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis
     mvarId.assign val
     mvarNew.mvarId!.introNP hs.size
 
-@[deprecated MVarId.assertHypotheses]
+@[deprecated MVarId.assertHypotheses (since := "2022-07-15")]
 def assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
   mvarId.assertHypotheses hs
+
+
+/--
+Replace hypothesis `hyp` in goal `g` with `proof : typeNew`.
+The new hypothesis is given the same user name as the original,
+it attempts to avoid reordering hypotheses, and the original is cleared if possible.
+-/
+-- adapted from Lean.Meta.replaceLocalDeclCore
+def _root_.Lean.MVarId.replace (g : MVarId) (hyp : FVarId) (proof : Expr) (typeNew : Option Expr := none) :
+    MetaM AssertAfterResult :=
+  g.withContext do
+    let typeNew ← match typeNew with
+    | some t => pure t
+    | none => inferType proof
+    let ldecl ← hyp.getDecl
+    -- `typeNew` may contain variables that occur after `hyp`.
+    -- Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed
+    -- at the position we are inserting it.
+    let (_, ldecl') ← findMaxFVar typeNew |>.run ldecl
+    let result ← g.assertAfter ldecl'.fvarId ldecl.userName typeNew proof
+    (return { result with mvarId := ← result.mvarId.clear hyp }) <|> pure result
+where
+  /-- Finds the `LocalDecl` for the FVar in `e` with the highest index. -/
+  findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
+    e.forEach' fun e => do
+      if e.isFVar then
+        let ldecl' ← e.fvarId!.getDecl
+        modify fun ldecl => if ldecl'.index > ldecl.index then ldecl' else ldecl
+        return false
+      else
+        return e.hasFVar
 
 end Lean.Meta

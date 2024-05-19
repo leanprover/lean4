@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Level
-// Imports: Init Lean.Log Lean.Parser.Level Lean.Elab.Exception Lean.Elab.AutoBound
+// Imports: Lean.Log Lean.Parser.Level Lean.Elab.Exception Lean.Elab.AutoBound
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -67,6 +67,7 @@ lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(le
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instAddMessageContextLevelElabM___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_elabLevel___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -146,9 +147,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_2
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_277____closed__6;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__8;
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -914,17 +915,16 @@ x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l_Nat_repr(x_6);
+x_8 = l___private_Init_Data_Repr_0__Nat_reprFast(x_6);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
+x_10 = l_Lean_MessageData_ofFormat(x_9);
 x_11 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__3;
-x_12 = lean_alloc_ctor(7, 2, 0);
+x_12 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
 x_13 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__5;
-x_14 = lean_alloc_ctor(7, 2, 0);
+x_14 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_throwError___rarg(x_2, x_3, x_14);
@@ -1048,17 +1048,16 @@ lean_dec(x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l_Nat_repr(x_6);
+x_8 = l___private_Init_Data_Repr_0__Nat_reprFast(x_6);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
+x_10 = l_Lean_MessageData_ofFormat(x_9);
 x_11 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__3;
-x_12 = lean_alloc_ctor(7, 2, 0);
+x_12 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
 x_13 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__5;
-x_14 = lean_alloc_ctor(7, 2, 0);
+x_14 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4(x_14, x_2, x_3);
@@ -1629,11 +1628,11 @@ lean_dec(x_52);
 lean_dec(x_8);
 x_56 = l_Lean_MessageData_ofName(x_51);
 x_57 = l_Lean_Elab_Level_elabLevel___closed__19;
-x_58 = lean_alloc_ctor(7, 2, 0);
+x_58 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_58, 0, x_57);
 lean_ctor_set(x_58, 1, x_56);
 x_59 = l_Lean_Elab_Level_elabLevel___closed__21;
-x_60 = lean_alloc_ctor(7, 2, 0);
+x_60 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
 x_61 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5(x_60, x_2, x_3);
@@ -1673,11 +1672,11 @@ lean_dec(x_53);
 lean_dec(x_52);
 x_69 = l_Lean_MessageData_ofName(x_51);
 x_70 = l_Lean_Elab_Level_elabLevel___closed__19;
-x_71 = lean_alloc_ctor(7, 2, 0);
+x_71 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_71, 0, x_70);
 lean_ctor_set(x_71, 1, x_69);
 x_72 = l_Lean_Elab_Level_elabLevel___closed__21;
-x_73 = lean_alloc_ctor(7, 2, 0);
+x_73 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_73, 0, x_71);
 lean_ctor_set(x_73, 1, x_72);
 x_74 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5(x_73, x_2, x_3);
@@ -2449,11 +2448,11 @@ lean_dec(x_255);
 lean_dec(x_212);
 x_259 = l_Lean_MessageData_ofName(x_254);
 x_260 = l_Lean_Elab_Level_elabLevel___closed__19;
-x_261 = lean_alloc_ctor(7, 2, 0);
+x_261 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_261, 0, x_260);
 lean_ctor_set(x_261, 1, x_259);
 x_262 = l_Lean_Elab_Level_elabLevel___closed__21;
-x_263 = lean_alloc_ctor(7, 2, 0);
+x_263 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_263, 0, x_261);
 lean_ctor_set(x_263, 1, x_262);
 x_264 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5(x_263, x_216, x_3);
@@ -2495,11 +2494,11 @@ lean_dec(x_256);
 lean_dec(x_255);
 x_272 = l_Lean_MessageData_ofName(x_254);
 x_273 = l_Lean_Elab_Level_elabLevel___closed__19;
-x_274 = lean_alloc_ctor(7, 2, 0);
+x_274 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_274, 0, x_273);
 lean_ctor_set(x_274, 1, x_272);
 x_275 = l_Lean_Elab_Level_elabLevel___closed__21;
-x_276 = lean_alloc_ctor(7, 2, 0);
+x_276 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_276, 0, x_274);
 lean_ctor_set(x_276, 1, x_275);
 x_277 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__5(x_276, x_216, x_3);
@@ -3022,7 +3021,6 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Level(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Exception(uint8_t builtin, lean_object*);
@@ -3032,9 +3030,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Level(uint8_t builtin, lean_object
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3,6 +3,9 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.Ord
+import Init.Data.Array.DecidableEq
 import Lean.Data.Rat
 
 namespace Lean.Meta.Linear
@@ -77,8 +80,9 @@ def Poly.add (e₁ e₂ : Poly) : Poly :=
         go i₁ (i₂+1) (r.push (e₂.get ⟨i₂, h₂⟩))
       else
         { val := r }
+    termination_by (e₁.size - i₁, e₂.size - i₂)
+    decreasing_by all_goals decreasing_with decreasing_trivial_pre_omega
   go 0 0 #[]
-termination_by go i j _ => (e₁.size - i, e₂.size - j)
 
 def Poly.combine (d₁ : Int) (e₁ : Poly) (d₂ : Int) (e₂ : Poly) : Poly :=
   let rec go (i₁ i₂ : Nat) (r : Array (Int × Var)) : Poly :=
@@ -104,8 +108,9 @@ def Poly.combine (d₁ : Int) (e₁ : Poly) (d₂ : Int) (e₂ : Poly) : Poly :=
         go i₁ (i₂+1) (r.push (d₂*c₂, x₂))
       else
         { val := r }
+    termination_by (e₁.size - i₁, e₂.size - i₂)
+    decreasing_by all_goals decreasing_with decreasing_trivial_pre_omega
   go 0 0 #[]
-termination_by go i j _ => (e₁.size - i, e₂.size - j)
 
 def Poly.eval? (e : Poly) (a : Assignment) : Option Rat := Id.run do
   let mut r := 0

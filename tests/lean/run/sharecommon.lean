@@ -2,7 +2,7 @@ import Lean.Util.ShareCommon
 
 open Lean.ShareCommon
 def check (b : Bool) : ShareCommonT IO Unit := do
-unless b do throw $ IO.userError "check failed"
+  unless b do throw $ IO.userError "check failed"
 
 unsafe def tst1 : ShareCommonT IO Unit := do
 let x := [1]
@@ -19,6 +19,12 @@ IO.println x
 IO.println y
 IO.println z
 
+/--
+info: [1]
+[1]
+[2]
+-/
+#guard_msgs in
 #eval tst1.run
 
 unsafe def tst2 : ShareCommonT IO Unit := do
@@ -36,6 +42,12 @@ IO.println x
 IO.println y
 IO.println z
 
+/--
+info: [1, 2]
+[1, 2]
+[2]
+-/
+#guard_msgs in
 #eval tst2.run
 
 structure Foo :=
@@ -63,6 +75,8 @@ check $
 IO.println o1.x
 pure ()
 
+/-- info: 10 -/
+#guard_msgs in
 #eval tst3.run
 
 unsafe def tst4 : ShareCommonT IO Unit := do
@@ -81,6 +95,12 @@ IO.println x
 IO.println y
 IO.println z
 
+/--
+info: [hello]
+[hello]
+[world]
+-/
+#guard_msgs in
 #eval tst4.run
 
 @[noinline] def mkList1 (x : Nat) : List Nat := List.replicate x x
@@ -116,6 +136,12 @@ check $
   ptrAddrUnsafe c[0]! == ptrAddrUnsafe c[1]!
 pure ()
 
+/--
+info: #[[3, 3, 3], [3, 3, 3], [4, 4, 4, 4]]
+#[[3, 3, 3], [3, 3, 3], [4, 4, 4, 4]]
+#[[4, 4, 4, 4], [4, 4, 4, 4], [5, 5, 5, 5, 5]]
+-/
+#guard_msgs in
 #eval tst5.run
 
 @[noinline] def mkByteArray1 (x : Nat) : ByteArray :=
@@ -144,4 +170,10 @@ check $ ptrAddrUnsafe a == ptrAddrUnsafe b
 check $ ptrAddrUnsafe a != ptrAddrUnsafe c
 pure ()
 
+/--
+info: [[2, 3, 4]]
+[[2, 3, 4]]
+[[3, 4, 5]]
+-/
+#guard_msgs in
 #eval (tst6 2).run

@@ -1,13 +1,64 @@
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
- [{"label": "bin", "kind": 21, "detail": "Type 1"},
-  {"label": "binop%", "kind": 14, "detail": "keyword"},
-  {"label": "binop_lazy%", "kind": 14, "detail": "keyword"},
-  {"label": "binrel%", "kind": 14, "detail": "keyword"},
-  {"label": "binrel_no_prop%", "kind": 14, "detail": "keyword"}],
+ [{"sortText": "0",
+   "label": "bin",
+   "kind": 21,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}},
+    "id": {"const": {"declName": "bin"}}}},
+  {"sortText": "1",
+   "label": "binder_predicate",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}}}},
+  {"sortText": "2",
+   "label": "binop%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}}}},
+  {"sortText": "3",
+   "label": "binop_lazy%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}}}},
+  {"sortText": "4",
+   "label": "binrel%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}}}},
+  {"sortText": "5",
+   "label": "binrel_no_prop%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 10}}}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 13}}
-{"items": [{"label": "binop_lazy%", "kind": 14, "detail": "keyword"}],
+{"items":
+ [{"sortText": "0",
+   "label": "binop_lazy%",
+   "kind": 14,
+   "detail": "keyword",
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///keywordCompletion.lean"},
+     "position": {"line": 4, "character": 13}}}}],
  "isIncomplete": true}

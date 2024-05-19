@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
@@ -52,7 +53,7 @@ def _root_.Lean.MVarId.revertAfter (mvarId : MVarId) (fvarId : FVarId) : MetaM (
     let fvarIds := (← getLCtx).foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
     mvarId.revert fvarIds (preserveOrder := true) (clearAuxDeclsInsteadOfRevert := true)
 
-@[deprecated MVarId.revert]
+@[deprecated MVarId.revert (since := "2022-07-15")]
 def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := false) : MetaM (Array FVarId × MVarId) := do
   mvarId.revert fvarIds preserveOrder
 

@@ -11,16 +11,9 @@ if ! command -v elan > /dev/null; then
    exit 0
 fi
 
-if [ "`uname`" = Darwin ]; then
-  sed_i() { sed -i '' "$@"; }
-else
-  sed_i() { sed -i "$@"; }
-fi
-
 ./clean.sh
-elan run leanprover/lean4:nightly-2022-06-30 lake new foo
+elan run --install leanprover/lean4:v4.0.0 lake new foo
 cd foo
-elan run leanprover/lean4:nightly-2022-06-30 lake build +Foo:olean | grep -m1 Foo.olean
+elan run leanprover/lean4:v4.0.0 lake build +Foo:olean -v | grep --color Foo.olean
 rm lean-toolchain
-sed_i 's/defaultTarget/default_target/g' lakefile.lean
-${LAKE:-../../../.lake/build/bin/lake} build -v | grep -m1 Foo.olean
+${LAKE:-../../../.lake/build/bin/lake} build -v | grep --color Foo.olean

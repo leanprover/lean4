@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Basic
 
 namespace Lean
@@ -20,6 +21,7 @@ inductive TransformStep where
   For `pre`, this means visiting the children of the expression.
   For `post`, this is equivalent to returning `done`. -/
   | continue (e? : Option Expr := none)
+  deriving Inhabited
 
 namespace Core
 
@@ -134,6 +136,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | _                  => visitPost e
   visit input |>.run
 
+-- TODO: add options to distinguish zeta and zetaDelta reduction
 def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do
     match e with

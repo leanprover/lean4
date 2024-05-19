@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.RecursorInfo
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Util
@@ -206,7 +207,7 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
           | _ =>
            throwTacticEx `induction mvarId "major premise is not of the form (C ...)"
 
-@[deprecated MVarId.induction]
+@[deprecated MVarId.induction (since := "2022-07-15")]
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.induction majorFVarId recursorName givenNames
 

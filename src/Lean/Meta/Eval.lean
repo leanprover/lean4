@@ -3,6 +3,8 @@ Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Leonardo de Moura
 -/
+prelude
+import Lean.AddDecl
 import Lean.Meta.Check
 
 namespace Lean.Meta

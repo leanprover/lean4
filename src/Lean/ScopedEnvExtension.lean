@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Environment
 import Lean.Data.NameTrie
 import Lean.Attributes
@@ -145,11 +146,15 @@ def ScopedEnvExtension.addLocalEntry (ext : ScopedEnvExtension α β σ) (env : 
     let top := { top with state := ext.descr.addEntry top.state b }
     ext.ext.setState env { s with stateStack := top :: states }
 
-def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : ScopedEnvExtension α β σ) (b : β) (kind := AttributeKind.global) : m Unit := do
+def ScopedEnvExtension.addCore (env : Environment) (ext : ScopedEnvExtension α β σ) (b : β) (kind : AttributeKind) (namespaceName : Name) : Environment :=
   match kind with
-  | AttributeKind.global => modifyEnv (ext.addEntry · b)
-  | AttributeKind.local  => modifyEnv (ext.addLocalEntry · b)
-  | AttributeKind.scoped => modifyEnv (ext.addScopedEntry · (← getCurrNamespace) b)
+  | AttributeKind.global => ext.addEntry env b
+  | AttributeKind.local  => ext.addLocalEntry env b
+  | AttributeKind.scoped => ext.addScopedEntry env namespaceName b
+
+def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : ScopedEnvExtension α β σ) (b : β) (kind := AttributeKind.global) : m Unit := do
+  let ns ← getCurrNamespace
+  modifyEnv (ext.addCore · b kind ns)
 
 def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
   match ext.ext.getState env |>.stateStack with

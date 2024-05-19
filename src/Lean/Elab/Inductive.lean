@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.ForEachExprWhere
 import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
@@ -23,6 +24,11 @@ open Meta
 
 builtin_initialize
   registerTraceClass `Elab.inductive
+
+register_builtin_option inductive.autoPromoteIndices : Bool := {
+    defValue := true
+    descr    := "Promote indices to parameters in inductive types whenever possible."
+  }
 
 def checkValidInductiveModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
@@ -318,7 +324,7 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           | some ctorType =>
             let type ← Term.elabType ctorType
             trace[Elab.inductive] "elabType {ctorView.declName} : {type} "
-            Term.synthesizeSyntheticMVars (mayPostpone := true)
+            Term.synthesizeSyntheticMVars (postpone := .yes)
             let type ← instantiateMVars type
             let type ← checkParamOccs type
             forallTelescopeReducing type fun _ resultingType => do
@@ -524,14 +530,14 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
     defValue := true,
     group    := "bootstrap",
-    descr    := "by default the `inductive/structure commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator"
+    descr    := "by default the `inductive`/`structure` commands report an error if the resulting universe is not zero, but may be zero for some universe parameters. Reason: unless this type is a subsingleton, it is hardly what the user wants since it can only eliminate into `Prop`. In the `Init` package, we define subsingletons, and we use this option to disable the check. This option may be deleted in the future after we improve the validator"
 }
 
 def checkResultingUniverse (u : Level) : TermElabM Unit := do
   if bootstrap.inductiveCheckResultingUniverse.get (← getOptions) then
     let u ← instantiateLevelMVars u
     if !u.isZero && !u.isNeverZero then
-      throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
+      throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'){indentD u}"
 
 private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
   let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
@@ -680,8 +686,8 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
               maskRef.modify fun mask => mask.set! i false
           for x in xs[numParams:] do
             let xType ← inferType x
-            let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar) && e.getAppNumArgs > numParams
-            xType.forEachWhere cond fun e => do
+            let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar)
+            xType.forEachWhere (stopWhenVisited := true) cond fun e => do
               let eArgs := e.getAppArgs
               for i in [numParams:eArgs.size] do
                 if i >= typeArgs.size then
@@ -689,6 +695,19 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                 else
                   unless eArgs[i]! == typeArgs[i]! do
                     maskRef.modify (resetMaskAt · i)
+              /-If an index is missing in the arguments of the inductive type, then it must be non-fixed.
+                Consider the following example:
+                ```lean
+                inductive All {I : Type u} (P : I → Type v) : List I → Type (max u v) where
+                  | cons : P x → All P xs → All P (x :: xs)
+
+                inductive Iμ {I : Type u}  : I → Type (max u v) where
+                  | mk : (i : I)  → All Iμ [] → Iμ i
+                ```
+                because `i` doesn't appear in `All Iμ []`, the index shouldn't be fixed.
+              -/
+              for i in [eArgs.size:arity] do
+                maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
 
@@ -713,10 +732,12 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
   Convert fixed indices to parameters.
 -/
 private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveType) (indFVars : Array Expr) : MetaM Nat := do
+  if !inductive.autoPromoteIndices.get (← getOptions) then
+    return numParams
   let masks ← indTypes.mapM (computeFixedIndexBitMask numParams · indFVars)
+  trace[Elab.inductive] "masks: {masks}"
   if masks.all fun mask => !mask.contains true then
     return numParams
-  trace[Elab.inductive] "masks: {masks}"
   -- We process just a non-fixed prefix of the indices for now. Reason: we don't want to change the order.
   -- TODO: extend it in the future. For example, it should be reasonable to change
   -- the order of indices generated by the auto implicit feature.
@@ -756,8 +777,9 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       for i in [:views.size] do
         let indFVar := indFVars[i]!
         Term.addLocalVarInfo views[i]!.declId indFVar
-        let r       := rs[i]!
-        let type  ← mkForallFVars params r.type
+        let r     := rs[i]!
+        let type  := r.type |>.abstract r.params |>.instantiateRev params
+        let type  ← mkForallFVars params type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }
       Term.synthesizeSyntheticMVarsNoPostponing

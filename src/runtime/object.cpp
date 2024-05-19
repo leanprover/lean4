@@ -579,7 +579,7 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 
 class task_manager {
     mutex                                         m_mutex;
-    unsigned                                      m_num_std_workers{0};
+    std::vector<std::unique_ptr<lthread>>         m_std_workers;
     unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
     unsigned                                      m_num_dedicated_workers{0};
@@ -588,7 +588,6 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    condition_variable                            m_worker_finished_cv;
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -619,7 +618,7 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (!m_idle_std_workers && m_num_std_workers < m_max_std_workers)
+        if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -644,8 +643,10 @@ class task_manager {
     }
 
     void spawn_worker() {
-        m_num_std_workers++;
-        lthread([this]() {
+        if (m_shutting_down)
+            return;
+
+        m_std_workers.emplace_back(new lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
@@ -665,10 +666,7 @@ class task_manager {
                 reset_heartbeat();
             }
             m_idle_std_workers--;
-            m_num_std_workers--;
-            m_worker_finished_cv.notify_all();
-        });
-        // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
+        }));
     }
 
     void spawn_dedicated_worker(lean_task_object * t) {
@@ -678,9 +676,8 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
             m_num_dedicated_workers--;
-            m_worker_finished_cv.notify_all();
         });
-        // see above
+        // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
 
     void run_task(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -769,11 +766,18 @@ public:
     }
 
     ~task_manager() {
-        unique_lock<mutex> lock(m_mutex);
-        m_shutting_down = true;
+        {
+            unique_lock<mutex> lock(m_mutex);
+            m_shutting_down = true;
+            // we can assume that `m_std_workers` will not be changed after this line
+        }
         m_queue_cv.notify_all();
+#ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
-        m_worker_finished_cv.wait(lock, [&]() { return m_num_std_workers + m_num_dedicated_workers == 0; });
+        for (auto & t : m_std_workers)
+            t->join();
+        // never seems to terminate under Emscripten
+#endif
     }
 
     void enqueue(lean_task_object * t) {
@@ -784,6 +788,7 @@ public:
     void resolve(lean_task_object * t, object * v) {
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value) {
+            lock.unlock(); // `dec(v)` could lead to `deactivate_task` trying to take the lock
             dec(v);
             return;
         }
@@ -957,8 +962,9 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg) {
     return lean_apply_1(f, v);
 }
 
-extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio,
+      bool sync, bool keep_alive) {
+    if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio, keep_alive);
@@ -999,8 +1005,9 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
     return nullptr; /* notify queue that task did not finish yet. */
 }
 
-extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,
+      bool sync, bool keep_alive) {
+    if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
         return apply_1(f, lean_task_get_own(x));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio, keep_alive);
@@ -1023,13 +1030,24 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
     g_task_manager->cancel(lean_to_task(t));
 }
 
-extern "C" LEAN_EXPORT bool lean_io_has_finished_core(b_obj_arg t) {
-    return lean_to_task(t)->m_value != nullptr;
+extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
+    lean_task_object * o = lean_to_task(t);
+    if (o->m_imp) {
+        if (o->m_imp->m_closure) {
+            return 0; // waiting (waiting/queued)
+        } else {
+            return 1; // running (running/promised)
+        }
+    } else {
+        return 2; // finished
+    }
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
+
+// Internally, a `Promise` is just a `Task` that is in the "Promised" or "Finished" state
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     lean_always_assert(g_task_manager);
@@ -1046,6 +1064,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
     g_task_manager->resolve(lean_to_task(promise), value);
     return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise) {
+    // the task is the promise itself
+    return promise;
 }
 
 // =======================================
@@ -1423,6 +1446,36 @@ extern "C" LEAN_EXPORT object * lean_int_big_mod(object * a1, object * a2) {
     }
 }
 
+extern "C" LEAN_EXPORT object * lean_int_big_ediv(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        return mpz_to_int(mpz::ediv(lean_scalar_to_int(a1), mpz_value(a2)));
+    } else if (lean_is_scalar(a2)) {
+        int d = lean_scalar_to_int(a2);
+        if (d == 0)
+            return a2;
+        else
+            return mpz_to_int(mpz::ediv(mpz_value(a1), d));
+    } else {
+        return mpz_to_int(mpz::ediv(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_int_big_emod(object * a1, object * a2) {
+    if (lean_is_scalar(a1)) {
+        return mpz_to_int(mpz::emod(lean_scalar_to_int(a1), mpz_value(a2)));
+    } else if (lean_is_scalar(a2)) {
+        int i2 = lean_scalar_to_int(a2);
+        if (i2 == 0) {
+            lean_inc(a1);
+            return a1;
+        } else {
+            return mpz_to_int(mpz::emod(mpz_value(a1), i2));
+        }
+    } else {
+        return mpz_to_int(mpz::emod(mpz_value(a1), mpz_value(a2)));
+    }
+}
+
 extern "C" LEAN_EXPORT bool lean_int_big_eq(object * a1, object * a2) {
     if (lean_is_scalar(a1)) {
         lean_assert(lean_scalar_to_int(a1) != mpz_value(a2))
@@ -1570,8 +1623,12 @@ extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
     return lean_mk_string_from_bytes(s, strlen(s));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_string_from_utf8(b_obj_arg a) {
     return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+}
+
+extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
+    return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
@@ -1583,6 +1640,10 @@ extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
 
 object * mk_string(std::string const & s) {
     return lean_mk_string_from_bytes(s.data(), s.size());
+}
+
+object * mk_ascii_string(std::string const & s) {
+    return lean_mk_string_core(s.data(), s.size(), s.size());
 }
 
 std::string string_to_std(b_obj_arg o) {
@@ -1693,38 +1754,38 @@ extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
 
 static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uint32 & result) {
     unsigned c = static_cast<unsigned char>(str[i]);
-    /* zero continuation (0 to 127) */
+    /* zero continuation (0 to 0x7F) */
     if ((c & 0x80) == 0) {
         result = c;
         return true;
     }
 
-    /* one continuation (128 to 2047) */
+    /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         result = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (result >= 128) {
+        if (result >= 0x80) {
             return true;
         }
     }
 
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
     if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (result >= 2048 && (result < 55296 || result > 57343)) {
+        if (result >= 0x800 && (result < 0xD800 || result > 0xDFFF)) {
             return true;
         }
     }
 
-    /* three continuations (65536 to 1114111) */
+    /* three continuations (0x10000 to 0x10FFFF) */
     if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (result >= 65536 && result <= 1114111) {
+        if (result >= 0x10000 && result <= 0x10FFFF) {
             return true;
         }
     }
@@ -1762,32 +1823,32 @@ extern "C" LEAN_EXPORT uint32 lean_string_utf8_get(b_obj_arg s, b_obj_arg i0) {
 }
 
 extern "C" LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c) {
-    /* one continuation (128 to 2047) */
+    /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         uint32_t result = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (result >= 128) {
+        if (result >= 0x80) {
             return result;
         }
     }
 
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
     if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         uint32_t result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (result >= 2048 && (result < 55296 || result > 57343)) {
+        if (result >= 0x800 && (result < 0xD800 || result > 0xDFFF)) {
             return result;
         }
     }
 
-    /* three continuations (65536 to 1114111) */
+    /* three continuations (0x10000 to 0x10FFFF) */
     if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         uint32_t result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (result >= 65536 && result <= 1114111) {
+        if (result >= 0x10000 && result <= 0x10FFFF) {
             return result;
         }
     }
@@ -1874,6 +1935,19 @@ static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }
 
+extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return false;
+    }
+    usize i = lean_unbox(i0);
+    usize sz = lean_string_size(s) - 1;
+    if (i > sz) return false;
+    if (i == sz) return true;
+    char const * str = lean_string_cstr(s);
+    return is_utf8_first_byte(str[i]);
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
     if (!lean_is_scalar(b0) || !lean_is_scalar(e0)) {
         /* See comment at string_utf8_get */
@@ -1953,6 +2027,10 @@ extern "C" LEAN_EXPORT uint64 lean_string_hash(b_obj_arg s) {
     usize sz = lean_string_size(s) - 1;
     char const * str = lean_string_cstr(s);
     return hash_str(sz, (unsigned char const *) str, 11);
+}
+
+extern "C" LEAN_EXPORT obj_res lean_string_of_usize(size_t n) {
+    return mk_ascii_string(std::to_string(n));
 }
 
 // =======================================

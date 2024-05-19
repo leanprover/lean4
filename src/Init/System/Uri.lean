@@ -5,6 +5,7 @@ Authors: Chris Lovett
 -/
 prelude
 import Init.Data.String.Extra
+import Init.Data.Nat.Linear
 import Init.System.FilePath
 
 namespace System
@@ -49,7 +50,7 @@ def decodeUri (uri : String) : String := Id.run do
         ((decoded.push c).push h1, i + 2)
     else
       (decoded.push c, i + 1)
-  return String.fromUTF8Unchecked decoded
+  return String.fromUTF8! decoded
 where hexDigitToUInt8? (c : UInt8) : Option UInt8 :=
   if zero ≤ c ∧ c ≤ nine then some (c - zero)
   else if lettera ≤ c ∧ c ≤ letterf then some (c - lettera + 10)

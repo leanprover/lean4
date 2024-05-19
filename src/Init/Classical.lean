@@ -1,11 +1,10 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Mario Carneiro
 -/
 prelude
-import Init.Core
-import Init.NotationExtra
+import Init.PropLemmas
 
 universe u v
 
@@ -16,6 +15,13 @@ namespace Classical
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
+/--
+Given that there exists an element satisfying `p`, returns one such element.
+
+This is a straightforward consequence of, and equivalent to, `Classical.choice`.
+
+See also `choose_spec`, which asserts that the returned value has property `p`.
+-/
 noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
   (indefiniteDescription p h).val
 
@@ -112,8 +118,8 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : ∀ x, b x → Prop} : (�
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
   match em a with
-  | Or.inl ha => Or.inl (propext (Iff.intro (fun _ => ⟨⟩) (fun _ => ha)))
-  | Or.inr hn => Or.inr (propext (Iff.intro (fun h => hn h) (fun h => False.elim h)))
+  | Or.inl ha => Or.inl (eq_true ha)
+  | Or.inr hn => Or.inr (eq_false hn)
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
@@ -123,21 +129,49 @@ theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
-/--
-`by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
--/
-syntax "by_cases " (atomic(ident " : "))? term : tactic
+/-- The Double Negation Theorem: `¬¬P` is equivalent to `P`.
+The left-to-right direction, double negation elimination (DNE),
+is classically true but not constructively. -/
+@[simp] theorem not_not : ¬¬a ↔ a := Decidable.not_not
 
-macro_rules
-  | `(tactic| by_cases $h : $e) =>
-    `(tactic|
-      cases em $e with
-      | inl $h => _
-      | inr $h => _)
-  | `(tactic| by_cases $e) =>
-    `(tactic|
-      cases em $e with
-      | inl h => _
-      | inr h => _)
+@[simp low] theorem not_forall {p : α → Prop} : (¬∀ x, p x) ↔ ∃ x, ¬p x := Decidable.not_forall
+
+theorem not_forall_not {p : α → Prop} : (¬∀ x, ¬p x) ↔ ∃ x, p x := Decidable.not_forall_not
+theorem not_exists_not {p : α → Prop} : (¬∃ x, ¬p x) ↔ ∀ x, p x := Decidable.not_exists_not
+
+theorem forall_or_exists_not (P : α → Prop) : (∀ a, P a) ∨ ∃ a, ¬ P a := by
+  rw [← not_forall]; exact em _
+theorem exists_or_forall_not (P : α → Prop) : (∃ a, P a) ∨ ∀ a, ¬ P a := by
+  rw [← not_exists]; exact em _
+
+theorem or_iff_not_imp_left  : a ∨ b ↔ (¬a → b) := Decidable.or_iff_not_imp_left
+theorem or_iff_not_imp_right : a ∨ b ↔ (¬b → a) := Decidable.or_iff_not_imp_right
+
+theorem not_imp_iff_and_not : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
+
+theorem not_and_iff_or_not_not : ¬(a ∧ b) ↔ ¬a ∨ ¬b := Decidable.not_and_iff_or_not_not
+
+theorem not_iff : ¬(a ↔ b) ↔ (¬a ↔ b) := Decidable.not_iff
+
+@[simp] theorem imp_iff_left_iff  : (b ↔ a → b) ↔ a ∨ b := Decidable.imp_iff_left_iff
+@[simp] theorem imp_iff_right_iff : (a → b ↔ b) ↔ a ∨ b := Decidable.imp_iff_right_iff
+
+@[simp] theorem and_or_imp : a ∧ b ∨ (a → c) ↔ a → b ∨ c := Decidable.and_or_imp
+
+@[simp] theorem not_imp : ¬(a → b) ↔ a ∧ ¬b := Decidable.not_imp_iff_and_not
+
+@[simp] theorem imp_and_neg_imp_iff (p q : Prop) : (p → q) ∧ (¬p → q) ↔ q :=
+  Iff.intro (fun (a : _ ∧ _) => (Classical.em p).rec a.left a.right)
+            (fun a => And.intro (fun _ => a) (fun _ => a))
 
 end Classical
+
+/- Export for Mathlib compat. -/
+export Classical (imp_iff_right_iff imp_and_neg_imp_iff and_or_imp not_imp)
+
+/-- Extract an element from a existential statement, using `Classical.choose`. -/
+-- This enables projection notation.
+@[reducible] noncomputable def Exists.choose {p : α → Prop} (P : ∃ a, p a) : α := Classical.choose P
+
+/-- Show that an element extracted from `P : ∃ a, p a` using `P.choose` satisfies `p`. -/
+theorem Exists.choose_spec {p : α → Prop} (P : ∃ a, p a) : p P.choose := Classical.choose_spec P

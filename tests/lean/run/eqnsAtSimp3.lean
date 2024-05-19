@@ -5,6 +5,12 @@ def f (x y : Nat) : Nat :=
   | x+1, 5 => 2 * f x 0
   | x+1, y => 2 * f x y
 
+/--
+info: x y : Nat
+h : y ≠ 5
+⊢ ∃ z, 2 * f x y = 2 * z
+-/
+#guard_msgs in
 theorem ex1 (x : Nat) (y : Nat) (h : y ≠ 5) : ∃ z, f (x+1) y = 2 * z := by
   simp [f, h]
   trace_state
@@ -18,12 +24,24 @@ theorem ex1 (x : Nat) (y : Nat) (h : y ≠ 5) : ∃ z, f (x+1) y = 2 * z := by
   | x+1, 5 => 2 * g x 0
   | x+1, y => 2 * g x y
 
+/--
+info: x y : Nat
+h : y ≠ 5
+⊢ ∃ z, 2 * g x y = 2 * z
+-/
+#guard_msgs in
 theorem ex2 (x : Nat) (y : Nat) (h : y ≠ 5) : ∃ z, g (x+1) y = 2 * z := by
   simp [h]
   trace_state
   apply Exists.intro
   rfl
 
+/--
+info: x y : Nat
+h : y = 5 → False
+⊢ ∃ z, 2 * f x y = 2 * z
+-/
+#guard_msgs in
 theorem ex3 (x : Nat) (y : Nat) (h : y = 5 → False) : ∃ z, f (x+1) y = 2 * z := by
   simp [f, h]
   trace_state
@@ -38,8 +56,14 @@ theorem ex3 (x : Nat) (y : Nat) (h : y = 5 → False) : ∃ z, f (x+1) y = 2 * z
   | x+1, y, z => 2 * f2 x y z
 
 
-#check f2._eq_4
+#check f2.eq_4
 
+/--
+info: x y z : Nat
+h : y = 5 → z = 6 → False
+⊢ ∃ w, 2 * f2 x y z = 2 * w
+-/
+#guard_msgs in
 theorem ex4 (x y z : Nat) (h : y = 5 → z = 6 → False) : ∃ w, f2 (x+1) y z = 2 * w := by
   simp [f2, h]
   trace_state
@@ -64,7 +88,7 @@ theorem ex6 (x y z : Nat) (h2 : z ≠ 6) : ∃ w, f2 (x+1) y z = 2 * w := by
   | x+1, 6, 4 => 3 * f3 x 0 1
   | x+1, y, z => 2 * f3 x y z
 
-#check f3._eq_5
+#check f3.eq_5
 
 theorem ex7 (x y z : Nat) (h2 : z ≠ 6) (h3 : y ≠ 6) : ∃ w, f3 (x+1) y z = 2 * w := by
   simp [f3, h2,  h3]

@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Environment
 
 namespace Lean
@@ -65,10 +66,5 @@ opaque compileDecls (env : Environment) (opt : @& Options) (decls : @& List Name
 /-- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
 def compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment :=
   compileDecls env opt (Compiler.getDeclNamesForCodeGen decl)
-
-
-def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
-  let env ← addDecl env decl
-  compileDecl env opt decl
 
 end Environment

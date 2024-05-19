@@ -3,7 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Expr
+import Init.Data.BitVec.Basic
 universe u
 
 namespace Lean
@@ -28,12 +30,72 @@ instance : ToExpr Nat where
   toExpr     := mkNatLit
   toTypeExpr := mkConst ``Nat
 
+instance : ToExpr Int where
+  toTypeExpr := .const ``Int []
+  toExpr i := if 0 ≤ i then
+    mkNat i.toNat
+  else
+    mkApp3 (.const ``Neg.neg [0]) (.const ``Int []) (.const ``Int.instNegInt [])
+      (mkNat (-i).toNat)
+where
+  mkNat (n : Nat) : Expr :=
+    let r := mkRawNatLit n
+    mkApp3 (.const ``OfNat.ofNat [0]) (.const ``Int []) r
+        (.app (.const ``instOfNat []) r)
+
+instance : ToExpr (Fin n) where
+  toTypeExpr := .app (mkConst ``Fin) (toExpr n)
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (.app (mkConst ``Fin) (toExpr n)) r
+      (mkApp2 (.const ``Fin.instOfNat []) (mkNatLit (n-1)) r)
+
+instance : ToExpr (BitVec n) where
+  toTypeExpr := .app (mkConst ``BitVec) (toExpr n)
+  -- Remark: We use ``BitVec.ofNat to represent bitvector literals
+  toExpr a := mkApp2 (.const ``BitVec.ofNat []) (toExpr n) (toExpr a.toNat)
+
+instance : ToExpr UInt8 where
+  toTypeExpr := mkConst ``UInt8
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt8) r
+      (.app (.const ``UInt8.instOfNat []) r)
+
+instance : ToExpr UInt16 where
+  toTypeExpr := mkConst ``UInt16
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt16) r
+      (.app (.const ``UInt16.instOfNat []) r)
+
+instance : ToExpr UInt32 where
+  toTypeExpr := mkConst ``UInt32
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt32) r
+      (.app (.const ``UInt32.instOfNat []) r)
+
+instance : ToExpr UInt64 where
+  toTypeExpr := mkConst ``UInt64
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``UInt64) r
+      (.app (.const ``UInt64.instOfNat []) r)
+
+instance : ToExpr USize where
+  toTypeExpr := mkConst ``USize
+  toExpr a :=
+    let r := mkRawNatLit a.val
+    mkApp3 (.const ``OfNat.ofNat [0]) (mkConst ``USize) r
+      (.app (.const ``USize.instOfNat []) r)
+
 instance : ToExpr Bool where
   toExpr     := fun b => if b then mkConst ``Bool.true else mkConst ``Bool.false
   toTypeExpr := mkConst ``Bool
 
 instance : ToExpr Char where
-  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (toExpr c.toNat)
+  toExpr     := fun c => mkApp (mkConst ``Char.ofNat) (mkRawNatLit c.toNat)
   toTypeExpr := mkConst ``Char
 
 instance : ToExpr String where
@@ -99,6 +161,22 @@ instance [ToExpr α] [ToExpr β] : ToExpr (α × β) :=
   let βType := toTypeExpr β
   { toExpr     := fun ⟨a, b⟩ => mkApp4 (mkConst ``Prod.mk [levelZero, levelZero]) αType βType (toExpr a) (toExpr b),
     toTypeExpr := mkApp2 (mkConst ``Prod [levelZero, levelZero]) αType βType }
+
+instance : ToExpr Literal where
+  toTypeExpr := mkConst ``Literal
+  toExpr l   := match l with
+   | .natVal _ => mkApp (mkConst ``Literal.natVal) (.lit l)
+   | .strVal _ => mkApp (mkConst ``Literal.strVal) (.lit l)
+
+instance : ToExpr FVarId where
+  toTypeExpr    := mkConst ``FVarId
+  toExpr fvarId := mkApp (mkConst ``FVarId.mk) (toExpr fvarId.name)
+
+instance : ToExpr Syntax.Preresolved where
+  toTypeExpr := .const ``Syntax.Preresolved []
+  toExpr
+    | .namespace ns => mkApp (.const ``Syntax.Preresolved.namespace []) (toExpr ns)
+    | .decl a ls => mkApp2 (.const ``Syntax.Preresolved.decl []) (toExpr a) (toExpr ls)
 
 def Expr.toCtorIfLit : Expr → Expr
   | .lit (.natVal v) =>

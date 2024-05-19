@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Message
 import Lean.InternalExceptionId
 import Lean.Data.Options
@@ -16,7 +17,7 @@ inductive Exception where
   | error (ref : Syntax) (msg : MessageData)
   /--
   Internal exceptions that are not meant to be seen by users.
-  Examples: "pospone elaboration", "stuck at universe constraint", etc
+  Examples: "postpone elaboration", "stuck at universe constraint", etc.
   -/
   | internal (id : InternalExceptionId) (extra : KVMap := {})
 
@@ -68,7 +69,7 @@ protected def throwError [Monad m] [MonadError m] (msg : MessageData) : m α := 
   let (ref, msg) ← AddErrorMessageContext.add ref msg
   throw <| Exception.error ref msg
 
-/-- Thrown an unknown constant error message. -/
+/-- Throw an unknown constant error message. -/
 def throwUnknownConstant [Monad m] [MonadError m] (constName : Name) : m α :=
   Lean.throwError m!"unknown constant '{mkConst constName}'"
 
@@ -129,7 +130,7 @@ been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
   match ex with
-  | error _ (MessageData.ofFormat (Std.Format.text msg)) => msg == maxRecDepthErrorMessage
+  | error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) => msg == maxRecDepthErrorMessage
   | _ => false
 
 /--

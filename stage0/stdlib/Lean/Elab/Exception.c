@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Exception
-// Imports: Init Lean.InternalExceptionId Lean.Meta.Basic
+// Imports: Lean.InternalExceptionId Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -525,11 +525,11 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = l_Lean_MessageData_ofName(x_3);
 x_5 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
-x_6 = lean_alloc_ctor(7, 2, 0);
+x_6 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 x_7 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
-x_8 = lean_alloc_ctor(7, 2, 0);
+x_8 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
 x_9 = l_Lean_throwError___rarg(x_1, x_2, x_8);
@@ -748,6 +748,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
+lean_inc(x_2);
 x_7 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_8 = l_Lean_FileMap_toPosition(x_2, x_6);
 x_9 = lean_alloc_ctor(1, 1, 0);
@@ -774,11 +775,9 @@ lean_dec(x_4);
 x_8 = l_Lean_Elab_mkMessageCore(x_1, x_2, x_3, x_7, x_5, x_6);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_InternalExceptionId(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -786,9 +785,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Exception(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_InternalExceptionId(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

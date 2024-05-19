@@ -6,7 +6,8 @@ exit 0
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   TAIL=gtail
 else
   TAIL=tail
@@ -21,7 +22,7 @@ test1_pid=$!
 grep -q "Building" < <($TAIL --pid=$$ -f test1.log)
 test -f .lake/build/lake.lock
 kill $test1_pid
-! wait $test1_pid
+wait $test1_pid  && exit 1 || true
 
 # Test build waits when lock file present
 touch test2.log
@@ -36,7 +37,7 @@ wait $test2_pid
 test ! -f .lake/build/lake.lock
 
 # Test build error still deletes lock file
-! $LAKE build Error
+$LAKE build Error && exit 1 || true
 test ! -f .lake/build/lake.lock
 
 # Test that removing the lock during build does not cause it to fail
@@ -46,4 +47,4 @@ test3_pid=$!
 grep -q "Building" < <($TAIL --pid=$$ -f test3.log)
 rm .lake/build/lake.lock
 wait $test3_pid
-cat test3.log | grep "deleted before the lock"
+cat test3.log | grep --color "deleted before the lock"

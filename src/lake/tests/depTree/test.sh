@@ -3,7 +3,8 @@ set -exo pipefail
 
 LAKE=${LAKE:-$PWD/../../.lake/build/bin/lake}
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -37,7 +38,7 @@ cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
 EOF
 $LAKE update -v
-grep "\"a\"" lake-manifest.json
+grep --color "\"a\"" lake-manifest.json
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -58,7 +59,7 @@ cat >>lakefile.lean <<EOF
 require a from git "../a" @ "master"
 EOF
 $LAKE update -v
-grep "\"a\"" lake-manifest.json
+grep --color "\"a\"" lake-manifest.json
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -74,7 +75,7 @@ require b from git "../b" @ "master"
 require c from git "../c" @ "master"
 EOF
 # make sure we pick up the version from b's manifest (a@1)
-$LAKE update -v 2>&1 | grep 'first commit in a'
+$LAKE update -v 2>&1 | grep --color 'first commit in a'
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -89,10 +90,10 @@ pushd b
 # b: a@1/init -> a@2
 $LAKE update -v
 # test 84: `lake update` does update
-git diff | grep -m1 manifest
+git diff | grep --color manifest
 sed_i 's/master/init/g' lakefile.lean
 # test 85: warn when manifest and configuration differ
-$LAKE resolve-deps -v 2>&1 | grep 'manifest out of date'
+$LAKE resolve-deps -v 2>&1 | grep --color 'manifest out of date'
 # b: a@1
 git reset --hard
 popd
@@ -108,7 +109,7 @@ popd
 pushd d
 $LAKE update -v
 # test 70: we do not update transitive depednecies
-! grep 'third commit in a' .lake/packages/a/A.lean
+grep --color 'third commit in a' .lake/packages/a/A.lean && exit 1 || true
 git diff --exit-code
 popd
 
@@ -132,10 +133,10 @@ pushd d
 # d: b@1 -> b@2 => a@1 -> a@3
 $LAKE update b -v
 # test 119: pickup a@3 and not a@4
-grep 'third commit in a' .lake/packages/a/A.lean
+grep --color 'third commit in a' .lake/packages/a/A.lean
 # test the removal of `c` from the manifest
-grep "\"c\"" lake-manifest.json
+grep --color "\"c\"" lake-manifest.json
 sed_i '/require c/d' lakefile.lean
 $LAKE update c -v
-grep "\"c\"" lake-manifest.json && false || true
+grep --color "\"c\"" lake-manifest.json && exit 1 || true
 popd

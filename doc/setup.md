@@ -2,7 +2,7 @@
 
 ### Tier 1
 
-Platforms built & tested by our CI, available as nightly releases via elan (see below)
+Platforms built & tested by our CI, available as binary releases via elan (see below)
 
 * x86-64 Linux with glibc 2.27+
 * x86-64 macOS 10.15+
@@ -10,7 +10,7 @@ Platforms built & tested by our CI, available as nightly releases via elan (see 
 
 ### Tier 2
 
-Platforms cross-compiled but not tested by our CI, available as nightly releases
+Platforms cross-compiled but not tested by our CI, available as binary releases
 
 Releases may be silently broken due to the lack of automated testing.
 Issue reports and fixes are welcome.

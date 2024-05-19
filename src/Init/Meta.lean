@@ -104,7 +104,6 @@ def idBeginEscape := '«'
 def idEndEscape   := '»'
 def isIdBeginEscape (c : Char) : Bool := c = idBeginEscape
 def isIdEndEscape (c : Char) : Bool := c = idEndEscape
-
 namespace Name
 
 def getRoot : Name → Name
@@ -563,8 +562,17 @@ def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax)
 instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
 
+/--
+Constructs a typed separated array from elements.
+The given array does not include the separators.
+
+Like `Syntax.SepArray.ofElems` but for typed syntax.
+-/
+def TSepArray.ofElems {sep} (elems : Array (TSyntax k)) : TSepArray k sep :=
+  .mk (SepArray.ofElems (sep := sep) (TSyntaxArray.raw elems)).1
+
 instance : Coe (TSyntaxArray k) (TSepArray k sep) where
-  coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
+  coe := TSepArray.ofElems
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Term) : (args : TSyntaxArray `term) → Term
@@ -577,6 +585,9 @@ def mkCApp (fn : Name) (args : TSyntaxArray `term) : Term :=
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
+
+def mkCharLit (val : Char) (info := SourceInfo.none) : CharLit :=
+  mkLit charLitKind (Char.quote val) info
 
 def mkStrLit (val : String) (info := SourceInfo.none) : StrLit :=
   mkLit strLitKind (String.quote val) info
@@ -898,6 +909,11 @@ def _root_.Substring.toName (s : Substring) : Name :=
       else
         Name.mkStr n comp
 
+/--
+Converts a `String` to a hierarchical `Name` after splitting it at the dots.
+
+`"a.b".toName` is the name `a.b`, not `«a.b»`. For the latter, use `Name.mkSimple`.
+-/
 def _root_.String.toName (s : String) : Name :=
   s.toSubstring.toName
 
@@ -995,6 +1011,7 @@ instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨f
 
 instance : Quote Term := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
+instance : Quote Char charLitKind := ⟨Syntax.mkCharLit⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
@@ -1039,7 +1056,8 @@ where
       go (i+1) (args.push (quote xs[i]))
     else
       Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
-termination_by go i _ => xs.size - i
+  termination_by xs.size - i
+  decreasing_by decreasing_trivial_pre_omega
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := quoteArray
@@ -1177,14 +1195,6 @@ instance : Coe (Lean.Term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
 
 end Lean.Syntax
 
-set_option linter.unusedVariables.funArgs false in
-/--
-  Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
-  the given tactic.
-  Like `optParam`, this gadget only affects elaboration.
-  For example, the tactic will *not* be invoked during type class resolution. -/
-abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
-
 /-! # Helper functions for manipulating interpolated strings -/
 
 namespace Lean.Syntax
@@ -1248,6 +1258,11 @@ def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term
   let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
+def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=
+  match stx.raw[1] with
+  | Syntax.atom _ val => val.extract 0 (val.endPos - ⟨2⟩)
+  | _                 => ""
+
 end TSyntax
 
 namespace Meta
@@ -1272,9 +1287,59 @@ structure Config where
 
 end Rewrite
 
+namespace Omega
+
+/-- Configures the behaviour of the `omega` tactic. -/
+structure OmegaConfig where
+  /--
+  Split disjunctions in the context.
+
+  Note that with `splitDisjunctions := false` omega will not be able to solve `x = y` goals
+  as these are usually handled by introducing `¬ x = y` as a hypothesis, then replacing this with
+  `x < y ∨ x > y`.
+
+  On the other hand, `omega` does not currently detect disjunctions which, when split,
+  introduce no new useful information, so the presence of irrelevant disjunctions in the context
+  can significantly increase run time.
+  -/
+  splitDisjunctions : Bool := true
+  /--
+  Whenever `((a - b : Nat) : Int)` is found, register the disjunction
+  `b ≤ a ∧ ((a - b : Nat) : Int) = a - b ∨ a < b ∧ ((a - b : Nat) : Int) = 0`
+  for later splitting.
+  -/
+  splitNatSub : Bool := true
+  /--
+  Whenever `Int.natAbs a` is found, register the disjunction
+  `0 ≤ a ∧ Int.natAbs a = a ∨ a < 0 ∧ Int.natAbs a = - a` for later splitting.
+  -/
+  splitNatAbs : Bool := true
+  /--
+  Whenever `min a b` or `max a b` is found, rewrite in terms of the definition
+  `if a ≤ b ...`, for later case splitting.
+  -/
+  splitMinMax : Bool := true
+
+end Omega
+
+namespace CheckTactic
+
+/--
+Type used to lift an arbitrary value into a type parameter so it can
+appear in a proof goal.
+
+It is used by the #check_tactic command.
+-/
+inductive CheckGoalType {α : Sort u} : (val : α) → Prop where
+| intro : (val : α) → CheckGoalType val
+
+end CheckTactic
+
 end Meta
 
-namespace Parser.Tactic
+namespace Parser
+
+namespace Tactic
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
@@ -1335,6 +1400,8 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
-end Parser.Tactic
+end Tactic
+
+end Parser
 
 end Lean

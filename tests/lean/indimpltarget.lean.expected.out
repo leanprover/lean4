@@ -1,0 +1,4 @@
+indimpltarget.lean:6:2-6:45: error: failed to infer implicit target m
+indimpltarget.lean:16:2-16:45: error: failed to infer implicit target n
+indimpltarget.lean:26:0-26:7: warning: declaration uses 'sorry'
+indimpltarget.lean:40:2-40:45: error: failed to infer implicit target

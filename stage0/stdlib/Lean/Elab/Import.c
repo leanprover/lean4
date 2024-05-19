@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Import
-// Imports: Init Lean.Parser.Module Lean.Data.Json
+// Imports: Lean.Parser.Module Lean.Data.Json
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, l
 static lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* lean_string_push(lean_object*, uint32_t);
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
@@ -240,6 +241,7 @@ x_9 = lean_import_modules(x_8, x_2, x_5, x_6, x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
+lean_dec(x_4);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)
 {
@@ -289,13 +291,15 @@ x_22 = lean_ctor_get(x_20, 0);
 x_23 = 0;
 x_24 = l_Lean_Syntax_getPos_x3f(x_1, x_23);
 x_25 = lean_ctor_get(x_4, 2);
+lean_inc(x_25);
 x_26 = lean_ctor_get(x_4, 1);
+lean_inc(x_26);
+lean_dec(x_4);
 x_27 = lean_box(0);
 x_28 = lean_io_error_to_string(x_17);
 x_29 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
-x_30 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_30, 0, x_29);
+x_30 = l_Lean_MessageData_ofFormat(x_29);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -303,7 +307,6 @@ x_31 = lean_unsigned_to_nat(0u);
 x_32 = l_Lean_FileMap_toPosition(x_25, x_31);
 x_33 = 2;
 x_34 = l_Lean_Elab_processHeader___closed__1;
-lean_inc(x_26);
 x_35 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_35, 0, x_26);
 lean_ctor_set(x_35, 1, x_32);
@@ -329,7 +332,6 @@ x_39 = l_Lean_FileMap_toPosition(x_25, x_38);
 lean_dec(x_38);
 x_40 = 2;
 x_41 = l_Lean_Elab_processHeader___closed__1;
-lean_inc(x_26);
 x_42 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_42, 0, x_26);
 lean_ctor_set(x_42, 1, x_39);
@@ -357,13 +359,15 @@ lean_dec(x_20);
 x_47 = 0;
 x_48 = l_Lean_Syntax_getPos_x3f(x_1, x_47);
 x_49 = lean_ctor_get(x_4, 2);
+lean_inc(x_49);
 x_50 = lean_ctor_get(x_4, 1);
+lean_inc(x_50);
+lean_dec(x_4);
 x_51 = lean_box(0);
 x_52 = lean_io_error_to_string(x_17);
 x_53 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
-x_54 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_54, 0, x_53);
+x_54 = l_Lean_MessageData_ofFormat(x_53);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
@@ -371,7 +375,6 @@ x_55 = lean_unsigned_to_nat(0u);
 x_56 = l_Lean_FileMap_toPosition(x_49, x_55);
 x_57 = 2;
 x_58 = l_Lean_Elab_processHeader___closed__1;
-lean_inc(x_50);
 x_59 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_59, 0, x_50);
 lean_ctor_set(x_59, 1, x_56);
@@ -399,7 +402,6 @@ x_64 = l_Lean_FileMap_toPosition(x_49, x_63);
 lean_dec(x_63);
 x_65 = 2;
 x_66 = l_Lean_Elab_processHeader___closed__1;
-lean_inc(x_50);
 x_67 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_67, 0, x_50);
 lean_ctor_set(x_67, 1, x_64);
@@ -423,6 +425,7 @@ else
 {
 uint8_t x_71; 
 lean_dec(x_17);
+lean_dec(x_4);
 lean_dec(x_3);
 x_71 = !lean_is_exclusive(x_20);
 if (x_71 == 0)
@@ -455,7 +458,6 @@ lean_dec(x_5);
 x_9 = lean_unbox(x_6);
 lean_dec(x_6);
 x_10 = l_Lean_Elab_processHeader(x_1, x_2, x_3, x_4, x_8, x_9, x_7);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_10;
 }
@@ -511,7 +513,6 @@ lean_inc(x_18);
 lean_dec(x_15);
 x_19 = l_Lean_FileMap_toPosition(x_17, x_18);
 lean_dec(x_18);
-lean_dec(x_17);
 lean_ctor_set(x_8, 0, x_19);
 lean_ctor_set(x_7, 0, x_16);
 return x_6;
@@ -532,7 +533,6 @@ lean_inc(x_24);
 lean_dec(x_20);
 x_25 = l_Lean_FileMap_toPosition(x_23, x_24);
 lean_dec(x_24);
-lean_dec(x_23);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_21);
@@ -567,7 +567,6 @@ lean_inc(x_33);
 lean_dec(x_28);
 x_34 = l_Lean_FileMap_toPosition(x_32, x_33);
 lean_dec(x_33);
-lean_dec(x_32);
 if (lean_is_scalar(x_30)) {
  x_35 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -618,7 +617,6 @@ lean_inc(x_45);
 lean_dec(x_40);
 x_46 = l_Lean_FileMap_toPosition(x_44, x_45);
 lean_dec(x_45);
-lean_dec(x_44);
 if (lean_is_scalar(x_42)) {
  x_47 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -705,7 +703,6 @@ lean_inc(x_68);
 lean_dec(x_65);
 x_69 = l_Lean_FileMap_toPosition(x_67, x_68);
 lean_dec(x_68);
-lean_dec(x_67);
 lean_ctor_set(x_58, 0, x_69);
 lean_ctor_set(x_57, 0, x_66);
 return x_56;
@@ -726,7 +723,6 @@ lean_inc(x_74);
 lean_dec(x_70);
 x_75 = l_Lean_FileMap_toPosition(x_73, x_74);
 lean_dec(x_74);
-lean_dec(x_73);
 x_76 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_76, 0, x_75);
 lean_ctor_set(x_76, 1, x_71);
@@ -761,7 +757,6 @@ lean_inc(x_83);
 lean_dec(x_78);
 x_84 = l_Lean_FileMap_toPosition(x_82, x_83);
 lean_dec(x_83);
-lean_dec(x_82);
 if (lean_is_scalar(x_80)) {
  x_85 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -812,7 +807,6 @@ lean_inc(x_95);
 lean_dec(x_90);
 x_96 = l_Lean_FileMap_toPosition(x_94, x_95);
 lean_dec(x_95);
-lean_dec(x_94);
 if (lean_is_scalar(x_92)) {
  x_97 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -1069,7 +1063,6 @@ lean_dec(x_1);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1077,9 +1070,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_Import(uint8_t builtin, lean_objec
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Parser_Module(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

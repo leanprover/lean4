@@ -1,3 +1,6 @@
 tcloop.lean:14:2-14:15: error: failed to synthesize
   B Nat
-(deterministic) timeout at 'typeclass', maximum number of heartbeats (20000) has been reached (use 'set_option synthInstance.maxHeartbeats <num>' to set the limit)
+(deterministic) timeout at `typeclass`, maximum number of heartbeats (20000) has been reached
+use `set_option synthInstance.maxHeartbeats <num>` to set the limit
+use `set_option diagnostics true` to get diagnostic information
+use `set_option diagnostics true` to get diagnostic information

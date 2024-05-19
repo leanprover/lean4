@@ -302,11 +302,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
 #ifdef LEAN_WINDOWS
 
 static inline HANDLE win_handle(FILE * fp) {
-#ifdef q4_WCE
-    return (HANDLE)_fileno(fp);
-#else
     return (HANDLE)_get_osfhandle(_fileno(fp));
-#endif
 }
 
 /* Handle.lock : (@& Handle) → (exclusive : Bool) → IO Unit */
@@ -391,13 +387,41 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_unlock(b_obj_arg h, obj_arg /
 
 #endif
 
+/* Handle.isTty : (@& Handle) → BaseIO Bool */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_tty(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+#ifdef LEAN_WINDOWS
+    /*
+    On Windows, there are two approaches for detecting a console.
+    1)  _isatty(_fileno(fp)) != 0
+        This checks whether the file descriptor is a *character device*,
+        not just a terminal (unlike Unix's isatty). Thus, it produces a false
+        positive in some edge cases (such as NUL).
+        https://stackoverflow.com/q/3648711
+    2)  GetConsoleMode(win_handle(fp), &mode) != 0
+        Errors if the handle is not a console. Unfortunately, this produces
+        a false negative for a terminal emulator like MSYS/Cygwin's Mintty,
+        which is not implemented as a Windows-recognized console on
+        old Windows versions (e.g., pre-Windows 10, pre-ConPTY).
+        https://github.com/msys2/MINGW-packages/issues/14087
+    We choose to use GetConsoleMode as that seems like the more modern approach,
+    and Lean does not support pre-Windows 10.
+    */
+    DWORD mode;
+    return io_result_mk_ok(box(GetConsoleMode(win_handle(fp), &mode) != 0));
+#else
+    // We ignore errors for consistency with Windows.
+    return io_result_mk_ok(box(isatty(fileno(fp))));
+#endif
+}
+
 /* Handle.isEof : (@& Handle) → BaseIO Bool */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     return io_result_mk_ok(box(std::feof(fp) != 0));
 }
 
-/* Handle.flush : (@& Handle) → IO Bool */
+/* Handle.flush : (@& Handle) → IO Unit */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     if (!std::fflush(fp)) {
@@ -788,17 +812,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
     // so we have to call the underlying windows API directly to get behavior consistent
     // with the unix-like OSs
     bool ok = MoveFileEx(string_cstr(from), string_cstr(to), MOVEFILE_REPLACE_EXISTING) != 0;
+    if (!ok) {
+        // TODO: actually produce the right type of IO error
+        return io_result_mk_error((sstream()
+            << "failed to rename '" << string_cstr(from) << "' to '" << string_cstr(to) << "': " << GetLastError()).str());
+    }
 #else
     bool ok = std::rename(string_cstr(from), string_cstr(to)) == 0;
-#endif
-    if (ok) {
-        return io_result_mk_ok(box(0));
-    } else {
+    if (!ok) {
         std::ostringstream s;
         s << string_cstr(from) << " and/or " << string_cstr(to);
         object_ref out{mk_string(s.str())};
         return io_result_mk_error(decode_io_error(errno, out.raw()));
     }
+#endif
+    return io_result_mk_ok(box(0));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
@@ -1011,19 +1039,21 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/*  mapTask {α : Type u} {β : Type} (f : α → BaseIO β) (t : Task α) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
+/*  mapTask (f : α → BaseIO β) (t : Task α) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
-/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
+/*  bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
@@ -1036,8 +1066,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
-    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_get_task_state_core(t)));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {

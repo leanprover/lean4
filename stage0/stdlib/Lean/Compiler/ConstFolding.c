@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.ConstFolding
-// Imports: Init Lean.Expr
+// Imports: Lean.Expr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -356,8 +356,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldCharOfNat___boxed(lean_object*, lea
 static lean_object* l_Lean_Compiler_mkNatLt___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntMul___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_mod___boxed(lean_object*, lean_object*);
+lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_foldUIntMul___closed__1;
-lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntDiv___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_getBoolLit___closed__2;
@@ -414,7 +414,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_mkUIntTypeName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Nat_repr(x_1);
+x_2 = l___private_Init_Data_Repr_0__Nat_reprFast(x_1);
 x_3 = l_Lean_Compiler_mkUIntTypeName___closed__1;
 x_4 = lean_string_append(x_3, x_2);
 lean_dec(x_2);
@@ -1023,28 +1023,38 @@ lean_inc(x_9);
 lean_dec(x_1);
 if (lean_obj_tag(x_9) == 0)
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-return x_11;
+uint8_t x_10; 
+x_10 = !lean_is_exclusive(x_9);
+if (x_10 == 0)
+{
+lean_ctor_set_tag(x_9, 1);
+return x_9;
 }
 else
 {
-lean_object* x_12; 
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_9, 0);
+lean_inc(x_11);
 lean_dec(x_9);
-x_12 = lean_box(0);
+x_12 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
 return x_12;
+}
+}
+else
+{
+lean_object* x_13; 
+lean_dec(x_9);
+x_13 = lean_box(0);
+return x_13;
 }
 }
 default: 
 {
-lean_object* x_13; 
+lean_object* x_14; 
 lean_dec(x_1);
-x_13 = lean_box(0);
-return x_13;
+x_14 = lean_box(0);
+return x_14;
 }
 }
 }
@@ -4636,16 +4646,12 @@ x_5 = lean_fold_un_op(x_4, x_2, x_3);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Expr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_ConstFolding(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Expr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

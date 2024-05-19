@@ -11,10 +11,12 @@ def g (i j : Nat) : Nat :=
   | Nat.zero => 1
   | Nat.succ j => g i j
 
+/-- info: (some g.eq_def) -/
+#guard_msgs in
 #eval tst ``g
-#check g._eq_1
-#check g._eq_2
-#check g._unfold
+#check g.eq_1
+#check g.eq_2
+#check g.eq_def
 
 def h (i j : Nat) : Nat :=
   let z :=
@@ -23,7 +25,9 @@ def h (i j : Nat) : Nat :=
     | Nat.succ j => h i j
   z + z
 
+/-- info: (some h.eq_def) -/
+#guard_msgs in
 #eval tst ``h
-#check h._eq_1
-#check h._eq_2
-#check h._unfold
+#check h.eq_1
+#check h.eq_2
+#check h.eq_def

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.RC
-// Imports: Init Lean.Runtime Lean.Compiler.IR.CompilerM Lean.Compiler.IR.LiveVars
+// Imports: Lean.Runtime Lean.Compiler.IR.CompilerM Lean.Compiler.IR.LiveVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addIncBeforeAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_anyTR_loop___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isBorrowParamAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_IR_LiveVars_collectExpr(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_allTR_loop___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isFirstOcc___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addDecForAlt___lambda__1(lean_object*, lean_object*);
+lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_ExplicitRC_visitFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
@@ -257,7 +257,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_ExplicitRC_getDecl___closed__1;
 x_2 = l_Lean_IR_ExplicitRC_getDecl___closed__2;
-x_3 = lean_unsigned_to_nat(34u);
+x_3 = lean_unsigned_to_nat(36u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_IR_ExplicitRC_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -358,7 +358,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_ExplicitRC_getDecl___closed__1;
 x_2 = l_Lean_IR_ExplicitRC_getVarInfo___closed__1;
-x_3 = lean_unsigned_to_nat(39u);
+x_3 = lean_unsigned_to_nat(41u);
 x_4 = lean_unsigned_to_nat(17u);
 x_5 = l_Lean_IR_ExplicitRC_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -442,7 +442,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_ExplicitRC_getDecl___closed__1;
 x_2 = l_Lean_IR_ExplicitRC_getJPParams___closed__1;
-x_3 = lean_unsigned_to_nat(44u);
+x_3 = lean_unsigned_to_nat(46u);
 x_4 = lean_unsigned_to_nat(15u);
 x_5 = l_Lean_IR_ExplicitRC_getDecl___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3343,7 +3343,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_11);
 x_13 = l_Lean_IR_instInhabitedArg;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = l_Lean_IR_Arg_beq(x_14, x_3);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -3410,7 +3410,7 @@ if (x_12 == 0)
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 
 lean_dec(x_11);
 x_13 = l_Lean_IR_instInhabitedArg;
-x_14 = l___private_Init_Util_0__outOfBounds___rarg(x_13);
+x_14 = l___private_Init_GetElem_0__outOfBounds___rarg(x_13);
 x_15 = l_Lean_IR_Arg_beq(x_14, x_3);
 lean_dec(x_14);
 if (x_15 == 0)
@@ -3466,7 +3466,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_IR_instInhabitedArg;
-x_6 = l___private_Init_Util_0__outOfBounds___rarg(x_5);
+x_6 = l___private_Init_GetElem_0__outOfBounds___rarg(x_5);
 lean_inc(x_2);
 x_7 = l_Nat_allTR_loop___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isFirstOcc___spec__1(x_1, x_3, x_6, x_2, x_2);
 lean_dec(x_2);
@@ -3545,7 +3545,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = l_Lean_IR_instInhabitedArg;
-x_15 = l___private_Init_Util_0__outOfBounds___rarg(x_14);
+x_15 = l___private_Init_GetElem_0__outOfBounds___rarg(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; uint8_t x_17; 
@@ -3692,7 +3692,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l_Lean_IR_instInhabitedParam;
-x_6 = l___private_Init_Util_0__outOfBounds___rarg(x_5);
+x_6 = l___private_Init_GetElem_0__outOfBounds___rarg(x_5);
 x_7 = lean_ctor_get_uint8(x_6, sizeof(void*)*2);
 lean_dec(x_6);
 if (x_7 == 0)
@@ -3783,7 +3783,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
 x_15 = l_Lean_IR_instInhabitedArg;
-x_16 = l___private_Init_Util_0__outOfBounds___rarg(x_15);
+x_16 = l___private_Init_GetElem_0__outOfBounds___rarg(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; uint8_t x_18; 
@@ -3940,7 +3940,7 @@ if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
 x_52 = l_Lean_IR_instInhabitedArg;
-x_53 = l___private_Init_Util_0__outOfBounds___rarg(x_52);
+x_53 = l___private_Init_GetElem_0__outOfBounds___rarg(x_52);
 if (lean_obj_tag(x_53) == 0)
 {
 lean_object* x_54; 
@@ -4224,7 +4224,7 @@ if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
 x_31 = l_Lean_IR_instInhabitedArg;
-x_32 = l___private_Init_Util_0__outOfBounds___rarg(x_31);
+x_32 = l___private_Init_GetElem_0__outOfBounds___rarg(x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; 
@@ -6260,7 +6260,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Runtime(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR_LiveVars(uint8_t builtin, lean_object*);
@@ -6269,9 +6268,6 @@ LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_RC(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Runtime(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

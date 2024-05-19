@@ -36,7 +36,6 @@ example (v : DVec ts) : Nat :=
 example (v : Vec Nat 1) : Nat :=
   DVec.hd v
 
--- Vec.hd exists
 #check @Vec.hd
 
 -- works

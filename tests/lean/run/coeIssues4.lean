@@ -30,6 +30,8 @@ def ex5 (xs : List String) :=
 xs.foldl (fun r x => r.push x) Array.empty
 
 set_option pp.all true in
+/-- info: foo (@OfNat.ofNat.{0} Expr 1 (@instOfNatExpr 1)) : Expr -/
+#guard_msgs in
 #check foo 1
 
 def ex6 :=

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Marc Huisinga
 -/
+prelude
 import Lean.Data.Lsp
 
 namespace Lean.Lsp
@@ -34,6 +35,9 @@ instance : FileSource DidOpenTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
 instance : FileSource DidChangeTextDocumentParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
+instance : FileSource DidSaveTextDocumentParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
 instance : FileSource DidCloseTextDocumentParams :=

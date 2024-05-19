@@ -7,6 +7,9 @@ prelude
 import Init.Prelude
 import Init.Notation
 import Init.Tactics
+import Init.TacticsExtra
+import Init.ByCases
+import Init.RCases
 import Init.Core
 import Init.Control
 import Init.Data.Basic
@@ -21,6 +24,14 @@ import Init.MetaTypes
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas
+import Init.PropLemmas
 import Init.Hints
 import Init.Conv
+import Init.Guard
+import Init.Simproc
 import Init.SizeOfLemmas
+import Init.BinderPredicates
+import Init.Ext
+import Init.Omega
+import Init.MacroTrace
+import Init.Grind

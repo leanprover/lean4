@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta
-// Imports: Init Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns Lean.Meta.CasesOn Lean.Meta.ExprLens Lean.Meta.ExprTraverse Lean.Meta.Eval
+// Imports: Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns Lean.Meta.ExprLens Lean.Meta.ExprTraverse Lean.Meta.Eval Lean.Meta.CoeAttr Lean.Meta.Iterator Lean.Meta.LazyDiscrTree Lean.Meta.LitValues Lean.Meta.CheckTactic Lean.Meta.Canonicalizer Lean.Meta.Diagnostics
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_LevelDefEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_WHNF(uint8_t builtin, lean_object*);
@@ -50,18 +49,21 @@ lean_object* initialize_Lean_Meta_Structure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Constructions(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_CongrTheorems(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_CasesOn(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ExprLens(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ExprTraverse(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Eval(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_CoeAttr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Iterator(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_LazyDiscrTree(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_CheckTactic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Canonicalizer(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Diagnostics(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -170,9 +172,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Eqns(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_CasesOn(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Meta_ExprLens(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -180,6 +179,27 @@ res = initialize_Lean_Meta_ExprTraverse(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Eval(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_CoeAttr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Iterator(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_LazyDiscrTree(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_LitValues(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_CheckTactic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Canonicalizer(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Diagnostics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

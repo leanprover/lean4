@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+prelude
 import Lean.Meta.Basic
 import Lean.Meta.Check
 
@@ -52,14 +53,6 @@ def expandDeclSig (stx : Syntax) : Syntax × Syntax :=
   let binders  := stx[0]
   let typeSpec := stx[1]
   (binders, typeSpec[1])
-
-def mkFreshInstanceName (env : Environment) (nextIdx : Nat) : Name :=
-  (env.mainModule ++ `_instance).appendIndexAfter nextIdx
-
-def isFreshInstanceName (name : Name) : Bool :=
-  match name with
-  | .str _ s => "_instance".isPrefixOf s
-  | _        => false
 
 /--
   Sort the given list of `usedParams` using the following order:

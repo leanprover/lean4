@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Class
 import Lean.Parser.Command
 import Lean.Meta.Closure
@@ -80,15 +81,6 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   match info.kind with
   | StructFieldKind.subobject => true
   | _                         => false
-
-structure ElabStructResult where
-  decl            : Declaration
-  projInfos       : List ProjectionInfo
-  projInstances   : List Name -- projections (to parent classes) that must be marked as instances.
-  mctx            : MetavarContext
-  lctx            : LocalContext
-  localInsts      : LocalInstances
-  defaultAuxDecls : Array (Name × Expr × Expr)
 
 private def defaultCtorName := `mk
 
@@ -301,7 +293,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let args := e.getAppArgs
           if let some major := args.get? numParams then
             if (← getNestedProjectionArg major) == parent then
-              if let some existingFieldInfo := findFieldInfo? infos subFieldName then
+              if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
@@ -703,6 +695,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
       if info.kind == StructFieldKind.fromParent then
         return none
       else
+        let env ← getEnv
         return some {
           fieldName  := info.name
           projFn     := info.declName
@@ -710,9 +703,9 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
           autoParam? := (← inferType info.fvar).getAutoParamTactic?
           subobject? :=
             if info.kind == StructFieldKind.subobject then
-              match (← getEnv).find? info.declName with
-              | some (ConstantInfo.defnInfo val) =>
-                match val.type.getForallBody.getAppFn with
+              match env.find? info.declName with
+              | some info =>
+                match info.type.getForallBody.getAppFn with
                 | Expr.const parentName .. => some parentName
                 | _ => panic! "ill-formed structure"
               | _ => panic! "ill-formed environment"
@@ -739,7 +732,7 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
         throwError "invalid default value for field, it contains metavariables{indentExpr value}"
       /- The identity function is used as "marker". -/
       let value ← mkId value
-      discard <| mkAuxDefinition declName type value (zeta := true)
+      discard <| mkAuxDefinition declName type value (zetaDelta := true)
       setReducibleAttribute declName
 
 /--
@@ -891,7 +884,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
   let exts      := stx[3]
   let parents   := if exts.isNone then #[] else exts[0][1].getSepArgs
   let optType   := stx[4]
-  let derivingClassViews ← getOptDerivingClasses stx[6]
+  let derivingClassViews ← liftCoreM <| getOptDerivingClasses stx[6]
   let type ← if optType.isNone then `(Sort _) else pure optType[0][1]
   let declName ←
     runTermElabM fun scopeVars => do

@@ -3,7 +3,8 @@ set -exo pipefail
 
 LAKE=${LAKE:-../../../.lake/build/bin/lake}
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -16,6 +17,7 @@ fi
 mkdir hello
 pushd hello
 $LAKE init hello
+$LAKE update
 git checkout -b master
 git config user.name test
 git config user.email test@example.com
@@ -28,10 +30,10 @@ HELLO_MAP="{\"hello\" : \"file://$(pwd)/hello\"}"
 cd test
 
 # test that `LAKE_PKG_URL_MAP` properly overwrites the config-specified Git URL
-LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update | grep "file://"
+LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update 2>&1 | grep --color "file://"
 # test that a second `lake update` is a no-op (with URLs)
 # see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
-LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update | diff - /dev/null
+LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update 2>&1 | diff - /dev/null
 rm -rf .lake/packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
@@ -39,19 +41,19 @@ rm -rf .lake/packages
 
 $LAKE update
 # test that a second `lake update` is a no-op (with file paths)
-$LAKE update | diff - /dev/null
+$LAKE update 2>&1 | diff - /dev/null
 test -d .lake/packages/hello
 # test that Lake produces no warnings
 $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
-./.lake/build/bin/test | grep "Hello, world"
+./.lake/build/bin/test | grep --color "Hello, world"
 
 # Test that Lake produces a warning if local changes are made to a dependency
 # See https://github.com/leanprover/lake/issues/167
 
 sed_i "s/world/changes/" .lake/packages/hello/Hello/Basic.lean
-! git -C .lake/packages/hello diff --exit-code
-$LAKE build 3>&1 1>&2 2>&3 | grep "has local changes"
-./.lake/build/bin/test | grep "Hello, changes"
+git -C .lake/packages/hello diff --exit-code && exit 1 || true
+$LAKE build 3>&1 1>&2 2>&3 | grep --color "has local changes"
+./.lake/build/bin/test | grep --color "Hello, changes"
 git -C .lake/packages/hello reset --hard
 $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 

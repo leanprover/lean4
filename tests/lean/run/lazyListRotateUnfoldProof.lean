@@ -30,7 +30,7 @@ theorem rotate_inv {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.lengt
   | LazyList.cons Fh Ft => sorry
   | LazyList.delayed Ft => sorry
 
-theorem LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
+def LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
         (nil : motive LazyList.nil)
         (cons : (hd : α) → (tl : LazyList α) → motive tl → motive (LazyList.cons hd tl))
         (delayed : (t : Thunk (LazyList α)) → motive t.get → motive (LazyList.delayed t))
@@ -41,6 +41,29 @@ theorem LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
   | LazyList.delayed t => delayed t (ind nil cons delayed t.get)
 -- Remark: Lean used well-founded recursion behind the scenes to define LazyList.ind
 
+/--
+warning: declaration uses 'sorry'
+---
+info: case cons
+τ : Type u_1
+nil : LazyList τ
+R : List τ
+h : τ
+t : LazyList τ
+ih : ∀ (h : t.length + 1 = R.length), (rotate t R nil h).length = t.length + R.length
+⊢ ∀ (h_1 : (LazyList.cons h t).length + 1 = R.length),
+    (rotate (LazyList.cons h t) R nil h_1).length = (LazyList.cons h t).length + R.length
+---
+info: case delayed
+τ : Type u_1
+nil : LazyList τ
+R : List τ
+t : Thunk (LazyList τ)
+a✝ : ∀ (h : t.get.length + 1 = R.length), (rotate t.get R nil h).length = t.get.length + R.length
+⊢ ∀ (h : (LazyList.delayed t).length + 1 = R.length),
+    (rotate (LazyList.delayed t) R nil h).length = (LazyList.delayed t).length + R.length
+-/
+#guard_msgs in
 theorem rotate_inv' {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.length) → (rotate F R nil h).length = F.length + R.length := by
   induction F using LazyList.ind with
   | nil => intro h; unfold rotate; sorry

@@ -8,7 +8,9 @@ paths containing package roots: an import `A.B.C` resolves to
 `path/A/B/C.olean` for the first entry `path` in `LEAN_PATH`
 with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
-import Lean.Data.Name
+prelude
+import Init.System.IO
+import Init.Data.List.Control
 
 namespace Lean
 open System
@@ -28,7 +30,7 @@ def realPathNormalized (p : FilePath) : IO FilePath :=
   return (← IO.FS.realPath p).normalize
 
 def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
-  go mod |>.withExtension ext
+  go mod |>.addExtension ext
 where
   go : Name → FilePath
   | Name.str p h => go p / h
@@ -46,7 +48,7 @@ not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString (escape := false)
   let root? ← sp.findM? fun p =>
-    (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
+    (p / pkg).isDir <||> ((p / pkg).addExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
 
 /-- Like `findWithExt`, but ensures the returned path exists. -/

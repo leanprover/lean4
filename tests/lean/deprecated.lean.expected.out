@@ -7,5 +7,5 @@ deprecated.lean:23:13-23:15: error: unknown constant 'g1'
 deprecated.lean:30:6-30:8: warning: `f2` has been deprecated, use `Foo.g1` instead
 2
 2
-deprecated.lean:33:6-33:8: warning: `f4` has been deprecated, use `Foo.g1` instead
+deprecated.lean:33:6-33:8: warning: use g1 instead, f4 is not a good name
 2

@@ -5,32 +5,40 @@ Authors: Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Data.Options
+import Lake.Config.Defaults
 import Lake.Config.Env
 import Lake.Util.Log
 
 namespace Lake
 open System Lean
 
-/-- `elan` toolchain file name -/
-def toolchainFileName : FilePath := "lean-toolchain"
-
-/-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
-def defaultConfigFile : FilePath := "lakefile.lean"
-
-/-- The default name of the Lake manifest file (i.e., `lake-manifest.json`). -/
-def defaultManifestFile := "lake-manifest.json"
-
 /-- Context for loading a Lake configuration. -/
 structure LoadConfig where
   /-- The Lake environment of the load process. -/
-  env : Lake.Env
-  /-- The root directory of the loaded package (and its workspace). -/
-  rootDir : FilePath
-  /-- The Lean file with the package's Lake configuration (e.g., `lakefile.lean`) -/
-  configFile : FilePath := rootDir / defaultConfigFile
+  lakeEnv : Lake.Env
+  /-- The root directory of the Lake workspace. -/
+  wsDir : FilePath
+  /-- The directory of the loaded package (relative to the root). -/
+  relPkgDir : FilePath := "."
+  /-- The package's Lake configuration file (relative to the package directory). -/
+  relConfigFile : FilePath := defaultConfigFile
   /-- A set of key-value Lake configuration options (i.e., `-K` settings). -/
-  configOpts : NameMap String := {}
+  lakeOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/
   leanOpts : Options := {}
-  /-- If true, Lake will elaborate configuration files instead of using OLeans. -/
+  /-- If `true`, Lake will elaborate configuration files instead of using OLeans. -/
   reconfigure : Bool := false
+  /-- The URL to this package's Git remote (if any). -/
+  remoteUrl? : Option String := none
+
+/-- The full path to loaded package's directory. -/
+@[inline] def LoadConfig.pkgDir (cfg : LoadConfig) : FilePath :=
+  cfg.wsDir / cfg.relPkgDir
+
+/-- The full path to loaded package's configuration file. -/
+@[inline] def LoadConfig.configFile (cfg : LoadConfig) : FilePath :=
+  cfg.pkgDir / cfg.relConfigFile
+
+/-- The package's Lake directory (for Lake temporary files). -/
+@[inline] def LoadConfig.lakeDir (cfg : LoadConfig) : FilePath :=
+  cfg.pkgDir / defaultLakeDir

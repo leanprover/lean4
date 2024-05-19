@@ -2,6 +2,11 @@ set_option pp.analyze false
 
 def p (x y : Nat) := x = y
 
+/--
+info: x y : Nat
+⊢ x + y = y.add x
+-/
+#guard_msgs in
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     whnf
@@ -12,6 +17,11 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   rw [Nat.add_comm]
   rfl
 
+/--
+info: x y : Nat
+⊢ x + y = y.add x
+-/
+#guard_msgs in
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     whnf
@@ -21,6 +31,11 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   rw [Nat.add_comm]
   rfl
 
+/--
+info: x y : Nat
+⊢ x.add y = y.add x
+-/
+#guard_msgs in
 example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     whnf
@@ -32,6 +47,11 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   trace_state
   apply Nat.add_comm x y
 
+/--
+info: x y : Nat
+| x + y
+-/
+#guard_msgs in
 example (x y : Nat) : p (x + y) (0 + y + x) := by
   conv =>
     whnf
@@ -68,6 +88,7 @@ example : id (fun x => 0 + x) = id := by
     arg 1
     ext y
     rw [Nat.zero_add]
+  rfl
 
 def f (x : Nat) :=
   if x > 0 then
@@ -87,6 +108,22 @@ example (h₁ : f x = x + 1) (h₂ : x > 0) : f x = f x := by
     simp [f, h₂]
   exact h₁
 
+/--
+info: x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g (0 + y)) (f (g x) (g x)) = x
+---
+info: x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+⊢ f (g y) (f (g x) (g x)) = x
+-/
+#guard_msgs in
 example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y) : f (g (0 + y)) (f (g x) (g (x + 0))) = x := by
   conv in _ + 0 => apply Nat.add_zero
   trace_state
@@ -94,6 +131,25 @@ example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f
   trace_state
   simp [h₁, h₂]
 
+set_option linter.unusedVariables false
+/--
+info: x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+h₃ : f (g x) (g x) = 0
+⊢ g x = 0
+---
+info: x y : Nat
+f : Nat → Nat → Nat
+g : Nat → Nat
+h₁ : ∀ (z : Nat), f z z = z
+h₂ : ∀ (x y : Nat), f (g x) (g y) = y
+h₃ : g x = 0
+⊢ g x = 0
+-/
+#guard_msgs in
 example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat)
         (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y)
         (h₃ : f (g (0 + x)) (g x) = 0)

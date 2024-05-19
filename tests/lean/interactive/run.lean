@@ -63,7 +63,7 @@ def word : Parsec String :=
 def ident : Parsec Name := do
   let head ← word
   let xs ← Parsec.many1 (Parsec.pchar '.' *> word)
-  return xs.foldl Name.mkStr $ head
+  return xs.foldl .str $ .mkSimple head
 
 partial def main (args : List String) : IO Unit := do
   let uri := s!"file:///{args.head!}"
@@ -127,9 +127,8 @@ partial def main (args : List String) : IO Unit := do
           requestNo := requestNo + 1
           versionNo := versionNo + 1
         | "collectDiagnostics" =>
-          let diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1)
-          for diag in diags do
-            IO.eprintln (toJson diag.param)
+          if let some diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
+            IO.eprintln (toJson diags.param)
           requestNo := requestNo + 1
         | "codeAction" =>
           let params : CodeActionParams := {
@@ -205,6 +204,7 @@ partial def main (args : List String) : IO Unit := do
               assert! id == requestNo
               return r
             | Message.notification .. => readFirstResponse
+            | Message.request .. => readFirstResponse
             | msg => throw <| IO.userError s!"unexpected message {toJson msg}"
           let resp ← readFirstResponse
           IO.eprintln resp

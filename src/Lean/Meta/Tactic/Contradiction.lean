@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Cases
@@ -223,9 +224,9 @@ Throw exception if goal failed to be closed.
 -/
 def _root_.Lean.MVarId.contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
   unless (← mvarId.contradictionCore config) do
-    throwTacticEx `contradiction mvarId ""
+    throwTacticEx `contradiction mvarId
 
-@[deprecated MVarId.contradiction]
+@[deprecated MVarId.contradiction (since := "2022-07-15")]
 def contradiction (mvarId : MVarId) (config : Contradiction.Config := {}) : MetaM Unit :=
   mvarId.contradiction config
 

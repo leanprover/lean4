@@ -3,7 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Util.ForEachExpr
+import Lean.Elab.InfoTree.Main
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Util
@@ -30,7 +32,7 @@ def _root_.Lean.MVarId.replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqP
     mvarId.assign val
     return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceTargetEq]
+@[deprecated MVarId.replaceTargetEq (since := "2022-07-15")]
 def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : MetaM MVarId :=
   mvarId.replaceTargetEq targetNew eqProof
 
@@ -54,7 +56,7 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
       mvarId.assign newVal
       return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceTargetDefEq]
+@[deprecated MVarId.replaceTargetDefEq (since := "2022-07-15")]
 def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
   mvarId.replaceTargetDefEq targetNew
 
@@ -100,7 +102,7 @@ where
 abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 
-@[deprecated MVarId.replaceLocalDecl]
+@[deprecated MVarId.replaceLocalDecl (since := "2022-07-15")]
 abbrev replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   mvarId.replaceLocalDecl fvarId typeNew eqProof
 
@@ -119,7 +121,7 @@ def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId)
       mvarId.assign mvarNew
       return mvarNew.mvarId!
 
-@[deprecated MVarId.replaceLocalDeclDefEq]
+@[deprecated MVarId.replaceLocalDeclDefEq (since := "2022-07-15")]
 def replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
   mvarId.replaceLocalDeclDefEq fvarId typeNew
 
@@ -135,33 +137,78 @@ def _root_.Lean.MVarId.change (mvarId : MVarId) (targetNew : Expr) (checkDefEq :
       throwTacticEx `change mvarId m!"given type{indentExpr targetNew}\nis not definitionally equal to{indentExpr target}"
   mvarId.replaceTargetDefEq targetNew
 
-@[deprecated MVarId.change]
+@[deprecated MVarId.change (since := "2022-07-15")]
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := mvarId.withContext do
   mvarId.change targetNew checkDefEq
 
 /--
-Replace the type of the free variable `fvarId` with `typeNew`.
-If `checkDefEq = false`, this method assumes that `typeNew` is definitionally equal to `fvarId` type.
-If `checkDefEq = true`, throw an error if `typeNew` is not definitionally equal to `fvarId` type.
+Executes the revert/intro pattern, running the continuation `k` after temporarily reverting
+the given local variables from the local context of the metavariable `mvarId`,
+and then re-introducing the local variables specified by `k`.
+
+- `mvarId` is the goal metavariable to operate on.
+- `fvarIds` is an array of `fvarIds` to revert in the order specified.
+  An error is thrown if they cannot be reverted in order.
+- `clearAuxDeclsInsteadOfRevert` is configuration passed to `Lean.MVarId.revert`.
+- `k` is the continuation run once the local variables have been reverted.
+  It is provided `mvarId` after the requested variables have been reverted along with the array of reverted variables.
+  This array always contains `fvarIds`, but it may contain additional variables that were reverted due to dependencies.
+  The continuation returns a value, a new goal, and an _aliasing array_.
+
+Once `k` has completed, one variable is introduced per entry in the aliasing array.
+* If the entry is `none`, the variable is just introduced.
+* If the entry is `some fv` (where `fv` is a variable from `fvarIds`),
+  the variable is introduced and then recorded as an alias of `fv` in the info tree.
+  This for example causes the unused variable linter as seeing `fv` and this newly introduced variable as being "the same".
+
+For example, if `k` leaves all the reverted variables in the same order,
+having it return `fvars.map .some` as the aliasing array causes those variables to be re-introduced and aliased
+to the original local variables.
+
+Returns the value returned by `k` along with the resulting goal after variable introduction.
+
+See `Lean.MVarId.changeLocalDecl` for an example. The motivation is that to work on a local variable,
+you need to move it into the goal, alter the goal, and then bring it back into the local context,
+all while keeping track of any other local variables that depend on this one.
 -/
-def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
-  mvarId.checkNotAssigned `changeLocalDecl
-  let (xs, mvarId) ← mvarId.revert #[fvarId] true
+def _root_.Lean.MVarId.withReverted (mvarId : MVarId) (fvarIds : Array FVarId)
+    (k : MVarId → Array FVarId → MetaM (α × Array (Option FVarId) × MVarId))
+    (clearAuxDeclsInsteadOfRevert := false) : MetaM (α × MVarId) := do
+  let (xs, mvarId) ← mvarId.revert fvarIds true clearAuxDeclsInsteadOfRevert
+  let (r, xs', mvarId) ← k mvarId xs
+  let (ys, mvarId) ← mvarId.introNP xs'.size
   mvarId.withContext do
-    let numReverted := xs.size
-    let target ← mvarId.getType
+    for x? in xs', y in ys do
+      if let some x := x? then
+        Elab.pushInfoLeaf (.ofFVarAliasInfo { id := y, baseId := x, userName := ← y.getUserName })
+  return (r, mvarId)
+
+/--
+Replaces the type of the free variable `fvarId` with `typeNew`.
+
+If `checkDefEq` is `true` then an error is thrown if `typeNew` is not definitionally
+equal to the type of `fvarId`. Otherwise this function assumes `typeNew` and the type
+of `fvarId` are definitionally equal.
+
+This function is the same as `Lean.MVarId.changeLocalDecl` but makes sure to push substitution
+information into the info tree.
+-/
+def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
+    (checkDefEq := true) : MetaM MVarId := do
+  mvarId.checkNotAssigned `changeLocalDecl
+  let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId fvars => mvarId.withContext do
     let check (typeOld : Expr) : MetaM Unit := do
       if checkDefEq then
-        unless (← isDefEq typeNew typeOld) do
-          throwTacticEx `changeHypothesis mvarId m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
-    let finalize (targetNew : Expr) : MetaM MVarId := do
-      let mvarId ← mvarId.replaceTargetDefEq targetNew
-      let (_, mvarId) ← mvarId.introNP numReverted
-      pure mvarId
-    match target with
-    | .forallE n d b c => do check d; finalize (mkForall n c typeNew b)
-    | .letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
-    | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
+        unless ← isDefEq typeNew typeOld do
+          throwTacticEx `changeLocalDecl mvarId
+            m!"given type{indentExpr typeNew}\nis not definitionally equal to{indentExpr typeOld}"
+    let finalize (targetNew : Expr) := do
+      return ((), fvars.map .some, ← mvarId.replaceTargetDefEq targetNew)
+    match ← mvarId.getType with
+    | .forallE n d b bi => do check d; finalize (.forallE n typeNew b bi)
+    | .letE n t v b ndep => do check t; finalize (.letE n typeNew v b ndep)
+    | _ => throwTacticEx `changeLocalDecl mvarId "unexpected auxiliary target"
+  return mvarId
 
 @[deprecated MVarId.changeLocalDecl]
 def changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (checkDefEq := true) : MetaM MVarId := do
@@ -175,7 +222,7 @@ def _root_.Lean.MVarId.modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) 
     mvarId.checkNotAssigned `modifyTarget
     mvarId.change (← f (← mvarId.getType)) (checkDefEq := false)
 
-@[deprecated modifyTarget]
+@[deprecated modifyTarget (since := "2022-07-15")]
 def modifyTarget (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
   mvarId.modifyTarget f
 
@@ -190,7 +237,7 @@ def _root_.Lean.MVarId.modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM E
      else
        throwTacticEx `modifyTargetEqLHS mvarId m!"equality expected{indentExpr target}"
 
-@[deprecated MVarId.modifyTargetEqLHS]
+@[deprecated MVarId.modifyTargetEqLHS (since := "2022-07-15")]
 def modifyTargetEqLHS (mvarId : MVarId) (f : Expr → MetaM Expr) : MetaM MVarId := do
   mvarId.modifyTargetEqLHS f
 

@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.App
 
 namespace Lean.Elab.Term
@@ -41,7 +42,7 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
     unless (← getCalcRelation? resultType).isSome do
       throwError "invalid 'calc' step, step result is not a relation{indentExpr resultType}"
     return (result, resultType)
-  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
+  | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}\n{useDiagnosticMsg}"
 
 /--
 Adds a type annotation to a hole that occurs immediately at the beginning of the term.
@@ -111,10 +112,12 @@ def elabCalcSteps (steps : TSyntax ``calcSteps) : TermElabM Expr := do
   return result?.get!.1
 
 /-- Elaborator for the `calc` term mode variant. -/
-@[builtin_term_elab «calc»]
+@[builtin_term_elab Lean.calc]
 def elabCalc : TermElab := fun stx expectedType? => do
   let steps : TSyntax ``calcSteps := ⟨stx[1]⟩
   let result ← elabCalcSteps steps
   synthesizeSyntheticMVarsUsingDefault
   let result ← ensureHasType expectedType? result
   return result
+
+end Lean.Elab.Term

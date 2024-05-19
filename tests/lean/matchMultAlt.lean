@@ -24,7 +24,7 @@ def h (x : Nat) : Nat :=
 example : h x > 0 := by
   match x with
   | 0 | 1 => decide
-  | x + 2 => simp [h, Nat.add_succ]; simp_arith
+  | x + 2 => simp [h]
 
 inductive StrOrNum where
   | S (s : String)

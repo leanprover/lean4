@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.PreDefinition.Structural.Preprocess
@@ -100,6 +101,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
         -/
         registerEqnsInfo preDef recArgPos
     addSmartUnfoldingDef preDef recArgPos
+    markAsRecursive preDef.declName
     applyAttributesOf #[preDefNonRec] AttributeApplicationTime.afterCompilation
 
 builtin_initialize

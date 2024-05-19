@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
@@ -17,7 +18,7 @@ def _root_.Lean.MVarId.rename (mvarId : MVarId) (fvarId : FVarId) (userNameNew :
   mvarId.assign mvarNew
   return mvarNew.mvarId!
 
-@[deprecated MVarId.rename]
+@[deprecated MVarId.rename (since := "2022-07-15")]
 def rename (mvarId : MVarId) (fvarId : FVarId) (newUserName : Name) : MetaM MVarId :=
   mvarId.rename fvarId newUserName
 

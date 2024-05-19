@@ -7,3 +7,4 @@ def test : (λ x => x)
     pattern (id _)
     trace_state
     skip
+  rfl

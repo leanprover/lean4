@@ -20,14 +20,33 @@ fi
 ./clean.sh
 
 # Test error on nonexistent facet
-$LAKE build targets:noexistent && false || true
+$LAKE build targets:noexistent && exit 1 || true
 
 # Test custom targets and package, library, and module facets
-$LAKE build bark | grep Bark!
-$LAKE build targets/bark_bark | grep Bark!
-$LAKE build targets:print_name | grep targets
-$LAKE build Foo.Bar:print_src | grep Bar.lean
-$LAKE build Foo:print_name | grep Foo
+$LAKE build bark | awk '/Ran/,/Bark!/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets/bark
+info: Bark!
+EOF
+) -
+$LAKE build targets/bark_bark | awk '/Ran/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/2] Ran targets/bark
+info: Bark!
+Build completed successfully.
+EOF
+) -
+$LAKE build targets:print_name | awk '/Ran/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets:print_name
+info: stdout/stderr:
+targets
+EOF
+) -
+$LAKE build Foo:print_name | awk '/Ran/,/^Foo/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets/Foo:print_name
+info: stdout/stderr:
+Foo
+EOF
+) -
+$LAKE build Foo.Bar:print_src | grep --color Bar.lean
 
 # Test the module `deps` facet
 $LAKE build +Foo:deps
@@ -39,10 +58,10 @@ test ! -f ./.lake/build/lib/Foo/Baz.olean
 $LAKE build +Foo.Baz
 test -f ./.lake/build/lib/Foo/Baz.olean
 
-# Test `.c.o` specifier
-test ! -f ./.lake/build/ir/Bar.c.o
-$LAKE build +Bar:c.o
-test -f ./.lake/build/ir/Bar.c.o
+# Test an object file specifier
+test ! -f ./.lake/build/ir/Bar.c.o.export
+$LAKE build +Bar:c.o.export
+test -f ./.lake/build/ir/Bar.c.o.export
 
 # Test default targets
 test ! -f ./.lake/build/bin/c

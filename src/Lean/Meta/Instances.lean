@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.ScopedEnvExtension
 import Lean.Meta.GlobalInstances
 import Lean.Meta.DiscrTree
@@ -76,8 +77,8 @@ def tcDtConfig : WhnfCoreConfig := {}
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e tcDtConfig, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
-  | none   => { d with discrTree := d.discrTree.insertCore e.keys e tcDtConfig }
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
+  | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
   { d with erased := d.erased.insert declName, instanceNames := d.instanceNames.erase declName }
@@ -113,7 +114,7 @@ For example:
 
 (The type of `inst` must not contain mvars.)
 -/
-partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
+private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   withReducible do
   let instTy ← inferType inst
 
@@ -216,8 +217,11 @@ def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
 def getErasedInstances : CoreM (PHashSet Name) :=
   return Meta.instanceExtension.getState (← getEnv) |>.erased
 
+def isInstanceCore (env : Environment) (declName : Name) : Bool :=
+  Meta.instanceExtension.getState env |>.instanceNames.contains declName
+
 def isInstance (declName : Name) : CoreM Bool :=
-  return Meta.instanceExtension.getState (← getEnv) |>.instanceNames.contains declName
+  return isInstanceCore (← getEnv) declName
 
 def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
   let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none

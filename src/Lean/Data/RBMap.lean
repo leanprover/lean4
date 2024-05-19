@@ -3,6 +3,10 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
+import Init.Data.Ord
+import Init.Data.Nat.Linear
+
 namespace Lean
 universe u v w w'
 
@@ -159,7 +163,7 @@ def appendTrees :  RBNode α β → RBNode α β → RBNode α β
      | bc                   => balLeft a kx vx (node black bc ky vy d)
    | a, node red b kx vx c   => node red (appendTrees a b) kx vx c
    | node red a kx vx b,   c => node red a kx vx (appendTrees b c)
-termination_by _ x y => x.size + y.size
+termination_by x y => x.size + y.size
 
 section Erase
 

@@ -3,6 +3,8 @@ Copyright (c) 2019 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
+prelude
+import Init.Data.OfScientific
 import Lean.Data.Options
 
 namespace Lean
@@ -10,7 +12,9 @@ namespace Lean
 register_builtin_option profiler : Bool := {
   defValue := false
   group    := "profiler"
-  descr    := "show execution times of various Lean components"
+  descr    := "show exclusive execution times of various Lean components
+  
+See also `trace.profiler` for an alternative profiling system with structured output."
 }
 
 register_builtin_option profiler.threshold : Nat := {

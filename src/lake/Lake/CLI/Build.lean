@@ -14,9 +14,6 @@ structure BuildSpec where
   info : BuildInfo
   getBuildJob : BuildData info.key → BuildJob Unit
 
-@[inline] def BuildSpec.getJob (self : BuildSpec) (data : BuildData self.info.key) : Job Unit :=
-  discard <| self.getBuildJob data
-
 @[inline] def BuildData.toBuildJob
 [FamilyOut BuildData k (BuildJob α)] (data : BuildData k) : BuildJob Unit :=
   discard <| ofFamily data
@@ -32,12 +29,12 @@ structure BuildSpec where
     | throw <| CliError.nonCliFacet facetType facet
   return {info, getBuildJob := h ▸ getJob}
 
-def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) :=
-  self.getJob <$> buildIndexTop' self.info
+@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) := do
+  maybeRegisterJob (self.info.key.toSimpleString) <| ← do
+    self.getBuildJob <$> self.info.fetch
 
-def buildSpecs (specs : Array BuildSpec) : BuildM PUnit := do
-  let jobs ← RecBuildM.run do specs.mapM (·.build)
-  jobs.forM (discard <| ·.await)
+def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
+  BuildJob.mixArray (← specs.mapM (·.fetch))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 

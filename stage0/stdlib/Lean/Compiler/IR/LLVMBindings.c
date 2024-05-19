@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR.LLVMBindings
-// Imports: Init
+// Imports: Init.System.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_LLVM_setDLLStorageClass___boxed(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_LLVM_moduleToString___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_weakAny;
 LEAN_EXPORT lean_object* l_LLVM_constInt32___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_llvm_position_builder_before(size_t, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getNextFunction___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_addGlobal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_print_module_to_string(size_t, size_t, lean_object*);
@@ -80,12 +81,14 @@ LEAN_EXPORT lean_object* l_LLVM_addAttributeAtIndex___boxed(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_LLVM_functionType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_PassManagerBuilder_setOptLevel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_const_array(size_t, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_getEntryBasicBlock___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_get_named_global(size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_countParams___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_setTailCall___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_constInt_x27(size_t, uint64_t, uint64_t, uint8_t, lean_object*);
 lean_object* lean_llvm_build_mul(size_t, size_t, size_t, size_t, lean_object*, lean_object*);
 lean_object* lean_llvm_build_unreachable(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_verifyModule___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_i16Type___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_common;
 LEAN_EXPORT lean_object* l_LLVM_PassManagerBuilder_populateModulePassManager___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,6 +114,7 @@ lean_object* lean_llvm_create_pass_manager(size_t, lean_object*);
 lean_object* lean_llvm_parse_bitcode(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getFirstFunction___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_clearInsertionPosition___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_llvm_get_first_instruction(size_t, size_t, lean_object*);
 lean_object* lean_llvm_create_builder_in_context(size_t, lean_object*);
 lean_object* lean_llvm_build_cond_br(size_t, size_t, size_t, size_t, size_t, lean_object*);
 lean_object* lean_llvm_set_linkage(size_t, size_t, uint64_t, lean_object*);
@@ -125,6 +129,7 @@ LEAN_EXPORT lean_object* l_LLVM_Value_isNull(size_t);
 LEAN_EXPORT lean_object* l_LLVM_buildGEP2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_i32Type___boxed(lean_object*, lean_object*);
 lean_object* lean_llvm_add_global(size_t, size_t, lean_object*, size_t, lean_object*);
+lean_object* lean_llvm_verify_module(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_isDeclaration___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getNextGlobal___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_build_gep2(size_t, size_t, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -148,11 +153,14 @@ LEAN_EXPORT lean_object* l_LLVM_arrayType___boxed(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_LLVM_buildZext___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_setVisibility___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_i8PtrType(size_t, lean_object*);
+lean_object* lean_llvm_get_entry_basic_block(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getUndef___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_disposePassManager___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_create_memory_buffer_with_contents_of_file(size_t, lean_object*, lean_object*);
 lean_object* lean_llvm_run_pass_manager(size_t, size_t, size_t, lean_object*);
 lean_object* lean_llvm_float_type_in_context(size_t, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_constIntSizeT(size_t, uint64_t, uint8_t, lean_object*);
+lean_object* lean_llvm_count_basic_blocks(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_createMemoryBufferWithContentsOfFile___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_set_initializer(size_t, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_buildBr___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -173,6 +181,7 @@ lean_object* lean_llvm_build_sub(size_t, size_t, size_t, size_t, lean_object*, l
 lean_object* lean_llvm_get_named_function(size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_setInitializer___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_dllExport;
+LEAN_EXPORT lean_object* l_LLVM_countBasicBlocks___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_Linkage_external;
 LEAN_EXPORT lean_object* l_LLVM_i32Type(size_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_constIntUnsigned(size_t, uint64_t, uint8_t, lean_object*);
@@ -189,6 +198,8 @@ LEAN_EXPORT lean_object* l_LLVM_disposePassManagerBuilder___boxed(lean_object*, 
 LEAN_EXPORT uint64_t l_LLVM_Linkage_linkerPrivate;
 LEAN_EXPORT lean_object* l_LLVM_constPointerNull___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_dispose_module(size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_constIntSizeT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_positionBuilderBefore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_buildSub___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getTargetFromTriple___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_getNamedFunction___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -237,6 +248,7 @@ lean_object* lean_llvm_link_modules(size_t, size_t, size_t, lean_object*);
 lean_object* lean_llvm_set_visibility(size_t, size_t, uint64_t, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_constArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_constTrue(size_t, lean_object*);
+LEAN_EXPORT lean_object* l_LLVM_getFirstInstruction___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_LLVM_buildRet___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_LLVM_DLLStorageClass_import;
 LEAN_EXPORT lean_object* l_LLVM_i64Type___boxed(lean_object*, lean_object*);
@@ -731,6 +743,56 @@ lean_dec(x_2);
 x_7 = lean_llvm_append_basic_block_in_context(x_5, x_6, x_3, x_4);
 lean_dec(x_3);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_countBasicBlocks___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_llvm_count_basic_blocks(x_4, x_5, x_3);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_getEntryBasicBlock___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_llvm_get_entry_basic_block(x_4, x_5, x_3);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_getFirstInstruction___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_llvm_get_first_instruction(x_4, x_5, x_3);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_positionBuilderBefore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; size_t x_6; size_t x_7; lean_object* x_8; 
+x_5 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_6 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_7 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_8 = lean_llvm_position_builder_before(x_5, x_6, x_7, x_4);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_LLVM_positionBuilderAtEnd___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1396,6 +1458,18 @@ lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = lean_llvm_dispose_module(x_4, x_5, x_3);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_verifyModule___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+size_t x_4; size_t x_5; lean_object* x_6; 
+x_4 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_5 = lean_unbox_usize(x_2);
+lean_dec(x_2);
+x_6 = lean_llvm_verify_module(x_4, x_5, x_3);
 return x_6;
 }
 }
@@ -2075,11 +2149,34 @@ x_8 = l_LLVM_constInt64(x_5, x_6, x_7, x_4);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_LLVM_constIntUnsigned(size_t x_1, uint64_t x_2, uint8_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_LLVM_constIntSizeT(size_t x_1, uint64_t x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
 uint64_t x_5; lean_object* x_6; 
 x_5 = 64;
+x_6 = l_LLVM_constInt_x27(x_1, x_5, x_2, x_3, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_constIntSizeT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+size_t x_5; uint64_t x_6; uint8_t x_7; lean_object* x_8; 
+x_5 = lean_unbox_usize(x_1);
+lean_dec(x_1);
+x_6 = lean_unbox_uint64(x_2);
+lean_dec(x_2);
+x_7 = lean_unbox(x_3);
+lean_dec(x_3);
+x_8 = l_LLVM_constIntSizeT(x_5, x_6, x_7, x_4);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_LLVM_constIntUnsigned(size_t x_1, uint64_t x_2, uint8_t x_3, lean_object* x_4) {
+_start:
+{
+uint64_t x_5; lean_object* x_6; 
+x_5 = 32;
 x_6 = l_LLVM_constInt_x27(x_1, x_5, x_2, x_3, x_4);
 return x_6;
 }
@@ -2098,13 +2195,13 @@ x_8 = l_LLVM_constIntUnsigned(x_5, x_6, x_7, x_4);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_LLVMBindings(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
+res = initialize_Init_System_IO(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_LLVM_CodegenFileType_AssemblyFile = _init_l_LLVM_CodegenFileType_AssemblyFile();

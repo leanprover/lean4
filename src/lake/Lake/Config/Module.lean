@@ -80,6 +80,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def ileanFile (self : Module) : FilePath :=
   self.leanLibPath "ilean"
 
+@[inline] def logFile (self : Module) : FilePath :=
+  self.leanLibPath "log.json"
+
 @[inline] def traceFile (self : Module) : FilePath :=
   self.leanLibPath "trace"
 
@@ -89,11 +92,14 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
 
+@[inline] def coExportFile (self : Module) : FilePath :=
+  self.irPath "c.o.export"
+
+@[inline] def coNoExportFile (self : Module) : FilePath :=
+  self.irPath "c.o.noexport"
+
 @[inline] def bcFile (self : Module) : FilePath :=
   self.irPath "bc"
-
-@[inline] def coFile (self : Module) : FilePath :=
-  self.irPath "c.o"
 
 @[inline] def bcoFile (self : Module) : FilePath :=
   self.irPath "bc.o"
@@ -135,11 +141,14 @@ def dynlibSuffix := "-1"
 @[inline] def weakLinkArgs (self : Module) : Array String :=
   self.lib.weakLinkArgs
 
+@[inline] def platformIndependent (self : Module) : Option Bool :=
+  self.lib.platformIndependent
+
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
-@[inline] def nativeFacets (self : Module) : Array (ModuleFacet (BuildJob FilePath)) :=
-  self.lib.nativeFacets
+@[inline] def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  self.lib.nativeFacets shouldExport
 
 /-! ## Trace Helpers -/
 

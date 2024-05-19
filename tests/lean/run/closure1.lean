@@ -39,6 +39,12 @@ let e ← mkAuxDefinitionFor `foo1 t
 trace[Meta.debug] e
 printDef `foo1
 
+set_option pp.mvars false in
+/--
+info: [Meta.debug] foo1 α f b ?_ ?_
+[Meta.debug] fun α f b _x_1 _x_2 => _x_2 (f b)
+-/
+#guard_msgs in
 #eval tst1
 
 def tst2 : MetaM Unit := do
@@ -55,4 +61,10 @@ let e ← mkAuxDefinitionFor `foo2 t
 trace[Meta.debug] e
 printDef `foo2
 
+set_option pp.mvars false in
+/--
+info: [Meta.debug] foo2 α v1 v2 p ?_
+[Meta.debug] fun α v1 v2 p _x_1 => v1 = v2 ∧ (_x_1 v2 ∨ p)
+-/
+#guard_msgs in
 #eval tst2

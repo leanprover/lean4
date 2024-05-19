@@ -3,6 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+prelude
 import Lean.Data.RBMap
 namespace Lean
 universe u v w
@@ -99,7 +100,7 @@ def fromArray (l : Array α) (cmp : α → α → Ordering) : RBTree α cmp :=
   RBMap.any t (fun a _ => p a)
 
 def subset (t₁ t₂ : RBTree α cmp) : Bool :=
-  t₁.all fun a => (t₂.find? a).toBool
+  t₁.all fun a => (t₂.find? a).isSome
 
 def seteq (t₁ t₂ : RBTree α cmp) : Bool :=
   subset t₁ t₂ && subset t₂ t₁

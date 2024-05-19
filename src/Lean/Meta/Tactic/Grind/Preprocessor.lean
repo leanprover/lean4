@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.EnsureNoMVar
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -93,10 +94,12 @@ def pushTodo (goal : Goal) : M Unit :=
 def pushResult (goal : Goal) : M Unit :=
   modify fun s => { s with goals := s.goals.push goal }
 
-partial def main (mvarId : MVarId) : MetaM Result := do
+partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Result := do
   mvarId.ensureNoMVar
   let mvarId ← mvarId.revertAll
   mvarId.ensureNoMVar
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.abstractNestedProofs mainDeclName
   let s ← (loop *> get) |>.run mvarId
   return { s with }
 where

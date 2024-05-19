@@ -75,10 +75,15 @@ def introNext (goal : Goal) : PreM IntroResult := do
     else
       return .newLocal fvarId { goal with mvarId }
   else if target.isLet || target.isForall then
-    -- TODO: canonicalize subterms
-    -- TODO: If forall is of the form `∀ h : <proposition>, A h`, generalize `h`.
     let (fvarId, mvarId) ← goal.mvarId.intro1P
-    return .newLocal fvarId { goal with mvarId }
+    mvarId.withContext do
+      let localDecl ← fvarId.getDecl
+      if (← isProp localDecl.type) then
+        -- Add a non-dependent copy
+        let mvarId ← mvarId.assert localDecl.userName localDecl.type (mkFVar fvarId)
+        return .newLocal fvarId { goal with mvarId }
+      else
+        return .newLocal fvarId { goal with mvarId }
   else
     return .done
 

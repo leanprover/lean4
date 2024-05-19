@@ -24,7 +24,8 @@ example (h : (f a && (b || f (f c))) = true) : b && a := by
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
-example (i j : Nat) (h : i > j) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
+example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   grind_pre
-  guard_target =ₛ @g (i+1) j (_example.proof_1 i j h) = i + j + 1
+  guard_target = @g (i+1) j (_example.proof_1 i j _) = i + j + 1
+  guard_hyp h : j + 1 ≤ i
   simp_arith [g]

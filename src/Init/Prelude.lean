@@ -2977,7 +2977,7 @@ def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
 
 export MonadExcept (throw tryCatch ofExcept)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
+instance (ε : Type u) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
 
@@ -3018,7 +3018,7 @@ namespace ReaderT
 section
 variable {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
-instance  : MonadLift m (ReaderT ρ m) where
+instance : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
 
 @[always_inline]
@@ -3237,8 +3237,6 @@ of the state. It is equivalent to `get <* modify f` but may be more efficient.
 def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
--- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
--- will be picked first
 @[always_inline]
 instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadStateOf σ m] : MonadStateOf σ n where
   get         := liftM (m := m) MonadStateOf.get

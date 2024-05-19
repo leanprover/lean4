@@ -62,4 +62,17 @@ Beta-reduce the goal's target.
 def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget (Core.betaReduce ·)
 
+/--
+If the target is not `False`, apply `byContradiction`.
+-/
+def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  mvarId.checkNotAssigned `grind
+  let target ← mvarId.getType
+  if target.isFalse then return none
+  let targetNew ← mkArrow (mkNot target) (mkConst ``False)
+  let tag ← mvarId.getTag
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+  mvarId.assign <| mkApp2 (mkConst ``Classical.byContradiction) target mvarNew
+  return mvarNew.mvarId!
+
 end Lean.Meta.Grind

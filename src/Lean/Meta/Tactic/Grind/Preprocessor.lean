@@ -26,16 +26,12 @@ structure Context where
   deriving Inhabited
 
 structure State where
-  todo  : List Goal := []
   simpStats : Simp.Stats := {}
   deriving Inhabited
 
 abbrev PreM := ReaderT Context $ StateRefT State GrindM
 
-def mkInitialState (mvarId : MVarId) : State :=
-  { todo := [ mkGoal mvarId ] }
-
-def PreM.run (x : PreM α) (mvarId : MVarId) : GrindM α := do
+def PreM.run (x : PreM α) : GrindM α := do
   let thms ← grindNormExt.getTheorems
   let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
   let simp : Simp.Context := {
@@ -43,7 +39,7 @@ def PreM.run (x : PreM α) (mvarId : MVarId) : GrindM α := do
     simpTheorems := #[thms]
     congrTheorems := (← getSimpCongrTheorems)
   }
-  x { simp, simprocs } |>.run' (mkInitialState mvarId)
+  x { simp, simprocs } |>.run' {}
 
 def simp (e : Expr) : PreM Simp.Result := do
   let simpStats := (← get).simpStats
@@ -56,13 +52,6 @@ def simpHyp? (mvarId : MVarId) (fvarId : FVarId) : PreM (Option (FVarId × MVarI
   let (result, simpStats) ← simpLocalDecl mvarId fvarId (← read).simp (← read).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
   return result
-
-def getNextGoal? : PreM (Option Goal) := do
-  match (← get).todo with
-  | [] => return none
-  | goal :: todo =>
-    modify fun s => { s with todo }
-    return some goal
 
 inductive IntroResult where
   | done
@@ -94,11 +83,11 @@ def introNext (goal : Goal) : PreM IntroResult := do
           | some he =>
             let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, p', q, he, h]
             goal.mvarId.assign hNew
-            return .newLocal fvarId { goal with mvarId := mvarIdNew }
+            return .newHyp fvarId { goal with mvarId := mvarIdNew }
           | none =>
             -- `p` and `p'` are definitionally equal
             goal.mvarId.assign h
-            return .newLocal fvarId { goal with mvarId := mvarIdNew }
+            return .newHyp fvarId { goal with mvarId := mvarIdNew }
   else if target.isLet || target.isForall then
     let (fvarId, mvarId) ← goal.mvarId.intro1P
     mvarId.withContext do
@@ -112,11 +101,24 @@ def introNext (goal : Goal) : PreM IntroResult := do
   else
     return .done
 
-def pushTodo (goal : Goal) : PreM Unit :=
-  modify fun s => { s with todo := goal :: s.todo }
-
 def pushResult (goal : Goal) : PreM Unit :=
   modifyThe Grind.State fun s => { s with goals := s.goals.push goal }
+
+partial def preprocess (goal : Goal) : PreM Unit := do
+  trace[Meta.debug] "{goal.mvarId}"
+  match (← introNext goal) with
+  | .done =>
+    if let some mvarId ← goal.mvarId.byContra? then
+      preprocess { goal with mvarId }
+    else
+      pushResult goal
+  | .newHyp fvarId goal =>
+    -- TODO: apply eliminators
+    let clause ← goal.mvarId.withContext do mkInputClause fvarId
+    preprocess { goal with clauses := goal.clauses.push clause }
+  | .newLocal _ goal =>
+    -- TODO: apply eliminators
+    preprocess goal
 
 end Preprocessor
 
@@ -130,25 +132,7 @@ partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := 
   let mvarId ← mvarId.abstractNestedProofs mainDeclName
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
-  let s ← (loop *> getThe Grind.State) |>.run mvarId |>.run mainDeclName
+  let s ← (preprocess { mvarId } *> getThe Grind.State) |>.run |>.run mainDeclName
   return s
-where
-  loop : PreM Unit := do
-    let some goal ← getNextGoal? | return ()
-    trace[Meta.debug] "{goal.mvarId}"
-    match (← introNext goal) with
-    | .done =>
-      -- TODO: apply `byContradiction`
-      pushResult goal
-      return ()
-    | .newHyp fvarId goal =>
-      -- TODO: apply eliminators
-      let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      pushTodo { goal with clauses := goal.clauses.push clause }
-      loop
-    | .newLocal _ goal =>
-      -- TODO: apply eliminators
-      pushTodo goal
-      loop
 
 end Lean.Meta.Grind

@@ -16,7 +16,8 @@ info: a b c : Bool
 p q : Prop
 h : a = true ∧ (b = true ∨ c = true)
 h' : p ∧ q
-⊢ (b && a) = true
+x✝ : b = false ∨ a = false
+⊢ False
 -/
 #guard_msgs in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -28,6 +29,7 @@ def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   grind_pre
-  guard_target = @g (i+1) j (_example.proof_1 i j _) = i + j + 1
   guard_hyp h : j + 1 ≤ i
-  simp_arith [g]
+  next hn =>
+  guard_hyp hn : ¬g (i + 1) j _ = i + j + 1
+  simp_arith [g] at hn

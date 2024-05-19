@@ -39,6 +39,7 @@ def PreM.run (x : PreM α) (mvarId : MVarId) : GrindM α := do
   let thms ← grindNormExt.getTheorems
   let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
   let simp : Simp.Context := {
+    config := { arith := true }
     simpTheorems := #[thms]
     congrTheorems := (← getSimpCongrTheorems)
   }

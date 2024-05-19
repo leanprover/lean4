@@ -60,11 +60,20 @@ def mkDiagSummaryForUnfoldedReducible (counters : PHashMap Name Nat) : MetaM Dia
 def mkDiagSummaryForUsedInstances : MetaM DiagSummary := do
   mkDiagSummary (← get).diag.instanceCounter
 
-def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSummary) : MessageData :=
+def mkDiagSynthPendingFailure (failures : PHashMap Expr MessageData) : MetaM DiagSummary := do
+  if failures.isEmpty then
+    return {}
+  else
+    let mut data := #[]
+    for (_, msg) in failures do
+      data := data.push m!"{if data.isEmpty then "  " else "\n"}{msg}"
+    return { data }
+
+def appendSection (m : MessageData) (cls : Name) (header : String) (s : DiagSummary) (resultSummary := true) : MessageData :=
   if s.isEmpty then
     m
   else
-    let header := s!"{header} (max: {s.max}, num: {s.data.size}):"
+    let header := if resultSummary then s!"{header} (max: {s.max}, num: {s.data.size}):" else header
     m ++ .trace { cls } header s.data
 
 def reportDiag : MetaM Unit := do
@@ -75,13 +84,17 @@ def reportDiag : MetaM Unit := do
     let unfoldReducible ← mkDiagSummaryForUnfoldedReducible unfoldCounter
     let heu ← mkDiagSummary (← get).diag.heuristicCounter
     let inst ← mkDiagSummaryForUsedInstances
+    let synthPending ← mkDiagSynthPendingFailure (← get).diag.synthPendingFailures
     let unfoldKernel ← mkDiagSummary (Kernel.getDiagnostics (← getEnv)).unfoldCounter
-    unless unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty && heu.isEmpty && inst.isEmpty do
+    unless unfoldDefault.isEmpty && unfoldInstance.isEmpty && unfoldReducible.isEmpty && heu.isEmpty && inst.isEmpty && synthPending.isEmpty do
       let m := MessageData.nil
       let m := appendSection m `reduction "unfolded declarations" unfoldDefault
       let m := appendSection m `reduction "unfolded instances" unfoldInstance
       let m := appendSection m `reduction "unfolded reducible declarations" unfoldReducible
       let m := appendSection m `type_class "used instances" inst
+      let m := appendSection m `type_class
+                 s!"max synth pending failures (maxSynthPendingDepth: {maxSynthPendingDepth.get (← getOptions)}), use `set_option maxSynthPendingDepth <limit>`"
+                 synthPending (resultSummary := false)
       let m := appendSection m `def_eq "heuristic for solving `f a =?= f b`" heu
       let m := appendSection m `kernel "unfolded declarations" unfoldKernel
       let m := m ++ "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"

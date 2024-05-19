@@ -382,6 +382,10 @@ example (x : Nat) : x < 2 →
     (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2) ∧ (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2 → x < 3) := by
   omega
 
+-- Reported in Lean FRO office hours 2024-05-16 by Michael George
+example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
+  omega
+
 /-! ### Fin -/
 
 -- Test `<`
@@ -425,6 +429,10 @@ example (x e : Nat) (hx : x < 2^(e.succ)) : x < 2^e * 2 := by omega
 
 -- Check that this works for integer base.
 example (x : Int) (e : Nat) (hx : x < (2 : Int)^(e+1)) : x < 2^e * 2 := by omega
+
+example (n : Nat) (i : Int) (h2n : (2 : Int) ^ n = ↑((2 : Nat) ^ (n : Nat)))
+    (hlt : i % 2 ^ n < 2 ^ n) :  2 ^ n ≠ 0 := by
+  omega
 
 /-! ### Ground terms -/
 

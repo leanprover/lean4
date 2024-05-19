@@ -50,7 +50,10 @@ noncomputable def div2Induction {motive : Nat → Sort u}
       apply hyp
       exact Nat.div_lt_self n_pos (Nat.le_refl _)
 
-@[simp] theorem zero_and (x : Nat) : 0 &&& x = 0 := by rfl
+@[simp] theorem zero_and (x : Nat) : 0 &&& x = 0 := by
+  simp only [HAnd.hAnd, AndOp.and, land]
+  unfold bitwise
+  simp
 
 @[simp] theorem and_zero (x : Nat) : x &&& 0 = 0 := by
   simp only [HAnd.hAnd, AndOp.and, land]
@@ -188,8 +191,6 @@ theorem lt_pow_two_of_testBit (x : Nat) (p : ∀i, i ≥ n → testBit x i = fal
   have test_false := p _ i_ge_n
   simp only [test_true] at test_false
 
-/-! ### testBit -/
-
 private theorem succ_mod_two : succ x % 2 = 1 - x % 2 := by
   induction x with
   | zero =>
@@ -233,7 +234,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
     rw [Nat.sub_eq_zero_iff_le] at i_sub_j_eq
     exact Nat.not_le_of_gt j_lt_i i_sub_j_eq
   | d+1 =>
-    simp [Nat.pow_succ, Nat.mul_comm _ 2,  Nat.mul_add_mod]
+    simp [Nat.pow_succ, Nat.mul_comm _ 2, Nat.mul_add_mod]
 
 @[simp] theorem testBit_mod_two_pow (x j i : Nat) :
     testBit (x % 2^j) i = (decide (i < j) && testBit x i) := by
@@ -257,7 +258,7 @@ theorem testBit_two_pow_add_gt {i j : Nat} (j_lt_i : j < i) (x : Nat) :
             exact Nat.lt_add_of_pos_right (Nat.two_pow_pos j)
       simp only [hyp y y_lt_x]
       if i_lt_j : i < j then
-        rw [ Nat.add_comm _ (2^_), testBit_two_pow_add_gt i_lt_j]
+        rw [Nat.add_comm _ (2^_), testBit_two_pow_add_gt i_lt_j]
       else
         simp [i_lt_j]
 
@@ -402,12 +403,12 @@ theorem and_pow_two_identity {x : Nat} (lt : x < 2^n) : x &&& 2^n-1 = x := by
 
 /-! ### lor -/
 
-@[simp] theorem or_zero (x : Nat) : 0 ||| x = x := by
+@[simp] theorem zero_or (x : Nat) : 0 ||| x = x := by
   simp only [HOr.hOr, OrOp.or, lor]
   unfold bitwise
   simp [@eq_comm _ 0]
 
-@[simp] theorem zero_or (x : Nat) : x ||| 0 = x := by
+@[simp] theorem or_zero (x : Nat) : x ||| 0 = x := by
   simp only [HOr.hOr, OrOp.or, lor]
   unfold bitwise
   simp [@eq_comm _ 0]

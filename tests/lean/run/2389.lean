@@ -14,6 +14,8 @@ inductive Tree : Type :=
 
 set_option trace.Meta.IndPredBelow true in
 
+/-- info: [Meta.IndPredBelow] Nested or not recursive -/
+#guard_msgs in
 /-- Despite not having `.below` and `.brecOn`,
 the type is still usable thanks to well-founded recursion. -/
 inductive OnlyZeros : Tree → Prop :=
@@ -26,7 +28,9 @@ def onlyZeros : Tree → Prop
   | .node [] => True
   | .node (x::s) => onlyZeros x ∧ onlyZeros (.node s)
 
-/-- Pattern-matching on `OnlyZeros` works despite `below` and `brecOn` not being generated. -/
+unseal onlyZeros in
+/-- Pattern-matching on `OnlyZeros` works despite `below` and `brecOn` not being generated
+if we make `onlyZeros` semireducible-/
 def toFixPoint : OnlyZeros t → onlyZeros t
   | .leaf => rfl
   | .node [] _ => True.intro

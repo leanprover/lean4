@@ -36,13 +36,13 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_hasSorry___spec__2_
 static lean_object* l_Lean_Expr_hasSorry___closed__1;
 static lean_object* l_Lean_Expr_isSorry___closed__1;
 static lean_object* l_Lean_Expr_hasNonSyntheticSorry___closed__1;
-lean_object* l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasSyntheticSorry___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Declaration_hasSorry(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_hasSorry___spec__4___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_hasNonSyntheticSorry___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_isSyntheticSorry___closed__2;
+lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasNonSyntheticSorry___spec__1(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_hasSorry___spec__3___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
@@ -480,7 +480,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSorry___closed__1;
-x_3 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_2, x_1);
+x_3 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -528,7 +528,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasSyntheticSorry___closed__1;
-x_3 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_2, x_1);
+x_3 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -566,7 +566,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Expr_hasNonSyntheticSorry___closed__1;
-x_3 = l_Lean_Expr_FindImpl_findUnsafeM_x3f___at_Lean_Expr_FindImpl_findUnsafe_x3f___spec__1(x_2, x_1);
+x_3 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_2, x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

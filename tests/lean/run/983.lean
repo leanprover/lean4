@@ -12,7 +12,7 @@ def evalMcases : Tactic
 | `(tactic| mcases $hyp) => do
   let hyp ← getFVarId hyp
   liftMetaTactic fun goal => do
-    let goals ← Lean.Meta.cases goal hyp
+    let goals ← goal.cases hyp
     return goals.map (·.mvarId) |>.toList
 | _ => unreachable!
 

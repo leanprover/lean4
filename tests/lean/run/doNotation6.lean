@@ -32,8 +32,16 @@ for x in xs do
     break
 return sum
 
+/-- info: result 6 -/
+#guard_msgs in
 #eval testM 100 6 $ f2 [1, 2, 3]
+
+/-- info: result 101 -/
+#guard_msgs in
 #eval testM 200 101 $ f2 [1, 100, 200, 300]
+
+/-- info: result 1 -/
+#guard_msgs in
 #eval testM 1 1 $ f2 [1, 100, 200, 300]
 
 def f3 (xs : List Nat) : M Nat := do
@@ -49,8 +57,16 @@ for x in xs do
     return sum
 return sum
 
+/-- info: result 6 -/
+#guard_msgs in
 #eval testM 100 6 $ f3 [1, 2, 3]
+
+/-- info: result 101 -/
+#guard_msgs in
 #eval testM 200 101 $ f3 [1, 100, 200, 300]
+
+/-- info: result 1 -/
+#guard_msgs in
 #eval testM 1 1 $ f3 [1, 100, 200, 300]
 
 def f4 (xs : Array Nat) : IO Nat := do
@@ -60,6 +76,13 @@ for x in xs do
   IO.println x
 return sum
 
+/--
+info: 1
+2
+3
+6
+-/
+#guard_msgs in
 #eval f4 #[1, 2, 3]
 
 def f5 (xs : Array Nat) : IO Nat := do
@@ -69,4 +92,12 @@ for x in xs[1 : xs.size - 1] do
   IO.println x
 return sum
 
+/--
+info: 2
+3
+4
+5
+14
+-/
+#guard_msgs in
 #eval f5 #[1, 2, 3, 4, 5, 6]

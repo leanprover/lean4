@@ -89,6 +89,7 @@ static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__
 LEAN_EXPORT lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d_x27____1(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__12;
+LEAN_EXPORT lean_object* l___auto____x40_Init_GetElem___hyg_1019_;
 static lean_object* l_term_____x5b___x5d___closed__1;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__9;
 static lean_object* l_Lean_Syntax_instGetElemNatTrue___closed__2;
@@ -116,7 +117,6 @@ static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__
 static lean_object* l_Lean_Syntax_instGetElemNatTrue___closed__3;
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__5;
-LEAN_EXPORT lean_object* l___auto____x40_Init_GetElem___hyg_1057_;
 static lean_object* l_term_____x5b___x5d___closed__18;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1018____closed__21;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__24;
@@ -1850,7 +1850,7 @@ x_1 = l___auto____x40_Init_GetElem___hyg_1018____closed__24;
 return x_1;
 }
 }
-static lean_object* _init_l___auto____x40_Init_GetElem___hyg_1057_() {
+static lean_object* _init_l___auto____x40_Init_GetElem___hyg_1019_() {
 _start:
 {
 lean_object* x_1; 
@@ -2808,8 +2808,8 @@ l___auto____x40_Init_GetElem___hyg_1018____closed__24 = _init_l___auto____x40_In
 lean_mark_persistent(l___auto____x40_Init_GetElem___hyg_1018____closed__24);
 l___auto____x40_Init_GetElem___hyg_1018_ = _init_l___auto____x40_Init_GetElem___hyg_1018_();
 lean_mark_persistent(l___auto____x40_Init_GetElem___hyg_1018_);
-l___auto____x40_Init_GetElem___hyg_1057_ = _init_l___auto____x40_Init_GetElem___hyg_1057_();
-lean_mark_persistent(l___auto____x40_Init_GetElem___hyg_1057_);
+l___auto____x40_Init_GetElem___hyg_1019_ = _init_l___auto____x40_Init_GetElem___hyg_1019_();
+lean_mark_persistent(l___auto____x40_Init_GetElem___hyg_1019_);
 l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__1 = _init_l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__1();
 lean_mark_persistent(l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__1);
 l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__2 = _init_l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__2();

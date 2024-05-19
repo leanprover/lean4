@@ -165,4 +165,6 @@ instance Field.isDomain [Field K] : IsDomain K :=
 end Mathlib.Algebra.Field.Basic
 
 set_option synthInstance.maxHeartbeats 200 in
-#synth Zero Int -- works fine
+/-- info: MonoidWithZero.toZero -/
+#guard_msgs in
+#synth Zero Int

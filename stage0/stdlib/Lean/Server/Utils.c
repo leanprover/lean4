@@ -51,7 +51,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta;
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_DocumentMeta_mkInputContext(lean_object*);
 lean_object* lean_stream_of_handle(lean_object*);
-LEAN_EXPORT lean_object* l_System_SearchPath_searchModuleNameOfUri___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_mkFileProgressNotification___closed__1;
 lean_object* lean_io_prim_handle_mk(lean_object*, uint8_t, lean_object*);
@@ -1695,9 +1694,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_4 = lean_ctor_get(x_1, 2);
+lean_inc(x_4);
+lean_inc(x_4);
 x_5 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_2);
 x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
 x_7 = lean_string_utf8_byte_size(x_6);
+lean_dec(x_6);
 x_8 = l_Lean_FileMap_utf8PosToLspPos(x_4, x_7);
 lean_dec(x_7);
 x_9 = lean_alloc_ctor(0, 2, 0);
@@ -1709,6 +1712,7 @@ lean_ctor_set_uint8(x_10, sizeof(void*)*1, x_3);
 x_11 = l_Lean_Server_mkFileProgressAtPosNotification___closed__1;
 x_12 = lean_array_push(x_11, x_10);
 x_13 = l_Lean_Server_mkFileProgressNotification(x_1, x_12);
+lean_dec(x_1);
 return x_13;
 }
 }
@@ -1720,7 +1724,6 @@ x_4 = lean_unbox(x_3);
 lean_dec(x_3);
 x_5 = l_Lean_Server_mkFileProgressAtPosNotification(x_1, x_2, x_4);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -1778,6 +1781,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_1);
 x_4 = l_Lean_FileMap_utf8PosToLspPos(x_1, x_3);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = l_Lean_FileMap_utf8PosToLspPos(x_1, x_5);
@@ -1793,7 +1797,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_String_Range_toLspRange(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -1805,6 +1808,7 @@ x_4 = l_System_Uri_fileUriToPath_x3f(x_2);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
+lean_dec(x_1);
 x_5 = lean_box(0);
 x_6 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
@@ -1820,15 +1824,6 @@ lean_dec(x_4);
 x_8 = l_Lean_searchModuleNameOfFileName(x_7, x_1, x_3);
 return x_8;
 }
-}
-}
-LEAN_EXPORT lean_object* l_System_SearchPath_searchModuleNameOfUri___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_System_SearchPath_searchModuleNameOfUri(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Init_System_Uri(uint8_t builtin, lean_object*);

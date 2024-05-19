@@ -56,6 +56,7 @@ static lean_object* l_Lean_Option_registerBuiltinOption___closed__15;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__8;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__24;
 LEAN_EXPORT lean_object* l_Lean_Option_set(lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1050_;
 LEAN_EXPORT lean_object* l_Lean_Option_get___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringOptions;
 LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,7 +139,6 @@ lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__33;
 static lean_object* l_Lean_Option_registerOption___closed__11;
 LEAN_EXPORT lean_object* l_Lean_withInPattern___rarg___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1080_;
 LEAN_EXPORT lean_object* l_Lean_Option_register(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__35;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,6 +170,7 @@ LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___lambda__1(lean_object*, l
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_getNatOption___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_143_(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_instForInOptionsProdNameDataValue___closed__1;
@@ -216,7 +217,6 @@ static lean_object* l___auto____x40_Lean_Data_Options___hyg_69____closed__3;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__28;
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_registerOption___lambda__2___closed__1;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_173_(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__15;
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_69____closed__4;
 LEAN_EXPORT lean_object* l_Lean_getBoolOption___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -676,7 +676,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_173_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_143_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -1688,7 +1688,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Option_setIfNotSet___rarg), 4, 0);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Data_Options___hyg_1080_() {
+static lean_object* _init_l___auto____x40_Lean_Data_Options___hyg_1050_() {
 _start:
 {
 lean_object* x_1; 
@@ -3216,7 +3216,7 @@ l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl);
 l_Lean_instInhabitedOptionDecls = _init_l_Lean_instInhabitedOptionDecls();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecls);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_173_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_143_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Data_Options_0__Lean_optionDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Data_Options_0__Lean_optionDeclsRef);
@@ -3245,8 +3245,8 @@ l_Lean_Option_Decl_group___default = _init_l_Lean_Option_Decl_group___default();
 lean_mark_persistent(l_Lean_Option_Decl_group___default);
 l_Lean_Option_Decl_descr___default = _init_l_Lean_Option_Decl_descr___default();
 lean_mark_persistent(l_Lean_Option_Decl_descr___default);
-l___auto____x40_Lean_Data_Options___hyg_1080_ = _init_l___auto____x40_Lean_Data_Options___hyg_1080_();
-lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_1080_);
+l___auto____x40_Lean_Data_Options___hyg_1050_ = _init_l___auto____x40_Lean_Data_Options___hyg_1050_();
+lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_1050_);
 l_Lean_Option_registerBuiltinOption___closed__1 = _init_l_Lean_Option_registerBuiltinOption___closed__1();
 lean_mark_persistent(l_Lean_Option_registerBuiltinOption___closed__1);
 l_Lean_Option_registerBuiltinOption___closed__2 = _init_l_Lean_Option_registerBuiltinOption___closed__2();

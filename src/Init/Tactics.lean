@@ -835,7 +835,7 @@ syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 /--
 `repeat tac` repeatedly applies `tac` to the main goal until it fails.
 That is, if `tac` produces multiple subgoals, only subgoals up to the first failure will be visited.
-The `Std` library provides `repeat'` which repeats separately in each subgoal.
+The `Batteries` library provides `repeat'` which repeats separately in each subgoal.
 -/
 syntax "repeat " tacticSeq : tactic
 macro_rules
@@ -1266,7 +1266,7 @@ Optional arguments passed via a configuration argument as `solve_by_elim (config
   but it is often useful to change to `.reducible`,
   so semireducible definitions will not be unfolded when trying to apply a lemma.
 
-See also the doc-comment for `Std.Tactic.BacktrackConfig` for the options
+See also the doc-comment for `Lean.Meta.Tactic.Backtrack.BacktrackConfig` for the options
 `proc`, `suspend`, and `discharge` which allow further customization of `solve_by_elim`.
 Both `apply_assumption` and `apply_rules` are implemented via these hooks.
 -/
@@ -1424,6 +1424,16 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+/--
+Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.
+-/
+syntax (name := grind_norm) "grind_norm" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+/--
+Simplification procedures tagged with the `grind_norm_proc` attribute are used by the `grind` tactic normalizer/pre-processor.
+-/
+syntax (name := grind_norm_proc) "grind_norm_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
 
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/

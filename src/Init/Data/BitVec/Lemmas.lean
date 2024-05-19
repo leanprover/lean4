@@ -146,7 +146,8 @@ theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
   getLsb (x#n) i = (i < n && x.testBit i) := by
   simp [getLsb, BitVec.ofNat, Fin.val_ofNat']
 
-@[simp, deprecated toNat_ofNat] theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
+@[simp, deprecated toNat_ofNat (since := "2024-02-22")]
+theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 
 @[simp] theorem getLsb_zero : (0#w).getLsb i = false := by simp [getLsb]
 
@@ -244,6 +245,12 @@ theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
   have _ilt := i.isLt
   have _jlt := j.isLt
   split <;> split <;> omega
+
+theorem toInt_inj (x y : BitVec n) : x.toInt = y.toInt ↔ x = y :=
+  Iff.intro eq_of_toInt_eq (congrArg BitVec.toInt)
+
+theorem toInt_ne (x y : BitVec n) : x.toInt ≠ y.toInt ↔ x ≠ y  := by
+  rw [Ne, toInt_inj]
 
 @[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
@@ -602,6 +609,17 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     (shiftLeftZeroExtend x i).msb = x.msb := by
   simp [shiftLeftZeroExtend_eq, BitVec.msb]
 
+theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x <<< n) <<< m = x <<< (n + m) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]
+  rw [show i - (n + m) = (i - m - n) by omega]
+  cases h₂ : decide (i < m) <;>
+  cases h₃ : decide (i - m < w) <;>
+  cases h₄ : decide (i - m < n) <;>
+  cases h₅ : decide (i < n + m) <;>
+    simp at * <;> omega
+
 /-! ### ushiftRight -/
 
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
@@ -686,6 +704,11 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext i
   simp only [getLsb_append, cond_eq_if]
   split <;> simp [*]
+
+theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x >>> n) >>> m = x >>> (n + m) := by
+  ext i
+  simp [Nat.add_assoc n m i]
 
 /-! ### rev -/
 
@@ -897,7 +920,7 @@ theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq
-  have y_toNat_le := Nat.le_of_lt y.toNat_lt
+  have y_toNat_le := Nat.le_of_lt y.isLt
   rw [toNat_sub, toNat_add, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
     Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
 
@@ -918,6 +941,13 @@ theorem negOne_eq_allOnes : -1#w = allOnes w := by
     have q : 1 < 2^w := by simp [g]
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
+
+theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
+  apply eq_of_toNat_eq
+  simp only [toNat_neg, ofNat_eq_ofNat, toNat_add, toNat_not, toNat_ofNat, Nat.add_mod_mod]
+  congr
+  have hx : x.toNat < 2^w := x.isLt
+  rw [Nat.sub_sub, Nat.add_comm 1 x.toNat, ← Nat.sub_sub, Nat.sub_add_cancel (by omega)]
 
 /-! ### mul -/
 

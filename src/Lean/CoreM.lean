@@ -30,6 +30,8 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
@@ -78,12 +80,6 @@ structure Context where
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
-  /--
-  If `catchRuntimeEx = false`, then given `try x catch ex => h ex`,
-  an runtime exception occurring in `x` is not handled by `h`.
-  Recall that runtime exceptions are `maxRecDepth` or `maxHeartbeats`.
-  -/
-  catchRuntimeEx : Bool := false
   /--
   If `diag := true`, different parts of the system collect diagnostics.
   Use the `set_option diag true` to set it to true.
@@ -250,8 +246,16 @@ protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m �
     -- should never be visible to users!
     throw <| Exception.error .missing "elaboration interrupted"
 
+register_builtin_option debug.moduleNameAtTimeout : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
+}
+
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let msg := s!"(deterministic) timeout at `{moduleName}`, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
+  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
+  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -328,7 +332,8 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
   match ex with
-  | Exception.error _ (MessageData.ofFormat (Std.Format.text msg)) => "(deterministic) timeout".isPrefixOf msg
+  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
+    "(deterministic) timeout".isPrefixOf msg
   | _ => false
 
 /-- Creates the expression `d → b` -/
@@ -337,15 +342,6 @@ def mkArrow (d b : Expr) : CoreM Expr :=
 
 /-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
 def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
-
-def addDecl (decl : Declaration) : CoreM Unit := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl decl with
-      | Except.ok    env => setEnv env
-      | Except.error ex  => throwKernelException ex
 
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
@@ -400,10 +396,6 @@ def compileDecls (decls : List Name) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
-  addDecl decl;
-  compileDecl decl
-
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
 
@@ -428,30 +420,36 @@ in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `M
   try
     x
   catch ex =>
-    if ex.isRuntime && !(← read).catchRuntimeEx then
-      throw ex
+    if ex.isRuntime then
+      throw ex -- We should use `tryCatchRuntimeEx` for catching runtime exceptions
     else
       h ex
+
+@[inline] protected def Core.tryCatchRuntimeEx (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
+  try
+    x
+  catch ex =>
+    h ex
 
 instance : MonadExceptOf Exception CoreM where
   throw    := throw
   tryCatch := Core.tryCatch
 
-@[inline] def Core.withCatchingRuntimeEx (flag : Bool) (x : CoreM α) : CoreM α :=
-  withReader (fun ctx => { ctx with catchRuntimeEx := flag }) x
+class MonadRuntimeException (m : Type → Type) where
+  tryCatchRuntimeEx (body : m α) (handler : Exception → m α) : m α
+
+export MonadRuntimeException (tryCatchRuntimeEx)
+
+instance : MonadRuntimeException CoreM where
+  tryCatchRuntimeEx := Core.tryCatchRuntimeEx
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (ReaderT ρ m) where
+  tryCatchRuntimeEx := fun x c r => tryCatchRuntimeEx (x r) (fun e => (c e) r)
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (StateRefT' ω σ m) where
+  tryCatchRuntimeEx := fun x c s => tryCatchRuntimeEx (x s) (fun e => c e s)
 
 @[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
   controlAt CoreM fun runInBase => f <| runInBase x
-
-/--
-Execute `x` with `catchRuntimeEx = flag`. That is, given `try x catch ex => h ex`,
-if `x` throws a runtime exception, the handler `h` will be invoked if `flag = true`
-Recall that
--/
-@[inline] def withCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx true) x
-
-@[inline] def withoutCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx false) x
 
 end Lean

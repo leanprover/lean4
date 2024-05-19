@@ -23,16 +23,14 @@ even if the definitional equality test were inexpensive.
 
 This module aims to efficiently identify terms that are structurally different, definitionally equal, and structurally equal
 when we disregard implicit arguments like `@id (Id Nat) x` and `@id Nat x`. The procedure is straightforward. For each atom,
-we create a new abstracted atom by erasing all implicit information. We refer to this abstracted atom as a 'key.' For the two
-terms mentioned, the key would be `@id _ x`, where `_` denotes a placeholder for a dummy term. To preserve any
-pre-existing directed acyclic graph (DAG) structure and prevent exponential blowups while constructing the key, we employ
-unsafe techniques, such as pointer equality. Additionally, we maintain a mapping from keys to lists of terms, where each
-list contains terms sharing the same key but not definitionally equal. We posit that these lists will be small in practice.
+we create a hash that ignores all implicit information. Thus the hash for terms are equal `@id (Id Nat) x` and `@id Nat x`.
+To preserve any pre-existing directed acyclic graph (DAG) structure and prevent exponential blowups while computing the hash code,
+we employ unsafe techniques, such as pointer equality. Additionally, we maintain a mapping from hash to lists of terms, where each
+list contains terms sharing the same hash but not definitionally equal. We posit that these lists will be small in practice.
 -/
 
 /--
-Auxiliary structure for creating a pointer-equality mapping from `Expr` to `Key`.
-We use this mapping to ensure we preserve the dag-structure of input expressions.
+Auxiliary structure for creating a pointer-equality.
 -/
 structure ExprVisited where
   e : Expr
@@ -44,21 +42,17 @@ unsafe instance : BEq ExprVisited where
 unsafe instance : Hashable ExprVisited where
   hash a := USize.toUInt64 (ptrAddrUnsafe a)
 
-abbrev Key := ExprVisited
-
 /--
 State for the `CanonM` monad.
 -/
 structure State where
-  /-- "Set" of all keys created so far. This is a hash-consing helper structure available in Lean. -/
-  keys       : ShareCommon.State.{0} Lean.ShareCommon.objectFactory := ShareCommon.State.mk Lean.ShareCommon.objectFactory
-  /-- Mapping from `Expr` to `Key`. See comment at `ExprVisited`. -/
+  /-- Mapping from `Expr` to hash. -/
   -- We use `HashMapImp` to ensure we don't have to tag `State` as `unsafe`.
-  cache      : HashMapImp ExprVisited Key := mkHashMapImp
+  cache      : HashMapImp ExprVisited UInt64 := mkHashMapImp
   /--
-  Given a key `k` and `keyToExprs.find? k = some es`, we have that all `es` share key `k`, and
+  Given a hashcode `k` and `keyToExprs.find? h = some es`, we have that all `es` have hashcode `k`, and
   are not definitionally equal modulo the transparency setting used. -/
-  keyToExprs : HashMapImp Key (List Expr) := mkHashMapImp
+  keyToExprs : HashMap UInt64 (List Expr) := mkHashMap
 
 instance : Inhabited State where
   default := {}
@@ -72,26 +66,20 @@ We claim `TransparencyMode.instances` is a good setting for most applications.
 def CanonM.run (x : CanonM α) (transparency := TransparencyMode.instances) : MetaM α :=
   StateRefT'.run' (x transparency) {}
 
-private def shareCommon (a : α) : CanonM α :=
-  modifyGet fun { keys, cache, keyToExprs } =>
-    let (a, keys) := ShareCommon.State.shareCommon keys a
-    (a, { keys, cache, keyToExprs })
-
-private partial def mkKey (e : Expr) : CanonM Key := do
-  if let some key := unsafe (← get).cache.find? { e } then
-    return key
+private partial def mkKey (e : Expr) : CanonM UInt64 := do
+  if let some hash := unsafe (← get).cache.find? { e } then
+    return hash
   else
     let key ← match e with
       | .sort .. | .fvar .. | .bvar .. | .lit .. =>
-        pure { e := (← shareCommon e) }
+        return hash e
       | .const n _ =>
-        pure { e := (← shareCommon (.const n [])) }
+        return n.hash
       | .mvar .. =>
         -- We instantiate assigned metavariables because the
         -- pretty-printer also instantiates them.
         let eNew ← instantiateMVars e
-        if eNew == e then pure { e := (← shareCommon e) }
-        else mkKey eNew
+        if eNew == e then return hash e else mkKey eNew
       | .mdata _ a => mkKey a
       | .app .. =>
         let f := e.getAppFn
@@ -100,26 +88,23 @@ private partial def mkKey (e : Expr) : CanonM Key := do
           unless eNew == e do
             return (← mkKey eNew)
         let info ← getFunInfo f
-        let args ← e.getAppArgs.mapIdxM fun i arg => do
+        let mut k ← mkKey f
+        for i in [:e.getAppNumArgs] do
           if h : i < info.paramInfo.size then
             let info := info.paramInfo[i]
             if info.isExplicit && !info.isProp then
-              pure (← mkKey arg).e
-            else
-              pure (mkSort 0) -- some dummy value for erasing implicit
+              k := mixHash k (← mkKey (e.getArg! i))
           else
-            pure (← mkKey arg).e
-        let f' := (← mkKey f).e
-        pure { e := (← shareCommon (mkAppN f' args)) }
-      | .lam n t b i =>
-        pure { e := (← shareCommon (.lam n (← mkKey t).e (← mkKey b).e i)) }
-      | .forallE n t b i =>
-        pure { e := (← shareCommon (.forallE n (← mkKey t).e (← mkKey b).e i)) }
-      | .letE n t v b d =>
-        pure { e := (← shareCommon (.letE n (← mkKey t).e (← mkKey v).e (← mkKey b).e d)) }
-      | .proj t i s =>
-        pure { e := (← shareCommon (.proj t i (← mkKey s).e)) }
-    unsafe modify fun { keys, cache, keyToExprs} => { keys, keyToExprs, cache := cache.insert { e } key |>.1 }
+              k := mixHash k (← mkKey (e.getArg! i))
+        return k
+      | .lam _ t b _
+      | .forallE _ t b _ =>
+        return mixHash (← mkKey t) (← mkKey b)
+      | .letE _ _ v b _ =>
+        return mixHash (← mkKey v) (← mkKey b)
+      | .proj _ i s =>
+        return mixHash i.toUInt64 (← mkKey s)
+    unsafe modify fun { cache, keyToExprs} => { keyToExprs, cache := cache.insert { e } key |>.1 }
     return key
 
 /--
@@ -135,11 +120,11 @@ def canon (e : Expr) : CanonM Expr := do
         if (← isDefEq e e') then
           return e'
       -- `e` is not definitionally equal to any expression in `es'`. We claim this should be rare.
-      unsafe modify fun { keys, cache, keyToExprs } => { keys, cache, keyToExprs := keyToExprs.insert k (e :: es') |>.1 }
+      unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k (e :: es') }
       return e
   else
     -- `e` is the first expression we found with key `k`.
-    unsafe modify fun { keys, cache, keyToExprs } => { keys, cache, keyToExprs := keyToExprs.insert k [e] |>.1 }
+    unsafe modify fun { cache, keyToExprs } => { cache, keyToExprs := keyToExprs.insert k [e] }
     return e
 
 end Canonicalizer

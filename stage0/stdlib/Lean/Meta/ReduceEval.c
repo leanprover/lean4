@@ -633,11 +633,11 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = l_Lean_indentExpr(x_1);
 x_8 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg___closed__2;
-x_9 = lean_alloc_ctor(7, 2, 0);
+x_9 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 x_10 = l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___rarg___closed__4;
-x_11 = lean_alloc_ctor(7, 2, 0);
+x_11 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Lean_throwError___at___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFailedToEval___spec__1___rarg(x_11, x_2, x_3, x_4, x_5, x_6);

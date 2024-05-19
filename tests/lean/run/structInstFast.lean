@@ -92,7 +92,12 @@ def foo : String := "foo"
 
 deep_wide_struct_inst_with String foo 50 20
 
-/- Structure instances using the `with` pattern should be fast. Without #2478, this takes over 700
-  heartbeats. -/
-set_option maxHeartbeats 200 in
+/-
+Structure instances using the `with` pattern should be fast.
+Without #2478, this takes over 700 heartbeats in the elaborator.
+
+Remark: we are now propagating heartbeats to the kernel, and
+had to increase it value to 1000
+ -/
+set_option maxHeartbeats 1000 in
 example : a0 = a'0 := rfl

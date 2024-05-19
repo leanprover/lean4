@@ -93,3 +93,7 @@ def tryCatch {ε : Type v} [MonadExceptOf ε m] {α : Type v} (self : EquipT ρ 
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (EquipT ρ m) where
   throw    := EquipT.throw
   tryCatch := EquipT.tryCatch
+
+@[always_inline]
+instance [MonadFinally m] [Monad m] : MonadFinally (EquipT ρ m) where
+  tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)

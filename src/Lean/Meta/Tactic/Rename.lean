@@ -18,7 +18,7 @@ def _root_.Lean.MVarId.rename (mvarId : MVarId) (fvarId : FVarId) (userNameNew :
   mvarId.assign mvarNew
   return mvarNew.mvarId!
 
-@[deprecated MVarId.rename]
+@[deprecated MVarId.rename (since := "2022-07-15")]
 def rename (mvarId : MVarId) (fvarId : FVarId) (newUserName : Name) : MetaM MVarId :=
   mvarId.rename fvarId newUserName
 

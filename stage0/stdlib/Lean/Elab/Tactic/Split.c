@@ -291,6 +291,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_15 = !lean_is_exclusive(x_10);
 if (x_15 == 0)
@@ -327,6 +328,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 x_21 = !lean_is_exclusive(x_10);
 if (x_21 == 0)
@@ -1383,7 +1385,6 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_Elab_Tactic_evalSplit___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_9;
 }
 }

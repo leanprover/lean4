@@ -208,19 +208,17 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_box(0);
 x_11 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_3, x_10);
 x_12 = l_Lean_MessageData_ofList(x_11);
-lean_dec(x_11);
 x_13 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__2;
-x_14 = lean_alloc_ctor(7, 2, 0);
+x_14 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_12);
 x_15 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__4;
-x_16 = lean_alloc_ctor(7, 2, 0);
+x_16 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
 x_18 = l_Lean_Meta_throwTacticEx___rarg(x_1, x_2, x_17, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_17);
 return x_18;
 }
 else

@@ -561,11 +561,17 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          unless entry.answers.isEmpty do
+          if entry.answers.any fun answer => answer.result.numMVars == 0 then
             /-
-            We already have an answer for this node, and since its type does not have metavariables,
-            we can skip other solutions because we assume instances are "morally canonical".
+            We already have an answer that:
+              1. its result does not have metavariables.
+              2. its types do not have metavariables.
+
+            Thus, we can skip other solutions because we assume instances are "morally canonical".
             We have added this optimization to address issue #3996.
+
+            Remark: Condition 1 is important since root nodes only take into account results
+            that do **not** contain metavariables. This extra check was added to address issue #4213.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
             return
@@ -633,14 +639,11 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
-     -- TODO: it would be nice to have a nice notation for the following idiom
-     withCatchingRuntimeEx
-       try
-         withoutCatchingRuntimeEx do
-           action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
-       catch ex =>
+     tryCatchRuntimeEx
+       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
+       fun ex =>
          if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
          else
            throw ex
 
@@ -663,18 +666,6 @@ private def preprocess (type : Expr) : MetaM Expr :=
   forallTelescopeReducing type fun xs type => do
     let type ← whnf type
     mkForallFVars xs type
-
-private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := do
-  let mut r := #[]
-  let mut modified := false
-  for u in us do
-    let u ← instantiateLevelMVars u
-    if u.hasMVar then
-      r := r.push (← mkFreshLevelMVar)
-      modified := true
-    else
-      r := r.push u
-  return (r.toList, modified)
 
 private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
   if h : i < args.size then
@@ -735,7 +726,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       unless defEq do
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
-    match s.cache.synthInstance.find? (localInsts, type) with
+    let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
+    match s.cache.synthInstance.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -782,7 +774,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
       pure result?
 
 /--
@@ -793,14 +785,17 @@ def trySynthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM
     (toLOptionM <| synthInstance? type maxResultSize?)
     (fun _ => pure LOption.undef)
 
+def throwFailedToSynthesize (type : Expr) : MetaM Expr :=
+  throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+
 def synthInstance (type : Expr) (maxResultSize? : Option Nat := none) : MetaM Expr :=
   catchInternalId isDefEqStuckExceptionId
     (do
       let result? ← synthInstance? type maxResultSize?
       match result? with
       | some result => pure result
-      | none        => throwError "failed to synthesize{indentExpr type}")
-    (fun _ => throwError "failed to synthesize{indentExpr type}")
+      | none        => throwFailedToSynthesize type)
+    (fun _ => throwFailedToSynthesize type)
 
 @[export lean_synth_pending]
 private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <| mvarId.withContext do
@@ -814,9 +809,10 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
     | none   =>
       return false
     | some _ =>
-      /- TODO: use a configuration option instead of the hard-coded limit `1`. -/
-      if (← read).synthPendingDepth > 1 then
+      let max := maxSynthPendingDepth.get (← getOptions)
+      if (← read).synthPendingDepth > max then
         trace[Meta.synthPending] "too many nested synthPending invocations"
+        recordSynthPendingFailure mvarDecl.type
         return false
       else
         withReader (fun ctx => { ctx with synthPendingDepth := ctx.synthPendingDepth + 1 }) do
@@ -837,6 +833,7 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.instances (inherited := true)
   registerTraceClass `Meta.synthInstance.tryResolve (inherited := true)
+  registerTraceClass `Meta.synthInstance.answer (inherited := true)
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer

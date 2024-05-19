@@ -126,11 +126,11 @@ jobs:
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "The merge base of this PR coincides with the nightly release"
 
-            STD_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover/std4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
+            BATTERIES_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/batteries.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
             MATHLIB_REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/mathlib4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
 
-            if [[ -n "$STD_REMOTE_TAGS" ]]; then
-              echo "... and Std has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+            if [[ -n "$BATTERIES_REMOTE_TAGS" ]]; then
+              echo "... and Batteries has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               MESSAGE=""
 
               if [[ -n "$MATHLIB_REMOTE_TAGS" ]]; then
@@ -140,8 +140,8 @@ jobs:
                 MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
               fi
             else
-              echo "... but Std does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
-              MESSAGE="- ❗ Std CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Std CI should run now."
+              echo "... but Batteries does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+              MESSAGE="- ❗ Batteries CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Batteries CI should run now."
             fi
 
           else
@@ -151,7 +151,7 @@ jobs:
 
             git -C lean4.git fetch origin nightly-with-mathlib 
             NIGHTLY_WITH_MATHLIB_SHA="$(git -C lean4.git rev-parse "origin/nightly-with-mathlib")"
-            MESSAGE="- ❗ Std/Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch. Try \`git rebase $MERGE_BASE_SHA --onto $NIGHTLY_WITH_MATHLIB_SHA\`."
+            MESSAGE="- ❗ Batteries/Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch. Try \`git rebase $MERGE_BASE_SHA --onto $NIGHTLY_WITH_MATHLIB_SHA\`."
           fi
 
           if [[ -n "$MESSAGE" ]]; then
@@ -223,27 +223,27 @@ jobs:
               description: description,
             });
 
-      # We next automatically create a Std branch using this toolchain.
-      # Std doesn't itself have a mechanism to report results of CI from this branch back to Lean
-      # Instead this is taken care of by Mathlib CI, which will fail if Std fails.
+      # We next automatically create a Batteries branch using this toolchain.
+      # Batteries doesn't itself have a mechanism to report results of CI from this branch back to Lean
+      # Instead this is taken care of by Mathlib CI, which will fail if Batteries fails.
       - name: Cleanup workspace
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           sudo rm -rf ./*
 
-      # Checkout the Std repository with all branches
-      - name: Checkout Std repository
+      # Checkout the Batteries repository with all branches
+      - name: Checkout Batteries repository
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         uses: actions/checkout@v3
         with:
-          repository: leanprover/std4
+          repository: leanprover-community/batteries
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
       - name: Check if tag exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        id: check_std_tag
+        id: check_batteries_tag
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
@@ -251,7 +251,7 @@ jobs:
           if git ls-remote --heads --tags --exit-code origin "nightly-testing-${MOST_RECENT_NIGHTLY}" >/dev/null; then
             BASE="nightly-testing-${MOST_RECENT_NIGHTLY}"
           else
-            echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' tag at Std. Falling back to 'nightly-testing'."
+            echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' tag at Batteries. Falling back to 'nightly-testing'."
             BASE=nightly-testing
           fi
 
@@ -268,7 +268,7 @@ jobs:
           else
             echo "Branch already exists, pushing an empty commit."
             git switch lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
-            # The Std `nightly-testing` or `nightly-testing-YYYY-MM-DD` branch may have moved since this branch was created, so merge their changes.
+            # The Batteries `nightly-testing` or `nightly-testing-YYYY-MM-DD` branch may have moved since this branch was created, so merge their changes.
             # (This should no longer be possible once `nightly-testing-YYYY-MM-DD` is a tag, but it is still safe to merge.)
             git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
@@ -321,7 +321,7 @@ jobs:
             git switch -c lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} "$BASE"
             echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
             git add lean-toolchain
-            sed -i "s/require std from git \"https:\/\/github.com\/leanprover\/std4\" @ \".\+\"/require std from git \"https:\/\/github.com\/leanprover\/std4\" @ \"nightly-testing-${MOST_RECENT_NIGHTLY}\"/" lakefile.lean
+            sed -i "s/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \".\+\"/require batteries from git \"https:\/\/github.com\/leanprover-community\/batteries\" @ \"nightly-testing-${MOST_RECENT_NIGHTLY}\"/" lakefile.lean
             git add lakefile.lean
             git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           else

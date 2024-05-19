@@ -454,7 +454,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
-  else if input.atEnd s.pos then
+  else if ictx.input.atEnd s.pos then
     Except.ok s.stxStack.back
   else
     Except.error ((s.mkError "end of input").toErrorMsg ictx)

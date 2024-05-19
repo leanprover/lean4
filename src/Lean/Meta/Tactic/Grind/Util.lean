@@ -41,4 +41,10 @@ Abstract nested proofs occurring in the goal's target.
 def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
   mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
 
+/--
+Beta-reduce the goal's target.
+-/
+def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=
+  mvarId.transformTarget (Core.betaReduce ·)
+
 end Lean.Meta.Grind

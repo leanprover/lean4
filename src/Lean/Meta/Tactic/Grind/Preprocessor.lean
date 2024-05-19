@@ -95,8 +95,9 @@ partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := 
   mvarId.ensureNoMVar
   let mvarId ← mvarId.revertAll
   mvarId.ensureNoMVar
-  let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.abstractNestedProofs mainDeclName
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
   let s ← (loop *> getThe Grind.State) |>.run mvarId |>.run mainDeclName
   return s
 where

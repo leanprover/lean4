@@ -22,6 +22,18 @@ v4.9.0 (development in progress)
   definition itself can be marked as `@[semireducible]` to get the previous
   behavor.
 
+* The `MessageData.ofPPFormat` constructor has been removed.
+  Its functionality has been split into two:
+
+  - for lazy structured messages, please use `MessageData.lazy`;
+  - for embedding `Format` or `FormatWithInfos`, use `MessageData.ofFormatWithInfos`.
+
+  An example migration can be found in [#3929](https://github.com/leanprover/lean4/pull/3929/files#diff-5910592ab7452a0e1b2616c62d22202d2291a9ebb463145f198685aed6299867L109).
+
+* The `MessageData.ofFormat` constructor has been turned into a function.
+  If you need to inspect `MessageData`,
+  you can pattern-match on `MessageData.ofFormatWithInfos`.
+
 v4.8.0
 ---------
 
@@ -154,18 +166,6 @@ fact.def :
 * The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
 
 * `Option.toMonad` has been renamed to `Option.getM` and the unneeded `[Monad m]` instance argument has been removed.
-
-* The `MessageData.ofPPFormat` constructor has been removed.
-  Its functionality has been split into two:
-
-  - for lazy structured messages, please use `MessageData.lazy`;
-  - for embedding `Format` or `FormatWithInfos`, use `MessageData.ofFormatWithInfos`.
-
-  An example migration can be found in [#3929](https://github.com/leanprover/lean4/pull/3929/files#diff-5910592ab7452a0e1b2616c62d22202d2291a9ebb463145f198685aed6299867L109).
-
-* The `MessageData.ofFormat` constructor has been turned into a function.
-  If you need to inspect `MessageData`,
-  you can pattern-match on `MessageData.ofFormatWithInfos`.
 
 v4.7.0
 ---------

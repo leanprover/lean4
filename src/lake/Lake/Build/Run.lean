@@ -83,7 +83,7 @@ def renderProgress : MonitorM PUnit := do
     if h : 0 < jobs.size then
       let caption := jobs[0]'h |>.caption
       let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := Ansi.resetLine})
-      print s!"{resetCtrl}[{jobNo}/{totalJobs}] Checking {caption}"
+      print s!"{resetCtrl}[{jobNo}/{totalJobs}] Running {caption}"
       flush
 
 def reportJob (job : Job Unit) : MonitorM PUnit := do

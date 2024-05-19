@@ -27,3 +27,36 @@ warning: failed to fetch cloud release; falling back to local build
 Build completed successfully.
 EOF
 ) -
+
+# Since committing a Git repository to a Git repository is not well-supported,
+# We reinitialize the bar repository on each test. This requires updating the
+# locked manifest to the new hash to ensure things work properly.
+pushd dep
+git init
+git checkout -b master
+git config user.name test
+git config user.email test@example.com
+git add --all
+git commit -m "initial commit"
+git tag release
+popd
+
+# Test download failure
+($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
+
+# Test unpacking
+mkdir -p dep/.lake/build
+tar -cz -f dep/.lake/release.tgz -C dep/.lake/build .
+echo 4225503363911572621 > dep/.lake/release.tgz.trace
+rmdir dep/.lake/build
+$LAKE build dep:release -v | grep --color "unpacking"
+test -d dep/.lake/build
+
+# Test that the job prints nothing if the archive is already fetched and unpacked
+$LAKE build dep:release -v | diff -u --strip-trailing-cr <(cat << 'EOF'
+Build completed successfully.
+EOF
+) -
+
+# Cleanup git repo
+rm -rf dep/.git

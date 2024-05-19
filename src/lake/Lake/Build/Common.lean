@@ -71,8 +71,9 @@ of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
 @[inline] def buildUnlessUpToDate
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
+  (action : JobAction := .build) (oldTrace := depTrace)
 : JobM PUnit := do
-  discard <| buildUnlessUpToDate? info depTrace traceFile build
+  discard <| buildUnlessUpToDate? info depTrace traceFile build action oldTrace
 
 /-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
 def fetchFileTrace (file : FilePath) : JobM BuildTrace := do

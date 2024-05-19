@@ -1,13 +1,4 @@
 /--
-error: application type mismatch
-  absurd (congrArg (fun x => ?m.17 x) (sorryAx (?m.11 = ?m.12)))
-argument
-  congrArg (fun x => ?m.17 x) (sorryAx (?m.11 = ?m.12))
-has type
-  ?m.17 ?m.11 = ?m.17 ?m.12 : Prop
-but is expected to have type
-  (fun x => ?m.17 x) ?m.11 = (fun x => ?m.17 x) ?m.12 : Prop
----
 error: invalid field notation, type is not of the form (C ...) where C is a constant
   x✝
 has type

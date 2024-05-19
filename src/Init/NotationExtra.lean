@@ -436,3 +436,20 @@ def insertUnexpander : Lean.PrettyPrinter.Unexpander
   | _ => throw ()
 
 end Lean
+
+-- TODO: delete bootstrapping workaround
+
+namespace Lean
+
+syntax (name := cdot) "mycdot" : tactic
+
+syntax (name := «calc») "mycalc" : term
+
+syntax (name := calcTactic) "mycalc" : tactic
+
+syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
+-- enforce indentation of calc steps so we know when to stop parsing them
+syntax calcStep := ppIndent(colGe term " := " term)
+syntax calcSteps := ppLine withPosition(calcFirstStep) withPosition((ppLine linebreak calcStep)*)
+
+end Lean

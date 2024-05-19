@@ -129,6 +129,7 @@ extern lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute;
 static lean_object* l___regBuiltin_Lean_Parser_Module_import_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Module_header___closed__9;
 lean_object* l_Lean_Parser_identWithPartialTrailingDot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Module_prelude_parenthesizer___closed__1;
@@ -2067,8 +2068,7 @@ x_9 = l_Lean_FileMap_toPosition(x_8, x_5);
 x_10 = l_Lean_Parser_Error_toString(x_3);
 x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
-x_12 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
+x_12 = l_Lean_MessageData_ofFormat(x_11);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; 

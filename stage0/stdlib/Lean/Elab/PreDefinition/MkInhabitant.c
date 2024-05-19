@@ -1966,11 +1966,11 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_13 = l_Lean_MessageData_ofName(x_1);
 x_14 = l_Lean_Elab_mkInhabitantFor___closed__2;
-x_15 = lean_alloc_ctor(7, 2, 0);
+x_15 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = l_Lean_Elab_mkInhabitantFor___closed__4;
-x_17 = lean_alloc_ctor(7, 2, 0);
+x_17 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(x_17, x_4, x_5, x_6, x_7, x_12);

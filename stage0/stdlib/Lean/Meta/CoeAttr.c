@@ -2241,11 +2241,11 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
 x_18 = l_Lean_MessageData_ofName(x_1);
 x_19 = l_Lean_Meta_registerCoercion___closed__3;
-x_20 = lean_alloc_ctor(7, 2, 0);
+x_20 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
 x_21 = l_Lean_Meta_registerCoercion___closed__5;
-x_22 = lean_alloc_ctor(7, 2, 0);
+x_22 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = l_Lean_throwError___at_Lean_Meta_registerCoercion___spec__2(x_22, x_3, x_4, x_5, x_6, x_13);

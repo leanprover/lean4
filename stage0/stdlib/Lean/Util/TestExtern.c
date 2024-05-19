@@ -41,6 +41,7 @@ static lean_object* l_elabTestExtern___lambda__1___closed__8;
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_elabTestExtern___spec__1___rarg___closed__1;
 static lean_object* l_testExternCmd___closed__6;
 lean_object* l_Lean_Meta_evalExpr___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_elabTestExtern___spec__1___rarg___closed__2;
@@ -342,8 +343,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_elabTestExtern___lambda__1___closed__11;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -499,11 +499,11 @@ lean_dec(x_18);
 lean_dec(x_11);
 x_78 = l_Lean_MessageData_ofName(x_14);
 x_79 = l_elabTestExtern___lambda__1___closed__21;
-x_80 = lean_alloc_ctor(7, 2, 0);
+x_80 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
 lean_ctor_set(x_80, 1, x_78);
 x_81 = l_elabTestExtern___lambda__1___closed__23;
-x_82 = lean_alloc_ctor(7, 2, 0);
+x_82 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_82, 0, x_80);
 lean_ctor_set(x_82, 1, x_81);
 x_83 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(x_82, x_3, x_4, x_5, x_6, x_7, x_8, x_17);
@@ -605,27 +605,27 @@ lean_dec(x_35);
 x_39 = l_Lean_MessageData_ofExpr(x_11);
 x_40 = l_elabTestExtern___lambda__1___closed__14;
 if (lean_is_scalar(x_18)) {
- x_41 = lean_alloc_ctor(7, 2, 0);
+ x_41 = lean_alloc_ctor(6, 2, 0);
 } else {
  x_41 = x_18;
- lean_ctor_set_tag(x_41, 7);
+ lean_ctor_set_tag(x_41, 6);
 }
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_39);
 x_42 = l_elabTestExtern___lambda__1___closed__16;
-x_43 = lean_alloc_ctor(7, 2, 0);
+x_43 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = l_Lean_MessageData_ofExpr(x_24);
-x_45 = lean_alloc_ctor(7, 2, 0);
+x_45 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
 x_46 = l_elabTestExtern___lambda__1___closed__18;
-x_47 = lean_alloc_ctor(7, 2, 0);
+x_47 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_47, 0, x_45);
 lean_ctor_set(x_47, 1, x_46);
 x_48 = l_elabTestExtern___lambda__1___closed__12;
-x_49 = lean_alloc_ctor(7, 2, 0);
+x_49 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_49, 0, x_48);
 lean_ctor_set(x_49, 1, x_47);
 x_50 = l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(x_49, x_3, x_4, x_5, x_6, x_7, x_8, x_38);

@@ -104,6 +104,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__1___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___spec__11(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lambda__4___closed__1;
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -5581,8 +5582,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__3___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -6055,8 +6055,7 @@ if (x_70 == 0)
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
 x_71 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_71, 0, x_68);
-x_72 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_72, 0, x_71);
+x_72 = l_Lean_MessageData_ofFormat(x_71);
 x_73 = l_Lean_throwErrorAt___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__2(x_67, x_72, x_2, x_3, x_4, x_5, x_6, x_7, x_28);
 lean_dec(x_7);
 lean_dec(x_5);
@@ -6225,8 +6224,7 @@ if (x_110 == 0)
 lean_object* x_111; lean_object* x_112; lean_object* x_113; 
 x_111 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_111, 0, x_108);
-x_112 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_112, 0, x_111);
+x_112 = l_Lean_MessageData_ofFormat(x_111);
 x_113 = l_Lean_throwErrorAt___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__2(x_107, x_112, x_2, x_3, x_4, x_5, x_6, x_7, x_77);
 lean_dec(x_7);
 lean_dec(x_5);

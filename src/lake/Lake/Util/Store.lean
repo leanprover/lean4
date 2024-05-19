@@ -3,6 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Family
+
 namespace Lake
 
 /-- A monad equipped with a dependently typed key-value store for a particular key. -/
@@ -19,6 +21,10 @@ class MonadDStore (κ : Type u) (β : semiOutParam $ κ → Type v) (m : Type v 
 
 /-- A monad equipped with a key-object store. -/
 abbrev MonadStore κ α m := MonadDStore κ (fun _ => α) m
+
+@[inline] instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1 k α m where
+  fetch? := t.family_key_eq_type ▸ MonadDStore.fetch? k
+  store a := MonadDStore.store k <| cast t.family_key_eq_type.symm a
 
 instance [MonadLift m n] [MonadDStore κ β m] : MonadDStore κ β n where
   fetch? k := liftM (m := m) <| MonadDStore.fetch? k

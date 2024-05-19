@@ -88,4 +88,23 @@ def abstractNestedProofs (e : Expr) : GrindM Expr := do
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 
+def shareCommon (e : Expr) : GrindM Expr := do
+  modifyGet fun { canon, scState, nextThmIdx, goals } =>
+    let (e, scState) := ShareCommon.State.shareCommon scState e
+    (e, { canon, scState, nextThmIdx, goals })
+
+def canon (e : Expr) : GrindM Expr := do
+  let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
+  let (e, canonS) ← Canonicalizer.CanonM.run (canonRec e) (s := canonS)
+  modify fun s => { s with canon := canonS }
+  return e
+where
+  canonRec (e : Expr) : CanonM Expr := do
+    let post (e : Expr) : CanonM TransformStep := do
+      if e.isApp then
+        return .done (← Meta.canon e)
+      else
+        return .done e
+    transform e post
+
 end Lean.Meta.Grind

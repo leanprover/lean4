@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Lemmas
 import Lean.Meta.Canonicalizer
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Intro
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
-import Lean.Meta.Tactic.Grind.EnsureNoMVar
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 
@@ -45,6 +45,12 @@ def PreM.run (x : PreM α) (mvarId : MVarId) : GrindM α := do
   }
   x { simp, simprocs } |>.run' (mkInitialState mvarId)
 
+def simp (e : Expr) : PreM Simp.Result := do
+  let simpStats := (← get).simpStats
+  let (r, simpStats) ← Meta.simp e (← read).simp (← read).simprocs (stats := simpStats)
+  modify fun s => { s with simpStats }
+  return r
+
 def simpHyp? (mvarId : MVarId) (fvarId : FVarId) : PreM (Option (FVarId × MVarId)) := do
   let simpStats := (← get).simpStats
   let (result, simpStats) ← simpLocalDecl mvarId fvarId (← read).simp (← read).simprocs (stats := simpStats)
@@ -59,21 +65,40 @@ def getNextGoal? : PreM (Option Goal) := do
     return some goal
 
 inductive IntroResult where
-  | done | closed
+  | done
   | newHyp (fvarId : FVarId) (goal : Goal)
   | newLocal (fvarId : FVarId) (goal : Goal)
 
 def introNext (goal : Goal) : PreM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
-    let (fvarId, mvarId) ← goal.mvarId.intro1P
-    -- TODO: canonicalize subterms
-    mvarId.withContext do
-    if (← isProp (← fvarId.getType)) then
-      let some (fvarId, mvarId) ← simpHyp? mvarId fvarId | return .closed
-      return .newHyp fvarId { goal with mvarId }
-    else
-      return .newLocal fvarId { goal with mvarId }
+    goal.mvarId.withContext do
+      let p := target.bindingDomain!
+      if !(← isProp p) then
+        let (fvarId, mvarId) ← goal.mvarId.intro1P
+        return .newLocal fvarId { goal with mvarId }
+      else
+        let tag ← goal.mvarId.getTag
+        let q := target.bindingBody!
+        let r ← simp p
+        let p' := r.expr
+        let p' ← canon p'
+        let p' ← shareCommon p'
+        let fvarId ← mkFreshFVarId
+        let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! p' target.bindingInfo!
+        let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
+        let mvarIdNew := mvarNew.mvarId!
+        mvarIdNew.withContext do
+          let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
+          match r.proof? with
+          | some he =>
+            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, p', q, he, h]
+            goal.mvarId.assign hNew
+            return .newLocal fvarId { goal with mvarId := mvarIdNew }
+          | none =>
+            -- `p` and `p'` are definitionally equal
+            goal.mvarId.assign h
+            return .newLocal fvarId { goal with mvarId := mvarIdNew }
   else if target.isLet || target.isForall then
     let (fvarId, mvarId) ← goal.mvarId.intro1P
     mvarId.withContext do
@@ -98,6 +123,7 @@ end Preprocessor
 open Preprocessor
 
 partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := do
+  mvarId.ensureProp
   mvarId.ensureNoMVar
   let mvarId ← mvarId.revertAll
   mvarId.ensureNoMVar
@@ -111,7 +137,6 @@ where
     let some goal ← getNextGoal? | return ()
     trace[Meta.debug] "{goal.mvarId}"
     match (← introNext goal) with
-    | .closed => loop
     | .done =>
       -- TODO: apply `byContradiction`
       pushResult goal

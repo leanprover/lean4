@@ -13,11 +13,13 @@ abbrev f (a : α) := a
 warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
+p q : Prop
 h : a = true ∧ (b = true ∨ c = true)
+h' : p ∧ q
 ⊢ (b && a) = true
 -/
 #guard_msgs in
-example (h : (f a && (b || f (f c))) = true) : b && a := by
+theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind_pre
   trace_state
   sorry

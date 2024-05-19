@@ -117,6 +117,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_getNondepPropHyps_
 static lean_object* l_Lean_Meta_throwTacticEx___rarg___closed__7;
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_MVarId_getNondepPropHyps___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwNestedTacticEx(lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_admit(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_throwNestedTacticEx___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -797,20 +798,20 @@ if (lean_obj_tag(x_3) == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_9 = l_Lean_MessageData_ofName(x_1);
 x_10 = l_Lean_Meta_throwTacticEx___rarg___closed__2;
-x_11 = lean_alloc_ctor(7, 2, 0);
+x_11 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = l_Lean_Meta_throwTacticEx___rarg___closed__4;
-x_13 = lean_alloc_ctor(7, 2, 0);
+x_13 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
-x_14 = lean_alloc_ctor(2, 1, 0);
+x_14 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_14, 0, x_2);
-x_15 = lean_alloc_ctor(7, 2, 0);
+x_15 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_Meta_throwTacticEx___rarg___closed__6;
-x_17 = lean_alloc_ctor(7, 2, 0);
+x_17 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_throwError___at_Lean_Meta_throwTacticEx___spec__1___rarg(x_17, x_4, x_5, x_6, x_7, x_8);
@@ -828,27 +829,26 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = lean_ctor_get(x_3, 0);
 x_21 = l_Lean_MessageData_ofName(x_1);
 x_22 = l_Lean_Meta_throwTacticEx___rarg___closed__2;
-x_23 = lean_alloc_ctor(7, 2, 0);
+x_23 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);
 x_24 = l_Lean_Meta_throwTacticEx___rarg___closed__8;
-x_25 = lean_alloc_ctor(7, 2, 0);
+x_25 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = lean_alloc_ctor(7, 2, 0);
+x_26 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_20);
 x_27 = l_Lean_Meta_throwTacticEx___rarg___closed__10;
-x_28 = lean_alloc_ctor(7, 2, 0);
+x_28 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set_tag(x_3, 2);
 lean_ctor_set(x_3, 0, x_2);
-x_29 = lean_alloc_ctor(7, 2, 0);
+x_29 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_29, 0, x_28);
 lean_ctor_set(x_29, 1, x_3);
 x_30 = l_Lean_Meta_throwTacticEx___rarg___closed__6;
-x_31 = lean_alloc_ctor(7, 2, 0);
+x_31 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = l_Lean_throwError___at_Lean_Meta_throwTacticEx___spec__2___rarg(x_31, x_4, x_5, x_6, x_7, x_8);
@@ -864,27 +864,27 @@ lean_inc(x_33);
 lean_dec(x_3);
 x_34 = l_Lean_MessageData_ofName(x_1);
 x_35 = l_Lean_Meta_throwTacticEx___rarg___closed__2;
-x_36 = lean_alloc_ctor(7, 2, 0);
+x_36 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_34);
 x_37 = l_Lean_Meta_throwTacticEx___rarg___closed__8;
-x_38 = lean_alloc_ctor(7, 2, 0);
+x_38 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
-x_39 = lean_alloc_ctor(7, 2, 0);
+x_39 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_33);
 x_40 = l_Lean_Meta_throwTacticEx___rarg___closed__10;
-x_41 = lean_alloc_ctor(7, 2, 0);
+x_41 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
-x_42 = lean_alloc_ctor(2, 1, 0);
+x_42 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_42, 0, x_2);
-x_43 = lean_alloc_ctor(7, 2, 0);
+x_43 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_43, 0, x_41);
 lean_ctor_set(x_43, 1, x_42);
 x_44 = l_Lean_Meta_throwTacticEx___rarg___closed__6;
-x_45 = lean_alloc_ctor(7, 2, 0);
+x_45 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set(x_45, 1, x_44);
 x_46 = l_Lean_throwError___at_Lean_Meta_throwTacticEx___spec__2___rarg(x_45, x_4, x_5, x_6, x_7, x_8);
@@ -1006,19 +1006,19 @@ _start:
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_8 = l_Lean_MessageData_ofName(x_1);
 x_9 = l_Lean_Meta_throwTacticEx___rarg___closed__2;
-x_10 = lean_alloc_ctor(7, 2, 0);
+x_10 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_8);
 x_11 = l_Lean_Meta_throwNestedTacticEx___rarg___closed__2;
-x_12 = lean_alloc_ctor(7, 2, 0);
+x_12 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Exception_toMessageData(x_2);
-x_14 = lean_alloc_ctor(7, 2, 0);
+x_14 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_Meta_throwTacticEx___rarg___closed__6;
-x_16 = lean_alloc_ctor(7, 2, 0);
+x_16 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = l_Lean_throwError___at_Lean_Meta_throwNestedTacticEx___spec__1___rarg(x_16, x_3, x_4, x_5, x_6, x_7);
@@ -1072,8 +1072,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_MVarId_checkNotAssigned___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -6610,8 +6609,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_throwMaxRecDepthAt___at_Lean_Meta_saturate_go___spec__2___closed__1;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -8538,8 +8536,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_MVarId_inferInstance___lambda__1___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }

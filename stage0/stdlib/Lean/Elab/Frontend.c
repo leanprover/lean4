@@ -68,6 +68,7 @@ lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1088____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_process___closed__2;
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_PersistentArray_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1088____closed__8;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -2842,8 +2843,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_runFrontend___lambda__2___closed__5;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -2889,7 +2889,7 @@ lean_ctor_set_float(x_18, sizeof(void*)*2 + 8, x_5);
 lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 16, x_16);
 x_19 = l_Lean_Elab_runFrontend___lambda__2___closed__6;
 x_20 = l_Lean_Elab_Frontend_State_commands___default___closed__1;
-x_21 = lean_alloc_ctor(9, 3, 0);
+x_21 = lean_alloc_ctor(8, 3, 0);
 lean_ctor_set(x_21, 0, x_18);
 lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_20);

@@ -127,6 +127,7 @@ static lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instMonadLiftLeanProcessingMLeanProcessingTIO(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Language_Lean_process_doElab___spec__10___lambda__1___closed__6;
 static lean_object* l_List_mapTR_loop___at_Lean_Language_Lean_process_processHeader___spec__1___closed__2;
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instMonadLiftProcessingTLeanProcessingT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__1(lean_object*);
@@ -3230,8 +3231,7 @@ lean_dec(x_5);
 x_12 = lean_box(0);
 x_13 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_13, 0, x_3);
-x_14 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
+x_14 = l_Lean_MessageData_ofFormat(x_13);
 x_15 = 0;
 x_16 = 0;
 x_17 = l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_71____closed__3;

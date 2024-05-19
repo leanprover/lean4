@@ -38,6 +38,7 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doE
 lean_object* l_Lean_Syntax_mkNameLit(lean_object*, lean_object*);
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__26;
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__2;
+static lean_object* l_Lean_calcFirstStep___closed__1;
 static lean_object* l_term_u03a3___x2c_____closed__6;
 static lean_object* l_Lean_unbracketedExplicitBinders___closed__7;
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__haveI__1___closed__10;
@@ -87,6 +88,7 @@ static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_
 LEAN_EXPORT lean_object* l_term_u03a3_x27___x2c__;
 LEAN_EXPORT lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(lean_object*, lean_object*);
 static lean_object* l_unexpandGetElem___closed__2;
+static lean_object* l_Lean_calcSteps___closed__5;
 static lean_object* l_calcSteps___closed__5;
 static lean_object* l_cdot___closed__6;
 static lean_object* l_unexpandIte___closed__2;
@@ -115,6 +117,7 @@ static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_termExists___x2c_____closed__2;
 static lean_object* l_unexpandMkArray5___closed__1;
+static lean_object* l_Lean_calcSteps___closed__4;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__6;
 LEAN_EXPORT lean_object* l_unexpandMkArray6(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___closed__1;
@@ -125,12 +128,14 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doE
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_unexpandIte___closed__1;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__26;
+LEAN_EXPORT lean_object* l_Lean_calc;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__43;
 static lean_object* l_tacticFunext_________closed__7;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__25;
 static lean_object* l_term___xd7____1___closed__5;
 static lean_object* l_tacticFunext_________closed__13;
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__letI__1___closed__1;
+static lean_object* l_Lean_calc___closed__1;
 static lean_object* l_Array_mapMUnsafe_map___at___aux__Init__NotationExtra______macroRules__solve__1___spec__3___closed__1;
 static lean_object* l___aux__Init__NotationExtra______macroRules__convCalc____1___closed__8;
 uint8_t lean_usize_dec_eq(size_t, size_t);
@@ -139,6 +144,7 @@ static lean_object* l_Lean_explicitBinders___closed__1;
 static lean_object* l_calcSteps___closed__1;
 static lean_object* l_calcFirstStep___closed__12;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
+static lean_object* l_Lean_calc___closed__2;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__7;
 static lean_object* l_calcTactic___closed__5;
 lean_object* l___private_Init_GetElem_0__outOfBounds___rarg(lean_object*);
@@ -201,6 +207,7 @@ static lean_object* l_unexpandListToArray___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__solve__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_bracketedExplicitBinders___closed__9;
+static lean_object* l_Lean_calcTactic___closed__3;
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__haveI__1___closed__5;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__4(size_t, size_t, lean_object*);
 static lean_object* l_Lean_bracketedExplicitBinders___closed__13;
@@ -235,6 +242,7 @@ LEAN_EXPORT lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u
 static lean_object* l_Lean_expandExplicitBindersAux_loop___closed__8;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__32;
 static lean_object* l_term_u03a3_x27___x2c_____closed__5;
+static lean_object* l_Lean_calcStep___closed__2;
 static lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__2___closed__6;
 static lean_object* l_term___xd7_x27_____closed__2;
 static lean_object* l_Lean_term__Matches___x7c___closed__8;
@@ -257,6 +265,7 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__com
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Command__classAbbrev__1___lambda__3___closed__7;
 static lean_object* l_Lean_unifConstraint___closed__7;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__17;
+static lean_object* l_Lean_calcTactic___closed__1;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__24;
 static lean_object* l_Lean_unifConstraint___closed__17;
 static lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__2___closed__10;
@@ -365,6 +374,7 @@ static lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra___
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__16;
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__haveI__1___closed__1;
 LEAN_EXPORT lean_object* l_unexpandIte(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_calc___closed__4;
 LEAN_EXPORT lean_object* l_unexpandTSepArray(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__6;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___closed__21;
@@ -402,6 +412,7 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doE
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__14;
 static lean_object* l_unexpandListNil___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Lean_calcFirstStep;
 static lean_object* l_calcStep___closed__5;
 static lean_object* l_solve___closed__7;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__5;
@@ -410,6 +421,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean___aux__Init__NotationExtr
 LEAN_EXPORT lean_object* l_unexpandUnit___boxed(lean_object*);
 static lean_object* l_unexpandSubtype___closed__5;
 static lean_object* l_calcFirstStep___closed__10;
+static lean_object* l_Lean_calcTactic___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Loop_noConfusion___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unexpandGetElem_x3f(lean_object*, lean_object*, lean_object*);
@@ -428,6 +440,7 @@ static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_
 static lean_object* l_unexpandMkArray8___closed__1;
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__8;
+static lean_object* l_Lean_calcStep___closed__1;
 static lean_object* l_calcSteps___closed__14;
 LEAN_EXPORT lean_object* l_calcTactic;
 static lean_object* l_calcSteps___closed__3;
@@ -439,6 +452,7 @@ static lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra___
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__47;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__9;
+static lean_object* l_Lean_calcSteps___closed__3;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__22;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemRepeat____Until_____closed__4;
@@ -469,6 +483,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExt
 static lean_object* l_calcSteps___closed__10;
 static lean_object* l_Lean_bracketedExplicitBinders___closed__15;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____Until____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_calcTactic;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____Until____1___closed__1;
 static lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__4___closed__9;
 static lean_object* l_convCalc_____closed__3;
@@ -531,6 +546,7 @@ static lean_object* l_Lean_Parser_Command_classAbbrev___closed__24;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_unifConstraint___closed__1;
 static lean_object* l_unexpandListToArray___closed__3;
+static lean_object* l_Lean_calcSteps___closed__2;
 static lean_object* l_term_u2203___x2c_____closed__4;
 static lean_object* l_unexpandExists___closed__2;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__55;
@@ -553,6 +569,7 @@ static lean_object* l_Lean_expandExplicitBinders___closed__1;
 static lean_object* l_Lean_unifConstraint___closed__6;
 LEAN_EXPORT lean_object* l_Lean_term__Matches___x7c;
 static lean_object* l_unexpandSubtype___closed__1;
+static lean_object* l_Lean_calc___closed__3;
 lean_object* l_Lean_MacroScopesView_review(lean_object*);
 static lean_object* l_solve___closed__11;
 LEAN_EXPORT lean_object* l_Array_sequenceMap_loop___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -606,6 +623,7 @@ static lean_object* l_Lean_Parser_Command_classAbbrev___closed__9;
 LEAN_EXPORT lean_object* l_term_u2203___x2c__;
 static lean_object* l_Lean_doElemRepeat_____closed__5;
 static lean_object* l_Lean_bracketedExplicitBinders___closed__5;
+LEAN_EXPORT lean_object* l_Lean_calcSteps;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__50;
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext________1___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_u2203___x2c_____closed__5;
@@ -631,6 +649,7 @@ static lean_object* l_Lean_unbracketedExplicitBinders___closed__20;
 LEAN_EXPORT lean_object* l_unexpandTSyntax(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unexpandMkStr1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
+static lean_object* l_Lean_calcSteps___closed__6;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__31;
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__haveI__1(lean_object*, lean_object*, lean_object*);
@@ -660,6 +679,7 @@ static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__4;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unexpandListCons(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_cdot___closed__1;
 static lean_object* l_cdotTk___closed__10;
 LEAN_EXPORT lean_object* l_Lean_singletonUnexpander(lean_object*, lean_object*, lean_object*);
 static lean_object* l_cdotTk___closed__2;
@@ -678,6 +698,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unexpandMkStr8(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemWhile___x3a__Do_____closed__6;
 LEAN_EXPORT lean_object* l_unexpandProdMk(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_calcStep;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___closed__12;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__28;
 static lean_object* l_Lean_bracketedExplicitBinders___closed__16;
@@ -703,6 +724,7 @@ static lean_object* l_Lean_Parser_Command_classAbbrev___closed__8;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__18;
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__7;
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_calcFirstStep___closed__2;
 lean_object* l_Lean_mkSepArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_unexpandMkArray0___boxed(lean_object*);
@@ -718,9 +740,11 @@ static lean_object* l_Lean_explicitBinders___closed__2;
 static lean_object* l_calcSteps___closed__6;
 static lean_object* l_unexpandSorryAx___closed__2;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__5;
+static lean_object* l_Lean_cdot___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_solve___closed__6;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__44;
+static lean_object* l_Lean_calcSteps___closed__8;
 LEAN_EXPORT lean_object* l_unexpandUnit___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unexpandMkArray0___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_unifConstraintElem___closed__4;
@@ -876,12 +900,15 @@ static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__ter
 static lean_object* l_calcFirstStep___closed__7;
 LEAN_EXPORT lean_object* l_tacticFunext______;
 static lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Command__classAbbrev__1___lambda__3___closed__13;
+static lean_object* l_Lean_calcSteps___closed__1;
+static lean_object* l_Lean_cdot___closed__3;
 static lean_object* l_Lean_term__Matches___x7c___closed__5;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__54;
 LEAN_EXPORT lean_object* l_unexpandMkArray4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__7(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__13;
 static lean_object* l_calcSteps___closed__15;
+LEAN_EXPORT lean_object* l_Lean_cdot;
 LEAN_EXPORT lean_object* l_unexpandExists(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__45;
 static lean_object* l_tacticFunext_________closed__11;
@@ -900,6 +927,7 @@ static lean_object* l_unexpandGetElem_x3f___closed__1;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemWhile___x3a__Do____1___closed__10;
 LEAN_EXPORT lean_object* l_unexpandMkArray8(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_u03a3_x27___x2c____1___closed__1;
+static lean_object* l_Lean_cdot___closed__4;
 static lean_object* l_solve___closed__4;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___closed__16;
 static lean_object* l_Lean_doElemWhile__Do_____closed__4;
@@ -911,6 +939,7 @@ static lean_object* l_term___xd7____1___closed__7;
 LEAN_EXPORT lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__11;
 static lean_object* l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__24;
+static lean_object* l_Lean_calcSteps___closed__7;
 static lean_object* l_unexpandPSigma___closed__1;
 static lean_object* l_Lean_expandExplicitBindersAux_loop___closed__15;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__14;
@@ -19062,6 +19091,326 @@ return x_36;
 }
 }
 }
+static lean_object* _init_l_Lean_cdot___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_cdot___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_cdot___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("mycdot", 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_cdot___closed__3() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_cdot___closed__2;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_cdot___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_cdot___closed__1;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Lean_cdot___closed__3;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_cdot() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_cdot___closed__4;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calc___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_calc___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calc___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("mycalc", 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calc___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_calc___closed__2;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_calc___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_calc___closed__1;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Lean_calc___closed__3;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calc() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_calc___closed__4;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calcTactic___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_calcTactic___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcTactic___closed__2() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_calc___closed__2;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcTactic___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_calcTactic___closed__1;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Lean_calcTactic___closed__2;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcTactic() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_calcTactic___closed__3;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calcFirstStep___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_calcFirstStep___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcFirstStep___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_calcFirstStep___closed__1;
+x_2 = l_Lean_calcFirstStep___closed__1;
+x_3 = l_calcFirstStep___closed__11;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcFirstStep() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_calcFirstStep___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calcStep___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_calcStep___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcStep___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_calcStep___closed__1;
+x_2 = l_Lean_calcStep___closed__1;
+x_3 = l_calcStep___closed__5;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcStep() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_calcStep___closed__2;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__1;
+x_2 = l_calcSteps___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__32;
+x_2 = l_Lean_calcFirstStep;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__5;
+x_2 = l_calcSteps___closed__5;
+x_3 = l_Lean_calcSteps___closed__2;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__5;
+x_2 = l_calcSteps___closed__11;
+x_3 = l_Lean_calcStep;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__21;
+x_2 = l_Lean_calcSteps___closed__4;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_command____Unif__hint________Where___x7c___x2d_u22a2_____closed__32;
+x_2 = l_Lean_calcSteps___closed__5;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_unbracketedExplicitBinders___closed__5;
+x_2 = l_Lean_calcSteps___closed__3;
+x_3 = l_Lean_calcSteps___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcSteps___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_calcSteps___closed__1;
+x_2 = l_Lean_calcSteps___closed__1;
+x_3 = l_Lean_calcSteps___closed__7;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_calcSteps() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_calcSteps___closed__8;
+return x_1;
+}
+}
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Subarray(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
@@ -20463,6 +20812,64 @@ l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__6 = _i
 lean_mark_persistent(l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__6);
 l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__7 = _init_l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__7();
 lean_mark_persistent(l___aux__Init__NotationExtra______macroRules__term_x7b___x7d__1___closed__7);
+l_Lean_cdot___closed__1 = _init_l_Lean_cdot___closed__1();
+lean_mark_persistent(l_Lean_cdot___closed__1);
+l_Lean_cdot___closed__2 = _init_l_Lean_cdot___closed__2();
+lean_mark_persistent(l_Lean_cdot___closed__2);
+l_Lean_cdot___closed__3 = _init_l_Lean_cdot___closed__3();
+lean_mark_persistent(l_Lean_cdot___closed__3);
+l_Lean_cdot___closed__4 = _init_l_Lean_cdot___closed__4();
+lean_mark_persistent(l_Lean_cdot___closed__4);
+l_Lean_cdot = _init_l_Lean_cdot();
+lean_mark_persistent(l_Lean_cdot);
+l_Lean_calc___closed__1 = _init_l_Lean_calc___closed__1();
+lean_mark_persistent(l_Lean_calc___closed__1);
+l_Lean_calc___closed__2 = _init_l_Lean_calc___closed__2();
+lean_mark_persistent(l_Lean_calc___closed__2);
+l_Lean_calc___closed__3 = _init_l_Lean_calc___closed__3();
+lean_mark_persistent(l_Lean_calc___closed__3);
+l_Lean_calc___closed__4 = _init_l_Lean_calc___closed__4();
+lean_mark_persistent(l_Lean_calc___closed__4);
+l_Lean_calc = _init_l_Lean_calc();
+lean_mark_persistent(l_Lean_calc);
+l_Lean_calcTactic___closed__1 = _init_l_Lean_calcTactic___closed__1();
+lean_mark_persistent(l_Lean_calcTactic___closed__1);
+l_Lean_calcTactic___closed__2 = _init_l_Lean_calcTactic___closed__2();
+lean_mark_persistent(l_Lean_calcTactic___closed__2);
+l_Lean_calcTactic___closed__3 = _init_l_Lean_calcTactic___closed__3();
+lean_mark_persistent(l_Lean_calcTactic___closed__3);
+l_Lean_calcTactic = _init_l_Lean_calcTactic();
+lean_mark_persistent(l_Lean_calcTactic);
+l_Lean_calcFirstStep___closed__1 = _init_l_Lean_calcFirstStep___closed__1();
+lean_mark_persistent(l_Lean_calcFirstStep___closed__1);
+l_Lean_calcFirstStep___closed__2 = _init_l_Lean_calcFirstStep___closed__2();
+lean_mark_persistent(l_Lean_calcFirstStep___closed__2);
+l_Lean_calcFirstStep = _init_l_Lean_calcFirstStep();
+lean_mark_persistent(l_Lean_calcFirstStep);
+l_Lean_calcStep___closed__1 = _init_l_Lean_calcStep___closed__1();
+lean_mark_persistent(l_Lean_calcStep___closed__1);
+l_Lean_calcStep___closed__2 = _init_l_Lean_calcStep___closed__2();
+lean_mark_persistent(l_Lean_calcStep___closed__2);
+l_Lean_calcStep = _init_l_Lean_calcStep();
+lean_mark_persistent(l_Lean_calcStep);
+l_Lean_calcSteps___closed__1 = _init_l_Lean_calcSteps___closed__1();
+lean_mark_persistent(l_Lean_calcSteps___closed__1);
+l_Lean_calcSteps___closed__2 = _init_l_Lean_calcSteps___closed__2();
+lean_mark_persistent(l_Lean_calcSteps___closed__2);
+l_Lean_calcSteps___closed__3 = _init_l_Lean_calcSteps___closed__3();
+lean_mark_persistent(l_Lean_calcSteps___closed__3);
+l_Lean_calcSteps___closed__4 = _init_l_Lean_calcSteps___closed__4();
+lean_mark_persistent(l_Lean_calcSteps___closed__4);
+l_Lean_calcSteps___closed__5 = _init_l_Lean_calcSteps___closed__5();
+lean_mark_persistent(l_Lean_calcSteps___closed__5);
+l_Lean_calcSteps___closed__6 = _init_l_Lean_calcSteps___closed__6();
+lean_mark_persistent(l_Lean_calcSteps___closed__6);
+l_Lean_calcSteps___closed__7 = _init_l_Lean_calcSteps___closed__7();
+lean_mark_persistent(l_Lean_calcSteps___closed__7);
+l_Lean_calcSteps___closed__8 = _init_l_Lean_calcSteps___closed__8();
+lean_mark_persistent(l_Lean_calcSteps___closed__8);
+l_Lean_calcSteps = _init_l_Lean_calcSteps();
+lean_mark_persistent(l_Lean_calcSteps);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

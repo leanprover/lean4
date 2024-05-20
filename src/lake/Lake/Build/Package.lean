@@ -35,10 +35,12 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
     job := job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job := job.add <| ← (← self.optRelease.fetch).bindSync fun success t => do
-      unless success do
-        logWarning "failed to fetch cloud release; falling back to local build"
-      return ((), t)
+    job := job.add <| ←
+      withRegisterJob s!"{self.name}:optRelease" do
+        (← self.optRelease.fetch).bindSync fun success t => do
+          unless success do
+            logWarning "failed to fetch cloud release; falling back to local build"
+          return ((), t)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
     job := job.mix <| ← self.fetchTargetJob target
@@ -50,26 +52,26 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.async do
-  updateAction .fetch
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
     | logInfo s!"{self.name}: wanted prebuilt release, \
-        but package's repository URL was not known; it may need to set 'releaseRepo'"
+        but repository URL not known; the package may need to set 'releaseRepo'"
+      updateAction .fetch
       return (false, .nil)
   let some tag ← repo.findTag?
-    | logInfo s!"{self.name}: wanted prebuilt release, \
-        but could not find an associated tag for the package's revision"
+    | logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision"
+      updateAction .fetch
       return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
-  let logName := s!"{self.name}/{tag}/{self.buildArchive}"
   let depTrace := Hash.ofString url
   let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
   let upToDate ← buildUnlessUpToDate? (action := .fetch) self.buildArchiveFile depTrace traceFile do
-    logVerbose s!"downloading {logName}"
+    logVerbose s!"downloading {url}"
     download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do
-    logVerbose s!"unpacking {logName}"
+    updateAction .fetch
+    logVerbose s!"unpacking {self.name}/{tag}/{self.buildArchive}"
     untar self.buildArchiveFile self.buildDir
   return (true, .nil)
 

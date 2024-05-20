@@ -115,7 +115,7 @@ def download  (url : String) (file : FilePath) : LogIO PUnit := do
     createParentDirs file
   proc (quiet := true) {
     cmd := "curl"
-    args := #["-f", "-o", file.toString, "-L", url]
+    args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   }
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/

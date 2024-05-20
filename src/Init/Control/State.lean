@@ -115,7 +115,7 @@ variable {σ : Type u} {m : Type u → Type v}
 
 -- This instance has high priority so that the top-most `StateT`
 -- Monad layer will always be picked first
-instance (priority := high) [Monad m] : MonadStateOf σ (StateT σ m) where
+instance [Monad m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set
   modifyGet := StateT.modifyGet

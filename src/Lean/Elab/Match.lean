@@ -165,7 +165,7 @@ open Lean.Elab.Term.Quotation in
     for (pats, rhs) in patss.zip rhss do
       let vars ← try
         getPatternsVars pats
-      catch | _ => return  -- can happen in case of pattern antiquotations
+      catch _ => return  -- can happen in case of pattern antiquotations
       Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
   | _ => throwUnsupportedSyntax
 

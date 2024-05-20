@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Mario Carneiro
+Authors: Mario Carneiro, Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
@@ -93,6 +93,18 @@ theorem lt_iff_val_lt_val {a b : Fin n} : a < b ↔ a.val < b.val := Iff.rfl
 @[simp] protected theorem not_le {a b : Fin n} : ¬ a ≤ b ↔ b < a := Nat.not_le
 
 @[simp] protected theorem not_lt {a b : Fin n} : ¬ a < b ↔ b ≤ a := Nat.not_lt
+
+@[simp] protected theorem le_refl (a : Fin n) : a ≤ a := by simp [le_def]
+
+protected theorem lt_irrefl (a : Fin n) : ¬ a < a := by simp
+
+protected theorem le_trans {a b c : Fin n} : a ≤ b → b ≤ c → a ≤ c := Nat.le_trans
+
+protected theorem lt_trans {a b c : Fin n} : a < b → b < c → a < c := Nat.lt_trans
+
+protected theorem le_total (a b : Fin n) : a ≤ b ∨ b ≤ a := Nat.le_total a b
+
+protected theorem lt_asymm {a b : Fin n} (h : a < b) : ¬ b < a := Nat.lt_asymm h
 
 protected theorem ne_of_lt {a b : Fin n} (h : a < b) : a ≠ b := Fin.ne_of_val_ne (Nat.ne_of_lt h)
 

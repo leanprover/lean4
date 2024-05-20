@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
-import Lake.Build.Basic
+import Lake.Build.Job
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.

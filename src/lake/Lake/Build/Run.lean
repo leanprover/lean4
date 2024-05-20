@@ -39,7 +39,7 @@ structure MonitorContext where
   useAnsi : Bool
   showProgress : Bool
   /-- How often to poll jobs (in milliseconds). -/
-  updateFrequency : Nat := 100
+  updateFrequency : Nat
 
 /-- State of the Lake build monitor. -/
 structure MonitorState where
@@ -137,10 +137,12 @@ def poll (jobs : Array OpaqueJob): MonitorM (Array OpaqueJob × Array OpaqueJob)
 
 def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
-  let lastUpdate ← modifyGet fun s => (s.lastUpdate, {s with lastUpdate := now})
+  let lastUpdate := (← get).lastUpdate
   let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
   if sleepTime > 0 then
     IO.sleep sleepTime.toUInt32
+  let now ← IO.monoMsNow
+  modify fun s => {s with lastUpdate := now}
 
 partial def loop (jobs : Array OpaqueJob) : MonitorM PUnit := do
   let (running, unfinished) ← poll jobs

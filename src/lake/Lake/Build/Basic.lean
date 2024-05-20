@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Util.Log
 import Lake.Util.Exit
-import Lake.Util.Task
 import Lake.Util.Lift
 import Lake.Config.Context
 import Lake.Build.Trace

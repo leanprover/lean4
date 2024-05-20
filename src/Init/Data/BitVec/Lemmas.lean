@@ -1043,4 +1043,32 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
     (ofBoolListLE bs).getMsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsb_eq_getLsb]
 
+/-! # Rotate Left -/
+
+/-- rotateLeft is invariant under `mod` by the bitwidth. -/
+@[simp]
+theorem rotateLeft_mod_eq_rotateLeft {x : BitVec w} {r : Nat} :
+    x.rotateLeft (r % w) = x.rotateLeft r := by
+  simp only [rotateLeft, Nat.mod_mod]
+
+/-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
+smaller than the bitwidth. -/
+theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
+    x.rotateLeft r = x.rotateLeftAux r := by
+  simp only [rotateLeft, Nat.mod_eq_of_lt hr]
+
+/-! ## Rotate Right -/
+
+/-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
+smaller than the bitwidth. -/
+theorem rotateRight_eq_rotateRightAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
+    x.rotateRight r = x.rotateRightAux r := by
+  simp only [rotateRight, Nat.mod_eq_of_lt hr]
+
+/-- rotateRight is invariant under `mod` by the bitwidth. -/
+@[simp]
+theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
+    x.rotateRight (r % w) = x.rotateRight r := by
+  simp only [rotateRight, Nat.mod_mod]
+
 end BitVec

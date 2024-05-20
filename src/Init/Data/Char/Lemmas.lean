@@ -20,5 +20,6 @@ protected theorem le_trans {a b c : Char} : a ≤ b → b ≤ c → a ≤ c := U
 protected theorem lt_trans {a b c : Char} : a < b → b < c → a < c := UInt32.lt_trans
 protected theorem le_total (a b : Char) : a ≤ b ∨ b ≤ a := UInt32.le_total a.1 b.1
 protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asymm h
+protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
 end Char

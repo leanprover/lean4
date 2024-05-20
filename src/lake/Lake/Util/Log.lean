@@ -242,6 +242,7 @@ instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩
 /-- A position in a `Log` (i.e., an array index). Can be past the log's end. -/
 structure Log.Pos where
   val : Nat
+  deriving Inhabited
 
 instance : OfNat Log.Pos (nat_lit 0) := ⟨⟨0⟩⟩
 

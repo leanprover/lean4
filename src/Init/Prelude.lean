@@ -2988,8 +2988,8 @@ variable {ε : Type u} {m : Type v → Type w}
 @[inline] protected def orElse [MonadExcept ε m] {α : Type v} (t₁ : m α) (t₂ : Unit → m α) : m α :=
   tryCatch t₁ fun _ => t₂ ()
 
-instance [MonadExcept ε m] {α : Type v} : OrElse (m α) where
-  orElse := MonadExcept.orElse
+-- instance [MonadExcept ε m] {α : Type v} : OrElse (m α) where
+--   orElse := MonadExcept.orElse
 
 end MonadExcept
 

@@ -113,8 +113,6 @@ def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
 section
 variable {σ : Type u} {m : Type u → Type v}
 
--- This instance has high priority so that the top-most `StateT`
--- Monad layer will always be picked first
 instance [Monad m] : MonadStateOf σ (StateT σ m) where
   get       := StateT.get
   set       := StateT.set

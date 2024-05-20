@@ -135,10 +135,8 @@ instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [Monad m] [Mo
   throw e := ExceptT.mk <| throwThe ε₁ e
   tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x handle
 
--- This instance has high priority so that the top-most `ExceptT`
--- Monad layer will always be picked first
 @[always_inline]
-instance (priority := high) (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where
+instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where
   throw e := ExceptT.mk <| pure (Except.error e)
   tryCatch := ExceptT.tryCatch
 

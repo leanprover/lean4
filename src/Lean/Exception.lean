@@ -57,6 +57,10 @@ class abbrev MonadError (m : Type → Type) :=
   MonadRef m
   AddErrorMessageContext m
 
+-- These instances can lead to over-complicated instance search, so we lower their priority
+attribute [instance mid] Lean.MonadError.toMonadExceptOf
+attribute [instance mid] Lean.MonadError.toMonadRef
+attribute [instance mid] Lean.MonadError.toAddErrorMessageContext
 section Methods
 
 /--

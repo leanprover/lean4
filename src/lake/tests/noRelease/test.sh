@@ -12,7 +12,7 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Test that a direct invocation fo `lake build *:release` fails
 ($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << 'EOF'
 ✖ [1/1] Fetching dep:release
-info: dep: wanted prebuilt release, but could not find an associated tag for the package's revision
+info: dep: wanted prebuilt release, but no tag found for revision
 error: failed to fetch cloud release
 Some builds logged failures:
 - dep:release
@@ -22,7 +22,7 @@ EOF
 # Test that an indirect fetch on the release does not cause the build to fail
 $LAKE build Test | diff -u --strip-trailing-cr <(cat << 'EOF'
 ⚠ [1/3] Fetched dep:optRelease
-info: dep: wanted prebuilt release, but could not find an associated tag for the package's revision
+info: dep: wanted prebuilt release, but no tag found for revision
 warning: failed to fetch cloud release; falling back to local build
 ✔ [2/3] Built Test
 Build completed successfully.

@@ -56,12 +56,11 @@ def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.asy
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
     | logInfo s!"{self.name}: wanted prebuilt release, \
-        but package's repository URL was not known; it may need to set 'releaseRepo'"
+        but repository URL not known; the package may need to set 'releaseRepo'"
       updateAction .fetch
       return (false, .nil)
   let some tag ← repo.findTag?
-    | logInfo s!"{self.name}: wanted prebuilt release, \
-        but could not find an associated tag for the package's revision"
+    | logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision"
       updateAction .fetch
       return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"

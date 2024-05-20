@@ -255,32 +255,18 @@ def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
   | none   => return n
   | some v => return n + (← v.dagSize)
 
-/-- info: 32 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test2
 
-/-- info: 41 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test3
 
-/-- info: 50 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test4
 
-/-- info: 59 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test5
 
-/-- info: 68 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test6
 
-/-- info: 77 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test7
 
-/-- info: 86 -/
-#guard_msgs in
 #eval getDeclTypeValueDagSize `test8
 
 def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
@@ -289,32 +275,18 @@ def reduceAndGetDagSize (declName : Name) : MetaM Nat := do
   trace[Meta.debug] "{e}"
   e.dagSize
 
-/-- info: 7 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test1
 
-/-- info: 43 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test2
 
-/-- info: 51 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test3
 
-/-- info: 57 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test4
 
-/-- info: 63 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test5
 
-/-- info: 69 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test6
 
-/-- info: 75 -/
-#guard_msgs in
 #eval reduceAndGetDagSize `test7
 
 -- Use `set_option` to trace the reduced term

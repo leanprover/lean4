@@ -200,7 +200,7 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     { ctorName           := ctorName,
       toInductionSubgoal := s }
 
-partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := do
+partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then
     return some (mvarId, subst)
   else

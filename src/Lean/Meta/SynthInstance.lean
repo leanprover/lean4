@@ -700,6 +700,14 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 -/
 
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
+  (fun x => do
+  addInstance ``instMonadExceptOfExceptTOfMonad_1 .local 10000
+  let a ← x
+  addInstance ``instMonadExceptOfExceptTOfMonad_1 .local 1000
+  let a' ← x
+  if a != a' then throwError m! "{a} and {a'} are different results for {type}"
+  return a) $
+  do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   withTraceNode `Meta.synthInstance

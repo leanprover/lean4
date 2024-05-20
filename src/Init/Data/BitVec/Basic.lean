@@ -535,7 +535,7 @@ instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩
 
 /-- Auxiliary function for `rotateLeft`, which does not take into account the case where
-the rotateion amount is greater than the bitvector width. -/
+the rotation amount is greater than the bitvector width. -/
 def rotateLeftAux (x : BitVec w) (n : Nat) : BitVec w :=
   x <<< n ||| x >>> (w - n)
 

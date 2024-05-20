@@ -1051,7 +1051,7 @@ theorem rotateLeft_mod_eq_rotateLeft {x : BitVec w} {r : Nat} :
     x.rotateLeft (r % w) = x.rotateLeft r := by
   simp only [rotateLeft, Nat.mod_mod]
 
-/-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
+/-- `rotateLeft` equals the bit fiddling definition of `rotateLeftAux` when the rotation amount is
 smaller than the bitwidth. -/
 theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
     x.rotateLeft r = x.rotateLeftAux r := by

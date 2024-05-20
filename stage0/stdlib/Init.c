@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: Init.Prelude Init.Notation Init.Tactics Init.TacticsExtra Init.Core Init.Control Init.Data.Basic Init.WF Init.WFTactics Init.Data Init.System Init.Util Init.Dynamic Init.ShareCommon Init.MetaTypes Init.Meta Init.NotationExtra Init.SimpLemmas Init.Hints Init.Conv Init.Simproc Init.SizeOfLemmas
+// Imports: Init.Prelude Init.Notation Init.Tactics Init.TacticsExtra Init.RCases Init.Core Init.Control Init.Data.Basic Init.WF Init.WFTactics Init.Data Init.System Init.Util Init.Dynamic Init.ShareCommon Init.MetaTypes Init.Meta Init.NotationExtra Init.SimpLemmas Init.Hints Init.Conv Init.Guard Init.Simproc Init.SizeOfLemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -17,6 +17,7 @@ lean_object* initialize_Init_Prelude(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Notation(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Tactics(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_RCases(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Core(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Control(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Basic(uint8_t builtin, lean_object*);
@@ -33,6 +34,7 @@ lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Hints(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Conv(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Guard(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_SizeOfLemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -50,6 +52,9 @@ res = initialize_Init_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_RCases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Core(builtin, lean_io_mk_world());
@@ -98,6 +103,9 @@ res = initialize_Init_Hints(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Conv(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Guard(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Simproc(builtin, lean_io_mk_world());

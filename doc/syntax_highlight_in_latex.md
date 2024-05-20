@@ -43,7 +43,8 @@ $ pdflatex test.tex
 
 ## Example with `minted`
 
-First [install Pygments](https://pygments.org/download/). Then save [`lean4.py`](https://raw.githubusercontent.com/leanprover/lean4/master/doc/latex/lean4.py), which contains an version of the Lean highlighter updated for Lean 4, and the following sample LaTeX file `test.tex` into the same directory:
+First [install Pygments](https://pygments.org/download/) (version 2.18 or newer).
+Then save the following sample LaTeX file `test.tex` into the same directory:
 
 ```latex
 \documentclass{article}
@@ -51,9 +52,8 @@ First [install Pygments](https://pygments.org/download/). Then save [`lean4.py`]
 % switch to a monospace font supporting more Unicode characters
 \setmonofont{FreeMono}
 \usepackage{minted}
-% instruct minted to use our local theorem.py
-\newmintinline[lean]{lean4.py:Lean4Lexer -x}{bgcolor=white}
-\newminted[leancode]{lean4.py:Lean4Lexer -x}{fontsize=\footnotesize}
+\newmintinline[lean]{lean4}{bgcolor=white}
+\newminted[leancode]{lean4}{fontsize=\footnotesize}
 \usemintedstyle{tango}  % a nice, colorful theme
 
 \begin{document}
@@ -67,9 +67,6 @@ theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f
 \end{document}
 ```
 
-If your version of `minted` is v2.7 or newer, but before v3.0,
-you will additionally need to follow the workaround described in https://github.com/gpoore/minted/issues/360.
-
 You can then compile `test.tex` by executing the following command:
 
 ```bash
@@ -81,11 +78,14 @@ Some remarks:
  - either `xelatex` or `lualatex` is required to handle Unicode characters in the code.
  - `--shell-escape` is needed to allow `xelatex` to execute `pygmentize` in a shell.
  - If the chosen monospace font is missing some Unicode symbols, you can direct them to be displayed using a fallback font or other replacement LaTeX code.
-``` latex
-\usepackage{newunicodechar}
-\newfontfamily{\freeserif}{DejaVu Sans}
-\newunicodechar{✝}{\freeserif{✝}}
-\newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
-```
- - minted has a "helpful" feature that draws red boxes around characters the chosen lexer doesn't recognize.
- Since the Lean lexer cannot encompass all user-defined syntax, it is advisable to [work around](https://tex.stackexchange.com/a/343506/14563) this feature.
+   ``` latex
+   \usepackage{newunicodechar}
+   \newfontfamily{\freeserif}{DejaVu Sans}
+   \newunicodechar{✝}{\freeserif{✝}}
+   \newunicodechar{𝓞}{\ensuremath{\mathcal{O}}}
+   ```
+ - If you are using an old version of Pygments, you can copy 
+   [`lean.py`](https://raw.githubusercontent.com/pygments/pygments/master/pygments/lexers/lean.py) into your working directory,
+   and use `lean4.py:Lean4Lexer -x` instead of `lean4` above.
+   If your version of `minted` is v2.7 or newer, but before v3.0,
+   you will additionally need to follow the workaround described in https://github.com/gpoore/minted/issues/360.

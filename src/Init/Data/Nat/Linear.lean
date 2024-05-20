@@ -714,4 +714,10 @@ theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 
-end Nat.Linear
+end Linear
+
+def elimOffset {α : Sort u} (a b k : Nat) (h₁ : a + k = b + k) (h₂ : a = b → α) : α := by
+  simp_arith at h₁
+  exact h₂ h₁
+
+end Nat

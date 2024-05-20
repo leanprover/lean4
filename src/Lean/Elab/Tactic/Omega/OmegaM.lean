@@ -71,7 +71,7 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' HashMap.empty |>.run' {} { cfg } |>.run
+  m.run' HashMap.empty |>.run' {} { cfg } |>.run'
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg

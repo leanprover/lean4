@@ -267,22 +267,3 @@ def extCore (g : MVarId) (pats : List (TSyntax `rcasesPat))
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Ext
-
-#exit
--- TODO: populate the following principles after update-stage 0
-attribute [ext] funext propext Subtype.eq
-
-@[ext] theorem Prod.ext : {x y : Prod α β} → x.fst = y.fst → x.snd = y.snd → x = y
-  | ⟨_,_⟩, ⟨_,_⟩, rfl, rfl => rfl
-
-@[ext] theorem PProd.ext : {x y : PProd α β} → x.fst = y.fst → x.snd = y.snd → x = y
-  | ⟨_,_⟩, ⟨_,_⟩, rfl, rfl => rfl
-
-@[ext] theorem Sigma.ext : {x y : Sigma β} → x.fst = y.fst → HEq x.snd y.snd → x = y
-  | ⟨_,_⟩, ⟨_,_⟩, rfl, .rfl => rfl
-
-@[ext] theorem PSigma.ext : {x y : PSigma β} → x.fst = y.fst → HEq x.snd y.snd → x = y
-  | ⟨_,_⟩, ⟨_,_⟩, rfl, .rfl => rfl
-
-@[ext] protected theorem PUnit.ext (x y : PUnit) : x = y := rfl
-protected theorem Unit.ext (x y : Unit) : x = y := rfl

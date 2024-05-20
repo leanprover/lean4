@@ -3,12 +3,135 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Trace
+import Lake.Util.Task
 import Lake.Build.Basic
 
 open System
 
 namespace Lake
+
+/-- Information on what this job did. -/
+inductive JobAction
+/-- No information about this job's action is available. -/
+| unknown
+/-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
+| replay
+/-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
+| fetch
+/-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
+| build
+deriving Inhabited, Repr, DecidableEq, Ord
+
+instance : LT JobAction := ltOfOrd
+instance : LE JobAction := leOfOrd
+instance : Min JobAction := minOfLe
+instance : Max JobAction := maxOfLe
+
+@[inline] def JobAction.merge (a b : JobAction) : JobAction :=
+  max a b
+
+def JobAction.verb (failed : Bool) : JobAction → String
+| .unknown => if failed then "Running" else "Ran"
+| .replay => if failed then "Replaying" else "Replayed"
+| .fetch => if failed then "Fetching" else "Fetched"
+| .build => if failed then "Building" else "Built"
+
+/-- Mutable state of a Lake job. -/
+structure JobState where
+  /-- The job's log. -/
+  log : Log := {}
+  /-- Tracks whether this job performed any significant build action. -/
+  action : JobAction := .unknown
+  deriving Inhabited
+
+/--
+Resets the job state after a checkpoint (e.g., registering the job).
+Preserves state that downstream jobs want to depend on while resetting
+job-local state that should not be inherited by downstream jobs.
+-/
+@[inline] def JobState.renew (_ : JobState) : JobState where
+  log := {}
+  action := .unknown
+
+def JobState.merge (a b : JobState) : JobState where
+  log := a.log ++ b.log
+  action := a.action.merge b.action
+
+@[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) :=
+  {s with log := f s.log}
+
+/-- The result of a Lake job. -/
+abbrev JobResult α := EResult Log.Pos JobState α
+
+/-- The `Task` of a Lake job. -/
+abbrev JobTask α := BaseIOTask (JobResult α)
+
+/-- The monad of asynchronous Lake jobs. Lifts into `FetchM`. -/
+abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
+
+instance [Pure m] : MonadLift LakeM (BuildT m) where
+  monadLift x := fun ctx => pure <| x.run ctx.toContext
+
+instance : MonadStateOf Log JobM where
+  get := (·.log) <$> get
+  set log := modify fun s => {s with log}
+  modifyGet f := modifyGet fun s => let (a, log) := f s.log; (a, {s with log})
+
+instance : MonadStateOf JobState JobM := inferInstance
+
+instance : MonadLog JobM := .ofMonadState
+instance : MonadError JobM := ELog.monadError
+instance : Alternative JobM := ELog.alternative
+instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
+
+/-- Record that this job is trying to perform some action. -/
+@[inline] def updateAction (action : JobAction) : JobM PUnit :=
+  modify fun s => {s with action := s.action.merge action}
+
+/-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
+abbrev SpawnM := BuildT BaseIO
+
+/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
+@[deprecated SpawnM] abbrev SchedulerM := SpawnM
+
+/--
+Logs a build step with `message`.
+
+**Deprecated:**  Build steps are now managed by a top-level build monitor.
+As a result, this no longer functions the way it used to. It now just logs the
+`message` via `logVerbose`.
+-/
+@[deprecated] def logStep (message : String) : JobM Unit := do
+  logVerbose message
+
+/-- A Lake job. -/
+structure Job (α : Type u)  where
+  task : JobTask α
+  caption : String
+  deriving Inhabited
+
+structure BundledJob where
+  {type : Type u}
+  job : Job type
+  deriving Inhabited
+
+instance : CoeOut (Job α) BundledJob := ⟨.mk⟩
+
+hydrate_opaque_type OpaqueJob BundledJob
+
+abbrev OpaqueJob.type (job : OpaqueJob) : Type :=
+  job.get.type
+
+abbrev OpaqueJob.toJob (job : OpaqueJob) : Job job.type :=
+  job.get.job
+
+abbrev OpaqueJob.task (job : OpaqueJob) : JobTask job.type :=
+  job.toJob.task
+
+abbrev OpaqueJob.caption (job : OpaqueJob) : String :=
+  job.toJob.caption
+
+instance : CoeDep OpaqueJob job (Job job.type) := ⟨job.toJob⟩
 
 namespace Job
 

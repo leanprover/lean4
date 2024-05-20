@@ -31,8 +31,9 @@ structure MonitorContext where
   out : IO.FS.Stream
   outLv : LogLevel
   failLv : LogLevel
-  showProgress : Bool
+  minAction : JobAction
   useAnsi : Bool
+  showProgress : Bool
   /-- How often to poll jobs (in milliseconds). -/
   updateFrequency : Nat := 100
 
@@ -88,14 +89,14 @@ def renderProgress : MonitorM PUnit := do
 
 def reportJob (job : Job Unit) : MonitorM PUnit := do
   let {jobNo, ..} ← get
-  let {totalJobs, failLv, outLv, out, useAnsi, showProgress, ..} ← read
+  let {totalJobs, failLv, outLv, out, useAnsi, showProgress, minAction, ..} ← read
   let {log, action, ..} := job.task.get.state
   let maxLv := log.maxLv
   let failed := log.hasEntries ∧ maxLv ≥ failLv
   if failed then
     modify fun s => {s with failures := s.failures.push job.caption}
   let hasOutput := failed ∨ (log.hasEntries ∧ maxLv ≥ outLv)
-  if hasOutput ∨ (showProgress ∧ action ≥ .fetch) then
+  if hasOutput ∨ (showProgress ∧ (action ≥ minAction)) then
     let verb := action.verb failed
     let icon := if hasOutput then maxLv.icon else '✔'
     let caption := s!"{icon} [{jobNo}/{totalJobs}] {verb} {job.caption}"
@@ -151,6 +152,7 @@ def monitorJobs
   (jobs : Array (Job Unit))
   (out : IO.FS.Stream)
   (failLv outLv : LogLevel)
+  (minAction : JobAction)
   (useAnsi showProgress : Bool)
   (resetCtrl : String := "")
   (initFailures : Array String := #[])
@@ -158,7 +160,7 @@ def monitorJobs
   (updateFrequency := 100)
 : BaseIO (Array String) := do
   let ctx := {
-    totalJobs, out, failLv, outLv,
+    totalJobs, out, failLv, outLv, minAction
     useAnsi, showProgress, updateFrequency
   }
   let s := {
@@ -211,7 +213,8 @@ def Workspace.runFetchM
   -- Job Monitor
   let jobs ← ctx.registeredJobs.get
   let resetCtrl := if showAnsiProgress then Ansi.resetLine else ""
-  let failures ← monitorJobs jobs out failLv outLv useAnsi showProgress
+  let minAction := if cfg.verbosity = .verbose then .unknown else .fetch
+  let failures ← monitorJobs jobs out failLv outLv minAction useAnsi showProgress
     (resetCtrl := resetCtrl) (initFailures := failures)
   -- Failure Report
   if failures.isEmpty then

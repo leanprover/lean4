@@ -20,10 +20,11 @@ EOF
 ) -
 
 # Test that an indirect fetch on the release does not cause the build to fail
-$LAKE build -v test:extraDep | diff -u --strip-trailing-cr <(cat << 'EOF'
-⚠ [1/1] Fetched test:extraDep
+$LAKE build Test | diff -u --strip-trailing-cr <(cat << 'EOF'
+⚠ [1/3] Fetched dep:optRelease
 info: dep: wanted prebuilt release, but could not find an associated tag for the package's revision
 warning: failed to fetch cloud release; falling back to local build
+✔ [2/3] Built Test
 Build completed successfully.
 EOF
 ) -
@@ -53,7 +54,13 @@ $LAKE build dep:release -v | grep --color "unpacking"
 test -d dep/.lake/build
 
 # Test that the job prints nothing if the archive is already fetched and unpacked
-$LAKE build dep:release -v | diff -u --strip-trailing-cr <(cat << 'EOF'
+$LAKE build dep:release | diff -u --strip-trailing-cr <(cat << 'EOF'
+Build completed successfully.
+EOF
+) -
+
+# Test that releases do not contaminate downstream jobs
+$LAKE build Test | diff -u --strip-trailing-cr <(cat << 'EOF'
 Build completed successfully.
 EOF
 ) -

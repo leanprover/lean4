@@ -24,6 +24,14 @@ instance : LT String :=
 instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.hasDecidableLt s₁.data s₂.data
 
+@[reducible] protected def le (a b : String) : Prop := ¬ b < a
+
+instance : LE String :=
+  ⟨String.le⟩
+
+instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
+  inferInstanceAs (Decidable (Not _))
+
 /--
 Returns the length of a string in Unicode code points.
 

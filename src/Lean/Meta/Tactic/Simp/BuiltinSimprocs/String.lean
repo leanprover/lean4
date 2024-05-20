@@ -44,6 +44,10 @@ builtin_dsimproc [simp, seval] reduceMk (String.mk _) := fun e => do
   let some m ← fromExpr? e.appArg! | return .continue
   return .done <| toExpr (op n m)
 
+builtin_simproc [simp, seval] reduceLT  (( _ : String) < _)  := reduceBinPred ``LT.lt 4 (. < .)
+builtin_simproc [simp, seval] reduceLE  (( _ : String) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+builtin_simproc [simp, seval] reduceGT  (( _ : String) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+builtin_simproc [simp, seval] reduceGE  (( _ : String) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 builtin_simproc [simp, seval] reduceEq  (( _ : String) = _)  := reduceBinPred ``Eq 3 (. = .)
 builtin_simproc [simp, seval] reduceNe  (( _ : String) ≠ _)  := reduceBinPred ``Ne 3 (. ≠ .)
 builtin_dsimproc [simp, seval] reduceBEq  (( _ : String) == _)  := reduceBoolPred ``BEq.beq 4 (. == .)

@@ -47,3 +47,14 @@ example : "hello" = "foo" → False := by
   simp [-String.reduceEq]
   guard_target =ₛ ¬ "hello" = "foo"
   simp
+
+example : "hello" ≤ "hellz" := by simp
+example : "hello" < "hellz" := by simp
+example : "hellz" > "hello" := by simp
+example : "hellz" ≥ "hello" := by simp
+example : "abcd" > "abc" := by simp
+
+example : 'b' > 'a' := by simp
+example : 'a' ≥ 'a' := by simp
+example : 'a' < 'b' := by simp
+example : 'a' ≤ 'a' := by simp

@@ -224,8 +224,7 @@ theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
 /-- If two bitvectors have different `msb`s, then signed and unsigned comparisons are opposites -/
 theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
     x.slt y = !x.ult y := by
-  have hx : x.msb = !y.msb := by revert h; cases x.msb <;> cases y.msb <;> trivial
-  simp only [BitVec.slt, toInt_eq_msb_cond, hx, not_eq_true', ult_eq_msb_of_msb_neq h]
+  simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
   cases y.msb <;> (simp; omega)
 
 theorem slt_eq_ult (x y : BitVec w) :

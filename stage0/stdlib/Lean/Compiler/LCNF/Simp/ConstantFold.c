@@ -182,7 +182,6 @@ lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_mulLhsShift___at_Lean
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__6;
 lean_object* l_Nat_sub___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_add___boxed(lean_object*, lean_object*);
-extern uint32_t l_instInhabitedUInt32;
 lean_object* l_Lean_Compiler_LCNF_getPhase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftAnnihilator___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__29___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__38;
@@ -284,7 +283,6 @@ lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_mkBinaryDecisionProce
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftNeutral___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__16___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_mkBinaryDecisionProcedure___at_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern uint64_t l_instInhabitedUInt64;
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_mkBoolLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightAnnihilator___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__30(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -365,6 +363,7 @@ lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_leftRightNeutral___at
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_LCNF_Simp_ConstantFold_builtinFolders___spec__10(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Compiler_LCNF_Simp_ConstantFold_applyFolders___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__47;
+extern uint16_t l_UInt16_instInhabited;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Lean_Compiler_LCNF_Simp_ConstantFold_getFolder___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_mkUnary___at_Lean_Compiler_LCNF_Simp_ConstantFold_stringFolders___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_UInt64_ofNat___boxed(lean_object*);
@@ -453,13 +452,11 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders___clo
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightNeutral___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_divShift___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__56(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__29;
-extern uint16_t l_instInhabitedUInt16;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralString___closed__2;
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4780_(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightNeutral___at_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___spec__13(uint16_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__40;
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_first___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern uint8_t l_instInhabitedUInt8;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__20;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Lean_Compiler_LCNF_Simp_ConstantFold_getFolder___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_mkNatWrapperInstance___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -564,6 +561,8 @@ static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_getBoolLit___closed__
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4780____closed__4;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt8___closed__2;
+extern uint32_t l_UInt32_instInhabited;
+extern uint64_t l_UInt64_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_Simp_ConstantFold_applyFolders___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_mkBinaryDecisionProcedure___at_Lean_Compiler_LCNF_Simp_ConstantFold_relationFolders___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_Folder_rightAnnihilator___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -636,6 +635,7 @@ static lean_object* l___private_Lean_Compiler_LCNF_Simp_ConstantFold_0__Lean_Com
 lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_mkAuxLetDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMap_insert___at_Lean_Compiler_LCNF_Simp_ConstantFold_builtinFolders___spec__6(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+extern uint8_t l_UInt8_instInhabited;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_arithmeticFolders___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt32___closed__4;
 lean_object* l_UInt16_decLe___boxed(lean_object*, lean_object*);
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_instInhabitedUInt8;
+x_1 = l_UInt8_instInhabited;
 x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt8___closed__4;
 x_3 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt8___closed__3;
 x_4 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt8___closed__5;
@@ -2598,7 +2598,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 uint16_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_instInhabitedUInt16;
+x_1 = l_UInt16_instInhabited;
 x_2 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt16___closed__3;
 x_3 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt16___closed__2;
 x_4 = l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt16___closed__4;
@@ -2654,7 +2654,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 uint32_t x_1; lean_object* x_2; 
-x_1 = l_instInhabitedUInt32;
+x_1 = l_UInt32_instInhabited;
 x_2 = lean_box_uint32(x_1);
 return x_2;
 }
@@ -2717,7 +2717,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Simp_ConstantFold_instLiteralUInt
 _start:
 {
 uint64_t x_1; lean_object* x_2; 
-x_1 = l_instInhabitedUInt64;
+x_1 = l_UInt64_instInhabited;
 x_2 = lean_box_uint64(x_1);
 return x_2;
 }

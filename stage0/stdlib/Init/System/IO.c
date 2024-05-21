@@ -5909,12 +5909,12 @@ return x_2;
 static lean_object* _init_l_IO_FS_instInhabitedSystemTime___closed__2() {
 _start:
 {
-lean_object* x_1; uint32_t x_2; lean_object* x_3; 
-x_1 = l_IO_FS_instInhabitedSystemTime___closed__1;
-x_2 = l_IO_FS_instInhabitedStream___lambda__1___closed__1;
+uint32_t x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = l_IO_FS_instInhabitedSystemTime___closed__1;
 x_3 = lean_alloc_ctor(0, 1, 4);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_2);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set_uint32(x_3, sizeof(void*)*1, x_1);
 return x_3;
 }
 }

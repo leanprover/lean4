@@ -107,10 +107,9 @@ def introNext (goal : Goal) : PreM IntroResult := do
 def pushResult (goal : Goal) : PreM Unit :=
   modifyThe Grind.State fun s => { s with goals := s.goals.push goal }
 
--- TODO: use `[grind_cases]` attribute
 def isCasesCandidate (fvarId : FVarId) : MetaM Bool := do
-  let type ← fvarId.getType
-  return type.isAppOf ``And
+  let .const declName _ := (← fvarId.getType).getAppFn | return false
+  isGrindCasesTarget declName
 
 def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
   if (← isCasesCandidate fvarId) then

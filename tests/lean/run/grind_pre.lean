@@ -9,23 +9,52 @@ elab "grind_pre" : tactic => do
 
 abbrev f (a : α) := a
 
+attribute [grind_cases] And Or
+
 /--
 warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
 p q : Prop
 left✝ : a = true
-right✝ : b = true ∨ c = true
+h✝ : b = true
 left : p
 right : q
-x✝ : b = false ∨ a = false
+h : b = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : b = true
+left : p
+right : q
+h : a = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : c = true
+left : p
+right : q
+h : b = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : c = true
+left : p
+right : q
+h : a = false
 ⊢ False
 -/
 #guard_msgs in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind_pre
   trace_state
-  sorry
+  all_goals sorry
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
@@ -39,8 +68,8 @@ example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j +
 /--
 warning: declaration uses 'sorry'
 ---
-info: α✝ : Type ?u.1908
-β✝ : Type ?u.1907
+info: α✝ : Type u_1
+β✝ : Type u_2
 a₁ : α✝ × β✝
 a₂ : α✝
 a₃ : β✝
@@ -56,7 +85,7 @@ tail_eq : as = bs
 ⊢ False
 -/
 #guard_msgs in
-example (h : a₁ :: (a₂, a₃) :: as = b₁ :: (b₂, b₃) :: bs) : False := by
+theorem ex2 (h : a₁ :: (a₂, a₃) :: as = b₁ :: (b₂, b₃) :: bs) : False := by
   grind_pre
   trace_state
   sorry

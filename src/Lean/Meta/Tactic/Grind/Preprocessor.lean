@@ -57,6 +57,7 @@ def simpHyp? (mvarId : MVarId) (fvarId : FVarId) : PreM (Option (FVarId × MVarI
 inductive IntroResult where
   | done
   | newHyp (fvarId : FVarId) (goal : Goal)
+  | newDepHyp (goal : Goal)
   | newLocal (fvarId : FVarId) (goal : Goal)
 
 def introNext (goal : Goal) : PreM IntroResult := do
@@ -96,7 +97,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
       if (← isProp localDecl.type) then
         -- Add a non-dependent copy
         let mvarId ← mvarId.assert localDecl.userName localDecl.type (mkFVar fvarId)
-        return .newLocal fvarId { goal with mvarId }
+        return .newDepHyp { goal with mvarId }
       else
         return .newLocal fvarId { goal with mvarId }
   else
@@ -131,6 +132,8 @@ partial def preprocess (goal : Goal) : PreM Unit := do
     else
       let clause ← goal.mvarId.withContext do mkInputClause fvarId
       preprocess { goal with clauses := goal.clauses.push clause }
+  | .newDepHyp goal =>
+    preprocess goal
   | .newLocal fvarId goal =>
     if let some goals ← applyCases? goal fvarId then
       goals.forM preprocess

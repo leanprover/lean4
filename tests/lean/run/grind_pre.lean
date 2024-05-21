@@ -14,8 +14,10 @@ warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
 p q : Prop
-h : a = true ∧ (b = true ∨ c = true)
-h' : p ∧ q
+left✝ : a = true
+right✝ : b = true ∨ c = true
+left : p
+right : q
 x✝ : b = false ∨ a = false
 ⊢ False
 -/

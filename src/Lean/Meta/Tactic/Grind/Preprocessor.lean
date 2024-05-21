@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Cases
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -104,6 +105,18 @@ def introNext (goal : Goal) : PreM IntroResult := do
 def pushResult (goal : Goal) : PreM Unit :=
   modifyThe Grind.State fun s => { s with goals := s.goals.push goal }
 
+-- TODO: use `[grind_cases]` attribute
+def isCasesCandidate (fvarId : FVarId) : MetaM Bool := do
+  let type ← fvarId.getType
+  return type.isAppOf ``And
+
+def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
+  if (← isCasesCandidate fvarId) then
+    let mvarIds ← cases goal.mvarId fvarId
+    return mvarIds.map fun mvarId => { goal with mvarId }
+  else
+    return none
+
 partial def preprocess (goal : Goal) : PreM Unit := do
   trace[Meta.debug] "{goal.mvarId}"
   match (← introNext goal) with
@@ -113,12 +126,16 @@ partial def preprocess (goal : Goal) : PreM Unit := do
     else
       pushResult goal
   | .newHyp fvarId goal =>
-    -- TODO: apply eliminators
-    let clause ← goal.mvarId.withContext do mkInputClause fvarId
-    preprocess { goal with clauses := goal.clauses.push clause }
-  | .newLocal _ goal =>
-    -- TODO: apply eliminators
-    preprocess goal
+    if let some goals ← applyCases? goal fvarId then
+      goals.forM preprocess
+    else
+      let clause ← goal.mvarId.withContext do mkInputClause fvarId
+      preprocess { goal with clauses := goal.clauses.push clause }
+  | .newLocal fvarId goal =>
+    if let some goals ← applyCases? goal fvarId then
+      goals.forM preprocess
+    else
+      preprocess goal
 
 end Preprocessor
 

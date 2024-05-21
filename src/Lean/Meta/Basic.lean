@@ -235,7 +235,7 @@ structure DefEqCache where
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache   := {}
-  synthInstance  : SynthInstanceCache := {}
+  synthInstance  : SynthInstanceCache := ()
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.

@@ -218,16 +218,8 @@ theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
 /-- If two bitvectors have different `msb`s, then unsigned comparison is determined by this bit -/
 theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
     x.ult y = y.msb := by
-  simp [BitVec.ult]
-  cases hy : y.msb <;> simp only [decide_eq_true_eq, decide_eq_false_iff_not, Nat.not_lt, ge_iff_le]
-  · have hx : x.msb = true := by simp_all
-    have := (msb_eq_false_iff_two_mul_lt _).mp hy
-    have := (msb_eq_true_iff_two_mul_ge _).mp hx
-    omega
-  · have hx : x.msb = false := by simp_all
-    have := (msb_eq_false_iff_two_mul_lt _).mp hx
-    have := (msb_eq_true_iff_two_mul_ge _).mp hy
-    omega
+  simp only [BitVec.ult, msb_eq_decide, ne_eq, decide_eq_decide] at *
+  omega
 
 /-- If two bitvectors have different `msb`s, then signed and unsigned comparisons are opposites -/
 theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :

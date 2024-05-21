@@ -43,7 +43,6 @@ structure Instance where
 
 structure GeneratorNode where
   mvar            : Expr
-  mvarType        : Expr
   key             : Expr
   mctx            : MetavarContext
   instances       : Array Instance
@@ -188,7 +187,7 @@ structure State where
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
-  cacheEntries   : Array (SynthInstanceCacheKey × Expr) := #[]
+  cacheEntries   : Array (Expr × Expr)           := #[]
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -249,7 +248,7 @@ def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
   else
     let mctx ← getMCtx
     return some {
-      mvar, mvarType, key, mctx, instances
+      mvar, key, mctx, instances
       typeHasMVars := mvarType.hasMVar
       currInstanceIdx := instances.size
     }
@@ -588,8 +587,7 @@ def generate : SynthM Unit := do
           let answer := entry.answers[0].result
           if answer.numMVars == 0 && answer.paramNames.isEmpty then
             let inst := answer.expr
-            let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
-            modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+            modify fun s => { s with cacheEntries := s.cacheEntries.push (gNode.key, inst)}
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -616,8 +614,7 @@ def generate : SynthM Unit := do
             let answer := entry.answers[0].result
             if answer.numMVars == 0 && answer.paramNames.isEmpty then
               let inst := answer.expr
-              let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
-              modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+              modify fun s => { s with cacheEntries := s.cacheEntries.push (gNode.key, inst)}
             return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
@@ -636,8 +633,7 @@ partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
         let answer := answer.result
         if answer.numMVars == 0 && answer.paramNames.isEmpty then
           let inst := answer.expr
-          let cacheKey := { localInsts := ← getLocalInstances, type := gNode.mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
-          modify fun s => { s with cacheEntries := s.cacheEntries.push (cacheKey, inst)}
+          modify fun s => { s with cacheEntries := s.cacheEntries.push (gNode.key, inst)}
 
 def getNextToResume : SynthM (ConsumerNode × Answer) := do
   let r := (← get).resumeStack.back
@@ -663,8 +659,6 @@ def resume : SynthM Unit := do
           return m!"propagating {← instantiateMVars answer.resultType} to subgoal {← instantiateMVars subgoal} of {← instantiateMVars goal}") do
       trace[Meta.synthInstance.resume] "size: {cNode.size + answer.size}"
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
-  -- if !(← get).resumeStack.isEmpty then
-  --   resume
 
 def step : SynthM Bool := do
   checkSystem
@@ -693,22 +687,25 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-     let mvar ← mkFreshExprMVar type
-     let key  ← mkTableKey type
-     let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal (← getMCtx) key mvar Waiter.root
-       synth
-     let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
-       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
-       fun ex =>
-         if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
-         else
-           throw ex
-     let cache := (← get).cache.synthInstance
-     let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert k e) cache
-     modify fun s => { s with cache.synthInstance := cache}
-     return result
+    let mvar ← mkFreshExprMVar type
+    let key  ← mkTableKey type
+    let action : SynthM (Option AbstractMVarsResult) := do
+      newSubgoal (← getMCtx) key mvar Waiter.root
+      synth
+    let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
+      (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
+      fun ex =>
+        if ex.isRuntime then
+          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
+        else
+          throw ex
+    let cache := (← get).cache.synthInstance
+    let localInsts ← getLocalInstances
+    let synthPendingDepth := (← read).synthPendingDepth
+    let mkKey k := { type := k, localInsts, synthPendingDepth }
+    let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert (mkKey k) e) cache
+    modify fun s => { s with cache.synthInstance := cache}
+    return result
 
 end SynthInstance
 

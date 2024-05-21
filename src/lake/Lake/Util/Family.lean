@@ -147,8 +147,8 @@ attribute [simp] FamilyOut.family_key_eq_type
 instance [FamilyDef Fam a β] : FamilyOut Fam a β where
   family_key_eq_type := FamilyDef.family_key_eq_type
 
-/-- The general type family -/
-instance (priority := low) : FamilyDef Fam a (Fam a) where
+/-- The constant type family -/
+instance : FamilyDef (fun _ => β) a β where
   family_key_eq_type := rfl
 
 /-- Cast a datum from its individual type to its general family. -/

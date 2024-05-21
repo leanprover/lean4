@@ -96,7 +96,7 @@ theorem lt_iff_val_lt_val {a b : Fin n} : a < b ↔ a.val < b.val := Iff.rfl
 
 @[simp] protected theorem le_refl (a : Fin n) : a ≤ a := by simp [le_def]
 
-protected theorem lt_irrefl (a : Fin n) : ¬ a < a := by simp
+@[simp] protected theorem lt_irrefl (a : Fin n) : ¬ a < a := by simp
 
 protected theorem le_trans {a b c : Fin n} : a ≤ b → b ≤ c → a ≤ c := Nat.le_trans
 

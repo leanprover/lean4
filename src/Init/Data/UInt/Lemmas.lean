@@ -12,9 +12,6 @@ macro "declare_uint_theorems" typeName:ident : command =>
 `(
 namespace $typeName
 
-theorem val_eq_of_lt {a : Nat} : a < size → ((ofNat a).val : Nat) = a :=
-        Nat.mod_eq_of_lt
-
 instance : Inhabited $typeName where
   default := 0
 
@@ -27,14 +24,16 @@ theorem add_def (a b : $typeName) : a + b = ⟨a.val + b.val⟩ := rfl
 
 @[simp] theorem mk_val_eq : ∀ (a : $typeName), mk a.val = a
 | ⟨_, _⟩ => rfl
+theorem val_eq_of_lt {a : Nat} : a < size → ((ofNat a).val : Nat) = a :=
+        Nat.mod_eq_of_lt
 
 theorem le_def {a b : $typeName} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
 theorem lt_def {a b : $typeName} : a < b ↔ a.1 < b.1 := .rfl
-theorem lt_iff_val_lt_val {a b : $typeName} : a < b ↔ a.val < b.val := Iff.rfl
+theorem lt_iff_val_lt_val {a b : $typeName} : a < b ↔ a.val < b.val := .rfl
 @[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := Fin.not_le
 @[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := Fin.not_lt
 @[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
+@[simp] protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
 protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
 protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := Fin.lt_trans
 protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1

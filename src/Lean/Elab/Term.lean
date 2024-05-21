@@ -1531,7 +1531,7 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
           | ex => match isAutoBoundImplicitLocalException? ex with
             | some n =>
               -- Restore state, declare `n`, and try again
-              s.restore
+              s.restore (restoreInfo := true)
               withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
                 withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
                   loop (← saveState)

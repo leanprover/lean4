@@ -534,6 +534,11 @@ def sshiftRight (a : BitVec n) (s : Nat) : BitVec n := .ofInt n (a.toInt >>> s)
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩
 
+/-- Auxiliary function for `rotateLeft`, which does not take into account the case where
+the rotation amount is greater than the bitvector width. -/
+def rotateLeftAux (x : BitVec w) (n : Nat) : BitVec w :=
+  x <<< n ||| x >>> (w - n)
+
 /--
 Rotate left for bit vectors. All the bits of `x` are shifted to higher positions, with the top `n`
 bits wrapping around to fill the low bits.
@@ -543,7 +548,15 @@ rotateLeft  0b0011#4 3 = 0b1001
 ```
 SMT-Lib name: `rotate_left` except this operator uses a `Nat` shift amount.
 -/
-def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := x <<< n ||| x >>> (w - n)
+def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := rotateLeftAux x (n % w)
+
+
+/--
+Auxiliary function for `rotateRight`, which does not take into account the case where
+the rotation amount is greater than the bitvector width.
+-/
+def rotateRightAux (x : BitVec w) (n : Nat) : BitVec w :=
+  x >>> n ||| x <<< (w - n)
 
 /--
 Rotate right for bit vectors. All the bits of `x` are shifted to lower positions, with the
@@ -554,7 +567,7 @@ rotateRight 0b01001#5 1 = 0b10100
 ```
 SMT-Lib name: `rotate_right` except this operator uses a `Nat` shift amount.
 -/
-def rotateRight (x : BitVec w) (n : Nat) : BitVec w := x >>> n ||| x <<< (w - n)
+def rotateRight (x : BitVec w) (n : Nat) : BitVec w := rotateRightAux x (n % w)
 
 /--
 Concatenation of bitvectors. This uses the "big endian" convention that the more significant

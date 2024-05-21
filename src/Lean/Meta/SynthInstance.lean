@@ -174,6 +174,7 @@ structure TableEntry where
 structure Context where
   maxResultSize : Nat
   maxHeartbeats : Nat
+  globalCache   : HashMap SynthInstanceCacheKey (Option Expr)
 
 /--
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -491,14 +492,14 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
-def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Option Answer)) :=
+def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : SynthM (Option (Option Answer)) :=
   withMCtx mctx do
   let mvarType ← inferType mvar
   let mvarType ← instantiateMVars mvarType
   if mvarType.hasMVar then
     return none
   let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
-  match (SynthInstanceCacheExt.getState (← getEnv)).find? cacheKey with
+  match (← read).globalCache.find? cacheKey with
   | none => return none
   | some none =>
     trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {mvarType} in global cache"
@@ -689,11 +690,12 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
     let key  ← mkTableKey type
+    let globalCache := SynthInstanceCacheExt.getState (← getEnv)
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
       synth
     let (result, { cacheEntries, ..}) ← tryCatchRuntimeEx
-      (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run {})
+      (action.run { maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions), globalCache } |>.run {})
       fun ex =>
         if ex.isRuntime then
           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"

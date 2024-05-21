@@ -4,7 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.Norm
-import Init.Grind.Tactics
-import Init.Grind.Lemmas
-import Init.Grind.Cases
+import Init.Core
+
+attribute [grind_cases] And Prod False Empty True Unit Exists
+
+namespace Lean.Grind.Eager
+
+attribute [scoped grind_cases] Or
+
+end Lean.Grind.Eager

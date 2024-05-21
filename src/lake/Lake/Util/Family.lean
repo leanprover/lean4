@@ -144,6 +144,9 @@ class FamilyOut {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Ty
 -- Simplifies proofs involving open type families
 attribute [simp] FamilyOut.family_key_eq_type
 
+instance : FamilyDef Fam a (Fam a) where
+  family_key_eq_type := rfl
+
 instance [FamilyDef Fam a β] : FamilyOut Fam a β where
   family_key_eq_type := FamilyDef.family_key_eq_type
 

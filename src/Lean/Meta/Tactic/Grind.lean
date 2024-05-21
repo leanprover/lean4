@@ -9,3 +9,4 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Preprocessor
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Cases

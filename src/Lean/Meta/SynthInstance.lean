@@ -498,7 +498,7 @@ def checkGlobalCache (mvar : Expr) (mctx : MetavarContext) : MetaM (Option (Opti
   if mvarType.hasMVar then
     return none
   let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← readThe Meta.Context).synthPendingDepth }
-  match (← get).cache.synthInstance.find? cacheKey with
+  match (SynthInstanceCacheExt.getState (← getEnv)).find? cacheKey with
   | none => return none
   | some none =>
     trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {mvarType} in global cache"
@@ -699,12 +699,10 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
         else
           throw ex
-    let cache := (← get).cache.synthInstance
     let localInsts ← getLocalInstances
     let synthPendingDepth := (← read).synthPendingDepth
     let mkKey k := { type := k, localInsts, synthPendingDepth }
-    let cache ← cacheEntries.foldlM (fun c (k, e) => return c.insert (mkKey k) e) cache
-    modify fun s => { s with cache.synthInstance := cache}
+    modifyEnv (SynthInstanceCacheExt.modifyState · <| cacheEntries.foldl fun c (k, e) => c.insert (mkKey k) e)
     return result
 
 end SynthInstance
@@ -776,7 +774,6 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type
-    let s ← get
     let rec assignOutParams (result : Expr) : MetaM Bool := do
       let resultType ← inferType result
       /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
@@ -787,7 +784,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
-    match s.cache.synthInstance.find? cacheKey with
+    match (SynthInstanceCacheExt.getState (← getEnv)).find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -834,7 +831,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
+      modifyEnv (SynthInstanceCacheExt.modifyState · (·.insert cacheKey result?))
       pure result?
 
 /--

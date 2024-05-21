@@ -212,17 +212,7 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-structure SynthInstanceCacheKey where
-  localInsts        : LocalInstances
-  type              : Expr
-  /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
-  -/
-  synthPendingDepth : Nat
-  deriving Hashable, BEq
-
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option Expr)
+abbrev SynthInstanceCache := Unit
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo

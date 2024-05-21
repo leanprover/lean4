@@ -225,11 +225,8 @@ theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
 theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
     x.slt y = !x.ult y := by
   have hx : x.msb = !y.msb := by revert h; cases x.msb <;> cases y.msb <;> trivial
-  simp only [BitVec.slt, toInt_eq, hx, not_eq_true', ult_eq_msb_of_msb_neq h]
-  cases y.msb
-  <;> simp only [↓reduceIte, false_eq_true, Bool.not_false, decide_eq_true_eq, gt_iff_lt,
-        Bool.not_true, decide_eq_false_iff_not]
-  <;> omega
+  simp only [BitVec.slt, toInt_eq_msb_cond, hx, not_eq_true', ult_eq_msb_of_msb_neq h]
+  cases y.msb <;> (simp; omega)
 
 theorem slt_eq_ult (x y : BitVec w) :
     x.slt y = (x.msb != y.msb).xor (x.ult y) := by

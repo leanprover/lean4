@@ -68,7 +68,6 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   We have the following ones:
   ```
   @[builtin_attr_parser] def simple     := leading_parser ident >> optional (ppSpace >> (priorityParser <|> ident))
-  /- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are keywords. -/
   @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
   @[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
   ```

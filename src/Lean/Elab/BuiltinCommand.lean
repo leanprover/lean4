@@ -67,7 +67,8 @@ private def checkEndHeader : Name → List Scope → Option Name
       some <| .mkSimple h
   | _, _ => some .anonymous -- should not happen
 
-@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
+@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx => do
+  modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
   match stx with
   | `(namespace $n) => addNamespace n.getId
   | _               => throwUnsupportedSyntax
@@ -85,6 +86,7 @@ private def checkEndHeader : Name → List Scope → Option Name
   | _                        => throwUnsupportedSyntax
 
 @[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
+  modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
   let header? := (stx.getArg 1).getOptionalIdent?;
   let endSize := match header? with
     | none   => 1

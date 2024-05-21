@@ -192,6 +192,7 @@ private partial def computeSynthOrder (inst : Expr) : MetaM (Array Nat) :=
   return synthed
 
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
@@ -206,6 +207,7 @@ builtin_initialize
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
     erase := fun declName => do
+      modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
       let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s

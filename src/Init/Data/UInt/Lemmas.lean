@@ -7,102 +7,58 @@ prelude
 import Init.Data.UInt.Basic
 import Init.Data.Fin.Lemmas
 
--- Should we create a macro?
+set_option hygiene false in
+macro "declare_uint_theorems" typeName:ident : command =>
+`(
+namespace $typeName
 
-namespace UInt8
+theorem val_eq_of_lt {a : Nat} : a < size → ((ofNat a).val : Nat) = a :=
+        Nat.mod_eq_of_lt
 
-theorem le_def {a b : UInt8} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
-theorem lt_def {a b : UInt8} : a < b ↔ a.1 < b.1 := .rfl
-theorem lt_iff_val_lt_val {a b : UInt8} : a < b ↔ a.val < b.val := Iff.rfl
-@[simp] protected theorem not_le {a b : UInt8} : ¬ a ≤ b ↔ b < a := Fin.not_le
-@[simp] protected theorem not_lt {a b : UInt8} : ¬ a < b ↔ b ≤ a := Fin.not_lt
-@[simp] protected theorem le_refl (a : UInt8) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : UInt8) : ¬ a < a := by simp
-protected theorem le_trans {a b c : UInt8} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
-protected theorem lt_trans {a b c : UInt8} : a < b → b < c → a < c := Fin.lt_trans
-protected theorem le_total (a b : UInt8) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
-protected theorem lt_asymm {a b : UInt8} (h : a < b) : ¬ b < a := Fin.lt_asymm h
-protected theorem val_eq_of_eq {a b : UInt8} (h : a = b) : a.val = b.val := h ▸ rfl
-protected theorem eq_of_val_eq {a b : UInt8} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
-protected theorem ne_of_val_ne {a b : UInt8} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (UInt8.val_eq_of_eq h') h
-protected theorem ne_of_lt {a b : UInt8} (h : a < b) : a ≠ b := UInt8.ne_of_val_ne (Fin.ne_of_lt h)
+instance : Inhabited $typeName where
+  default := 0
 
-end UInt8
+theorem zero_def : (0 : $typeName) = ⟨0⟩ := rfl
 
-namespace UInt16
+theorem one_def : (1 : $typeName) = ⟨1⟩ := rfl
 
-theorem le_def {a b : UInt16} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
-theorem lt_def {a b : UInt16} : a < b ↔ a.1 < b.1 := .rfl
-theorem lt_iff_val_lt_val {a b : UInt16} : a < b ↔ a.val < b.val := Iff.rfl
-@[simp] protected theorem not_le {a b : UInt16} : ¬ a ≤ b ↔ b < a := Fin.not_le
-@[simp] protected theorem not_lt {a b : UInt16} : ¬ a < b ↔ b ≤ a := Fin.not_lt
-@[simp] protected theorem le_refl (a : UInt16) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : UInt16) : ¬ a < a := by simp
-protected theorem le_trans {a b c : UInt16} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
-protected theorem lt_trans {a b c : UInt16} : a < b → b < c → a < c := Fin.lt_trans
-protected theorem le_total (a b : UInt16) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
-protected theorem lt_asymm {a b : UInt16} (h : a < b) : ¬ b < a := Fin.lt_asymm h
-protected theorem val_eq_of_eq {a b : UInt16} (h : a = b) : a.val = b.val := h ▸ rfl
-protected theorem eq_of_val_eq {a b : UInt16} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
-protected theorem ne_of_val_ne {a b : UInt16} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (UInt16.val_eq_of_eq h') h
-protected theorem ne_of_lt {a b : UInt16} (h : a < b) : a ≠ b := UInt16.ne_of_val_ne (Fin.ne_of_lt h)
+@[simp] theorem mk_val_eq : ∀ (a : $typeName), mk a.val = a
+| ⟨_, _⟩ => rfl
 
-end UInt16
+theorem le_def {a b : $typeName} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
+theorem lt_def {a b : $typeName} : a < b ↔ a.1 < b.1 := .rfl
+theorem lt_iff_val_lt_val {a b : $typeName} : a < b ↔ a.val < b.val := Iff.rfl
+@[simp] protected theorem not_le {a b : $typeName} : ¬ a ≤ b ↔ b < a := Fin.not_le
+@[simp] protected theorem not_lt {a b : $typeName} : ¬ a < b ↔ b ≤ a := Fin.not_lt
+@[simp] protected theorem le_refl (a : $typeName) : a ≤ a := by simp [le_def]
+protected theorem lt_irrefl (a : $typeName) : ¬ a < a := by simp
+protected theorem le_trans {a b c : $typeName} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
+protected theorem lt_trans {a b c : $typeName} : a < b → b < c → a < c := Fin.lt_trans
+protected theorem le_total (a b : $typeName) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
+protected theorem lt_asymm {a b : $typeName} (h : a < b) : ¬ b < a := Fin.lt_asymm h
+protected theorem val_eq_of_eq {a b : $typeName} (h : a = b) : a.val = b.val := h ▸ rfl
+protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
+open $typeName (val_eq_of_eq) in
+protected theorem ne_of_val_ne {a b : $typeName} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (val_eq_of_eq h') h
+open $typeName (ne_of_val_ne) in
+protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := ne_of_val_ne (Fin.ne_of_lt h)
 
-namespace UInt32
+@[simp] protected theorem zero_toNat : (0 : $typeName).toNat = 0 := Nat.zero_mod _
+@[simp] protected theorem mod_toNat (a b : $typeName) : (a % b).toNat = a.toNat % b.toNat := Fin.mod_val ..
+@[simp] protected theorem div_toNat (a b : $typeName) : (a / b).toNat = a.toNat / b.toNat := Fin.div_val ..
+@[simp] protected theorem modn_toNat (a : $typeName) (b : Nat) : (a.modn b).toNat = a.toNat % b := Fin.modn_val ..
+protected theorem modn_lt {m : Nat} : ∀ (u : $typeName), m > 0 → toNat (u % m) < m
+  | ⟨u⟩, h => Fin.modn_lt u h
+open $typeName (modn_lt) in
+protected theorem mod_lt (a b : $typeName) (h : 0 < b) : a % b < b := modn_lt _ (by simp [lt_def] at h; exact h)
+protected theorem toNat.inj : ∀ {a b : $typeName}, a.toNat = b.toNat → a = b
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
-theorem le_def {a b : UInt32} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
-theorem lt_def {a b : UInt32} : a < b ↔ a.1 < b.1 := .rfl
-theorem lt_iff_val_lt_val {a b : UInt32} : a < b ↔ a.val < b.val := Iff.rfl
-@[simp] protected theorem not_le {a b : UInt32} : ¬ a ≤ b ↔ b < a := Fin.not_le
-@[simp] protected theorem not_lt {a b : UInt32} : ¬ a < b ↔ b ≤ a := Fin.not_lt
-@[simp] protected theorem le_refl (a : UInt32) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : UInt32) : ¬ a < a := by simp
-protected theorem le_trans {a b c : UInt32} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
-protected theorem lt_trans {a b c : UInt32} : a < b → b < c → a < c := Fin.lt_trans
-protected theorem le_total (a b : UInt32) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
-protected theorem lt_asymm {a b : UInt32} (h : a < b) : ¬ b < a := Fin.lt_asymm h
-protected theorem val_eq_of_eq {a b : UInt32} (h : a = b) : a.val = b.val := h ▸ rfl
-protected theorem eq_of_val_eq {a b : UInt32} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
-protected theorem ne_of_val_ne {a b : UInt32} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (UInt32.val_eq_of_eq h') h
-protected theorem ne_of_lt {a b : UInt32} (h : a < b) : a ≠ b := UInt32.ne_of_val_ne (Fin.ne_of_lt h)
+end $typeName
+)
 
-end UInt32
-
-namespace UInt64
-
-theorem le_def {a b : UInt64} : a ≤ b ↔ a.1 ≤ b.1 := .rfl
-theorem lt_def {a b : UInt64} : a < b ↔ a.1 < b.1 := .rfl
-theorem lt_iff_val_lt_val {a b : UInt64} : a < b ↔ a.val < b.val := Iff.rfl
-@[simp] protected theorem not_le {a b : UInt64} : ¬ a ≤ b ↔ b < a := Fin.not_le
-@[simp] protected theorem not_lt {a b : UInt64} : ¬ a < b ↔ b ≤ a := Fin.not_lt
-@[simp] protected theorem le_refl (a : UInt64) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : UInt64) : ¬ a < a := by simp
-protected theorem le_trans {a b c : UInt64} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
-protected theorem lt_trans {a b c : UInt64} : a < b → b < c → a < c := Fin.lt_trans
-protected theorem le_total (a b : UInt64) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
-protected theorem lt_asymm {a b : UInt64} (h : a < b) : ¬ b < a := Fin.lt_asymm h
-protected theorem val_eq_of_eq {a b : UInt64} (h : a = b) : a.val = b.val := h ▸ rfl
-protected theorem eq_of_val_eq {a b : UInt64} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
-protected theorem ne_of_val_ne {a b : UInt64} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (UInt64.val_eq_of_eq h') h
-protected theorem ne_of_lt {a b : UInt64} (h : a < b) : a ≠ b := UInt64.ne_of_val_ne (Fin.ne_of_lt h)
-
-end UInt64
-
-namespace USize
-
-theorem lt_iff_val_lt_val {a b : USize} : a < b ↔ a.val < b.val := Iff.rfl
-@[simp] protected theorem not_le {a b : USize} : ¬ a ≤ b ↔ b < a := Fin.not_le
-@[simp] protected theorem not_lt {a b : USize} : ¬ a < b ↔ b ≤ a := Fin.not_lt
-@[simp] protected theorem le_refl (a : USize) : a ≤ a := by simp [le_def]
-protected theorem lt_irrefl (a : USize) : ¬ a < a := by simp
-protected theorem le_trans {a b c : USize} : a ≤ b → b ≤ c → a ≤ c := Fin.le_trans
-protected theorem lt_trans {a b c : USize} : a < b → b < c → a < c := Fin.lt_trans
-protected theorem le_total (a b : USize) : a ≤ b ∨ b ≤ a := Fin.le_total a.1 b.1
-protected theorem lt_asymm {a b : USize} (h : a < b) : ¬ b < a := Fin.lt_asymm h
-protected theorem val_eq_of_eq {a b : USize} (h : a = b) : a.val = b.val := h ▸ rfl
-protected theorem eq_of_val_eq {a b : USize} (h : a.val = b.val) : a = b := by cases a; cases b; simp at h; simp [h]
-protected theorem ne_of_val_ne {a b : USize} (h : a.val ≠ b.val) : a ≠ b := fun h' => absurd (USize.val_eq_of_eq h') h
-protected theorem ne_of_lt {a b : USize} (h : a < b) : a ≠ b := USize.ne_of_val_ne (Fin.ne_of_lt h)
-
-end USize
+declare_uint_theorems UInt8
+declare_uint_theorems UInt16
+declare_uint_theorems UInt32
+declare_uint_theorems UInt64
+declare_uint_theorems USize

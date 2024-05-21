@@ -525,11 +525,11 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = l_Lean_MessageData_ofName(x_3);
 x_5 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
-x_6 = lean_alloc_ctor(7, 2, 0);
+x_6 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 x_7 = l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
-x_8 = lean_alloc_ctor(7, 2, 0);
+x_8 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
 x_9 = l_Lean_throwError___rarg(x_1, x_2, x_8);

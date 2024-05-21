@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Norm
 import Init.Grind.Tactics
+import Init.Grind.Lemmas

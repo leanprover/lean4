@@ -23,25 +23,25 @@ fi
 $LAKE build targets:noexistent && exit 1 || true
 
 # Test custom targets and package, library, and module facets
-$LAKE build bark | awk '/Building/,/Bark!/' | diff -u --strip-trailing-cr <(cat << 'EOF'
-[1/1] Building targets/bark
+$LAKE build bark | awk '/Ran/,/Bark!/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets/bark
 info: Bark!
 EOF
 ) -
-$LAKE build targets/bark_bark | awk '/Building/,/bark_bark/' | diff -u --strip-trailing-cr <(cat << 'EOF'
-[1/2] Building targets/bark
+$LAKE build targets/bark_bark | awk '/Ran/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/2] Ran targets/bark
 info: Bark!
-[2/2] Building targets/bark_bark
+Build completed successfully.
 EOF
 ) -
-$LAKE build targets:print_name | awk '/Building/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
-[1/1] Building targets:print_name
+$LAKE build targets:print_name | awk '/Ran/,/^targets/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets:print_name
 info: stdout/stderr:
 targets
 EOF
 ) -
-$LAKE build Foo:print_name | awk '/Building/,0' | diff -u --strip-trailing-cr <(cat << 'EOF'
-[1/1] Building Foo:print_name
+$LAKE build Foo:print_name | awk '/Ran/,/^Foo/' | diff -u --strip-trailing-cr <(cat << 'EOF'
+ℹ [1/1] Ran targets/Foo:print_name
 info: stdout/stderr:
 Foo
 EOF

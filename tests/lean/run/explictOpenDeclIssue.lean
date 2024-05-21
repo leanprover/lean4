@@ -11,6 +11,7 @@ end Foo
 open Foo (Bar)
 
 #check Foo.Bar.a
+
 #check Bar.a
 
 def isA : Bar → Bool

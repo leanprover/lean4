@@ -5,23 +5,42 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
 
-# Tests the `--old` option for using outdate oleans
-# See https://github.com/leanprover/lake/issues/44
+# Test the `--old` option for using outdate oleans
+# https://github.com/leanprover/lake/issues/44
+# https://github.com/leanprover/lean4/issues/2822
+
+diff_out() {
+  grep 'Built' || true |
+  sed 's/^.*\[.*\] //' |
+  sed 's/\s*(.*)$//' |
+  LANG=POSIX sort |
+  diff -u --strip-trailing-cr "$1" -
+}
 
 $LAKE new hello
 $LAKE -d hello build
-sleep 0.5 # for some reason, delay needed for `--old` rebuild consistency
-echo 'def hello := "old"' > hello/Hello.lean
-$LAKE -d hello build --old | sed 's/\[.*\] //' | tee produced.out
-echo 'def hello := "normal"' > hello/Hello.lean
-$LAKE -d hello build | sed 's/\[.*\] //' | tee -a produced.out
+sleep 1 # sleep needed to guarantee modification time difference
 
-grep -i main produced.out
-grep -i hello produced.out > produced.out.tmp
-mv produced.out.tmp produced.out
-if [ "$OS" = Windows_NT ]; then
-  sed -i 's/.exe//g' produced.out
-  diff --strip-trailing-cr expected.out produced.out
-else
-  diff expected.out produced.out
-fi
+# Test basic `--old`
+echo 'def hello := "old"' > hello/Hello/Basic.lean
+$LAKE -d hello build --old | diff_out <(cat << 'EOF'
+Built Hello.Basic
+Built Hello.Basic:c
+Built hello
+EOF
+)
+
+# Test a normal build works after an `--old` build
+echo 'def hello := "normal"' > hello/Hello/Basic.lean
+$LAKE -d hello build | diff_out <(cat << 'EOF'
+Built Hello
+Built Hello.Basic
+Built Hello.Basic:c
+Built Main
+Built hello
+EOF
+)
+
+# Test that `--old` does not rebuild touched but unchanged files (lean4#2822)
+touch hello/Hello/Basic.lean
+$LAKE -d hello build --old | diff_out /dev/null

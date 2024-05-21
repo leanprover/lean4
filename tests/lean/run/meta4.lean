@@ -39,4 +39,14 @@ forallBoundedTelescope cinfo.type (some 6) $ fun xs body => do { print xs; check
 forallBoundedTelescope cinfo.type (some 10) $ fun xs body => do { print xs; checkM (pure (xs.size == 6)) };
 pure ()
 
+/--
+info: [Meta.debug] (α β : Type) → α → β → DecidableEq β
+[Meta.debug] (β : Type) → ?α → β → DecidableEq β
+[Meta.debug] (b : ?β) → Decidable (?a = b)
+[Meta.debug] Decidable (?a = ?b)
+[Meta.debug] Decidable (?a = ?b)
+[Meta.debug] #[α, β, a✝¹, a✝, a, b]
+[Meta.debug] #[α, β, a✝¹, a✝, a, b]
+-/
+#guard_msgs in
 #eval tst1

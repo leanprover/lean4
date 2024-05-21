@@ -31,6 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, l
 static lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* lean_string_push(lean_object*, uint32_t);
 size_t lean_usize_of_nat(lean_object*);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
@@ -298,8 +299,7 @@ x_27 = lean_box(0);
 x_28 = lean_io_error_to_string(x_17);
 x_29 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
-x_30 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_30, 0, x_29);
+x_30 = l_Lean_MessageData_ofFormat(x_29);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -367,8 +367,7 @@ x_51 = lean_box(0);
 x_52 = lean_io_error_to_string(x_17);
 x_53 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
-x_54 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_54, 0, x_53);
+x_54 = l_Lean_MessageData_ofFormat(x_53);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 

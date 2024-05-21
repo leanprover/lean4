@@ -136,6 +136,7 @@ LEAN_EXPORT lean_object* l_Lean_ResolveName_resolveNamespaceUsingOpenDecls___box
 static lean_object* l_Lean_throwReservedNameNotAvailable___rarg___closed__5;
 LEAN_EXPORT lean_object* l_panic___at_Lean_ensureNonAmbiguous___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_isReservedName___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t);
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_getRevAliases___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_unresolveNameGlobal___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_addAliasEntry___spec__8(lean_object*, lean_object*, lean_object*);
@@ -398,19 +399,19 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_5 = l_Lean_MessageData_ofName(x_3);
 x_6 = l_Lean_throwReservedNameNotAvailable___rarg___closed__2;
-x_7 = lean_alloc_ctor(7, 2, 0);
+x_7 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = l_Lean_throwReservedNameNotAvailable___rarg___closed__4;
-x_9 = lean_alloc_ctor(7, 2, 0);
+x_9 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = l_Lean_MessageData_ofName(x_4);
-x_11 = lean_alloc_ctor(7, 2, 0);
+x_11 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Lean_throwReservedNameNotAvailable___rarg___closed__6;
-x_13 = lean_alloc_ctor(7, 2, 0);
+x_13 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = l_Lean_throwError___rarg(x_1, x_2, x_13);
@@ -4337,8 +4338,7 @@ x_21 = l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2;
 x_22 = lean_string_append(x_20, x_21);
 x_23 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_23, 0, x_22);
-x_24 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_24, 0, x_23);
+x_24 = l_Lean_MessageData_ofFormat(x_23);
 x_25 = l_Lean_throwError___rarg(x_4, x_7, x_24);
 x_26 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_25, x_10);
 return x_26;
@@ -4579,8 +4579,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_resolveNamespace___rarg___closed__2;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
+x_2 = l_Lean_MessageData_ofFormat(x_1);
 return x_2;
 }
 }
@@ -4701,8 +4700,7 @@ x_14 = l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2;
 x_15 = lean_string_append(x_13, x_14);
 x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
-x_17 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
+x_17 = l_Lean_MessageData_ofFormat(x_16);
 x_18 = l_Lean_throwError___rarg(x_2, x_3, x_17);
 return x_18;
 }
@@ -4746,8 +4744,7 @@ x_33 = l_Lean_resolveNamespaceCore___rarg___lambda__2___closed__2;
 x_34 = lean_string_append(x_32, x_33);
 x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
-x_36 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_36, 0, x_35);
+x_36 = l_Lean_MessageData_ofFormat(x_35);
 x_37 = l_Lean_throwError___rarg(x_2, x_3, x_36);
 return x_37;
 }
@@ -5260,8 +5257,7 @@ x_15 = l_Lean_ensureNoOverload___rarg___closed__3;
 x_16 = lean_string_append(x_14, x_15);
 x_17 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
-x_18 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
+x_18 = l_Lean_MessageData_ofFormat(x_17);
 x_19 = l_Lean_throwError___rarg(x_1, x_2, x_18);
 return x_19;
 }
@@ -5309,8 +5305,7 @@ x_35 = l_Lean_ensureNoOverload___rarg___closed__3;
 x_36 = lean_string_append(x_34, x_35);
 x_37 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
-x_38 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_38, 0, x_37);
+x_38 = l_Lean_MessageData_ofFormat(x_37);
 x_39 = l_Lean_throwError___rarg(x_1, x_2, x_38);
 return x_39;
 }
@@ -5777,8 +5772,7 @@ x_26 = l_Lean_ensureNoOverload___rarg___closed__3;
 x_27 = lean_string_append(x_25, x_26);
 x_28 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
-x_29 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_29, 0, x_28);
+x_29 = l_Lean_MessageData_ofFormat(x_28);
 x_30 = l_Lean_throwErrorAt___rarg(x_1, x_2, x_3, x_29);
 return x_30;
 }

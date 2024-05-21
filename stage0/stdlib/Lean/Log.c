@@ -1234,11 +1234,11 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_6 = l_Lean_MessageData_ofName(x_5);
 x_7 = l_Lean_logUnknownDecl___rarg___closed__2;
-x_8 = lean_alloc_ctor(7, 2, 0);
+x_8 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 x_9 = l_Lean_logUnknownDecl___rarg___closed__4;
-x_10 = lean_alloc_ctor(7, 2, 0);
+x_10 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
 x_11 = 2;

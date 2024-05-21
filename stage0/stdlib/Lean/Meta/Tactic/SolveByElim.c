@@ -100,6 +100,7 @@ static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_Solve
 lean_object* l_Lean_MVarId_exfalso(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__3___closed__22;
+uint8_t l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__8;
 static lean_object* l_Lean_Meta_SolveByElim_elabContextLemmas___closed__5;
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__18;
@@ -169,7 +170,6 @@ static lean_object* l_Lean_Meta_SolveByElim_SolveByElimConfig_introsAfter___clos
 lean_object* l_Lean_exceptEmoji___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_SolveByElim_ApplyRulesConfig_symm___default;
 static lean_object* l_Lean_Meta_SolveByElim_initFn____x40_Lean_Meta_Tactic_SolveByElim___hyg_6____closed__9;
-uint8_t l_List_elem___at_Lean_ForEachExprWhere_checked___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_repeat_x27Core___at_Lean_Meta_SolveByElim_solveByElim_run___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet_elab_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SolveByElim_mkAssumptionSet___lambda__2(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -698,18 +698,18 @@ x_8 = l_Lean_exceptEmoji___rarg(x_2);
 x_9 = l_Lean_stringToMessageData(x_8);
 lean_dec(x_8);
 x_10 = l_Lean_Meta_SolveByElim_applyTactics___lambda__1___closed__2;
-x_11 = lean_alloc_ctor(7, 2, 0);
+x_11 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = l_Lean_Meta_SolveByElim_applyTactics___lambda__1___closed__4;
-x_13 = lean_alloc_ctor(7, 2, 0);
+x_13 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = l_Lean_MessageData_ofExpr(x_1);
-x_15 = lean_alloc_ctor(7, 2, 0);
+x_15 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
-x_16 = lean_alloc_ctor(7, 2, 0);
+x_16 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_10);
 x_17 = lean_alloc_ctor(0, 2, 0);
@@ -6950,7 +6950,7 @@ LEAN_EXPORT uint8_t l_List_notElem___at_Lean_Meta_SolveByElim_mkAssumptionSet___
 _start:
 {
 uint8_t x_3; 
-x_3 = l_List_elem___at_Lean_ForEachExprWhere_checked___spec__2(x_1, x_2);
+x_3 = l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2(x_1, x_2);
 if (x_3 == 0)
 {
 uint8_t x_4; 

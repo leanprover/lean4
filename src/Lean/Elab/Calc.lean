@@ -112,10 +112,12 @@ def elabCalcSteps (steps : TSyntax ``calcSteps) : TermElabM Expr := do
   return result?.get!.1
 
 /-- Elaborator for the `calc` term mode variant. -/
-@[builtin_term_elab «calc»]
+@[builtin_term_elab Lean.calc]
 def elabCalc : TermElab := fun stx expectedType? => do
   let steps : TSyntax ``calcSteps := ⟨stx[1]⟩
   let result ← elabCalcSteps steps
   synthesizeSyntheticMVarsUsingDefault
   let result ← ensureHasType expectedType? result
   return result
+
+end Lean.Elab.Term

@@ -57,4 +57,19 @@ do let d : DiscrTree Nat := {};
    pure ()
 
 set_option trace.Meta.debug true in
+/--
+info: [Meta.debug] (Add.add => (node
+      (Nat => (node
+        (* => (node (* => (node (10 => (node #[1])) (20 => (node #[4])))) (0 => (node (10 => (node #[2]))))))))))
+    (* => (node #[5]))
+    (Nat.add => (node (0 => (node (20 => (node #[3]))))))
+[Meta.debug] #[5, 1]
+[Meta.debug] Add.add ?m.4904 ?m.4904
+[Meta.debug] #[5]
+[Meta.debug] #[5, 1, 4, 2]
+[Meta.debug] #[1, 4, 2, 5, 3]
+[Meta.debug] #[5, 1, 4, 2]
+[Meta.debug] #[5, 4]
+-/
+#guard_msgs in
 run_meta tst1

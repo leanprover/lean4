@@ -382,6 +382,10 @@ example (x : Nat) : x < 2 →
     (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2) ∧ (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2 → x < 3) := by
   omega
 
+-- Reported in Lean FRO office hours 2024-05-16 by Michael George
+example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
+  omega
+
 /-! ### Fin -/
 
 -- Test `<`

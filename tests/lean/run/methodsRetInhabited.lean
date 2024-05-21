@@ -13,4 +13,6 @@ def tst : MacroM String := do
   let n ← Macro.getCurrNamespace
   return toString n
 
+/-- info: some "[anonymous]" -/
+#guard_msgs in
 #eval exec tst

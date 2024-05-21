@@ -29,15 +29,15 @@ dynamically-typed equivalent.
   cast (by rw [← h.family_key_eq_type]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"Building {lib.staticTargetName.toString}" do
+  withRegisterJob s!"{lib.staticTargetName.toString}:static" do
   lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
 def ExternLib.recBuildShared (lib : ExternLib) : FetchM (BuildJob FilePath) :=
-  withRegisterJob s!"Linking {lib.staticTargetName.toString}" do
+  withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
 def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (BuildJob Dynlib) := do
-  withRegisterJob s!"Computing {lib.staticTargetName.toString} dynlib" do
+  withRegisterJob s!"{lib.staticTargetName.toString}:dynlib" do
   computeDynlibOfShared (← lib.shared.fetch)
 
 /-!

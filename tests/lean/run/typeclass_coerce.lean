@@ -75,13 +75,19 @@ axiom Top (α : Type) (n : Nat) : Type
 set_option synthInstance.maxSize 256
 set_option synthInstance.maxHeartbeats 500000
 
+/-- info: coerceTrans -/
+#guard_msgs in
 #synth HasCoerce (Top Unit Nat.zero)
                  (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)
 
+/-- info: liftCoercePair -/
+#guard_msgs in
 #synth HasCoerce (Top Unit Nat.zero × Top Unit Nat.zero × Top Unit Nat.zero)
                  (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ
                   × Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ
                   × Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ)
 
+/-- info: liftCoerceFn -/
+#guard_msgs in
 #synth HasCoerce (Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ → Top Unit Nat.zero)
                  (Top Unit Nat.zero → Top Unit Nat.zero.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ.succ)

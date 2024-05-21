@@ -8,7 +8,15 @@ inductive arrow (α : Type u) (β : Type v)
 inductive foo
 | mk : arrow Nat foo → foo
 
+/--
+info: inductive foo : Type
+number of parameters: 0
+constructors:
+foo.mk : arrow Nat foo → foo
+-/
+#guard_msgs in
 #print foo
+
 #print foo.rec
 set_option pp.all true
 #print foo.below

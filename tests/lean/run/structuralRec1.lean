@@ -61,7 +61,7 @@ match xs with
   | PList.nil    => PList.nil
   | x:::xs => (y + x) ::: pfoo xs
 
-#eval foo [1, 2, 3, 4]
+#guard foo [1, 2, 3, 4] == [4, 10]
 
 theorem fooEq (x y : Nat) (xs : List Nat) : foo (x::y::xs) = (2*x + y) :: foo xs :=
 rfl

@@ -98,6 +98,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_78____closed__1;
 LEAN_EXPORT uint8_t lean_has_out_params(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_isClass___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_78____closed__6;
+lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_768____closed__13;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_768____closed__1;
 lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3464,8 +3465,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 lean_ctor_set_tag(x_1, 3);
-x_6 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_6, 0, x_1);
+x_6 = l_Lean_MessageData_ofFormat(x_1);
 x_7 = l_Lean_throwError___at_Lean_initFn____x40_Lean_Class___hyg_768____spec__2(x_6, x_2, x_3, x_4);
 return x_7;
 }
@@ -3477,8 +3477,7 @@ lean_inc(x_8);
 lean_dec(x_1);
 x_9 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
+x_10 = l_Lean_MessageData_ofFormat(x_9);
 x_11 = l_Lean_throwError___at_Lean_initFn____x40_Lean_Class___hyg_768____spec__2(x_10, x_2, x_3, x_4);
 return x_11;
 }

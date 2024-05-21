@@ -241,7 +241,10 @@ private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
 
 private structure AnalyzeResult where
   max?            : Option Expr := none
-  hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
+  /-- `true` if there are two types `α` and `β` where we don't have coercions in any direction. -/
+  hasUncomparable : Bool := false
+  /-- `true` if there are any leaf terms with an unknown type (according to `isUnknown`). -/
+  hasUnknown      : Bool := false
 
 private def isUnknown : Expr → Bool
   | .mvar ..        => true
@@ -255,7 +258,7 @@ private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM Analyze
     match expectedType? with
     | none => pure none
     | some expectedType =>
-      let expectedType ← instantiateMVars expectedType
+      let expectedType := (← instantiateMVars expectedType).cleanupAnnotations
       if isUnknown expectedType then pure none else pure (some expectedType)
   (go t *> get).run' { max? }
 where
@@ -268,8 +271,10 @@ where
        | .binop _ _ _ lhs rhs => go lhs; go rhs
        | .unop _ _ arg => go arg
        | .term _ _ val =>
-         let type ← instantiateMVars (← inferType val)
-         unless isUnknown type do
+         let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
+         if isUnknown type then
+           modify fun s => { s with hasUnknown := true }
+         else
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
@@ -430,7 +435,7 @@ mutual
       | .unop ref f arg =>
         return .unop ref f (← go arg none false false)
       | .term ref trees e =>
-        let type ← instantiateMVars (← inferType e)
+        let type := (← instantiateMVars (← inferType e)).cleanupAnnotations
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
         if isUnknown type then
           if let some f := f? then
@@ -448,12 +453,17 @@ mutual
 
   private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
     let r ← analyze tree expectedType?
-    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       let result ← toExprCore tree
       ensureHasType expectedType? result
     else
       let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      unless r.hasUnknown do
+        -- Record the resulting maxType calculation.
+        -- We can do this when all the types are known, since in this case `hasUncomparable` is valid.
+        -- If they're not known, recording maxType like this can lead to heterogeneous operations failing to elaborate.
+        discard <| isDefEqGuarded (← inferType result) r.max?.get!
       trace[Elab.binop] "result: {result}"
       ensureHasType expectedType? result
 
@@ -519,7 +529,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     let rhs ← withRef rhsStx <| toTree rhsStx
     let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
-    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
       let lhs ← toExprCore lhs

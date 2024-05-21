@@ -46,6 +46,7 @@ static lean_object* l_Lean_Server_maybeTee___closed__1;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_mkFileProgressAtPosNotification(lean_object*, lean_object*, uint8_t);
+lean_object* l_String_crlfToLf_go(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta;
 lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
@@ -1275,7 +1276,7 @@ return x_8;
 LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = l_Lean_FileMap_lspPosToUtf8Pos(x_1, x_4);
@@ -1291,11 +1292,14 @@ x_11 = lean_string_utf8_byte_size(x_8);
 x_12 = lean_string_utf8_extract(x_8, x_7, x_11);
 lean_dec(x_11);
 lean_dec(x_7);
-x_13 = lean_string_append(x_10, x_3);
-x_14 = lean_string_append(x_13, x_12);
+x_13 = l_Lean_Server_instInhabitedDocumentMeta___closed__2;
+x_14 = l_String_crlfToLf_go(x_3, x_13, x_9, x_9);
+x_15 = lean_string_append(x_10, x_14);
+lean_dec(x_14);
+x_16 = lean_string_append(x_15, x_12);
 lean_dec(x_12);
-x_15 = l_Lean_FileMap_ofString(x_14);
-return x_15;
+x_17 = l_Lean_FileMap_ofString(x_16);
+return x_17;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1513,12 +1517,16 @@ return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec(x_2);
-x_7 = l_Lean_FileMap_ofString(x_6);
-return x_7;
+x_7 = l_Lean_Server_instInhabitedDocumentMeta___closed__2;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_String_crlfToLf_go(x_6, x_7, x_8, x_8);
+lean_dec(x_6);
+x_10 = l_Lean_FileMap_ofString(x_9);
+return x_10;
 }
 }
 }

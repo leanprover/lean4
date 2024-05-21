@@ -223,7 +223,7 @@ v4.8.0
   * [#3508](https://github.com/leanprover/lean4/pull/3508) improves `simp` confluence for `Bool` and `Prop` terms.
   * Theorems: [#3604](https://github.com/leanprover/lean4/pull/3604)
 * `Nat`
-  * [#3579](https://github.com/leanprover/lean4/pull/3579) makes `Nat.succ_eq_add_one` be a simp lemma, now that `induction`/cases` uses `n + 1` instead of `Nat.succ n`.
+  * [#3579](https://github.com/leanprover/lean4/pull/3579) makes `Nat.succ_eq_add_one` be a simp lemma, now that `induction`/`cases` uses `n + 1` instead of `Nat.succ n`.
   * [#3808](https://github.com/leanprover/lean4/pull/3808) replaces `Nat.succ` simp rules with simprocs.
   * [#3876](https://github.com/leanprover/lean4/pull/3876) adds faster `Nat.repr` implementation in C.
 * `Int`

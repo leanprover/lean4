@@ -9,6 +9,18 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # Test Lake's behavior when failing to fetch a cloud release
 # ---
 
+# Since committing a Git repository to a Git repository is not well-supported,
+# We reinitialize the bar repository on each test. This requires updating the
+# locked manifest to the new hash to ensure things work properly.
+pushd dep
+git init
+git checkout -b master
+git config user.name test
+git config user.email test@example.com
+git add --all
+git commit -m "initial commit"
+popd
+
 # Test that a direct invocation fo `lake build *:release` fails
 ($LAKE build dep:release && exit 1 || true) | diff -u --strip-trailing-cr <(cat << 'EOF'
 ✖ [1/1] Fetching dep:release
@@ -29,20 +41,8 @@ Build completed successfully.
 EOF
 ) -
 
-# Since committing a Git repository to a Git repository is not well-supported,
-# We reinitialize the bar repository on each test. This requires updating the
-# locked manifest to the new hash to ensure things work properly.
-pushd dep
-git init
-git checkout -b master
-git config user.name test
-git config user.email test@example.com
-git add --all
-git commit -m "initial commit"
-git tag release
-popd
-
 # Test download failure
+git -C dep tag release
 ($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
 
 # Test unpacking

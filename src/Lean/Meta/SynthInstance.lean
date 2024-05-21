@@ -628,7 +628,7 @@ def generate : SynthM Unit := do
         return some ()
       return none
 
-/-- Try the next instance in the node on the top of the generator stack. -/
+/-- Try to add the solution to this generator to the global cache. -/
 partial def closeGenerator (gNode : GeneratorNode) : SynthM Unit := do
   unless gNode.typeHasMVars do
     if let some entry := (← get).tableEntries.find? gNode.key then
@@ -647,7 +647,7 @@ def getNextToResume : SynthM (ConsumerNode × Answer) := do
 /--
   Given `(cNode, answer)` on the top of the resume stack, continue execution by using `answer` to solve the
   next subgoal. -/
-partial def resume : SynthM Unit := do
+def resume : SynthM Unit := do
   let (cNode, answer) ← getNextToResume
   match cNode.subgoals with
   | []         => panic! "resume found no remaining subgoals"
@@ -663,8 +663,8 @@ partial def resume : SynthM Unit := do
           return m!"propagating {← instantiateMVars answer.resultType} to subgoal {← instantiateMVars subgoal} of {← instantiateMVars goal}") do
       trace[Meta.synthInstance.resume] "size: {cNode.size + answer.size}"
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
-  if !(← get).resumeStack.isEmpty then
-    resume
+  -- if !(← get).resumeStack.isEmpty then
+  --   resume
 
 def step : SynthM Bool := do
   checkSystem

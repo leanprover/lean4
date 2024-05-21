@@ -67,11 +67,10 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:
   ```
-  @[builtin_attr_parser] def simple     := leading_parser ident >> optional ident >> optional priorityParser
-  /- We can't use `simple` for `class`, `instance`, `export` and `macro` because they are  keywords. -/
-  @[builtin_attr_parser] def «class»    := leading_parser "class"
-  @[builtin_attr_parser] def «instance» := leading_parser "instance" >> optional priorityParser
+  @[builtin_attr_parser] def simple     := leading_parser ident >> optional (ppSpace >> (priorityParser <|> ident))
+  /- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are keywords. -/
   @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
+  @[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
   ```
   Note that we need the parsers for `class`, `instance`, and `macros` because they are keywords.
 -/

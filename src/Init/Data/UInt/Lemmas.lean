@@ -19,8 +19,11 @@ instance : Inhabited $typeName where
   default := 0
 
 theorem zero_def : (0 : $typeName) = ⟨0⟩ := rfl
-
 theorem one_def : (1 : $typeName) = ⟨1⟩ := rfl
+theorem sub_def (a b : $typeName) : a - b = ⟨a.val - b.val⟩ := rfl
+theorem mul_def (a b : $typeName) : a * b = ⟨a.val * b.val⟩ := rfl
+theorem mod_def (a b : $typeName) : a % b = ⟨a.val % b.val⟩ := rfl
+theorem add_def (a b : $typeName) : a + b = ⟨a.val + b.val⟩ := rfl
 
 @[simp] theorem mk_val_eq : ∀ (a : $typeName), mk a.val = a
 | ⟨_, _⟩ => rfl

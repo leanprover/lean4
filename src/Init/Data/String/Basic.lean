@@ -186,8 +186,9 @@ Returns the next position in a string after position `p`. If `p` is not a valid 
 the result is unspecified.
 
 Examples:
-* `"abc".next ⟨1⟩ = String.Pos.mk 2`
-* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`, since `'∃'` is a multi-byte UTF-8 character
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (0 |> abc.next) = 'b'`
+* `lean.get (0 |> lean.next |> lean.next) = '∀'`
 
 Cases where the result is unspecified:
 * `"abc".next ⟨3⟩`, since `3 = s.endPos`
@@ -204,16 +205,52 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
     let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
 
+/--
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`.
+If `p` is not a valid position, the result is unspecified.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (abc.endPos |> abc.prev) = 'c'`
+* `lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'`
+* `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte character `'∃'`.
+-/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
   | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
 
+/--
+Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".front = 'a'`
+* `"".front = (default : Char)`
+-/
 def front (s : String) : Char :=
   get s 0
 
+/--
+Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".back = 'c'`
+* `"".back = (default : Char)`
+-/
 def back (s : String) : Char :=
   get s (prev s s.endPos)
 
+/--
+Returns `true` if a specified position is greater than or equal to the position which
+points to the end of a string. Otherwise, returns `false`.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `(0 |> abc.next |> abc.next |> abc.atEnd) = false`
+* `(0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true`
+* `(0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true`
+
+Because `"L∃∀N"` contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
+-/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s

@@ -200,6 +200,9 @@ protected theorem eq_zero_of_add_eq_zero_left (h : n + m = 0) : m = 0 :=
 theorem mul_succ (n m : Nat) : n * succ m = n * m + n :=
   rfl
 
+theorem mul_add_one (n m : Nat) : n * (m + 1) = n * m + n :=
+  rfl
+
 @[simp] protected theorem zero_mul : ∀ (n : Nat), 0 * n = 0
   | 0      => rfl
   | succ n => mul_succ 0 n ▸ (Nat.zero_mul n).symm ▸ rfl
@@ -208,6 +211,8 @@ theorem succ_mul (n m : Nat) : (succ n) * m = (n * m) + m := by
   induction m with
   | zero => rfl
   | succ m ih => rw [mul_succ, add_succ, ih, mul_succ, add_succ, Nat.add_right_comm]
+
+theorem add_one_mul (n m : Nat) : (n + 1) * m = (n * m) + m := succ_mul n m
 
 protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
   | n, 0      => (Nat.zero_mul n).symm ▸ (Nat.mul_zero n).symm ▸ rfl
@@ -255,6 +260,8 @@ attribute [simp] Nat.le_refl
 theorem succ_lt_succ {n m : Nat} : n < m → succ n < succ m := succ_le_succ
 
 theorem lt_succ_of_le {n m : Nat} : n ≤ m → n < succ m := succ_le_succ
+
+theorem lt_add_one_of_le {n m : Nat} : n ≤ m → n < m + 1 := succ_le_succ
 
 @[simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
 
@@ -340,6 +347,8 @@ theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
 @[simp] theorem lt_succ_self (n : Nat) : n < succ n := lt.base n
 
+@[simp] theorem lt_add_one (n : Nat) : n < n + 1 := lt.base n
+
 protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   match Nat.lt_or_ge m n with
   | Or.inl h => Or.inl (Nat.le_of_lt h)
@@ -377,11 +386,19 @@ theorem le_add_right : ∀ (n k : Nat), n ≤ n + k
 theorem le_add_left (n m : Nat): n ≤ m + n :=
   Nat.add_comm n m ▸ le_add_right n m
 
+theorem le_of_add_right_le {n m k : Nat} (h : n + k ≤ m) : n ≤ m :=
+  Nat.le_trans (le_add_right n k) h
+
+theorem lt_of_add_one_le {n m : Nat} (h : n + 1 ≤ m) : n < m := h
+
 protected theorem lt_add_left (c : Nat) (h : a < b) : a < c + b :=
   Nat.lt_of_lt_of_le h (Nat.le_add_left ..)
 
 protected theorem lt_add_right (c : Nat) (h : a < b) : a < b + c :=
   Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
+
+theorem lt_of_add_right_lt {n m k : Nat} (h : n + k < m) : n < m :=
+  Nat.lt_of_le_of_lt (Nat.le_add_right ..) h
 
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
   | zero,   zero,   _ => ⟨0, rfl⟩

@@ -10,3 +10,4 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Preprocessor
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.Injection

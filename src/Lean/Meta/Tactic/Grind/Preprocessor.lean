@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.Injection
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -118,8 +119,13 @@ def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := 
   else
     return none
 
+def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
+  if let some mvarId ← injection? goal.mvarId fvarId then
+    return some { goal with mvarId }
+  else
+    return none
+
 partial def preprocess (goal : Goal) : PreM Unit := do
-  trace[Meta.debug] "{goal.mvarId}"
   match (← introNext goal) with
   | .done =>
     if let some mvarId ← goal.mvarId.byContra? then
@@ -129,6 +135,8 @@ partial def preprocess (goal : Goal) : PreM Unit := do
   | .newHyp fvarId goal =>
     if let some goals ← applyCases? goal fvarId then
       goals.forM preprocess
+    else if let some goal ← applyInjection? goal fvarId then
+      preprocess goal
     else
       let clause ← goal.mvarId.withContext do mkInputClause fvarId
       preprocess { goal with clauses := goal.clauses.push clause }

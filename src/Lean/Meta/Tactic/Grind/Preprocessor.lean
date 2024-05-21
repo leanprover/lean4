@@ -154,6 +154,7 @@ open Preprocessor
 partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := do
   mvarId.ensureProp
   mvarId.ensureNoMVar
+  let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll
   mvarId.ensureNoMVar
   let mvarId ← mvarId.abstractNestedProofs mainDeclName

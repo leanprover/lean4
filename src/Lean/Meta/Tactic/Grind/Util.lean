@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta.Grind
 /--
@@ -66,7 +67,7 @@ def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=
 If the target is not `False`, apply `byContradiction`.
 -/
 def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
-  mvarId.checkNotAssigned `grind
+  mvarId.checkNotAssigned `grind.by_contra
   let target ← mvarId.getType
   if target.isFalse then return none
   let targetNew ← mkArrow (mkNot target) (mkConst ``False)
@@ -74,5 +75,25 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
   mvarId.assign <| mkApp2 (mkConst ``Classical.byContradiction) target mvarNew
   return mvarNew.mvarId!
+
+/--
+Clear auxiliary decls used to encode recursive declarations.
+`grind` eliminates them to ensure they are not accidentaly used by its proof automation.
+-/
+def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  mvarId.checkNotAssigned `grind.clear_aux_decls
+  let mut toClear := []
+  for localDecl in (← getLCtx) do
+    if localDecl.isAuxDecl then
+      toClear := localDecl.fvarId :: toClear
+  if toClear.isEmpty then
+    return mvarId
+  let mut mvarId := mvarId
+  for fvarId in toClear do
+    try
+      mvarId ← mvarId.clear fvarId
+    catch _ =>
+      throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
+  return mvarId
 
 end Lean.Meta.Grind

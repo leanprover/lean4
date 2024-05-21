@@ -212,8 +212,8 @@ theorem toInt_eq (x : BitVec w) :
 /-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
 theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
     x.slt y = x.ult y := by
-  simp only [BitVec.slt, toInt_eq, BitVec.ult, decide_eq_decide, h]
-  cases y.msb <;> simp only [↓reduceIte, Int.ofNat_lt, Int.sub_lt_sub_right_iff]
+  simp only [BitVec.slt, toInt_eq_msb_cond, BitVec.ult, decide_eq_decide, h]
+  cases y.msb <;> simp
 
 /-- If two bitvectors have different `msb`s, then unsigned comparison is determined by this bit -/
 theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :

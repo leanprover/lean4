@@ -819,11 +819,11 @@ protected theorem lt_of_sub_lt_sub_left {a b c : Int} (h : c - a < c - b) : b < 
 protected theorem lt_of_sub_lt_sub_right {a b c : Int} (h : a - c < b - c) : a < b :=
   Int.lt_of_add_lt_add_right h
 
-protected theorem sub_lt_sub_left_iff (a b c : Int) :
+@[simp] protected theorem sub_lt_sub_left_iff (a b c : Int) :
     c - a < c - b ↔ b < a :=
   ⟨Int.lt_of_sub_lt_sub_left, (Int.sub_lt_sub_left · c)⟩
 
-protected theorem sub_lt_sub_right_iff (a b c : Int) :
+@[simp] protected theorem sub_lt_sub_right_iff (a b c : Int) :
     a - c < b - c ↔ a < b :=
   ⟨Int.lt_of_sub_lt_sub_right, (Int.sub_lt_sub_right · c)⟩
 

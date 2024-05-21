@@ -203,7 +203,7 @@ def Workspace.runFetchM
   -- Job Computation
   let caption := "Computing build jobs"
   if showAnsiProgress then
-    print! out s!"[?/?] {caption}"
+    print! out s!"⣿ [?/?] {caption}"
     flush out
   let (a?, log) ← ((withLoggedIO build).run.run'.run ctx).run?
   let failed := log.hasEntries ∧ log.maxLv ≥ failLv

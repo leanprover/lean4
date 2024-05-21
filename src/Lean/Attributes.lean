@@ -72,7 +72,7 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
   @[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
   ```
-  Note that we need the parsers for `class`, `instance`, and `macros` because they are keywords.
+  Note that we need the parsers for `class`, `instance`, `export` and `macros` because they are keywords.
 -/
 
 def Attribute.Builtin.ensureNoArgs (stx : Syntax) : AttrM Unit := do

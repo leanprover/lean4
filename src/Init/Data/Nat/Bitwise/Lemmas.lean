@@ -61,9 +61,9 @@ noncomputable def div2Induction {motive : Nat → Sort u}
   simp
 
 @[simp] theorem one_and_eq_mod_two (n : Nat) : 1 &&& n = n % 2 := by
-  match Nat.decEq n 0 with
-  | isTrue n0 => subst n0; decide
-  | isFalse n0 =>
+  if n0 : n = 0 then
+    subst n0; decide
+  else
     simp only [HAnd.hAnd, AndOp.and, land]
     cases mod_two_eq_zero_or_one n with | _ h => simp [bitwise, n0, h]
 

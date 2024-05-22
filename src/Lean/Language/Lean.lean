@@ -322,9 +322,12 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) : LeanProcessingM HeaderParsedSnapshot := do
     let ctx ← read
     let ictx := ctx.toInputContext
-    let unchanged old :=
+    let unchanged old newParserState :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
+      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
+      -- have changed because of trailing whitespace and comments etc., so it is passed separately
+      -- from `old`
       if let some oldSuccess := old.result? then
         return {
           ictx
@@ -338,19 +341,20 @@ where
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd =>
                   return .pure { oldProcessed with result? := some { oldProcSuccess with
-                    firstCmdSnap := (← parseCmd oldCmd oldSuccess.parserState oldProcSuccess.cmdState ctx) } }
+                    firstCmdSnap := (← parseCmd oldCmd newParserState oldProcSuccess.cmdState ctx) } }
               else
                 return .pure oldProcessed) } }
       else return old
 
     -- fast path: if we have parsed the header successfully...
     if let some old := old? then
-      if let some (some processed) ← old.processedResult.get? then
-        -- ...and the edit location is after the next command (see note [Incremental Parsing])...
-        if let some nextCom ← processed.firstCmdSnap.get? then
-          if (← isBeforeEditPos nextCom.data.parserState.pos) then
-            -- ...go immediately to next snapshot
-            return (← unchanged old)
+      if let some oldSuccess := old.result? then
+        if let some (some processed) ← old.processedResult.get? then
+          -- ...and the edit location is after the next command (see note [Incremental Parsing])...
+          if let some nextCom ← processed.firstCmdSnap.get? then
+            if (← isBeforeEditPos nextCom.data.parserState.pos) then
+              -- ...go immediately to next snapshot
+              return (← unchanged old oldSuccess.parserState)
 
     withHeaderExceptions ({ · with
         ictx, stx := .missing, result? := none, cancelTk? := none }) do
@@ -372,7 +376,8 @@ where
       -- influence the range of error messages such as from a trailing `exact`
       if let some old := old? then
         if (← isBeforeEditPos parserState.pos) && old.stx == stx then
-          return (← unchanged old)
+          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
+          return (← unchanged old parserState)
         -- on first change, make sure to cancel old invocation
         if let some tk := ctx.oldCancelTk? then
           tk.set
@@ -448,22 +453,25 @@ where
         tacticCache := (← IO.mkRef {})
       }
 
-    let unchanged old : BaseIO CommandParsedSnapshot :=
+    let unchanged old newParserState : BaseIO CommandParsedSnapshot :=
       -- when syntax is unchanged, reuse command processing task as is
+      -- NOTE: even if the syntax tree is functionally unchanged, the new parser state may still
+      -- have changed because of trailing whitespace and comments etc., so it is passed separately
+      -- from `old`
       if let some oldNext := old.nextCmdSnap? then
         return .mk (data := old.data)
           (nextCmdSnap? := (← old.data.finishedSnap.bindIO (sync := true) fun oldFinished =>
             -- also wait on old command parse snapshot as parsing is cheap and may allow for
             -- elaboration reuse
             oldNext.bindIO (sync := true) fun oldNext => do
-              parseCmd oldNext old.data.parserState oldFinished.cmdState ctx))
+              parseCmd oldNext newParserState oldFinished.cmdState ctx))
       else return old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot
     if let some old := old? then
       if let some nextCom ← old.nextCmdSnap?.bindM (·.get?) then
         if (← isBeforeEditPos nextCom.data.parserState.pos) then
-          return .pure (← unchanged old)
+          return .pure (← unchanged old old.data.parserState)
 
     SnapshotTask.ofIO (some ⟨parserState.pos, ctx.input.endPos⟩) do
       let beginPos := parserState.pos
@@ -478,7 +486,8 @@ where
       -- semi-fast path
       if let some old := old? then
         if (← isBeforeEditPos parserState.pos ctx) && old.data.stx == stx then
-          return (← unchanged old)
+          -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
+          return (← unchanged old parserState)
         -- on first change, make sure to cancel old invocation
         -- TODO: pass token into incrementality-aware elaborators to improve reuse of still-valid,
         -- still-running elaboration steps?

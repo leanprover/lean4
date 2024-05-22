@@ -290,9 +290,7 @@ theorem pred_lt : ∀ {n : Nat}, n ≠ 0 → pred n < n
   | zero,   h => absurd rfl h
   | succ _, _ => lt_succ_of_le (Nat.le_refl _)
 
-theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n
-  | zero,   h => absurd rfl h
-  | succ _, _ => lt_succ_of_le (Nat.le_refl _)
+theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
 
 theorem sub_le (n m : Nat) : n - m ≤ n := by
   induction m with
@@ -824,7 +822,7 @@ theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
   | zero => contradiction
   | succ => rfl
 
-theorem add_one_add_one {a : Nat} (h : a ≠ 0) : a - 1 + 1 = a := by
+theorem sub_one_add_one {a : Nat} (h : a ≠ 0) : a - 1 + 1 = a := by
   induction a with
   | zero => contradiction
   | succ => rfl
@@ -835,7 +833,7 @@ theorem succ_pred_eq_of_pos : ∀ {n}, 0 < n → succ (pred n) = n
 theorem sub_one_add_one_eq_of_pos : ∀ {n}, 0 < n → (n - 1) + 1 = n
   | _+1, _ => rfl
 
-theorem eq_zero_or_eq_add_one_sub_one : ∀ {n}, n = 0 ∨ n = (n - 1) + 1
+theorem eq_zero_or_eq_sub_one_add_one : ∀ {n}, n = 0 ∨ n = n - 1 + 1
   | 0 => Or.inl rfl
   | _+1 => Or.inr rfl
 

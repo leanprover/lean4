@@ -31,6 +31,11 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+register_builtin_option synthInstance.globalCache : Bool := {
+  defValue := false
+  descr := "store cache in an environment extension"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -690,7 +695,9 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
     let key  ← mkTableKey type
-    let globalCache := (← get).cache.synthInstance
+    let globalCache : SynthInstanceCache ← if synthInstance.globalCache.get (← getOptions) then
+      do pure $ (← get).cache.synthInstance else do
+        pure $ SynthInstanceCacheExt.getState (← getEnv)
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
       synth
@@ -704,7 +711,11 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
     let localInsts ← getLocalInstances
     let synthPendingDepth := (← read).synthPendingDepth
     let mkKey k := { type := k, localInsts, synthPendingDepth }
-    modify (fun s => {s with cache.synthInstance := cacheEntries.foldl (fun c (k, e) => c.insert (mkKey k) e) s.cache.synthInstance } )
+    let mod := cacheEntries.foldl (fun c (k, e) => c.insert (mkKey k) e)
+    if synthInstance.globalCache.get (← getOptions) then
+      modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
+    else
+        modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)
     return result
 
 end SynthInstance
@@ -786,7 +797,11 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
-    match (← get).cache.synthInstance.find? cacheKey with
+    let globalCache : SynthInstanceCache ← if synthInstance.globalCache.get (← getOptions) then
+      do pure $ (← get).cache.synthInstance else do
+        pure $ SynthInstanceCacheExt.getState (← getEnv)
+
+    match globalCache.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -833,7 +848,13 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify (fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? } )
+      let mod := (·.insert cacheKey result?)
+      if synthInstance.globalCache.get (← getOptions) then
+        modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
+      else
+          modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)
+
+      -- modify (fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? } )
       pure result?
 
 /--

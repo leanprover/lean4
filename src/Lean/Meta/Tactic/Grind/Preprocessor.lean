@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
+import Lean.Meta.Tactic.Grind.Core
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -29,6 +30,7 @@ structure Context where
 
 structure State where
   simpStats : Simp.Stats := {}
+  goals     : PArray Goal := {}
   deriving Inhabited
 
 abbrev PreM := ReaderT Context $ StateRefT State GrindM
@@ -43,17 +45,12 @@ def PreM.run (x : PreM α) : GrindM α := do
   }
   x { simp, simprocs } |>.run' {}
 
-def simp (e : Expr) : PreM Simp.Result := do
+def simp (_goal : Goal) (e : Expr) : PreM Simp.Result := do
+  -- TODO: use `goal` state in the simplifier
   let simpStats := (← get).simpStats
   let (r, simpStats) ← Meta.simp e (← read).simp (← read).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
   return r
-
-def simpHyp? (mvarId : MVarId) (fvarId : FVarId) : PreM (Option (FVarId × MVarId)) := do
-  let simpStats := (← get).simpStats
-  let (result, simpStats) ← simpLocalDecl mvarId fvarId (← read).simp (← read).simprocs (stats := simpStats)
-  modify fun s => { s with simpStats }
-  return result
 
 inductive IntroResult where
   | done
@@ -72,7 +69,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
       else
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
-        let r ← simp p
+        let r ← simp goal p
         let p' := r.expr
         let p' ← canon p'
         let p' ← shareCommon p'
@@ -105,7 +102,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
     return .done
 
 def pushResult (goal : Goal) : PreM Unit :=
-  modifyThe Grind.State fun s => { s with goals := s.goals.push goal }
+  modify fun s => { s with goals := s.goals.push goal }
 
 def isCasesCandidate (fvarId : FVarId) : MetaM Bool := do
   let .const declName _ := (← fvarId.getType).getAppFn | return false
@@ -124,34 +121,38 @@ def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
   else
     return none
 
-partial def preprocess (goal : Goal) : PreM Unit := do
+partial def loop (goal : Goal) : PreM Unit := do
   match (← introNext goal) with
   | .done =>
     if let some mvarId ← goal.mvarId.byContra? then
-      preprocess { goal with mvarId }
+      loop { goal with mvarId }
     else
       pushResult goal
   | .newHyp fvarId goal =>
     if let some goals ← applyCases? goal fvarId then
-      goals.forM preprocess
+      goals.forM loop
     else if let some goal ← applyInjection? goal fvarId then
-      preprocess goal
+      loop goal
     else
       let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      preprocess { goal with clauses := goal.clauses.push clause }
+      loop { goal with clauses := goal.clauses.push clause }
   | .newDepHyp goal =>
-    preprocess goal
+    loop goal
   | .newLocal fvarId goal =>
     if let some goals ← applyCases? goal fvarId then
-      goals.forM preprocess
+      goals.forM loop
     else
-      preprocess goal
+      loop goal
+
+def preprocess (mvarId : MVarId) : PreM State := do
+  loop (← mkGoal mvarId)
+  get
 
 end Preprocessor
 
 open Preprocessor
 
-partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := do
+partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
   mvarId.ensureProp
   mvarId.ensureNoMVar
   let mvarId ← mvarId.clearAuxDecls
@@ -160,7 +161,7 @@ partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM Grind.State := 
   let mvarId ← mvarId.abstractNestedProofs mainDeclName
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
-  let s ← (preprocess { mvarId } *> getThe Grind.State) |>.run |>.run mainDeclName
-  return s
+  let s ← preprocess mvarId |>.run |>.run mainDeclName
+  return s.goals.toList.map (·.mvarId)
 
 end Lean.Meta.Grind

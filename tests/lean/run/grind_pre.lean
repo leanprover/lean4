@@ -4,8 +4,7 @@ open Lean Meta Elab Tactic Grind in
 elab "grind_pre" : tactic => do
   let declName := (← Term.getDeclName?).getD `_main
   liftMetaTactic fun mvarId => do
-    let result ← Meta.Grind.main mvarId declName
-    return result.goals.map (·.mvarId) |>.toList
+    Meta.Grind.main mvarId declName
 
 abbrev f (a : α) := a
 

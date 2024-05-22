@@ -112,6 +112,10 @@ attribute [simp] Nat.zero_le
 
 /-! # Helper Bool relation theorems -/
 
+theorem ble_add_one_eq_true :
+    {n m : Nat} → (ble n m) = true → (ble n (m + 1)) = true :=
+  Nat.ble_succ_eq_true
+
 @[simp] theorem beq_refl (a : Nat) : Nat.beq a a = true := by
   induction a with simp [Nat.beq]
   | succ a ih => simp [ih]
@@ -156,16 +160,6 @@ theorem add_one (n : Nat) : n + 1 = succ n :=
 
 @[simp] theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
 @[simp] theorem zero_ne_add_one (n : Nat) : 0 ≠ n + 1 := nofun
-
-theorem not_add_one_le_zero (n : Nat) : ¬ n + 1 ≤ 0 := nofun
-
-theorem not_add_one_le_self : (n : Nat) → ¬ n + 1 ≤ n := Nat.not_succ_le_self
-
-theorem zero_lt_add_one (n : Nat) : 0 < n + 1 := Nat.zero_lt_succ n
-
-theorem Nat.ble_add_one_eq_true :
-    {n m : Nat} → (ble n m) = true → (ble n (m + 1)) = true :=
-  Nat.ble_succ_eq_true
 
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
@@ -276,6 +270,12 @@ theorem le_of_lt_add_one {n m : Nat} : n < m + 1 → n ≤ m := le_of_succ_le_su
 theorem lt_add_one_of_le {n m : Nat} : n ≤ m → n < m + 1 := succ_le_succ
 
 @[simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
+
+theorem not_add_one_le_zero (n : Nat) : ¬ n + 1 ≤ 0 := nofun
+
+theorem not_add_one_le_self : (n : Nat) → ¬ n + 1 ≤ n := Nat.not_succ_le_self
+
+theorem zero_lt_add_one (n : Nat) : 0 < n + 1 := Nat.zero_lt_succ n
 
 theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with

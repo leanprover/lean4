@@ -326,6 +326,10 @@ structure MessageLog where
 namespace MessageLog
 def empty : MessageLog := {}
 
+@[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
+using `MessageLog.toList/toArray`"]
+def msgs : MessageLog → PersistentArray Message := unreported
+
 def hasUnreported (log : MessageLog) : Bool :=
   !log.unreported.isEmpty
 

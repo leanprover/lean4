@@ -13,6 +13,7 @@ import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Language.Basic
 
 namespace Lean.Elab
 
@@ -112,6 +113,14 @@ structure State where
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
+/--
+  Backtrackable state for the `TermElabM` monad.
+-/
+structure SavedState where
+  meta   : Meta.SavedState
+  «elab» : State
+  deriving Nonempty
+
 end Term
 
 namespace Tactic
@@ -152,6 +161,42 @@ structure Cache where
    post : PHashMap CacheKey Snapshot := {}
    deriving Inhabited
 
+section Snapshot
+open Language
+
+structure SavedState where
+  term   : Term.SavedState
+  tactic : State
+
+/-- State after finishing execution of a tactic. -/
+structure TacticFinished where
+  /-- Reusable state, if no fatal exception occurred. -/
+  state? : Option SavedState
+deriving Inhabited
+
+/-- Snapshot just before execution of a tactic. -/
+structure TacticParsedSnapshotData extends Language.Snapshot where
+  /-- Syntax tree of the tactic, stored and compared for incremental reuse. -/
+  stx      : Syntax
+  /-- Task for state after tactic execution. -/
+  finished : Task TacticFinished
+deriving Inhabited
+
+/-- State after execution of a single synchronous tactic step. -/
+inductive TacticParsedSnapshot where
+  | mk (data : TacticParsedSnapshotData) (next : Array (SnapshotTask TacticParsedSnapshot))
+deriving Inhabited
+abbrev TacticParsedSnapshot.data : TacticParsedSnapshot → TacticParsedSnapshotData
+  | .mk data _ => data
+/-- Potential, potentially parallel, follow-up tactic executions. -/
+-- In the first, non-parallel version, each task will depend on its predecessor
+abbrev TacticParsedSnapshot.next : TacticParsedSnapshot → Array (SnapshotTask TacticParsedSnapshot)
+  | .mk _ next => next
+partial instance : ToSnapshotTree TacticParsedSnapshot where
+  toSnapshotTree := go where
+    go := fun ⟨s, next⟩ => ⟨s.toSnapshot, next.map (·.map (sync := true) go)⟩
+
+end Snapshot
 end Tactic
 
 namespace Term
@@ -211,6 +256,13 @@ structure Context where
   /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
   /--
+  Snapshot for incremental processing of current tactic, if any.
+
+  Invariant: if the bundle's `old?` is set, then the state *up to the start* of the tactic is
+  unchanged, i.e. reuse is possible.
+  -/
+  tacSnap?         : Option (Language.SnapshotBundle Tactic.TacticParsedSnapshot) := none
+  /--
   If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
   of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
   We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
@@ -241,14 +293,6 @@ open Meta
 instance : Inhabited (TermElabM α) where
   default := throw default
 
-/--
-  Backtrackable state for the `TermElabM` monad.
--/
-structure SavedState where
-  meta   : Meta.SavedState
-  «elab» : State
-  deriving Nonempty
-
 protected def saveState : TermElabM SavedState :=
   return { meta := (← Meta.saveState), «elab» := (← get) }
 
@@ -261,17 +305,86 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
   unless restoreInfo do
     setInfoState infoState
 
-/--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
--/
-def SavedState.restoreFull (s : SavedState) : TermElabM Unit := do
-  s.meta.restoreFull
-  set s.elab
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (cont : TermElabM SavedState → TermElabM α) : TermElabM α := do
+  if let some (_, state) := reusableResult? then
+    set state.elab
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
+  controlAt MetaM fun runInBase =>
+    Meta.withRestoreOrSaveFull reusableResult? fun restore =>
+      runInBase <| cont (return { meta := (← restore), «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
   restoreState b := b.restore
+
+/--
+Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
+part. `act` is then run on the inner part but with reuse information adjusted as following:
+* If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
+  identical according to `Syntax.structRangeEq`, reuse is disabled.
+* Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
+* In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
+  `act` via this route.
+
+For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
+tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
+-/
+def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] [MonadRef m] (split : Syntax → Syntax × Syntax) (act : Syntax → m α)
+    (stx : Syntax) : m α := do
+  let (outer, inner) := split stx
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+    { tacSnap with old? := tacSnap.old?.bind fun old => do
+      let (oldOuter, oldInner) := split old.stx
+      guard <| outer.structRangeEqWithTraceReuse opts oldOuter
+      return { old with stx := oldInner }
+    }
+  }) do
+    withRef inner do
+      act inner
+
+/--
+A variant of `withNarrowedTacticReuse` that uses `stx[argIdx]` as the inner syntax and all `stx`
+child nodes before that as the outer syntax, i.e. reuse is disabled if there was any change before
+`argIdx`.
+
+NOTE: child nodes after `argIdx` are not tested (which would almost always disable reuse as they are
+necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
+depend on them (i.e. they should not be inspected beforehand).
+-/
+def withNarrowedArgTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithReaderOf Context m]
+    [MonadOptions m] [MonadRef m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+  withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
+
+/--
+Disables incremental tactic reuse *and* reporting for `act` if `cond` is true by setting `tacSnap?`
+to `none`. This should be done for tactic blocks that are run multiple times as otherwise the
+reported progress will jump back and forth (and partial reuse for these kinds of tact blocks is
+similarly questionable).
+-/
+def withoutTacticIncrementality [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+    (cond : Bool) (act : m α) : m α := do
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.filter fun tacSnap => Id.run do
+    if let some old := tacSnap.old? then
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+    return !cond
+  }) act
+
+/-- Disables incremental tactic reuse for `act` if `cond` is true. -/
+def withoutTacticReuse [Monad m] [MonadWithReaderOf Context m] [MonadOptions m] [MonadRef m]
+    (cond : Bool) (act : m α) : m α := do
+  let opts ← getOptions
+  withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
+    { tacSnap with old? := tacSnap.old?.filter fun old => Id.run do
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+      return !cond }
+  }) act
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 

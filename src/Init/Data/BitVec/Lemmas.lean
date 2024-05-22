@@ -1,4 +1,4 @@
-/-
+/-def
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
@@ -1069,7 +1069,152 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
     x.rotateLeft r = x.rotateLeftAux r := by
   simp only [rotateLeft, Nat.mod_eq_of_lt hr]
 
+
+/-- Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
+    accesing bits `x` in the range `[w - r, w)`,
+    given by `i : [0, r) ↦ w - r + i : [w - r, w)`.
+
+  Proof by example:
+    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
+  x.rotateLeft 2
+    = (<6 5 | 4 3 2 1 0>).rotateLeft 2
+    = <3 2 1 0 | 6 5>
+
+  (x.rotateLeft 2).getLsb ⟨i, i < 2⟩
+    = <3 2 1 0 | 6 5>.getLsb ⟨i, i < 2⟩
+    = <6 5>[i]
+    = <6 5 | 4 3 2 1 0>[i + len(<4 3 2 1 0>)]
+    = <6 5 | 4 3 2 1 0>[i + 7 - 2]
+
+    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+    Then, access the bit at `i` from the right `(+i)`.
+ -/
+theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
+    (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
+  rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
+  suffices (x <<< r).getLsb i = false by
+    simp only [getLsb_shiftLeft, Bool.or_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq,
+      Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
+    omega
+  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
+    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
+  omega
+
+/-- Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
+    accesing bits `x` in the range `[0, w - r)`,
+    given by `i : [r, w) ↦ i - r : [0, w - r)`.
+
+  Proof by example:
+    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
+  x.rotateLeft 2
+    = (<6 5 | 4 3 2 1 0>).rotateLeft 2
+    = <3 2 1 0 | 6 5>
+
+  (x.rotateLeft 2).getLsb ⟨i, i ≥ 2⟩
+    = <3 2 1 0 | 6 5>.getLsb ⟨i, i ≥ 2⟩
+    = <3 2 1 0>[i - 2]
+    = <6 5 | 3 2 1 0>[i - 2]
+
+    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+    Then, access the bit at `i` from the right `(+i)`.
+ -/
+theorem getLsb_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
+    (x.rotateLeftAux r).getLsb i = (decide (i < w) && x.getLsb (i - r)) := by
+  rw [rotateLeftAux, getLsb_or]
+  suffices (x >>> (w - r)).getLsb i = false by
+    rw [this]
+    simp only [getLsb_shiftLeft, Bool.or_false, hi]
+    have hiltr : decide (i < r) = false := by
+      simp [hi]
+    rw [hiltr]
+    simp
+  simp only [getLsb_ushiftRight]
+  apply getLsb_ge
+  omega
+
+/-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
+theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
+    (x.rotateLeft r).getLsb i =
+      if i < r
+      then x.getLsb (w - r + i)
+      else decide (i < w) && x.getLsb (i - r) := by
+  · rw [rotateLeft_eq_rotateLeftAux_of_lt hr]
+    by_cases h : i < r
+    · simp [h, getLsb_rotateLeftAux_of_le h]
+    · rw [getLsb_rotateLeftAux_of_geq]
+      simp only [Bool.and_eq_true, decide_eq_true_eq, h, ↓reduceIte, Bool.decide_eq_true]
+      omega
+/-- When `r ≥ w`, we reduce to the case of `r < w` by writing the formula in terms of `(r % w)`. -/
+theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
+    (x.rotateLeft r).getLsb i =
+      if i < r % w
+      then x.getLsb (w - (r % w) + i)
+      else decide (i < w) && x.getLsb (i - (r % w)) := by
+  rcases w with ⟨rfl, w⟩
+  · simp
+  · rw [← rotateLeft_mod_eq_rotateLeft, getLsb_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
+
+
 /-! ## Rotate Right -/
+
+/-- Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
+    accesing bits `x` in the range `[r, w)`,
+    given by `i : [0, w - r) ↦ i + r : [r, w)`.
+
+  Proof by example:
+    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
+  x.rotateRight 2
+    = (<6 5 4 3 2 | 1 0>).rotateRight 2
+    = <1 0 | 6 5 4 3 2>
+
+  (x.rotateLeft 2).getLsb ⟨i, i ≤ 7 - 2⟩
+    = <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+    = <6 5 4 3 2>.getLsb i
+    = <6 5 4 3 2 | 1 0>[i + 2]
+
+    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+    Then, access the bit at `i` from the right `(+i)`.
+ -/
+theorem getLsb_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
+    (x.rotateRightAux r).getLsb i = x.getLsb (r + i) := by
+  rw [rotateRightAux, getLsb_or, getLsb_ushiftRight]
+  suffices (x <<< (w - r)).getLsb i = false by
+    simp only [this, Bool.or_false]
+  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
+    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
+  omega
+
+/-- Accessing bits in `x.rotateRight r` the range `[w-r, w)` is equal to
+    accesing bits `x` in the range `[0, r)`,
+    given by `i : [w - r, w) ↦ i - (w - r) : [0, r)`.
+
+  Proof by example:
+    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
+  x.rotateRight 2
+    = (<6 5 4 3 2 | 1 0>).rotateRight 2
+    = <1 0 | 6 5 4 3 2>
+
+  (x.rotateLeft 2).getLsb ⟨i, i ≥ 7 - 2⟩
+    = <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+    = <1 0>.getLsb (i - len(<6 5 4 3 2>)
+    = <6 5 4 3 2 | 1 0> (i - len<6 4 4 3 2>)
+
+    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+    Then, access the bit at `i` from the right `(+i)`.
+ -/
+theorem getLsb_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
+    (x.rotateRightAux r).getLsb i = (decide (i < w) && x.getLsb (i - (w - r))) := by
+  rw [rotateRightAux, getLsb_or]
+  suffices (x >>> r).getLsb i = false by
+    simp only [this, getLsb_shiftLeft, Bool.false_or]
+    by_cases hiw : i < w
+    · simp only [hiw, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp, Bool.not_eq_true',
+      decide_eq_false_iff_not, Nat.not_lt]
+      omega
+    · simp only [hiw, decide_False, Bool.false_and]
+  simp only [getLsb_ushiftRight]
+  apply getLsb_ge
+  omega
 
 /-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
 smaller than the bitwidth. -/
@@ -1082,5 +1227,28 @@ theorem rotateRight_eq_rotateRightAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w
 theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
     x.rotateRight (r % w) = x.rotateRight r := by
   simp only [rotateRight, Nat.mod_mod]
+
+/-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
+theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
+    (x.rotateRight r).getLsb i =
+      if i < w - r
+      then x.getLsb (r + i)
+      else decide (i < w) && x.getLsb (i - (w - r)) := by
+  · rw [rotateRight_eq_rotateRightAux_of_lt hr]
+    by_cases h : i < w - r
+    · simp [h, getLsb_rotateRightAux_of_le h]
+    · rw [getLsb_rotateRightAux_of_geq]
+      simp only [h, ↓reduceIte]
+      omega
+
+
+theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
+    (x.rotateRight r).getLsb i =
+      if i < w - (r % w)
+      then x.getLsb ((r % w) + i)
+      else decide (i < w) && x.getLsb (i - (w - (r % w))) := by
+  rcases w with ⟨rfl, w⟩
+  · simp
+  · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
 end BitVec

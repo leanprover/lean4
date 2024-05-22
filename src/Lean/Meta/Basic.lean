@@ -404,7 +404,7 @@ instance : MonadMCtx MetaM where
 
 instance : MonadEnv MetaM where
   getEnv      := return (← getThe Core.State).env
-  modifyEnv f := do modifyThe Core.State fun s => { s with env := f s.env, cache := {} }; modify fun s => { s with cache := {} }
+  modifyEnv f := do modifyThe Core.State fun s => { s with env := f (Meta.SynthInstanceCacheExt.setState s.env {}), cache := {} }; modify fun s => { s with cache := {} }
 
 instance : AddMessageContext MetaM where
   addMessageContext := addMessageContextFull

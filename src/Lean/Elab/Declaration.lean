@@ -333,7 +333,6 @@ def elabMutual : CommandElab := fun stx => do
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do
-  modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
   let mut attrInsts := #[]
   let mut toErase := #[]
   for attrKindStx in stx[2].getSepArgs do

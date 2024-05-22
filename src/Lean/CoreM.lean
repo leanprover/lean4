@@ -119,7 +119,7 @@ instance : MonadRef CoreM where
 
 instance : MonadEnv CoreM where
   getEnv := return (← get).env
-  modifyEnv f := modify fun s => { s with env := f s.env, cache := {} }
+  modifyEnv f := modify fun s => { s with env := f (Meta.SynthInstanceCacheExt.setState s.env {}), cache := {} }
 
 instance : MonadOptions CoreM where
   getOptions := return (← read).options

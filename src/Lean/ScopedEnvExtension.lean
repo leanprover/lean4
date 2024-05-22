@@ -205,7 +205,7 @@ structure Meta.SynthInstanceCacheKey where
   synthPendingDepth : Nat
   deriving Hashable, BEq
 
-initialize Meta.SynthInstanceCacheExt : EnvExtension (HashMap Meta.SynthInstanceCacheKey (Option Expr)) ←
+builtin_initialize Meta.SynthInstanceCacheExt : EnvExtension (HashMap Meta.SynthInstanceCacheKey (Option Expr)) ←
   registerEnvExtension (pure {})
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do

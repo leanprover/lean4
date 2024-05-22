@@ -29,13 +29,95 @@ open Parser.Tactic
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
-@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx => do
-  let args := stx[0].getArgs
-  for i in [:args.size] do
-    if i % 2 == 0 then
-      evalTactic args[i]!
-    else
-      saveTacticInfoForToken args[i]! -- add `TacticInfo` node for `;`
+open Language in
+/--
+Evaluates a tactic script in form of a syntax node with alternating tactics and separators as
+children.
+ -/
+partial def evalSepTactics : Tactic := goEven
+where
+  -- `stx[0]` is the next tactic step, if any
+  goEven stx := do
+    if stx.getNumArgs == 0 then
+      return
+    let tac := stx[0]
+    /-
+    Each `goEven` step creates three promises under incrementality and reuses their older versions
+    where possible:
+    * `finished` is resolved when `tac` finishes execution; if `tac` is wholly unchanged from the
+      previous version, its state is reused and `tac` execution is skipped. Note that this promise
+      is never turned into a `SnapshotTask` and added to the snapshot tree as incremental reporting
+      is already covered by the next two promises.
+    * `inner` is passed to `tac` if it is marked as supporting incrementality and can be used for
+      reporting and partial reuse inside of it; if the tactic is unsupported or `finished` is wholly
+      reused, it is ignored.
+    * `next` is used as the context when invoking `goOdd` and thus eventually used for the next
+      `goEven` step. Thus, the incremental state of a tactic script is ultimately represented as a
+      chain of `next` snapshots. Its reuse is disabled if `tac` or its following separator are
+      changed in any way.
+    -/
+    let mut oldInner? := none
+    if let some snap := (← readThe Term.Context).tacSnap? then
+      if let some old := snap.old? then
+        let oldParsed := old.val.get
+        oldInner? := oldParsed.next.get? 0 |>.map (⟨oldParsed.data.stx, ·⟩)
+    -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
+    Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
+      let some snap := (← readThe Term.Context).tacSnap?
+        | do evalTactic tac; goOdd stxs
+      let mut reusableResult? := none
+      let mut oldNext? := none
+      if let some old := snap.old? then
+        -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
+        let oldParsed := old.val.get
+        if let some state := oldParsed.data.finished.get.state? then
+          reusableResult? := some (state, state)
+          -- only allow `next` reuse in this case
+          oldNext? := oldParsed.next.get? 1 |>.map (⟨old.stx, ·⟩)
+
+      withAlwaysResolvedPromise fun next => do
+        withAlwaysResolvedPromise fun finished => do
+          withAlwaysResolvedPromise fun inner => do
+            snap.new.resolve <| .mk {
+              stx := tac
+              diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
+                (← Core.getAndEmptyMessageLog))
+              finished := finished.result
+            } #[
+              {
+                range? := tac.getRange?
+                task := inner.result },
+              {
+                range? := stxs |>.getRange?
+                task := next.result }]
+            let state ← withRestoreOrSaveFull reusableResult? fun save => do
+              -- allow nested reuse for allowlisted tactics
+              withTheReader Term.Context ({ · with
+                  tacSnap? :=
+                    guard ((← builtinIncrementalTactics.get).contains tac.getKind) *>
+                    some {
+                      old? := oldInner?
+                      new := inner
+                    } }) do
+                evalTactic tac
+              save
+            finished.resolve { state? := state }
+
+        withTheReader Term.Context ({ · with tacSnap? := some {
+          new := next
+          old? := oldNext?
+        } }) do
+          goOdd stxs
+  -- `stx[0]` is the next separator, if any
+  goOdd stx := do
+    if stx.getNumArgs == 0 then
+      return
+    saveTacticInfoForToken stx[0] -- add `TacticInfo` node for `;`
+    -- disable further reuse on separator change as to not reuse wrong `TacticInfo`
+    Term.withNarrowedTacticReuse (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) goEven stx
+
+@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
+  evalSepTactics stx[0]
 
 @[builtin_tactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
@@ -104,25 +186,19 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
-/-- Evaluate `sepByIndent tactic "; " -/
-def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
-  let stx ← addCheckpoints stx
-  for arg in stx.getArgs, i in [:stx.getArgs.size] do
-    if i % 2 == 0 then
-      evalTactic arg
-    else
-      saveTacticInfoForToken arg
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq1Indented
+@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalSepTactics
 
-@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
-  evalSepByIndentTactic stx[0]
-
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeqBracketed
 @[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalSepTactics stx
 
+builtin_initialize registerBuiltinIncrementalTactic ``cdot
 @[builtin_tactic Lean.cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
@@ -132,7 +208,7 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
   withRef stx[0] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `·`
     withInfoContext (pure ()) initInfo
-    evalSepByIndentTactic stx[1]
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx
 
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
@@ -205,8 +281,9 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
-@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
-  evalTactic stx[0]
+builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq
+@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
+  Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
@@ -426,16 +503,16 @@ where
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
 
-
+builtin_initialize registerBuiltinIncrementalTactic ``case
 @[builtin_tactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>
+  | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
       let g ← renameInaccessibles g hs
       setGoals [g]
       g.setTag Name.anonymous
-      withCaseRef arr tac do
-        closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
+      withCaseRef arr tac <| closeUsingOrAdmit <| withTacticInfoContext stx <|
+        Term.withNarrowedArgTacticReuse (argIdx := 3) (evalTactic ·) stx
       setGoals gs
   | _ => throwUnsupportedSyntax
 

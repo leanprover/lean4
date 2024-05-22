@@ -77,7 +77,7 @@ inductive MessageData where
 
   The `Dynamic` value is expected to be a `MessageData`,
   which is a workaround for the positivity restriction.
-     
+
   If the thunked message is produced for a term that contains a synthetic sorry,
   `hasSyntheticSorry` should return `true`.
   This is used to filter out certain messages. -/
@@ -298,47 +298,69 @@ protected def toJson (msg : Message) : IO Json := do
 
 end Message
 
-/-- A persistent array of messages. -/
+/--
+A persistent array of messages.
+
+In the Lean elaborator, we use a fresh message log per command but may also report diagnostics at
+various points inside a command, which will empty `unreported` and updated `hadErrors` accordingly
+(see `CoreM.getAndEmptyMessageLog`).
+-/
 structure MessageLog where
-  msgs : PersistentArray Message := {}
+  /--
+  If true, there was an error in the log previously that has already been reported to the user and
+  removed from the log. Thus we say that in the current context (usually the current command), we
+  "have errors" if either this flag is set or there is an error in `msgs`; see
+  `MessageLog.hasErrors`. If we have errors, we suppress some error messages that are often the
+  result of a previous error.
+  -/
+  /-
+  Design note: We considered introducing a `hasErrors` field instead that already includes the
+  presence of errors in `msgs` but this would not be compatible with e.g.
+  `MessageLog.errorsToWarnings`.
+  -/
+  hadErrors : Bool := false
+  /-- The list of messages not already reported, in insertion order. -/
+  unreported : PersistentArray Message := {}
   deriving Inhabited
 
 namespace MessageLog
-def empty : MessageLog := ⟨{}⟩
+def empty : MessageLog := {}
 
-def isEmpty (log : MessageLog) : Bool :=
-  log.msgs.isEmpty
+@[deprecated "renamed to `unreported`; direct access should in general be avoided in favor of \
+using `MessageLog.toList/toArray`"]
+def msgs : MessageLog → PersistentArray Message := unreported
+
+def hasUnreported (log : MessageLog) : Bool :=
+  !log.unreported.isEmpty
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=
-  ⟨log.msgs.push msg⟩
+  { log with unreported := log.unreported.push msg }
 
 protected def append (l₁ l₂ : MessageLog) : MessageLog :=
-  ⟨l₁.msgs ++ l₂.msgs⟩
+  { hadErrors := l₁.hadErrors || l₂.hadErrors, unreported := l₁.unreported ++ l₂.unreported }
 
 instance : Append MessageLog :=
   ⟨MessageLog.append⟩
 
 def hasErrors (log : MessageLog) : Bool :=
-  log.msgs.any fun m => match m.severity with
-    | MessageSeverity.error => true
-    | _                     => false
+  log.hadErrors || log.unreported.any (·.severity matches .error)
 
 def errorsToWarnings (log : MessageLog) : MessageLog :=
-  { msgs := log.msgs.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
 def getInfoMessages (log : MessageLog) : MessageLog :=
-  { msgs := log.msgs.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
+  { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
 def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
-  log.msgs.forM f
+  log.unreported.forM f
 
-/-- Converts the log to a list, oldest message first. -/
+/-- Converts the unreported messages to a list, oldest message first. -/
 def toList (log : MessageLog) : List Message :=
-  log.msgs.toList
+  log.unreported.toList
 
-/-- Converts the log to an array, oldest message first. -/
+/-- Converts the unreported messages to an array, oldest message first. -/
 def toArray (log : MessageLog) : Array Message :=
-  log.msgs.toArray
+  log.unreported.toArray
 
 end MessageLog
 

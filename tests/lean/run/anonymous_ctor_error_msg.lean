@@ -25,12 +25,12 @@ Foo.sum [x1, x2, x3, x5, x6]
 
 /--
 error: invalid constructor ⟨...⟩, expected type must be an inductive type ⏎
-  ?m.442
+  ?m.441
 ---
 info: let x1 := { n := 1 };
 let x2 := { n := 2 };
 let x3 := { n := 3 };
-let x4 := ?m.446 x1 x2 x3;
+let x4 := ?m.445 x1 x2 x3;
 let x5 := { n := 5 };
 let x6 := { n := 6 };
 Foo.sum [x1, x2, x3, x5, x6] : Foo

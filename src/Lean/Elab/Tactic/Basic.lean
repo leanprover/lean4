@@ -34,10 +34,6 @@ structure Context where
   -/
   recover    : Bool := true
 
-structure SavedState where
-  term   : Term.SavedState
-  tactic : State
-
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -99,6 +95,16 @@ protected def saveState : TacticM SavedState :=
 def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit := do
   b.term.restore restoreInfo
   set b.tactic
+
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (cont : TacticM SavedState → TacticM α) : TacticM α := do
+  if let some (_, state) := reusableResult? then
+    set state.tactic
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
+  controlAt TermElabM fun runInBase =>
+    Term.withRestoreOrSaveFull reusableResult? fun restore =>
+      runInBase <| cont (return { term := (← restore), tactic := (← get) })
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
@@ -431,6 +437,12 @@ def getNameOfIdent' (id : Syntax) : Name :=
   but the "full range" for the info view will still include `body`. -/
 def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :=
   withRef (mkNullNode #[arrow, body]) x
+
+-- TODO: attribute(s)
+builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
+
+def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
+  builtinIncrementalTactics.modify fun s => s.insert kind
 
 builtin_initialize registerTraceClass `Elab.tactic
 builtin_initialize registerTraceClass `Elab.tactic.backtrack

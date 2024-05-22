@@ -324,7 +324,6 @@ mutual
   If `report := false`, then `runTactic` will not capture exceptions nor will report unsolved goals. Unsolved goals become exceptions.
   -/
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (report := true) : TermElabM Unit := withoutAutoBoundImplicit do
-    let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-
     TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
@@ -346,7 +345,7 @@ mutual
               -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
               -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
               withTacticInfoContext tacticCode[0] do
-                evalTactic code
+                withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) tacticCode
             synthesizeSyntheticMVars (postpone := .no)
           unless remainingGoals.isEmpty do
             if report then

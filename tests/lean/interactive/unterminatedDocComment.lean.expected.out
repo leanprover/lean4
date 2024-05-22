@@ -1,6 +1,1 @@
-{"textDocument": {"version": 2, "uri": "file:///unterminatedDocComment.lean"},
- "contentChanges":
- [{"text": "/",
-   "range":
-   {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}}}]}
 {"version": 2, "uri": "file:///unterminatedDocComment.lean", "diagnostics": []}

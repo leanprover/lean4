@@ -117,6 +117,19 @@ instance : MonadRef CoreM where
   getRef := return (← read).ref
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
 
+structure _root_.Lean.Meta.SynthInstanceCacheKey where
+  localInsts        : LocalInstances
+  type              : Expr
+  /--
+  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
+  See issue #2522.
+  -/
+  synthPendingDepth : Nat
+  deriving Hashable, BEq
+
+builtin_initialize _root_.Lean.Meta.SynthInstanceCacheExt : EnvExtension (PersistentHashMap Meta.SynthInstanceCacheKey (Option Expr)) ←
+  registerEnvExtension (pure {})
+
 instance : MonadEnv CoreM where
   getEnv := return (← get).env
   modifyEnv f := modify fun s => { s with env := f (Meta.SynthInstanceCacheExt.setState s.env {}), cache := {} }

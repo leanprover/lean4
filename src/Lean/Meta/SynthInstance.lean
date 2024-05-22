@@ -691,13 +691,10 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   else
     return none
 
-def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
+def main (type : Expr) (maxResultSize : Nat) (globalCache : SynthInstanceCache) : MetaM (Option AbstractMVarsResult × (SynthInstanceCache → SynthInstanceCache)) :=
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
     let key  ← mkTableKey type
-    let globalCache : SynthInstanceCache ← if !synthInstance.globalCache.get (← getOptions) then
-      do pure $ (← get).cache.synthInstance else do
-        pure $ SynthInstanceCacheExt.getState (← getEnv)
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
       synth
@@ -716,7 +713,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
       modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
     else
         modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)
-    return result
+    return (result, mod)
 
 end SynthInstance
 
@@ -809,9 +806,9 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           return none
       pure result
     | none        =>
-      let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
+      let (result?, mod') ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
-        SynthInstance.main normType maxResultSize
+        SynthInstance.main normType maxResultSize globalCache
       let result? ← match result? with
         | none        => pure none
         | some result => do
@@ -850,9 +847,9 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure none
       let mod := (·.insert cacheKey result?)
       if !synthInstance.globalCache.get (← getOptions) then
-        modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
+        modify (fun s => {s with cache.synthInstance := mod' $ mod s.cache.synthInstance } )
       else
-          modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)
+          modifyEnv (SynthInstanceCacheExt.modifyState · <| mod' ∘ mod)
 
       -- modify (fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? } )
       pure result?

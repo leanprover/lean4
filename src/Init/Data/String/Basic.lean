@@ -951,6 +951,10 @@ def beq (ss1 ss2 : Substring) : Bool :=
 
 instance hasBeq : BEq Substring := ⟨beq⟩
 
+/-- Checks whether two substrings have the same position and content. -/
+def sameAs (ss1 ss2 : Substring) : Bool :=
+  ss1.startPos == ss2.startPos && ss1 == ss2
+
 end Substring
 
 namespace String

@@ -265,6 +265,13 @@ local macro "nonempty_list" : tactic =>
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 /--
+Adjusts the heartbeat counter of the current thread by the given amount. This can be useful to give
+allocation-avoiding code additional "weight" and is also used to adjust the counter after resuming
+from a snapshot.
+-/
+@[extern "lean_io_add_heartbeats"] opaque addHeartbeats (count : UInt64) : BaseIO Unit
+
+/--
 The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).
 
 All modes do not translate line endings (i.e., `O_BINARY` on Windows) and
@@ -785,6 +792,32 @@ instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
+
+/--
+Mutable cell that can be passed around for purposes of cooperative task cancellation: request
+cancellation with `CancelToken.set` and check for it with `CancelToken.isSet`.
+
+This is a more flexible alternative to `Task.cancel` as the token can be shared between multiple
+tasks.
+-/
+structure CancelToken where
+  private ref : IO.Ref Bool
+
+namespace CancelToken
+
+/-- Creates a new cancellation token. -/
+def new : BaseIO CancelToken :=
+  CancelToken.mk <$> IO.mkRef false
+
+/-- Activates a cancellation token. Idempotent. -/
+def set (tk : CancelToken) : BaseIO Unit :=
+  tk.ref.set true
+
+/-- Checks whether the cancellation token has been activated. -/
+def isSet (tk : CancelToken) : BaseIO Bool :=
+  tk.ref.get
+
+end CancelToken
 
 namespace FS
 namespace Stream

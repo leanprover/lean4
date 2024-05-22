@@ -212,7 +212,17 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-abbrev SynthInstanceCache := Unit
+-- structure SynthInstanceCacheKey where
+--   localInsts        : LocalInstances
+--   type              : Expr
+--   /--
+--   Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
+--   See issue #2522.
+--   -/
+--   synthPendingDepth : Nat
+--   deriving Hashable, BEq
+
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -235,7 +245,7 @@ structure DefEqCache where
 structure Cache where
   inferType      : InferTypeCache := {}
   funInfo        : FunInfoCache   := {}
-  synthInstance  : SynthInstanceCache := ()
+  synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
   defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.

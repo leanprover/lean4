@@ -599,7 +599,7 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          if h : entry.answers.size > 0 then
+          if let some answer := entry.answers.find? fun answer => answer.result.numMVars == 0 then
             /-
             We already have an answer that:
               1. its result does not have metavariables.
@@ -612,7 +612,7 @@ def generate : SynthM Unit := do
             that do **not** contain metavariables. This extra check was added to address issue #4213.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
-            let answer := entry.answers[0].result
+            let answer := answer.result
             if answer.numMVars == 0 && answer.paramNames.isEmpty then
               let inst := answer.expr
               modify fun s => { s with cacheEntries := s.cacheEntries.push (gNode.key, inst)}

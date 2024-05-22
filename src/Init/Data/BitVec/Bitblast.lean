@@ -198,17 +198,6 @@ theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
 theorem ule_eq_carry (x y : BitVec w) : x.ule y = carry w y (~~~x) true := by
   simp [ule_eq_not_ult, ult_eq_not_carry]
 
-theorem msb_eq_false_iff_two_mul_lt (x : BitVec w) : x.msb = false ↔ 2 * x.toNat < 2^w := by
-  cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide]
-
-theorem msb_eq_true_iff_two_mul_ge (x : BitVec w) : x.msb = true ↔ 2 * x.toNat ≥ 2^w := by
-  simp [show x.msb = true ↔ ¬(x.msb = false) by simp, msb_eq_false_iff_two_mul_lt]
-
-theorem toInt_eq (x : BitVec w) :
-    x.toInt = if x.msb then (x.toNat : Int) - ((2^w : Nat) : Int) else x.toNat := by
-  simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
-  cases x.msb <;> rfl
-
 /-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
 theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
     x.slt y = x.ult y := by

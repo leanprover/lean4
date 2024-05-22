@@ -16,7 +16,7 @@ def f (x : BitVec 32) : Nat :=
   | 920#32 => 12
   | _      => 1000
 
-set_option maxHeartbeats 30000
+set_option maxHeartbeats 3000
 example : f 500#32 = x := by
   simp [f]
   sorry

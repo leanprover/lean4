@@ -195,21 +195,7 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
 
-structure Meta.SynthInstanceCacheKey where
-  localInsts        : LocalInstances
-  type              : Expr
-  /--
-  Value of `synthPendingDepth` when instance was synthesized or failed to be synthesized.
-  See issue #2522.
-  -/
-  synthPendingDepth : Nat
-  deriving Hashable, BEq
-
-builtin_initialize Meta.SynthInstanceCacheExt : EnvExtension (PersistentHashMap Meta.SynthInstanceCacheKey (Option Expr)) ←
-  registerEnvExtension (pure {})
-
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
-  modifyEnv (Meta.SynthInstanceCacheExt.setState · {})
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv (ext.activateScoped · namespaceName)
 

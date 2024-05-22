@@ -580,7 +580,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
     env := commandState.env
   }
-  if let some err := commandState.messages.msgs.toArray.find? (·.severity matches .error) then
+  if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
     throwError err.data
   pure a
 

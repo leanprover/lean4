@@ -339,8 +339,8 @@ for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
   modifyGet fun s => (s.messages, { s with
-    messages.msgs := {}
-    messages.hadErrors := s.messages.hasErrors })
+    messages.unreported := {}
+    messages.hadErrors  := s.messages.hasErrors })
 
 instance : MonadLog CoreM where
   getRef      := getRef

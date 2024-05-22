@@ -163,7 +163,8 @@ def MessageOrdering.apply (mode : MessageOrdering) (msgs : List String) : List S
           let diff := Diff.diff (expected.split (· == '\n')).toArray (res.split (· == '\n')).toArray
           Diff.linesToString diff
         else res
-      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}"
+      logErrorAt tk m!"❌ Docstring on `#guard_msgs` does not match generated message:\n\n{feedback}\n\n\
+        With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring."
       pushInfoLeaf (.ofCustomInfo { stx := ← getRef, value := Dynamic.mk (GuardMsgFailure.mk res) })
   | _ => throwUnsupportedSyntax
 

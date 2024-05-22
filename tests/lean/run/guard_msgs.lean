@@ -11,6 +11,8 @@ error: unknown identifier 'x'
 error: ❌ Docstring on `#guard_msgs` does not match generated message:
 
 error: unknown identifier 'x'
+
+With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring.
 -/
 #guard_msgs in
 #guard_msgs in
@@ -63,6 +65,8 @@ error: ❌ Docstring on `#guard_msgs` does not match generated message:
 
 info: foo ⏎
 bar
+
+With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring.
 -/
 #guard_msgs in
 #guard_msgs in
@@ -173,6 +177,9 @@ error: ❌ Docstring on `#guard_msgs` does not match generated message:
 + info: ABCDEFG
 + HIJKLMNOP
 + QRSTUVWXYZ
+
+
+With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring.
 -/
 #guard_msgs in
 set_option guard_msgs.diff true in
@@ -189,6 +196,9 @@ error: ❌ Docstring on `#guard_msgs` does not match generated message:
   info: ABCDEFG
 + HIJKLMNOP
   QRSTUVWXYZ
+
+
+With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring.
 -/
 #guard_msgs in
 set_option guard_msgs.diff true in
@@ -270,6 +280,9 @@ error: ❌ Docstring on `#guard_msgs` does not match generated message:
       4
 -     (Tree.branch (Tree.branch (Tree.leaf) 1 (Tree.leaf)) 2 (Tree.branch (Tree.leaf) 1 (Tree.leaf))))
 +     (Tree.branch (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0)) 2 (Tree.branch (Tree.leaf 0) 1 (Tree.leaf 0))))
+
+
+With the cursor in `#guard_msgs`, press `Ctrl-.` (`⌘-.` on Mac) to update the docstring.
 -/
 #guard_msgs in
 set_option guard_msgs.diff true in

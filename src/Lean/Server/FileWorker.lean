@@ -196,7 +196,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         return .pure ()
   where
     go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
-      if !node.element.diagnostics.msgLog.isEmpty then
+      if node.element.diagnostics.msgLog.hasUnreported then
         let diags ←
           if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then

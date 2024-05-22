@@ -460,7 +460,6 @@ static lean_object* l_Lean_Nat_mkInstHMod___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Expr_projIdx_x21(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__21;
 static lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_2961____closed__20;
-extern uint64_t l_instInhabitedUInt64;
 lean_object* lean_expr_instantiate(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isMVar(lean_object*);
 static lean_object* l_Lean_Nat_mkInstAdd___closed__1;
@@ -945,6 +944,7 @@ LEAN_EXPORT lean_object* l_List_repr___at___private_Lean_Expr_0__Lean_reprExpr__
 LEAN_EXPORT lean_object* l_Lean_Expr_isSemiOutParam___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isTrue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasMVar___boxed(lean_object*);
+extern uint64_t l_UInt64_instInhabited;
 LEAN_EXPORT lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_MVarIdSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -2374,7 +2374,7 @@ static uint64_t _init_l_Lean_instInhabitedData__1() {
 _start:
 {
 uint64_t x_1; 
-x_1 = l_instInhabitedUInt64;
+x_1 = l_UInt64_instInhabited;
 return x_1;
 }
 }

@@ -4,8 +4,7 @@ open Lean Meta Elab Tactic Grind in
 elab "grind_pre" : tactic => do
   let declName := (← Term.getDeclName?).getD `_main
   liftMetaTactic fun mvarId => do
-    let result ← Meta.Grind.main mvarId declName
-    return result.goals.map (·.mvarId) |>.toList
+    Meta.Grind.main mvarId declName
 
 abbrev f (a : α) := a
 
@@ -14,8 +13,10 @@ warning: declaration uses 'sorry'
 ---
 info: a b c : Bool
 p q : Prop
-h : a = true ∧ (b = true ∨ c = true)
-h' : p ∧ q
+left✝ : a = true
+right✝ : b = true ∨ c = true
+left : p
+right : q
 x✝ : b = false ∨ a = false
 ⊢ False
 -/
@@ -23,7 +24,54 @@ x✝ : b = false ∨ a = false
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind_pre
   trace_state
-  sorry
+  all_goals sorry
+
+open Lean.Grind.Eager in
+/--
+warning: declaration uses 'sorry'
+---
+info: a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : b = true
+left : p
+right : q
+h : b = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : b = true
+left : p
+right : q
+h : a = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : c = true
+left : p
+right : q
+h : b = false
+⊢ False
+
+a b c : Bool
+p q : Prop
+left✝ : a = true
+h✝ : c = true
+left : p
+right : q
+h : a = false
+⊢ False
+-/
+#guard_msgs in
+theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
+  grind_pre
+  trace_state
+  all_goals sorry
+
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
@@ -33,3 +81,30 @@ example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j +
   next hn =>
   guard_hyp hn : ¬g (i + 1) j _ = i + j + 1
   simp_arith [g] at hn
+
+structure Point where
+  x : Nat
+  y : Int
+
+/--
+warning: declaration uses 'sorry'
+---
+info: a₁ : Point
+a₂ : Nat
+a₃ : Int
+as : List Point
+b₁ : Point
+bs : List Point
+b₂ : Nat
+b₃ : Int
+head_eq : a₁ = b₁
+x_eq : a₂ = b₂
+y_eq : a₃ = b₃
+tail_eq : as = bs
+⊢ False
+-/
+#guard_msgs in
+theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x := b₂, y := b₃} :: bs) : False := by
+  grind_pre
+  trace_state
+  sorry

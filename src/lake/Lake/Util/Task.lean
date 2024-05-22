@@ -15,6 +15,7 @@ abbrev OptionTask := OptionT Task
 
 def BaseIOTask := Task
 instance : Monad BaseIOTask := inferInstanceAs <| Monad Task
+instance [Inhabited α] : Inhabited (BaseIOTask α) := inferInstance
 
 abbrev EIOTask ε := ExceptT ε BaseIOTask
 abbrev OptionIOTask := OptionT BaseIOTask

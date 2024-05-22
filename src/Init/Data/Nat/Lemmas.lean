@@ -794,6 +794,9 @@ theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
 
+@[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
+  rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
+
 theorem mul_add_div {m : Nat} (m_pos : m > 0) (x y : Nat) : (m * x + y) / m = x + y / m := by
   match x with
   | 0 => simp

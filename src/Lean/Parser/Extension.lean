@@ -437,11 +437,12 @@ def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
 def getTokenTable (env : Environment) : TokenTable :=
   (parserExtension.getState env).tokens
 
-def mkInputContext (input : String) (fileName : String) : InputContext := {
-  input    := input,
-  fileName := fileName,
-  fileMap  := input.toFileMap
-}
+-- Note: `crlfToLf` preserves logical line and column numbers for each character.
+def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) : InputContext :=
+  let input' := if normalizeLineEndings then input.crlfToLf else input
+  { input    := input',
+    fileName := fileName,
+    fileMap  := input'.toFileMap }
 
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
@@ -453,7 +454,7 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if !s.allErrors.isEmpty  then
     Except.error (s.toErrorMsg ictx)
-  else if input.atEnd s.pos then
+  else if ictx.input.atEnd s.pos then
     Except.ok s.stxStack.back
   else
     Except.error ((s.mkError "end of input").toErrorMsg ictx)

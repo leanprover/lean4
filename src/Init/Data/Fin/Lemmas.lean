@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Mario Carneiro
+Authors: Mario Carneiro, Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
@@ -93,6 +93,18 @@ theorem lt_iff_val_lt_val {a b : Fin n} : a < b ↔ a.val < b.val := Iff.rfl
 @[simp] protected theorem not_le {a b : Fin n} : ¬ a ≤ b ↔ b < a := Nat.not_le
 
 @[simp] protected theorem not_lt {a b : Fin n} : ¬ a < b ↔ b ≤ a := Nat.not_lt
+
+@[simp] protected theorem le_refl (a : Fin n) : a ≤ a := by simp [le_def]
+
+@[simp] protected theorem lt_irrefl (a : Fin n) : ¬ a < a := by simp
+
+protected theorem le_trans {a b c : Fin n} : a ≤ b → b ≤ c → a ≤ c := Nat.le_trans
+
+protected theorem lt_trans {a b c : Fin n} : a < b → b < c → a < c := Nat.lt_trans
+
+protected theorem le_total (a b : Fin n) : a ≤ b ∨ b ≤ a := Nat.le_total a b
+
+protected theorem lt_asymm {a b : Fin n} (h : a < b) : ¬ b < a := Nat.lt_asymm h
 
 protected theorem ne_of_lt {a b : Fin n} (h : a < b) : a ≠ b := Fin.ne_of_val_ne (Nat.ne_of_lt h)
 
@@ -823,27 +835,3 @@ protected theorem zero_mul (k : Fin (n + 1)) : (0 : Fin (n + 1)) * k = 0 := by
   simp [ext_iff, mul_def]
 
 end Fin
-
-namespace USize
-
-@[simp] theorem lt_def {a b : USize} : a < b ↔ a.toNat < b.toNat := .rfl
-
-@[simp] theorem le_def {a b : USize} : a ≤ b ↔ a.toNat ≤ b.toNat := .rfl
-
-@[simp] theorem zero_toNat : (0 : USize).toNat = 0 := Nat.zero_mod _
-
-@[simp] theorem mod_toNat (a b : USize) : (a % b).toNat = a.toNat % b.toNat :=
-  Fin.mod_val ..
-
-@[simp] theorem div_toNat (a b : USize) : (a / b).toNat = a.toNat / b.toNat :=
-  Fin.div_val ..
-
-@[simp] theorem modn_toNat (a : USize) (b : Nat) : (a.modn b).toNat = a.toNat % b :=
-  Fin.modn_val ..
-
-theorem mod_lt (a b : USize) (h : 0 < b) : a % b < b := USize.modn_lt _ (by simp at h; exact h)
-
-theorem toNat.inj : ∀ {a b : USize}, a.toNat = b.toNat → a = b
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
-end USize

@@ -31,9 +31,10 @@ of_eq_true (eq_true_of_decide (Eq.refl true))
 #print ex6
 
 theorem ex7 : (if "hello" = "world" then 1 else 2) = 2 := by
-  simp (config := { decide := false })
-  -- Goal is now `⊢ "hello" = "world" → False`
-  simp (config := { decide := true })
+  simp (config := { decide := false }) [-String.reduceEq]
+  guard_target =ₛ ¬ "hello" = "world"
+  fail_if_success simp [-String.reduceEq]
+  simp (config := { decide := true }) [-String.reduceEq]
 
 theorem ex8 : (10 + 2000 = 20) = False :=
   by simp

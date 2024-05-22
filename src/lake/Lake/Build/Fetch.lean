@@ -82,31 +82,34 @@ def ensureJob (x : FetchM (Job α))
     return (.ok (.error jobLog) log, store)
 
 /--
+Registers the job for the top-level build monitor,
+(e.g., the Lake CLI progress UI), assigning it `caption`.
+-/
+def registerJob (caption : String) (job : Job α) : FetchM (Job α) := do
+  let job := job.setCaption caption
+  (← getBuildContext).registeredJobs.modify (·.push job)
+  return job.renew
+
+/--
 Registers the produced job for the top-level build monitor
 (e.g., the Lake CLI progress UI), assigning it `caption`.
 
 Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
 -/
-@[inline] def withRegisterJob
+def withRegisterJob
   (caption : String) (x : FetchM (Job α))
 : FetchM (Job α) := do
   let job ← ensureJob x
-  let job := job.setCaption caption
-  let regJob := job.mapResult (sync := true) discard
-  (← readThe BuildContext).registeredJobs.modify (·.push regJob)
-  return job.renew
+  registerJob caption job
 
 /--
 Registers the produced job for the top-level build monitor
 if it is not already (i.e., it has an empty caption).
 -/
 @[inline] def maybeRegisterJob
-  (fallbackCaption : String) (job : Job α)
+  (caption : String) (job : Job α)
 : FetchM (Job α) := do
   if job.caption.isEmpty then
-    let job := job.setCaption fallbackCaption
-    let regJob := job.mapResult (sync := true) discard
-    (← readThe BuildContext).registeredJobs.modify (·.push regJob)
-    return job.renew
+    registerJob caption job
   else
     return job

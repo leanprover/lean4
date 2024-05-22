@@ -188,7 +188,7 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
   the macro declaration names in the `op` nodes.
   -/
   let result ← go s
-  synthesizeSyntheticMVars (mayPostpone := true)
+  synthesizeSyntheticMVars (postpone := .yes)
   return result
 where
   go (s : Syntax) := do
@@ -241,7 +241,10 @@ private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
 
 private structure AnalyzeResult where
   max?            : Option Expr := none
-  hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
+  /-- `true` if there are two types `α` and `β` where we don't have coercions in any direction. -/
+  hasUncomparable : Bool := false
+  /-- `true` if there are any leaf terms with an unknown type (according to `isUnknown`). -/
+  hasUnknown      : Bool := false
 
 private def isUnknown : Expr → Bool
   | .mvar ..        => true
@@ -255,7 +258,7 @@ private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM Analyze
     match expectedType? with
     | none => pure none
     | some expectedType =>
-      let expectedType ← instantiateMVars expectedType
+      let expectedType := (← instantiateMVars expectedType).cleanupAnnotations
       if isUnknown expectedType then pure none else pure (some expectedType)
   (go t *> get).run' { max? }
 where
@@ -268,12 +271,40 @@ where
        | .binop _ _ _ lhs rhs => go lhs; go rhs
        | .unop _ _ arg => go arg
        | .term _ _ val =>
-         let type ← instantiateMVars (← inferType val)
-         unless isUnknown type do
+         let type := (← instantiateMVars (← inferType val)).cleanupAnnotations
+         if isUnknown type then
+           modify fun s => { s with hasUnknown := true }
+         else
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
-             unless (← withNewMCtxDepth <| isDefEqGuarded max type) do
+             /-
+              Remark: Previously, we used `withNewMCtxDepth` to prevent metavariables in `max` and `type` from being assigned.
+
+              Reason: This is a heuristic procedure for introducing coercions in scenarios such as:
+              - Given `(n : Nat) (i : Int)`, elaborate `n = i`. The coercion must be inserted at `n`.
+                Consider the elaboration problem `(n + 0) + i`, where the type of term `0` is a metavariable.
+                We do not want it to be elaborated as `(Int.ofNat n + Int.ofNat (0 : Nat)) + i`; instead, we prefer the result to be `(Int.ofNat n + (0 : Int)) + i`.
+                Here is another example where we avoid assigning metavariables: `max := BitVec n` and `type := BitVec ?m`.
+
+              However, the combination `withNewMCtxDepth <| isDefEqGuarded max type` introduced performance issues in several
+              Mathlib files because `isDefEq` was spending a lot of time unfolding definitions in `max` and `type` before failing.
+
+              To address this issue, we allowed only reducible definitions to be unfolded during this check, using
+              `withNewMCtxDepth <| withReducible <| isDefEqGuarded max type`. This change fixed some performance issues but created new ones.
+              Lean was now spending time trying to use `hasCoe`, likely occurring in places where `withNewMCtxDepth <| isDefEqGuarded max type`
+              used to succeed but was now failing after we introduced `withReducible`.
+
+              We then considered using just `isDefEqGuarded max type` and changing the definition of `isUnknown`. In the new definition,
+              the else-case would be `| e => e.hasExprMVar` instead of `| _ => false`. However, we could not even compile this repo using
+              this configuration. The problem arises because some files require coercions even when `max` contains metavariables,
+              for example: `max := Option ?m` and `type := Name`.
+
+              As a result, rather than restricting reducibility, we decided to set `Meta.Config.isDefEqStuckEx := true`.
+              This means that if `isDefEq` encounters a subproblem `?m =?= a` where `?m` is non-assignable, it aborts the test
+              instead of unfolding definitions.
+             -/
+             unless (← withNewMCtxDepth <| withConfig (fun config => { config with isDefEqStuckEx := true }) <| isDefEqGuarded max type) do
                if (← hasCoe type max) then
                  return ()
                else if (← hasCoe max type) then
@@ -404,7 +435,7 @@ mutual
       | .unop ref f arg =>
         return .unop ref f (← go arg none false false)
       | .term ref trees e =>
-        let type ← instantiateMVars (← inferType e)
+        let type := (← instantiateMVars (← inferType e)).cleanupAnnotations
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
         if isUnknown type then
           if let some f := f? then
@@ -422,12 +453,17 @@ mutual
 
   private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
     let r ← analyze tree expectedType?
-    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binop] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       let result ← toExprCore tree
       ensureHasType expectedType? result
     else
       let result ← toExprCore (← applyCoe tree r.max?.get! (isPred := false))
+      unless r.hasUnknown do
+        -- Record the resulting maxType calculation.
+        -- We can do this when all the types are known, since in this case `hasUncomparable` is valid.
+        -- If they're not known, recording maxType like this can lead to heterogeneous operations failing to elaborate.
+        discard <| isDefEqGuarded (← inferType result) r.max?.get!
       trace[Elab.binop] "result: {result}"
       ensureHasType expectedType? result
 
@@ -460,7 +496,6 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
   | some f => withSynthesizeLight do
     /-
     We used to use `withSynthesize (mayPostpone := true)` here instead of `withSynthesizeLight` here.
-    Recall that `withSynthesizeLight` is equivalent to `withSynthesize (mayPostpone := true) (synthesizeDefault := false)`.
     It seems too much to apply default instances at binary relations. For example, we cannot elaborate
     ```
     def as : List Int := [-1, 2, 0, -3, 4]
@@ -494,7 +529,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     let rhs ← withRef rhsStx <| toTree rhsStx
     let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
-    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
+    trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, hasUnknown: {r.hasUnknown}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
       -- Use default elaboration strategy + `toBoolIfNecessary`
       let lhs ← toExprCore lhs

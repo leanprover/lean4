@@ -31,3 +31,9 @@ def f4 (x : Nat) := x + 1
 set_option linter.deprecated false in
 #eval f2 0 + 1
 #eval f4 0 + 1
+
+@[deprecated] def Nat.z (x : Nat) := x + 1
+
+/-- warning: `Nat.z` has been deprecated -/
+#guard_msgs in
+example (n : Nat) : n.z = n + 1 := rfl

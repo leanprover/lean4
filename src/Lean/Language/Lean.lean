@@ -301,7 +301,28 @@ private def withHeaderExceptions (ex : Snapshot → α) (act : LeanProcessingT I
   | .error e => return ex { diagnostics := (← diagnosticsOfHeaderError e.toString) }
   | .ok a => return a
 
-/-- Entry point of the Lean language processor. -/
+/--
+Result of retrieving additional metadata about the current file after parsing imports. In the
+language server, these are derived from the `lake setup-file` result. On the cmdline and for similar
+simple uses, these can be computed eagerly without looking at the imports.
+-/
+structure SetupImportsResult where
+  /-- Module name of the file being processed. -/
+  mainModuleName : Name
+  /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
+  opts : Options
+  /-- Kernel trust level. -/
+  trustLevel : UInt32 := 0
+
+/--
+Entry point of the Lean language processor.
+
+The `setupImports` function is called after the header has been parsed and before the first command
+is parsed in order to supply additional file metadata (or abort with a given terminal snapshot); see
+`SetupImportsResult`.
+
+`old?` is a previous resulting snapshot, if any, to be reused for incremental processing.
+-/
 /-
 General notes:
 * For each processing function we pass in the previous state, if any, in order to reuse still-valid
@@ -314,8 +335,7 @@ General notes:
   fast-forwarded snapshots without having to wait on tasks.
 -/
 partial def process
-    (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot Options) :=
-      fun _ => pure <| .ok {})
+    (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
     (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot := do
   parseHeader old? |>.run (old?.map (·.ictx)) (old?.bind (·.cancelTk?))
 where
@@ -397,20 +417,18 @@ where
     SnapshotTask.ofIO (some ⟨0, ctx.input.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none }) do
-      let opts ← match (← setupImports stx) with
-        | .ok opts => pure opts
+      let setup ← match (← setupImports stx) with
+        | .ok setup => pure setup
         | .error snap => return snap
-      -- override context options with file options
-      let opts := ctx.opts.mergeBy (fun _ _ fileOpt => fileOpt) opts
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
-        ctx.toInputContext ctx.trustLevel
+      let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
+        ctx.toInputContext setup.trustLevel
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
         return { diagnostics, result? := none }
 
-      let headerEnv := headerEnv.setMainModule ctx.mainModuleName
-      let cmdState := Elab.Command.mkState headerEnv msgLog opts
+      let headerEnv := headerEnv.setMainModule setup.mainModuleName
+      let cmdState := Elab.Command.mkState headerEnv msgLog setup.opts
       let cmdState := { cmdState with infoState := {
         enabled := true
         trees := #[Elab.InfoTree.context (.commandCtx {
@@ -579,10 +597,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     BaseIO (SnapshotTask CommandParsedSnapshot) := do
   process.parseCmd (old?.map (·.2)) parserState commandState
     |>.run (old?.map (·.1))
-    |>.run { inputCtx with
-      mainModuleName := commandState.env.mainModule
-      opts := commandState.scopes.head!.opts
-    }
+    |>.run { inputCtx with }
 
 
 /-- Waits for and returns final environment, if importing was successful. -/

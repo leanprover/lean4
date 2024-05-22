@@ -200,7 +200,7 @@ private def toCasesSubgoals (s : Array InductionSubgoal) (ctorNames : Array Name
     { ctorName           := ctorName,
       toInductionSubgoal := s }
 
-partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := do
+partial def unifyEqs? (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseName? : Option Name := none): MetaM (Option (MVarId × FVarSubst)) := withIncRecDepth do
   if numEqs == 0 then
     return some (mvarId, subst)
   else
@@ -269,7 +269,7 @@ Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka 
 def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) (useNatCasesAuxOn : Bool := false) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames (useNatCasesAuxOn := useNatCasesAuxOn)
 
-@[deprecated MVarId.cases]
+@[deprecated MVarId.cases (since := "2022-07-15")]
 def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames
 

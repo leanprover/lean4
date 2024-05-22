@@ -13,6 +13,18 @@ mutual
   termination_by (n, 0)
 end
 
+/--
+info: @[irreducible] def f : Nat → Bool → Nat :=
+fun a a_1 => f._mutual (PSum.inl ⟨a, a_1⟩)
+-/
+#guard_msgs in
 #print f
+
+/--
+info: @[irreducible] def g : Nat → Nat :=
+fun n => f._mutual (PSum.inr n)
+-/
+#guard_msgs in
 #print g
+
 #print f._mutual

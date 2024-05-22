@@ -807,6 +807,10 @@ It is especially useful for avoiding parentheses with repeated applications.
 Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
 You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
+
+The macro tries both orientations of `h`. If the context provides an
+expected type, it rewrites the expeced type, else it rewrites the type of e`.
+
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/

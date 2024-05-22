@@ -46,8 +46,9 @@ example : α := x
 
 #guard_msgs in
 /--
-error: failed to synthesize instance
+error: failed to synthesize
   OfNat α 22
+use `set_option diagnostics true` to get diagnostic information
 -/
 #guard_msgs(error) in
 example : α := 22
@@ -100,13 +101,19 @@ run_meta Lean.logInfo "foo ⏎\nbar"
 Lax whitespace
 -/
 
-/-- error: failed to synthesize DecidableEq (Nat → Nat) -/
+/--
+error: failed to synthesize
+  DecidableEq (Nat → Nat)
+use `set_option diagnostics true` to get diagnostic information
+-/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
 
-/-- error: failed to synthesize
-
-DecidableEq (Nat → Nat) -/
+/--
+error: failed to synthesize
+  DecidableEq (Nat → Nat)
+use `set_option diagnostics true` to get diagnostic information
+-/
 #guard_msgs (whitespace := lax) in
 #synth DecidableEq (Nat → Nat)
 

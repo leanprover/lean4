@@ -96,7 +96,7 @@ protected theorem le_antisymm {a b : Int} (h₁ : a ≤ b) (h₂ : b ≤ a) : a 
   have := Int.ofNat.inj <| Int.add_left_cancel <| this.trans (Int.add_zero _).symm
   rw [← hn, Nat.eq_zero_of_add_eq_zero_left this, ofNat_zero, Int.add_zero a]
 
-protected theorem lt_irrefl (a : Int) : ¬a < a := fun H =>
+@[simp] protected theorem lt_irrefl (a : Int) : ¬a < a := fun H =>
   let ⟨n, hn⟩ := lt.dest H
   have : (a+Nat.succ n) = a+0 := by
     rw [hn, Int.add_zero]

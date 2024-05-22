@@ -2,6 +2,7 @@
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
+
 -/
 prelude
 import Init.Data.Bool
@@ -145,7 +146,8 @@ theorem getLsb_ofNat (n : Nat) (x : Nat) (i : Nat) :
   getLsb (x#n) i = (i < n && x.testBit i) := by
   simp [getLsb, BitVec.ofNat, Fin.val_ofNat']
 
-@[simp, deprecated toNat_ofNat] theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
+@[simp, deprecated toNat_ofNat (since := "2024-02-22")]
+theorem toNat_zero (n : Nat) : (0#n).toNat = 0 := by trivial
 
 @[simp] theorem getLsb_zero : (0#w).getLsb i = false := by simp [getLsb]
 
@@ -243,6 +245,12 @@ theorem eq_of_toInt_eq {i j : BitVec n} : i.toInt = j.toInt → i = j := by
   have _ilt := i.isLt
   have _jlt := j.isLt
   split <;> split <;> omega
+
+theorem toInt_inj (x y : BitVec n) : x.toInt = y.toInt ↔ x = y :=
+  Iff.intro eq_of_toInt_eq (congrArg BitVec.toInt)
+
+theorem toInt_ne (x y : BitVec n) : x.toInt ≠ y.toInt ↔ x ≠ y  := by
+  rw [Ne, toInt_inj]
 
 @[simp] theorem toNat_ofInt {n : Nat} (i : Int) :
   (BitVec.ofInt n i).toNat = (i % (2^n : Nat)).toNat := by
@@ -601,6 +609,17 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     (shiftLeftZeroExtend x i).msb = x.msb := by
   simp [shiftLeftZeroExtend_eq, BitVec.msb]
 
+theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x <<< n) <<< m = x <<< (n + m) := by
+  ext i
+  simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]
+  rw [show i - (n + m) = (i - m - n) by omega]
+  cases h₂ : decide (i < m) <;>
+  cases h₃ : decide (i - m < w) <;>
+  cases h₄ : decide (i - m < n) <;>
+  cases h₅ : decide (i < n + m) <;>
+    simp at * <;> omega
+
 /-! ### ushiftRight -/
 
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
@@ -685,6 +704,11 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   ext i
   simp only [getLsb_append, cond_eq_if]
   split <;> simp [*]
+
+theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x >>> n) >>> m = x >>> (n + m) := by
+  ext i
+  simp [Nat.add_assoc n m i]
 
 /-! ### rev -/
 
@@ -896,9 +920,18 @@ theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq
-  have y_toNat_le := Nat.le_of_lt y.toNat_lt
+  have y_toNat_le := Nat.le_of_lt y.isLt
   rw [toNat_sub, toNat_add, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
     Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
+
+theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
+  rw [sub_toAdd, BitVec.add_assoc, BitVec.add_comm _ y,
+      ← BitVec.add_assoc, ← sub_toAdd, add_sub_cancel]
+
+theorem eq_sub_iff_add_eq {x y z : BitVec w} : x = z - y ↔ x + y = z := by
+  apply Iff.intro <;> intro h
+  · simp [h, sub_add_cancel]
+  · simp [←h, add_sub_cancel]
 
 theorem negOne_eq_allOnes : -1#w = allOnes w := by
   apply eq_of_toNat_eq
@@ -908,6 +941,13 @@ theorem negOne_eq_allOnes : -1#w = allOnes w := by
     have q : 1 < 2^w := by simp [g]
     have r : (2^w - 1) < 2^w := by omega
     simp [Nat.mod_eq_of_lt q, Nat.mod_eq_of_lt r]
+
+theorem neg_eq_not_add (x : BitVec w) : -x = ~~~x + 1 := by
+  apply eq_of_toNat_eq
+  simp only [toNat_neg, ofNat_eq_ofNat, toNat_add, toNat_not, toNat_ofNat, Nat.add_mod_mod]
+  congr
+  have hx : x.toNat < 2^w := x.isLt
+  rw [Nat.sub_sub, Nat.add_comm 1 x.toNat, ← Nat.sub_sub, Nat.sub_add_cancel (by omega)]
 
 /-! ### mul -/
 
@@ -1002,5 +1042,33 @@ theorem toNat_intMax_eq : (intMax w).toNat = 2^w - 1 := by
 @[simp] theorem getMsb_ofBoolListLE :
     (ofBoolListLE bs).getMsb i = (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   simp [getMsb_eq_getLsb]
+
+/-! # Rotate Left -/
+
+/-- rotateLeft is invariant under `mod` by the bitwidth. -/
+@[simp]
+theorem rotateLeft_mod_eq_rotateLeft {x : BitVec w} {r : Nat} :
+    x.rotateLeft (r % w) = x.rotateLeft r := by
+  simp only [rotateLeft, Nat.mod_mod]
+
+/-- `rotateLeft` equals the bit fiddling definition of `rotateLeftAux` when the rotation amount is
+smaller than the bitwidth. -/
+theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
+    x.rotateLeft r = x.rotateLeftAux r := by
+  simp only [rotateLeft, Nat.mod_eq_of_lt hr]
+
+/-! ## Rotate Right -/
+
+/-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
+smaller than the bitwidth. -/
+theorem rotateRight_eq_rotateRightAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) :
+    x.rotateRight r = x.rotateRightAux r := by
+  simp only [rotateRight, Nat.mod_eq_of_lt hr]
+
+/-- rotateRight is invariant under `mod` by the bitwidth. -/
+@[simp]
+theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
+    x.rotateRight (r % w) = x.rotateRight r := by
+  simp only [rotateRight, Nat.mod_mod]
 
 end BitVec

@@ -3,7 +3,6 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.Newline
 
 open System
 namespace Lake
@@ -135,7 +134,7 @@ instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 
 def computeTextFileHash (file : FilePath) : IO Hash := do
   let text ← IO.FS.readFile file
-  let text := crlf2lf text
+  let text := text.crlfToLf
   return Hash.ofString text
 
 /--

@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
-import Lake.Build.Basic
+import Lake.Build.Job
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -40,8 +40,7 @@ def compileLeanModule
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
   args := args.push "--json"
-  show LogIO _ from do
-  let iniSz ← getLogSize
+  withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
@@ -66,8 +65,7 @@ def compileLeanModule
   unless out.stderr.isEmpty do
     logInfo s!"stderr:\n{out.stderr}"
   if out.exitCode ≠ 0 then
-    logError s!"Lean exited with code {out.exitCode}"
-    throw iniSz
+    error s!"Lean exited with code {out.exitCode}"
 
 def compileO
   (oFile srcFile : FilePath)
@@ -117,7 +115,7 @@ def download  (url : String) (file : FilePath) : LogIO PUnit := do
     createParentDirs file
   proc (quiet := true) {
     cmd := "curl"
-    args := #["-f", "-o", file.toString, "-L", url]
+    args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   }
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/

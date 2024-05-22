@@ -1289,7 +1289,6 @@ x_62 = lean_ctor_get(x_41, 0);
 lean_inc(x_62);
 lean_dec(x_41);
 x_63 = l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_24_(x_62);
-lean_dec(x_62);
 if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; 

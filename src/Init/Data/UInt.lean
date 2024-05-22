@@ -6,3 +6,4 @@ Authors: Henrik Böving
 prelude
 import Init.Data.UInt.Basic
 import Init.Data.UInt.Log2
+import Init.Data.UInt.Lemmas

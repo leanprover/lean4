@@ -199,7 +199,7 @@ builtin_initialize registerBuiltinIncrementalTactic ``tacticSeqBracketed
     Term.withNarrowedArgTacticReuse (argIdx := 1) evalSepTactics stx
 
 builtin_initialize registerBuiltinIncrementalTactic ``cdot
-@[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
+@[builtin_tactic Lean.cdot] def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
   -- but the token antiquotation does not copy trailing whitespace, leading to
@@ -347,7 +347,7 @@ where
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
-        let type ← Term.withSynthesize (mayPostpone := true) <| Term.elabType typeStx
+        let type ← Term.withSynthesize (postpone := .yes) <| Term.elabType typeStx
         let fvar := mkFVar fvarId
         let fvarType ← inferType fvar
         unless (← isDefEqGuarded type fvarType) do

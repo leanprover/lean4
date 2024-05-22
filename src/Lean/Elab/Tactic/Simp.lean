@@ -46,7 +46,7 @@ def tacticToDischarge (tacticCode : Syntax) : TacticM (IO.Ref Term.State × Simp
            So, we must not save references to them at `Term.State`.
         -/
         withoutModifyingStateWithInfoAndMessages do
-          Term.withSynthesize (mayPostpone := false) do
+          Term.withSynthesize (postpone := .no) do
             Term.runTactic (report := false) mvar.mvarId! tacticCode
           let result ← instantiateMVars mvar
           if result.hasExprMVar then
@@ -121,7 +121,7 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
 private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
-    Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then
@@ -178,9 +178,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let id := arg[1]
-            let declNames? ← try pure (some (← realizeGlobalConst id)) catch _ => pure none
-            if let some declNames := declNames? then
-              let declName ← ensureNonAmbiguous id declNames
+            if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
               if (← Simp.isSimproc declName) then
                 simprocs := simprocs.erase declName
               else if ctx.config.autoUnfold then

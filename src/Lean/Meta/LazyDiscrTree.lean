@@ -745,7 +745,6 @@ instance : Append (PreDiscrTree α) where
 end PreDiscrTree
 
 /-- Initial entry in lazy discrimination tree -/
-@[reducible]
 structure InitEntry (α : Type) where
   /-- Return root key for an entry. -/
   key : Key

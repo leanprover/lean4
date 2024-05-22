@@ -34,7 +34,8 @@ structure BitVec (w : Nat) where
   O(1), because we use `Fin` as the internal representation of a bitvector. -/
   toFin : Fin (2^w)
 
-@[deprecated] protected abbrev Std.BitVec := _root_.BitVec
+@[deprecated (since := "2024-04-12")]
+protected abbrev Std.BitVec := _root_.BitVec
 
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
@@ -73,7 +74,7 @@ protected def toNat (a : BitVec n) : Nat := a.toFin.val
 /-- Return the bound in terms of toNat. -/
 theorem isLt (x : BitVec w) : x.toNat < 2^w := x.toFin.isLt
 
-@[deprecated isLt]
+@[deprecated isLt (since := "2024-03-12")]
 theorem toNat_lt (x : BitVec n) : x.toNat < 2^n := x.isLt
 
 /-- Theorem for normalizing the bit vector literal representation. -/
@@ -533,6 +534,11 @@ def sshiftRight (a : BitVec n) (s : Nat) : BitVec n := .ofInt n (a.toInt >>> s)
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩
 instance {n} : HShiftRight (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x >>> y.toNat⟩
 
+/-- Auxiliary function for `rotateLeft`, which does not take into account the case where
+the rotation amount is greater than the bitvector width. -/
+def rotateLeftAux (x : BitVec w) (n : Nat) : BitVec w :=
+  x <<< n ||| x >>> (w - n)
+
 /--
 Rotate left for bit vectors. All the bits of `x` are shifted to higher positions, with the top `n`
 bits wrapping around to fill the low bits.
@@ -542,7 +548,15 @@ rotateLeft  0b0011#4 3 = 0b1001
 ```
 SMT-Lib name: `rotate_left` except this operator uses a `Nat` shift amount.
 -/
-def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := x <<< n ||| x >>> (w - n)
+def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := rotateLeftAux x (n % w)
+
+
+/--
+Auxiliary function for `rotateRight`, which does not take into account the case where
+the rotation amount is greater than the bitvector width.
+-/
+def rotateRightAux (x : BitVec w) (n : Nat) : BitVec w :=
+  x >>> n ||| x <<< (w - n)
 
 /--
 Rotate right for bit vectors. All the bits of `x` are shifted to lower positions, with the
@@ -553,7 +567,7 @@ rotateRight 0b01001#5 1 = 0b10100
 ```
 SMT-Lib name: `rotate_right` except this operator uses a `Nat` shift amount.
 -/
-def rotateRight (x : BitVec w) (n : Nat) : BitVec w := x >>> n ||| x <<< (w - n)
+def rotateRight (x : BitVec w) (n : Nat) : BitVec w := rotateRightAux x (n % w)
 
 /--
 Concatenation of bitvectors. This uses the "big endian" convention that the more significant

@@ -37,3 +37,4 @@ import Lean.Log
 import Lean.Linter
 import Lean.SubExpr
 import Lean.LabelAttribute
+import Lean.AddDecl

@@ -58,7 +58,7 @@ def checked (e : Expr) : ForEachM m Bool := do
     return false
 
 /-- `Expr.forEachWhere` (unsafe) implementation -/
-unsafe def visit (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) : m Unit := do
+unsafe def visit (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false) : m Unit := do
   go e |>.run' initCache
 where
   go (e : Expr) : StateRefT' ω State m Unit := do
@@ -66,6 +66,8 @@ where
       if p e then
         unless (← checked e) do
           f e
+          if stopWhenVisited then
+            return ()
       match e with
       | .forallE _ d b _   => go d; go b
       | .lam _ d b _       => go d; go b
@@ -78,9 +80,11 @@ where
 end ForEachExprWhere
 
 /--
-`e.forEachWhere p f` applies `f` to each subterm that satisfies `p`.
+  `e.forEachWhere p f` applies `f` to each subterm that satisfies `p`.
+  If `stopWhenVisited` is `true`, the function doesn't visit subterms of terms
+  which satisfy `p`.
 -/
 @[implemented_by ForEachExprWhere.visit]
-opaque Expr.forEachWhere {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) : m Unit
+opaque Expr.forEachWhere {ω : Type} {m : Type → Type} [STWorld ω m] [MonadLiftT (ST ω) m] [Monad m] (p : Expr → Bool) (f : Expr → m Unit) (e : Expr) (stopWhenVisited : Bool := false) : m Unit
 
 end Lean

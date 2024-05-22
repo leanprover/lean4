@@ -12,4 +12,4 @@ def f (x : Nat) (b : Bool) :=
   x == k b
 
 set_option trace.Compiler.simp true
-#eval Lean.Compiler.compile #[``f]
+run_meta Lean.Compiler.compile #[``f]

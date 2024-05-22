@@ -7,6 +7,5 @@ package test
 require hello from git "../hello"
 
 @[default_target]
-lean_exe test {
+lean_exe test where
   root := `Main
-}

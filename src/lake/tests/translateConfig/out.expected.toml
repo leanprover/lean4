@@ -2,6 +2,9 @@ name = "test"
 testRunner = "b"
 defaultTargets = ["A"]
 
+[leanOptions]
+pp.unicode.fun = true
+
 [[require]]
 name = "foo"
 path = "dir"

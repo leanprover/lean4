@@ -265,9 +265,9 @@ open Language Lean in
 Callback from Lean language processor after parsing imports that requests necessary information from
 Lake for processing imports.
 -/
-def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
+def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Channel JsonRpc.Message)
     (srcSearchPathPromise : Promise SearchPath) (stx : Syntax) :
-    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot Options) := do
+    Language.ProcessingT IO (Except Language.Lean.HeaderProcessedSnapshot SetupImportsResult) := do
   let importsAlreadyLoaded ← importsLoadedRef.modifyGet ((·, true))
   if importsAlreadyLoaded then
     -- As we never unload imports in the server, we should not run the code below twice in the
@@ -306,27 +306,38 @@ def setupImports (meta : DocumentMeta) (chanOut : Channel JsonRpc.Message)
   | _ => pure ()
 
   srcSearchPathPromise.resolve fileSetupResult.srcSearchPath
-  return .ok fileSetupResult.fileOptions
+
+  let mainModuleName ← if let some path := System.Uri.fileUriToPath? meta.uri then
+    EIO.catchExceptions (h := fun _ => pure Name.anonymous) do
+      if let some mod ← searchModuleNameOfFileName path fileSetupResult.srcSearchPath then
+        pure mod
+      else
+        moduleNameOfFileName path none
+  else
+    pure Name.anonymous
+
+  -- override cmdline options with file options
+  let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+
+  return .ok {
+    mainModuleName
+    opts
+  }
 
 /- Worker initialization sequence. -/
 section Initialization
   def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let mut mainModuleName := Name.anonymous
-    try
-      if let some path := System.Uri.fileUriToPath? meta.uri then
-        mainModuleName ← moduleNameOfFileName path none
-    catch _ => pure ()
     let maxDocVersionRef ← IO.mkRef 0
-    let freshRequestIdRef ← IO.mkRef 0
+    let freshRequestIdRef ← IO.mkRef (0 : Int)
     let chanIsProcessing ← IO.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
     let srcSearchPathPromise ← IO.Promise.new
 
-    let processor := Language.Lean.process (setupImports meta chanOut srcSearchPathPromise)
-    let processor ← Language.mkIncrementalProcessor processor { opts, mainModuleName }
+    let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
+    let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
     let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap
@@ -694,12 +705,9 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-    "\n", which should be enough to handle both LF and CRLF correctly.
-    This is because LSP always refers to characters by (line, column),
-    so if we get the line number correct it shouldn't matter that there
-    is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
+  /- Note (kmill): LSP always refers to characters by (line, column),
+     so converting CRLF to LF preserves line and column numbers. -/
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try

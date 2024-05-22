@@ -90,7 +90,5 @@ instance : LawfulCmpEq Name Name.quickCmp where
 
 open Syntax
 
-def quoteFrom (ref : Syntax) : Name → Term
-| .anonymous => mkCIdentFrom ref ``anonymous
-| .str p s => mkApp (mkCIdentFrom ref ``mkStr) #[quoteFrom ref p, quote s]
-| .num p v => mkApp (mkCIdentFrom ref ``mkNum) #[quoteFrom ref p, quote v]
+def quoteFrom (ref : Syntax) (n : Name) : Term :=
+  ⟨copyHeadTailInfoFrom (quote n : Term) ref⟩

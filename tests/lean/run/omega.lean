@@ -377,8 +377,16 @@ example (i j : Nat) (p : i ≥ j) : True := by
 -- From https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/Nat.2Emul_sub_mod/near/428107094
 example (a b : Nat) (h : a % b + 1 = 0) : False := by omega
 
-/-! ### Fin -/
+-- From https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/omega.20regression.20in.204.2E8.2E0-rc1/near/437150155
+example (x : Nat) : x < 2 →
+    (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2) ∧ (0 = 0 → 0 = 0 → 0 = 0 → 0 = 0 → x < 2 → x < 3) := by
+  omega
 
+-- Reported in Lean FRO office hours 2024-05-16 by Michael George
+example (s : Int) (s0 : s < (0 : Int)) : 63 + (s - 2 ^ 63) ≤ 62 - 2 ^ 63 := by
+  omega
+
+/-! ### Fin -/
 
 -- Test `<`
 example (n : Nat) (i j : Fin n) (h : i < j) : (i : Nat) < n - 1 := by omega
@@ -421,6 +429,10 @@ example (x e : Nat) (hx : x < 2^(e.succ)) : x < 2^e * 2 := by omega
 
 -- Check that this works for integer base.
 example (x : Int) (e : Nat) (hx : x < (2 : Int)^(e+1)) : x < 2^e * 2 := by omega
+
+example (n : Nat) (i : Int) (h2n : (2 : Int) ^ n = ↑((2 : Nat) ^ (n : Nat)))
+    (hlt : i % 2 ^ n < 2 ^ n) :  2 ^ n ≠ 0 := by
+  omega
 
 /-! ### Ground terms -/
 

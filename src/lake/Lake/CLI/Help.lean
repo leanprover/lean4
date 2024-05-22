@@ -43,7 +43,10 @@ OPTIONS:
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
-  --wfail               report a build failure if warnings are logged
+  --wfail               fail build if warnings are logged
+  --iofail              fail build if any I/O or other info is logged
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --no-build            exit immediately if a build target is not up-to-date
 
 See `lake help <command>` for more information on a specific command."
 

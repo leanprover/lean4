@@ -24,23 +24,59 @@ instance : LT String :=
 instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.hasDecidableLt s₁.data s₂.data
 
+@[reducible] protected def le (a b : String) : Prop := ¬ b < a
+
+instance : LE String :=
+  ⟨String.le⟩
+
+instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
+  inferInstanceAs (Decidable (Not _))
+
+/--
+Returns the length of a string in Unicode code points.
+
+Examples:
+* `"".length = 0`
+* `"abc".length = 3`
+* `"L∃∀N".length = 4`
+-/
 @[extern "lean_string_length"]
 def length : (@& String) → Nat
   | ⟨s⟩ => s.length
 
-/-- The internal implementation uses dynamic arrays and will perform destructive updates
-   if the String is not shared. -/
+/--
+Pushes a character onto the end of a string.
+
+The internal implementation uses dynamic arrays and will perform destructive updates
+if the string is not shared.
+
+Example: `"abc".push 'd' = "abcd"`
+-/
 @[extern "lean_string_push"]
 def push : String → Char → String
   | ⟨s⟩, c => ⟨s ++ [c]⟩
 
-/-- The internal implementation uses dynamic arrays and will perform destructive updates
-   if the String is not shared. -/
+/--
+Appends two strings.
+
+The internal implementation uses dynamic arrays and will perform destructive updates
+if the string is not shared.
+
+Example: `"abc".append "def" = "abcdef"`
+-/
 @[extern "lean_string_append"]
 def append : String → (@& String) → String
   | ⟨a⟩, ⟨b⟩ => ⟨a ++ b⟩
 
-/-- O(n) in the runtime, where n is the length of the String -/
+/--
+Converts a string to a list of characters.
+
+Even though the logical model of strings is as a structure that wraps a list of characters,
+this operation takes time and space linear in the length of the string, because the compiler
+uses an optimized representation as dynamic arrays.
+
+Example: `"abc".toList = ['a', 'b', 'c']`
+-/
 def toList (s : String) : List Char :=
   s.data
 
@@ -59,9 +95,17 @@ def utf8GetAux : List Char → Pos → Pos → Char
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
 /--
-  Return character at position `p`. If `p` is not a valid position
-  returns `(default : Char)`.
-  See `utf8GetAux` for the reference implementation.
+Returns the character at position `p` of a string. If `p` is not a valid position,
+returns `(default : Char)`.
+
+See `utf8GetAux` for the reference implementation.
+
+Examples:
+* `"abc".get ⟨1⟩ = 'b'`
+* `"abc".get ⟨3⟩ = (default : Char) = 'A'`
+
+Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
+character. For example,`"L∃∀N".get ⟨2⟩ = (default : Char) = 'A'`.
 -/
 @[extern "lean_string_utf8_get"]
 def get (s : @& String) (p : @& Pos) : Char :=
@@ -72,12 +116,30 @@ def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
   | c::cs, i, p => if i = p then c else utf8GetAux? cs (i + c) p
 
+/--
+Returns the character at position `p`. If `p` is not a valid position, returns `none`.
+
+Examples:
+* `"abc".get? ⟨1⟩ = some 'b'`
+* `"abc".get? ⟨3⟩ = none`
+
+Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8
+character. For example, `"L∃∀N".get? ⟨2⟩ = none`
+-/
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char
   | ⟨s⟩, p => utf8GetAux? s 0 p
 
 /--
-  Similar to `get`, but produces a panic error message if `p` is not a valid `String.Pos`.
+Returns the character at position `p` of a string. If `p` is not a valid position,
+returns `(default : Char)` and produces a panic error message.
+
+Examples:
+* `"abc".get! ⟨1⟩ = 'b'`
+* `"abc".get! ⟨3⟩` panics
+
+Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8 character. For example,
+`"L∃∀N".get! ⟨2⟩` panics.
 -/
 @[extern "lean_string_utf8_get_bang"]
 def get! (s : @& String) (p : @& Pos) : Char :=
@@ -89,13 +151,49 @@ def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | c::cs, i, p =>
     if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
 
+/--
+Replaces the character at a specified position in a string with a new character. If the position
+is invalid, the string is returned unchanged.
+
+If both the replacement character and the replaced character are ASCII characters and the string
+is not shared, destructive updates are used.
+
+Examples:
+* `"abc".set ⟨1⟩ 'B' = "aBc"`
+* `"abc".set ⟨3⟩ 'D' = "abc"`
+* `"L∃∀N".set ⟨4⟩ 'X' = "L∃XN"`
+
+Because `'∃'` is a multi-byte character, the byte index `2` in `L∃∀N` is an invalid position,
+so `"L∃∀N".set ⟨2⟩ 'X' = "L∃∀N"`.
+-/
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
   | ⟨s⟩, i, c => ⟨utf8SetAux c s 0 i⟩
 
+/--
+Replaces the character at position `p` in the string `s` with the result of applying `f` to that character.
+If `p` is an invalid position, the string is returned unchanged.
+
+Examples:
+* `abc.modify ⟨1⟩ Char.toUpper = "aBc"`
+* `abc.modify ⟨3⟩ Char.toUpper = "abc"`
+-/
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
 
+/--
+Returns the next position in a string after position `p`. If `p` is not a valid position or `p = s.endPos`,
+the result is unspecified.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (0 |> abc.next) = 'b'`
+* `lean.get (0 |> lean.next |> lean.next) = '∀'`
+
+Cases where the result is unspecified:
+* `"abc".next ⟨3⟩`, since `3 = s.endPos`
+* `"L∃∀N".next ⟨2⟩`, since `2` points into the middle of a multi-byte UTF-8 character
+-/
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
   let c := get s p
@@ -107,16 +205,52 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
     let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
 
+/--
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`.
+If `p` is not a valid position, the result is unspecified.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (abc.endPos |> abc.prev) = 'c'`
+* `lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'`
+* `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte character `'∃'`.
+-/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
   | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
 
+/--
+Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".front = 'a'`
+* `"".front = (default : Char)`
+-/
 def front (s : String) : Char :=
   get s 0
 
+/--
+Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".back = 'c'`
+* `"".back = (default : Char)`
+-/
 def back (s : String) : Char :=
   get s (prev s s.endPos)
 
+/--
+Returns `true` if a specified position is greater than or equal to the position which
+points to the end of a string. Otherwise, returns `false`.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `(0 |> abc.next |> abc.next |> abc.atEnd) = false`
+* `(0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true`
+* `(0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true`
+
+Because `"L∃∀N"` contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
+-/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
@@ -594,13 +728,15 @@ def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos)
   off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos) :=
-    if h : off1.byteIdx < stop1.byteIdx then
+    if _h : off1.byteIdx < stop1.byteIdx then
       let c₁ := s1.get off1
       let c₂ := s2.get off2
-      have := Nat.sub_lt_sub_left h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
   termination_by stop1.1 - off1.1
+  decreasing_by
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
+    decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=

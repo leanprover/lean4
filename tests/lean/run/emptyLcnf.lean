@@ -6,4 +6,11 @@ def f (x : MyEmpty) : Nat :=
   MyEmpty.casesOn x
 
 set_option trace.Compiler.result true
-#eval Lean.Compiler.compile #[``f]
+/--
+info: [Compiler.result] size: 0
+    def f._redArg : Nat :=
+      ⊥
+[Compiler.result] size: 0 def f x : Nat := ⊥
+-/
+#guard_msgs in
+run_meta Lean.Compiler.compile #[``f]

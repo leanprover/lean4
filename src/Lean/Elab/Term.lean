@@ -897,7 +897,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize instance{indentExpr type}"
+      throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1636,14 +1636,15 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   let flag := autoImplicit.get (← getOptions)
   if flag then
     withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
-      let rec loop (s : SavedState) : TermElabM α := do
+      let rec loop (s : SavedState) : TermElabM α := withIncRecDepth do
+        checkSystem "auto-implicit"
         try
           k
         catch
           | ex => match isAutoBoundImplicitLocalException? ex with
             | some n =>
               -- Restore state, declare `n`, and try again
-              s.restore
+              s.restore (restoreInfo := true)
               withLocalDecl n .implicit (← mkFreshTypeMVar) fun x =>
                 withReader (fun ctx => { ctx with autoBoundImplicits := ctx.autoBoundImplicits.push x } ) do
                   loop (← saveState)
@@ -1747,6 +1748,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   Remark: fresh universe metavariables are created if the constant has more universe
   parameters than `explicitLevels`. -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
+  Linter.checkDeprecated constName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
   let cinfo ← getConstInfo constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
@@ -1758,7 +1760,6 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-    Linter.checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
     let const ← mkConst declName explicitLevels
     return (const, projs) :: result
 

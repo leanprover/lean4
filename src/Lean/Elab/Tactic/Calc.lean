@@ -11,7 +11,7 @@ namespace Lean.Elab.Tactic
 open Meta
 
 /-- Elaborator for the `calc` tactic mode variant. -/
-@[builtin_tactic calcTactic]
+@[builtin_tactic Lean.calcTactic]
 def evalCalc : Tactic := fun stx => withMainContext do
   let steps : TSyntax ``calcSteps := ⟨stx[1]⟩
   let (val, mvarIds) ← withCollectingNewGoalsFrom (tagSuffix := `calc) do
@@ -32,3 +32,5 @@ def evalCalc : Tactic := fun stx => withMainContext do
     return val
   (← getMainGoal).assign val
   replaceMainGoal mvarIds
+
+end Lean.Elab.Tactic

@@ -17,4 +17,6 @@ instance Bar0 : Bar Unit Int (List Int) := {u:=()}
 
 set_option pp.all true
 
+/-- info: @FooBarToTop Unit Int (List.{0} Int) (Foo₁ Int (List.{0} Int)) Bar0 -/
+#guard_msgs in
 #synth Top

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.List.BasicAux
+import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.Instances
 

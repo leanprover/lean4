@@ -1066,8 +1066,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
-    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_get_task_state_core(t)));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {

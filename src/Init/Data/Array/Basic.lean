@@ -44,7 +44,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-def isEmpty (a : Array α) : Bool :=
+@[simp] def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 def singleton (v : α) : Array α :=
@@ -53,7 +53,7 @@ def singleton (v : α) : Array α :=
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern "lean_array_uget"]
+@[extern "lean_array_uget", simp]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
@@ -733,17 +733,15 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   if h : i.val + 1 < a.size then
     let a' := a.swap ⟨i.val + 1, h⟩ i
     let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
-    have : a'.size - i' < a.size - i := by
-      simp [a', Nat.sub_succ_lt_self _ _ i.isLt]
     a'.feraseIdx i'
   else
     a.pop
 termination_by a.size - i.val
-decreasing_by simp_wf; decreasing_trivial_pre_omega
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
-  | @case1 a i h a' _ _ ih =>
+  | @case1 a i h a' _ ih =>
     unfold feraseIdx
     simp [h, a', ih]
   | case2 a i h =>

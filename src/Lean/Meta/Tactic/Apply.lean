@@ -8,6 +8,7 @@ import Lean.Util.FindMVar
 import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
+import Lean.PrettyPrinter
 
 namespace Lean.Meta
 /-- Controls which new mvars are turned in to goals by the `apply` tactic.
@@ -50,8 +51,15 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   let (numArgs, _) ← getExpectedNumArgsAux e
   pure numArgs
 
-private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α :=
-  throwTacticEx `apply mvarId m!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
+private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
+  let explanation := MessageData.lazy
+    (f := fun ppctxt => ppctxt.runMetaM do
+        let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
+        return m!"{indentExpr eType}\nwith{indentExpr targetType}")
+    (hasSyntheticSorry := fun mvarctxt =>
+      (instantiateMVarsCore mvarctxt eType |>.1.hasSyntheticSorry) ||
+      (instantiateMVarsCore mvarctxt targetType |>.1.hasSyntheticSorry))
+  throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit :=
@@ -185,7 +193,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     result.forM (·.headBetaType)
     return result
 
-@[deprecated MVarId.apply]
+@[deprecated MVarId.apply (since := "2022-07-15")]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   mvarId.apply e cfg
 
@@ -227,7 +235,7 @@ Apply `And.intro` as much as possible to goal `mvarId`.
 abbrev splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   splitAndCore mvarId
 
-@[deprecated splitAnd]
+@[deprecated splitAnd] -- 2024-03-17
 def _root_.Lean.Meta.splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
   mvarId.splitAnd
 

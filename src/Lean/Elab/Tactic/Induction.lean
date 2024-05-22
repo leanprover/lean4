@@ -578,7 +578,7 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
       return e
   Term.withoutErrToSorry <| Term.withoutHeedElabAsElim do
     let e ← Term.elabTerm stx none (implicitLambda := false)
-    Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
+    Term.synthesizeSyntheticMVars (postpone := .no) (ignoreStuckTC := true)
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then

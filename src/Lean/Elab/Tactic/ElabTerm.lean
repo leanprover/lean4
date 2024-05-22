@@ -29,7 +29,7 @@ def runTermElab (k : TermElabM α) (mayPostpone := false) : TacticM α := do
   else
     Term.withoutErrToSorry go
 where
-  go := k <* Term.synthesizeSyntheticMVars (mayPostpone := mayPostpone)
+  go := k <* Term.synthesizeSyntheticMVars (postpone := .ofBool mayPostpone)
 
 /-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
 elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/

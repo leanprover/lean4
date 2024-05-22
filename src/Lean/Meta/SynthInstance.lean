@@ -695,7 +695,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
     let key  ← mkTableKey type
-    let globalCache : SynthInstanceCache ← if synthInstance.globalCache.get (← getOptions) then
+    let globalCache : SynthInstanceCache ← if !synthInstance.globalCache.get (← getOptions) then
       do pure $ (← get).cache.synthInstance else do
         pure $ SynthInstanceCacheExt.getState (← getEnv)
     let action : SynthM (Option AbstractMVarsResult) := do
@@ -712,7 +712,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
     let synthPendingDepth := (← read).synthPendingDepth
     let mkKey k := { type := k, localInsts, synthPendingDepth }
     let mod := cacheEntries.foldl (fun c (k, e) => c.insert (mkKey k) e)
-    if synthInstance.globalCache.get (← getOptions) then
+    if !synthInstance.globalCache.get (← getOptions) then
       modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
     else
         modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)
@@ -797,7 +797,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
-    let globalCache : SynthInstanceCache ← if synthInstance.globalCache.get (← getOptions) then
+    let globalCache : SynthInstanceCache ← if !synthInstance.globalCache.get (← getOptions) then
       do pure $ (← get).cache.synthInstance else do
         pure $ SynthInstanceCacheExt.getState (← getEnv)
 
@@ -849,7 +849,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           else
             pure none
       let mod := (·.insert cacheKey result?)
-      if synthInstance.globalCache.get (← getOptions) then
+      if !synthInstance.globalCache.get (← getOptions) then
         modify (fun s => {s with cache.synthInstance := mod s.cache.synthInstance } )
       else
           modifyEnv (SynthInstanceCacheExt.modifyState · <| mod)

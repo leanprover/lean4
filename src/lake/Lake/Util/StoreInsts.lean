@@ -27,5 +27,5 @@ instance [Monad m] : MonadStore Name α (StateT (NameMap α) m) :=
   inferInstanceAs (MonadStore _ _ (StateT (RBMap ..) _))
 
 @[inline] instance [MonadDStore κ β m] [t : FamilyOut β k α] : MonadStore1Of k α m where
-  fetch? := t.family_key_eq_type ▸ fetch? k
+  fetch? := cast (by rw [t.family_key_eq_type]) <| fetch? (m := m) k
   store a := store k <| cast t.family_key_eq_type.symm a

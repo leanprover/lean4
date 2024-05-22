@@ -174,7 +174,7 @@ structure TableEntry where
 structure Context where
   maxResultSize : Nat
   maxHeartbeats : Nat
-  globalCache   : HashMap SynthInstanceCacheKey (Option Expr)
+  globalCache   : PersistentHashMap SynthInstanceCacheKey (Option Expr)
 
 /--
   Remark: the SynthInstance.State is not really an extension of `Meta.State`.
@@ -690,7 +690,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
   withCurrHeartbeats do
     let mvar ← mkFreshExprMVar type
     let key  ← mkTableKey type
-    let globalCache := SynthInstanceCacheExt.getState (← getEnv)
+    let globalCache := (← get).cache.synthInstance
     let action : SynthM (Option AbstractMVarsResult) := do
       newSubgoal (← getMCtx) key mvar Waiter.root
       synth
@@ -704,7 +704,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
     let localInsts ← getLocalInstances
     let synthPendingDepth := (← read).synthPendingDepth
     let mkKey k := { type := k, localInsts, synthPendingDepth }
-    modifyEnv (SynthInstanceCacheExt.modifyState · <| cacheEntries.foldl fun c (k, e) => c.insert (mkKey k) e)
+    modify (fun s => {s with cache.synthInstance := cacheEntries.foldl (fun c (k, e) => c.insert (mkKey k) e) s.cache.synthInstance } )
     return result
 
 end SynthInstance
@@ -786,7 +786,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
         trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
-    match (SynthInstanceCacheExt.getState (← getEnv)).find? cacheKey with
+    match (← get).cache.synthInstance.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
@@ -833,7 +833,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modifyEnv (SynthInstanceCacheExt.modifyState · (·.insert cacheKey result?))
+      modify (fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? } )
       pure result?
 
 /--

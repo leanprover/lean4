@@ -306,13 +306,13 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
     setInfoState infoState
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (old? : Option (α × SavedState))
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
     (cont : TermElabM SavedState → TermElabM α) : TermElabM α := do
-  if let some (_, oldState) := old? then
-    set oldState.elab
-  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.meta))
+  if let some (_, state) := reusableResult? then
+    set state.elab
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
   controlAt MetaM fun runInBase =>
-    Meta.withRestoreOrSaveFull old? fun restore =>
+    Meta.withRestoreOrSaveFull reusableResult? fun restore =>
       runInBase <| cont (return { meta := (← restore), «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where

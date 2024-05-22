@@ -418,13 +418,13 @@ def SavedState.restore (b : SavedState) : MetaM Unit := do
   modify fun s => { s with mctx := b.meta.mctx, zetaDeltaFVarIds := b.meta.zetaDeltaFVarIds, postponed := b.meta.postponed }
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (old? : Option (α × SavedState))
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
     (cont : MetaM SavedState → MetaM α) : MetaM α := do
-  if let some (_, oldState) := old? then
-    set oldState.meta
-  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.core))
+  if let some (_, state) := reusableResult? then
+    set state.meta
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.core))
   controlAt CoreM fun runInCoreM =>
-    Core.withRestoreOrSaveFull old? fun restore =>
+    Core.withRestoreOrSaveFull reusableResult? fun restore =>
       runInCoreM <| cont (return { core := (← restore), meta := (← get) })
 
 instance : MonadBacktrack SavedState MetaM where

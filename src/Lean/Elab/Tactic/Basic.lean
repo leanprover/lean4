@@ -97,13 +97,13 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   set b.tactic
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (old? : Option (α × SavedState))
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
     (cont : TacticM SavedState → TacticM α) : TacticM α := do
-  if let some (_, oldState) := old? then
-    set oldState.tactic
-  let old? := old?.map (fun (oldVal, oldState) => (oldVal, oldState.term))
+  if let some (_, state) := reusableResult? then
+    set state.tactic
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
   controlAt TermElabM fun runInBase =>
-    Term.withRestoreOrSaveFull old? fun restore =>
+    Term.withRestoreOrSaveFull reusableResult? fun restore =>
       runInBase <| cont (return { term := (← restore), tactic := (← get) })
 
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope

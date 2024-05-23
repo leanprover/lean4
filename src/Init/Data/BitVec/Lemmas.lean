@@ -1122,12 +1122,9 @@ theorem getLsb_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i �
     (x.rotateLeftAux r).getLsb i = (decide (i < w) && x.getLsb (i - r)) := by
   rw [rotateLeftAux, getLsb_or]
   suffices (x >>> (w - r)).getLsb i = false by
-    rw [this]
-    simp only [getLsb_shiftLeft, Bool.or_false, hi]
     have hiltr : decide (i < r) = false := by
       simp [hi]
-    rw [hiltr]
-    simp
+    simp [getLsb_shiftLeft, Bool.or_false, hi, hiltr, this]
   simp only [getLsb_ushiftRight]
   apply getLsb_ge
   omega
@@ -1141,9 +1138,7 @@ theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
   · rw [rotateLeft_eq_rotateLeftAux_of_lt hr]
     by_cases h : i < r
     · simp [h, getLsb_rotateLeftAux_of_le h]
-    · rw [getLsb_rotateLeftAux_of_geq]
-      simp only [Bool.and_eq_true, decide_eq_true_eq, h, ↓reduceIte, Bool.decide_eq_true]
-      omega
+    · simp [h, getLsb_rotateLeftAux_of_geq <| Nat.ge_of_not_lt h]
 
 @[simp]
 theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
@@ -1207,11 +1202,8 @@ theorem getLsb_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   rw [rotateRightAux, getLsb_or]
   suffices (x >>> r).getLsb i = false by
     simp only [this, getLsb_shiftLeft, Bool.false_or]
-    by_cases hiw : i < w
-    · simp only [hiw, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp, Bool.not_eq_true',
-      decide_eq_false_iff_not, Nat.not_lt]
-      omega
-    · simp only [hiw, decide_False, Bool.false_and]
+    by_cases hiw : i < w 
+    <;> simp [hiw, hi]
   simp only [getLsb_ushiftRight]
   apply getLsb_ge
   omega
@@ -1237,9 +1229,7 @@ theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
   · rw [rotateRight_eq_rotateRightAux_of_lt hr]
     by_cases h : i < w - r
     · simp [h, getLsb_rotateRightAux_of_le h]
-    · rw [getLsb_rotateRightAux_of_geq]
-      simp only [h, ↓reduceIte]
-      omega
+    · simp [h, getLsb_rotateRightAux_of_geq <| Nat.le_of_not_lt h]
 
 @[simp]
 theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :

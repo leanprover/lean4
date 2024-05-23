@@ -1905,8 +1905,8 @@ builtin_initialize
   }
 
 /-- Checks whether a declaration is annotated with `[builtin_incremental]` or `[incremental]`. -/
-def isIncrementalElab (decl : Name) : CoreM Bool :=
-  (return (← builtinIncrementalElabs.get).contains decl) <||>
+def isIncrementalElab [Monad m] [MonadEnv m] [MonadLiftT IO m] (decl : Name) : m Bool :=
+  (return (← builtinIncrementalElabs.get (m := IO)).contains decl) <||>
   (return incrementalAttr.hasTag (← getEnv) decl)
 
 export Term (TermElabM)

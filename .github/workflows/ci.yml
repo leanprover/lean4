@@ -102,9 +102,8 @@ jobs:
                 "name": "Linux Debug",
                 "os": "ubuntu-latest",
                 "quick": false,
-                "CMAKE_OPTIONS": "-DCMAKE_BUILD_TYPE=Debug",
-                // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
+                // enable debug assertions, but still optimize code as usual for reasonable speed
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-UNDEBUG -DLEANC_EXTRA_FLAGS=-UNDEBUG",
               },
               // TODO: suddenly started failing in CI
               /*{

@@ -90,6 +90,10 @@ noncomputable def div2Induction {motive : Nat → Sort u}
   unfold testBit
   simp [shiftRight_succ_inside]
 
+@[simp] theorem testBit_add_one (x i : Nat) : testBit x (i + 1) = testBit (x/2) i := by
+  unfold testBit
+  simp [shiftRight_succ_inside]
+
 theorem testBit_to_div_mod {x : Nat} : testBit x i = decide (x / 2^i % 2 = 1) := by
   induction i generalizing x with
   | zero =>

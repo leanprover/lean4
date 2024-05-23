@@ -469,7 +469,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : TSyntaxArray ``binderIdent) : Ta
 private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals
   let g ← if let `(binderIdent| $tag:ident) := tag then
-    let tag := tag.getId
+    let tag := tag.getId.eraseMacroScopes
     let some g ← findTag? gs tag | notFound gs tag
     pure g
   else

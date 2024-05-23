@@ -152,7 +152,10 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | .node _ k _    =>
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-        stx.getArgs.forM evalTactic
+        -- We could support incrementality here by allocating `n` new snapshot bundles but the
+        -- practical value is not clear
+        Term.withoutTacticIncrementality true do
+          stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
@@ -207,7 +210,7 @@ where
       | evalFn::evalFns => do
         try
           -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
-          Term.withoutTacticReuse (!(← isIncrementalElab evalFn.declName)) do
+          Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
           withReader ({ · with elaborator := evalFn.declName }) do
           withTacticInfoContext stx do
             evalFn.value stx

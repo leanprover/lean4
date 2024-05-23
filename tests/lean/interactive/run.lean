@@ -116,9 +116,22 @@ partial def main (args : List String) : IO Unit := do
           -- We do NOT check currently that the text at this position is indeed that string.
           | "delete"
           -- `insert: "foo"` inserts the given string at the given position.
-          | "insert" =>
-            let some text := Syntax.decodeStrLit params
-              | throw <| IO.userError s!"failed to parse {params}"
+          | "insert"
+          -- `change: "foo" "bar"` is like `delete: "foo"` followed by `insert: "bar"` in one atomic step.
+          | "change" =>
+            let (delete, insert) ← match method with
+              | "delete" => pure (params, "\"\"")
+              | "insert" => pure ("\"\"", params)
+              | "change" =>
+                -- TODO: allow spaces in strings
+                let [delete, insert] := params.splitOn " "
+                  | throw <| IO.userError s!"expected two arguments in {params}"
+                pure (delete, insert)
+              | _ => unreachable!
+            let some delete := Syntax.decodeStrLit delete
+              | throw <| IO.userError s!"failed to parse {delete}"
+            let some insert := Syntax.decodeStrLit insert
+              | throw <| IO.userError s!"failed to parse {insert}"
             let params : DidChangeTextDocumentParams := {
               textDocument := {
                 uri      := uri
@@ -126,12 +139,8 @@ partial def main (args : List String) : IO Unit := do
               }
               contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
                 start := pos
-                «end» := match method with
-                  | "delete" => { pos with character := pos.character + text.length }
-                  | _ => pos
-              } (match method with
-                | "delete" => ""
-                | _ => text)]
+                «end» := { pos with character := pos.character + delete.length }
+              } insert]
             }
             let params := toJson params
             Ipc.writeNotification ⟨"textDocument/didChange", params⟩

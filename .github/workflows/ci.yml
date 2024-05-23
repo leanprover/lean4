@@ -102,7 +102,7 @@ jobs:
                 "name": "Linux Debug",
                 "os": "ubuntu-latest",
                 "quick": false,
-                "CMAKE_OPTIONS": "-DCMAKE_BUILD_TYPE=Debug",
+                "CMAKE_PRESET": "debug",
                 // exclude seriously slow tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
               },
@@ -112,7 +112,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "quick": false,
                 // turn off custom allocator & symbolic functions to make LSAN do its magic
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
+                "CMAKE_PRESET": "sanitize",
                 // exclude seriously slow/problematic tests (laketests crash)
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
               },*/
@@ -327,6 +327,9 @@ jobs:
           # store in current directory, for easy uploading together with binary
           echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
         if: runner.os == 'Linux'
+      - name: Set up NPROC
+        run: |
+          echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
           mkdir build
@@ -357,8 +360,8 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j4
+          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          make -j$NPROC
           make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
@@ -387,32 +390,29 @@ jobs:
           build/stage1/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
       - name: Test
+        id: test
         run: |
-          cd build/stage1
           ulimit -c unlimited # coredumps
-          # exclude nonreproducible test
-          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: build/stage1/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
-        if: always() && (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+        if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
         if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}
       - name: Build Stage 2
         run: |
-          cd build
           ulimit -c unlimited # coredumps
-          make -j4 stage2
+          make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          cd build
           ulimit -c unlimited # coredumps
-          make -j4 check-stage3
+          make -C build -j$NPROC stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
@@ -423,10 +423,9 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          cd build
           ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
-          make update-stage0 && rm -rf ./stage* && make -j4
+          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s

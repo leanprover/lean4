@@ -57,15 +57,20 @@ inductive MessageData where
   This constructor is inspected in various hacks. -/
   | ofFormatWithInfos : FormatWithInfos → MessageData
   | ofGoal            : MVarId → MessageData
+  /-- A widget instance.
+
+  The nested message should approximate the contents of the widget in a textual form.
+  This is used as fallback in environments that cannot display user widgets. -/
+  | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
   /-- Lifted `Format.nest` -/
-  |  nest              : Nat → MessageData → MessageData
+  | nest              : Nat → MessageData → MessageData
   /-- Lifted `Format.group` -/
-  |  group             : MessageData → MessageData
+  | group             : MessageData → MessageData
   /-- Lifted `Format.compose` -/
-  |  compose           : MessageData → MessageData → MessageData
+  | compose           : MessageData → MessageData → MessageData
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
@@ -159,6 +164,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _, _,            ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
+  | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d

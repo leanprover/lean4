@@ -207,7 +207,7 @@ jobs:
                 "name": "Windows",
                 "os": "windows-2022",
                 "release": true,
-                "check-level": 1,
+                "check-level": 2,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
                 // for reasons unknown, interactivetests are flaky on Windows

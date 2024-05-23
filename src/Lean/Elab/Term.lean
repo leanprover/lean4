@@ -1882,6 +1882,33 @@ builtin_initialize
   registerTraceClass `Elab.debug
   registerTraceClass `Elab.reuse
 
+builtin_initialize incrementalAttr : TagAttribute ←
+  registerTagAttribute `incremental "Marks an elaborator (tactic or command, currently) as \
+supporting incremental elaboration. For unmarked elaborators, the corresponding snapshot bundle \
+field in the elaboration context is unset so as to prevent accidental, incorrect reuse."
+
+builtin_initialize builtinIncrementalElabs : IO.Ref NameSet ← IO.mkRef {}
+
+def addBuiltinIncrementalElab (decl : Name) : IO Unit := do
+  builtinIncrementalElabs.modify fun s => s.insert decl
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name            := `builtin_incremental
+    descr           := s!"(builtin) {incrementalAttr.attr.descr}"
+    applicationTime := .afterCompilation
+    add             := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do
+        throwError "invalid attribute 'builtin_incremental', must be global"
+      declareBuiltin decl <| mkApp (mkConst ``addBuiltinIncrementalElab) (toExpr decl)
+  }
+
+/-- Checks whether a declaration is annotated with `[builtin_incremental]` or `[incremental]`. -/
+def isIncrementalElab (decl : Name) : CoreM Bool :=
+  (return (← builtinIncrementalElabs.get).contains decl) <||>
+  (return incrementalAttr.hasTag (← getEnv) decl)
+
 export Term (TermElabM)
 
 end Lean.Elab

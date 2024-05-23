@@ -1071,7 +1071,7 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
 
 
 /-- Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
-    accesing bits `x` in the range `[w - r, w)`,
+    accessing bits `x` in the range `[w - r, w)`,
     given by `i : [0, r) ↦ w - r + i : [w - r, w)`.
 
   Proof by example:
@@ -1093,15 +1093,13 @@ theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < 
     (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
   rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
   suffices (x <<< r).getLsb i = false by
-    simp only [getLsb_shiftLeft, Bool.or_iff_right_iff_imp, Bool.and_eq_true, decide_eq_true_eq,
-      Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
-    omega
+    simp; omega
   simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
     Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
   omega
 
 /-- Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
-    accesing bits `x` in the range `[0, w - r)`,
+    accessing bits `x` in the range `[0, w - r)`,
     given by `i : [r, w) ↦ i - r : [0, w - r)`.
 
   Proof by example:
@@ -1153,7 +1151,7 @@ theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
 /-! ## Rotate Right -/
 
 /-- Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
-    accesing bits `x` in the range `[r, w)`,
+    accessing bits `x` in the range `[r, w)`,
     given by `i : [0, w - r) ↦ i + r : [r, w)`.
 
   Proof by example:
@@ -1180,7 +1178,7 @@ theorem getLsb_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i <
   omega
 
 /-- Accessing bits in `x.rotateRight r` the range `[w-r, w)` is equal to
-    accesing bits `x` in the range `[0, r)`,
+    accessing bits `x` in the range `[0, r)`,
     given by `i : [w - r, w) ↦ i - (w - r) : [0, r)`.
 
   Proof by example:

@@ -152,7 +152,10 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | .node _ k _    =>
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-        stx.getArgs.forM evalTactic
+        -- We could support incrementality here by allocating `n` new snapshot bundles but the
+        -- practical value is not clear
+        Term.withoutTacticIncrementality true do
+          stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
@@ -206,7 +209,11 @@ where
       | []              => throwExs failures
       | evalFn::evalFns => do
         try
-          withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
+          -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
+          Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
+          withReader ({ · with elaborator := evalFn.declName }) do
+          withTacticInfoContext stx do
+            evalFn.value stx
         catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
@@ -437,12 +444,6 @@ def getNameOfIdent' (id : Syntax) : Name :=
   but the "full range" for the info view will still include `body`. -/
 def withCaseRef [Monad m] [MonadRef m] (arrow body : Syntax) (x : m α) : m α :=
   withRef (mkNullNode #[arrow, body]) x
-
--- TODO: attribute(s)
-builtin_initialize builtinIncrementalTactics : IO.Ref NameSet ← IO.mkRef {}
-
-def registerBuiltinIncrementalTactic (kind : Name) : IO Unit := do
-  builtinIncrementalTactics.modify fun s => s.insert kind
 
 builtin_initialize registerTraceClass `Elab.tactic
 builtin_initialize registerTraceClass `Elab.tactic.backtrack

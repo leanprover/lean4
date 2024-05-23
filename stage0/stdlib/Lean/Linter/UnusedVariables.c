@@ -389,7 +389,6 @@ static lean_object* l_Array_qsort_sort___at_Lean_Linter_UnusedVariables_unusedVa
 static lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Linter_UnusedVariables_collectReferences___spec__23___closed__4;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1273____lambda__1___closed__5;
 LEAN_EXPORT uint8_t l_Lean_MessageData_isUnusedVariableWarning(lean_object*);
-uint8_t l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_visitAssignments_visitNode___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2420____lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1009_(lean_object*);
@@ -516,7 +515,6 @@ lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_UnusedVariables_References_constDecls___default;
 LEAN_EXPORT lean_object* l_Lean_Linter_mkIgnoreFnImpl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_collectReferences___spec__26___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__24(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1009____lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
@@ -668,6 +666,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hy
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_378____lambda__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_975____closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_2688____lambda__1___closed__2;
+uint8_t l_Lean_MessageLog_hasErrors(lean_object*);
 static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_9____closed__1() {
 _start:
 {
@@ -15346,6 +15345,7 @@ x_8 = lean_usize_dec_lt(x_3, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; 
+lean_dec(x_6);
 lean_dec(x_5);
 x_9 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_9, 0, x_4);
@@ -15373,9 +15373,9 @@ x_17 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_17, 0, x_10);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_Linter_getLinterUnusedVariables___closed__1;
+lean_inc(x_6);
 lean_inc(x_5);
 x_19 = l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20(x_18, x_12, x_17, x_5, x_6, x_7);
-lean_dec(x_12);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
 lean_dec(x_19);
@@ -15405,9 +15405,9 @@ x_31 = lean_alloc_ctor(6, 2, 0);
 lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = l_Lean_Linter_getLinterUnusedVariables___closed__1;
+lean_inc(x_6);
 lean_inc(x_5);
 x_33 = l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20(x_32, x_25, x_31, x_5, x_6, x_7);
-lean_dec(x_25);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
@@ -15800,7 +15800,6 @@ x_38 = lean_usize_of_nat(x_37);
 lean_dec(x_37);
 x_39 = lean_box(0);
 x_40 = l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__21(x_36, x_38, x_27, x_39, x_9, x_10, x_30);
-lean_dec(x_10);
 lean_dec(x_36);
 x_41 = !lean_is_exclusive(x_40);
 if (x_41 == 0)
@@ -15895,7 +15894,6 @@ x_69 = lean_usize_of_nat(x_68);
 lean_dec(x_68);
 x_70 = lean_box(0);
 x_71 = l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__21(x_67, x_69, x_58, x_70, x_9, x_10, x_61);
-lean_dec(x_10);
 lean_dec(x_67);
 x_72 = lean_ctor_get(x_71, 1);
 lean_inc(x_72);
@@ -16378,7 +16376,7 @@ x_9 = lean_ctor_get(x_6, 1);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_10);
+x_11 = l_Lean_MessageLog_hasErrors(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -16409,7 +16407,7 @@ lean_dec(x_6);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_17);
+x_18 = l_Lean_MessageLog_hasErrors(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -16899,16 +16897,6 @@ lean_dec(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; 
-x_7 = l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__20(x_1, x_2, x_3, x_4, x_5, x_6);
-lean_dec(x_5);
-lean_dec(x_2);
-return x_7;
-}
-}
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -16918,7 +16906,6 @@ lean_dec(x_2);
 x_9 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_10 = l_Array_forInUnsafe_loop___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__21(x_1, x_8, x_9, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
 lean_dec(x_1);
 return x_10;
 }

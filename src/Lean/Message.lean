@@ -72,8 +72,7 @@ inductive MessageData where
   | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
   /-- A lazy message.
   The provided thunk will not be run until it is about to be displayed.
-  This can save computation in cases where the message may never be seen,
-  e.g. when nested inside a collapsed trace.
+  This can save computation in cases where the message may never be seen.
 
   The `Dynamic` value is expected to be a `MessageData`,
   which is a workaround for the positivity restriction.

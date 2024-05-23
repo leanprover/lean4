@@ -417,7 +417,7 @@ jobs:
         run: |
           ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
-          make -C build update-stage0 && rm -rf ./stage* && make -C build -j$NPROC
+          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s

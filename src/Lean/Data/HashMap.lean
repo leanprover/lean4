@@ -249,6 +249,8 @@ def toArray (m : HashMap α β) : Array (α × β) :=
 def numBuckets (m : HashMap α β) : Nat :=
   m.val.buckets.val.size
 
+variable [BEq α] [Hashable α]
+
 /-- Builds a `HashMap` from a list of key-value pairs. Values of duplicated keys are replaced by their respective last occurrences. -/
 def ofList (l : List (α × β)) : HashMap α β :=
   l.foldl (init := HashMap.empty) (fun m p => m.insert p.fst p.snd)
@@ -260,6 +262,7 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
       match m.find? p.fst with
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
+
 end Lean.HashMap
 
 /--

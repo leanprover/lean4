@@ -1145,7 +1145,7 @@ theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
       simp only [Bool.and_eq_true, decide_eq_true_eq, h, ↓reduceIte, Bool.decide_eq_true]
       omega
 
-/-- When `r ≥ w`, we reduce to the case of `r < w` by writing the formula in terms of `(r % w)`. -/
+@[simp]
 theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
     (x.rotateLeft r).getLsb i =
       if i < r % w
@@ -1241,6 +1241,7 @@ theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
       simp only [h, ↓reduceIte]
       omega
 
+@[simp]
 theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
     (x.rotateRight r).getLsb i =
       if i < w - (r % w)

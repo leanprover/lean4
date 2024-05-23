@@ -410,7 +410,7 @@ jobs:
         if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: steps.test.conclusion != 'skipped'
+        if: !matrix.cross && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
           cd build

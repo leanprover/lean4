@@ -1,4 +1,4 @@
-/-def
+/-
 Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joe Hendrix, Harun Khan, Alex Keizer, Abdalrhman M Mohamed,
@@ -1144,6 +1144,7 @@ theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     · rw [getLsb_rotateLeftAux_of_geq]
       simp only [Bool.and_eq_true, decide_eq_true_eq, h, ↓reduceIte, Bool.decide_eq_true]
       omega
+
 /-- When `r ≥ w`, we reduce to the case of `r < w` by writing the formula in terms of `(r % w)`. -/
 theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
     (x.rotateLeft r).getLsb i =
@@ -1153,7 +1154,6 @@ theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
   rcases w with ⟨rfl, w⟩
   · simp
   · rw [← rotateLeft_mod_eq_rotateLeft, getLsb_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
-
 
 /-! ## Rotate Right -/
 
@@ -1240,7 +1240,6 @@ theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     · rw [getLsb_rotateRightAux_of_geq]
       simp only [h, ↓reduceIte]
       omega
-
 
 theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
     (x.rotateRight r).getLsb i =

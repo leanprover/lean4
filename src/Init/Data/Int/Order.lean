@@ -813,6 +813,20 @@ protected theorem sub_lt_sub_right {a b : Int} (h : a < b) (c : Int) : a - c < b
 protected theorem sub_lt_sub {a b c d : Int} (hab : a < b) (hcd : c < d) : a - d < b - c :=
   Int.add_lt_add hab (Int.neg_lt_neg hcd)
 
+protected theorem lt_of_sub_lt_sub_left {a b c : Int} (h : c - a < c - b) : b < a :=
+  Int.lt_of_neg_lt_neg <| Int.lt_of_add_lt_add_left h
+
+protected theorem lt_of_sub_lt_sub_right {a b c : Int} (h : a - c < b - c) : a < b :=
+  Int.lt_of_add_lt_add_right h
+
+@[simp] protected theorem sub_lt_sub_left_iff (a b c : Int) :
+    c - a < c - b ↔ b < a :=
+  ⟨Int.lt_of_sub_lt_sub_left, (Int.sub_lt_sub_left · c)⟩
+
+@[simp] protected theorem sub_lt_sub_right_iff (a b c : Int) :
+    a - c < b - c ↔ a < b :=
+  ⟨Int.lt_of_sub_lt_sub_right, (Int.sub_lt_sub_right · c)⟩
+
 protected theorem sub_lt_sub_of_le_of_lt {a b c d : Int}
   (hab : a ≤ b) (hcd : c < d) : a - d < b - c :=
   Int.add_lt_add_of_le_of_lt hab (Int.neg_lt_neg hcd)

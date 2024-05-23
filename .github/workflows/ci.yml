@@ -255,7 +255,7 @@ jobs:
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
-            return matrix.filter((job) => job.level >= level)
+            return matrix.filter((job) => job["check-level"] >= level)
 
   build:
     needs: [configure]

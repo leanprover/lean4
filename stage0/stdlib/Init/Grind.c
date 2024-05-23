@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Grind
-// Imports: Init.Grind.Norm Init.Grind.Tactics Init.Grind.Lemmas
+// Imports: Init.Grind.Norm Init.Grind.Tactics Init.Grind.Lemmas Init.Grind.Cases
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* initialize_Init_Grind_Norm(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Tactics(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Grind_Lemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Grind_Cases(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Grind(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -28,6 +29,9 @@ res = initialize_Init_Grind_Tactics(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Grind_Lemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Grind_Cases(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

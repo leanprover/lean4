@@ -372,8 +372,6 @@ x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_31);
 x_36 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_37 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_2, x_34, x_35, x_36, x_33, x_8, x_9, x_10, x_11, x_30);
-lean_dec(x_9);
-lean_dec(x_8);
 if (lean_obj_tag(x_37) == 0)
 {
 uint8_t x_38; 
@@ -454,8 +452,6 @@ x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_50);
 x_56 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_57 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_2, x_54, x_55, x_56, x_53, x_8, x_9, x_10, x_11, x_49);
-lean_dec(x_9);
-lean_dec(x_8);
 if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; 
@@ -2207,8 +2203,6 @@ x_23 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_23, 0, x_19);
 x_24 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_25 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_3, x_22, x_23, x_24, x_21, x_9, x_10, x_11, x_12, x_18);
-lean_dec(x_10);
-lean_dec(x_9);
 if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; 
@@ -2289,8 +2283,6 @@ x_43 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_43, 0, x_38);
 x_44 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_45 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_3, x_42, x_43, x_44, x_41, x_9, x_10, x_11, x_12, x_37);
-lean_dec(x_10);
-lean_dec(x_9);
 if (lean_obj_tag(x_45) == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
@@ -4897,8 +4889,6 @@ x_38 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_38, 0, x_34);
 x_39 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_40 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_37, x_38, x_39, x_36, x_8, x_9, x_10, x_11, x_33);
-lean_dec(x_9);
-lean_dec(x_8);
 if (lean_obj_tag(x_40) == 0)
 {
 uint8_t x_41; 
@@ -4979,8 +4969,6 @@ x_58 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_58, 0, x_53);
 x_59 = l_Lean_Elab_Tactic_evalSimpTrace___lambda__2___closed__4;
 x_60 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_57, x_58, x_59, x_56, x_8, x_9, x_10, x_11, x_52);
-lean_dec(x_9);
-lean_dec(x_8);
 if (lean_obj_tag(x_60) == 0)
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 

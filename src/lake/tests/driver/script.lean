@@ -3,7 +3,7 @@ open System Lake DSL
 
 package test
 
-@[test_runner]
-script test args do
+@[test_driver, lint_driver]
+script driver args do
   IO.println s!"script: {args}"
   return 0

@@ -346,8 +346,7 @@ protected def setupFile : CliM PUnit := do
 protected def test : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config
+  let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
   let x := ws.root.test opts.subArgs (mkBuildConfig opts)
   exit <| ← x.run (mkLakeContext ws)
@@ -355,7 +354,20 @@ protected def test : CliM PUnit := do
 protected def checkTest : CliM PUnit := do
   processOptions lakeOption
   let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if ws.root.testRunner.isAnonymous then 1 else 0
+  noArgsRem do exit <| if ws.root.testDriver.isEmpty then 1 else 0
+
+protected def lint : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  noArgsRem do
+  let x := ws.root.lint opts.subArgs (mkBuildConfig opts)
+  exit <| ← x.run (mkLakeContext ws)
+
+protected def checkLint : CliM PUnit := do
+  processOptions lakeOption
+  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if ws.root.lintDriver.isEmpty then 1 else 0
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -468,6 +480,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test
 | "check-test"          => lake.checkTest
+| "lint"                => lake.lint
+| "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list

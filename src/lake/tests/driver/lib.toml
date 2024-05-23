@@ -1,0 +1,5 @@
+name = "test"
+testDriver = "Test"
+
+[[lean_lib]]
+name = "Test"

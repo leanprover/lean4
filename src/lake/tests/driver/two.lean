@@ -3,8 +3,8 @@ open System Lake DSL
 
 package test
 
-@[test_runner]
+@[test_driver, lint_driver]
 lean_exe testExe
 
-@[test_runner]
+@[test_driver, lint_driver]
 script testScript do return 1

@@ -91,14 +91,9 @@ where
                 range? := stxs |>.getRange?
                 task := next.result }]
             let state ← withRestoreOrSaveFull reusableResult? fun save => do
-              -- allow nested reuse for allowlisted tactics
+              -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
               withTheReader Term.Context ({ · with
-                  tacSnap? :=
-                    guard ((← builtinIncrementalTactics.get).contains tac.getKind) *>
-                    some {
-                      old? := oldInner?
-                      new := inner
-                    } }) do
+                  tacSnap? := some { old? := oldInner?, new := inner } }) do
                 evalTactic tac
               save
             finished.resolve { state? := state }
@@ -186,20 +181,20 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
   output := output ++ currentCheckpointBlock
   return stx.setArgs output
 
-builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq1Indented
-@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic :=
+@[builtin_tactic tacticSeq1Indented, builtin_incremental]
+def evalTacticSeq1Indented : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalSepTactics
 
-builtin_initialize registerBuiltinIncrementalTactic ``tacticSeqBracketed
-@[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
+@[builtin_tactic tacticSeqBracketed, builtin_incremental]
+def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
     Term.withNarrowedArgTacticReuse (argIdx := 1) evalSepTactics stx
 
-builtin_initialize registerBuiltinIncrementalTactic ``cdot
-@[builtin_tactic Lean.cdot] def evalTacticCDot : Tactic := fun stx => do
+@[builtin_tactic Lean.cdot, builtin_incremental]
+def evalTacticCDot : Tactic := fun stx => do
   -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
   -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
   -- but the token antiquotation does not copy trailing whitespace, leading to
@@ -281,8 +276,8 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
-builtin_initialize registerBuiltinIncrementalTactic ``tacticSeq
-@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic :=
+@[builtin_tactic tacticSeq, builtin_incremental]
+def evalTacticSeq : Tactic :=
   Term.withNarrowedArgTacticReuse (argIdx := 0) evalTactic
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
@@ -503,8 +498,8 @@ where
     .group <| .nest 2 <|
     .ofFormat .line ++ .joinSep items sep
 
-builtin_initialize registerBuiltinIncrementalTactic ``case
-@[builtin_tactic «case»] def evalCase : Tactic
+@[builtin_tactic «case», builtin_incremental]
+def evalCase : Tactic
   | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq1Indented) =>
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag

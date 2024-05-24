@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+import json
+from datetime import datetime, timedelta
+from urllib.parse import urlencode
+import argparse
+
+def get_items(query, item_type):
+    items = []
+    page = 1
+    base_url = 'https://api.github.com/search/issues'
+    while True:
+        params = {'q': query, 'per_page': 100, 'page': page}
+        url = f"{base_url}?{urlencode(params)}"
+        # print(f"Fetching page {page} from URL: {url}")
+        try:
+            result = subprocess.run(['gh', 'api', url], capture_output=True, text=True)
+            data = json.loads(result.stdout)
+            if 'items' in data:
+                items.extend(data['items'])
+            else:
+                print(f"Error fetching {item_type}: {data}")
+                break
+            if len(data['items']) < 100:
+                break
+            page += 1
+        except Exception as e:
+            print(f"Error fetching {item_type}: {e}")
+            print(result.stdout)  # Print the JSON output for debugging
+            break
+    return items
+
+def get_fro_team_members():
+    try:
+        result = subprocess.run(['gh', 'api', '-H', 'Accept: application/vnd.github.v3+json', '/orgs/leanprover/teams/fro/members'], capture_output=True, text=True)
+        members = json.loads(result.stdout)
+        return [member['login'] for member in members]
+    except Exception as e:
+        print(f"Error fetching team members: {e}")
+        return []
+
+def filter_items_by_members(items, members):
+    return [item for item in items if item['user']['login'] in members or (item.get('closed_by') and item['closed_by']['login'] in members)]
+
+def main():
+    parser = argparse.ArgumentParser(description="Fetch and count GitHub issues or pull requests.")
+    parser.add_argument("days", type=int, help="Number of days to look back")
+    parser.add_argument("--fro", action="store_true", help="Filter by fro team members")
+    parser.add_argument("--pr", action="store_true", help="Search pull requests instead of issues")
+    
+    args = parser.parse_args()
+
+    since_date = (datetime.now() - timedelta(days=args.days)).strftime('%Y-%m-%dT%H:%M:%SZ')
+    repo = "leanprover/lean4"
+    item_type = "issues" if not args.pr else "PRs"
+
+    if args.pr:
+        created_not_closed_query = f'repo:{repo} is:pr created:>{since_date} state:open'
+        created_closed_query = f'repo:{repo} is:pr created:>{since_date} state:closed'
+        already_existing_closed_query = f'repo:{repo} is:pr created:<={since_date} closed:>{since_date}'
+        already_existing_not_closed_query = f'repo:{repo} is:pr created:<={since_date} state:open'
+    else:
+        created_not_closed_query = f'repo:{repo} is:issue created:>{since_date} state:open'
+        created_closed_query = f'repo:{repo} is:issue created:>{since_date} state:closed'
+        already_existing_closed_query = f'repo:{repo} is:issue created:<={since_date} closed:>{since_date}'
+        already_existing_not_closed_query = f'repo:{repo} is:issue created:<={since_date} state:open'
+
+    created_not_closed_items = get_items(created_not_closed_query, item_type)
+    created_closed_items = get_items(created_closed_query, item_type)
+    already_existing_closed_items = get_items(already_existing_closed_query, item_type)
+    already_existing_not_closed_items = get_items(already_existing_not_closed_query, item_type)
+
+    if args.fro:
+        fro_members = get_fro_team_members()
+        created_not_closed_items = filter_items_by_members(created_not_closed_items, fro_members)
+        created_closed_items = filter_items_by_members(created_closed_items, fro_members)
+        already_existing_closed_items = filter_items_by_members(already_existing_closed_items, fro_members)
+        already_existing_not_closed_items = filter_items_by_members(already_existing_not_closed_items, fro_members)
+
+    print(f"{item_type.capitalize()} created but not yet closed in the last {args.days} days: {len(created_not_closed_items)}")
+    print(f"{item_type.capitalize()} created and closed in the last {args.days} days: {len(created_closed_items)}")
+    print(f"{item_type.capitalize()} already existing and closed in the last {args.days} days: {len(already_existing_closed_items)}")
+    print(f"{item_type.capitalize()} already existing and not yet closed in the last {args.days} days: {len(already_existing_not_closed_items)}")
+
+if __name__ == "__main__":
+    main()

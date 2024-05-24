@@ -521,7 +521,7 @@
  {"start": {"line": 257, "character": 4}, "end": {"line": 257, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, is the smallest natural number. This is one of the two\nconstructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of\n`0 : Nat` or simply `0`, in order to remain compatible with the simp normal\nform defined by `Nat.zero_eq`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 15}}
@@ -530,7 +530,7 @@
   "end": {"line": 257, "character": 18}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, is the smallest natural number. This is one of the two\nconstructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of\n`0 : Nat` or simply `0`, in order to remain compatible with the simp normal\nform defined by `Nat.zero_eq`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 6}}
@@ -565,7 +565,7 @@
   "end": {"line": 263, "character": 36}},
  "contents":
  {"value":
-  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, is the smallest natural number. This is one of the two\nconstructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of\n`0 : Nat` or simply `0`, in order to remain compatible with the simp normal\nform defined by `Nat.zero_eq`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 269, "character": 2}}

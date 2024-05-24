@@ -89,8 +89,10 @@ def LeanConfig.addDeclFields (cfg : LeanConfig) (fs : Array DeclField) : Array D
 @[inline] def mkDeclValWhere? (fields : Array DeclField) : Option (TSyntax ``declValWhere) :=
   if fields.isEmpty then none else Unhygienic.run `(declValWhere|where $fields*)
 
-def PackageConfig.mkSyntax (cfg : PackageConfig) : PackageDecl := Unhygienic.run do
-  let declVal? := mkDeclValWhere? <|Array.empty
+def PackageConfig.mkSyntax (cfg : PackageConfig)
+  (testDriver := cfg.testDriver) (lintDriver := cfg.lintDriver)
+  : PackageDecl := Unhygienic.run do
+  let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `precompileModules cfg.precompileModules false
     |> addDeclFieldD `moreGlobalServerArgs cfg.moreGlobalServerArgs #[]
     |> addDeclFieldD `srcDir cfg.srcDir "."
@@ -102,9 +104,9 @@ def PackageConfig.mkSyntax (cfg : PackageConfig) : PackageDecl := Unhygienic.run
     |> addDeclField? `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
     |> addDeclFieldD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
     |> addDeclFieldD `preferReleaseBuild cfg.preferReleaseBuild false
-    |> addDeclFieldD `testDriver cfg.testDriver ""
+    |> addDeclFieldD `testDriver testDriver ""
     |> addDeclFieldD `testDriverArgs cfg.testDriverArgs #[]
-    |> addDeclFieldD `lintDriver cfg.lintDriver ""
+    |> addDeclFieldD `lintDriver lintDriver ""
     |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
@@ -176,7 +178,7 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
-  let pkgConfig := pkg.config.mkSyntax
+  let pkgConfig := pkg.config.mkSyntax pkg.testDriver pkg.lintDriver
   let requires := pkg.depConfigs.map (·.mkSyntax)
   let leanLibs := pkg.leanLibConfigs.toArray.map fun cfg =>
     cfg.mkSyntax (defaultTargets.contains cfg.name)

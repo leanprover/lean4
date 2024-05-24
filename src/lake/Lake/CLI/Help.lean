@@ -168,6 +168,9 @@ USAGE:
 
 Exits with code 0 if the workspace's root package has a properly
 configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured test driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpLint :=
@@ -194,6 +197,9 @@ USAGE:
 
 Exits with code 0 if the workspace's root package has a properly
 configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured lint driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpUpload :=

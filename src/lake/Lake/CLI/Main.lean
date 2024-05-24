@@ -353,8 +353,8 @@ protected def test : CliM PUnit := do
 
 protected def checkTest : CliM PUnit := do
   processOptions lakeOption
-  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if ws.root.testDriver.isEmpty then 1 else 0
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
 protected def lint : CliM PUnit := do
   processOptions lakeOption
@@ -366,8 +366,8 @@ protected def lint : CliM PUnit := do
 
 protected def checkLint : CliM PUnit := do
   processOptions lakeOption
-  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if ws.root.lintDriver.isEmpty then 1 else 0
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -452,8 +452,7 @@ protected def translateConfig : CliM PUnit := do
   let lang ← parseLangSpec (← takeArg "configuration language")
   let outFile? := (← takeArg?).map FilePath.mk
   noArgsRem do
-  Lean.searchPathRef.set cfg.lakeEnv.leanSearchPath
-  let (pkg, _) ← loadPackage "[root]" cfg
+  let pkg ← loadPackage cfg
   let outFile := outFile?.getD <| pkg.configFile.withExtension lang.fileExtension
   if (← outFile.pathExists) then
     throw (.outputConfigExists outFile)

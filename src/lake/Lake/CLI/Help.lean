@@ -18,7 +18,10 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
-  test                  run the workspace's test script or executable
+  test                  test the package using the configured test driver
+  check-test            check if there is a properly configured test driver
+  lint                  lint the package using the configured lint driver
+  check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
@@ -142,13 +145,62 @@ of the same package, the version materialized is undefined.
 A bare `lake update` will upgrade all dependencies."
 
 def helpTest :=
-"Run the workspace's test script or executable
+"Test the workspace's root package using its configured test driver
 
 USAGE:
   lake test [-- <args>...]
 
-Looks for a script or executable tagged `@[test_runner]` in the workspace's
-root package and executes it with `args`. "
+A test driver can be configured by either setting the 'testDriver'
+package configuration option or by tagging a script, executable, or library
+`@[test_driver]`. A definition in a dependency can be used as a test driver
+by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script test driver will be run with the  package configuration's
+`testDriverArgs` plus the CLI `args`. An executable test driver will be
+built and then run like a script. A library test driver will just be built.
+"
+
+def helpCheckTest :=
+"Check if there is a properly configured test driver
+
+USAGE:
+  lake check-test
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured test driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpLint :=
+"Lint the workspace's root package using its configured lint driver
+
+USAGE:
+  lake lint [-- <args>...]
+
+A lint driver can be configured by either setting the `lintDriver` package
+configuration option by tagging a script or executable `@[lint_driver]`.
+A definition in dependency can be used as a test driver by using the
+`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script lint driver will be run with the  package configuration's
+`lintDriverArgs` plus the CLI `args`. An executable lint driver will be
+built and then run like a script.
+"
+
+def helpCheckLint :=
+"Check if there is a properly configured lint driver
+
+USAGE:
+  lake check-lint
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured lint driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -302,6 +354,9 @@ def help : (cmd : String) → String
 | "update" | "upgrade"  => helpUpdate
 | "upload"              => helpUpload
 | "test"                => helpTest
+| "check-test"          => helpCheckTest
+| "lint"                => helpLint
+| "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList

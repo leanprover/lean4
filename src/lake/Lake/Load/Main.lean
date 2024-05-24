@@ -53,7 +53,7 @@ def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
     leanFile.pathExists <||> tomlFile.pathExists
 
 /-- Loads a Lake package configuration (either Lean or TOML). -/
-def loadPackage
+def loadPackageCore
   (name : String) (cfg : LoadConfig)
 : LogIO (Package × Option Environment) := do
   if let some ext := cfg.relConfigFile.extension then
@@ -88,7 +88,7 @@ def loadDepPackage
   (dep : MaterializedDep) (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
-  let (pkg, env?) ← loadPackage name {
+  let (pkg, env?) ← loadPackageCore name {
     lakeEnv := ws.lakeEnv
     wsDir := ws.dir
     relPkgDir := dep.relPkgDir
@@ -110,7 +110,7 @@ Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackage "[root]" config
+  let (root, env?) ← loadPackageCore "[root]" config
   let ws : Workspace := {
     root, lakeEnv := config.lakeEnv
     moduleFacetConfigs := initModuleFacetConfigs
@@ -121,6 +121,11 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
     IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
   else
     return ws
+
+/-- Loads a Lake package as a single independent object (without dependencies). -/
+def loadPackage (config : LoadConfig) : LogIO Package := do
+  Lean.searchPathRef.set config.lakeEnv.leanSearchPath
+  (·.1) <$> loadPackageCore "[root]" config
 
 /-- Recursively visits a package dependency graph, avoiding cycles. -/
 private def resolveDepsAcyclic

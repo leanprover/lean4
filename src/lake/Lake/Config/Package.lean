@@ -154,6 +154,44 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   preferReleaseBuild : Bool := false
 
+  /--
+  The name of the script, executable, or library by `lake test` when
+  this package is the workspace root. To point to a definition in another
+  package, use the syntax `<pkg>/<def>`.
+
+  A script driver will be run by `lake test` with the arguments
+  configured in `testDriverArgs`  followed by any specified on the CLI
+  (e.g., via  `lake lint -- <args>...`). An executable driver will be built
+  and then run like a script. A library will just be built.
+  -/
+  testDriver : String := ""
+
+  /--
+  Arguments to pass to the package's test driver.
+  These arguments will come before those passed on the command line via
+  `lake test -- <args>...`.
+  -/
+  testDriverArgs : Array String := #[]
+
+  /--
+  The name of the script or executable used by `lake lint` when this package
+  is the workspace root. To point to a definition in another package, use the
+  syntax `<pkg>/<def>`.
+
+  A script driver will be run by `lake lint` with the arguments
+  configured in `lintDriverArgs` followed by any specified on the CLI
+  (e.g., via  `lake lint -- <args>...`). An executable driver will be built
+  and then run like a script.
+  -/
+  lintDriver : String := ""
+
+  /--
+  Arguments to pass to the package's linter.
+  These arguments will come before those passed on the command line via
+  `lake lint -- <args>...`.
+  -/
+  lintDriverArgs : Array String := #[]
+
 deriving Inhabited
 
 --------------------------------------------------------------------------------
@@ -203,8 +241,11 @@ structure Package where
   defaultScripts : Array Script := #[]
   /-- Post-`lake update` hooks for the package. -/
   postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
-  /-- Name of the package's test runner script or executable (if any). -/
-  testRunner : Name := .anonymous
+  /-- The driver used for `lake test` when this package is the workspace root. -/
+  testDriver : String := config.testDriver
+  /-- The driver used for `lake lint` when this package is the workspace root. -/
+  lintDriver : String := config.lintDriver
+
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
@@ -286,6 +327,14 @@ namespace Package
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=
   self.dir / self.config.buildDir
+
+/-- The package's `testDriverArgs` configuration. -/
+@[inline] def testDriverArgs (self : Package) : Array String :=
+  self.config.testDriverArgs
+
+/-- The package's `lintDriverArgs` configuration. -/
+@[inline] def lintDriverArgs (self : Package) : Array String :=
+  self.config.lintDriverArgs
 
 /-- The package's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : Package) : Array Name :=

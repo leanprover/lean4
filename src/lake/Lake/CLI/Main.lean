@@ -346,16 +346,28 @@ protected def setupFile : CliM PUnit := do
 protected def test : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config
+  let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
   let x := ws.root.test opts.subArgs (mkBuildConfig opts)
   exit <| ← x.run (mkLakeContext ws)
 
 protected def checkTest : CliM PUnit := do
   processOptions lakeOption
-  let ws ← loadWorkspace ( ← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if ws.root.testRunner.isAnonymous then 1 else 0
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
+
+protected def lint : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let ws ← loadWorkspace (← mkLoadConfig opts)
+  noArgsRem do
+  let x := ws.root.lint opts.subArgs (mkBuildConfig opts)
+  exit <| ← x.run (mkLakeContext ws)
+
+protected def checkLint : CliM PUnit := do
+  processOptions lakeOption
+  let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
+  noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -440,8 +452,7 @@ protected def translateConfig : CliM PUnit := do
   let lang ← parseLangSpec (← takeArg "configuration language")
   let outFile? := (← takeArg?).map FilePath.mk
   noArgsRem do
-  Lean.searchPathRef.set cfg.lakeEnv.leanSearchPath
-  let (pkg, _) ← loadPackage "[root]" cfg
+  let pkg ← loadPackage cfg
   let outFile := outFile?.getD <| pkg.configFile.withExtension lang.fileExtension
   if (← outFile.pathExists) then
     throw (.outputConfigExists outFile)
@@ -468,6 +479,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test
 | "check-test"          => lake.checkTest
+| "lint"                => lake.lint
+| "check-lint"          => lake.checkLint
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list

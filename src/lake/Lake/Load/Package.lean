@@ -109,14 +109,28 @@ def Package.loadFromEnv
     | .error e => error e
   let depConfigs ← IO.ofExcept <| packageDepAttr.getAllEntries env |>.mapM fun name =>
     evalConstCheck env opts Dependency ``Dependency name
-  let testRunners := testRunnerAttr.getAllEntries env
-  let testRunner ←
-    if testRunners.size > 1 then
-      error s!"{self.name}: only one script or executable can be tagged `@[test_runner]`"
-    else if h : testRunners.size > 0 then
-      pure (testRunners[0]'h)
+  let testDrivers := testDriverAttr.getAllEntries env
+  let testDriver ←
+    if testDrivers.size > 1 then
+      error s!"{self.name}: only one script, executable, or library can be tagged @[test_driver]"
+    else if h : testDrivers.size > 0 then
+      if self.config.testDriver.isEmpty then
+        pure (testDrivers[0]'h |>.toString)
+      else
+        error s!"{self.name}: cannot both set testDriver and use @[test_driver]"
     else
-      pure .anonymous
+      pure self.config.testDriver
+  let lintDrivers := lintDriverAttr.getAllEntries env
+  let lintDriver ←
+    if lintDrivers.size > 1 then
+      error s!"{self.name}: only one script or executable can be tagged @[linter]"
+    else if h : lintDrivers.size > 0 then
+      if self.config.lintDriver.isEmpty then
+        pure (lintDrivers[0]'h |>.toString)
+      else
+        error s!"{self.name}: cannot both set linter and use @[linter]"
+    else
+      pure self.config.lintDriver
 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
@@ -127,8 +141,8 @@ def Package.loadFromEnv
   -- Fill in the Package
   return {self with
     depConfigs, leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts, testRunner
-    postUpdateHooks
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts
+    testDriver, lintDriver,  postUpdateHooks
   }
 
 /--

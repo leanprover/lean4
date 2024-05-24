@@ -94,8 +94,34 @@ def declSig          := leading_parser
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 def optDeclSig       := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+/-- Right-hand side of a `:=` in a declaration, a term. -/
+def declBody : Parser :=
+  /-
+  We want to make sure that bodies starting with `by` in fact create a single `by` node instead of
+  accidentally parsing some remnants after it as well. This can especially happen when starting to
+  type comments inside tactic blocks where
+  ```
+  by
+    sleep 2000
+    unfold f
+    -starting comment here
+  ```
+  is parsed as
+  ```
+  (by
+    sleep 2000
+    unfold f
+    ) - (starting comment here)
+  ```
+  where the new nesting will discard incrementality data. By using `byTactic` directly, the stray
+  `-` will be flagged as an unexpected token and will not disturb the syntax tree up to it.
+
+  In either case, the parse result is a valid `Term`.
+  -/
+  lookahead "by" >> Term.byTactic <|>
+  termParser
 def declValSimple    := leading_parser
-  " :=" >> ppHardLineUnlessUngrouped >> termParser >> Termination.suffix >> optional Term.whereDecls
+  " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructField := leading_parser

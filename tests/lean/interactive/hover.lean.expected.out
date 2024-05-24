@@ -20,7 +20,7 @@
  {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
  "contents":
  {"value":
-   "```lean\nNat.zero : Nat\n```\n***\n`Nat.zero`, is the smallest natural number. This is one of the two\nconstructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of\n`0 : Nat` or simply `0`, in order to remain compatible with the simp normal\nform defined by `Nat.zero_eq`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.zero : Nat\n```\n***\n`Nat.zero`, is the smallest natural number. This is one of the two\nconstructors of `Nat`. Using `Nat.zero` should usually be avoided in favor of\n`0 : Nat` or simply `0`, in order to remain compatible with the simp normal\nform defined by `Nat.zero_eq`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 2}}

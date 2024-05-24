@@ -258,7 +258,8 @@ def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
   | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
-    if ctx.decls.any (·.name == g) && x == z then
+    -- NOTE: we currently support TCO for self-calls only
+    if ctx.currFn == g && x == z then
       let ps ← getParamInfo (ParamMap.Key.decl g)
       ownParamsUsingArgs ys ps
   | _, _ => pure ()

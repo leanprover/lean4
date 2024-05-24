@@ -24,12 +24,12 @@ abbrev Index := Nat
 /-- Variable identifier -/
 structure VarId where
   idx : Index
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 /-- Join point identifier -/
 structure JoinPointId where
   idx : Index
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 abbrev Index.lt (a b : Index) : Bool := a < b
 
@@ -83,7 +83,7 @@ inductive IRType where
   | irrelevant | object | tobject
   | struct (leanTypeName : Option Name) (types : Array IRType) : IRType
   | union (leanTypeName : Name) (types : Array IRType) : IRType
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace IRType
 
@@ -236,7 +236,7 @@ structure Param where
   x : VarId
   borrow : Bool
   ty : IRType
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 @[export lean_ir_mk_param]
 def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩

@@ -213,7 +213,7 @@ def Workspace.updateAndMaterialize
           if depPkg.name ≠ dep.name then
             if dep.name = .mkSimple "std" then
               let rev :=
-                match dep.manifestEntry with
+                match dep.manifestEntry.src with
                 | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
                 | _ => ""
               logError (stdMismatchError depPkg.name.toString rev)
@@ -290,7 +290,7 @@ def Workspace.materializeDeps
               s!"manifest out of date: {what} of dependency '{dep.name}' changed; " ++
               s!"use `lake update {dep.name}` to update it"
           if let .some entry := pkgEntries.find? dep.name then
-          match dep.src, entry with
+          match dep.src, entry.src with
           | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
             if url ≠ url' then warnOutOfDate "git url"
             if rev ≠ rev' then warnOutOfDate "git revision"

@@ -53,7 +53,7 @@ static size_t _init_l_Lean_Expr_FoldConstsImpl_cacheSize() {
 _start:
 {
 size_t x_1; 
-x_1 = 8192;
+x_1 = 8191;
 return x_1;
 }
 }
@@ -459,7 +459,7 @@ static lean_object* _init_l_Lean_Expr_FoldConstsImpl_initCache___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8192u);
+x_1 = lean_unsigned_to_nat(8191u);
 x_2 = lean_box(0);
 x_3 = lean_mk_array(x_1, x_2);
 return x_3;
@@ -498,7 +498,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_foldUnsafe___rarg(lean_objec
 _start:
 {
 size_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_4 = 8192;
+x_4 = 8191;
 x_5 = l_Lean_Expr_FoldConstsImpl_initCache;
 x_6 = l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(x_3, x_4, x_1, x_2, x_5);
 x_7 = lean_ctor_get(x_6, 0);
@@ -544,7 +544,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstants(lean_object* x_1) {
 _start:
 {
 size_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = 8192;
+x_2 = 8191;
 x_3 = l_Lean_Expr_getUsedConstants___closed__2;
 x_4 = l_Lean_Expr_getUsedConstants___closed__1;
 x_5 = l_Lean_Expr_FoldConstsImpl_initCache;
@@ -623,7 +623,7 @@ _start:
 lean_object* x_3; size_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_alloc_closure((void*)(l_Lean_getMaxHeight___lambda__1___boxed), 3, 1);
 lean_closure_set(x_3, 0, x_1);
-x_4 = 8192;
+x_4 = 8191;
 x_5 = l_Lean_Expr_FoldConstsImpl_initCache;
 x_6 = l_Lean_getMaxHeight___boxed__const__1;
 x_7 = l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(x_3, x_4, x_2, x_6, x_5);

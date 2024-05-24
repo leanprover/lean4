@@ -2602,8 +2602,11 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_2, 1);
 lean_inc(x_22);
 lean_dec(x_2);
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_21);
 x_23 = l_Lean_Elab_Term_isLocalIdent_x3f(x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
@@ -2686,8 +2689,11 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_array_uget(x_1, x_2);
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_4);
 x_13 = l_Lean_Elab_Term_isLocalIdent_x3f(x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_14 = lean_ctor_get(x_13, 0);
@@ -2695,8 +2701,11 @@ lean_inc(x_14);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
+lean_dec(x_9);
 lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
 x_15 = !lean_is_exclusive(x_13);
 if (x_15 == 0)
@@ -2740,8 +2749,11 @@ goto _start;
 else
 {
 uint8_t x_27; lean_object* x_28; lean_object* x_29; 
+lean_dec(x_9);
 lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
 x_27 = 0;
 x_28 = lean_box(x_27);
@@ -2920,8 +2932,11 @@ else
 size_t x_25; size_t x_26; lean_object* x_27; lean_object* x_28; uint8_t x_29; 
 x_25 = 0;
 x_26 = lean_usize_of_nat(x_12);
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_4);
 x_27 = l_Array_anyMUnsafe_any___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___spec__2(x_11, x_25, x_26, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 x_28 = lean_ctor_get(x_27, 0);
@@ -3077,9 +3092,6 @@ lean_dec(x_2);
 x_12 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_13 = l_Array_anyMUnsafe_any___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___spec__2(x_1, x_11, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_9);
-lean_dec(x_7);
-lean_dec(x_5);
 lean_dec(x_1);
 return x_13;
 }
@@ -3347,8 +3359,11 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean
 x_13 = lean_array_uget(x_3, x_2);
 x_14 = lean_unsigned_to_nat(0u);
 x_15 = lean_array_uset(x_3, x_2, x_14);
+lean_inc(x_9);
 lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_13);
 x_23 = l_Lean_Elab_Term_isLocalIdent_x3f(x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10);

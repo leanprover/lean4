@@ -1496,22 +1496,42 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         let localDecl ← localDecl?
         guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
-  let rec loop (n : Name) (projs : List String) :=
+  /- 
+  We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
+  We set it to true if we found a global declaration `n` as we iterate over the `loop`.
+  Without this workaround, we would not be able to elaborate example such as
+  ```
+  def foo.aux := 1
+  def foo : Nat → Nat
+    | n => foo.aux -- should not be interpreted as `(foo).bar`
+  ```
+  See test `aStructPerfIssue.lean` for another example.
+  We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
+  Remark: we did not use to have the `globalDeclFound` parameter. Without this extra check we failed
+  to elaborate
+  ```
+  example : Nat :=
+    let n := 0
+    n.succ + (m |>.succ) + m.succ
+  where
+    m := 1  
+  ```
+  See issue #1850.
+  -/
+  let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
-    /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
-       The following example would not be elaborated correctly without this case.
-       ```
-        def foo.aux := 1
-        def foo : Nat → Nat
-          | n => foo.aux -- should not be interpreted as `(foo).bar`
-       ```
-    -/
-    match findLocalDecl? givenNameView (skipAuxDecl := not projs.isEmpty) with
-    | some decl => some (decl.toExpr, projs)
+    let mut globalDeclFound := globalDeclFound
+    unless globalDeclFound do 
+      let r ← resolveGlobalName givenNameView.review
+      let r := r.filter fun (_, fieldList) => fieldList.isEmpty
+      unless r.isEmpty do
+        globalDeclFound := true
+    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
+    | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s => loop pre (s::projs)
-      | _ => none
-  return loop view.name []
+      | .str pre s => loop pre (s::projs) globalDeclFound
+      | _ => return none
+  loop view.name [] (globalDeclFound := false)
 
 /-- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=

@@ -7516,8 +7516,11 @@ else
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; 
 x_126 = lean_unsigned_to_nat(1u);
 x_127 = l_Lean_Syntax_getArg(x_19, x_126);
+lean_inc(x_15);
 lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
 x_128 = l_Lean_Elab_Term_isLocalIdent_x3f(x_127, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 x_129 = lean_ctor_get(x_128, 0);
@@ -7584,8 +7587,11 @@ else
 lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
 x_138 = lean_unsigned_to_nat(1u);
 x_139 = l_Lean_Syntax_getArg(x_19, x_138);
+lean_inc(x_15);
 lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
 x_140 = l_Lean_Elab_Term_isLocalIdent_x3f(x_139, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 x_141 = lean_ctor_get(x_140, 0);
@@ -8204,8 +8210,11 @@ else
 lean_object* x_126; lean_object* x_127; lean_object* x_128; lean_object* x_129; lean_object* x_130; lean_object* x_131; 
 x_126 = lean_unsigned_to_nat(1u);
 x_127 = l_Lean_Syntax_getArg(x_19, x_126);
+lean_inc(x_15);
 lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
 x_128 = l_Lean_Elab_Term_isLocalIdent_x3f(x_127, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 x_129 = lean_ctor_get(x_128, 0);
@@ -8272,8 +8281,11 @@ else
 lean_object* x_138; lean_object* x_139; lean_object* x_140; lean_object* x_141; lean_object* x_142; lean_object* x_143; 
 x_138 = lean_unsigned_to_nat(1u);
 x_139 = l_Lean_Syntax_getArg(x_19, x_138);
+lean_inc(x_15);
 lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
 x_140 = l_Lean_Elab_Term_isLocalIdent_x3f(x_139, x_10, x_11, x_12, x_13, x_14, x_15, x_16);
 x_141 = lean_ctor_get(x_140, 0);

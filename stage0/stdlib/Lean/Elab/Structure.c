@@ -52,7 +52,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_co
 lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_elabFunBinderViews___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3681_(lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__3(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__5___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_checkResultingUniverse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -565,6 +564,7 @@ lean_object* l_panic___at_Lean_ResolveName_resolveNamespaceUsingScope_x3f___spec
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_StructFieldKind_toCtorIdx(uint8_t);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_collectUniversesFromFields_go___spec__2___closed__10;
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_reprStructFieldInfo____x40_Lean_Elab_Structure___hyg_588____closed__20;
+lean_object* l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_getFieldType___lambda__4___closed__1;
 static lean_object* l_Lean_Elab_Command_elabStructure___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11299,7 +11299,7 @@ goto _start;
 else
 {
 lean_object* x_26; 
-x_26 = l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__3(x_1, x_13);
+x_26 = l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__2(x_1, x_13);
 lean_dec(x_13);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -12151,7 +12151,7 @@ else
 {
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_array_uget(x_3, x_5);
-x_17 = l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__3(x_2, x_16);
+x_17 = l_Lean_RBNode_find___at_Lean_Elab_Term_resolveName___spec__2(x_2, x_16);
 lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {

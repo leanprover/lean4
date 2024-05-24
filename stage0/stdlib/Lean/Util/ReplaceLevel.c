@@ -120,7 +120,7 @@ static size_t _init_l_Lean_Expr_ReplaceLevelImpl_cacheSize() {
 _start:
 {
 size_t x_1; 
-x_1 = 8192;
+x_1 = 8191;
 return x_1;
 }
 }
@@ -722,7 +722,7 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8192u);
+x_1 = lean_unsigned_to_nat(8191u);
 x_2 = lean_box(0);
 x_3 = lean_mk_array(x_1, x_2);
 return x_3;
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lean_Expr_ReplaceLevelImpl_initCache___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(8192u);
+x_1 = lean_unsigned_to_nat(8191u);
 x_2 = l_Lean_Expr_ReplaceLevelImpl_initCache___closed__2;
 x_3 = lean_mk_array(x_1, x_2);
 return x_3;
@@ -771,7 +771,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceLevelImpl_replaceUnsafe(lean_object*
 _start:
 {
 size_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = 8192;
+x_3 = 8191;
 x_4 = l_Lean_Expr_ReplaceLevelImpl_initCache;
 x_5 = l_Lean_Expr_ReplaceLevelImpl_replaceUnsafeM_visit(x_1, x_3, x_2, x_4);
 x_6 = lean_ctor_get(x_5, 0);

@@ -17,7 +17,7 @@
 
 noncomputable section
 
-/-- info: Try this: exact Nat.lt.base x -/
+/-- info: Try this: exact Nat.lt_add_one x -/
 #guard_msgs in
 example (x : Nat) : x ≠ x.succ := Nat.ne_of_lt (by apply?)
 
@@ -39,7 +39,7 @@ example (n m k : Nat) : n ≤ m → n + k ≤ m + k := by apply?
 #guard_msgs in
 example (_ha : a > 0) (w : b ∣ c) : a * b ∣ a * c := by apply?
 
-/-- info: Try this: Nat.lt.base x -/
+/-- info: Try this: Nat.lt_add_one x -/
 #guard_msgs in
 example : x < x + 1 := exact?%
 

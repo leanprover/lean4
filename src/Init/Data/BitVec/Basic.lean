@@ -151,12 +151,12 @@ end Int
 section Syntax
 
 /-- Notation for bit vector literals. `i#n` is a shorthand for `BitVec.ofNat n i`. -/
-scoped syntax:max term:max noWs "#" noWs term:max : term
-macro_rules | `($i#$n) => `(BitVec.ofNat $n $i)
+syntax:max num noWs "#" noWs term:max : term
+macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 
 /-- Unexpander for bit vector literals. -/
 @[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
-  | `($(_) $n $i) => `($i#$n)
+  | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
 /-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLt i lt`. -/
@@ -504,7 +504,7 @@ equivalent to `a * 2^s`, modulo `2^n`.
 
 SMT-Lib name: `bvshl` except this operator uses a `Nat` shift value.
 -/
-protected def shiftLeft (a : BitVec n) (s : Nat) : BitVec n := (a.toNat <<< s)#n
+protected def shiftLeft (a : BitVec n) (s : Nat) : BitVec n := BitVec.ofNat n (a.toNat <<< s)
 instance : HShiftLeft (BitVec w) Nat (BitVec w) := ⟨.shiftLeft⟩
 
 /--

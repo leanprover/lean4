@@ -138,9 +138,6 @@ protected theorem sub_le_iff_le_add {a b c : Nat} : a - b ≤ c ↔ a ≤ c + b 
 protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c := by
   rw [Nat.add_comm, Nat.sub_le_iff_le_add]
 
-protected theorem lt_sub_iff_add_lt' {a b c : Nat} : a + b < c ↔ a < c - b:=
-  ⟨Nat.lt_sub_of_add_lt, Nat.add_lt_of_lt_sub⟩
-
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
 

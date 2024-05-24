@@ -69,11 +69,13 @@ def main():
     created_closed_query = f'repo:{repo} is:{item_type} created:>{since_date} state:closed'
     already_existing_closed_query = f'repo:{repo} is:{item_type} created:<={since_date} closed:>{since_date}'
     already_existing_not_closed_query = f'repo:{repo} is:{item_type} created:<={since_date} state:open'
+    all_open_query = f'repo:{repo} is:{item_type} state:open'
 
     created_not_closed_items = get_items(created_not_closed_query, item_name)
     created_closed_items = get_items(created_closed_query, item_name)
     already_existing_closed_items = get_items(already_existing_closed_query, item_name)
     already_existing_not_closed_items = get_items(already_existing_not_closed_query, item_name)
+    all_open_items = get_items(all_open_query, item_name)
 
     if args.fro:
         fro_members = get_fro_team_members()
@@ -81,13 +83,14 @@ def main():
         created_closed_items = filter_items_by_members(created_closed_items, fro_members)
         already_existing_closed_items = filter_items_by_members(already_existing_closed_items, fro_members)
         already_existing_not_closed_items = filter_items_by_members(already_existing_not_closed_items, fro_members)
+        all_open_items = filter_items_by_members(all_open_items, fro_members)
 
     print(f"{item_name} created but not yet closed in the last {args.days} days: {len(created_not_closed_items)}")
     print(f"{item_name} created and closed in the last {args.days} days: {len(created_closed_items)}")
     print(f"{item_name} already existing and closed in the last {args.days} days: {len(already_existing_closed_items)}")
     print(f"{item_name} already existing and not yet closed in the last {args.days} days: {len(already_existing_not_closed_items)}")
 
-    average_age, median_age = calculate_age_statistics(created_not_closed_items)
+    average_age, median_age = calculate_age_statistics(all_open_items)
     print(f"Average age of open {item_name}: {average_age:.2f} days")
     # print(f"Median age of open {item_name}: {median_age:.2f} days")
 

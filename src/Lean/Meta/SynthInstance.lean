@@ -499,13 +499,13 @@ def modifyGlobalCache (key : Expr) (value : Option Expr) : MetaM Unit := fun c =
   let key : SynthInstanceCacheKey := { localInsts := c.localInstances, type := key, synthPendingDepth := c.synthPendingDepth }
   modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
 
-def cacheGeneratorNode (gNode : GeneratorNode) : SynthM Unit := do
+def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
   unless gNode.typeHasMVars do
     if let some entry := (← get).tableEntries.find? gNode.key then
       -- Recall that anwers with expression metavariables are not valid
       if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
         modifyGlobalCache gNode.key (some value.result.expr)
-      else if entry.answers.all fun answer => answer.result.numMVars != 0 then
+      else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
         modifyGlobalCache gNode.key none
 
 /-- Process the next subgoal in the given consumer node. -/
@@ -575,7 +575,7 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
-    cacheGeneratorNode gNode
+    cacheGeneratorNode gNode (finished := true)
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -656,7 +656,7 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
     match (← getResult) with
     | none        => synth
     | some result =>
-      (← get).generatorStack.forM cacheGeneratorNode
+      (← get).generatorStack.forM (cacheGeneratorNode (finished := false))
       return result
   else
     return none

@@ -51,7 +51,7 @@ def Package.test (pkg : Package) (args : List String := []) (buildConfig : Build
   let (pkg, driver) ← pkg.resolveDriver "test" pkg.testDriver
   let pkgName := pkg.name.toString (escape := false)
   if let some script := pkg.scripts.find? driver.toName then
-    script.run (cfgArgs.data ++ args)
+    script.run (cfgArgs.toList ++ args)
   else if let some exe := pkg.findLeanExe? driver.toName  then
     let exeFile ← runBuild exe.fetch buildConfig
     env exeFile.toString (cfgArgs ++ args.toArray)

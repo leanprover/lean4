@@ -19,7 +19,7 @@ COMMANDS:
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
   test                  test the package using the configured test driver
-  check-test            heck if there is a properly configured test driver
+  check-test            check if there is a properly configured test driver
   lint                  lint the package using the configured lint driver
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs

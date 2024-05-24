@@ -222,7 +222,7 @@ structure SynthInstanceCacheKey where
   synthPendingDepth : Nat
   deriving Hashable, BEq
 
-abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (Option Expr)
+abbrev SynthInstanceCache := PersistentHashMap SynthInstanceCacheKey (LOption Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo

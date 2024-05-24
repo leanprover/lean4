@@ -728,19 +728,26 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
     match s.cache.synthInstance.find? cacheKey with
-    | some result =>
+    | .undef => Meta.throwIsDefEqStuck
+    | .some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       if let some inst := result then
         unless (← assignOutParams inst) do
           return none
       pure result
-    | none        =>
-      let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
+    | .none        =>
+      let result? : LOption AbstractMVarsResult ← catchInternalId isDefEqStuckExceptionId
+          (toLOptionM <|
+          withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
-        SynthInstance.main normType maxResultSize
+        SynthInstance.main normType maxResultSize)
+        (fun _ => pure LOption.undef)
       let result? ← match result? with
-        | none        => pure none
-        | some result => do
+        | .none        => pure none
+        | .undef       =>
+          modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey .undef }
+          Meta.throwIsDefEqStuck
+        | .some result => do
           let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
           if (← assignOutParams result) then
@@ -774,7 +781,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             pure (some result)
           else
             pure none
-      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result? }
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert cacheKey result?.toLOption }
       pure result?
 
 /--

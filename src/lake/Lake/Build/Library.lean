@@ -73,6 +73,20 @@ def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
 def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
   mkFacetJobConfig (LeanLib.recBuildStatic · true)
 
+@[specialize] protected def LeanLib.buildStaticFat
+(self : LeanLib) : FetchM (BuildJob FilePath) := do
+    withRegisterJob s!"{self.name}:static.fat" do
+    let mods ← self.rootModules.concatMapM fun mod => do
+      return (← mod.transImports.fetch).push mod
+    let oJobs ← mods.concatMapM fun mod =>
+      mod.nativeFacets (shouldExport := true) |>.mapM fun facet => fetch <| mod.facet facet.name
+    let libFile := self.staticFatLibFile
+    let lib ← buildStaticLib libFile oJobs
+    return lib
+
+/-- The `LibraryFacetConfig` for the builtin `staticFatFacet`. -/
+def LeanLib.staticFatFacetConfig : LibraryFacetConfig staticFatFacet :=
+  mkFacetJobConfig LeanLib.buildStaticFat
 
 /-! ## Build Shared Lib -/
 
@@ -112,5 +126,6 @@ def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
   |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig
   |>.insert staticExportFacet staticExportFacetConfig
+  |>.insert staticFatFacet staticFatFacetConfig
   |>.insert sharedFacet sharedFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig

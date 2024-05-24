@@ -6,6 +6,7 @@ import json
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 import argparse
+import statistics
 
 def get_items(query, item_type):
     items = []
@@ -44,6 +45,13 @@ def get_fro_team_members():
 def filter_items_by_members(items, members):
     return [item for item in items if item['user']['login'] in members or (item.get('closed_by') and item['closed_by']['login'] in members)]
 
+def calculate_age_statistics(items):
+    current_date = datetime.now()
+    ages = [(current_date - datetime.strptime(item['created_at'], '%Y-%m-%dT%H:%M:%SZ')).days for item in items]
+    average_age = sum(ages) / len(ages) if ages else 0
+    median_age = statistics.median(ages) if ages else 0
+    return average_age, median_age
+
 def main():
     parser = argparse.ArgumentParser(description="Fetch and count GitHub issues or pull requests.")
     parser.add_argument("days", type=int, help="Number of days to look back")
@@ -54,23 +62,18 @@ def main():
 
     since_date = (datetime.now() - timedelta(days=args.days)).strftime('%Y-%m-%dT%H:%M:%SZ')
     repo = "leanprover/lean4"
-    item_type = "issues" if not args.pr else "PRs"
+    item_type = "pr" if args.pr else "issue"
+    item_name = "PRs" if args.pr else "Issues"
 
-    if args.pr:
-        created_not_closed_query = f'repo:{repo} is:pr created:>{since_date} state:open'
-        created_closed_query = f'repo:{repo} is:pr created:>{since_date} state:closed'
-        already_existing_closed_query = f'repo:{repo} is:pr created:<={since_date} closed:>{since_date}'
-        already_existing_not_closed_query = f'repo:{repo} is:pr created:<={since_date} state:open'
-    else:
-        created_not_closed_query = f'repo:{repo} is:issue created:>{since_date} state:open'
-        created_closed_query = f'repo:{repo} is:issue created:>{since_date} state:closed'
-        already_existing_closed_query = f'repo:{repo} is:issue created:<={since_date} closed:>{since_date}'
-        already_existing_not_closed_query = f'repo:{repo} is:issue created:<={since_date} state:open'
+    created_not_closed_query = f'repo:{repo} is:{item_type} created:>{since_date} state:open'
+    created_closed_query = f'repo:{repo} is:{item_type} created:>{since_date} state:closed'
+    already_existing_closed_query = f'repo:{repo} is:{item_type} created:<={since_date} closed:>{since_date}'
+    already_existing_not_closed_query = f'repo:{repo} is:{item_type} created:<={since_date} state:open'
 
-    created_not_closed_items = get_items(created_not_closed_query, item_type)
-    created_closed_items = get_items(created_closed_query, item_type)
-    already_existing_closed_items = get_items(already_existing_closed_query, item_type)
-    already_existing_not_closed_items = get_items(already_existing_not_closed_query, item_type)
+    created_not_closed_items = get_items(created_not_closed_query, item_name)
+    created_closed_items = get_items(created_closed_query, item_name)
+    already_existing_closed_items = get_items(already_existing_closed_query, item_name)
+    already_existing_not_closed_items = get_items(already_existing_not_closed_query, item_name)
 
     if args.fro:
         fro_members = get_fro_team_members()
@@ -79,10 +82,14 @@ def main():
         already_existing_closed_items = filter_items_by_members(already_existing_closed_items, fro_members)
         already_existing_not_closed_items = filter_items_by_members(already_existing_not_closed_items, fro_members)
 
-    print(f"{item_type.capitalize()} created but not yet closed in the last {args.days} days: {len(created_not_closed_items)}")
-    print(f"{item_type.capitalize()} created and closed in the last {args.days} days: {len(created_closed_items)}")
-    print(f"{item_type.capitalize()} already existing and closed in the last {args.days} days: {len(already_existing_closed_items)}")
-    print(f"{item_type.capitalize()} already existing and not yet closed in the last {args.days} days: {len(already_existing_not_closed_items)}")
+    print(f"{item_name} created but not yet closed in the last {args.days} days: {len(created_not_closed_items)}")
+    print(f"{item_name} created and closed in the last {args.days} days: {len(created_closed_items)}")
+    print(f"{item_name} already existing and closed in the last {args.days} days: {len(already_existing_closed_items)}")
+    print(f"{item_name} already existing and not yet closed in the last {args.days} days: {len(already_existing_not_closed_items)}")
+
+    average_age, median_age = calculate_age_statistics(created_not_closed_items)
+    print(f"Average age of open {item_name}: {average_age:.2f} days")
+    # print(f"Median age of open {item_name}: {median_age:.2f} days")
 
 if __name__ == "__main__":
     main()

@@ -131,7 +131,7 @@ private def elabHeaders (views : Array DefView)
     (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
     (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
     TermElabM (Array DefViewElabHeader) := do
-  let expandedDeclIds ← views.mapM fun view => withRef view.ref do
+  let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
     Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
@@ -181,9 +181,13 @@ private def elabHeaders (views : Array DefView)
           reuseBody := false
 
       let header ← withRestoreOrSaveFull reusableResult? fun save => do
-        withRef view.ref do
-        addDeclarationRanges declName view.ref
+        withRef view.headerRef do
+        addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
+        -- do not hide header errors on partial body syntax as these two elaboration parts are
+        -- sufficiently independent
+        withTheReader Core.Context ({ · with suppressElabErrors :=
+          view.headerRef.hasMissing && !Command.showPartialSyntaxErrors.get (← getOptions) }) do
         withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
           elabBindersEx view.binders.getArgs fun xs => do
             let refForElabFunType := view.value
@@ -961,40 +965,41 @@ end Term
 namespace Command
 
 def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
+  let opts ← getOptions
   withAlwaysResolvedPromises ds.size fun headerPromises => do
-    let substr? := (mkNullNode ds).getSubstring?
     let snap? := (← read).snap?
     let mut views := #[]
     let mut defs := #[]
+    let mut reusedAllHeaders := true
     for h : i in [0:ds.size], headerPromise in headerPromises do
       let d := ds[i]
       let modifiers ← elabModifiers d[0]
       if ds.size > 1 && modifiers.isNonrec then
         throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
       let mut view ← mkDefView modifiers d[1]
+      let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
       if let some snap := snap? then
-        -- overapproximation: includes previous bodies as well
-        let headerSubstr? := return { (← substr?) with stopPos := (← view.value.getPos?) }
         view := { view with headerSnap? := some {
           old? := do
-            -- transitioning from `Context.snap?` to `DefView.snap?` invariant: if the elaboration
-            -- context and state are unchanged, and the substring from the beginning of the first
-            -- header to the beginning of the current body is unchanged, then the elaboration result for
-            -- this header (which includes state from elaboration of previous headers!) should be
-            -- unchanged.
+            -- transitioning from `Context.snap?` to `DefView.headerSnap?` invariant: if the
+            -- elaboration context and state are unchanged, and the syntax of this as well as all
+            -- previous headers is unchanged, then the elaboration result for this header (which
+            -- includes state from elaboration of previous headers!) should be unchanged.
+            guard reusedAllHeaders
             let old ← snap.old?
             -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
             let old ← old.val.get.toTyped? DefsParsedSnapshot
             let oldParsed ← old.defs[i]?
-            guard <| (← headerSubstr?).sameAs (← oldParsed.headerSubstr?)
+            guard <| fullHeaderRef.structRangeEqWithTraceReuse opts oldParsed.fullHeaderRef
             -- no syntax guard to store, we already did the necessary checks
             return ⟨.missing, oldParsed.headerProcessedSnap⟩
           new := headerPromise
         } }
         defs := defs.push {
-          headerSubstr?
+          fullHeaderRef
           headerProcessedSnap := { range? := d.getRange?, task := headerPromise.result }
         }
+        reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view
     if let some snap := snap? then
       -- no non-fatal diagnostics at this point

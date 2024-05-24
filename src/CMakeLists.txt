@@ -582,11 +582,11 @@ if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
   endif()
 
-  #add_custom_target(lake ALL
-  #  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  #  DEPENDS leanshared
-  #  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
-  #  VERBATIM)
+  add_custom_target(lake ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
+    VERBATIM)
 endif()
 
 if(PREV_STAGE)

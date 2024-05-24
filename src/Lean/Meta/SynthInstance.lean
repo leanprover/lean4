@@ -737,7 +737,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           unless (← assignOutParams inst) do
             return none
         pure $ some inst
-      | .none => pure inst
+      | .none => pure none
     | .none        =>
       let result? : LOption AbstractMVarsResult ← catchInternalId isDefEqStuckExceptionId
           (toLOptionM <|

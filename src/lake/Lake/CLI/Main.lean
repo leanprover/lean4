@@ -326,13 +326,28 @@ protected def update : CliM PUnit := do
   let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
   updateManifest config toUpdate
 
+protected def pack : CliM PUnit := do
+  processOptions lakeOption
+  let file? ← takeArg?
+  noArgsRem do
+  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  let file := (FilePath.mk <$> file?).getD ws.root.buildArchiveFile
+  ws.root.pack file
+
+protected def unpack : CliM PUnit := do
+  processOptions lakeOption
+  let file? ← takeArg?
+  noArgsRem do
+  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  let file := (FilePath.mk <$> file?).getD ws.root.buildArchiveFile
+  ws.root.unpack file
+
 protected def upload : CliM PUnit := do
   processOptions lakeOption
   let tag ← takeArg "release tag"
-  let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config
-  uploadRelease ws.root tag
+  noArgsRem do
+  let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
+  ws.root.uploadRelease tag
 
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
@@ -464,6 +479,8 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "build"               => lake.build
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
+| "pack"                => lake.pack
+| "unpack"              => lake.unpack
 | "upload"              => lake.upload
 | "setup-file"          => lake.setupFile
 | "test"                => lake.test

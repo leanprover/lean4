@@ -23,6 +23,8 @@ COMMANDS:
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
+  pack                  pack build artifacts into an archive for distribution
+  unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
@@ -149,6 +151,28 @@ USAGE:
 
 Looks for a script or executable tagged `@[test_runner]` in the workspace's
 root package and executes it with `args`. "
+
+def helpPack :=
+"Pack build artifacts into a archive for distribution
+
+USAGE:
+  lake pack [<file.tgz>]
+
+Packs the root package's `buildDir` into a gzip tar archive using `tar`.
+If a path for the archive is not specified, creates a archive in the package's
+Lake directory (`.lake`) named according to its `buildArchive` setting.
+
+Does NOT build any artifacts. It just packs the existing ones."
+
+def helpUnpack :=
+"Unpack build artifacts from a distributed archive
+
+USAGE:
+  lake unpack [<file.tgz>]
+
+Unpack build artifacts from the gzip tar archive `file.tgz` into the root
+package's `buildDir`. If a path for the archive is not specified, uses the
+the package's `buildArchive` in its Lake directory (`.lake`)."
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -300,6 +324,8 @@ def help : (cmd : String) → String
 | "init"                => helpInit
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
+| "pack"                => helpPack
+| "unpack"              => helpUnpack
 | "upload"              => helpUpload
 | "test"                => helpTest
 | "clean"               => helpClean

@@ -18,14 +18,21 @@ def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig :
   let exeFile ← ws.runBuild exe.fetch buildConfig
   env exeFile.toString args
 
-def uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
+def Package.pack (pkg : Package) (file : FilePath := pkg.buildArchiveFile) : LogIO Unit := do
+  logInfo s!"packing {file}"
+  tar pkg.buildDir file
+
+def Package.unpack (pkg : Package) (file : FilePath := pkg.buildArchiveFile) : LogIO Unit := do
+  logInfo s!"unpacking {file}"
+  untar file pkg.buildDir
+
+def Package.uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
+  pkg.pack
+  logInfo s!"uploading {tag}:{pkg.buildArchive}"
   let mut args :=
     #["release", "upload", tag, pkg.buildArchiveFile.toString, "--clobber"]
   if let some repo := pkg.releaseRepo? then
     args := args.append #["-R", repo]
-  logInfo s!"packing {pkg.buildArchive}"
-  tar pkg.buildDir pkg.buildArchiveFile
-  logInfo s!"uploading {tag}/{pkg.buildArchive}"
   proc {cmd := "gh", args}
 
 def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do

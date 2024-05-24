@@ -7,7 +7,7 @@ on:
 jobs:
   restart-on-label:
     runs-on: ubuntu-latest
-    if: contains(github.event.label.name, 'full-ci')
+    if: contains(github.event.label.name, 'merge-ci') || contains(github.event.label.name, 'release-ci')
     steps:
     - run: |
         # Finding latest CI workflow run on current pull request

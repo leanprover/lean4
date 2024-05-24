@@ -227,6 +227,8 @@ instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 @[simp] theorem bne_left_inj  : ∀ (x y z : Bool), (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_right_inj : ∀ (x y z : Bool), (x != z) = (y != z) ↔ x = y := by decide
 
+theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
+
 /-! ### coercision related normal forms -/
 
 theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :

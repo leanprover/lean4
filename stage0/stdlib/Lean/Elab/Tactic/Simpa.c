@@ -879,6 +879,8 @@ lean_ctor_set(x_18, 0, x_13);
 x_19 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__3___closed__3;
 lean_inc(x_11);
 lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
 x_20 = l_Lean_Meta_Tactic_TryThis_addSuggestion(x_1, x_17, x_18, x_19, x_16, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -2843,13 +2845,7 @@ lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_31, x_35, x_42, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_25);
 lean_dec(x_13);
-lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_35);
 x_44 = !lean_is_exclusive(x_43);
 if (x_44 == 0)
 {
@@ -2948,13 +2944,7 @@ lean_ctor_set(x_62, 0, x_60);
 lean_ctor_set(x_62, 1, x_61);
 x_63 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_50, x_54, x_62, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_25);
 lean_dec(x_13);
-lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_54);
 x_64 = lean_ctor_get(x_63, 1);
 lean_inc(x_64);
 if (lean_is_exclusive(x_63)) {
@@ -3074,13 +3064,7 @@ lean_ctor_set(x_85, 0, x_83);
 lean_ctor_set(x_85, 1, x_84);
 x_86 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_71, x_77, x_85, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_67);
 lean_dec(x_13);
-lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_77);
 x_87 = lean_ctor_get(x_86, 1);
 lean_inc(x_87);
 if (lean_is_exclusive(x_86)) {
@@ -3470,13 +3454,7 @@ lean_ctor_set(x_162, 0, x_160);
 lean_ctor_set(x_162, 1, x_161);
 x_163 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_147, x_153, x_162, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_142);
 lean_dec(x_13);
-lean_dec(x_11);
 lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_153);
 x_164 = lean_ctor_get(x_163, 1);
 lean_inc(x_164);
 if (lean_is_exclusive(x_163)) {
@@ -4549,13 +4527,7 @@ lean_inc(x_36);
 x_37 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__11___closed__15;
 x_38 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_33, x_36, x_37, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_30);
 lean_dec(x_18);
-lean_dec(x_16);
 lean_dec(x_15);
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_36);
 x_39 = !lean_is_exclusive(x_38);
 if (x_39 == 0)
 {
@@ -4616,13 +4588,7 @@ lean_inc(x_51);
 x_52 = l_Lean_Elab_Tactic_Simpa_evalSimpa___lambda__11___closed__15;
 x_53 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_47, x_51, x_52, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_45);
 lean_dec(x_18);
-lean_dec(x_16);
 lean_dec(x_15);
-lean_dec(x_14);
-lean_dec(x_13);
-lean_dec(x_12);
-lean_dec(x_11);
-lean_dec(x_51);
 x_54 = lean_ctor_get(x_53, 1);
 lean_inc(x_54);
 if (lean_is_exclusive(x_53)) {
@@ -6143,13 +6109,7 @@ _start:
 lean_object* x_13; 
 x_13 = l_Lean_Linter_logLint___at_Lean_Elab_Tactic_Simpa_evalSimpa___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_11);
-lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
 return x_13;
 }
 }

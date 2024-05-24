@@ -532,7 +532,9 @@ Helpful error message when omega cannot find a solution
 def formatErrorMessage (p : Problem) : OmegaM MessageData := do
   if p.possible then
     if p.isEmpty then
-      return m!"it is false"
+      return m!"No usable constraints found. You may need to unfold definitions so `omega` can see \
+      linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication, \
+      division, and modular remainder by constants."
     else
       let as ← atoms
       let mask ← mentioned p.constraints

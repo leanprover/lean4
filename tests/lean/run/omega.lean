@@ -465,3 +465,136 @@ example (x : BitVec 8) (hx : (x + 1) <<< 1 = 4) : x = 1 ∨ x = 129 := by
 example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
     ~~~x > (1#64 <<< 63) := by
   bv_omega
+
+/-! ### Error messages -/
+
+/--
+error: omega could not prove the goal:
+No usable constraints found. You may need to unfold definitions so `omega` can see
+linear arithmetic facts about `Nat` and `Int`, which may also involve multiplication,
+division, and modular remainder by constants.
+-/
+#guard_msgs in
+example : 0 < 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  a ≥ 0
+where
+ a := ↑x
+-/
+#guard_msgs in
+example (x : Nat) : x < 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  a - b ≥ 0
+  a ≥ 0
+where
+ a := ↑x
+ b := y
+-/
+#guard_msgs in
+example (x : Nat) (y : Int) : x < y := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  b ≤ 0
+  6 ≤ a ≤ 9
+where
+ a := x
+ b := y
+-/
+#guard_msgs in
+example (x y : Int) : 5 < x ∧ x < 10 → y > 0 := by omega
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  d ≥ 0
+  a - b ≥ 1
+  c ≥ 0
+  a - d ≤ -1
+  b ≥ 0
+  a ≥ 0
+  c + d ≥ -1
+where
+ a := ↑(sizeOf xs)
+ b := ↑(sizeOf y)
+ c := ↑(sizeOf x.fst)
+ d := ↑(sizeOf x.snd)
+-/
+#guard_msgs in
+-- this used to fail with y = x, but then omega got better, so now there are unrelated x and y
+-- to make omega fail
+theorem sizeOf_snd_lt_sizeOf_list {α : Type u} {β : Type v} [SizeOf α] [SizeOf β]
+  {x y : α × β} {xs : List (α × β)} :
+  y ∈ xs → sizeOf x.snd < 1 + sizeOf xs
+:= by
+  intro h
+  have := List.sizeOf_lt_of_mem h
+  have : sizeOf x = 1 + sizeOf x.1 + sizeOf x.2 := rfl
+  omega
+
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  c ≥ 0
+  a - b - c ≥ 0
+  b ≥ 0
+  a ≥ 0
+where
+ a := ↑reallyreallyreallyreally
+ b := ↑longlonglonglong
+ c := ↑namenamename
+-/
+#guard_msgs in
+example (reallyreallyreallyreally longlonglonglong namenamename : Nat) :
+  reallyreallyreallyreally < longlonglonglong + namenamename := by omega
+
+
+def a := 1
+
+/--
+error: omega could not prove the goal:
+a possible counterexample may satisfy the constraints
+  x ≥ 0
+  a_1 ≥ 0
+  v ≥ 0
+  c_1 ≥ 0
+  b_1 ≥ 0
+  e_1 ≥ 0
+  z ≥ 0
+  q ≥ 0
+  s ≥ 0
+  d_1 ≥ 0
+  u ≥ 0
+  t ≥ 0
+  w ≥ 0
+  q + r + s + t + u + v + w + x + y + z + a_1 + b_1 + c_1 + d_1 + e_1 ≥ 100
+  r ≥ 0
+  y ≥ 0
+where
+ q := ↑b
+ r := ↑c
+ s := ↑d
+ t := ↑e
+ u := ↑f
+ v := ↑g
+ w := ↑h
+ x := ↑i
+ y := ↑j
+ z := ↑k
+ a_1 := ↑l
+ b_1 := ↑m
+ c_1 := ↑n
+ d_1 := ↑o
+ e_1 := ↑p
+-/
+#guard_msgs in
+example (b c d e f g h i j k l m n o p : Nat) :
+  b + c + d + e + f + g + h + i + j + k + l + m + n + o + p < 100 := by omega

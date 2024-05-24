@@ -636,8 +636,8 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
-builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.induction
-@[builtin_tactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
+def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
@@ -708,8 +708,8 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Id
     else
       return (args.map (·.expr), #[])
 
-builtin_initialize registerBuiltinIncrementalTactic ``Lean.Parser.Tactic.cases
-@[builtin_tactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.cases, builtin_incremental]
+def evalCases : Tactic := fun stx =>
   match expandCases? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do

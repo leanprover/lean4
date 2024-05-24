@@ -147,6 +147,10 @@ attribute [simp] FamilyOut.family_key_eq_type
 instance [FamilyDef Fam a β] : FamilyOut Fam a β where
   family_key_eq_type := FamilyDef.family_key_eq_type
 
+/-- The constant type family -/
+instance : FamilyDef (fun _ => β) a β where
+  family_key_eq_type := rfl
+
 /-- Cast a datum from its individual type to its general family. -/
 @[macro_inline] def toFamily [FamilyOut Fam a β] (b : β) : Fam a :=
   cast FamilyOut.family_key_eq_type.symm b

@@ -20,8 +20,10 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     outputs:
-      # Should we run only a quick CI? Yes on a pull request without the full-ci label
-      quick: ${{ steps.set-quick.outputs.quick }}
+      # 0: PRs without special label
+      # 1: PRs with `merge-ci` label, merge queue checks, master commits
+      # 2: PRs with `release-ci` label, releases (incl. nightlies)
+      check-level: ${{ steps.set-level.outputs.check-level }}
       # The build matrix, dynamically generated here
       matrix: ${{ steps.set-matrix.outputs.result }}
       # Should we make a nightly release? If so, this output contains the lean version string, else it is empty
@@ -38,167 +40,6 @@ jobs:
       RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
 
     steps:
-      - name: Run quick CI?
-        id: set-quick
-        # We do not use github.event.pull_request.labels.*.name here because
-        # re-running a run does not update that list, and we do want to be able to
-        # rerun the workflow run after settings the `full-ci` label.
-        run: |
-          if [ "${{ github.event_name }}" == 'pull_request' ]
-          then
-            echo "quick=$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }} --jq '.labels | any(.name == "full-ci") | not')" >> "$GITHUB_OUTPUT"
-          else
-            echo "quick=false" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Configure build matrix
-        id: set-matrix
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const quick = ${{ steps.set-quick.outputs.quick }};
-            console.log(`quick: ${quick}`);
-            // use large runners outside PRs where available (original repo)
-            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
-            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
-            let matrix = [
-              {
-                // portable release build: use channel with older glibc (2.27)
-                "name": "Linux LLVM",
-                "os": "ubuntu-latest",
-                "release": false,
-                "quick": false,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                // reverse-ffi needs to be updated to link to LLVM libraries
-                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
-                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              },
-              {
-                "name": "Linux release",
-                "os": "ubuntu-latest",
-                "release": true,
-                "quick": true,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'"
-              },
-              {
-                "name": "Linux",
-                "os": "ubuntu-latest",
-                "check-stage3": true,
-                "test-speedcenter": true,
-                "quick": false,
-              },
-              {
-                "name": "Linux Debug",
-                "os": "ubuntu-latest",
-                "quick": false,
-                "CMAKE_OPTIONS": "-DCMAKE_BUILD_TYPE=Debug",
-                // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },
-              // TODO: suddenly started failing in CI
-              /*{
-                "name": "Linux fsanitize",
-                "os": "ubuntu-latest",
-                "quick": false,
-                // turn off custom allocator & symbolic functions to make LSAN do its magic
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
-                // exclude seriously slow/problematic tests (laketests crash)
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
-              },*/
-              {
-                "name": "macOS",
-                "os": "macos-13",
-                "release": true,
-                "quick": false,
-                "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
-                "name": "macOS aarch64",
-                "os": "macos-13",
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "cross_target": "aarch64-apple-darwin",
-                "shell": "bash -euxo pipefail {0}",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
-                "binary-check": "otool -L",
-                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
-              },
-              {
-                "name": "Windows",
-                "os": "windows-2022",
-                "release": true,
-                "quick": false,
-                "shell": "msys2 {0}",
-                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
-                // for reasons unknown, interactivetests are flaky on Windows
-                "CTEST_OPTIONS": "--repeat until-pass:2",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
-                "binary-check": "ldd"
-              },
-              {
-                "name": "Linux aarch64",
-                "os": "ubuntu-latest",
-                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "cross_target": "aarch64-unknown-linux-gnu",
-                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
-              },
-              {
-                "name": "Linux 32bit",
-                "os": "ubuntu-latest",
-                // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
-                "cmultilib": true,
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}"
-              },
-              {
-                "name": "Web Assembly",
-                "os": "ubuntu-latest",
-                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
-                "wasm": true,
-                "cmultilib": true,
-                "release": true,
-                "quick": false,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
-              }
-            ];
-            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
-            if (quick) {
-              return matrix.filter((job) => job.quick)
-            } else {
-              return matrix
-            }
-
       - name: Checkout
         uses: actions/checkout@v3
         # don't schedule nightlies on forks
@@ -248,6 +89,170 @@ jobs:
           else
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
+
+      - name: Set check level
+        id: set-level
+        # We do not use github.event.pull_request.labels.*.name here because
+        # re-running a run does not update that list, and we do want to be able to
+        # rerun the workflow run after setting the `release-ci`/`merge-ci` labels.
+        run: |
+          check_level=0
+
+          if [[ -n "${{ steps.set-nightly.outputs.nightly }}" || -n "${{ steps.set-release.outputs.RELEASE_TAG }}" ]]; then
+            check_level=2
+          elif [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            check_level=1
+          else
+            labels="$(gh api repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls/${{ github.event.pull_request.number }}) --jq '.labels'"
+            if echo "$labels" | grep -q "release-ci"; then
+              check_level=2
+            elif echo "$labels" | grep -q "merge-ci"; then
+              check_level=1
+            fi
+          fi
+
+          echo "check-level=$check_level" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Configure build matrix
+        id: set-matrix
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const level = ${{ steps.set-level.outputs.check-level }};
+            console.log(`level: ${level}`);
+            // use large runners outside PRs where available (original repo)
+            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
+            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
+            let matrix = [
+              {
+                // portable release build: use channel with older glibc (2.27)
+                "name": "Linux LLVM",
+                "os": "ubuntu-latest",
+                "release": false,
+                "check-level": 2,
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
+                // reverse-ffi needs to be updated to link to LLVM libraries
+                "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
+                "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
+              },
+              {
+                "name": "Linux release",
+                "os": "ubuntu-latest",
+                "release": true,
+                "check-level": 0,
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
+                "CTEST_OPTIONS": "-E 'foreign'"
+              },
+              {
+                "name": "Linux",
+                "os": "ubuntu-latest",
+                "check-stage3": level >= 2,
+                "test-speedcenter": level >= 2,
+                "check-level": 1,
+              },
+              {
+                "name": "Linux Debug",
+                "os": "ubuntu-latest",
+                "check-level": 2,
+                "CMAKE_PRESET": "debug",
+                // exclude seriously slow tests
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
+              },
+              // TODO: suddenly started failing in CI
+              /*{
+                "name": "Linux fsanitize",
+                "os": "ubuntu-latest",
+                "check-level": 2,
+                // turn off custom allocator & symbolic functions to make LSAN do its magic
+                "CMAKE_PRESET": "sanitize",
+                // exclude seriously slow/problematic tests (laketests crash)
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
+              },*/
+              {
+                "name": "macOS",
+                "os": "macos-13",
+                "release": true,
+                "check-level": 2,
+                "shell": "bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
+                "binary-check": "otool -L",
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+              },
+              {
+                "name": "macOS aarch64",
+                "os": "macos-14",
+                "release": true,
+                "check-level": 1,
+                "shell": "bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
+                "binary-check": "otool -L",
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
+              },
+              {
+                "name": "Windows",
+                "os": "windows-2022",
+                "release": true,
+                "check-level": 2,
+                "shell": "msys2 {0}",
+                "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
+                // for reasons unknown, interactivetests are flaky on Windows
+                "CTEST_OPTIONS": "--repeat until-pass:2",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
+                "binary-check": "ldd"
+              },
+              {
+                "name": "Linux aarch64",
+                "os": "ubuntu-latest",
+                "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64",
+                "release": true,
+                "check-level": 2,
+                "cross": true,
+                "cross_target": "aarch64-unknown-linux-gnu",
+                "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
+              },
+              {
+                "name": "Linux 32bit",
+                "os": "ubuntu-latest",
+                // Use 32bit on stage0 and stage1 to keep oleans compatible
+                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
+                "cmultilib": true,
+                "release": true,
+                "check-level": 2,
+                "cross": true,
+                "shell": "bash -euxo pipefail {0}"
+              },
+              {
+                "name": "Web Assembly",
+                "os": "ubuntu-latest",
+                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
+                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
+                "wasm": true,
+                "cmultilib": true,
+                "release": true,
+                "check-level": 2,
+                "cross": true,
+                "shell": "bash -euxo pipefail {0}",
+                // Just a few selected tests because wasm is slow
+                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
+              }
+            ];
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
+            return matrix.filter((job) => level >= job["check-level"])
 
   build:
     needs: [configure]
@@ -327,6 +332,9 @@ jobs:
           # store in current directory, for easy uploading together with binary
           echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
         if: runner.os == 'Linux'
+      - name: Set up NPROC
+        run: |
+          echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
       - name: Build
         run: |
           mkdir build
@@ -357,8 +365,8 @@ jobs:
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j4
+          cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
+          make -j$NPROC
           make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
@@ -387,32 +395,29 @@ jobs:
           build/stage1/bin/lean --stats src/Lean.lean
         if: ${{ !matrix.cross }}
       - name: Test
+        id: test
         run: |
-          cd build/stage1
           ulimit -c unlimited # coredumps
-          # exclude nonreproducible test
-          ctest -j4 --progress --output-junit test-results.xml --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+        if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2
         with:
           paths: build/stage1/test-results.xml
         # prefix `if` above with `always` so it's run even if tests failed
-        if: always() && (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
+        if: always() && steps.test.conclusion != 'skipped'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}
+        if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
-          cd build
           ulimit -c unlimited # coredumps
-          make -j4 stage2
+          make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          cd build
           ulimit -c unlimited # coredumps
-          make -j4 check-stage3
+          make -C build -j$NPROC stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
@@ -423,11 +428,10 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          cd build
           ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
-          make update-stage0 && rm -rf ./stage* && make -j4
-        if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
+          make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
+        if: matrix.name == 'Linux' && needs.configure.outputs.check-level >= 1
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps

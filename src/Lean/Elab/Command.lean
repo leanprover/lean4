@@ -296,11 +296,29 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   }
   return InfoTree.context ctx tree
 
+/--
+Disables incremental command reuse *and* reporting for `act` if `cond` is true by setting
+`Context.snap?` to `none`.
+-/
+def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : CommandElabM α := do
+  let opts ← getOptions
+  withReader (fun ctx => { ctx with snap? := ctx.snap?.filter fun snap => Id.run do
+    if let some old := snap.old? then
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+    return !cond
+  }) act
+
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) <| elabFn.value stx)
+      (do
+        -- prevent unsupported commands from accidentally accessing `Context.snap?` (e.g. by nested
+        -- supported commands)
+        withoutCommandIncrementality (!(← isIncrementalElab elabFn.declName)) do
+        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) do
+         elabFn.value stx)
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
@@ -327,7 +345,10 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
       if k == nullKind then
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
-        args.forM elabCommand
+        -- TODO: support incrementality at least for some cases such as expansions of
+        -- `set_option in` or `def a.b`
+        withoutCommandIncrementality true do
+          args.forM elabCommand
       else withTraceNode `Elab.command (fun _ => return stx) (tag :=
         -- special case: show actual declaration kind for `declaration` commands
         (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do

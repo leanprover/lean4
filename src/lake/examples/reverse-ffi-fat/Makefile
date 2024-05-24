@@ -3,7 +3,7 @@ LEANC ?= leanc
 
 .PHONY: all run run-local lake assert-fat
 
-all: run run-local
+all: run run-local assert-fat
 
 # Link C binary against Lake package dynamic library
 
@@ -44,11 +44,9 @@ endif
 # in order to avoid path set up and obtain a more portable executable
 
 ifeq ($(OS),Windows_NT)
-SHLIB_PREFIX :=
 SHLIB_EXT := dll
 LEAN_SHLIB_ROOT := $(shell cygpath $(LEAN_SYSROOT)/bin)
 else
-SHLIB_PREFIX := lib
 # Add current directory to loader path (default on Windows)
 ifeq ($(shell uname -s),Darwin)
 LINK_FLAGS_LOCAL := -Wl,-rpath,@executable_path

@@ -113,12 +113,12 @@ def declBody : Parser :=
     unfold f
     ) - (starting comment here)
   ```
-  where the new nesting will discard incrementality data. By using `byTactic` directly, the stray
-  `-` will be flagged as an unexpected token and will not disturb the syntax tree up to it.
-
-  In either case, the parse result is a valid `Term`.
+  where the new nesting will discard incrementality data. By using `byTactic`'s precedence, the
+  stray `-` will be flagged as an unexpected token and will not disturb the syntax tree up to it. We
+  do not call `byTactic` directly to avoid differences in pretty printing or behavior or error
+  reporting between the two branches.
   -/
-  lookahead "by" >> Term.byTactic <|>
+  lookahead "by" >> termParser leadPrec <|>
   termParser
 def declValSimple    := leading_parser
   " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls

@@ -538,7 +538,7 @@
  {"start": {"line": 260, "character": 4}, "end": {"line": 260, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 17}}
@@ -547,7 +547,7 @@
   "end": {"line": 260, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. Using `succ n` should usually\nbe avoided in favor of `n + 1`, in order to remain compatible with the simp\nnormal form defined by `Nat.succ_eq_add_one`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 263, "character": 27}}

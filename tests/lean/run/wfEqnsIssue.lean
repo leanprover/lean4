@@ -56,7 +56,7 @@ def Ctx.drop : HList (α :: Γ) → HList Γ
   | HList.cons a as => as
 
 -- custom wf tactic
-theorem Nat.le_add_right_of_le (n m : Nat) : n ≤ m → n ≤ m + k :=
+theorem Nat.le_add_right_of_le' (n m : Nat) : n ≤ m → n ≤ m + k :=
   fun h => add_le_add h (Nat.zero_le _)
 
 macro_rules

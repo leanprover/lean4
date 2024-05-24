@@ -275,17 +275,6 @@ def getEntry (key : Expr) : SynthM TableEntry := do
   | none       => panic! "invalid key at synthInstance"
   | some entry => pure entry
 
-/--
-  Create a `key` for the goal associated with the given metavariable.
-  That is, we create a key for the type of the metavariable.
-
-  We must instantiate assigned metavariables before we invoke `mkTableKey`. -/
-def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
-  withMCtx mctx do
-    let mvarType ← inferType mvar
-    let mvarType ← instantiateMVars mvarType
-    mkTableKey mvarType
-
 /-- See `getSubgoals` and `getSubgoalsAux`
 
    We use the parameter `j` to reduce the number of `instantiate*` invocations.
@@ -490,6 +479,35 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
+def checkGlobalCache (mvarType : Expr) : MetaM (Option (Option Answer)) := do
+  if mvarType.hasMVar then
+    return none
+  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← read).synthPendingDepth }
+  match (← get).cache.synthInstance.find? cacheKey with
+  | none => return none
+  | some none =>
+    trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {mvarType} in global cache"
+    return some none
+  | some (some inst) =>
+    trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {mvarType} in global cache: {inst}"
+    return some $ some {
+      result := { paramNames := #[], numMVars := 0, expr := inst }
+      resultType := mvarType
+      size := 1 }
+
+def modifyGlobalCache (key : Expr) (value : Option Expr) : MetaM Unit := fun c =>
+  let key : SynthInstanceCacheKey := { localInsts := c.localInstances, type := key, synthPendingDepth := c.synthPendingDepth }
+  modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
+
+def cacheGeneratorNode (gNode : GeneratorNode) : SynthM Unit := do
+  unless gNode.typeHasMVars do
+    if let some entry := (← get).tableEntries.find? gNode.key then
+      -- Recall that anwers with expression metavariables are not valid
+      if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
+        modifyGlobalCache gNode.key (some value.result.expr)
+      else if entry.answers.all fun answer => answer.result.numMVars != 0 then
+        modifyGlobalCache gNode.key none
+
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
   /- Filter out subgoals that have already been assigned when solving typing constraints.
@@ -510,8 +528,14 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   match cNode.subgoals with
   | []      => addAnswer cNode
   | mvar::_ =>
+    let mvarType ← withMCtx cNode.mctx do instantiateMVars (← inferType mvar)
+    match ← checkGlobalCache mvarType with
+    | some result =>
+      if let some answer := result then
+        modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
+    | none =>
      let waiter := Waiter.consumerNode cNode
-     let key ← mkTableKeyFor cNode.mctx mvar
+     let key ← withMCtx cNode.mctx do mkTableKey mvarType
      let entry? ← findEntry? key
      match entry? with
      | none       =>
@@ -551,6 +575,7 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
+    cacheGeneratorNode gNode
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -561,7 +586,7 @@ def generate : SynthM Unit := do
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
         if let some entry := (← get).tableEntries.find? key then
-          if entry.answers.any fun answer => answer.result.numMVars == 0 then
+          if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
             /-
             We already have an answer that:
               1. its result does not have metavariables.
@@ -574,6 +599,8 @@ def generate : SynthM Unit := do
             that do **not** contain metavariables. This extra check was added to address issue #4213.
             -/
             modify fun s => { s with generatorStack := s.generatorStack.pop }
+            if value.result.paramNames.isEmpty then
+              modifyGlobalCache gNode.key value.result.expr
             return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
@@ -628,7 +655,9 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
   if (← step) then
     match (← getResult) with
     | none        => synth
-    | some result => return result
+    | some result =>
+      (← get).generatorStack.forM cacheGeneratorNode
+      return result
   else
     return none
 
@@ -837,5 +866,6 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer
+  registerTraceClass `Meta.synthInstance.globalCache (inherited := true)
 
 end Lean.Meta

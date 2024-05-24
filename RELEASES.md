@@ -466,7 +466,7 @@ v4.8.0
 
 ### Breaking changes
 
-* Due to the major Lake build refactor, code using the affected parts of the Lake API or relying on the previous output format of Lake builds is likely to have been broken. We have tried to minimize the breakages and, were possible, old definitions have been marked `@[deprecated]` with a reference to the new alternative.
+* Due to the major Lake build refactor, code using the affected parts of the Lake API or relying on the previous output format of Lake builds is likely to have been broken. We have tried to minimize the breakages and, where possible, old definitions have been marked `@[deprecated]` with a reference to the new alternative.
 
 * Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.
 

@@ -45,9 +45,10 @@ EOF
 git -C dep tag release
 ($LAKE build dep:release && exit 1 || true) | grep --color "downloading"
 
-# Test unpacking
+# Test automatic cloud release unpacking
 mkdir -p dep/.lake/build
-tar -cz -f dep/.lake/release.tgz -C dep/.lake/build .
+$LAKE -d dep pack 2>&1 | grep --color "packing"
+test -f dep/.lake/release.tgz
 echo 4225503363911572621 > dep/.lake/release.tgz.trace
 rmdir dep/.lake/build
 $LAKE build dep:release -v | grep --color "unpacking"

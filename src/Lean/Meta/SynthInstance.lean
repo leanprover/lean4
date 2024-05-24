@@ -728,13 +728,16 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       return defEq
     let cacheKey := { localInsts, type, synthPendingDepth := (← read).synthPendingDepth }
     match s.cache.synthInstance.find? cacheKey with
-    | .undef => Meta.throwIsDefEqStuck
     | .some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          return none
-      pure result
+      match result with
+      | .undef => Meta.throwIsDefEqStuck
+      | .some inst =>
+        if let .some inst := result then
+          unless (← assignOutParams inst) do
+            return none
+        pure $ some inst
+      | none => pure inst
     | .none        =>
       let result? : LOption AbstractMVarsResult ← catchInternalId isDefEqStuckExceptionId
           (toLOptionM <|

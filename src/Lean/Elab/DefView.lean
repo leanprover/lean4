@@ -84,7 +84,7 @@ instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
 /-- State before elaboration of a mutual definition. -/
 structure DefParsed where
   /--
-  Unstructured syntax object compromising the full "header" of the definition from the modifiers
+  Unstructured syntax object comprising the full "header" of the definition from the modifiers
   (incl. docstring) up to the value, used for determining header elaboration reuse.
   -/
   fullHeaderRef : Syntax
@@ -107,7 +107,7 @@ structure DefView where
   kind          : DefKind
   ref           : Syntax
   /--
-  An unstructured syntax object that compromises the "header" of the definition, i.e. everything up
+  An unstructured syntax object that comprises the "header" of the definition, i.e. everything up
   to the value. Used as a more specific ref for header elaboration.
   -/
   headerRef     : Syntax

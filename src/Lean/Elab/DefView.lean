@@ -84,10 +84,10 @@ instance : Language.ToSnapshotTree HeaderProcessedSnapshot where
 /-- State before elaboration of a mutual definition. -/
 structure DefParsed where
   /--
-  Input substring uniquely identifying header elaboration result given the same `Environment`.
-  If missing, results should never be reused.
+  Unstructured syntax object compromising the full "header" of the definition from the modifiers
+  (incl. docstring) up to the value, used for determining header elaboration reuse.
   -/
-  headerSubstr? : Option Substring
+  fullHeaderRef : Syntax
   /-- Elaboration result, unless fatal exception occurred. -/
   headerProcessedSnap : SnapshotTask (Option HeaderProcessedSnapshot)
 deriving Nonempty
@@ -106,6 +106,11 @@ end Snapshots
 structure DefView where
   kind          : DefKind
   ref           : Syntax
+  /--
+  An unstructured syntax object that compromises the "header" of the definition, i.e. everything up
+  to the value. Used as a more specific ref for header elaboration.
+  -/
+  headerRef     : Syntax
   modifiers     : Modifiers
   declId        : Syntax
   binders       : Syntax
@@ -132,20 +137,20 @@ def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let (binders, type) := expandOptDeclSig stx[2]
   let modifiers       := modifiers.addAttribute { name := `inline }
   let modifiers       := modifiers.addAttribute { name := `reducible }
-  { ref := stx, kind := DefKind.abbrev, modifiers,
+  { ref := stx, headerRef := mkNullNode stx.getArgs[:3], kind := DefKind.abbrev, modifiers,
     declId := stx[1], binders, type? := type, value := stx[3] }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
   let (binders, type) := expandOptDeclSig stx[2]
   let deriving? := if stx[4].isNone then none else some stx[4][1].getSepArgs
-  { ref := stx, kind := DefKind.def, modifiers,
+  { ref := stx, headerRef := mkNullNode stx.getArgs[:3], kind := DefKind.def, modifiers,
     declId := stx[1], binders, type? := type, value := stx[3], deriving? }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "theorem " >> declId >> declSig >> declVal
   let (binders, type) := expandDeclSig stx[2]
-  { ref := stx, kind := DefKind.theorem, modifiers,
+  { ref := stx, headerRef := mkNullNode stx.getArgs[:3], kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -166,7 +171,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
       trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
-    ref := stx, kind := DefKind.def, modifiers := modifiers,
+    ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.def, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[5]
   }
 
@@ -179,7 +184,7 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
       let val ← if modifiers.isUnsafe then `(default_or_ofNonempty% unsafe) else `(default_or_ofNonempty%)
       `(Parser.Command.declValSimple| := $val)
   return {
-    ref := stx, kind := DefKind.opaque, modifiers := modifiers,
+    ref := stx, headerRef := mkNullNode stx.getArgs[:3], kind := DefKind.opaque, modifiers := modifiers,
     declId := stx[1], binders := binders, type? := some type, value := val
   }
 
@@ -188,7 +193,7 @@ def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   let (binders, type) := expandOptDeclSig stx[1]
   let id              := mkIdentFrom stx `_example
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
-  { ref := stx, kind := DefKind.example, modifiers := modifiers,
+  { ref := stx, headerRef := mkNullNode stx.getArgs[:2], kind := DefKind.example, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[2] }
 
 def isDefLike (stx : Syntax) : Bool :=

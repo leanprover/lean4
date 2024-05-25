@@ -66,7 +66,13 @@ abbrev JobResult α := EResult Log.Pos JobState α
 /-- The `Task` of a Lake job. -/
 abbrev JobTask α := BaseIOTask (JobResult α)
 
-/-- The monad of asynchronous Lake jobs. Lifts into `FetchM`. -/
+/--
+The monad of asynchronous Lake jobs.
+
+While this can be lifted into `FetchM`, job action should generally
+be wrapped into an asynchronous job (e.g., via `Job.async`) instead of being
+run directly in `FetchM`.
+-/
 abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
 
 instance [Pure m] : MonadLift LakeM (BuildT m) where
@@ -93,16 +99,6 @@ abbrev SpawnM := BuildT BaseIO
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
 @[deprecated SpawnM] abbrev SchedulerM := SpawnM
-
-/--
-Logs a build step with `message`.
-
-**Deprecated:**  Build steps are now managed by a top-level build monitor.
-As a result, this no longer functions the way it used to. It now just logs the
-`message` via `logVerbose`.
--/
-@[deprecated] def logStep (message : String) : JobM Unit := do
-  logVerbose message
 
 /-- A Lake job. -/
 structure Job (α : Type u)  where

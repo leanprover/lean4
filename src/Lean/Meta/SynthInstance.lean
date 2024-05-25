@@ -44,7 +44,6 @@ structure Instance where
 structure GeneratorNode where
   mvar            : Expr
   key             : Expr
-  keyEq           : Bool
   mctx            : MetavarContext
   instances       : Array Instance
   currInstanceIdx : Nat
@@ -156,12 +155,11 @@ partial def normExpr (e : Expr) : M Expr := do
 
 end MkTableKey
 
-/-- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables.
-Returns a flag which is `true` when the expression was not changed. -/
-def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m (Expr × Bool) := do
+/-- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables. -/
+def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m Expr := do
   let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
   setMCtx s.mctx
-  return (r, s.nextIdx == 0)
+  return r
 
 structure Answer where
   result     : AbstractMVarsResult
@@ -241,7 +239,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
-def mkGeneratorNode? (key mvar : Expr) (keyEq : Bool) : MetaM (Option GeneratorNode) := do
+def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
   let mvarType  ← inferType mvar
   let mvarType  ← instantiateMVars mvarType
   let instances ← getInstances mvarType
@@ -250,7 +248,7 @@ def mkGeneratorNode? (key mvar : Expr) (keyEq : Bool) : MetaM (Option GeneratorN
   else
     let mctx ← getMCtx
     return some {
-      mvar, key, keyEq, mctx, instances
+      mvar, key, mctx, instances
       typeHasMVars := mvarType.hasMVar
       currInstanceIdx := instances.size
     }
@@ -258,9 +256,9 @@ def mkGeneratorNode? (key mvar : Expr) (keyEq : Bool) : MetaM (Option GeneratorN
 /--
   Create a new generator node for `mvar` and add `waiter` as its waiter.
   `key` must be `mkTableKey mctx mvarType`. -/
-def newSubgoal (mctx : MetavarContext) (key mvar : Expr) (keyEq : Bool) (waiter : Waiter) : SynthM Unit :=
+def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
   withMCtx mctx do withTraceNode' `Meta.synthInstance do
-    match (← mkGeneratorNode? key mvar keyEq) with
+    match (← mkGeneratorNode? key mvar) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
       let entry : TableEntry := { waiters? := #[waiter] }
@@ -484,6 +482,8 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           return some (mvarType', transformer)
 
 def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
+  if type.hasMVar then
+    return none
   let cacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   match (← get).cache.synthInstance.find? cacheKey with
   | none => return none
@@ -502,7 +502,7 @@ def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
 
 def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
-  unless gNode.keyEq do
+  unless gNode.typeHasMVars do
     let entry ← getEntry gNode.key
     -- Recall that anwers with expression metavariables are not valid
     if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
@@ -537,21 +537,21 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
         modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
     | none =>
      let waiter := Waiter.consumerNode cNode
-     let (key, keyEq) ← withMCtx cNode.mctx do mkTableKey mvarType
+     let key ← withMCtx cNode.mctx do mkTableKey mvarType
      let entry? ← findEntry? key
      match entry? with
      | none       =>
        -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
        match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar keyEq waiter
+       | none => newSubgoal cNode.mctx key mvar waiter
        | some (mvarType', transformer) =>
-         let (key', keyEq') ← withMCtx cNode.mctx <| mkTableKey mvarType'
+         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
          match (← findEntry? key') with
          | none =>
            let (mctx', mvar') ← withMCtx cNode.mctx do
              let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' keyEq' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
          | some entry' =>
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
@@ -611,7 +611,6 @@ def generate : SynthM Unit := do
           -/
           modify fun s => { s with generatorStack := s.generatorStack.pop }
           if value.result.paramNames.isEmpty then
-            -- Remark: gNode.keyEq is implied by !gNode.typeHasMVars
             modifyGlobalCache gNode.key value.result.expr
           return
     discard do withMCtx mctx do
@@ -676,9 +675,9 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
      let mvar ← mkFreshExprMVar type
-     let (key, keyEq) ← mkTableKey type
+     let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal (← getMCtx) key mvar keyEq Waiter.root
+       newSubgoal (← getMCtx) key mvar Waiter.root
        synth
      tryCatchRuntimeEx
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})

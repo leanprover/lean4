@@ -1123,9 +1123,9 @@ theorem getLsb_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i �
 /-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
 theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateLeft r).getLsb i =
-      if i < r
-      then x.getLsb (w - r + i)
-      else decide (i < w) && x.getLsb (i - r) := by
+      cond (i < r)
+      (x.getLsb (w - r + i))
+      (decide (i < w) && x.getLsb (i - r)) := by
   · rw [rotateLeft_eq_rotateLeftAux_of_lt hr]
     by_cases h : i < r
     · simp [h, getLsb_rotateLeftAux_of_le h]
@@ -1134,9 +1134,9 @@ theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
 @[simp]
 theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
     (x.rotateLeft r).getLsb i =
-      if i < r % w
-      then x.getLsb (w - (r % w) + i)
-      else decide (i < w) && x.getLsb (i - (r % w)) := by
+      cond (i < r % w)
+      (x.getLsb (w - (r % w) + i))
+      (decide (i < w) && x.getLsb (i - (r % w))) := by
   rcases w with ⟨rfl, w⟩
   · simp
   · rw [← rotateLeft_mod_eq_rotateLeft, getLsb_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
@@ -1204,9 +1204,9 @@ theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
 /-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
 theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
     (x.rotateRight r).getLsb i =
-      if i < w - r
-      then x.getLsb (r + i)
-      else decide (i < w) && x.getLsb (i - (w - r)) := by
+      cond (i < w - r)
+      (x.getLsb (r + i))
+      (decide (i < w) && x.getLsb (i - (w - r))) := by
   · rw [rotateRight_eq_rotateRightAux_of_lt hr]
     by_cases h : i < w - r
     · simp [h, getLsb_rotateRightAux_of_le h]
@@ -1215,9 +1215,9 @@ theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
 @[simp]
 theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
     (x.rotateRight r).getLsb i =
-      if i < w - (r % w)
-      then x.getLsb ((r % w) + i)
-      else decide (i < w) && x.getLsb (i - (w - (r % w))) := by
+      cond (i < w - (r % w))
+      (x.getLsb ((r % w) + i))
+      (decide (i < w) && x.getLsb (i - (w - (r % w)))) := by
   rcases w with ⟨rfl, w⟩
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]

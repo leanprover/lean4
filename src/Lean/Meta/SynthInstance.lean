@@ -187,6 +187,7 @@ structure State where
   generatorStack : Array GeneratorNode           := #[]
   resumeStack    : Array (ConsumerNode × Answer) := #[]
   tableEntries   : HashMap Expr TableEntry       := {}
+  anyLoops       : Bool                          := false
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
@@ -558,11 +559,13 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
            modify fun s =>
              { s with
                resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter }
+               anyLoops     := true }
      | some entry => modify fun s =>
        { s with
          resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter }
+         anyLoops     := true }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
@@ -575,7 +578,7 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
-    cacheGeneratorNode gNode (finished := true)
+    cacheGeneratorNode gNode (finished := !(← get).anyLoops)
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1

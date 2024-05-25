@@ -481,20 +481,20 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
-def checkGlobalCache (mvarType : Expr) : MetaM (Option (Option Answer)) := do
-  if mvarType.hasMVar then
+def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
+  if type.hasMVar then
     return none
-  let cacheKey := { localInsts := ← getLocalInstances, type := mvarType, synthPendingDepth := (← read).synthPendingDepth }
+  let cacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   match (← get).cache.synthInstance.find? cacheKey with
   | none => return none
   | some none =>
-    trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {mvarType} in global cache"
+    trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {type} in global cache"
     return some none
   | some (some inst) =>
-    trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {mvarType} in global cache: {inst}"
+    trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {type} in global cache: {inst}"
     return some $ some {
       result := { paramNames := #[], numMVars := 0, expr := inst }
-      resultType := mvarType
+      resultType := type
       size := 1 }
 
 def modifyGlobalCache (key : Expr) (value : Option Expr) : MetaM Unit := fun c =>

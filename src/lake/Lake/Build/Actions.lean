@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
-import Lake.Build.Job
+import Lake.Util.IO
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -22,7 +22,7 @@ def compileLeanModule
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
   (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
-: JobM Unit := do
+: LogIO Unit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
   if let some oleanFile := oleanFile? then
@@ -70,7 +70,7 @@ def compileLeanModule
 def compileO
   (oFile srcFile : FilePath)
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs oFile
   proc {
     cmd := compiler.toString
@@ -80,7 +80,7 @@ def compileO
 def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
   (ar : FilePath := "ar")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := ar.toString
@@ -90,7 +90,7 @@ def compileStaticLib
 def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String)
   (linker : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
@@ -100,7 +100,7 @@ def compileSharedLib
 def compileExe
   (binFile : FilePath) (linkFiles : Array FilePath)
   (linkArgs : Array String := #[]) (linker : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString

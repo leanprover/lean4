@@ -170,6 +170,7 @@ structure Answer where
   deriving Inhabited
 
 structure TableEntry where
+  /-- When all anwers have been found, `waiters?` is set to `none`. -/
   waiters? : Option (Array Waiter)
   answers : Array Answer := #[]
 
@@ -428,7 +429,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     if isNewAnswer answers answer then
       let newEntry := { waiters?, answers := answers.push answer }
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-      let some waiters := waiters? | panic! "found no waiters at entry that is receiving an answer"
+      let some waiters := waiters? | panic! "synthInstance?: found no waiters at entry that is receiving an answer"
       waiters.forM (wakeUp answer)
 
 /--

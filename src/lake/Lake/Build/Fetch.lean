@@ -25,6 +25,20 @@ abbrev RecBuildM :=
 
 instance : MonadLift LogIO RecBuildM := ⟨ELogT.takeAndRun⟩
 
+/--
+Run a `JobM` action in `RecBuildM` (and thus `FetchM`).
+
+Generally, this should not be done, and instead a job action
+should be run asynchronously in a Job (e.g., via `Job.async`).
+-/
+@[inline] def RecBuildM.runJobM (x : JobM α) : RecBuildM α := fun _ ctx log store => do
+  match (← x ctx {log}) with
+  | .ok a s => return (.ok a s.log, store)
+  | .error e s => return (.error e s.log, store)
+
+instance : MonadLift JobM RecBuildM where
+  monadLift x := RecBuildM.runJobM x
+
 /-- Run a recursive build. -/
 @[inline] def RecBuildM.run
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
@@ -55,7 +69,10 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 /-- The top-level monad for Lake build functions. -/
 abbrev FetchM := IndexT RecBuildM
 
-/-- Verifies that `SpawnM` lifts into `FetchM`. -/
+/-- Ensures that `JobM` lifts into `FetchM`. -/
+example : MonadLiftT JobM FetchM := inferInstance
+
+/-- Ensures that `SpawnM` lifts into `FetchM`. -/
 example : MonadLiftT SpawnM FetchM := inferInstance
 
 /-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/

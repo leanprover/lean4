@@ -66,7 +66,13 @@ abbrev JobResult α := EResult Log.Pos JobState α
 /-- The `Task` of a Lake job. -/
 abbrev JobTask α := BaseIOTask (JobResult α)
 
-/-- The monad of asynchronous Lake jobs. -/
+/--
+The monad of asynchronous Lake jobs.
+
+While this can be lifted into `FetchM`, job action should generally
+be wrapped into an asynchronous job (e.g., via `Job.async`) instead of being
+run directly in `FetchM`.
+-/
 abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
 
 instance [Pure m] : MonadLift LakeM (BuildT m) where

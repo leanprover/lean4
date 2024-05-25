@@ -426,8 +426,8 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     if isNewAnswer answers answer then
       let newEntry := { waiters?, answers := answers.push answer }
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-      if let some waiters := waiters? then
-        waiters.forM (wakeUp answer)
+      let some waiters := waiters? | panic! "found no waiters at entry that is receiving an answer"
+      waiters.forM (wakeUp answer)
 
 /--
   Return `true` if a type of the form `(a_1 : A_1) → ... → (a_n : A_n) → B` has an unused argument `a_i`.
@@ -497,18 +497,18 @@ def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
       resultType := type
       size := 1 }
 
-def modifyGlobalCache (key : Expr) (value : Option Expr) : MetaM Unit := fun c =>
-  let key : SynthInstanceCacheKey := { localInsts := c.localInstances, type := key, synthPendingDepth := c.synthPendingDepth }
+def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
+  let key : SynthInstanceCacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
 
 def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
   unless gNode.typeHasMVars do
-    if let some entry := (← get).tableEntries.find? gNode.key then
-      -- Recall that anwers with expression metavariables are not valid
-      if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
-        modifyGlobalCache gNode.key (some value.result.expr)
-      else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
-        modifyGlobalCache gNode.key none
+    let entry ← getEntry gNode.key
+    -- Recall that anwers with expression metavariables are not valid
+    if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
+      modifyGlobalCache gNode.key (some value.result.expr)
+    else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
+      modifyGlobalCache gNode.key none
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
@@ -585,8 +585,8 @@ def generate : SynthM Unit := do
     let noLoops := (← get).noLoops
     cacheGeneratorNode gNode (finished := noLoops)
     if noLoops then
-      if let some entry := (← get).tableEntries.find? gNode.key then
-        modify fun s => { s with tableEntries := s.tableEntries.insert gNode.key { entry with waiters? := none } }
+      let entry ← getEntry gNode.key
+      modify fun s => { s with tableEntries := s.tableEntries.insert gNode.key { entry with waiters? := none } }
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -596,23 +596,23 @@ def generate : SynthM Unit := do
     /- See comment at `typeHasMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
-        if let some entry := (← get).tableEntries.find? key then
-          if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
-            /-
-            We already have an answer that:
-              1. its result does not have metavariables.
-              2. its types do not have metavariables.
+        let entry ← getEntry key
+        if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
+          /-
+          We already have an answer that:
+            1. its result does not have metavariables.
+            2. its types do not have metavariables.
 
-            Thus, we can skip other solutions because we assume instances are "morally canonical".
-            We have added this optimization to address issue #3996.
+          Thus, we can skip other solutions because we assume instances are "morally canonical".
+          We have added this optimization to address issue #3996.
 
-            Remark: Condition 1 is important since root nodes only take into account results
-            that do **not** contain metavariables. This extra check was added to address issue #4213.
-            -/
-            modify fun s => { s with generatorStack := s.generatorStack.pop }
-            if value.result.paramNames.isEmpty then
-              modifyGlobalCache gNode.key value.result.expr
-            return
+          Remark: Condition 1 is important since root nodes only take into account results
+          that do **not** contain metavariables. This extra check was added to address issue #4213.
+          -/
+          modify fun s => { s with generatorStack := s.generatorStack.pop }
+          if value.result.paramNames.isEmpty then
+            modifyGlobalCache gNode.key value.result.expr
+          return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
         (return m!"{exceptOptionEmoji ·} apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do

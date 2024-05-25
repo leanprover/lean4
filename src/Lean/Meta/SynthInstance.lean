@@ -703,9 +703,6 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     match s.cache.synthInstance.find? cacheKey with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
-      if let some inst := result then
-        unless (← assignOutParams inst) do
-          return none
       pure result
     | none        =>
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do

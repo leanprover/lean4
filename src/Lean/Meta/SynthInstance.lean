@@ -487,34 +487,34 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   match cNode.subgoals with
   | []      => addAnswer cNode
   | mvar::_ =>
-     let waiter := Waiter.consumerNode cNode
-     let mvarType ← instantiateMVars (← inferType mvar)
-     let key ← mkTableKey mvarType
-     let entry? ← findEntry? key
-     match entry? with
-     | none       =>
-       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
-       match (← removeUnusedArguments? mvarType) with
-       | none => newSubgoal key mvar mvarType waiter
-       | some (mvarType', transformer) =>
-         let key' ← mkTableKey mvarType'
-         match (← findEntry? key') with
-         | none =>
-           let mvar' ← mkFreshExprMVar mvarType'
-           newSubgoal key' mvar' mvarType' (Waiter.consumerNode { cNode with mctx := ← getMCtx, subgoals := mvar'::cNode.subgoals })
-         | some entry' =>
-           let answers' ← entry'.answers.mapM fun a => do
-             let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
-             let trAnswrType ← inferType trAnswr
-             pure { a with result.expr := trAnswr, resultType := trAnswrType }
-           modify fun s =>
-             { s with
-               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
-     | some entry => modify fun s =>
-       { s with
-         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+    let waiter := Waiter.consumerNode cNode
+    let mvarType ← instantiateMVars (← inferType mvar)
+    let key ← mkTableKey mvarType
+    let entry? ← findEntry? key
+    match entry? with
+    | none       =>
+      -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
+      match (← removeUnusedArguments? mvarType) with
+      | none => newSubgoal key mvar mvarType waiter
+      | some (mvarType', transformer) =>
+        let key' ← mkTableKey mvarType'
+        match (← findEntry? key') with
+        | none =>
+          let mvar' ← mkFreshExprMVar mvarType'
+          newSubgoal key' mvar' mvarType' (Waiter.consumerNode { cNode with mctx := ← getMCtx, subgoals := mvar'::cNode.subgoals })
+        | some entry' =>
+          let answers' ← entry'.answers.mapM fun a => do
+            let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
+            let trAnswrType ← inferType trAnswr
+            pure { a with result.expr := trAnswr, resultType := trAnswrType }
+          modify fun s =>
+            { s with
+              resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+              tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
+    | some entry => modify fun s =>
+      { s with
+        resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+        tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
@@ -536,21 +536,21 @@ def generate : SynthM Unit := do
     /- See comment at `typeHasMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
       unless gNode.typeHasMVars do
-        if let some entry := (← get).tableEntries.find? key then
-          if entry.answers.any fun answer => answer.result.numMVars == 0 then
-            /-
-            We already have an answer that:
-              1. its result does not have metavariables.
-              2. its types do not have metavariables.
+        let entry ← getEntry key
+        if entry.answers.any fun answer => answer.result.numMVars == 0 then
+          /-
+          We already have an answer that:
+            1. its result does not have metavariables.
+            2. its types do not have metavariables.
 
-            Thus, we can skip other solutions because we assume instances are "morally canonical".
-            We have added this optimization to address issue #3996.
+          Thus, we can skip other solutions because we assume instances are "morally canonical".
+          We have added this optimization to address issue #3996.
 
-            Remark: Condition 1 is important since root nodes only take into account results
-            that do **not** contain metavariables. This extra check was added to address issue #4213.
-            -/
-            modify fun s => { s with generatorStack := s.generatorStack.pop }
-            return
+          Remark: Condition 1 is important since root nodes only take into account results
+          that do **not** contain metavariables. This extra check was added to address issue #4213.
+          -/
+          modify fun s => { s with generatorStack := s.generatorStack.pop }
+          return
     discard do withMCtx mctx do
       withTraceNodeBefore `Meta.synthInstance (do
         return m!"apply {inst.val} to {← inferType mvar}") do
@@ -607,18 +607,18 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
-     let mvar ← mkFreshExprMVar type
-     let key  ← mkTableKey type
-     let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal key mvar type Waiter.root
-       synth
-     tryCatchRuntimeEx
-       (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
-       fun ex =>
-         if ex.isRuntime then
-           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
-         else
-           throw ex
+    let mvar ← mkFreshExprMVar type
+    let key  ← mkTableKey type
+    let action : SynthM (Option AbstractMVarsResult) := do
+      newSubgoal key mvar type Waiter.root
+      synth
+    tryCatchRuntimeEx
+      (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})
+      fun ex =>
+        if ex.isRuntime then
+          throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}\n{useDiagnosticMsg}"
+        else
+          throw ex
 
 end SynthInstance
 

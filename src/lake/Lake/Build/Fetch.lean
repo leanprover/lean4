@@ -36,8 +36,7 @@ should be run asynchronously in a Job (e.g., via `Job.async`).
   | .ok a s => return (.ok a s.log, store)
   | .error e s => return (.error e s.log, store)
 
-instance : MonadLift JobM RecBuildM where
-  monadLift x := RecBuildM.runJobM x
+instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
 
 /-- Run a recursive build. -/
 @[inline] def RecBuildM.run

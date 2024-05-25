@@ -11,14 +11,13 @@
   [Meta.synthInstance] ❌ apply inst✝ to IsSmooth fun g a => f (g a) d
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g a => f (g a) d ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @swap to IsSmooth fun g a => f (g a) d
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g a => f (g a) d ≟ IsSmooth fun b a => ?m a b
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g a => f (g a) d ≟ IsSmooth fun b a => f (b a) d
     [Meta.synthInstance] new goal ∀ (a : α), IsSmooth fun g => f (g a) d
       [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, inst✝]
   [Meta.synthInstance] ❌ apply inst✝ to ∀ (a : α), IsSmooth fun g => f (g a) d
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a) d ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @diag to ∀ (a : α), IsSmooth fun g => f (g a) d
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g =>
-          f (g a) d ≟ IsSmooth fun a_1 => ?m a (?m a a_1) (?m a a_1) 
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) d ≟ IsSmooth fun a_1 => f (a_1 a) d
     [Meta.synthInstance.unusedArgs] α → IsSmooth f
         has unused arguments, reduced type
           IsSmooth f
@@ -51,20 +50,19 @@
   [Meta.synthInstance] ❌ apply @comp to ∀ (a : α), IsSmooth fun g => f (g a) d
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a) d ≟ IsSmooth fun a_1 => ?m a (?m a a_1)
   [Meta.synthInstance] ✅ apply @parm to ∀ (a : α), IsSmooth fun g => f (g a) d
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) d ≟ IsSmooth fun a_1 => ?m a a_1 (?m a)
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) d ≟ IsSmooth fun a_1 => f (a_1 a) d
     [Meta.synthInstance] new goal ∀ (a : α), IsSmooth fun g => f (g a)
       [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, @swap, inst✝]
   [Meta.synthInstance] ❌ apply inst✝ to ∀ (a : α), IsSmooth fun g => f (g a)
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a) ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @swap to ∀ (a : α), IsSmooth fun g => f (g a)
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) ≟ IsSmooth fun b a_1 => ?m a a_1 b
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) ≟ IsSmooth fun b a_1 => f (b a) a_1
     [Meta.synthInstance] new goal ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
       [Meta.synthInstance.instances] #[@identity, @const, @parm, @comp, @diag, inst✝]
   [Meta.synthInstance] ❌ apply inst✝ to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a✝) a ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @diag to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g =>
-          f (g a✝) a ≟ IsSmooth fun a_1 => ?m a✝ a (?m a✝ a a_1) (?m a✝ a a_1)
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a✝) a ≟ IsSmooth fun a_1 => f (a_1 a✝) a
     [Meta.synthInstance.unusedArgs] α → δ → IsSmooth f
         has unused arguments, reduced type
           IsSmooth f
@@ -81,7 +79,7 @@
   [Meta.synthInstance] ❌ apply @comp to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a✝) a ≟ IsSmooth fun a_1 => ?m a✝ a (?m a✝ a a_1)
   [Meta.synthInstance] ✅ apply @parm to ∀ (a : α) (a_1 : δ), IsSmooth fun g => f (g a) a_1
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a✝) a ≟ IsSmooth fun a_1 => ?m a✝ a a_1 (?m a✝ a)
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a✝) a ≟ IsSmooth fun a_1 => f (a_1 a✝) a
     [Meta.synthInstance.unusedArgs] ∀ (a : α), δ → IsSmooth fun g => f (g a)
         has unused arguments, reduced type
           ∀ (a : α), IsSmooth fun g => f (g a)
@@ -95,7 +93,7 @@
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g =>
           f (g a) ≟ IsSmooth fun a_1 => ?m a (?m a a_1) (?m a a_1)
   [Meta.synthInstance] ✅ apply @comp to ∀ (a : α), IsSmooth fun g => f (g a)
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) ≟ IsSmooth fun a_1 => ?m a (?m a a_1)
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => f (g a) ≟ IsSmooth fun a_1 => f (a_1 a)
     [Meta.synthInstance.unusedArgs] α → IsSmooth f
         has unused arguments, reduced type
           IsSmooth f
@@ -114,7 +112,7 @@
   [Meta.synthInstance] ❌ apply @comp to ∀ (a : α), IsSmooth fun g => g a
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => g a ≟ IsSmooth fun a_1 => ?m a (?m a a_1)
   [Meta.synthInstance] ✅ apply @parm to ∀ (a : α), IsSmooth fun g => g a
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => g a ≟ IsSmooth fun a_1 => ?m a a_1 (?m a)
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => g a ≟ IsSmooth fun a_1 => a_1 a
     [Meta.synthInstance.unusedArgs] α → IsSmooth fun g => g
         has unused arguments, reduced type
           IsSmooth fun g => g
@@ -125,7 +123,7 @@
   [Meta.synthInstance] ❌ apply inst✝ to IsSmooth fun g => g
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => g ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @swap to IsSmooth fun g => g
-    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => g ≟ IsSmooth fun b a => ?m a b
+    [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g => g ≟ IsSmooth fun b a => b a
   [Meta.synthInstance] ❌ apply @diag to IsSmooth fun g => g
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => g ≟ IsSmooth fun a => ?m (?m a) (?m a)
   [Meta.synthInstance] ❌ apply @comp to IsSmooth fun g => g

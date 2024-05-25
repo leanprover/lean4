@@ -34,11 +34,11 @@ theorem toNat_sub_toNat_shiftRight_eq_ofLt {m n i: Nat} (h : m < n) :
 
 theorem shiftRight_shiftRight (i : Int) (m n : Nat) :
     i >>> m >>> n = i >>> (m + n) := by
-  rcases i with i | i <;>
-    simp [natCast_shiftRight, Int.shiftRight_negSucc, Nat.shiftRight_add]
+  simp only [shiftRight_eq, Int.shiftRight]
+  cases i <;> simp [Nat.shiftRight_add]
 
 theorem shiftRight_eq_div_pow (m : Int) (n : Nat) :
-    m >>> n = m / ((((2 : Nat) ^ n) : Nat) : Int) := by
+    m >>> n = m / ((2 ^ n) : Nat) := by
   rcases m
   case ofNat m =>
     simp only [Int.ofNat_eq_coe, shiftRight_eq, Int.shiftRight, Nat.shiftRight_eq_div_pow,

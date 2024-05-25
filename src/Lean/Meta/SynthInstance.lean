@@ -571,11 +571,16 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
       | some waiters => { s with
          tableEntries := s.tableEntries.insert key { entry with waiters? := waiters.push waiter }
          noLoops     := false }
+
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
 
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
   modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
+
+def deleteWaiters (key : Expr) : SynthM Unit := do
+  let entry ← getEntry key
+  modify fun s => { s with tableEntries := s.tableEntries.insert key { entry with waiters? := none } }
 
 /-- Try the next instance in the node on the top of the generator stack. -/
 def generate : SynthM Unit := do
@@ -585,8 +590,7 @@ def generate : SynthM Unit := do
     let noLoops := (← get).noLoops
     cacheGeneratorNode gNode (finished := noLoops)
     if noLoops then
-      let entry ← getEntry gNode.key
-      modify fun s => { s with tableEntries := s.tableEntries.insert gNode.key { entry with waiters? := none } }
+      deleteWaiters gNode.key
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -612,6 +616,8 @@ def generate : SynthM Unit := do
           modify fun s => { s with generatorStack := s.generatorStack.pop }
           if gNode.keyIsMVarType && value.result.paramNames.isEmpty then
             modifyGlobalCache gNode.key value.result.expr
+          if (← get).noLoops then
+            deleteWaiters key
           return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance

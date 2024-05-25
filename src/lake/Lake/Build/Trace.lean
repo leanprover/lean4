@@ -3,18 +3,16 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.IO
 import Lake.Util.Newline
 
 open System
+
 namespace Lake
 
 --------------------------------------------------------------------------------
 /-! # Utilities -/
 --------------------------------------------------------------------------------
-
-/-- Creates any missing parent directories of `path`. -/
-@[inline] def createParentDirs (path : FilePath) : IO Unit := do
-  if let some dir := path.parent then IO.FS.createDirAll dir
 
 class CheckExists.{u} (i : Type u) where
   /-- Check whether there already exists an artifact for the given target info. -/

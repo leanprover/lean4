@@ -11,8 +11,7 @@ namespace Int
 
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl
 @[simp]
-theorem shiftRight_ofNat (n s : Nat) : (n : Int) >>> s = Int.ofNat (n >>> s) := rfl
-theorem natCast_shiftRight (n s : Nat) : ((↑n) : Int) >>> s = n >>> s := rfl
+theorem natCast_shiftRight (n s : Nat) : (n : Int) >>> s = n >>> s := rfl
 
 @[simp]
 theorem negSucc_shiftRight (m n : Nat) :

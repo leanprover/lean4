@@ -1070,25 +1070,20 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
   simp only [rotateLeft, Nat.mod_eq_of_lt hr]
 
 
-/-- Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
-    accessing bits `x` in the range `[w - r, w)`,
-    given by `i : [0, r) ↦ w - r + i : [w - r, w)`.
+/--
+Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
+accessing bits `x` in the range `[w - r, w)`.
 
-  Proof by example:
-    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
-  x.rotateLeft 2
-    = (<6 5 | 4 3 2 1 0>).rotateLeft 2
-    = <3 2 1 0 | 6 5>
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
 
-  (x.rotateLeft 2).getLsb ⟨i, i < 2⟩
-    = <3 2 1 0 | 6 5>.getLsb ⟨i, i < 2⟩
-    = <6 5>[i]
-    = <6 5 | 4 3 2 1 0>[i + len(<4 3 2 1 0>)]
-    = <6 5 | 4 3 2 1 0>[i + 7 - 2]
-
-    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
-    Then, access the bit at `i` from the right `(+i)`.
- -/
+(x.rotateLeft 2).getLsb ⟨i, i < 2⟩
+= <3 2 1 0 | 6 5>.getLsb ⟨i, i < 2⟩
+= <6 5>[i]
+= <6 5 | 4 3 2 1 0>[i + len(<4 3 2 1 0>)]
+= <6 5 | 4 3 2 1 0>[i + 7 - 2]
+-/
 theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
     (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
   rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
@@ -1098,23 +1093,21 @@ theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < 
     Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
   omega
 
-/-- Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
-    accessing bits `x` in the range `[0, w - r)`,
-    given by `i : [r, w) ↦ i - r : [0, w - r)`.
+/--
+Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
+accessing bits `x` in the range `[0, w - r)`.
 
-  Proof by example:
-    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
-  x.rotateLeft 2
-    = (<6 5 | 4 3 2 1 0>).rotateLeft 2
-    = <3 2 1 0 | 6 5>
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
 
-  (x.rotateLeft 2).getLsb ⟨i, i ≥ 2⟩
-    = <3 2 1 0 | 6 5>.getLsb ⟨i, i ≥ 2⟩
-    = <3 2 1 0>[i - 2]
-    = <6 5 | 3 2 1 0>[i - 2]
+(x.rotateLeft 2).getLsb ⟨i, i ≥ 2⟩
+= <3 2 1 0 | 6 5>.getLsb ⟨i, i ≥ 2⟩
+= <3 2 1 0>[i - 2]
+= <6 5 | 3 2 1 0>[i - 2]
 
-    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
-    Then, access the bit at `i` from the right `(+i)`.
+Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+Then, access the bit at `i` from the right `(+i)`.
  -/
 theorem getLsb_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
     (x.rotateLeftAux r).getLsb i = (decide (i < w) && x.getLsb (i - r)) := by
@@ -1150,24 +1143,19 @@ theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
 
 /-! ## Rotate Right -/
 
-/-- Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
-    accessing bits `x` in the range `[r, w)`,
-    given by `i : [0, w - r) ↦ i + r : [r, w)`.
+/--
+Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
+accessing bits `x` in the range `[r, w)`.
 
-  Proof by example:
-    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
-  x.rotateRight 2
-    = (<6 5 4 3 2 | 1 0>).rotateRight 2
-    = <1 0 | 6 5 4 3 2>
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateRight 2 = (<6 5 4 3 2 | 1 0>).rotateRight 2 = <1 0 | 6 5 4 3 2>
 
-  (x.rotateLeft 2).getLsb ⟨i, i ≤ 7 - 2⟩
-    = <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
-    = <6 5 4 3 2>.getLsb i
-    = <6 5 4 3 2 | 1 0>[i + 2]
-
-    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
-    Then, access the bit at `i` from the right `(+i)`.
- -/
+(x.rotateLeft 2).getLsb ⟨i, i ≤ 7 - 2⟩
+= <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+= <6 5 4 3 2>.getLsb i
+= <6 5 4 3 2 | 1 0>[i + 2]
+-/
 theorem getLsb_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
     (x.rotateRightAux r).getLsb i = x.getLsb (r + i) := by
   rw [rotateRightAux, getLsb_or, getLsb_ushiftRight]
@@ -1177,30 +1165,25 @@ theorem getLsb_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i <
     Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
   omega
 
-/-- Accessing bits in `x.rotateRight r` the range `[w-r, w)` is equal to
-    accessing bits `x` in the range `[0, r)`,
-    given by `i : [w - r, w) ↦ i - (w - r) : [0, r)`.
+/--
+Accessing bits in `x.rotateRight r` the range `[w-r, w)` is equal to
+accessing bits `x` in the range `[0, r)`.
 
-  Proof by example:
-    Let x := <6 5 4 3 2 1 0> : BitVec 7. See that `x[i] = i` in this visualization.
-  x.rotateRight 2
-    = (<6 5 4 3 2 | 1 0>).rotateRight 2
-    = <1 0 | 6 5 4 3 2>
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateRight 2 = (<6 5 4 3 2 | 1 0>).rotateRight 2 = <1 0 | 6 5 4 3 2>
 
-  (x.rotateLeft 2).getLsb ⟨i, i ≥ 7 - 2⟩
-    = <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
-    = <1 0>.getLsb (i - len(<6 5 4 3 2>)
-    = <6 5 4 3 2 | 1 0> (i - len<6 4 4 3 2>)
-
-    Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
-    Then, access the bit at `i` from the right `(+i)`.
+(x.rotateLeft 2).getLsb ⟨i, i ≥ 7 - 2⟩
+= <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+= <1 0>.getLsb (i - len(<6 5 4 3 2>)
+= <6 5 4 3 2 | 1 0> (i - len<6 4 4 3 2>)
  -/
 theorem getLsb_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
     (x.rotateRightAux r).getLsb i = (decide (i < w) && x.getLsb (i - (w - r))) := by
   rw [rotateRightAux, getLsb_or]
   suffices (x >>> r).getLsb i = false by
     simp only [this, getLsb_shiftLeft, Bool.false_or]
-    by_cases hiw : i < w 
+    by_cases hiw : i < w
     <;> simp [hiw, hi]
   simp only [getLsb_ushiftRight]
   apply getLsb_ge

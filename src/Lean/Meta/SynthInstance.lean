@@ -249,7 +249,7 @@ def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
     let mctx ← getMCtx
     return some {
       mvar, key, mctx, instances
-      typeHasMVars := mvarType.hasMVar
+      typeHasMVars := mvarType.hasExprMVar
       currInstanceIdx := instances.size
     }
 

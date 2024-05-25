@@ -15,7 +15,7 @@ theorem shiftRight_ofNat (n s : Nat) : (n : Int) >>> s = Int.ofNat (n >>> s) := 
 theorem natCast_shiftRight (n s : Nat) : ((↑n) : Int) >>> s = n >>> s := rfl
 
 @[simp]
-theorem shiftRight_negSucc (m n : Nat) :
+theorem negSucc_shiftRight (m n : Nat) :
     -[m+1] >>> n = -[m >>>n +1] := rfl
 
 /-- Equation theorem for 'Int.sub' when the arguments are `.ofNat` and
@@ -30,7 +30,7 @@ private theorem toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
 theorem toNat_sub_toNat_shiftRight_eq_ofLt {m n i: Nat} (h : m < n) :
   ((m : Int) - (n : Int)) >>> i = -[((n - 1 - m) >>> i) +1] := by
     rw [toNat_sub_toNat_eq_negSucc_ofLt (by omega)]
-    rw [shiftRight_negSucc]
+    rw [negSucc_shiftRight]
 
 theorem shiftRight_shiftRight (i : Int) (m n : Nat) :
     i >>> m >>> n = i >>> (m + n) := by

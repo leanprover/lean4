@@ -687,7 +687,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     simp only [hxbound', ↓reduceIte, toNat_ofInt, toNat_not, toNat_ushiftRight]
     rw [← Int.subNatNat_eq_coe]
     rw [Int.subNatNat_of_lt (by omega)]
-    simp only [Nat.pred_eq_sub_one, Int.shiftRight_negSucc]
+    simp only [Nat.pred_eq_sub_one, Int.negSucc_shiftRight]
     rw [Int.mod_negSucc_eq]
     simp [Int.natAbs_ofNat, Nat.succ_eq_add_one]
     rw [Int.subNatNat_of_le (by omega)]

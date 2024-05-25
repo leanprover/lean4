@@ -168,7 +168,7 @@ structure Answer where
   deriving Inhabited
 
 structure TableEntry where
-  waiters : Array Waiter
+  waiters? : Option (Array Waiter)
   answers : Array Answer := #[]
 
 structure Context where
@@ -261,7 +261,7 @@ def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Wait
     match (← mkGeneratorNode? key mvar) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
-      let entry : TableEntry := { waiters := #[waiter] }
+      let entry : TableEntry := { waiters? := #[waiter] }
       modify fun s =>
        { s with
          generatorStack := s.generatorStack.push node
@@ -422,11 +422,12 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     let answer ← mkAnswer cNode
     -- Remark: `answer` does not contain assignable or assigned metavariables.
     let key := cNode.key
-    let { waiters, answers } ← getEntry key
+    let { waiters?, answers } ← getEntry key
     if isNewAnswer answers answer then
-      let newEntry := { waiters, answers := answers.push answer }
+      let newEntry := { waiters?, answers := answers.push answer }
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-      waiters.forM (wakeUp answer)
+      if let some waiters := waiters? then
+        waiters.forM (wakeUp answer)
 
 /--
   Return `true` if a type of the form `(a_1 : A_1) → ... → (a_n : A_n) → B` has an unused argument `a_i`.
@@ -557,16 +558,19 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
              let trAnswrType ← inferType trAnswr
              pure { a with result.expr := trAnswr, resultType := trAnswrType }
            modify fun s =>
-             { s with
-               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter }
+             let s := { s with resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack }
+             match entry'.waiters? with
+             | none         => s
+             | some waiters => { s with
+               tableEntries := s.tableEntries.insert key' { entry' with waiters? := waiters.push waiter }
                anyLoops     := true }
      | some entry => modify fun s =>
-       { s with
-         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter }
+      let s := { s with resumeStack := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack }
+      match entry.waiters? with
+      | none         => s
+      | some waiters => { s with
+         tableEntries := s.tableEntries.insert key { entry with waiters? := waiters.push waiter }
          anyLoops     := true }
-
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
 
@@ -578,7 +582,11 @@ def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
-    cacheGeneratorNode gNode (finished := !(← get).anyLoops)
+    let noLoops := (← get).anyLoops
+    cacheGeneratorNode gNode (finished := noLoops)
+    if noLoops then
+      if let some entry := (← get).tableEntries.find? gNode.key then
+        modify fun s => { s with tableEntries := s.tableEntries.insert gNode.key { entry with waiters? := none } }
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1

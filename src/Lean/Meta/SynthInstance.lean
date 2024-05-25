@@ -595,7 +595,7 @@ def generate : SynthM Unit := do
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
-      if gNode.keyIsMVarType then
+      if gNode.typeHasMVars then
         let entry ← getEntry key
         if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
           /-
@@ -610,8 +610,7 @@ def generate : SynthM Unit := do
           that do **not** contain metavariables. This extra check was added to address issue #4213.
           -/
           modify fun s => { s with generatorStack := s.generatorStack.pop }
-          if value.result.paramNames.isEmpty then
-            -- Remark: gNode.keyIsMVarType is implied by !gNode.typeHasMVars
+          if gNode.keyIsMVarType && value.result.paramNames.isEmpty then
             modifyGlobalCache gNode.key value.result.expr
           return
     discard do withMCtx mctx do

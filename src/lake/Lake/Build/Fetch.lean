@@ -55,6 +55,9 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 /-- The top-level monad for Lake build functions. -/
 abbrev FetchM := IndexT RecBuildM
 
+/-- Verifies that `SpawnM` lifts into `FetchM`. -/
+example : MonadLiftT SpawnM FetchM := inferInstance
+
 /-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
 @[deprecated FetchM] abbrev IndexBuildM := FetchM
 

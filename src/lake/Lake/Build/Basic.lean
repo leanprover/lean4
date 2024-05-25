@@ -95,3 +95,13 @@ abbrev MonadBuild (m : Type → Type u) :=
 
 /-- The internal core monad of Lake builds.  Not intended for user use. -/
 abbrev CoreBuildM := BuildT LogIO
+
+/--
+Logs a build step with `message`.
+
+**Deprecated:**  Build steps are now managed by a top-level build monitor.
+As a result, this no longer functions the way it used to. It now just logs the
+`message` via `logVerbose`.
+-/
+@[deprecated, inline] def logStep [Monad m] [MonadLog m] (message : String) : m Unit := do
+  logVerbose message

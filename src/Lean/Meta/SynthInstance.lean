@@ -250,7 +250,8 @@ def mkGeneratorNode? (key mvar mvarType : Expr) : MetaM (Option GeneratorNode) :
 
 /--
   Create a new generator node for `mvar` and add `waiter` as its waiter.
-  `key` must be `mkTableKey mctx mvarType`. -/
+  `key` must be `mkTableKey mctx mvarType`.
+  `getMCtx` is used for the `MetavarContext` of the new subgoal. -/
 def newSubgoal (key mvar mvarType : Expr) (waiter : Waiter) : SynthM Unit := do
   withTraceNode' `Meta.synthInstance do
     match (← mkGeneratorNode? key mvar mvarType) with
@@ -379,7 +380,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     if answer.result.numMVars == 0 then
       modify fun s => { s with result? := answer.result }
     else
-      traceM `Meta.synthInstance do withMCtx (← getMCtx) do
+      traceM `Meta.synthInstance do
         let (_, _, answerExpr) ← openAbstractMVarsResult answer.result
         pure m! "skip answer containing metavariables {answerExpr}"
   | .consumerNode cNode =>

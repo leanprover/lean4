@@ -595,7 +595,7 @@ def generate : SynthM Unit := do
     let mvar := gNode.mvar
     /- See comment at `typeHasMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
-      if gNode.typeHasMVars then
+      unless gNode.typeHasMVars do
         let entry ← getEntry key
         if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
           /-

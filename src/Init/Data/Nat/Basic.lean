@@ -361,7 +361,7 @@ theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
 @[simp] theorem lt_succ_self (n : Nat) : n < succ n := lt.base n
 
-@[simp] theorem lt_add_one (n : Nat) : n < n + 1 := lt.base n
+@[simp] protected theorem lt_add_one (n : Nat) : n < n + 1 := lt.base n
 
 protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   match Nat.lt_or_ge m n with

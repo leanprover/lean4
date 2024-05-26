@@ -192,6 +192,7 @@ jobs:
               {
                 "name": "macOS aarch64",
                 "os": "macos-14",
+                "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "check-level": 1,
                 "shell": "bash -euxo pipefail {0}",

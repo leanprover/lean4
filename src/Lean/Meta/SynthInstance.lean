@@ -492,11 +492,17 @@ def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
     trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {type} in global cache"
     return some none
   | some (some inst) =>
-    trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {type} in global cache: {inst}"
-    return some $ some {
-      result := { paramNames := #[], numMVars := 0, expr := inst }
-      resultType := type
-      size := 1 }
+    -- some cached results only apply given some metavariable assignments in outParams,
+    -- and the metavariable context may have changed.
+    if ← isDefEq type (← inferType inst) then
+      trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {type} in global cache: {inst}"
+      return some $ some {
+        result := { paramNames := #[], numMVars := 0, expr := inst }
+        resultType := type
+        size := 1 }
+    else
+      -- done't return some none, because outParams can have multiple values
+      return none
 
 def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   let key : SynthInstanceCacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }

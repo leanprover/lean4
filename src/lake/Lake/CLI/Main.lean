@@ -60,12 +60,12 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
   return (← opts.getLeanInstall, ← opts.getLakeInstall)
 
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
-def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
+def LakeOptions.computeEnv (opts : LakeOptions) : EIO' CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
     |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO' CliError LoadConfig :=
   return {
     lakeEnv := ← opts.computeEnv
     wsDir := opts.rootDir
@@ -93,14 +93,16 @@ abbrev CliMainM := ExceptT CliError MainM
 abbrev CliStateM := StateT LakeOptions CliMainM
 abbrev CliM := ArgsT CliStateM
 
-def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
+def CliM.run (self : CliM α) (args : List String) : BaseIO' ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self.run' args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
+  let main := self.run' args |>.run {elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
-instance : MonadLift LogIO CliStateM :=
-  ⟨fun x => do MainM.runLogIO x (← get).verbosity.minLogLv (← get).ansiMode⟩
+def CliStateM.runLogIO (x : LogIO α) : CliStateM α := do
+  inline <| MainM.runLogIO x (← get).verbosity.minLogLv (← get).ansiMode
+
+instance : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
 
 /-! ## Argument Parsing -/
 
@@ -529,5 +531,5 @@ def lake : CliM PUnit := do
       else
         throw <| CliError.missingCommand
 
-def cli (args : List String) : BaseIO ExitCode :=
+def cli (args : List String) : BaseIO' ExitCode :=
   inline <| (lake).run args

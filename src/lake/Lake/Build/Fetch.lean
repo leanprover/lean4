@@ -21,7 +21,7 @@ namespace Lake
 
 /-- A recursive build of a Lake build store that may encounter a cycle. -/
 abbrev RecBuildM :=
-  CallStackT BuildKey <| BuildT <| ELogT <| StateT BuildStore <| BaseIO
+  CallStackT BuildKey <| BuildT <| ELogT <| StateT BuildStore <| BaseIO'
 
 instance : MonadLift LogIO RecBuildM := ⟨ELogT.takeAndRun⟩
 

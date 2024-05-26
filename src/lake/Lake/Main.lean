@@ -7,4 +7,4 @@ import Lake
 import Lake.CLI
 
 def main (args : List String) : IO UInt32 := do
-  Lake.cli args -- should not throw errors (outside user code)
+  Lake.cli args |>.toBaseIO -- should not throw errors (outside user code)

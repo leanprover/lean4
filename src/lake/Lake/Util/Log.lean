@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Util.Error
 import Lake.Util.EStateT
+import Lake.Util.IOResult
 import Lean.Data.Json
 import Lean.Message
 
@@ -38,7 +39,7 @@ based on whether the stream written to is a terminal.
 | noAnsi
 
 /-- Returns whether to ANSI escape codes with the stream `out`. -/
-def AnsiMode.isEnabled (out : IO.FS.Stream) : AnsiMode → BaseIO Bool
+def AnsiMode.isEnabled (out : IO.FS.Stream) : AnsiMode → BaseIO' Bool
 | .auto => out.isTty
 | .ansi => pure true
 | .noAnsi => pure false
@@ -57,7 +58,7 @@ inductive OutStream
 | stream (s : IO.FS.Stream)
 
 /-- Returns the real output stream associated with `OutStream`. -/
-def OutStream.get : OutStream → BaseIO IO.FS.Stream
+def OutStream.get : OutStream → BaseIO' IO.FS.Stream
 | .stdout => IO.getStdout
 | .stderr => IO.getStderr
 | .stream s => pure s
@@ -147,7 +148,7 @@ export MonadLog (logEntry)
     message := mkErrorStringWithPos msg.fileName msg.pos str none
   }
 
-@[deprecated] def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO PUnit := do
+@[deprecated] def logToIO (e : LogEntry) (minLv : LogLevel)  : BaseIO' PUnit := do
   match e.level with
   | .trace => if minLv ≥ .trace then
     IO.println e.message.trim |>.catchExceptions fun _ => pure ()
@@ -158,7 +159,7 @@ export MonadLog (logEntry)
 
 def logToStream
   (e : LogEntry) (out : IO.FS.Stream) (minLv : LogLevel) (useAnsi : Bool)
-: BaseIO PUnit := do
+: BaseIO' PUnit := do
   if e.level ≥ minLv then
     out.putStrLn (e.toString useAnsi) |>.catchExceptions fun _ => pure ()
 
@@ -175,10 +176,10 @@ abbrev lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := methods.lift
 
 set_option linter.deprecated false in
-@[deprecated] abbrev io [MonadLiftT BaseIO m] (minLv := LogLevel.info) : MonadLog m where
+@[deprecated] abbrev io [MonadLiftT BaseIO' m] (minLv := LogLevel.info) : MonadLog m where
   logEntry e := logToIO e minLv
 
-abbrev stream [MonadLiftT BaseIO m]
+abbrev stream [MonadLiftT BaseIO' m]
   (out : IO.FS.Stream) (minLv := LogLevel.info) (useAnsi := false)
 : MonadLog m where logEntry e := logToStream e out minLv useAnsi
 
@@ -187,26 +188,26 @@ end MonadLog
 def OutStream.logEntry
   (self : OutStream) (e : LogEntry)
   (minLv : LogLevel := .info) (ansiMode := AnsiMode.auto)
-: BaseIO PUnit := do
+: BaseIO' PUnit := do
   let out ← self.get
   let useAnsi ← ansiMode.isEnabled out
   logToStream e out minLv useAnsi
 
-abbrev OutStream.logger [MonadLiftT BaseIO m]
+abbrev OutStream.logger [MonadLiftT BaseIO' m]
   (out : OutStream) (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
 : MonadLog m where logEntry e := out.logEntry e minLv ansiMode
 
 abbrev MonadLog.stdout
-  [MonadLiftT BaseIO m] (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
+  [MonadLiftT BaseIO' m] (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
 : MonadLog m := OutStream.stdout.logger minLv ansiMode
 
 abbrev MonadLog.stderr
-  [MonadLiftT BaseIO m] (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
+  [MonadLiftT BaseIO' m] (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
 : MonadLog m := OutStream.stderr.logger minLv ansiMode
 
-@[inline] def OutStream.getLogger [MonadLiftT BaseIO m]
+@[inline] def OutStream.getLogger [MonadLiftT BaseIO' m]
   (out : OutStream) (minLv := LogLevel.info) (ansiMode := AnsiMode.auto)
-: BaseIO (MonadLog m) := do
+: BaseIO' (MonadLog m) := do
   let out ← out.get
   let useAnsi ← ansiMode.isEnabled out
   return .stream out minLv useAnsi
@@ -298,7 +299,7 @@ def toString (log : Log) : String :=
 
 instance : ToString Log := ⟨Log.toString⟩
 
-@[inline] def replay [Monad m] [logger : MonadLog m] (log : Log) : m PUnit :=
+@[specialize] def replay [Monad m] [logger : MonadLog m] (log : Log) : m PUnit :=
   log.entries.forM fun e => logger.logEntry e
 
 @[inline] def filter (f : LogEntry → Bool) (log : Log) : Log :=
@@ -378,10 +379,19 @@ from an `ELogT` (e.g., `LogIO`).
   throw iniPos
 
 /-- Captures IO in `x` into an informational log entry. -/
-@[inline] def withLoggedIO
-  [Monad m] [MonadLiftT BaseIO m] [MonadLog m] [MonadFinally m] (x : m α)
+@[specialize] def withLoggedIO
+  [Monad m] [MonadLiftT BaseIO' m] [MonadLog m] [MonadFinally m] (x : m α)
 : m α := do
-  let (out, a) ← IO.FS.withIsolatedStreams x
+  let buf ← liftM (m := BaseIO') <| IO.mkRef {}
+  let pOut ← liftM (m := BaseIO') <| IO.setStdout (.ofBuffer buf)
+  let pErr ← liftM (m := BaseIO') <| IO.setStderr (.ofBuffer buf)
+  let a ←
+    try
+      x
+    finally
+      discard <| liftM (m := BaseIO') <| IO.setStdout pOut
+      discard <| liftM (m := BaseIO') <| IO.setStderr pErr
+  let out := String.fromUTF8! (← liftM (m := BaseIO') <| buf.get).data
   unless out.isEmpty do logInfo s!"stdout/stderr:\n{out}"
   return a
 
@@ -526,21 +536,22 @@ a `failure` in the new monad.
 end ELogT
 
 /-- A monad equipped with a log, a log error position, and the ability to perform I/O. -/
-abbrev LogIO := ELogT BaseIO
+abbrev LogIO := ELogT BaseIO'
 
 instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
+instance : MonadLift IO' LogIO := ⟨MonadError.runIO'⟩
 
 namespace LogIO
 
 @[deprecated ELogT.run?] abbrev captureLog := @ELogT.run?
 
 /--
-Runs a `LogIO` action in `BaseIO`.
+Runs a `LogIO` action in `BaseIO'`.
 Prints log entries of at least `minLv` to `out`.
 -/
 @[inline] def toBaseIO (self : LogIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
-: BaseIO (Option α) := do
+: BaseIO' (Option α) := do
   self.replayLog? (logger := ← out.getLogger minLv ansiMode)
 
 end LogIO

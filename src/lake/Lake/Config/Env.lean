@@ -44,7 +44,7 @@ structure Env where
 namespace Env
 
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
-def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO String Env :=
+def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : EIO' String Env :=
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap

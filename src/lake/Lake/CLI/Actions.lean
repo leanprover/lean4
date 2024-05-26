@@ -9,10 +9,10 @@ import Lake.CLI.Build
 
 namespace Lake
 
-def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
+def env (cmd : String) (args : Array String := #[]) : LakeT IO' UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
-def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT IO' UInt32 := do
   let ws ← getWorkspace
   let some exe := ws.findLeanExe? name
     | error s!"unknown executable `{name}`"
@@ -38,7 +38,7 @@ def Package.uploadRelease (pkg : Package) (tag : String) : LogIO Unit := do
 
 def Package.resolveDriver
   (pkg : Package) (kind : String) (driver : String)
-: LakeT IO (Package × String) := do
+: LakeT IO' (Package × String) := do
   let pkgName := pkg.name.toString (escape := false)
   if driver.isEmpty then
     error s!"{pkgName}: no {kind} driver configured"
@@ -53,7 +53,7 @@ def Package.resolveDriver
     | _ =>
       error s!"{pkgName}: invalid {kind} driver '{driver}' (too many '/')"
 
-def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+def Package.test (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO' UInt32 := do
   let cfgArgs := pkg.testDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "test" pkg.testDriver
   let pkgName := pkg.name.toString (escape := false)
@@ -74,7 +74,7 @@ def Package.test (pkg : Package) (args : List String := []) (buildConfig : Build
   else
     error s!"{pkgName}: invalid test driver: unknown script, executable, or library '{driver}'"
 
-def Package.lint (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO UInt32 := do
+def Package.lint (pkg : Package) (args : List String := []) (buildConfig : BuildConfig := {}) : LakeT IO' UInt32 := do
   let cfgArgs := pkg.lintDriverArgs
   let (pkg, driver) ← pkg.resolveDriver "lint" pkg.lintDriver
   if let some script := pkg.scripts.find? driver.toName then

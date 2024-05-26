@@ -44,7 +44,7 @@ Otherwise, delete the local repository and clone a fresh copy from `url`.
 -/
 def updateGitRepo (name : String) (repo : GitRepo)
 (url : String) (rev? : Option String) : LogIO Unit := do
-  let sameUrl ← EIO.catchExceptions (h := fun _ => pure false) <| show IO Bool from do
+  let sameUrl ← EIO'.catchExceptions (h := fun _ => pure false) <| show IO' Bool from do
     let some remoteUrl ← repo.getRemoteUrl? | return false
     if remoteUrl = url then return true
     return (← IO.FS.realPath remoteUrl) = (← IO.FS.realPath url)

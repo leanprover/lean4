@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.IOResult
 import Lake.Util.NativeLib
 import Lake.Config.Defaults
 
@@ -113,7 +114,7 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
 Attempt to detect a Elan installation by checking the `ELAN_HOME`
 environment variable for a installation location.
 -/
-def findElanInstall? : BaseIO (Option ElanInstall) := do
+def findElanInstall? : BaseIO' (Option ElanInstall) := do
   if let some home ← IO.getEnv "ELAN_HOME" then
     return some {home}
   return none
@@ -123,8 +124,8 @@ Attempt to find the sysroot of the given `lean` command (if it exists)
 by calling `lean --print-prefix` and returning the path it prints.
 Defaults to trying the `lean` in `PATH`.
 -/
-def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
-  let act : IO _ := do
+def findLeanSysroot? (lean := "lean") : BaseIO' (Option FilePath) := do
+  let act : IO' _ := do
     let out ← IO.Process.output {
       cmd := lean,
       args := #["--print-prefix"]
@@ -164,7 +165,7 @@ That is, with its binaries located in `<lean-sysroot>/bin`, its
 Lean libraries in `<lean-sysroot>/lib/lean`, and its system libraries in
 `<lean-sysroot>/lib`.
 -/
-def LeanInstall.get (sysroot : FilePath) (collocated : Bool := false) : BaseIO LeanInstall := do
+def LeanInstall.get (sysroot : FilePath) (collocated : Bool := false) : BaseIO' LeanInstall := do
   let githash ← do
     if collocated then
       pure Lean.githash
@@ -201,14 +202,14 @@ Attempt to detect the installation of the given `lean` command
 by calling `findLeanCmdHome?`. See `LeanInstall.get` for how it assumes the
 Lean install is organized.
 -/
-def findLeanCmdInstall? (lean := "lean") : BaseIO (Option LeanInstall) :=
+def findLeanCmdInstall? (lean := "lean") : BaseIO' (Option LeanInstall) :=
   OptionT.run do LeanInstall.get (← findLeanSysroot? lean)
 
 /--
 Check if the running Lake's executable is co-located with Lean, and, if so,
 try to return their joint home by assuming they are both located at `<home>/bin`.
 -/
-def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
+def findLakeLeanJointHome? : BaseIO' (Option FilePath) := do
   if let .ok appPath ← IO.appPath.toBaseIO then
     if let some appDir := appPath.parent then
       let leanExe := appDir / "lean" |>.addExtension FilePath.exeExtension
@@ -227,7 +228,7 @@ def lakeBuildHome? (lake : FilePath) : Option FilePath := do
 Heuristically validate that `getLakeBuildHome?` is a proper Lake installation
 by check for `Lake.olean` in the installation's `lib` directory.
 -/
-def getLakeInstall? (lake : FilePath) : BaseIO (Option LakeInstall) := do
+def getLakeInstall? (lake : FilePath) : BaseIO' (Option LakeInstall) := do
   let some home := lakeBuildHome? lake | return none
   let lake : LakeInstall := {home, lake}
   if (← lake.libDir / "Lake.olean" |>.pathExists) then
@@ -239,7 +240,7 @@ Attempt to detect Lean's installation by first checking the
 `LEAN_SYSROOT` environment variable and then by trying `findLeanCmdHome?`.
 See `LeanInstall.get` for how it assumes the Lean install is organized.
 -/
-def findLeanInstall? : BaseIO (Option LeanInstall) := do
+def findLeanInstall? : BaseIO' (Option LeanInstall) := do
   if let some sysroot ← IO.getEnv "LEAN_SYSROOT" then
     return some <| ← LeanInstall.get sysroot
   if let some sysroot ← findLeanSysroot? then
@@ -255,7 +256,7 @@ That is, with its binary located at `<lake-home>/.lake/build/bin/lake` and its
 static library and `.olean` files in `<lake-home>/.lake/build/lib`, and
 its source files located directly in `<lake-home>`.
 -/
-def findLakeInstall? : BaseIO (Option LakeInstall) := do
+def findLakeInstall? : BaseIO' (Option LakeInstall) := do
   if let Except.ok lake ← IO.appPath.toBaseIO then
     if let some lake ← getLakeInstall? lake then
       return lake
@@ -278,7 +279,7 @@ When co-located, Lake will assume that Lean and Lake's binaries are located in
 in `<sysroot>/src/lean`, and Lake's source files in `<sysroot>/src/lean/lake`,
 following the pattern of a regular Lean toolchain.
 -/
-def findInstall? : BaseIO (Option ElanInstall × Option LeanInstall × Option LakeInstall) := do
+def findInstall? : BaseIO' (Option ElanInstall × Option LeanInstall × Option LakeInstall) := do
   let elan? ← findElanInstall?
   if let some home ← findLakeLeanJointHome? then
     let lean ← LeanInstall.get home (collocated := true)

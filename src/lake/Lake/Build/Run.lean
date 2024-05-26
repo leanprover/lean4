@@ -17,7 +17,7 @@ open System
 namespace Lake
 
 /-- Create a fresh build context from a workspace and a build configuration. -/
-def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO BuildContext := do
+def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO' BuildContext := do
   return {
     opaqueWs := ws,
     toBuildConfig := config,
@@ -50,11 +50,11 @@ structure MonitorState where
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
 
 /-- Monad of the Lake build monitor. -/
-abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
+abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO'
 
 @[inline] def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
-: BaseIO (α × MonitorState) :=
+: BaseIO' (α × MonitorState) :=
   self ctx s
 
 /--
@@ -65,11 +65,11 @@ def Ansi.resetLine : String :=
   "\x1B[2K\r"
 
 /-- Like `IO.FS.Stream.flush`, but ignores errors. -/
-@[inline] def flush (out : IO.FS.Stream) : BaseIO PUnit :=
+@[inline] def flush (out : IO.FS.Stream) : BaseIO' PUnit :=
   out.flush |>.catchExceptions fun _ => pure ()
 
 /-- Like `IO.FS.Stream.putStr`, but panics on errors. -/
-@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
+@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO' PUnit :=
   out.putStr s |>.catchExceptions fun e =>
     panic! s!"[{decl_name%} failed: {e}] {repr s}"
 
@@ -171,7 +171,7 @@ def monitorJobs
   (initFailures : Array String := #[])
   (totalJobs := jobs.size)
   (updateFrequency := 100)
-: BaseIO (Array String) := do
+: BaseIO' (Array String) := do
   let ctx := {
     totalJobs, out, failLv, outLv, minAction
     useAnsi, showProgress, updateFrequency
@@ -191,7 +191,7 @@ failing build jobs (e.g., when using `-q` or non-verbose `--no-build`).
 -/
 def Workspace.runFetchM
   (ws : Workspace) (build : FetchM α) (cfg : BuildConfig := {})
-: IO α := do
+: IO' α := do
   -- Configure
   let out ← cfg.out.get
   let useAnsi ← cfg.ansiMode.isEnabled out
@@ -243,7 +243,7 @@ def Workspace.runFetchM
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild
   (ws : Workspace) (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
-: IO α := do
+: IO' α := do
   let job ← ws.runFetchM build cfg
   let some a ← job.wait? | error "build failed"
   return a
@@ -251,5 +251,5 @@ def Workspace.runFetchM
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
 @[inline] def runBuild
   (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
-: LakeT IO α := do
+: LakeT IO' α := do
   (← getWorkspace).runBuild build cfg

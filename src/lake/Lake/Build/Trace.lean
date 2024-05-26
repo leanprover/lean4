@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.IO
+import Lake.Util.IOResult
 
 open System
 
@@ -15,12 +16,12 @@ namespace Lake
 
 class CheckExists.{u} (i : Type u) where
   /-- Check whether there already exists an artifact for the given target info. -/
-  checkExists : i → BaseIO Bool
+  checkExists : i → BaseIO' Bool
 
 export CheckExists (checkExists)
 
 instance : CheckExists FilePath where
-  checkExists := FilePath.pathExists
+  checkExists := (·.pathExists)
 
 --------------------------------------------------------------------------------
 /-! # Trace Abstraction -/
@@ -86,7 +87,7 @@ namespace Hash
 @[inline] def ofNat (n : Nat) :=
   mk n.toUInt64
 
-def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
+def load? (hashFile : FilePath) : BaseIO' (Option Hash) :=
   (·.toNat?.map ofNat) <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 def nil : Hash :=
@@ -125,12 +126,12 @@ instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHa
 
 instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
-def computeFileHash (file : FilePath) : IO Hash :=
+def computeFileHash (file : FilePath) : IO' Hash :=
   Hash.ofByteArray <$> IO.FS.readBinFile file
 
-instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
+instance : ComputeHash FilePath IO' := ⟨computeFileHash⟩
 
-def computeTextFileHash (file : FilePath) : IO Hash := do
+def computeTextFileHash (file : FilePath) : IO' Hash := do
   let text ← IO.FS.readFile file
   let text := text.crlfToLf
   return Hash.ofString text
@@ -143,7 +144,7 @@ structure TextFilePath where
 
 instance : Coe TextFilePath FilePath := ⟨(·.path)⟩
 
-instance : ComputeHash TextFilePath IO where
+instance : ComputeHash TextFilePath IO' where
   computeHash file := computeTextFileHash file
 
 @[specialize] def computeArrayHash [ComputeHash α m] [Monad m] (xs : Array α) : m Hash :=
@@ -179,12 +180,12 @@ instance : MixTrace MTime := ⟨max⟩
 end MTime
 
 class GetMTime (α) where
-  getMTime : α → IO MTime
+  getMTime : α → IO' MTime
 
 export GetMTime (getMTime)
-instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
+instance [GetMTime α] : ComputeTrace α IO' MTime := ⟨getMTime⟩
 
-@[inline] def getFileMTime (file : FilePath) : IO MTime :=
+@[inline] def getFileMTime (file : FilePath) : IO' MTime :=
   return (← file.metadata).modified
 
 instance : GetMTime FilePath := ⟨getFileMTime⟩
@@ -217,10 +218,10 @@ def nil : BuildTrace :=
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-@[specialize] def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace :=
+@[specialize] def compute [ComputeHash i m] [MonadLiftT m IO'] [GetMTime i] (info : i) : IO' BuildTrace :=
   return mk (← computeHash info) (← getMTime info)
 
-instance [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
+instance [ComputeHash i m] [MonadLiftT m IO'] [GetMTime i] : ComputeTrace i IO' BuildTrace := ⟨compute⟩
 
 def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)
@@ -232,7 +233,7 @@ Check if the info is up-to-date using a hash.
 That is, check that info exists and its input hash matches this trace's hash.
 -/
 @[inline] def checkAgainstHash [CheckExists i]
-(info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
+(info : i) (hash : Hash) (self : BuildTrace) : BaseIO' Bool :=
   pure (hash == self.hash) <&&> checkExists info
 
 /--
@@ -240,8 +241,8 @@ Check if the info is up-to-date using modification time.
 That is, check if the info is newer than this input trace's modification time.
 -/
 @[inline] def checkAgainstTime [GetMTime i]
-(info : i) (self : BuildTrace) : BaseIO Bool :=
-  EIO.catchExceptions (h := fun _ => pure false) do
+(info : i) (self : BuildTrace) : BaseIO' Bool :=
+  EIO'.catchExceptions (h := fun _ => pure false) do
     return self.mtime < (← getMTime info)
 
 /--
@@ -250,13 +251,13 @@ If the file exists, match its hash to this trace's hash.
 If not, check if the info is newer than this trace's modification time.
 -/
 @[inline] def checkAgainstFile [CheckExists i] [GetMTime i]
-(info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO Bool := do
+(info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO' Bool := do
   if let some hash ← Hash.load? traceFile then
     self.checkAgainstHash info hash
   else
     self.checkAgainstTime info
 
-@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO' PUnit := do
   createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 

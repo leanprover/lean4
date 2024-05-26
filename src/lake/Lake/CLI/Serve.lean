@@ -68,7 +68,7 @@ def setupFile
 Start the Lean LSP for the `Workspace` loaded from `config`
 with the given additional `args`.
 -/
-def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
+def serve (config : LoadConfig) (args : Array String) : IO' UInt32 := do
   let (extraEnv, moreServerArgs) ← do
     let (ws?, log) ← (loadWorkspace config).run?
     log.replay (logger := MonadLog.stderr)

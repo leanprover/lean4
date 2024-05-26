@@ -44,19 +44,19 @@ namespace GitRepo
 
 def cwd : GitRepo := ⟨"."⟩
 
-@[inline] def dirExists (repo : GitRepo) : BaseIO Bool :=
+@[inline] def dirExists (repo : GitRepo) : BaseIO' Bool :=
   repo.dir.isDir
 
 @[inline] def captureGit (args : Array String) (repo : GitRepo) : LogIO String :=
   captureProc {cmd := "git", args, cwd := repo.dir}
 
-@[inline] def captureGit? (args : Array String) (repo : GitRepo) : BaseIO (Option String) :=
+@[inline] def captureGit? (args : Array String) (repo : GitRepo) : BaseIO' (Option String) :=
   captureProc? {cmd := "git", args, cwd := repo.dir}
 
 @[inline] def execGit (args : Array String) (repo : GitRepo) : LogIO PUnit :=
   proc {cmd := "git", args, cwd := repo.dir} (quiet := true)
 
-@[inline] def testGit (args : Array String) (repo : GitRepo) : BaseIO Bool :=
+@[inline] def testGit (args : Array String) (repo : GitRepo) : BaseIO' Bool :=
   testProc {cmd := "git", args, cwd := repo.dir}
 
 @[inline] def clone (url : String) (repo : GitRepo) : LogIO PUnit  :=
@@ -74,7 +74,7 @@ def cwd : GitRepo := ⟨"."⟩
 @[inline] def checkoutDetach (hash : String) (repo : GitRepo) : LogIO PUnit  :=
   repo.execGit #["checkout", "--detach", hash]
 
-@[inline] def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO (Option String) := do
+@[inline] def resolveRevision? (rev : String) (repo : GitRepo) : BaseIO' (Option String) := do
   repo.captureGit? #["rev-parse", "--verify", rev]
 
 @[inline] def resolveRevision (rev : String) (repo : GitRepo) : LogIO String := do
@@ -83,7 +83,7 @@ def cwd : GitRepo := ⟨"."⟩
 @[inline] def getHeadRevision (repo : GitRepo) : LogIO String :=
   repo.resolveRevision "HEAD"
 
-@[inline] def getHeadRevision? (repo : GitRepo) : BaseIO (Option String) :=
+@[inline] def getHeadRevision? (repo : GitRepo) : BaseIO' (Option String) :=
   repo.resolveRevision? "HEAD"
 
 def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
@@ -95,23 +95,23 @@ def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : G
 def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote := Git.defaultRemote) : LogIO String := do
   repo.fetch remote; repo.resolveRemoteRevision (rev?.getD Git.upstreamBranch) remote
 
-@[inline] def branchExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
+@[inline] def branchExists (rev : String) (repo : GitRepo) : BaseIO' Bool := do
   repo.testGit #["show-ref", "--verify", s!"refs/heads/{rev}"]
 
-@[inline] def revisionExists (rev : String) (repo : GitRepo) : BaseIO Bool := do
+@[inline] def revisionExists (rev : String) (repo : GitRepo) : BaseIO' Bool := do
   repo.testGit #["rev-parse", "--verify", rev ++ "^{commit}"]
 
-@[inline] def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO (Option String) := do
+@[inline] def findTag? (rev : String := "HEAD") (repo : GitRepo) : BaseIO' (Option String) := do
   repo.captureGit? #["describe", "--tags", "--exact-match", rev]
 
-@[inline] def getRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseIO (Option String) := do
+@[inline] def getRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseIO' (Option String) := do
   repo.captureGit? #["remote", "get-url", remote]
 
-def getFilteredRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseIO (Option String) := OptionT.run do
+def getFilteredRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseIO' (Option String) := OptionT.run do
   Git.filterUrl? (← repo.getRemoteUrl? remote)
 
-@[inline] def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
+@[inline] def hasNoDiff (repo : GitRepo) : BaseIO' Bool := do
   repo.testGit #["diff", "--exit-code"]
 
-@[inline] def hasDiff (repo : GitRepo) : BaseIO Bool := do
+@[inline] def hasDiff (repo : GitRepo) : BaseIO' Bool := do
   not <$> repo.hasNoDiff

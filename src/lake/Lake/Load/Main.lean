@@ -44,7 +44,7 @@ def loadLeanConfig (cfg : LoadConfig)
 Return whether a configuration file with the given name
 and/or a supported extension exists.
 -/
-def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
+def configFileExists (cfgFile : FilePath) : BaseIO' Bool :=
   if cfgFile.extension.isSome then
     cfgFile.pathExists
   else
@@ -172,7 +172,7 @@ def Workspace.updateAndMaterialize
     StateT.run' (s := mkNameMap PackageEntry) <| StateT.run' (s := mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
     let rootName := ws.root.name.toString (escape := false)
-    match (← Manifest.load ws.manifestFile |>.toBaseIO) with
+    match (← Manifest.load ws.manifestFile |>.toBaseIO') with
     | .ok manifest =>
       unless toUpdate.isEmpty do
         manifest.packages.forM fun entry => do
@@ -182,10 +182,10 @@ def Workspace.updateAndMaterialize
         let oldPkgsDir := ws.dir / oldRelPkgsDir
         if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
           logInfo s!"workspace packages directory changed; renaming '{oldPkgsDir}' to '{ws.pkgsDir}'"
-          let doRename : IO Unit := do
+          let doRename : IO' Unit := do
             createParentDirs ws.pkgsDir
             IO.FS.rename oldPkgsDir ws.pkgsDir
-          if let .error e ← doRename.toBaseIO then
+          if let .error e ← doRename.toBaseIO' then
             error s!"could not rename workspace packages directory: {e}"
     | .error (.noFileOrDirectory ..) =>
       logInfo s!"{rootName}: no previous manifest, creating one from scratch"
@@ -225,7 +225,7 @@ def Workspace.updateAndMaterialize
                 you will need to manually delete '{depPkg.dir}': {e}"
             error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
-          match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
+          match (← Manifest.load depPkg.manifestFile |>.toBaseIO') with
           | .ok manifest =>
             manifest.packages.forM fun entry => do
               unless (← getThe (NameMap PackageEntry)).contains entry.name do

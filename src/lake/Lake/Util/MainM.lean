@@ -7,6 +7,7 @@ import Lake.Util.Log
 import Lake.Util.Exit
 import Lake.Util.Error
 import Lake.Util.Lift
+import Lake.Util.IOResult
 
 namespace Lake
 
@@ -14,27 +15,27 @@ namespace Lake
 The monad in Lake for `main`-like functions.
 Supports IO, logging, and `exit`.
 -/
-def MainM := EIO ExitCode
+def MainM := EIO' ExitCode
 
-instance : Monad MainM := inferInstanceAs (Monad (EIO ExitCode))
-instance : MonadFinally MainM := inferInstanceAs (MonadFinally (EIO ExitCode))
-instance : MonadLift BaseIO MainM := inferInstanceAs (MonadLift BaseIO (EIO ExitCode))
+instance : Monad MainM := inferInstanceAs (Monad (EIO' ExitCode))
+instance : MonadFinally MainM := inferInstanceAs (MonadFinally (EIO' ExitCode))
+instance : MonadLift BaseIO' MainM := inferInstanceAs (MonadLift BaseIO' (EIO' ExitCode))
 
 namespace MainM
 
 /-! # Basics -/
 
-@[inline] protected def mk (x : EIO ExitCode α) : MainM α :=
+@[inline] protected def mk (x : EIO' ExitCode α) : MainM α :=
   x
 
-@[inline] protected def toEIO (self : MainM α) : EIO ExitCode α :=
+@[inline] protected def toEIO (self : MainM α) : EIO' ExitCode α :=
   self
 
-@[inline] protected def toBaseIO (self : MainM α) : BaseIO (Except ExitCode α) :=
-  self.toEIO.toBaseIO
+@[inline] protected def toBaseIO (self : MainM α) : BaseIO' (Except ExitCode α) :=
+  self.toEIO.toBaseIO'
 
-@[inline] protected def run (self : MainM α) : BaseIO ExitCode :=
-  self.toBaseIO.map fun | Except.ok _ => 0 | Except.error rc => rc
+@[inline] protected def run (self : MainM α) : BaseIO' ExitCode :=
+  self.toBaseIO' <&> fun | .ok _ => 0 | .error rc => rc
 
 /-! # Exits -/
 
@@ -76,7 +77,7 @@ instance : MonadLog MainM := .stderr
 instance : MonadError MainM := ⟨MainM.error⟩
 instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 
-@[inline] def runLogIO (x : LogIO α)
+@[specialize] def runLogIO (x : LogIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
 : MainM α := do
   x.replayLog (logger := ← out.getLogger minLv ansiMode)

@@ -199,5 +199,5 @@ def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
     vars.push (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)
 
 /-- Remove all packages' build outputs (i.e., delete their build directories). -/
-def clean (self : Workspace) : IO Unit := do
+def clean (self : Workspace) : IO' Unit := do
   self.packages.forM fun pkg => pkg.clean

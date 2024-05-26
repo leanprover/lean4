@@ -73,7 +73,7 @@ While this can be lifted into `FetchM`, job action should generally
 be wrapped into an asynchronous job (e.g., via `Job.async`) instead of being
 run directly in `FetchM`.
 -/
-abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
+abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO'
 
 instance [Pure m] : MonadLift LakeM (BuildT m) where
   monadLift x := fun ctx => pure <| x.run ctx.toContext
@@ -95,7 +95,7 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
   modify fun s => {s with action := s.action.merge action}
 
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
-abbrev SpawnM := BuildT BaseIO
+abbrev SpawnM := BuildT BaseIO'
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
 @[deprecated SpawnM] abbrev SchedulerM := SpawnM
@@ -187,17 +187,17 @@ def renew (self : Job α) : Job α :=
 @[inline] protected def async
   (act : JobM α) (prio := Task.Priority.default)
 : SpawnM (Job α) := fun ctx => .ofTask <$> do
-  BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {}
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {} |>.toBaseIO
 
 /-- Wait a the job to complete and return the result. -/
-@[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
+@[inline] protected def wait (self : Job α) : BaseIO' (JobResult α) := do
   IO.wait self.task
 
 /--
 Wait for a job to complete and return the produced value.
 If an error occurred, return `none` and discarded any logs produced.
 -/
-@[inline] protected def wait? (self : Job α) : BaseIO (Option α) := do
+@[inline] protected def wait? (self : Job α) : BaseIO' (Option α) := do
   return (← self.wait).result?
 
 /--
@@ -218,7 +218,7 @@ after the job `a` completes.
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) := fun ctx => self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
-    | EResult.ok a s => (withLoggedIO (f a)) ctx s
+    | EResult.ok a s => withLoggedIO (f a) ctx s |>.toBaseIO
     | EResult.error n s => return .error n s
 
 /--
@@ -231,7 +231,7 @@ after the job `a` completes and then merges into the job produced by `b`.
 : SpawnM (Job β) := fun ctx => self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
-      let job ← f a ctx
+      let job ← f a ctx |>.toBaseIO
       return job.task.map (prio := prio) (sync := true) fun
       | EResult.ok a sb => .ok a (sa.merge sb)
       | EResult.error n sb => .error ⟨sa.log.size + n.val⟩ (sa.merge sb)
@@ -296,7 +296,7 @@ instance : Functor BuildJob where
  : SpawnM (Job β)  :=
   self.toJob.bindAsync (prio := prio) (sync := sync) fun (a, t) => f a t
 
-@[inline] protected def wait? (self : BuildJob α) : BaseIO (Option α) :=
+@[inline] protected def wait? (self : BuildJob α) : BaseIO' (Option α) :=
   (·.map (·.1)) <$> self.toJob.wait?
 
 def add (t1 : BuildJob α) (t2 : BuildJob β) : BuildJob α :=

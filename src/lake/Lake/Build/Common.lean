@@ -89,7 +89,7 @@ def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
     computeTrace file
 
 /-- Compute the hash of a file and save it to a `.hash` file. -/
-def cacheFileHash (file : FilePath) : IO Hash := do
+def cacheFileHash (file : FilePath) : IO' Hash := do
   let hash ← computeHash file
   let hashFile := FilePath.mk <| file.toString ++ ".hash"
   IO.FS.writeFile hashFile hash.toString

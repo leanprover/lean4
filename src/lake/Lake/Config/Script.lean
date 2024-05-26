@@ -12,7 +12,7 @@ namespace Lake
 The type of a `Script`'s monad.
 `IO` equipped information about the Lake configuration.
 -/
-abbrev ScriptM := LakeT IO
+abbrev ScriptM := LakeT IO'
 
 /--
 The type of a `Script`'s function.

@@ -45,7 +45,7 @@ def captureProc (args : IO.Process.SpawnArgs) : LogIO String := do
     logOutput out logInfo
     logError s!"external command '{args.cmd}' exited with code {out.exitCode}"
 
-def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
+def captureProc? (args : IO.Process.SpawnArgs) : BaseIO' (Option String) := do
   EIO.catchExceptions (h := fun _ => pure none) do
     let out ← IO.Process.output args
     if out.exitCode = 0 then
@@ -53,7 +53,7 @@ def captureProc? (args : IO.Process.SpawnArgs) : BaseIO (Option String) := do
     else
       return none
 
-def testProc (args : IO.Process.SpawnArgs) : BaseIO Bool :=
+def testProc (args : IO.Process.SpawnArgs) : BaseIO' Bool :=
   EIO.catchExceptions (h := fun _ => pure false) do
     let child ← IO.Process.spawn {
       args with

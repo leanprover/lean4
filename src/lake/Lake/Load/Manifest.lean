@@ -219,7 +219,7 @@ def parse (s : String) : Except String Manifest := do
   | .error e => throw s!"manifest is not valid JSON: {e}"
 
 /-- Parse a manifest file. -/
-def load (file : FilePath) : IO Manifest := do
+def load (file : FilePath) : IO' Manifest := do
   let contents ← IO.FS.readFile file
   match inline <| Manifest.parse contents with
   | .ok a => return a
@@ -229,13 +229,13 @@ def load (file : FilePath) : IO Manifest := do
 Parse a manifest file. Returns `none` if the file does not exist.
 Errors if the manifest is ill-formatted or the read files for other reasons.
 -/
-def load? (file : FilePath) : IO (Option Manifest) := do
-  match (← inline (load file) |>.toBaseIO) with
+def load? (file : FilePath) : IO' (Option Manifest) := do
+  match (← liftM <| inline (load file) |>.toBaseIO') with
   | .ok contents => return contents
   | .error (.noFileOrDirectory ..) => return none
   | .error e => throw e
 
 /-- Save the manifest as JSON to a file. -/
-def saveToFile (self : Manifest) (manifestFile : FilePath) : IO PUnit := do
+def saveToFile (self : Manifest) (manifestFile : FilePath) : IO' PUnit := do
   let jsonString := Json.pretty self.toJson
   IO.FS.writeFile manifestFile <| jsonString.push '\n'

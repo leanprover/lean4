@@ -442,6 +442,6 @@ def isBuildableModule (mod : Name) (self : Package) : Bool :=
   self.leanExeConfigs.any (fun exe => exe.root == mod)
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
-def clean (self : Package) : IO PUnit := do
+def clean (self : Package) : IO' PUnit := do
   if (← self.buildDir.pathExists) then
     IO.FS.removeDirAll self.buildDir

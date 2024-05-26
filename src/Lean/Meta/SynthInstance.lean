@@ -580,14 +580,14 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
              | none         => s
              | some waiters => { s with
                tableEntries := s.tableEntries.insert key' { entry' with waiters? := waiters.push waiter }
-               noLoops     := false }
+               noLoops      := false }
      | some entry => modify fun s =>
       let s := { s with resumeStack := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack }
       match entry.waiters? with
       | none         => s
       | some waiters => { s with
          tableEntries := s.tableEntries.insert key { entry with waiters? := waiters.push waiter }
-         noLoops     := false }
+         noLoops      := false }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back

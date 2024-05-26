@@ -502,14 +502,30 @@ def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   let key : SynthInstanceCacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
 
+def deleteWaiters (key : Expr) (entry : TableEntry) : SynthM Unit := do
+  modify fun s => { s with tableEntries := s.tableEntries.insert key { entry with waiters? := none } }
+
+/--
+  Tries to add the result of a generator node to the global cache.
+  `finished := true` when this subgoals has benn searched exhaustively.
+  This is needed for globally caching failures.
+  If it cannot be added to the global cache, tries to set the `waiters?` field
+  in the corresponding `TableEntry` to `none`, to help the loop detection algorithm.
+-/
 def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
   if gNode.keyIsMVarType then
     let entry ← getEntry gNode.key
-    -- Recall that anwers with expression metavariables are not valid
     if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
       modifyGlobalCache gNode.key (some value.result.expr)
-    else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
-      modifyGlobalCache gNode.key none
+    else if finished then
+      -- Recall that anwers with expression metavariables are not valid
+      if entry.answers.all fun answer => answer.result.numMVars != 0 then
+        modifyGlobalCache gNode.key none
+      else
+        deleteWaiters gNode.key entry
+  else if finished then
+    deleteWaiters gNode.key (← getEntry gNode.key)
+
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
@@ -579,19 +595,12 @@ def getTop : SynthM GeneratorNode :=
 @[inline] def modifyTop (f : GeneratorNode → GeneratorNode) : SynthM Unit :=
   modify fun s => { s with generatorStack := s.generatorStack.modify (s.generatorStack.size - 1) f }
 
-def deleteWaiters (key : Expr) : SynthM Unit := do
-  let entry ← getEntry key
-  modify fun s => { s with tableEntries := s.tableEntries.insert key { entry with waiters? := none } }
-
 /-- Try the next instance in the node on the top of the generator stack. -/
 def generate : SynthM Unit := do
   let gNode ← getTop
   if gNode.currInstanceIdx == 0  then
     modify fun s => { s with generatorStack := s.generatorStack.pop }
-    let noLoops := (← get).noLoops
-    cacheGeneratorNode gNode (finished := noLoops)
-    if noLoops then
-      deleteWaiters gNode.key
+    cacheGeneratorNode gNode (finished := (← get).noLoops)
   else
     let key  := gNode.key
     let idx  := gNode.currInstanceIdx - 1
@@ -617,8 +626,8 @@ def generate : SynthM Unit := do
           modify fun s => { s with generatorStack := s.generatorStack.pop }
           if gNode.keyIsMVarType && value.result.paramNames.isEmpty then
             modifyGlobalCache gNode.key value.result.expr
-          if (← get).noLoops then
-            deleteWaiters key
+          else if (← get).noLoops then
+            deleteWaiters key entry
           return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance

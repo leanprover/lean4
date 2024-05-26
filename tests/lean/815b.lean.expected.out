@@ -18,7 +18,7 @@
     [Meta.synthInstance.tryResolve] ❌ IsSmooth fun g => f (g a) d ≟ IsSmooth f
   [Meta.synthInstance] ✅ apply @diag to ∀ (a : α), IsSmooth fun g => f (g a) d
     [Meta.synthInstance.tryResolve] ✅ IsSmooth fun g =>
-          f (g a) d ≟ IsSmooth fun a_1 => ?m a (?m a a_1) (?m a a_1) 
+          f (g a) d ≟ IsSmooth fun a_1 => ?m a (?m a a_1) (?m a a_1)
     [Meta.synthInstance.unusedArgs] α → IsSmooth f
         has unused arguments, reduced type
           IsSmooth f

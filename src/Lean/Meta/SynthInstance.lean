@@ -390,8 +390,7 @@ def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
     oldAnswer.resultType != answer.resultType
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer := do
-  traceM `Meta.synthInstance.newAnswer do
-    pure m! "size: {cNode.size}, val: {cNode.mvar}"
+  trace[Meta.synthInstance.newAnswer] "size: {cNode.size}, val: {cNode.mvar}"
   let result ← abstractMVars cNode.mvar -- assignable metavariables become parameters
   let resultType ← inferType result.expr
   return { result, resultType, size := cNode.size + 1 }
@@ -402,8 +401,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer := do
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   if cNode.size ≥ (← read).maxResultSize then
-    traceM `Meta.synthInstance.answer do
-      pure m! "{crossEmoji} {← inferType cNode.mvar}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
+    trace[Meta.synthInstance.answer] "{crossEmoji} {← inferType cNode.mvar}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
   else
     withTraceNode `Meta.synthInstance.answer
       (fun _ => return m!"{checkEmoji} {← inferType cNode.mvar}") do

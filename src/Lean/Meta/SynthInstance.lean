@@ -679,8 +679,8 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) (decl := type.getAppFn.constName?.getD .anonymous) do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
-  withTraceNode `Meta.synthInstance
-    (return m!"{exceptOptionEmoji ·} {type}") do
+  withTraceNodeBefore `Meta.synthInstance
+    (return m!"{type}") do
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false, univApprox := false }) do
   withReader (fun ctx => { ctx with inTypeClassResolution := true }) do

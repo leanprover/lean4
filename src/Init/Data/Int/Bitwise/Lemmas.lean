@@ -17,20 +17,6 @@ theorem natCast_shiftRight (n s : Nat) : (n : Int) >>> s = n >>> s := rfl
 theorem negSucc_shiftRight (m n : Nat) :
     -[m+1] >>> n = -[m >>>n +1] := rfl
 
-/-- Equation theorem for 'Int.sub' when the arguments are `.ofNat` and
-  the result is known to be negative. -/
-private theorem toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
-  (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
-  rw [Int.negSucc_eq] -- TODO: consider adding this to omega cleanup set.
-  omega
-
-/-- shiftRight of a subtraction is evaluated when
-  the result of the subtraction is negative. -/
-theorem toNat_sub_toNat_shiftRight_eq_ofLt {m n i: Nat} (h : m < n) :
-  ((m : Int) - (n : Int)) >>> i = -[((n - 1 - m) >>> i) +1] := by
-    rw [toNat_sub_toNat_eq_negSucc_ofLt (by omega)]
-    rw [negSucc_shiftRight]
-
 theorem shiftRight_add (i : Int) (m n : Nat) :
     i >>> (m + n) = i >>> m >>> n := by
   simp only [shiftRight_eq, Int.shiftRight]

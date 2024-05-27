@@ -665,9 +665,11 @@ theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false)
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) x.isLt
   apply Nat.mod_eq_of_lt hxshift
 
-/-- If the msb is `true`, the arithmetic shift right equals negating, then logical shifting right, then negating again.
-  The double negation preserves the lower bits that have been shifted,
-  and the outer negation ensures that the high bits are '1'. -/
+/--
+If the msb is `true`, the arithmetic shift right equals negating,
+then logical shifting right, then negating again.
+The double negation preserves the lower bits that have been shifted,
+and the outer negation ensures that the high bits are '1'. -/
 theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     (x.sshiftRight s) = ~~~((~~~x) >>> s) := by
   apply BitVec.eq_of_toNat_eq

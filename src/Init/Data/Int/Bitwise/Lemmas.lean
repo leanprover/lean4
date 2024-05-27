@@ -31,8 +31,8 @@ theorem toNat_sub_toNat_shiftRight_eq_ofLt {m n i: Nat} (h : m < n) :
     rw [toNat_sub_toNat_eq_negSucc_ofLt (by omega)]
     rw [negSucc_shiftRight]
 
-theorem shiftRight_shiftRight (i : Int) (m n : Nat) :
-    i >>> m >>> n = i >>> (m + n) := by
+theorem shiftRight_add (i : Int) (m n : Nat) :
+    i >>> (m + n) = i >>> m >>> n := by
   simp only [shiftRight_eq, Int.shiftRight]
   cases i <;> simp [Nat.shiftRight_add]
 

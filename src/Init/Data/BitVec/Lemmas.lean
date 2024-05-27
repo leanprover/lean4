@@ -652,10 +652,6 @@ theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
   apply BitVec.eq_of_toInt_eq
   simp [BitVec.sshiftRight]
 
-/-- Equation theorem for 'Int.mod' -/
-private theorem Int.mod_negSucc_eq (m : Nat) (n : Int) :
-  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
-
 /-- if the msb is false, the arithmetic shift right equals logical shift right -/
 theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false) :
     (x.sshiftRight s) = x >>> s := by
@@ -683,7 +679,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
     simp only [hxbound, ↓reduceIte, toNat_ofInt, toNat_not, toNat_ushiftRight]
     rw [← Int.subNatNat_eq_coe, Int.subNatNat_of_lt (by omega),
         Nat.pred_eq_sub_one, Int.negSucc_shiftRight,
-        Int.mod_negSucc_eq, Int.natAbs_ofNat, Nat.succ_eq_add_one,
+        Int.emod_negSucc, Int.natAbs_ofNat, Nat.succ_eq_add_one,
         Int.subNatNat_of_le (by omega), Int.toNat_ofNat, Nat.mod_eq_of_lt,
         Nat.sub_right_comm]
     omega

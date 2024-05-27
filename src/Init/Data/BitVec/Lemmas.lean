@@ -660,10 +660,10 @@ theorem sshiftRight_eq_of_msb_false {x : BitVec w} {s : Nat} (h : x.msb = false)
   have hxbound : 2 * x.toNat < 2 ^ w := (BitVec.msb_eq_false_iff_two_mul_lt x).mp h
   simp only [hxbound, ↓reduceIte, Int.natCast_shiftRight, Int.ofNat_eq_coe, ofInt_natCast,
     toNat_ofNat, toNat_ushiftRight]
-  have hxshift : x.toNat >>> s < 2 ^ w := by
+  replace hxbound : x.toNat >>> s < 2 ^ w := by
     rw [Nat.shiftRight_eq_div_pow]
     exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) x.isLt
-  apply Nat.mod_eq_of_lt hxshift
+  apply Nat.mod_eq_of_lt hxbound
 
 /--
 If the msb is `true`, the arithmetic shift right equals negating,

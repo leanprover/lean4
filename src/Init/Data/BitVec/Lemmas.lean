@@ -691,7 +691,7 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
       apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
 
 theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
-    getLsb (x.sshiftRight s) i =  (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
+    getLsb (x.sshiftRight s) i = (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
   rcases hmsb : x.msb with rfl | rfl
   · simp only [sshiftRight_eq_of_msb_false hmsb, getLsb_ushiftRight, Bool.if_false_right]
     by_cases hi : i ≥ w
@@ -699,15 +699,16 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
       apply getLsb_ge
       omega
     · simp only [hi, decide_False, Bool.not_false, Bool.true_and, Bool.iff_and_self,
-      decide_eq_true_eq]
+        decide_eq_true_eq]
       intros hlsb
       apply BitVec.lt_of_getLsb _ _ hlsb
   · by_cases hi : i ≥ w
     · simp [hi]
     · simp only [sshiftRight_eq_of_msb_true hmsb, getLsb_not, getLsb_ushiftRight, Bool.not_and,
-      Bool.not_not, hi, decide_False, Bool.not_false, Bool.if_true_right, Bool.true_and,
-      Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
-      Nat.not_lt, decide_eq_true_eq] <;> omega
+        Bool.not_not, hi, decide_False, Bool.not_false, Bool.if_true_right, Bool.true_and,
+        Bool.and_iff_right_iff_imp, Bool.or_eq_true, Bool.not_eq_true', decide_eq_false_iff_not,
+        Nat.not_lt, decide_eq_true_eq]
+      omega
 
 /-! ### append -/
 

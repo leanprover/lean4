@@ -170,8 +170,7 @@ structure Answer where
   deriving Inhabited
 
 structure TableEntry where
-  /-- When all anwers have been found, `waiters?` is set to `none`. -/
-  waiters? : Option (Array Waiter)
+  waiters : Array Waiter
   answers : Array Answer := #[]
 
 structure Context where
@@ -264,7 +263,7 @@ def newSubgoal (mctx : MetavarContext) (key mvar : Expr) (keyIsMVarType : Bool) 
     match (← mkGeneratorNode? key mvar keyIsMVarType) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
-      let entry : TableEntry := { waiters? := #[waiter] }
+      let entry : TableEntry := { waiters := #[waiter] }
       modify fun s =>
        { s with
          generatorStack := s.generatorStack.push node
@@ -425,11 +424,10 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
     let answer ← mkAnswer cNode
     -- Remark: `answer` does not contain assignable or assigned metavariables.
     let key := cNode.key
-    let { waiters?, answers } ← getEntry key
+    let { waiters, answers } ← getEntry key
     if isNewAnswer answers answer then
-      let newEntry := { waiters?, answers := answers.push answer }
+      let newEntry := { waiters, answers := answers.push answer }
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
-      let some waiters := waiters? | panic! "synthInstance?: found no waiters at entry that is receiving an answer"
       waiters.forM (wakeUp answer)
 
 /--
@@ -492,7 +490,7 @@ def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
     trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {type} in global cache"
     return some none
   | some (some inst) =>
-    -- some cached results only apply given some metavariable assignments in outParams,
+    -- Some cached results only apply given some metavariable assignments in outParams,
     -- and the metavariable context may have changed.
     if ← isDefEq type (← inferType inst) then
       trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {type} in global cache: {inst}"
@@ -501,37 +499,26 @@ def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
         resultType := type
         size := 1 }
     else
-      -- done't return some none, because outParams can have multiple values
+      -- don't return some none, because it is possible that outParams can have multiple values
       return none
 
 def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   let key : SynthInstanceCacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert key value }
 
-def deleteWaiters (key : Expr) (entry : TableEntry) : SynthM Unit := do
-  modify fun s => { s with tableEntries := s.tableEntries.insert key { entry with waiters? := none } }
-
 /--
   Tries to add the result of a generator node to the global cache.
-  `finished := true` when this subgoals has benn searched exhaustively.
-  This is needed for globally caching failures.
-  If it cannot be added to the global cache, tries to set the `waiters?` field
-  in the corresponding `TableEntry` to `none`, to help the loop detection algorithm.
+  `finished := true` is used when this subgoals has ben searched exhaustively,
+  which is needed for globally caching the lack of a search result.
 -/
 def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
   if gNode.keyIsMVarType then
     let entry ← getEntry gNode.key
     if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
       modifyGlobalCache gNode.key (some value.result.expr)
-    else if finished then
-      -- Recall that anwers with expression metavariables are not valid
-      if entry.answers.all fun answer => answer.result.numMVars != 0 then
-        modifyGlobalCache gNode.key none
-      else
-        deleteWaiters gNode.key entry
-  else if finished then
-    deleteWaiters gNode.key (← getEntry gNode.key)
-
+    -- Recall that anwers with expression metavariables are not valid
+    else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
+      modifyGlobalCache gNode.key none
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
@@ -580,19 +567,13 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
              let trAnswrType ← inferType trAnswr
              pure { a with result.expr := trAnswr, resultType := trAnswrType }
-           modify fun s =>
-             let s := { s with resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack }
-             match entry'.waiters? with
-             | none         => s
-             | some waiters => { s with
-               tableEntries := s.tableEntries.insert key' { entry' with waiters? := waiters.push waiter }
+           modify fun s => { s with
+               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack
+               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter }
                noLoops      := false }
-     | some entry => modify fun s =>
-      let s := { s with resumeStack := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack }
-      match entry.waiters? with
-      | none         => s
-      | some waiters => { s with
-         tableEntries := s.tableEntries.insert key { entry with waiters? := waiters.push waiter }
+     | some entry => modify fun s => { s with
+         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack
+         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter }
          noLoops      := false }
 
 def getTop : SynthM GeneratorNode :=
@@ -632,8 +613,6 @@ def generate : SynthM Unit := do
           modify fun s => { s with generatorStack := s.generatorStack.pop }
           if gNode.keyIsMVarType && value.result.paramNames.isEmpty then
             modifyGlobalCache gNode.key value.result.expr
-          else if (← get).noLoops then
-            deleteWaiters key entry
           return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance

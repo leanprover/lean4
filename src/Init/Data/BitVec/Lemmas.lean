@@ -677,21 +677,16 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
   apply BitVec.eq_of_toNat_eq
   rcases w with rfl | w
   · simp
-  · rw [BitVec.sshiftRight_eq]
-    rw [BitVec.toInt_eq_toNat_cond]
+  · rw [BitVec.sshiftRight_eq, BitVec.toInt_eq_toNat_cond]
     have hxbound : (2 * x.toNat ≥ 2 ^ (w + 1)) := (BitVec.msb_eq_true_iff_two_mul_ge x).mp h
-    have hxbound' : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
-    simp only [hxbound', ↓reduceIte, toNat_ofInt, toNat_not, toNat_ushiftRight]
-    rw [← Int.subNatNat_eq_coe]
-    rw [Int.subNatNat_of_lt (by omega)]
-    simp only [Nat.pred_eq_sub_one, Int.negSucc_shiftRight]
-    rw [Int.mod_negSucc_eq]
-    simp [Int.natAbs_ofNat, Nat.succ_eq_add_one]
-    rw [Int.subNatNat_of_le (by omega)]
-    simp only [Int.toNat_ofNat]
-    rw [Nat.mod_eq_of_lt]
-    · rw [Nat.sub_right_comm]
-      omega
+    replace hxbound : ¬ (2 * x.toNat < 2 ^ (w + 1)) := by omega
+    simp only [hxbound, ↓reduceIte, toNat_ofInt, toNat_not, toNat_ushiftRight]
+    rw [← Int.subNatNat_eq_coe, Int.subNatNat_of_lt (by omega),
+        Nat.pred_eq_sub_one, Int.negSucc_shiftRight,
+        Int.mod_negSucc_eq, Int.natAbs_ofNat, Nat.succ_eq_add_one,
+        Int.subNatNat_of_le (by omega), Int.toNat_ofNat, Nat.mod_eq_of_lt,
+        Nat.sub_right_comm]
+    omega
     · rw [Nat.shiftRight_eq_div_pow]
       apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
 

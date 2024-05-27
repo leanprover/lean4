@@ -43,3 +43,11 @@ def otherMessage : Nat × Nat where
   fst := no
   snd := by skip
 --^ collectDiagnostics
+
+/-! Starting to type a comment should not invalidate the state above it. -/
+-- RESET
+def strayToken : True := by
+  dbg_trace "s"
+  unfold f
+        --^ sync
+        --^ insert: " -"

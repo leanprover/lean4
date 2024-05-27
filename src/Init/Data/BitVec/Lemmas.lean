@@ -691,8 +691,8 @@ theorem sshiftRight_eq_of_msb_true {x : BitVec w} {s : Nat} (h : x.msb = true) :
       apply Nat.lt_of_le_of_lt (Nat.div_le_self _ _) (by omega)
 
 theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
-  getLsb (x.sshiftRight s) i =  (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
-  rcases hmsb:x.msb with rfl | rfl
+    getLsb (x.sshiftRight s) i =  (!decide (w ≤ i) && if s + i < w then x.getLsb (s + i) else x.msb) := by
+  rcases hmsb : x.msb with rfl | rfl
   · simp only [sshiftRight_eq_of_msb_false hmsb, getLsb_ushiftRight, Bool.if_false_right]
     by_cases hi : i ≥ w
     · simp only [hi, decide_True, Bool.not_true, Bool.false_and]

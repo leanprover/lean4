@@ -21,10 +21,10 @@ namespace Lean.Elab.Tactic
 open Meta
 open Parser.Tactic
 
-@[builtin_tactic withAnnotateState] def evalWithAnnotateState : Tactic
-  | `(tactic| with_annotate_state $stx $t) =>
-    withTacticInfoContext stx (evalTactic t)
-  | _ => throwUnsupportedSyntax
+@[builtin_tactic withAnnotateState, builtin_incremental] def evalWithAnnotateState : Tactic :=
+  fun stx =>
+    withTacticInfoContext stx[1] do
+    Term.withNarrowedArgTacticReuse (argIdx := 2) evalTactic stx
 
 @[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
@@ -114,8 +114,8 @@ where
 @[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx =>
   evalSepTactics stx[0]
 
-@[builtin_tactic paren] def evalParen : Tactic := fun stx =>
-  evalTactic stx[1]
+@[builtin_tactic paren, builtin_incremental] def evalParen : Tactic :=
+  Term.withNarrowedArgTacticReuse 1 evalTactic
 
 def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
   -- TODO: make it parametric
@@ -205,12 +205,12 @@ def evalTacticCDot : Tactic := fun stx => do
     withInfoContext (pure ()) initInfo
     Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx
 
-@[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.focus, builtin_incremental] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
   focus do
     -- show focused state on `focus`
     withInfoContext (pure ()) mkInfo
-    evalTactic stx[1]
+    Term.withNarrowedArgTacticReuse (argIdx := 1) evalTactic stx
 
 private def getOptRotation (stx : Syntax) : Nat :=
   if stx.isNone then 1 else stx[0].toNat

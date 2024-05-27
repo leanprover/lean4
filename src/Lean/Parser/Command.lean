@@ -118,8 +118,15 @@ def declBody : Parser :=
   do not call `byTactic` directly to avoid differences in pretty printing or behavior or error
   reporting between the two branches.
   -/
-  lookahead "by" >> termParser leadPrec <|>
+  lookahead (setExpected [] "by") >> termParser leadPrec <|>
   termParser
+
+-- As the pretty printer ignores `lookahead`, we need a custom parenthesizer to choose the correct
+-- precedence
+open PrettyPrinter in
+@[combinator_parenthesizer declBody] def declBody.parenthesizer : Parenthesizer :=
+  Parenthesizer.categoryParser.parenthesizer `term 0
+
 def declValSimple    := leading_parser
   " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser

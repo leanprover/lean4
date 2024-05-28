@@ -571,7 +571,7 @@ where
   match stx with
   | `(tactic| replace $decl:haveDecl) =>
     withMainContext do
-      let vars ← Elab.Term.Do.getDoHaveVars <| mkNullNode #[.missing, decl]
+      let vars ← Elab.Term.Do.getDoHaveVars (← `(doElem| have $decl:haveDecl))
       let origLCtx ← getLCtx
       evalTactic $ ← `(tactic| have $decl:haveDecl)
       let mut toClear := #[]

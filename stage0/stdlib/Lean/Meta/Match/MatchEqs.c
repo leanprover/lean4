@@ -45893,7 +45893,7 @@ x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
@@ -45903,68 +45903,74 @@ x_12 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
 x_13 = l_Lean_Meta_Match_getEquationsForImpl___closed__1;
 x_14 = l_Lean_EnvExtension_getState___rarg(x_12, x_13, x_11);
 lean_dec(x_11);
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
+lean_dec(x_14);
 lean_inc(x_1);
-x_15 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Match_getEquationsForImpl___spec__1(x_14, x_1);
-if (lean_obj_tag(x_15) == 0)
+x_16 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Match_getEquationsForImpl___spec__1(x_15, x_1);
+if (lean_obj_tag(x_16) == 0)
 {
-lean_object* x_16; 
+lean_object* x_17; 
 lean_free_object(x_7);
-x_16 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor(x_1, x_2, x_3, x_4, x_5, x_10);
-return x_16;
+x_17 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor(x_1, x_2, x_3, x_4, x_5, x_10);
+return x_17;
 }
 else
 {
-lean_object* x_17; 
+lean_object* x_18; 
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_17 = lean_ctor_get(x_15, 0);
-lean_inc(x_17);
-lean_dec(x_15);
-lean_ctor_set(x_7, 0, x_17);
+x_18 = lean_ctor_get(x_16, 0);
+lean_inc(x_18);
+lean_dec(x_16);
+lean_ctor_set(x_7, 0, x_18);
 return x_7;
 }
 }
 else
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_18 = lean_ctor_get(x_7, 0);
-x_19 = lean_ctor_get(x_7, 1);
-lean_inc(x_19);
-lean_inc(x_18);
-lean_dec(x_7);
-x_20 = lean_ctor_get(x_18, 0);
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_19 = lean_ctor_get(x_7, 0);
+x_20 = lean_ctor_get(x_7, 1);
 lean_inc(x_20);
-lean_dec(x_18);
-x_21 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
-x_22 = l_Lean_Meta_Match_getEquationsForImpl___closed__1;
-x_23 = l_Lean_EnvExtension_getState___rarg(x_21, x_22, x_20);
-lean_dec(x_20);
+lean_inc(x_19);
+lean_dec(x_7);
+x_21 = lean_ctor_get(x_19, 0);
+lean_inc(x_21);
+lean_dec(x_19);
+x_22 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
+x_23 = l_Lean_Meta_Match_getEquationsForImpl___closed__1;
+x_24 = l_Lean_EnvExtension_getState___rarg(x_22, x_23, x_21);
+lean_dec(x_21);
+x_25 = lean_ctor_get(x_24, 0);
+lean_inc(x_25);
+lean_dec(x_24);
 lean_inc(x_1);
-x_24 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Match_getEquationsForImpl___spec__1(x_23, x_1);
-if (lean_obj_tag(x_24) == 0)
+x_26 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Match_getEquationsForImpl___spec__1(x_25, x_1);
+if (lean_obj_tag(x_26) == 0)
 {
-lean_object* x_25; 
-x_25 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor(x_1, x_2, x_3, x_4, x_5, x_19);
-return x_25;
+lean_object* x_27; 
+x_27 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor(x_1, x_2, x_3, x_4, x_5, x_20);
+return x_27;
 }
 else
 {
-lean_object* x_26; lean_object* x_27; 
+lean_object* x_28; lean_object* x_29; 
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_26 = lean_ctor_get(x_24, 0);
-lean_inc(x_26);
-lean_dec(x_24);
-x_27 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_27, 0, x_26);
-lean_ctor_set(x_27, 1, x_19);
-return x_27;
+x_28 = lean_ctor_get(x_26, 0);
+lean_inc(x_28);
+lean_dec(x_26);
+x_29 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_20);
+return x_29;
 }
 }
 }

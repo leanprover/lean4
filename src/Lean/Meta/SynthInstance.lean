@@ -44,18 +44,18 @@ structure Instance where
 structure GeneratorNode where
   mvar            : Expr
   key             : Expr
-  keyIsMVarType   : Bool
   mctx            : MetavarContext
   instances       : Array Instance
   currInstanceIdx : Nat
   /--
-  `typeHasMVars := true` if type of `mvar` contains metavariables.
+  `typeHasAssignableMVars := true` if type of `mvar` contains assignable metavariables.
   We store this information to implement an optimization that relies on the fact
   that instances are "morally canonical."
   That is, we need to find at most one answer for this generator node if the type
-  does not have metavariables.
+  does not have assignable metavariables.
   -/
-  typeHasMVars    : Bool
+  typeHasAssignableMVars : Bool
+  hasOutParams           : Bool
   deriving Inhabited
 
 structure ConsumerNode where
@@ -241,7 +241,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
-def mkGeneratorNode? (key mvar : Expr) (keyIsMVarType : Bool) : MetaM (Option GeneratorNode) := do
+def mkGeneratorNode? (key mvar : Expr) (typeHasAssignableMVars hasOutParams : Bool) : MetaM (Option GeneratorNode) := do
   let mvarType  ← inferType mvar
   let mvarType  ← instantiateMVars mvarType
   let instances ← getInstances mvarType
@@ -250,17 +250,16 @@ def mkGeneratorNode? (key mvar : Expr) (keyIsMVarType : Bool) : MetaM (Option Ge
   else
     let mctx ← getMCtx
     return some {
-      mvar, key, keyIsMVarType, mctx, instances
-      typeHasMVars := mvarType.hasMVar
+      mvar, key, mctx, instances, typeHasAssignableMVars, hasOutParams
       currInstanceIdx := instances.size
     }
 
 /--
   Create a new generator node for `mvar` and add `waiter` as its waiter.
   `key` must be `mkTableKey mctx mvarType`. -/
-def newSubgoal (mctx : MetavarContext) (key mvar : Expr) (keyIsMVarType : Bool) (waiter : Waiter) : SynthM Unit :=
+def newSubgoal (mctx : MetavarContext) (key mvar : Expr) (typeHasAssignableMVars hasOutParams : Bool) (waiter : Waiter) : SynthM Unit :=
   withMCtx mctx do withTraceNode' `Meta.synthInstance do
-    match (← mkGeneratorNode? key mvar keyIsMVarType) with
+    match (← mkGeneratorNode? key mvar typeHasAssignableMVars hasOutParams) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
       let entry : TableEntry := { waiters := #[waiter] }
@@ -482,25 +481,30 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
-def checkGlobalCache (type : Expr) : MetaM (Option (Option Answer)) := do
+private def exprHasOutParams (type : Expr) : MetaM Bool :=
+  forallTelescopeReducing type fun _ type => do
+    if let some n ← isClass? type then
+      return hasOutParams (← getEnv) n
+    else
+      throwError "type class instance expected{indentExpr type}"
+
+def checkGlobalCache (type : Expr) (hasOutParams : Bool) : MetaM (LOption Answer) := do
+  if hasOutParams then
+    return .undef
   let cacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
   match (← get).cache.synthInstance.find? cacheKey with
-  | none => return none
+  | none => return .undef
   | some none =>
     trace[Meta.synthInstance.globalCache] "{crossEmoji} found failure for {type} in global cache"
-    return some none
+    return .none
   | some (some inst) =>
-    -- Some cached results only apply given some metavariable assignments in outParams,
-    -- and the metavariable context may have changed.
-    if ← isDefEq type (← inferType inst) then
+    if backward.synthInstance.canonInstances.get (← getOptions) then
       trace[Meta.synthInstance.globalCache] "{checkEmoji} found success for {type} in global cache: {inst}"
-      return some $ some {
+      return .some {
         result := { paramNames := #[], numMVars := 0, expr := inst }
         resultType := type
         size := 1 }
-    else
-      -- don't return some none, because it is possible that outParams can have multiple values
-      return none
+    return .undef
 
 def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   let key : SynthInstanceCacheKey := { localInsts := ← getLocalInstances, type, synthPendingDepth := (← read).synthPendingDepth }
@@ -512,12 +516,14 @@ def modifyGlobalCache (type : Expr) (value : Option Expr) : MetaM Unit := do
   which is needed for globally caching the lack of a search result.
 -/
 def cacheGeneratorNode (gNode : GeneratorNode) (finished : Bool) : SynthM Unit := do
-  if gNode.keyIsMVarType then
+  unless gNode.typeHasAssignableMVars do
     let entry ← getEntry gNode.key
-    if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 && answer.result.paramNames.isEmpty then
-      modifyGlobalCache gNode.key (some value.result.expr)
+    if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
+      if backward.synthInstance.canonInstances.get (← getOptions) then
+        if value.result.paramNames.isEmpty then
+          modifyGlobalCache gNode.key value.result.expr
     -- Recall that anwers with expression metavariables are not valid
-    else if finished && entry.answers.all fun answer => answer.result.numMVars != 0 then
+    else if finished then
       modifyGlobalCache gNode.key none
 
 /-- Process the next subgoal in the given consumer node. -/
@@ -541,27 +547,27 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   | []      => addAnswer cNode
   | mvar::_ =>
     let mvarType ← withMCtx cNode.mctx do instantiateMVars (← inferType mvar)
-    match ← checkGlobalCache mvarType with
-    | some result =>
-      if let some answer := result then
-        modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
-    | none =>
+    let hasOutParams ← exprHasOutParams mvarType
+    match ← checkGlobalCache mvarType hasOutParams with
+    | .some inst => modify fun s => { s with resumeStack := s.resumeStack.push (cNode, inst) }
+    | .none      => pure ()
+    | .undef     =>
      let waiter := Waiter.consumerNode cNode
-     let (key, keyIsMVarType) ← withMCtx cNode.mctx do mkTableKey mvarType
+     let (key, typeHasAssignableMVars) ← withMCtx cNode.mctx do mkTableKey mvarType
      let entry? ← findEntry? key
      match entry? with
      | none       =>
        -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
        match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar keyIsMVarType waiter
+       | none => newSubgoal cNode.mctx key mvar typeHasAssignableMVars hasOutParams waiter
        | some (mvarType', transformer) =>
-         let (key', keyIsMVarType') ← withMCtx cNode.mctx <| mkTableKey mvarType'
+         let (key', typeHasAssignableMVars') ← withMCtx cNode.mctx <| mkTableKey mvarType'
          match (← findEntry? key') with
          | none =>
            let (mctx', mvar') ← withMCtx cNode.mctx do
              let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' keyIsMVarType' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+           newSubgoal mctx' key' mvar' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
          | some entry' =>
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
@@ -594,9 +600,9 @@ def generate : SynthM Unit := do
     let inst := gNode.instances.get! idx
     let mctx := gNode.mctx
     let mvar := gNode.mvar
-    /- See comment at `typeHasMVars` -/
+    /- See comment at `typeHasAssignableMVars` -/
     if backward.synthInstance.canonInstances.get (← getOptions) then
-      unless gNode.typeHasMVars do
+      unless gNode.typeHasAssignableMVars do
         let entry ← getEntry key
         if let some value := entry.answers.find? fun answer => answer.result.numMVars == 0 then
           /-
@@ -611,8 +617,9 @@ def generate : SynthM Unit := do
           that do **not** contain metavariables. This extra check was added to address issue #4213.
           -/
           modify fun s => { s with generatorStack := s.generatorStack.pop }
-          if gNode.keyIsMVarType && value.result.paramNames.isEmpty then
-            modifyGlobalCache gNode.key value.result.expr
+          unless gNode.hasOutParams do
+            if value.result.paramNames.isEmpty then
+              modifyGlobalCache gNode.key value.result.expr
           return
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
@@ -676,9 +683,9 @@ partial def synth : SynthM (Option AbstractMVarsResult) := do
 def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult) :=
   withCurrHeartbeats do
      let mvar ← mkFreshExprMVar type
-     let (key, keyIsMVarType) ← mkTableKey type
+     let (key, typeHasAssignableMVars) ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal (← getMCtx) key mvar keyIsMVarType Waiter.root
+       newSubgoal (← getMCtx) key mvar typeHasAssignableMVars (← exprHasOutParams type) Waiter.root
        synth
      tryCatchRuntimeEx
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})

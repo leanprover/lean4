@@ -122,7 +122,10 @@ instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 /-- Create a TOML table that encodes the declarative configuration of the package. -/
 def Package.mkTomlConfig (pkg : Package) (t : Table := {}) : Table :=
   pkg.config.toToml t
-  |>.insertD `testRunner pkg.testRunner .anonymous
+  |>.smartInsert `testDriver pkg.testDriver
+  |>.smartInsert `testDriverArgs pkg.testDriverArgs
+  |>.smartInsert `lintDriver pkg.lintDriver
+  |>.smartInsert `lintDriverArgs pkg.lintDriverArgs
   |>.smartInsert `defaultTargets pkg.defaultTargets
   |>.smartInsert `require pkg.depConfigs
   |>.smartInsert `lean_lib pkg.leanLibConfigs.toArray

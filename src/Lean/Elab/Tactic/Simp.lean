@@ -336,7 +336,9 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
     match thm with
     | .decl declName post inv => -- global definitions in the environment
-      if env.contains declName && (inv || !simpOnlyBuiltins.contains declName) then
+      if env.contains declName
+         && (inv || !simpOnlyBuiltins.contains declName)
+         && !Match.isMatchEqnTheorem env declName then
         let decl : Term ← `($(mkIdent (← unresolveNameGlobal declName)):ident)
         let arg ← match post, inv with
           | true,  true  => `(Parser.Tactic.simpLemma| ← $decl:term)

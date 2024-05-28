@@ -71,7 +71,7 @@ def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.asy
     download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do
     updateAction .fetch
-    logVerbose s!"unpacking {self.name}/{tag}/{self.buildArchive}"
+    logVerbose s!"unpacking {self.name}:{tag}:{self.buildArchive}"
     untar self.buildArchiveFile self.buildDir
   return (true, .nil)
 

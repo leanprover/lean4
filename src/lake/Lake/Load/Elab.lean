@@ -133,7 +133,8 @@ where
     |>.insert ``externLibAttr
     |>.insert ``targetAttr
     |>.insert ``defaultTargetAttr
-    |>.insert ``testRunnerAttr
+    |>.insert ``testDriverAttr
+    |>.insert ``lintDriverAttr
     |>.insert ``moduleFacetAttr
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr

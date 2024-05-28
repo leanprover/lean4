@@ -461,8 +461,8 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   ext
   simp
 
-theorem or_assoc (a b c : BitVec w) :
-    a ||| b ||| c = a ||| (b ||| c) := by
+theorem or_assoc (x y z : BitVec w) :
+    x ||| y ||| z = x ||| (y ||| z) := by
   ext i
   simp [Bool.or_assoc]
 
@@ -492,8 +492,8 @@ theorem or_assoc (a b c : BitVec w) :
   ext
   simp
 
-theorem and_assoc (a b c : BitVec w) :
-    a &&& b &&& c = a &&& (b &&& c) := by
+theorem and_assoc (x y z : BitVec w) :
+    x &&& y &&& z = x &&& (y &&& z) := by
   ext i
   simp [Bool.and_assoc]
 
@@ -517,8 +517,8 @@ theorem and_assoc (a b c : BitVec w) :
   ext
   simp
 
-theorem xor_assoc (a b c : BitVec w) :
-    a ^^^ b ^^^ c = a ^^^ (b ^^^ c) := by
+theorem xor_assoc (x y z : BitVec w) :
+    x ^^^ y ^^^ z = x ^^^ (y ^^^ z) := by
   ext i
   simp [Bool.xor_assoc]
 

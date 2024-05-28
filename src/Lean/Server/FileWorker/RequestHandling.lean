@@ -468,11 +468,11 @@ def computeAbsoluteLspSemanticTokens
     (endPos?  : Option String.Pos)
     (tokens   : Array LeanSemanticToken)
     : Array AbsoluteLspSemanticToken :=
-  tokens.filterMap fun ⟨stx, type⟩ => do
+  tokens.filterMap fun ⟨stx, tokenType⟩ => do
     let (pos, tailPos) := (← stx.getPos?, ← stx.getTailPos?)
     guard <| beginPos <= pos && endPos?.all (pos < ·)
     let (lspPos, lspTailPos) := (text.utf8PosToLspPos pos, text.utf8PosToLspPos tailPos)
-    return ⟨lspPos, lspTailPos, type⟩
+    return ⟨lspPos, lspTailPos, tokenType⟩
 
 /-- Filters all duplicate semantic tokens with the same `pos`, `tailPos` and `type`. -/
 def filterDuplicateSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Array AbsoluteLspSemanticToken :=
@@ -488,11 +488,11 @@ def computeDeltaLspSemanticTokens (tokens : Array AbsoluteLspSemanticToken) : Se
     pos1 < pos2 || pos1 == pos2 && tailPos1 <= tailPos2
   let mut data : Array Nat := Array.mkEmpty (5*tokens.size)
   let mut lastPos : Lsp.Position := ⟨0, 0⟩
-  for ⟨pos, tailPos, type⟩ in tokens do
+  for ⟨pos, tailPos, tokenType⟩ in tokens do
     let deltaLine := pos.line - lastPos.line
     let deltaStart := pos.character - (if pos.line == lastPos.line then lastPos.character else 0)
     let length := tailPos.character - pos.character
-    let tokenType := type.toNat
+    let tokenType := tokenType.toNat
     let tokenModifiers := 0
     data := data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
     lastPos := pos

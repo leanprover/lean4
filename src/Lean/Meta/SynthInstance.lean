@@ -157,11 +157,11 @@ partial def normExpr (e : Expr) : M Expr := do
 end MkTableKey
 
 /-- Remark: `mkTableKey` assumes `e` does not contain assigned metavariables.
-Returns a flag which is `true` when the expression was not changed. -/
+Returns a flag which is `true` when the expression was changed. -/
 def mkTableKey [Monad m] [MonadMCtx m] (e : Expr) : m (Expr × Bool) := do
   let (r, s) := MkTableKey.normExpr e |>.run { mctx := (← getMCtx) }
   setMCtx s.mctx
-  return (r, s.nextIdx == 0)
+  return (r, s.nextIdx != 0)
 
 structure Answer where
   result     : AbstractMVarsResult

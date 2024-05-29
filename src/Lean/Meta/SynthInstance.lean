@@ -688,8 +688,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
        -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
        let localInstances ← getLocalInstances
        forallTelescopeReducing type fun _ type => do
-
-       newSubgoal (← getMCtx) key mvar type typeHasAssignableMVars (← exprHasOutParams type) Waiter.root localInstances
+         newSubgoal (← getMCtx) key mvar type typeHasAssignableMVars (← exprHasOutParams type) Waiter.root localInstances
        synth
      tryCatchRuntimeEx
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})

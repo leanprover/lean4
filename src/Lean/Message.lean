@@ -59,8 +59,14 @@ inductive MessageData where
   | ofGoal            : MVarId → MessageData
   /-- A widget instance.
 
-  The nested message should approximate the contents of the widget in a textual form.
-  This is used as fallback in environments that cannot display user widgets. -/
+  In `ofWidget wi alt`,
+  the nested message `alt` should approximate the contents of the widget
+  without itself using `ofWidget wi _`.
+  This is used as fallback in environments that cannot display user widgets.
+  `alt` may nest any structured message,
+  for example `ofGoal` to approximate a tactic state widget,
+  and, if necessary, even other widget instances
+  (for which approximations are computed recursively). -/
   | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData

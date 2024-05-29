@@ -543,9 +543,9 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
     let mvarType ← withMCtx cNode.mctx do instantiateMVars (← inferType mvar)
     -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
     let localInstances ← getLocalInstances
-    forallTelescopeReducing mvarType fun _ mvarType => do
+    forallTelescopeReducing mvarType fun _ mvarTypeBody => do
 
-    let hasOutParams ← exprHasOutParams mvarType
+    let hasOutParams ← exprHasOutParams mvarTypeBody
     match ← checkGlobalCache mvarType hasOutParams with
     | .some inst => modify fun s => { s with resumeStack := s.resumeStack.push (cNode, inst) }
     | .none      => pure ()
@@ -557,7 +557,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
      | none       =>
        -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
        match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar mvarType typeHasAssignableMVars hasOutParams waiter localInstances
+       | none => newSubgoal cNode.mctx key mvar mvarTypeBody typeHasAssignableMVars hasOutParams waiter localInstances
        | some (mvarType', transformer) =>
          let (key', typeHasAssignableMVars') ← withMCtx cNode.mctx <| mkTableKey mvarType'
          match (← findEntry? key') with
@@ -567,8 +567,8 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
              return (← getMCtx, mvar')
            -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
            let localInstances ← getLocalInstances
-           forallTelescopeReducing mvarType' fun _ mvarType' => do
-             newSubgoal mctx' key' mvar' mvarType' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals }) localInstances
+           forallTelescopeReducing mvarType' fun _ mvarTypeBody' => do
+             newSubgoal mctx' key' mvar' mvarTypeBody' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals }) localInstances
          | some entry' =>
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]

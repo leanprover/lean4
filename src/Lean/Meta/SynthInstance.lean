@@ -566,7 +566,6 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
              let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
            -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
-           let localInstances ← getLocalInstances
            forallTelescopeReducing mvarType' fun _ mvarTypeBody' => do
              newSubgoal mctx' key' mvar' mvarTypeBody' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals }) localInstances
          | some entry' =>

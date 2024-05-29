@@ -204,7 +204,10 @@ instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 
 /-- Return globals and locals instances that may unify with `type` -/
-def getInstances (type : Expr) (localInstances : LocalInstances) : MetaM (Array Instance) := do
+def getInstances (type : Expr) : MetaM (Array Instance) := do
+  -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
+  let localInstances ← getLocalInstances
+  forallTelescopeReducing type fun _ type => do
     let className? ← isClass? type
     match className? with
     | none   => throwError "type class instance expected{indentExpr type}"
@@ -238,8 +241,10 @@ def getInstances (type : Expr) (localInstances : LocalInstances) : MetaM (Array 
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
-def mkGeneratorNode? (key mvar mvarType : Expr) (typeHasAssignableMVars hasOutParams : Bool) (localInstances : LocalInstances) : MetaM (Option GeneratorNode) := do
-  let instances ← getInstances mvarType localInstances
+def mkGeneratorNode? (key mvar : Expr) (typeHasAssignableMVars hasOutParams : Bool) : MetaM (Option GeneratorNode) := do
+  let mvarType  ← inferType mvar
+  let mvarType  ← instantiateMVars mvarType
+  let instances ← getInstances mvarType
   if instances.isEmpty then
     return none
   else
@@ -252,9 +257,9 @@ def mkGeneratorNode? (key mvar mvarType : Expr) (typeHasAssignableMVars hasOutPa
 /--
   Create a new generator node for `mvar` and add `waiter` as its waiter.
   `key` must be `mkTableKey mctx mvarType`. -/
-def newSubgoal (mctx : MetavarContext) (key mvar mvarType : Expr) (typeHasAssignableMVars hasOutParams : Bool) (waiter : Waiter) (localInstances : LocalInstances) : SynthM Unit :=
+def newSubgoal (mctx : MetavarContext) (key mvar : Expr) (typeHasAssignableMVars hasOutParams : Bool) (waiter : Waiter) : SynthM Unit :=
   withMCtx mctx do withTraceNode' `Meta.synthInstance do
-    match (← mkGeneratorNode? key mvar mvarType typeHasAssignableMVars hasOutParams localInstances) with
+    match (← mkGeneratorNode? key mvar typeHasAssignableMVars hasOutParams) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
       let entry : TableEntry := { waiters := #[waiter] }
@@ -476,11 +481,12 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
-private def exprHasOutParams (type : Expr) : MetaM Bool := do
-  if let some n ← isClass? type then
-    return hasOutParams (← getEnv) n
-  else
-    throwError "type class instance expected{indentExpr type}"
+private def exprHasOutParams (type : Expr) : MetaM Bool :=
+  forallTelescopeReducing type fun _ type => do
+    if let some n ← isClass? type then
+      return hasOutParams (← getEnv) n
+    else
+      throwError "type class instance expected{indentExpr type}"
 
 def checkGlobalCache (type : Expr) (hasOutParams : Bool) : MetaM (LOption Answer) := do
   if hasOutParams then
@@ -541,11 +547,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   | []      => addAnswer cNode
   | mvar::_ =>
     let mvarType ← withMCtx cNode.mctx do instantiateMVars (← inferType mvar)
-    -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
-    let localInstances ← getLocalInstances
-    forallTelescopeReducing mvarType fun _ mvarTypeBody => do
-
-    let hasOutParams ← exprHasOutParams mvarTypeBody
+    let hasOutParams ← exprHasOutParams mvarType
     match ← checkGlobalCache mvarType hasOutParams with
     | .some inst => modify fun s => { s with resumeStack := s.resumeStack.push (cNode, inst) }
     | .none      => pure ()
@@ -557,7 +559,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
      | none       =>
        -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
        match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar mvarTypeBody typeHasAssignableMVars hasOutParams waiter localInstances
+       | none => newSubgoal cNode.mctx key mvar typeHasAssignableMVars hasOutParams waiter
        | some (mvarType', transformer) =>
          let (key', typeHasAssignableMVars') ← withMCtx cNode.mctx <| mkTableKey mvarType'
          match (← findEntry? key') with
@@ -565,9 +567,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
            let (mctx', mvar') ← withMCtx cNode.mctx do
              let mvar' ← mkFreshExprMVar mvarType'
              return (← getMCtx, mvar')
-           -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
-           forallTelescopeReducing mvarType' fun _ mvarTypeBody' => do
-             newSubgoal mctx' key' mvar' mvarTypeBody' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals }) localInstances
+           newSubgoal mctx' key' mvar' typeHasAssignableMVars' hasOutParams (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
          | some entry' =>
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
@@ -685,10 +685,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let mvar ← mkFreshExprMVar type
      let (key, typeHasAssignableMVars) ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
-       -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
-       let localInstances ← getLocalInstances
-       forallTelescopeReducing type fun _ type => do
-         newSubgoal (← getMCtx) key mvar type typeHasAssignableMVars (← exprHasOutParams type) Waiter.root localInstances
+       newSubgoal (← getMCtx) key mvar typeHasAssignableMVars (← exprHasOutParams type) Waiter.root
        synth
      tryCatchRuntimeEx
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})

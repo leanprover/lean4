@@ -340,11 +340,11 @@ _start:
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_12 = l_Lean_MessageData_ofName(x_1);
 x_13 = l_Lean_Elab_Tactic_evalUnfold_go___lambda__1___closed__4;
-x_14 = lean_alloc_ctor(6, 2, 0);
+x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_12);
 x_15 = l_Lean_Elab_Tactic_evalUnfold_go___lambda__1___closed__6;
-x_16 = lean_alloc_ctor(6, 2, 0);
+x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = lean_alloc_ctor(1, 1, 0);

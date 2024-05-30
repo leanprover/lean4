@@ -521,11 +521,11 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = l_Lean_Expr_fvar___override(x_12);
 x_22 = l_Lean_MessageData_ofExpr(x_21);
 x_23 = l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spec__4___closed__2;
-x_24 = lean_alloc_ctor(6, 2, 0);
+x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_22);
 x_25 = l_Array_forInUnsafe_loop___at_Lean_MVarId_revert___spec__4___closed__4;
-x_26 = lean_alloc_ctor(6, 2, 0);
+x_26 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_26, 0, x_24);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_26, x_5, x_6, x_7, x_8, x_15);

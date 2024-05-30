@@ -7974,11 +7974,11 @@ lean_dec(x_3);
 x_15 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_15, 0, x_2);
 x_16 = l_Lean_Widget_diffInteractiveGoal___closed__2;
-lean_ctor_set_tag(x_9, 6);
+lean_ctor_set_tag(x_9, 7);
 lean_ctor_set(x_9, 1, x_15);
 lean_ctor_set(x_9, 0, x_16);
 x_17 = l_Lean_Widget_diffInteractiveGoal___closed__4;
-x_18 = lean_alloc_ctor(6, 2, 0);
+x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_9);
 lean_ctor_set(x_18, 1, x_17);
 x_19 = l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(x_18, x_4, x_5, x_6, x_7, x_12);
@@ -8092,11 +8092,11 @@ lean_dec(x_31);
 lean_dec(x_30);
 lean_ctor_set(x_14, 0, x_32);
 x_57 = l_Lean_Widget_diffInteractiveGoal___closed__6;
-lean_ctor_set_tag(x_51, 6);
+lean_ctor_set_tag(x_51, 7);
 lean_ctor_set(x_51, 1, x_14);
 lean_ctor_set(x_51, 0, x_57);
 x_58 = l_Lean_Widget_diffInteractiveGoal___closed__7;
-lean_ctor_set_tag(x_47, 6);
+lean_ctor_set_tag(x_47, 7);
 lean_ctor_set(x_47, 1, x_58);
 lean_ctor_set(x_47, 0, x_51);
 x_59 = l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(x_47, x_4, x_5, x_6, x_7, x_54);
@@ -8266,11 +8266,11 @@ lean_dec(x_31);
 lean_dec(x_30);
 lean_ctor_set(x_14, 0, x_32);
 x_88 = l_Lean_Widget_diffInteractiveGoal___closed__6;
-x_89 = lean_alloc_ctor(6, 2, 0);
+x_89 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_89, 0, x_88);
 lean_ctor_set(x_89, 1, x_14);
 x_90 = l_Lean_Widget_diffInteractiveGoal___closed__7;
-lean_ctor_set_tag(x_47, 6);
+lean_ctor_set_tag(x_47, 7);
 lean_ctor_set(x_47, 1, x_90);
 lean_ctor_set(x_47, 0, x_89);
 x_91 = l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(x_47, x_4, x_5, x_6, x_7, x_85);
@@ -8453,15 +8453,15 @@ lean_dec(x_30);
 lean_ctor_set(x_14, 0, x_32);
 x_122 = l_Lean_Widget_diffInteractiveGoal___closed__6;
 if (lean_is_scalar(x_119)) {
- x_123 = lean_alloc_ctor(6, 2, 0);
+ x_123 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_123 = x_119;
- lean_ctor_set_tag(x_123, 6);
+ lean_ctor_set_tag(x_123, 7);
 }
 lean_ctor_set(x_123, 0, x_122);
 lean_ctor_set(x_123, 1, x_14);
 x_124 = l_Lean_Widget_diffInteractiveGoal___closed__7;
-x_125 = lean_alloc_ctor(6, 2, 0);
+x_125 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_125, 0, x_123);
 lean_ctor_set(x_125, 1, x_124);
 x_126 = l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(x_125, x_4, x_5, x_6, x_7, x_118);
@@ -8759,19 +8759,19 @@ lean_dec(x_30);
 lean_ctor_set(x_14, 0, x_32);
 x_177 = l_Lean_Widget_diffInteractiveGoal___closed__6;
 if (lean_is_scalar(x_174)) {
- x_178 = lean_alloc_ctor(6, 2, 0);
+ x_178 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_178 = x_174;
- lean_ctor_set_tag(x_178, 6);
+ lean_ctor_set_tag(x_178, 7);
 }
 lean_ctor_set(x_178, 0, x_177);
 lean_ctor_set(x_178, 1, x_14);
 x_179 = l_Lean_Widget_diffInteractiveGoal___closed__7;
 if (lean_is_scalar(x_170)) {
- x_180 = lean_alloc_ctor(6, 2, 0);
+ x_180 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_180 = x_170;
- lean_ctor_set_tag(x_180, 6);
+ lean_ctor_set_tag(x_180, 7);
 }
 lean_ctor_set(x_180, 0, x_178);
 lean_ctor_set(x_180, 1, x_179);
@@ -9091,19 +9091,19 @@ lean_dec(x_213);
 lean_ctor_set(x_14, 0, x_215);
 x_238 = l_Lean_Widget_diffInteractiveGoal___closed__6;
 if (lean_is_scalar(x_235)) {
- x_239 = lean_alloc_ctor(6, 2, 0);
+ x_239 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_239 = x_235;
- lean_ctor_set_tag(x_239, 6);
+ lean_ctor_set_tag(x_239, 7);
 }
 lean_ctor_set(x_239, 0, x_238);
 lean_ctor_set(x_239, 1, x_14);
 x_240 = l_Lean_Widget_diffInteractiveGoal___closed__7;
 if (lean_is_scalar(x_231)) {
- x_241 = lean_alloc_ctor(6, 2, 0);
+ x_241 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_241 = x_231;
- lean_ctor_set_tag(x_241, 6);
+ lean_ctor_set_tag(x_241, 7);
 }
 lean_ctor_set(x_241, 0, x_239);
 lean_ctor_set(x_241, 1, x_240);
@@ -9464,19 +9464,19 @@ x_309 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_309, 0, x_285);
 x_310 = l_Lean_Widget_diffInteractiveGoal___closed__6;
 if (lean_is_scalar(x_306)) {
- x_311 = lean_alloc_ctor(6, 2, 0);
+ x_311 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_311 = x_306;
- lean_ctor_set_tag(x_311, 6);
+ lean_ctor_set_tag(x_311, 7);
 }
 lean_ctor_set(x_311, 0, x_310);
 lean_ctor_set(x_311, 1, x_309);
 x_312 = l_Lean_Widget_diffInteractiveGoal___closed__7;
 if (lean_is_scalar(x_302)) {
- x_313 = lean_alloc_ctor(6, 2, 0);
+ x_313 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_313 = x_302;
- lean_ctor_set_tag(x_313, 6);
+ lean_ctor_set_tag(x_313, 7);
 }
 lean_ctor_set(x_313, 0, x_311);
 lean_ctor_set(x_313, 1, x_312);
@@ -9732,11 +9732,11 @@ lean_dec(x_3);
 x_351 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_351, 0, x_2);
 x_352 = l_Lean_Widget_diffInteractiveGoal___closed__2;
-x_353 = lean_alloc_ctor(6, 2, 0);
+x_353 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_353, 0, x_352);
 lean_ctor_set(x_353, 1, x_351);
 x_354 = l_Lean_Widget_diffInteractiveGoal___closed__4;
-x_355 = lean_alloc_ctor(6, 2, 0);
+x_355 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_355, 0, x_353);
 lean_ctor_set(x_355, 1, x_354);
 x_356 = l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1(x_355, x_4, x_5, x_6, x_7, x_348);
@@ -9887,19 +9887,19 @@ if (lean_is_scalar(x_358)) {
 lean_ctor_set(x_392, 0, x_368);
 x_393 = l_Lean_Widget_diffInteractiveGoal___closed__6;
 if (lean_is_scalar(x_389)) {
- x_394 = lean_alloc_ctor(6, 2, 0);
+ x_394 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_394 = x_389;
- lean_ctor_set_tag(x_394, 6);
+ lean_ctor_set_tag(x_394, 7);
 }
 lean_ctor_set(x_394, 0, x_393);
 lean_ctor_set(x_394, 1, x_392);
 x_395 = l_Lean_Widget_diffInteractiveGoal___closed__7;
 if (lean_is_scalar(x_385)) {
- x_396 = lean_alloc_ctor(6, 2, 0);
+ x_396 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_396 = x_385;
- lean_ctor_set_tag(x_396, 6);
+ lean_ctor_set_tag(x_396, 7);
 }
 lean_ctor_set(x_396, 0, x_394);
 lean_ctor_set(x_396, 1, x_395);

@@ -3574,7 +3574,7 @@ lean_ctor_set_float(x_18, sizeof(void*)*2 + 8, x_5);
 lean_ctor_set_uint8(x_18, sizeof(void*)*2 + 16, x_16);
 x_19 = l_Lean_Elab_runFrontend___lambda__2___closed__6;
 x_20 = l_Lean_Elab_Frontend_State_commands___default___closed__1;
-x_21 = lean_alloc_ctor(8, 3, 0);
+x_21 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_21, 0, x_18);
 lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_20);

@@ -1022,19 +1022,19 @@ lean_dec(x_18);
 lean_inc(x_1);
 x_19 = l_Lean_MessageData_ofLevel(x_1);
 x_20 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
-lean_ctor_set_tag(x_10, 6);
+lean_ctor_set_tag(x_10, 7);
 lean_ctor_set(x_10, 1, x_19);
 lean_ctor_set(x_10, 0, x_20);
 x_21 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
-x_22 = lean_alloc_ctor(6, 2, 0);
+x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_10);
 lean_ctor_set(x_22, 1, x_21);
 lean_inc(x_2);
 x_23 = l_Lean_MessageData_ofLevel(x_2);
-x_24 = lean_alloc_ctor(6, 2, 0);
+x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
-x_25 = lean_alloc_ctor(6, 2, 0);
+x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_20);
 x_26 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_9, x_25, x_3, x_4, x_5, x_6, x_17);
@@ -1060,19 +1060,19 @@ lean_dec(x_10);
 lean_inc(x_1);
 x_31 = l_Lean_MessageData_ofLevel(x_1);
 x_32 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
-x_33 = lean_alloc_ctor(6, 2, 0);
+x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);
 x_34 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
-x_35 = lean_alloc_ctor(6, 2, 0);
+x_35 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
 lean_inc(x_2);
 x_36 = l_Lean_MessageData_ofLevel(x_2);
-x_37 = lean_alloc_ctor(6, 2, 0);
+x_37 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_37, 0, x_35);
 lean_ctor_set(x_37, 1, x_36);
-x_38 = lean_alloc_ctor(6, 2, 0);
+x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_32);
 x_39 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_9, x_38, x_3, x_4, x_5, x_6, x_30);
@@ -3117,26 +3117,26 @@ x_9 = l_Lean_exceptBoolEmoji___rarg(x_3);
 x_10 = l_Lean_stringToMessageData(x_9);
 lean_dec(x_9);
 x_11 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
-x_12 = lean_alloc_ctor(6, 2, 0);
+x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
 x_13 = l_Lean_Meta_isLevelDefEqAuxImpl___lambda__1___closed__2;
-x_14 = lean_alloc_ctor(6, 2, 0);
+x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_MessageData_ofLevel(x_1);
-x_16 = lean_alloc_ctor(6, 2, 0);
+x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
 x_17 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
-x_18 = lean_alloc_ctor(6, 2, 0);
+x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
 x_19 = l_Lean_MessageData_ofLevel(x_2);
-x_20 = lean_alloc_ctor(6, 2, 0);
+x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = lean_alloc_ctor(6, 2, 0);
+x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_11);
 x_22 = lean_alloc_ctor(0, 2, 0);
@@ -3547,28 +3547,28 @@ else
 lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
 x_56 = l_Lean_MessageData_ofLevel(x_1);
 x_57 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
-lean_ctor_set_tag(x_48, 6);
+lean_ctor_set_tag(x_48, 7);
 lean_ctor_set(x_48, 1, x_56);
 lean_ctor_set(x_48, 0, x_57);
 x_58 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
 if (lean_is_scalar(x_16)) {
- x_59 = lean_alloc_ctor(6, 2, 0);
+ x_59 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_59 = x_16;
- lean_ctor_set_tag(x_59, 6);
+ lean_ctor_set_tag(x_59, 7);
 }
 lean_ctor_set(x_59, 0, x_48);
 lean_ctor_set(x_59, 1, x_58);
 x_60 = l_Lean_MessageData_ofLevel(x_2);
 if (lean_is_scalar(x_11)) {
- x_61 = lean_alloc_ctor(6, 2, 0);
+ x_61 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_61 = x_11;
- lean_ctor_set_tag(x_61, 6);
+ lean_ctor_set_tag(x_61, 7);
 }
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
-x_62 = lean_alloc_ctor(6, 2, 0);
+x_62 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_62, 0, x_61);
 lean_ctor_set(x_62, 1, x_57);
 x_63 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_47, x_62, x_3, x_4, x_5, x_6, x_51);
@@ -3608,28 +3608,28 @@ else
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
 x_73 = l_Lean_MessageData_ofLevel(x_1);
 x_74 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
-x_75 = lean_alloc_ctor(6, 2, 0);
+x_75 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_75, 0, x_74);
 lean_ctor_set(x_75, 1, x_73);
 x_76 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
 if (lean_is_scalar(x_16)) {
- x_77 = lean_alloc_ctor(6, 2, 0);
+ x_77 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_77 = x_16;
- lean_ctor_set_tag(x_77, 6);
+ lean_ctor_set_tag(x_77, 7);
 }
 lean_ctor_set(x_77, 0, x_75);
 lean_ctor_set(x_77, 1, x_76);
 x_78 = l_Lean_MessageData_ofLevel(x_2);
 if (lean_is_scalar(x_11)) {
- x_79 = lean_alloc_ctor(6, 2, 0);
+ x_79 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_79 = x_11;
- lean_ctor_set_tag(x_79, 6);
+ lean_ctor_set_tag(x_79, 7);
 }
 lean_ctor_set(x_79, 0, x_77);
 lean_ctor_set(x_79, 1, x_78);
-x_80 = lean_alloc_ctor(6, 2, 0);
+x_80 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_80, 0, x_79);
 lean_ctor_set(x_80, 1, x_74);
 x_81 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_47, x_80, x_3, x_4, x_5, x_6, x_68);
@@ -4037,32 +4037,32 @@ lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; 
 x_163 = l_Lean_MessageData_ofLevel(x_1);
 x_164 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
 if (lean_is_scalar(x_158)) {
- x_165 = lean_alloc_ctor(6, 2, 0);
+ x_165 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_165 = x_158;
- lean_ctor_set_tag(x_165, 6);
+ lean_ctor_set_tag(x_165, 7);
 }
 lean_ctor_set(x_165, 0, x_164);
 lean_ctor_set(x_165, 1, x_163);
 x_166 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__8;
 if (lean_is_scalar(x_16)) {
- x_167 = lean_alloc_ctor(6, 2, 0);
+ x_167 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_167 = x_16;
- lean_ctor_set_tag(x_167, 6);
+ lean_ctor_set_tag(x_167, 7);
 }
 lean_ctor_set(x_167, 0, x_165);
 lean_ctor_set(x_167, 1, x_166);
 x_168 = l_Lean_MessageData_ofLevel(x_2);
 if (lean_is_scalar(x_11)) {
- x_169 = lean_alloc_ctor(6, 2, 0);
+ x_169 = lean_alloc_ctor(7, 2, 0);
 } else {
  x_169 = x_11;
- lean_ctor_set_tag(x_169, 6);
+ lean_ctor_set_tag(x_169, 7);
 }
 lean_ctor_set(x_169, 0, x_167);
 lean_ctor_set(x_169, 1, x_168);
-x_170 = lean_alloc_ctor(6, 2, 0);
+x_170 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_170, 0, x_169);
 lean_ctor_set(x_170, 1, x_164);
 x_171 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_154, x_170, x_3, x_4, x_5, x_6, x_157);

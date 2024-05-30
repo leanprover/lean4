@@ -10061,11 +10061,11 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_11 = l_Lean_indentExpr(x_2);
 x_12 = l_Lean_Elab_ensureNoRecFn___lambda__1___closed__2;
-x_13 = lean_alloc_ctor(6, 2, 0);
+x_13 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = l_Lean_Elab_ensureNoRecFn___lambda__1___closed__4;
-x_15 = lean_alloc_ctor(6, 2, 0);
+x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(x_15, x_3, x_4, x_5, x_6, x_7);

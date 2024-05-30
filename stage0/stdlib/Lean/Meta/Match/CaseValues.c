@@ -427,11 +427,11 @@ x_20 = l_List_mapTR_loop___at___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_
 x_21 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_20, x_4);
 x_22 = l_Lean_MessageData_ofList(x_21);
 x_23 = l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__2;
-lean_ctor_set_tag(x_10, 6);
+lean_ctor_set_tag(x_10, 7);
 lean_ctor_set(x_10, 1, x_22);
 lean_ctor_set(x_10, 0, x_23);
 x_24 = l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__4;
-x_25 = lean_alloc_ctor(6, 2, 0);
+x_25 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_25, 0, x_10);
 lean_ctor_set(x_25, 1, x_24);
 lean_inc(x_1);
@@ -457,11 +457,11 @@ x_32 = l_List_mapTR_loop___at___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_
 x_33 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_32, x_4);
 x_34 = l_Lean_MessageData_ofList(x_33);
 x_35 = l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__2;
-x_36 = lean_alloc_ctor(6, 2, 0);
+x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_34);
 x_37 = l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_caseValueAux___lambda__3___closed__4;
-x_38 = lean_alloc_ctor(6, 2, 0);
+x_38 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_38, 0, x_36);
 lean_ctor_set(x_38, 1, x_37);
 lean_inc(x_1);

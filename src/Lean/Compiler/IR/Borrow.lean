@@ -68,7 +68,7 @@ namespace InitParamMap
 def initBorrow (ps : Array Param) : Array Param :=
   ps.map fun p => { p with borrow := p.ty.isObj }
 
-/-- We do perform borrow inference for constants marked as `export`.
+/-- We do not perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
    These wrappers use smart pointers such as `object_ref`.
    When writing a new wrapper we need to know whether an argument is a borrow

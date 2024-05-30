@@ -448,9 +448,10 @@ def withAnonymousAntiquot := leading_parser
 @[builtin_term_parser] def «trailing_parser» := leading_parser:leadPrec
   "trailing_parser" >> optExprPrecedence >> optExprPrecedence >> ppSpace >> termParser
 
-/-- Marks a function argument or return value as borrowed.
+/-- Marks a function argument of an `@[extern]`ed function as borrowed.
 
-See https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing -/
+See https://lean-lang.org/lean4/doc/dev/ffi.html#borrowing;
+currently this annotation is ignored on `@[export]`ed functions and return values. -/
 @[builtin_term_parser] def borrowed   := leading_parser
   "@& " >> termParser leadPrec
 /-- A literal of type `Name`. -/

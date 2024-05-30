@@ -57,23 +57,33 @@ inductive MessageData where
   This constructor is inspected in various hacks. -/
   | ofFormatWithInfos : FormatWithInfos → MessageData
   | ofGoal            : MVarId → MessageData
+  /-- A widget instance.
+
+  In `ofWidget wi alt`,
+  the nested message `alt` should approximate the contents of the widget
+  without itself using `ofWidget wi _`.
+  This is used as fallback in environments that cannot display user widgets.
+  `alt` may nest any structured message,
+  for example `ofGoal` to approximate a tactic state widget,
+  and, if necessary, even other widget instances
+  (for which approximations are computed recursively). -/
+  | ofWidget          : Widget.WidgetInstance → MessageData → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
   /-- Lifted `Format.nest` -/
-  |  nest              : Nat → MessageData → MessageData
+  | nest              : Nat → MessageData → MessageData
   /-- Lifted `Format.group` -/
-  |  group             : MessageData → MessageData
+  | group             : MessageData → MessageData
   /-- Lifted `Format.compose` -/
-  |  compose           : MessageData → MessageData → MessageData
+  | compose           : MessageData → MessageData → MessageData
   /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
   | trace (data : TraceData) (msg : MessageData) (children : Array MessageData)
   /-- A lazy message.
   The provided thunk will not be run until it is about to be displayed.
-  This can save computation in cases where the message may never be seen,
-  e.g. when nested inside a collapsed trace.
+  This can save computation in cases where the message may never be seen.
 
   The `Dynamic` value is expected to be a `MessageData`,
   which is a workaround for the positivity restriction.
@@ -160,6 +170,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | _, _,            ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
+  | nCtx, ctx,       ofWidget _ d             => formatAux nCtx ctx d
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d

@@ -26,5 +26,6 @@ structure WidgetInstance where
   so must be stored as a computation
   with access to the RPC object store. -/
   props : StateM Server.RpcObjectStore Json
+  deriving Server.RpcEncodable
 
 end Lean.Widget

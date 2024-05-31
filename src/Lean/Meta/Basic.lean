@@ -986,14 +986,34 @@ def getTheoremInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
   else
     return none
 
+private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
+  match (← getTransparency) with
+  | TransparencyMode.all => return some info
+  | TransparencyMode.default => return some info
+  | _ =>
+    if (← isReducible info.name) then
+      return some info
+    else
+      return none
+
+/-- Remark: we later define `getUnfoldableConst?` at `GetConst.lean` after we define `Instances.lean`.
+   This method is only used to implement `isClassQuickConst?`.
+   It is very similar to `getUnfoldableConst?`, but it returns none when `TransparencyMode.instances` and
+   `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
+private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
+  match (← getEnv).find? constName with
+  | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
+  | some (info@(ConstantInfo.defnInfo _)) => getDefInfoTemp info
+  | some info                             => pure (some info)
+  | none                                  => throwUnknownConstant constName
+
 private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
     return .some constName
   else
-    if let some (.defnInfo val) := (← getEnv).find? constName then
-      if ← isReducible val.name then
-        return .undef -- We may be able to unfold the definition
-    return .none
+    match (← getConstTemp? constName) with
+    | some (.defnInfo ..) => return .undef -- We may be able to unfold the definition
+    | _ => return .none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | .bvar ..         => return .none
@@ -1153,13 +1173,13 @@ mutual
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none (cleanupAnnotations := false) fun _ type => isClassApp? type
 
-end
+  private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
+    match (← isClassQuick? type) with
+    | .none   => return none
+    | .some c => return (some c)
+    | .undef  => isClassExpensive? type
 
-private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
-  match (← isClassQuick? type) with
-  | .none   => return none
-  | .some c => return (some c)
-  | .undef  => isClassExpensive? type
+end
 
 /--
   `isClass? type` return `some ClsName` if `type` is an instance of the class `ClsName`.

@@ -481,12 +481,11 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
           return some (mvarType', transformer)
 
-private def exprHasOutParams (type : Expr) : MetaM Bool :=
-  forallTelescopeReducing type fun _ type => do
-    if let some n ← isClass? type then
-      return hasOutParams (← getEnv) n
-    else
-      throwError "type class instance expected{indentExpr type}"
+private def exprHasOutParams (type : Expr) : MetaM Bool := do
+  if let some n ← isClass? type then
+    return hasOutParams (← getEnv) n
+  else
+    throwError "type class instance expected{indentExpr type}"
 
 def checkGlobalCache (type : Expr) (hasOutParams : Bool) : MetaM (LOption Answer) := do
   if hasOutParams then

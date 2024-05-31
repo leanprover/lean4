@@ -8,9 +8,12 @@ from urllib.parse import urlencode
 import argparse
 import calendar
 import time
+import statistics
 
 # Reminder: Ensure you have `gh` CLI installed and authorized before running this script.
 # Follow instructions from https://cli.github.com/ to set up `gh` and ensure it is authorized.
+
+LABELS = ["bug", "feature", "RFC", "new-user-papercuts", "Lake"]
 
 def get_items(query):
     items = []
@@ -30,7 +33,6 @@ def get_items(query):
             elif 'message' in data and 'rate limit' in data['message'].lower():
                 if retries < max_retries:
                     wait_time = (2 ** retries) * 60  # Exponential backoff
-                    print(f"Rate limit exceeded. Retrying in {wait_time} seconds...")
                     time.sleep(wait_time)
                     retries += 1
                     continue
@@ -48,6 +50,15 @@ def get_items(query):
             print(result.stdout)  # Print the JSON output for debugging
             break
     return items
+
+def get_fro_team_members():
+    try:
+        result = subprocess.run(['gh', 'api', '-H', 'Accept: application/vnd.github.v3+json', '/orgs/leanprover/teams/fro/members'], capture_output=True, text=True)
+        members = json.loads(result.stdout)
+        return [member['login'] for member in members]
+    except Exception as e:
+        print(f"Error fetching team members: {e}")
+        return []
 
 def calculate_average_time_to_close(closed_items):
     times_to_close = [(datetime.strptime(item['closed_at'], '%Y-%m-%dT%H:%M:%SZ') - datetime.strptime(item['created_at'], '%Y-%m-%dT%H:%M:%SZ')).days for item in closed_items]
@@ -106,7 +117,7 @@ def split_date_range(start_date, end_date):
     return date_ranges
 
 def main():
-    parser = argparse.ArgumentParser(description="Fetch and count GitHub issues and pull requests between two dates.")
+    parser = argparse.ArgumentParser(description="Fetch and count GitHub issues assigned to fro team members between two dates.")
     parser.add_argument("dates", type=str, nargs='+', help="Start and end dates in YYYY-MM-DD, YYYY-MM, YYYY-Qn, or YYYY format")
 
     args = parser.parse_args()
@@ -116,48 +127,54 @@ def main():
 
     date_ranges = split_date_range(start_date, end_date)
 
-    open_issues_count = 0
-    opened_issues_count = 0
-    closed_issues_count = 0
-    total_time_to_close_issues = 0
-    open_prs_count = 0
-    closed_but_not_merged_prs_count = 0
-    merged_prs_count = 0
+    fro_members = get_fro_team_members()
+    fro_members.append("unassigned")  # Add "unassigned" for issues with no assignee
 
-    for start, end in date_ranges:
-        open_issues_query1 = f'repo:{repo} is:issue state:open created:<={end}'
-        open_issues_query2 = f'repo:{repo} is:issue state:closed created:<={end} closed:>{end}'
-        opened_issues_query = f'repo:{repo} is:issue created:{start}..{end}'
-        closed_issues_query = f'repo:{repo} is:issue closed:{start}..{end}'
+    label_headers = ", ".join([f"MTTR ({label})" for label in LABELS])
+    print(f"# username, open issues, new issues, closed issues, MTTR (all), {label_headers}")
 
-        open_prs_query1 = f'repo:{repo} is:pr state:open created:<={end}'
-        open_prs_query2 = f'repo:{repo} is:pr state:closed created:<={end} closed:>{end}'
-        closed_but_not_merged_prs_query = f'repo:{repo} is:pr state:closed is:unmerged closed:{start}..{end}'
-        merged_prs_query = f'repo:{repo} is:pr is:merged closed:{start}..{end}'
+    for member in fro_members:
+        open_issues_count = 0
+        new_issues_count = 0
+        closed_issues_count = 0
+        total_time_to_close_issues = 0
+        closed_issues = []
+        label_times = {label: [] for label in LABELS}
 
-        open_issues1 = get_items(open_issues_query1)
-        open_issues2 = get_items(open_issues_query2)
-        opened_issues = get_items(opened_issues_query)
-        closed_issues = get_items(closed_issues_query)
+        for start, end in date_ranges:
+            if member == "unassigned":
+                open_issues_query1 = f'repo:{repo} is:issue no:assignee state:open created:<={end}'
+                open_issues_query2 = f'repo:{repo} is:issue no:assignee state:closed created:<={end} closed:>{end}'
+                new_issues_query = f'repo:{repo} is:issue no:assignee created:{start}..{end}'
+                closed_issues_query = f'repo:{repo} is:issue no:assignee closed:{start}..{end}'
+            else:
+                open_issues_query1 = f'repo:{repo} is:issue assignee:{member} state:open created:<={end}'
+                open_issues_query2 = f'repo:{repo} is:issue assignee:{member} state:closed created:<={end} closed:>{end}'
+                new_issues_query = f'repo:{repo} is:issue assignee:{member} created:{start}..{end}'
+                closed_issues_query = f'repo:{repo} is:issue assignee:{member} closed:{start}..{end}'
 
-        open_prs1 = get_items(open_prs_query1)
-        open_prs2 = get_items(open_prs_query2)
-        closed_but_not_merged_prs = get_items(closed_but_not_merged_prs_query)
-        merged_prs = get_items(merged_prs_query)
+            open_issues1 = get_items(open_issues_query1)
+            open_issues2 = get_items(open_issues_query2)
+            new_issues = get_items(new_issues_query)
+            closed_issues_period = get_items(closed_issues_query)
 
-        open_issues_count = len(open_issues1) + len(open_issues2)
-        opened_issues_count += len(opened_issues)
-        closed_issues_count += len(closed_issues)
-        total_time_to_close_issues += sum((datetime.strptime(item['closed_at'], '%Y-%m-%dT%H:%M:%SZ') - datetime.strptime(item['created_at'], '%Y-%m-%dT%H:%M:%SZ')).days for item in closed_issues)
+            open_issues_count = len(open_issues1) + len(open_issues2)
+            new_issues_count += len(new_issues)
+            closed_issues_count += len(closed_issues_period)
+            closed_issues.extend(closed_issues_period)
 
-        open_prs_count = len(open_prs1) + len(open_prs2)
-        closed_but_not_merged_prs_count += len(closed_but_not_merged_prs)
-        merged_prs_count += len(merged_prs)
+            for issue in closed_issues_period:
+                time_to_close = (datetime.strptime(issue['closed_at'], '%Y-%m-%dT%H:%M:%SZ') - datetime.strptime(issue['created_at'], '%Y-%m-%dT%H:%M:%SZ')).days
+                total_time_to_close_issues += time_to_close
+                for label in LABELS:
+                    if label in [l['name'] for l in issue['labels']]:
+                        label_times[label].append(time_to_close)
 
-    average_time_to_close_issues = total_time_to_close_issues / closed_issues_count if closed_issues_count else 0
+        average_time_to_close_issues = total_time_to_close_issues / closed_issues_count if closed_issues_count else 0
+        label_averages = {label: (sum(times) / len(times)) if times else 0 for label, times in label_times.items()}
 
-    print("# open issues, opened issues, closed issues, average age of closed issues, open PRs, closed PRs, merged PRs")
-    print(f"{open_issues_count},{opened_issues_count},{closed_issues_count},{average_time_to_close_issues:.2f},{open_prs_count},{closed_but_not_merged_prs_count},{merged_prs_count}")
+        label_averages_str = ", ".join([f"{label_averages[label]:.2f}" for label in LABELS])
+        print(f"{member},{open_issues_count},{new_issues_count},{closed_issues_count},{average_time_to_close_issues:.2f},{label_averages_str}")
 
 if __name__ == "__main__":
     main()

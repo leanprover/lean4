@@ -6,7 +6,7 @@ def List.bubblesort [LT α] [DecidableRel (· < · : α → α → Prop)] (l : L
     | ⟨[], h⟩ => ⟨[x], by simp[h]⟩
     | ⟨y :: ys, h⟩ =>
       if y < x then
-        have : Nat.succ (length ys) < Nat.succ (length xs) := by rw [h, List.length_cons]; apply Nat.lt_succ_self
+        have : ys.length + 1 < xs.length + 1 := by rw [h, List.length_cons]; apply Nat.lt_succ_self
         let ⟨zs, he⟩ := bubblesort (x :: ys)
         ⟨y :: zs, by simp[h, ← he]⟩
       else

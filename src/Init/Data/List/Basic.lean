@@ -55,6 +55,9 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
+@[simp] theorem length_cons {α} (a : α) (as : List α) : (cons a as).length = as.length + 1 :=
+  rfl
+
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
   | nil  => simp [length, lengthTRAux]

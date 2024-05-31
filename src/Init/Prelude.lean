@@ -2348,7 +2348,7 @@ without running out of stack space.
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
 
-@[simp] theorem List.length_cons {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
+theorem List.length_cons_succ {α} (a : α) (as : List α) : Eq (cons a as).length as.length.succ :=
   rfl
 
 /-- `l.concat a` appends `a` at the *end* of `l`, that is, `l ++ [a]`. -/

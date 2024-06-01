@@ -420,6 +420,9 @@ theorem negSucc_emod (m : Nat) {b : Int} (bpos : 0 < b) : -[m+1] % b = b - 1 - m
   match b, eq_succ_of_zero_lt bpos with
   | _, ⟨n, rfl⟩ => rfl
 
+theorem emod_negSucc (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+
 theorem ofNat_mod_ofNat (m n : Nat) : (m % n : Int) = ↑(m % n) := rfl
 
 theorem emod_nonneg : ∀ (a : Int) {b : Int}, b ≠ 0 → 0 ≤ a % b

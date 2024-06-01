@@ -991,11 +991,12 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
     return .some constName
   else
     match (← getEnv).find? constName with
-    | some info =>
-      if let .defnInfo val := info then
-        if ← isReducible val.name then
-          return .undef -- We may be able to unfold the definition
-      return .none
+    | some (.defnInfo val) =>
+      if ← isReducible val.name then
+        return .undef -- We may be able to unfold the definition
+      else
+        return .none
+    | some _ => return .none
     | none => throwUnknownConstant constName
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
@@ -1301,7 +1302,7 @@ where
       match type with
       | .forallE n d b bi =>
         let d  := d.instantiateRevRange j mvars.size mvars
-        let k  := if bi.isInstImplicit then  MetavarKind.synthetic else kind
+        let k  := if bi.isInstImplicit then MetavarKind.synthetic else kind
         let mvar ← mkFreshExprMVar d k n
         let mvars := mvars.push mvar
         let bis   := bis.push bi

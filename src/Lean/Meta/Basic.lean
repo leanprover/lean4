@@ -990,10 +990,13 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
   if isClass (← getEnv) constName then
     return .some constName
   else
-    if let some (.defnInfo val) := (← getEnv).find? constName then
-      if ← isReducible val.name then
-        return .undef -- We may be able to unfold the definition
-    return .none
+    match (← getEnv).find? constName with
+    | some info =>
+      if let .defnInfo val := info then
+        if ← isReducible val.name then
+          return .undef -- We may be able to unfold the definition
+      return .none
+    | none => throwUnknownConstant constName
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | .bvar ..         => return .none

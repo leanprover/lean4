@@ -1090,7 +1090,125 @@ theorem rotateLeft_eq_rotateLeftAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w) 
     x.rotateLeft r = x.rotateLeftAux r := by
   simp only [rotateLeft, Nat.mod_eq_of_lt hr]
 
+
+/--
+Accessing bits in `x.rotateLeft r` the range `[0, r)` is equal to
+accessing bits `x` in the range `[w - r, w)`.
+
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
+
+(x.rotateLeft 2).getLsb ⟨i, i < 2⟩
+= <3 2 1 0 | 6 5>.getLsb ⟨i, i < 2⟩
+= <6 5>[i]
+= <6 5 | 4 3 2 1 0>[i + len(<4 3 2 1 0>)]
+= <6 5 | 4 3 2 1 0>[i + 7 - 2]
+-/
+theorem getLsb_rotateLeftAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < r) :
+    (x.rotateLeftAux r).getLsb i = x.getLsb (w - r + i) := by
+  rw [rotateLeftAux, getLsb_or, getLsb_ushiftRight]
+  suffices (x <<< r).getLsb i = false by
+    simp; omega
+  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
+    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
+  omega
+
+/--
+Accessing bits in `x.rotateLeft r` the range `[r, w)` is equal to
+accessing bits `x` in the range `[0, w - r)`.
+
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateLeft 2 = (<6 5 | 4 3 2 1 0>).rotateLeft 2 = <3 2 1 0 | 6 5>
+
+(x.rotateLeft 2).getLsb ⟨i, i ≥ 2⟩
+= <3 2 1 0 | 6 5>.getLsb ⟨i, i ≥ 2⟩
+= <3 2 1 0>[i - 2]
+= <6 5 | 3 2 1 0>[i - 2]
+
+Intuitively, grab the full width (7), then move the marker `|` by `r` to the right `(-2)`
+Then, access the bit at `i` from the right `(+i)`.
+ -/
+theorem getLsb_rotateLeftAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ r) :
+    (x.rotateLeftAux r).getLsb i = (decide (i < w) && x.getLsb (i - r)) := by
+  rw [rotateLeftAux, getLsb_or]
+  suffices (x >>> (w - r)).getLsb i = false by
+    have hiltr : decide (i < r) = false := by
+      simp [hi]
+    simp [getLsb_shiftLeft, Bool.or_false, hi, hiltr, this]
+  simp only [getLsb_ushiftRight]
+  apply getLsb_ge
+  omega
+
+/-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
+theorem getLsb_rotateLeft_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
+    (x.rotateLeft r).getLsb i =
+      cond (i < r)
+      (x.getLsb (w - r + i))
+      (decide (i < w) && x.getLsb (i - r)) := by
+  · rw [rotateLeft_eq_rotateLeftAux_of_lt hr]
+    by_cases h : i < r
+    · simp [h, getLsb_rotateLeftAux_of_le h]
+    · simp [h, getLsb_rotateLeftAux_of_geq <| Nat.ge_of_not_lt h]
+
+@[simp]
+theorem getLsb_rotateLeft {x : BitVec w} {r i : Nat}  :
+    (x.rotateLeft r).getLsb i =
+      cond (i < r % w)
+      (x.getLsb (w - (r % w) + i))
+      (decide (i < w) && x.getLsb (i - (r % w))) := by
+  rcases w with ⟨rfl, w⟩
+  · simp
+  · rw [← rotateLeft_mod_eq_rotateLeft, getLsb_rotateLeft_of_le (Nat.mod_lt _ (by omega))]
+
 /-! ## Rotate Right -/
+
+/--
+Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
+accessing bits `x` in the range `[r, w)`.
+
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateRight 2 = (<6 5 4 3 2 | 1 0>).rotateRight 2 = <1 0 | 6 5 4 3 2>
+
+(x.rotateLeft 2).getLsb ⟨i, i ≤ 7 - 2⟩
+= <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+= <6 5 4 3 2>.getLsb i
+= <6 5 4 3 2 | 1 0>[i + 2]
+-/
+theorem getLsb_rotateRightAux_of_le {x : BitVec w} {r : Nat} {i : Nat} (hi : i < w - r) :
+    (x.rotateRightAux r).getLsb i = x.getLsb (r + i) := by
+  rw [rotateRightAux, getLsb_or, getLsb_ushiftRight]
+  suffices (x <<< (w - r)).getLsb i = false by
+    simp only [this, Bool.or_false]
+  simp only [getLsb_shiftLeft, Bool.and_eq_false_imp, Bool.and_eq_true, decide_eq_true_eq,
+    Bool.not_eq_true', decide_eq_false_iff_not, Nat.not_lt, and_imp]
+  omega
+
+/--
+Accessing bits in `x.rotateRight r` the range `[w-r, w)` is equal to
+accessing bits `x` in the range `[0, r)`.
+
+Proof by example:
+Let x := <6 5 4 3 2 1 0> : BitVec 7.
+x.rotateRight 2 = (<6 5 4 3 2 | 1 0>).rotateRight 2 = <1 0 | 6 5 4 3 2>
+
+(x.rotateLeft 2).getLsb ⟨i, i ≥ 7 - 2⟩
+= <1 0 | 6 5 4 3 2>.getLsb ⟨i, i ≤ 7 - 2⟩
+= <1 0>.getLsb (i - len(<6 5 4 3 2>)
+= <6 5 4 3 2 | 1 0> (i - len<6 4 4 3 2>)
+ -/
+theorem getLsb_rotateRightAux_of_geq {x : BitVec w} {r : Nat} {i : Nat} (hi : i ≥ w - r) :
+    (x.rotateRightAux r).getLsb i = (decide (i < w) && x.getLsb (i - (w - r))) := by
+  rw [rotateRightAux, getLsb_or]
+  suffices (x >>> r).getLsb i = false by
+    simp only [this, getLsb_shiftLeft, Bool.false_or]
+    by_cases hiw : i < w
+    <;> simp [hiw, hi]
+  simp only [getLsb_ushiftRight]
+  apply getLsb_ge
+  omega
 
 /-- `rotateRight` equals the bit fiddling definition of `rotateRightAux` when the rotation amount is
 smaller than the bitwidth. -/
@@ -1103,5 +1221,26 @@ theorem rotateRight_eq_rotateRightAux_of_lt {x : BitVec w} {r : Nat} (hr : r < w
 theorem rotateRight_mod_eq_rotateRight {x : BitVec w} {r : Nat} :
     x.rotateRight (r % w) = x.rotateRight r := by
   simp only [rotateRight, Nat.mod_mod]
+
+/-- When `r < w`, we give a formula for `(x.rotateRight r).getLsb i`. -/
+theorem getLsb_rotateRight_of_le {x : BitVec w} {r i : Nat} (hr: r < w) :
+    (x.rotateRight r).getLsb i =
+      cond (i < w - r)
+      (x.getLsb (r + i))
+      (decide (i < w) && x.getLsb (i - (w - r))) := by
+  · rw [rotateRight_eq_rotateRightAux_of_lt hr]
+    by_cases h : i < w - r
+    · simp [h, getLsb_rotateRightAux_of_le h]
+    · simp [h, getLsb_rotateRightAux_of_geq <| Nat.le_of_not_lt h]
+
+@[simp]
+theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
+    (x.rotateRight r).getLsb i =
+      cond (i < w - (r % w))
+      (x.getLsb ((r % w) + i))
+      (decide (i < w) && x.getLsb (i - (w - (r % w)))) := by
+  rcases w with ⟨rfl, w⟩
+  · simp
+  · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
 end BitVec

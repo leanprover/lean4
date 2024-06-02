@@ -256,7 +256,27 @@ def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
 /--
-Similar to `get` but runtime does not perform bounds check.
+Returns the character at position `p` of a string.
+If `p` is not a valid position, returns `(default : Char)`.
+
+Requires evidence, `h`, that `p` is within bounds
+instead of performing a runtime bounds check as in `get`.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get' 0 (by decide) = 'a'`
+* `lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+
+A typical pattern combines `get'` with a dependent if-else expression
+to avoid the overhead of an additional bounds check. For example:
+```
+def getInBounds? (s : String) (p: String.Pos) : Option Char :=
+  if h : s.atEnd p then none else some (s.get' p h)
+```
+
+Even with evidence of `¬ s.atEnd p`,
+`p` may be invalid if a byte index points into the middle of a multi-byte UTF-8 character.
+For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
 -/
 @[extern "lean_string_utf8_get_fast"]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
@@ -264,7 +284,22 @@ def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   | ⟨s⟩ => utf8GetAux s 0 p
 
 /--
-Similar to `next` but runtime does not perform bounds check.
+Returns the next position in a string after position `p`.
+If `p` is not a valid position, the result is unspecified.
+
+Requires evidence, `h`, that `p` is within bounds
+instead of performing a runtime bounds check as in `next`.
+
+Examples:
+Given `def abc := "abc"`,
+* `abc.get (abc.next' 0 (by decide)) = 'b'`
+
+A typical pattern combines `next'` with a dependent if-else expression
+to avoid the overhead of an additional bounds check. For example:
+```
+def next? (s: String) (p: String.Pos) : Option Char :=
+  if h : s.atEnd p then none else s.get (s.next' p h)
+```
 -/
 @[extern "lean_string_utf8_next_fast"]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
@@ -305,6 +340,15 @@ def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
   else pos
 termination_by stopPos.1 - pos.1
 
+/--
+Returns the position of the first occurrence of a character, `c`, in `s`.
+If `s` does not contain `c`, returns `s.endPos`.
+
+Examples:
+* `"abba".posOf 'a' = ⟨0⟩`
+* `"abba".posOf 'z' = ⟨4⟩`
+* `"L∃∀N".posOf '∀' = ⟨4⟩`
+-/
 @[inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
 
@@ -317,6 +361,15 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
     else revPosOfAux s c pos
 termination_by pos.1
 
+/--
+Returns the position of the last occurrence of a character, `c`, in `s`.
+If `s` does not contain `c`, returns `none`.
+
+Examples:
+* `"abba".posOf 'a' = some ⟨3⟩`
+* `"abba".posOf 'z' = none`
+* `"L∃∀N".posOf '∀' = some ⟨4⟩`
+-/
 def revPosOf (s : String) (c : Char) : Option Pos :=
   revPosOfAux s c s.endPos
 

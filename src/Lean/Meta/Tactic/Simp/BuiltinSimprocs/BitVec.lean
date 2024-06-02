@@ -321,8 +321,8 @@ natural number literals.
   return .visit { expr, proof? := some proof }
 
 builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
-  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_shiftLeft
+  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_add
 builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
-  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_shiftRight
+  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_add
 
 end BitVec

@@ -5,6 +5,7 @@
 .lake
 lake-manifest.json
 /build
+/src/lakefile.toml
 GPATH
 GRTAGS
 GSYMS

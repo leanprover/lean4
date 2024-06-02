@@ -272,11 +272,11 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 lean_dec(x_11);
 x_16 = l_Lean_indentExpr(x_1);
 x_17 = l_Lean_Meta_getArrayArgType___closed__4;
-x_18 = lean_alloc_ctor(6, 2, 0);
+x_18 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
 x_19 = l_Lean_Meta_getArrayArgType___closed__6;
-x_20 = lean_alloc_ctor(6, 2, 0);
+x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_20, x_2, x_3, x_4, x_5, x_12);

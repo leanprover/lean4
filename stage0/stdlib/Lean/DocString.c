@@ -839,11 +839,11 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean
 x_16 = l_Lean_MessageData_ofSyntax(x_6);
 x_17 = l_Lean_indentD(x_16);
 x_18 = l_Lean_getDocStringText___rarg___closed__2;
-x_19 = lean_alloc_ctor(6, 2, 0);
+x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_17);
 x_20 = l_Lean_getDocStringText___rarg___closed__4;
-x_21 = lean_alloc_ctor(6, 2, 0);
+x_21 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_21, 0, x_19);
 lean_ctor_set(x_21, 1, x_20);
 x_22 = l_Lean_throwErrorAt___rarg(x_1, x_2, x_4, x_21);

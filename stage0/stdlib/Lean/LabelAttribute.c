@@ -2722,11 +2722,11 @@ if (lean_obj_tag(x_10) == 0)
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = l_Lean_MessageData_ofName(x_1);
 x_12 = l_Lean_labelled___closed__2;
-lean_ctor_set_tag(x_6, 6);
+lean_ctor_set_tag(x_6, 7);
 lean_ctor_set(x_6, 1, x_11);
 lean_ctor_set(x_6, 0, x_12);
 x_13 = l_Lean_labelled___closed__4;
-x_14 = lean_alloc_ctor(6, 2, 0);
+x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_6);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_throwError___at_Lean_labelled___spec__3(x_14, x_2, x_3, x_9);
@@ -2793,11 +2793,11 @@ if (lean_obj_tag(x_31) == 0)
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
 x_32 = l_Lean_MessageData_ofName(x_1);
 x_33 = l_Lean_labelled___closed__2;
-x_34 = lean_alloc_ctor(6, 2, 0);
+x_34 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
 lean_ctor_set(x_34, 1, x_32);
 x_35 = l_Lean_labelled___closed__4;
-x_36 = lean_alloc_ctor(6, 2, 0);
+x_36 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
 x_37 = l_Lean_throwError___at_Lean_labelled___spec__3(x_36, x_2, x_3, x_30);

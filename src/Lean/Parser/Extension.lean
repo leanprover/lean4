@@ -615,15 +615,30 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
 
 @[inline] def withOpenDecl : Parser → Parser := withFn withOpenDeclFn
 
-inductive ParserName
+/--
+Helper environment extension that gives us access to built-in aliases in pure parser functions.
+-/
+builtin_initialize aliasExtension : EnvExtension (NameMap ParserAliasValue) ←
+  registerEnvExtension parserAliasesRef.get
+
+/-- Result of resolving a parser name. -/
+inductive ParserResolution where
+  /-- Reference to a category. -/
   | category (cat : Name)
+  /--
+  Reference to a parser declaration in the environment.  A `(Trailing)ParserDescr` if `isDescr` is
+  true.
+  -/
   | parser (decl : Name) (isDescr : Bool)
-  -- TODO(gabriel): add parser aliases (this is blocked on doing IO in parsers)
-  deriving Repr
+  /--
+  Reference to a parser alias. Note that as aliases are built-in, a corresponding declaration may
+  not be in the environment (yet).
+  -/
+  | alias (p : ParserAliasValue)
 
 /-- Resolve the given parser name and return a list of candidates. -/
 def resolveParserNameCore (env : Environment) (currNamespace : Name)
-    (openDecls : List OpenDecl) (ident : Ident) : List ParserName := Id.run do
+    (openDecls : List OpenDecl) (ident : Ident) : List ParserResolution := Id.run do
   let ⟨.ident (val := val) (preresolved := pre) ..⟩ := ident | return []
 
   let rec isParser (name : Name) : Option Bool :=
@@ -643,16 +658,24 @@ def resolveParserNameCore (env : Environment) (currNamespace : Name)
   if isParserCategory env erased then
     return [.category erased]
 
-  ResolveName.resolveGlobalName env currNamespace openDecls val |>.filterMap fun
-      | (name, []) => (isParser name).map fun isDescr => .parser name isDescr
-      | _ => none
+  let resolved ← ResolveName.resolveGlobalName env currNamespace openDecls val |>.filterMap fun
+    | (name, []) => (isParser name).map fun isDescr => .parser name isDescr
+    | _ => none
+  unless resolved.isEmpty do
+    return resolved
+
+  -- Aliases are considered global declarations and so should be tried after scope-aware resolution
+  if let some alias := aliasExtension.getState env |>.find? erased then
+    return [.alias alias]
+
+  return []
 
 /-- Resolve the given parser name and return a list of candidates. -/
-def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserName :=
+def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserResolution :=
   Parser.resolveParserNameCore ctx.env ctx.currNamespace ctx.openDecls id
 
 /-- Resolve the given parser name and return a list of candidates. -/
-def resolveParserName (id : Ident) : CoreM (List ParserName) :=
+def resolveParserName (id : Ident) : CoreM (List ParserResolution) :=
   return resolveParserNameCore (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
@@ -661,23 +684,27 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
     return s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
   let parserName@(.ident ..) := stack.get! (stack.size - offset - 1)
     | s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
-  match ctx.resolveParserName ⟨parserName⟩ with
-  | [.category cat] =>
-    categoryParserFn cat ctx s
-  | [.parser parserName _] =>
-    let iniSz := s.stackSize
-    let s := adaptUncacheableContextFn (fun ctx =>
-      if !internal.parseQuotWithCurrentStage.get ctx.options then
-        -- static quotations such as `(e) do not use the interpreter unless the above option is set,
-        -- so for consistency neither should dynamic quotations using this function
-        { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
-      else ctx) (evalParserConst parserName) ctx s
-    if !s.hasError && s.stackSize != iniSz + 1 then
-      s.mkUnexpectedError "expected parser to return exactly one syntax object"
-    else
-      s
-  | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
-  | [] => s.mkUnexpectedError s!"unknown parser {parserName}"
+  let iniSz := s.stackSize
+  let s ← match ctx.resolveParserName ⟨parserName⟩ with
+    | [.category cat] =>
+      categoryParserFn cat ctx s
+    | [.parser parserName _] =>
+      adaptUncacheableContextFn (fun ctx =>
+        if !internal.parseQuotWithCurrentStage.get ctx.options then
+          -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+          -- so for consistency neither should dynamic quotations using this function
+          { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
+        else ctx) (evalParserConst parserName) ctx s
+    | [.alias alias] =>
+      match alias with
+      | .const p => p.fn ctx s
+      | _ =>
+        return s.mkUnexpectedError s!"parser alias {parserName}, must not take parameters"
+    | _::_::_ => return s.mkUnexpectedError s!"ambiguous parser name {parserName}"
+    | [] => return s.mkUnexpectedError s!"unknown parser {parserName}"
+  if !s.hasError && s.stackSize != iniSz + 1 then
+    return s.mkUnexpectedError "expected parser to return exactly one syntax object"
+  s
 
 def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser where
   fn := adaptCacheableContextFn ({ · with prec }) (parserOfStackFn offset)

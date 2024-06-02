@@ -318,7 +318,7 @@ natural number literals.
   let i_add_j := toExpr (i + j)
   let expr ← mkAppM declName #[x, i_add_j]
   let proof ← mkAppM thmName #[x, aux.appArg!, e.appArg!]
-  let proof ← mkEqSymm proof
+  let proof ← mkEqSymm proof -- we rewrite (x <<< i) <<< j ↦ x <<< (i + j) [the opposite direction]
   return .visit { expr, proof? := some proof }
 
 builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=

@@ -35,8 +35,9 @@ ExternalProject_add(cadical
   GIT_REPOSITORY https://github.com/arminbiere/cadical
   GIT_TAG rel-1.9.5
   CONFIGURE_COMMAND ./configure
+  BUILD_COMMAND ${MAKE_EXE} cadical
   BUILD_IN_SOURCE ON
-  INSTALL_COMMAND ""  # skip install
+  INSTALL_COMMAND "ls -R"
 )
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"

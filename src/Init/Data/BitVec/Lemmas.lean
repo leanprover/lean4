@@ -729,14 +729,13 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
 /-! ### signExtend -/
 
 /-- Equation theorem for 'Int.sub' when both arguments are 'negSucc' -/
-private theorem Int.toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
-    (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
-  rw [Int.negSucc_eq] -- TODO: consider adding this to omega cleanup set.
+private theorem Int.ofNat_sub_ofNat_of_lt {n m : Nat} (hlt : n < m) :
+    (n : Int) - (m : Int) = -(↑(m - 1 - n) + 1) := by
   omega
 
 /-- Equation theorem for 'Int.mod' -/
 private theorem Int.negSucc_emod (m : Nat) (n : Int) :
-    (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+    -(m + 1) % n = Int.subNatNat (Int.natAbs n) ((m % Int.natAbs n) + 1) := rfl
 
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/
@@ -763,7 +762,7 @@ theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hms
   simp only [signExtend, BitVec.toInt_eq_msb_cond, toNat_ofInt, toNat_not,
     toNat_truncate, hmsb, ↓reduceIte]
   norm_cast
-  rw [Int.toNat_sub_toNat_eq_negSucc_ofLt, Int.negSucc_emod]
+  rw [Int.ofNat_sub_ofNat_of_lt, Int.negSucc_emod]
   simp only [Int.natAbs_ofNat, Nat.succ_eq_add_one]
   rw [Int.subNatNat_of_le]
   · rw [Int.toNat_ofNat, Nat.add_comm, Nat.sub_add_eq]

@@ -782,15 +782,6 @@ theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hms
   · rw [signExtend_eq_neg_truncate_neg_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
 
-@[simp] theorem signExtend_of_eq (x : BitVec w) :
-  x.signExtend w = x := by
-  simp [signExtend]
-  apply BitVec.eq_of_toNat_eq
-  simp
-  rw [BitVec.toInt_eq_msb_cond]
-  rcases hmsb : x.msb with rfl | rfl <;>
-     simp [hmsb, Int.ofNat_mod_ofNat, Int.toNat_ofNat]
-
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

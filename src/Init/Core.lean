@@ -476,6 +476,8 @@ export LawfulSingleton (insert_emptyc_eq)
 
 @[inherit_doc LawfulSingleton, deprecated LawfulSingleton (since := "2024-06-03")]
 abbrev IsLawfulSingleton := LawfulSingleton
+@[inherit_doc LawfulSingleton.insert_emptyc_eq, deprecated LawfulSingleton.insert_emptyc_eq (since := "2024-06-03")]
+abbrev IsLawfulSingleton.insert_emptyc_eq := @LawfulSingleton.insert_emptyc_eq
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where

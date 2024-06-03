@@ -144,7 +144,7 @@ def runFrontend
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  if true then
+  if false then
     -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
     -- overhead of passing the environment between snapshots until we actually make good use of it
     -- outside the server

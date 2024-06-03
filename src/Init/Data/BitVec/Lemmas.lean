@@ -730,13 +730,13 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
 
 /-- Equation theorem for 'Int.sub' when both arguments are 'negSucc' -/
 private theorem Int.toNat_sub_toNat_eq_negSucc_ofLt {n m : Nat} (hlt : n < m) :
-  (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
+    (n : Int) - (m : Int) = (Int.negSucc (m - 1 - n)) := by
   rw [Int.negSucc_eq] -- TODO: consider adding this to omega cleanup set.
   omega
 
 /-- Equation theorem for 'Int.mod' -/
 private theorem Int.negSucc_emod (m : Nat) (n : Int) :
-  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+    (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
 
 
 /-- To sign extend when the msb is false, then sign extension is the same as truncation -/

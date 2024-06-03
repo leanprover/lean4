@@ -120,8 +120,75 @@ private partial def finalize
       pure subgoals
   loop (recursorInfo.paramsPos.length + 1) 0 recursor recursorType false #[]
 
-private def throwUnexpectedMajorType {α} (mvarId : MVarId) (majorType : Expr) : MetaM α :=
-  throwTacticEx `induction mvarId m!"unexpected major premise type{indentExpr majorType}"
+private def throwUnexpectedMajorType (tacticName : Name) (mvarId : MVarId) (majorType : Expr) : MetaM α :=
+  throwTacticEx tacticName mvarId m!"unexpected major premise type{indentExpr majorType}"
+
+/--
+Auxiliary method for implementing `induction`-like tactics.
+It retrieves indices from `majorType` using `recursorInfo`.
+Remark: `mvarId` and `tacticName` are used to generate error messages.
+-/
+def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : RecursorInfo) (majorType : Expr) : MetaM (Array Expr) := do
+  let majorTypeArgs := majorType.getAppArgs
+  recursorInfo.indicesPos.toArray.mapM fun idxPos => do
+    if idxPos ≥ majorTypeArgs.size then throwTacticEx tacticName mvarId m!"major premise type is ill-formed{indentExpr majorType}"
+    let idx := majorTypeArgs.get! idxPos
+    unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
+    majorTypeArgs.size.forM fun i => do
+      let arg := majorTypeArgs[i]!
+      if i != idxPos && arg == idx then
+        throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
+      if i < idxPos then
+        if (← exprDependsOn arg idx.fvarId!) then
+          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
+      -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
+      -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
+      if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
+        let idxDecl ← idx.fvarId!.getDecl
+        if (← localDeclDependsOn idxDecl arg.fvarId!) then
+          throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
+    return idx
+
+/--
+Auxiliary method for implementing `induction`-like tactics.
+It creates the prefix of a recursor application up-to `motive`.
+The motive is computed by abstracting `major` and `indices` at `mvarId.getType`.
+It retrieves indices from `majorType` using `recursorInfo`.
+Remark: `mvarId` and `tacticName` are used to generate error messages.
+-/
+def mkRecursorAppPrefix (mvarId : MVarId) (tacticName : Name) (majorFVarId : FVarId) (recursorInfo : RecursorInfo) (indices : Array Expr) : MetaM Expr := do
+  let major := mkFVar majorFVarId
+  let target ← mvarId.getType
+  let targetLevel ← getLevel target
+  let targetLevel ← normalizeLevel targetLevel
+  let majorLocalDecl ← majorFVarId.getDecl
+  let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName
+    | throwUnexpectedMajorType tacticName mvarId majorLocalDecl.type
+  majorType.withApp fun majorTypeFn majorTypeArgs => do
+    match majorTypeFn with
+    | .const _ majorTypeFnLevels => do
+      let majorTypeFnLevels := majorTypeFnLevels.toArray
+      let (recursorLevels, foundTargetLevel) ← recursorInfo.univLevelPos.foldlM (init := (#[], false))
+          fun (recursorLevels, foundTargetLevel) (univPos : RecursorUnivLevelPos) => do
+            match univPos with
+            | RecursorUnivLevelPos.motive => pure (recursorLevels.push targetLevel, true)
+            | RecursorUnivLevelPos.majorType idx =>
+              if idx ≥ majorTypeFnLevels.size then throwTacticEx tacticName mvarId "ill-formed recursor"
+              pure (recursorLevels.push (majorTypeFnLevels.get! idx), foundTargetLevel)
+      if !foundTargetLevel && !targetLevel.isZero then
+        throwTacticEx tacticName mvarId m!"recursor '{recursorInfo.recursorName}' can only eliminate into Prop"
+      let recursor := mkConst recursorInfo.recursorName recursorLevels.toList
+      let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
+      -- Compute motive
+      let motive := target
+      let motive ← if recursorInfo.depElim then
+        pure <| mkLambda `x BinderInfo.default (← inferType major) (← motive.abstractM #[major])
+      else
+        pure motive
+      let motive ← mkLambdaFVars indices motive
+      return mkApp recursor motive
+    | _ =>
+      throwTacticEx tacticName mvarId "major premise is not of the form (C ...)"
 
 def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.withContext do
@@ -129,30 +196,14 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
     mvarId.checkNotAssigned `induction
     let majorLocalDecl ← majorFVarId.getDecl
     let recursorInfo ← mkRecursorInfo recursorName
-    let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type
+    let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName
+      | throwUnexpectedMajorType `induction mvarId majorLocalDecl.type
     majorType.withApp fun _ majorTypeArgs => do
       recursorInfo.paramsPos.forM fun paramPos? => do
         match paramPos? with
         | none          => pure ()
         | some paramPos => if paramPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
-      let indices ← recursorInfo.indicesPos.toArray.mapM fun idxPos => do
-        if idxPos ≥ majorTypeArgs.size then throwTacticEx `induction mvarId m!"major premise type is ill-formed{indentExpr majorType}"
-        let idx := majorTypeArgs.get! idxPos
-        unless idx.isFVar do throwTacticEx `induction mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
-        majorTypeArgs.size.forM fun i => do
-          let arg := majorTypeArgs[i]!
-          if i != idxPos && arg == idx then
-            throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
-          if i < idxPos then
-            if (← exprDependsOn arg idx.fvarId!) then
-              throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it occurs in previous arguments{indentExpr majorType}"
-          -- If arg is also and index and a variable occurring after `idx`, we need to make sure it doesn't depend on `idx`.
-          -- Note that if `arg` is not a variable, we will fail anyway when we visit it.
-          if i > idxPos && recursorInfo.indicesPos.contains i && arg.isFVar then
-            let idxDecl ← idx.fvarId!.getDecl
-            if (← localDeclDependsOn idxDecl arg.fvarId!) then
-              throwTacticEx `induction mvarId m!"'{idx}' is an index in major premise, but it depends on index occurring at position #{i+1}"
-        pure idx
+      let indices ← getMajorTypeIndices mvarId `induction recursorInfo majorType
       let target ← mvarId.getType
       if (← pure !recursorInfo.depElim <&&> exprDependsOn target majorFVarId) then
         throwTacticEx `induction mvarId m!"recursor '{recursorName}' does not support dependent elimination, but conclusion depends on major premise"
@@ -175,39 +226,10 @@ def _root_.Lean.MVarId.induction (mvarId : MVarId) (majorFVarId : FVarId) (recur
       let majorFVarId := majorFVarId'
       let major := mkFVar majorFVarId
       mvarId.withContext do
-        let target ← mvarId.getType
-        let targetLevel ← getLevel target
-        let targetLevel ← normalizeLevel targetLevel
-        let majorLocalDecl ← majorFVarId.getDecl
-        let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type
-        majorType.withApp fun majorTypeFn majorTypeArgs => do
-          match majorTypeFn with
-          | Expr.const _ majorTypeFnLevels => do
-            let majorTypeFnLevels := majorTypeFnLevels.toArray
-            let (recursorLevels, foundTargetLevel) ← recursorInfo.univLevelPos.foldlM (init := (#[], false))
-                fun (recursorLevels, foundTargetLevel) (univPos : RecursorUnivLevelPos) => do
-                  match univPos with
-                  | RecursorUnivLevelPos.motive => pure (recursorLevels.push targetLevel, true)
-                  | RecursorUnivLevelPos.majorType idx =>
-                    if idx ≥ majorTypeFnLevels.size then throwTacticEx `induction mvarId "ill-formed recursor"
-                    pure (recursorLevels.push (majorTypeFnLevels.get! idx), foundTargetLevel)
-            if !foundTargetLevel && !targetLevel.isZero then
-              throwTacticEx `induction mvarId m!"recursor '{recursorName}' can only eliminate into Prop"
-            let recursor := mkConst recursorName recursorLevels.toList
-            let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
-            -- Compute motive
-            let motive := target
-            let motive ← if recursorInfo.depElim then
-              pure <| mkLambda `x BinderInfo.default (← inferType major) (← motive.abstractM #[major])
-            else
-              pure motive
-            let motive ← mkLambdaFVars indices motive
-            let recursor := mkApp recursor motive
-            finalize mvarId givenNames recursorInfo reverted major indices baseSubst recursor
-          | _ =>
-           throwTacticEx `induction mvarId "major premise is not of the form (C ...)"
+        let recursor ← mkRecursorAppPrefix mvarId `induction majorFVarId recursorInfo indices
+        finalize mvarId givenNames recursorInfo reverted major indices baseSubst recursor
 
-@[deprecated MVarId.induction]
+@[deprecated MVarId.induction (since := "2022-07-15")]
 def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (givenNames : Array AltVarNames := #[]) : MetaM (Array InductionSubgoal) :=
   mvarId.induction majorFVarId recursorName givenNames
 

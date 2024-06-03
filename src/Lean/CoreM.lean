@@ -11,6 +11,7 @@ import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
+import Lean.Elab.Exception
 
 namespace Lean
 register_builtin_option diagnostics : Bool := {
@@ -29,6 +30,8 @@ register_builtin_option maxHeartbeats : Nat := {
   defValue := 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
+
+def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
 
 namespace Core
 
@@ -83,6 +86,13 @@ structure Context where
   Use the `set_option diag true` to set it to true.
   -/
   diag           : Bool := false
+  /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
+  cancelTk?      : Option IO.CancelToken := none
+  /--
+  If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
+  errors; see also `logMessage` below.
+  -/
+  suppressElabErrors : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -199,16 +209,45 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
-/-- Restore backtrackable parts of the state. -/
-def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+structure SavedState extends State where
+  /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
+  passedHearbeats : Nat
+deriving Nonempty
+
+def saveState : CoreM SavedState := do
+  let s ← get
+  return { toState := s, passedHearbeats := 0 }
 
 /--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+Incremental reuse primitive: if `reusableResult?` is `none`, runs `cont` with an action `save` that
+on execution returns the saved monadic state at this point including the heartbeats used by `cont`
+so far. If `reusableResult?` on the other hand is `some (a, state)`, restores full `state` including
+heartbeats used and returns `a`.
+
+The intention is for steps that support incremental reuse to initially pass `none` as
+`reusableResult?` and call `save` as late as possible in `cont`. In a further run, if reuse is
+possible, `reusableResult?` should be set to the previous state and result, ensuring that the state
+after running `withRestoreOrSaveFull` is identical in both runs. Note however that necessarily this
+is only an approximation in the case of heartbeats as heartbeats used by `withRestoreOrSaveFull`, by
+the remainder of `cont` after calling `save`, as well as by reuse-handling code such as the one
+supplying `reusableResult?` are not accounted for.
 -/
-def restoreFull (b : State) : CoreM Unit :=
-  set b
+@[specialize] def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (cont : (save : CoreM SavedState) → CoreM α) : CoreM α := do
+  if let some (val, state) := reusableResult? then
+    set state.toState
+    IO.addHeartbeats state.passedHearbeats.toUInt64
+    return val
+
+  let startHeartbeats ← IO.getNumHeartbeats
+  cont (do
+    let s ← get
+    let stopHeartbeats ← IO.getNumHeartbeats
+    return { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : CoreM Unit :=
+  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -239,10 +278,18 @@ instance [MetaEval α] : MetaEval (CoreM α) where
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
+builtin_initialize interruptExceptionId : InternalExceptionId ← registerInternalExceptionId `interrupt
+
+/--
+Throws an internal interrupt exception if cancellation has been requested. The exception is not
+caught by `try catch` but is intended to be caught by `Command.withLoggingExceptions` at the top
+level of elaboration. In particular, we want to skip producing further incremental snapshots after
+the exception has been thrown.
+ -/
 @[inline] def checkInterrupted : CoreM Unit := do
-  if (← IO.checkCanceled) then
-    -- should never be visible to users!
-    throw <| Exception.error .missing "elaboration interrupted"
+  if let some tk := (← read).cancelTk? then
+    if (← tk.isSet) then
+      throw <| .internal interruptExceptionId
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
@@ -253,7 +300,7 @@ register_builtin_option debug.moduleNameAtTimeout : Bool := {
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
   let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
   let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
-  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\nuse `set_option {diagnostics.name} true` to get diagnostic information"
+  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -287,11 +334,13 @@ def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
 /--
-Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+Returns the current log and then resets its messages while adjusting `MessageLog.hadErrors`. Used
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun log => ({ log with msgs := {} }, log)
+  modifyGet fun s => (s.messages, { s with
+    messages.unreported := {}
+    messages.hadErrors  := s.messages.hasErrors })
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -299,6 +348,12 @@ instance : MonadLog CoreM where
   getFileName := return (← read).fileName
   hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
+    if (← read).suppressElabErrors then
+      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
+      -- parse error
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals) do
+        return
+
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
@@ -330,7 +385,8 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
   match ex with
-  | Exception.error _ (MessageData.ofFormat (Std.Format.text msg)) => "(deterministic) timeout".isPrefixOf msg
+  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
+    "(deterministic) timeout".isPrefixOf msg
   | _ => false
 
 /-- Creates the expression `d → b` -/
@@ -405,19 +461,26 @@ def ImportM.runCoreM (x : CoreM α) : ImportM α := do
   let (a, _) ← (withOptions (fun _ => ctx.opts) x).toIO { fileName := "<ImportM>", fileMap := default } { env := ctx.env }
   return a
 
-/-- Return `true` if the exception was generated by one our resource limits. -/
+/-- Return `true` if the exception was generated by one of our resource limits. -/
 def Exception.isRuntime (ex : Exception) : Bool :=
   ex.isMaxHeartbeat || ex.isMaxRecDepth
 
+/-- Returns `true` if the exception is an interrupt generated by `checkInterrupted`. -/
+def Exception.isInterrupt : Exception → Bool
+  | Exception.internal id _ => id == Core.interruptExceptionId
+  | _ => false
+
 /--
-Custom `try-catch` for all monads based on `CoreM`. We don't want to catch "runtime exceptions"
-in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `MonadAlwayExcept`.
+Custom `try-catch` for all monads based on `CoreM`. We usually don't want to catch "runtime
+exceptions" these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as
+`MonadAlwaysExcept`. Also, we never want to catch interrupt exceptions inside the elaborator.
 -/
 @[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try
     x
   catch ex =>
-    if ex.isRuntime then
+    if ex.isInterrupt || ex.isRuntime then
+
       throw ex -- We should use `tryCatchRuntimeEx` for catching runtime exceptions
     else
       h ex

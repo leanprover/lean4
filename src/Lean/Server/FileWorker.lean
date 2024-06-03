@@ -196,7 +196,7 @@ This option can only be set on the command line, not in the lakefile or via `set
         return .pure ()
   where
     go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
-      if !node.element.diagnostics.msgLog.isEmpty then
+      if node.element.diagnostics.msgLog.hasUnreported then
         let diags ←
           if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
               return (← ref.get).bind (·.get? MemorizedInteractiveDiagnostics) then
@@ -705,12 +705,9 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
-  /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
-    "\n", which should be enough to handle both LF and CRLF correctly.
-    This is because LSP always refers to characters by (line, column),
-    so if we get the line number correct it shouldn't matter that there
-    is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
+  /- Note (kmill): LSP always refers to characters by (line, column),
+     so converting CRLF to LF preserves line and column numbers. -/
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.crlfToLf.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   let (ctx, st) ← try

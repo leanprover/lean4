@@ -740,58 +740,59 @@ mutual
     if mvarId == ctx.mvarId then
       traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
       throwCheckAssignmentFailure
-    else match (← getExprMVarAssignment? mvarId) with
-      | some v => check v
-      | none   =>
-        match (← mvarId.findDecl?) with
-        | none          => throwUnknownMVar mvarId
-        | some mvarDecl =>
-          if ctx.hasCtxLocals then
-            throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
-          else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
-            /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-               We "subtract" variables being abstracted because we use `elimMVarDeps` -/
-            pure mvar
-          else if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
-            traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-            throwCheckAssignmentFailure
-          else
-            let ctxMeta ← readThe Meta.Context
-            if ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx then
-              /- Create an auxiliary metavariable with a smaller context and "checked" type.
-                 Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
-                 a metavariable that we also need to reduce the context.
+    if let some v ← getExprMVarAssignment? mvarId then
+      return (← check v)
+    let some mvarDecl ← mvarId.findDecl?
+      | throwUnknownMVar mvarId
+    if ctx.hasCtxLocals then
+      throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
+    if let some d ← getDelayedMVarAssignment? mvarId then
+      -- we must perform occurs-check at `d.mvarIdPending`
+      unless (← occursCheck ctx.mvarId (mkMVar d.mvarIdPending)) do
+        traceM `Meta.isDefEq.assign.occursCheck <| addAssignmentInfo "occurs check failed"
+        throwCheckAssignmentFailure
+    if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
+      /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
+         We "subtract" variables being abstracted because we use `elimMVarDeps` -/
+      return mvar
+    if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    let ctxMeta ← readThe Meta.Context
+    unless ctxMeta.config.ctxApprox && ctx.mvarDecl.lctx.isSubPrefixOf mvarDecl.lctx do
+      traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
+      throwCheckAssignmentFailure
+    /- Create an auxiliary metavariable with a smaller context and "checked" type.
+       Note that `mvarType` may be different from `mvarDecl.type`. Example: `mvarType` contains
+       a metavariable that we also need to reduce the context.
 
-                 We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
-                 or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
-                 `elimMVarDeps` will take care of them.
+       We remove from `ctx.mvarDecl.lctx` any variable that is not in `mvarDecl.lctx`
+       or in `ctx.fvars`. We don't need to remove the ones in `ctx.fvars` because
+       `elimMVarDeps` will take care of them.
 
-                 First, we collect `toErase` the variables that need to be erased.
-                 Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
-                 we must also erase it.
-              -/
-              let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
-                if ctx.mvarDecl.lctx.contains localDecl.fvarId then
-                  return toErase
-                else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
-                  if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
-                    -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
-                    return toErase.push localDecl.fvarId
-                  else
-                    return toErase
-                else
-                  return toErase.push localDecl.fvarId
-              let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
-                lctx.erase toEraseFVar
-              /- Compute new set of local instances. -/
-              let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
-              let mvarType ← check mvarDecl.type
-              let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
-              mvarId.assign newMVar
-              pure newMVar
-            else
-              traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
-              throwCheckAssignmentFailure
+       First, we collect `toErase` the variables that need to be erased.
+       Notat that if a variable is `ctx.fvars`, but it depends on variable at `toErase`,
+       we must also erase it.
+    -/
+    let toErase ← mvarDecl.lctx.foldlM (init := #[]) fun toErase localDecl => do
+      if ctx.mvarDecl.lctx.contains localDecl.fvarId then
+        return toErase
+      else if ctx.fvars.any fun fvar => fvar.fvarId! == localDecl.fvarId then
+        if (← findLocalDeclDependsOn localDecl fun fvarId => toErase.contains fvarId) then
+          -- localDecl depends on a variable that will be erased. So, we must add it to `toErase` too
+          return toErase.push localDecl.fvarId
+        else
+          return toErase
+      else
+        return toErase.push localDecl.fvarId
+    let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
+      lctx.erase toEraseFVar
+    /- Compute new set of local instances. -/
+    let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
+    let mvarType ← check mvarDecl.type
+    let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
+    mvarId.assign newMVar
+    return newMVar
 
   /--
     Auxiliary function used to "fix" subterms of the form `?m x_1 ... x_n` where `x_i`s are free variables,
@@ -802,12 +803,10 @@ mutual
   partial def assignToConstFun (mvar : Expr) (numArgs : Nat) (newMVar : Expr) : MetaM Bool := do
     let mvarType ← inferType mvar
     forallBoundedTelescope mvarType numArgs fun xs _ => do
-      if xs.size != numArgs then pure false
-      else
-        let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
-        match (← checkAssignmentAux mvar.mvarId! #[] false v) with
-        | some v => checkTypesAndAssign mvar v
-        | none   => return false
+      if xs.size != numArgs then return false
+      let some v ← mkLambdaFVarsWithLetDeps xs newMVar | return false
+      let some v ← checkAssignmentAux mvar.mvarId! #[] false v | return false
+      checkTypesAndAssign mvar v
 
   -- See checkAssignment
   partial def checkAssignmentAux (mvarId : MVarId) (fvars : Array Expr) (hasCtxLocals : Bool) (v : Expr) : MetaM (Option Expr) := do
@@ -825,19 +824,18 @@ mutual
           (fun ex => do
             if !f.isMVar then
               throw ex
-            else if (← f.mvarId!.isDelayedAssigned) then
+            if (← f.mvarId!.isDelayedAssigned) then
               throw ex
+            let eType ← inferType e
+            let mvarType ← check eType
+            /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
+               Note that `mvarType` may be different from `eType`. -/
+            let ctx ← read
+            let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
+            if (← assignToConstFun f args.size newMVar) then
+              pure newMVar
             else
-              let eType ← inferType e
-              let mvarType ← check eType
-              /- Create an auxiliary metavariable with a smaller context and "checked" type, assign `?f := fun _ => ?newMVar`
-                    Note that `mvarType` may be different from `eType`. -/
-              let ctx ← read
-              let newMVar ← mkAuxMVar ctx.mvarDecl.lctx ctx.mvarDecl.localInstances mvarType
-              if (← assignToConstFun f args.size newMVar) then
-                pure newMVar
-              else
-                throw ex)
+              throw ex)
       else
         let f ← check f
         let args ← args.mapM check
@@ -900,38 +898,33 @@ namespace CheckAssignmentQuick
 partial def check
     (hasCtxLocals : Bool)
     (mctx : MetavarContext) (lctx : LocalContext) (mvarDecl : MetavarDecl) (mvarId : MVarId) (fvars : Array Expr) (e : Expr) : Bool :=
-  let rec visit (e : Expr) : Bool :=
+  let rec visit (e : Expr) : Bool := Id.run do
     if !e.hasExprMVar && !e.hasFVar then
-      true
-    else match e with
+      return true
+    match e with
     | .mdata _ b       => visit b
     | .proj _ _ s      => visit s
     | .app f a         => visit f && visit a
     | .lam _ d b _     => visit d && visit b
     | .forallE _ d b _ => visit d && visit b
     | .letE _ t v b _  => visit t && visit v && visit b
-    | .bvar ..         => true
-    | .sort ..         => true
-    | .const ..        => true
-    | .lit ..          => true
+    | .bvar .. | .sort .. | .const ..
+    | .lit .. => return true
     | .fvar fvarId ..  =>
-      if mvarDecl.lctx.contains fvarId then true
-      else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
-        | _ =>
-          if fvars.any fun x => x.fvarId! == fvarId then true
-          else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
+      if mvarDecl.lctx.contains fvarId then return true
+      if let some (LocalDecl.ldecl ..) := lctx.find? fvarId then
+        return false -- need expensive CheckAssignment.check
+      if fvars.any fun x => x.fvarId! == fvarId then
+        return true
+      return false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
     | .mvar mvarId'    =>
-      match mctx.getExprAssignmentCore? mvarId' with
-      | some _ => false -- use CheckAssignment.check to instantiate
-      | none   =>
-        if mvarId' == mvarId then false -- occurs check failed, use CheckAssignment.check to throw exception
-        else match mctx.findDecl? mvarId' with
-          | none           => false
-          | some mvarDecl' =>
-            if hasCtxLocals then false -- use CheckAssignment.check
-            else if mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then true
-            else false -- use CheckAssignment.check
+      let none := mctx.getExprAssignmentCore? mvarId' | return false -- use CheckAssignment.check to instantiate
+      if mvarId' == mvarId then return false -- occurs check failed, use CheckAssignment.check to throw exception
+      let some mvarDecl' := mctx.findDecl? mvarId' | return false
+      if hasCtxLocals then return false -- use CheckAssignment.check
+      if !mvarDecl'.lctx.isSubPrefixOf mvarDecl.lctx fvars then return false -- use CheckAssignment.check
+      let none := mctx.getDelayedMVarAssignmentCore? mvarId' | return false -- use CheckAssignment.check
+      return true
   visit e
 
 end CheckAssignmentQuick
@@ -1904,8 +1897,8 @@ private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
 -/
 private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
   if (← getTransparency) != .instances then return .undef
-  let t? ← unfoldProjInstWhenIntances? t
-  let s? ← unfoldProjInstWhenIntances? s
+  let t? ← unfoldProjInstWhenInstances? t
+  let s? ← unfoldProjInstWhenInstances? s
   if t?.isSome || s?.isSome then
     toLBoolM <| Meta.isExprDefEqAux (t?.getD t) (s?.getD s)
   else

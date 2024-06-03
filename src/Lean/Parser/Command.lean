@@ -94,8 +94,41 @@ def declSig          := leading_parser
 /-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 def optDeclSig       := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
+/-- Right-hand side of a `:=` in a declaration, a term. -/
+def declBody : Parser :=
+  /-
+  We want to make sure that bodies starting with `by` in fact create a single `by` node instead of
+  accidentally parsing some remnants after it as well. This can especially happen when starting to
+  type comments inside tactic blocks where
+  ```
+  by
+    sleep 2000
+    unfold f
+    -starting comment here
+  ```
+  is parsed as
+  ```
+  (by
+    sleep 2000
+    unfold f
+    ) - (starting comment here)
+  ```
+  where the new nesting will discard incrementality data. By using `byTactic`'s precedence, the
+  stray `-` will be flagged as an unexpected token and will not disturb the syntax tree up to it. We
+  do not call `byTactic` directly to avoid differences in pretty printing or behavior or error
+  reporting between the two branches.
+  -/
+  lookahead (setExpected [] "by") >> termParser leadPrec <|>
+  termParser
+
+-- As the pretty printer ignores `lookahead`, we need a custom parenthesizer to choose the correct
+-- precedence
+open PrettyPrinter in
+@[combinator_parenthesizer declBody] def declBody.parenthesizer : Parenthesizer :=
+  Parenthesizer.categoryParser.parenthesizer `term 0
+
 def declValSimple    := leading_parser
-  " :=" >> ppHardLineUnlessUngrouped >> termParser >> Termination.suffix >> optional Term.whereDecls
+  " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructField := leading_parser

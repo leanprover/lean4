@@ -34,10 +34,6 @@ structure Context where
   -/
   recover    : Bool := true
 
-structure SavedState where
-  term   : Term.SavedState
-  tactic : State
-
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -100,6 +96,16 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   b.term.restore restoreInfo
   set b.tactic
 
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (cont : TacticM SavedState → TacticM α) : TacticM α := do
+  if let some (_, state) := reusableResult? then
+    set state.tactic
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
+  controlAt TermElabM fun runInBase =>
+    Term.withRestoreOrSaveFull reusableResult? fun restore =>
+      runInBase <| cont (return { term := (← restore), tactic := (← get) })
+
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
@@ -146,7 +152,10 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | .node _ k _    =>
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-        stx.getArgs.forM evalTactic
+        -- We could support incrementality here by allocating `n` new snapshot bundles but the
+        -- practical value is not clear
+        Term.withoutTacticIncrementality true do
+          stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
@@ -200,7 +209,11 @@ where
       | []              => throwExs failures
       | evalFn::evalFns => do
         try
-          withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
+          -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
+          Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
+          withReader ({ · with elaborator := evalFn.declName }) do
+          withTacticInfoContext stx do
+            evalFn.value stx
         catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=

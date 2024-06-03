@@ -30,6 +30,7 @@ package test where
   preferReleaseBuild := false
   packagesDir := defaultPackagesDir
   leanOptions := #[⟨`pp.unicode.fun, true⟩]
+  lintDriver := "b"
 
 require foo from "dir" with NameMap.empty.insert `foo "bar"
 require bar from git "https://example.com" @ "abc" / "sub" / "dir"
@@ -45,7 +46,7 @@ lean_lib A where
   nativeFacets := fun _ => #[]
   toLeanConfig := testLeanConfig
 
-@[test_runner]
+@[test_driver]
 lean_exe b where
   srcDir := "."
   root := `b

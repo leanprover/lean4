@@ -24,6 +24,14 @@ instance : LT String :=
 instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
   List.hasDecidableLt s₁.data s₂.data
 
+@[reducible] protected def le (a b : String) : Prop := ¬ b < a
+
+instance : LE String :=
+  ⟨String.le⟩
+
+instance decLE (s₁ s₂ : String) : Decidable (s₁ ≤ s₂) :=
+  inferInstanceAs (Decidable (Not _))
+
 /--
 Returns the length of a string in Unicode code points.
 
@@ -178,8 +186,9 @@ Returns the next position in a string after position `p`. If `p` is not a valid 
 the result is unspecified.
 
 Examples:
-* `"abc".next ⟨1⟩ = String.Pos.mk 2`
-* `"L∃∀N".next ⟨1⟩ = String.Pos.mk 4`, since `'∃'` is a multi-byte UTF-8 character
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (0 |> abc.next) = 'b'`
+* `lean.get (0 |> lean.next |> lean.next) = '∀'`
 
 Cases where the result is unspecified:
 * `"abc".next ⟨3⟩`, since `3 = s.endPos`
@@ -196,16 +205,52 @@ def utf8PrevAux : List Char → Pos → Pos → Pos
     let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
 
+/--
+Returns the position in a string before a specified position, `p`. If `p = ⟨0⟩`, returns `0`.
+If `p` is not a valid position, the result is unspecified.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `abc.get (abc.endPos |> abc.prev) = 'c'`
+* `lean.get (lean.endPos |> lean.prev |> lean.prev |> lean.prev) = '∃'`
+* `"L∃∀N".prev ⟨3⟩` is unspecified, since byte 3 occurs in the middle of the multi-byte character `'∃'`.
+-/
 @[extern "lean_string_utf8_prev"]
 def prev : (@& String) → (@& Pos) → Pos
   | ⟨s⟩, p => if p = 0 then 0 else utf8PrevAux s 0 p
 
+/--
+Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".front = 'a'`
+* `"".front = (default : Char)`
+-/
 def front (s : String) : Char :=
   get s 0
 
+/--
+Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".back = 'c'`
+* `"".back = (default : Char)`
+-/
 def back (s : String) : Char :=
   get s (prev s s.endPos)
 
+/--
+Returns `true` if a specified position is greater than or equal to the position which
+points to the end of a string. Otherwise, returns `false`.
+
+Examples:
+Given `def abc := "abc"` and `def lean := "L∃∀N"`,
+* `(0 |> abc.next |> abc.next |> abc.atEnd) = false`
+* `(0 |> abc.next |> abc.next |> abc.next |> abc.next |> abc.atEnd) = true`
+* `(0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true`
+
+Because `"L∃∀N"` contains multi-byte characters, `lean.next (lean.next 0)` is not equal to `abc.next (abc.next 0)`.
+-/
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
@@ -683,13 +728,15 @@ def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos)
   off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos) :=
-    if h : off1.byteIdx < stop1.byteIdx then
+    if _h : off1.byteIdx < stop1.byteIdx then
       let c₁ := s1.get off1
       let c₂ := s2.get off2
-      have := Nat.sub_lt_sub_left h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
   termination_by stop1.1 - off1.1
+  decreasing_by
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
+    decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=
@@ -903,6 +950,10 @@ def beq (ss1 ss2 : Substring) : Bool :=
   ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
 instance hasBeq : BEq Substring := ⟨beq⟩
+
+/-- Checks whether two substrings have the same position and content. -/
+def sameAs (ss1 ss2 : Substring) : Bool :=
+  ss1.startPos == ss2.startPos && ss1 == ss2
 
 end Substring
 

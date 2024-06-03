@@ -47,7 +47,7 @@ inductive Expr where
 theorem Expr.numVars_app_eq (f : String) (args : List Expr) : (Expr.app f args).numVars = args.foldl (fun sum arg => sum + arg.numVars) 0 := by
   simp [numVars, List.foldl_wf_eq]
 
-#eval Expr.app "f" [Expr.var "a", Expr.app "g" [Expr.var "b", Expr.var "c"]] |>.numVars
+#guard (Expr.app "f" [Expr.var "a", Expr.app "g" [Expr.var "b", Expr.var "c"]] |>.numVars) == 3
 
 def List.map_wf [SizeOf α] (as : List α) (f : (a : α) → sizeOf a < sizeOf as → β) : List β :=
   go as (Nat.le_refl ..)

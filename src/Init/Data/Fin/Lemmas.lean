@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Mario Carneiro
+Authors: Mario Carneiro, Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
@@ -62,7 +62,8 @@ theorem mk_val (i : Fin n) : (⟨i, i.isLt⟩ : Fin n) = i := Fin.eta ..
 @[simp] theorem val_ofNat' (a : Nat) (is_pos : n > 0) :
   (Fin.ofNat' a is_pos).val = a % n := rfl
 
-@[deprecated ofNat'_zero_val] theorem ofNat'_zero_val : (Fin.ofNat' 0 h).val = 0 := Nat.zero_mod _
+@[deprecated ofNat'_zero_val (since := "2024-02-22")]
+theorem ofNat'_zero_val : (Fin.ofNat' 0 h).val = 0 := Nat.zero_mod _
 
 @[simp] theorem mod_val (a b : Fin n) : (a % b).val = a.val % b.val :=
   rfl
@@ -92,6 +93,18 @@ theorem lt_iff_val_lt_val {a b : Fin n} : a < b ↔ a.val < b.val := Iff.rfl
 @[simp] protected theorem not_le {a b : Fin n} : ¬ a ≤ b ↔ b < a := Nat.not_le
 
 @[simp] protected theorem not_lt {a b : Fin n} : ¬ a < b ↔ b ≤ a := Nat.not_lt
+
+@[simp] protected theorem le_refl (a : Fin n) : a ≤ a := by simp [le_def]
+
+@[simp] protected theorem lt_irrefl (a : Fin n) : ¬ a < a := by simp
+
+protected theorem le_trans {a b c : Fin n} : a ≤ b → b ≤ c → a ≤ c := Nat.le_trans
+
+protected theorem lt_trans {a b c : Fin n} : a < b → b < c → a < c := Nat.lt_trans
+
+protected theorem le_total (a b : Fin n) : a ≤ b ∨ b ≤ a := Nat.le_total a b
+
+protected theorem lt_asymm {a b : Fin n} (h : a < b) : ¬ b < a := Nat.lt_asymm h
 
 protected theorem ne_of_lt {a b : Fin n} (h : a < b) : a ≠ b := Fin.ne_of_val_ne (Nat.ne_of_lt h)
 
@@ -208,7 +221,6 @@ theorem val_add_one {n : Nat} (i : Fin (n + 1)) :
   | .inl h => cases Fin.eq_of_val_eq h; simp
   | .inr h => simpa [Fin.ne_of_lt h] using val_add_one_of_lt h
 
-unseal Nat.modCore in
 @[simp] theorem val_two {n : Nat} : (2 : Fin (n + 3)).val = 2 := rfl
 
 theorem add_one_pos (i : Fin (n + 1)) (h : i < Fin.last n) : (0 : Fin (n + 1)) < i + 1 := by
@@ -243,7 +255,6 @@ theorem succ_ne_zero {n} : ∀ k : Fin n, Fin.succ k ≠ 0
 
 @[simp] theorem succ_zero_eq_one : Fin.succ (0 : Fin (n + 1)) = 1 := rfl
 
-unseal Nat.modCore in
 /-- Version of `succ_one_eq_two` to be used by `dsimp` -/
 @[simp] theorem succ_one_eq_two : Fin.succ (1 : Fin (n + 2)) = 2 := rfl
 
@@ -395,7 +406,6 @@ theorem castSucc_lt_last (a : Fin n) : castSucc a < last n := a.is_lt
 
 @[simp] theorem castSucc_zero : castSucc (0 : Fin (n + 1)) = 0 := rfl
 
-unseal Nat.modCore in
 @[simp] theorem castSucc_one {n : Nat} : castSucc (1 : Fin (n + 2)) = 1 := rfl
 
 /-- `castSucc i` is positive when `i` is positive -/
@@ -825,27 +835,3 @@ protected theorem zero_mul (k : Fin (n + 1)) : (0 : Fin (n + 1)) * k = 0 := by
   simp [ext_iff, mul_def]
 
 end Fin
-
-namespace USize
-
-@[simp] theorem lt_def {a b : USize} : a < b ↔ a.toNat < b.toNat := .rfl
-
-@[simp] theorem le_def {a b : USize} : a ≤ b ↔ a.toNat ≤ b.toNat := .rfl
-
-@[simp] theorem zero_toNat : (0 : USize).toNat = 0 := Nat.zero_mod _
-
-@[simp] theorem mod_toNat (a b : USize) : (a % b).toNat = a.toNat % b.toNat :=
-  Fin.mod_val ..
-
-@[simp] theorem div_toNat (a b : USize) : (a / b).toNat = a.toNat / b.toNat :=
-  Fin.div_val ..
-
-@[simp] theorem modn_toNat (a : USize) (b : Nat) : (a.modn b).toNat = a.toNat % b :=
-  Fin.modn_val ..
-
-theorem mod_lt (a b : USize) (h : 0 < b) : a % b < b := USize.modn_lt _ (by simp at h; exact h)
-
-theorem toNat.inj : ∀ {a b : USize}, a.toNat = b.toNat → a = b
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
-
-end USize

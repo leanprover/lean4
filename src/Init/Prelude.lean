@@ -3644,6 +3644,17 @@ def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
   | synthetic (pos := pos) .., false => some pos
   | _,                         _     => none
 
+/--
+Gets the end position information from a `SourceInfo`, if available.
+If `originalOnly` is true, then `.synthetic` syntax will also return `none`.
+-/
+def getTailPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+  match info, canonicalOnly with
+  | original (endPos := endPos) ..,  _
+  | synthetic (endPos := endPos) (canonical := true) .., _
+  | synthetic (endPos := endPos) .., false => some endPos
+  | _,                               _     => none
+
 end SourceInfo
 
 /--

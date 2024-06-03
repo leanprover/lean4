@@ -47,8 +47,9 @@ structure Context where
   ref            : Syntax := Syntax.missing
   tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
-  Snapshot for incremental reuse and reporting of command elaboration. Currently unused in Lean
-  itself.
+  Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
+  (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
+  `HeadersParsedSnapshot`.
 
   Definitely resolved in `Language.Lean.process.doElab`.
 
@@ -56,6 +57,13 @@ structure Context where
   old elaboration are identical.
   -/
   snap?          : Option (Language.SnapshotBundle Language.DynamicSnapshot)
+  /-- Cancellation token forwarded to `Core.cancelTk?`. -/
+  cancelTk?      : Option IO.CancelToken
+  /--
+  If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
+  errors; see also `logMessage` below.
+  -/
+  suppressElabErrors : Bool := false
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -72,6 +80,21 @@ Remark: see comment at TermElabM
 -/
 @[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+
+/-- Like `Core.tryCatch` but do catch runtime exceptions. -/
+@[inline] protected def tryCatch (x : CommandElabM α) (h : Exception → CommandElabM α) :
+    CommandElabM α := do
+  try
+    x
+  catch ex =>
+    if ex.isInterrupt then
+      throw ex
+    else
+      h ex
+
+instance : MonadExceptOf Exception CommandElabM where
+  throw    := throw
+  tryCatch := Command.tryCatch
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
   env         := env
@@ -160,17 +183,18 @@ private def runCore (x : CoreM α) : CommandElabM α := do
   let env := Kernel.resetDiag s.env
   let scope := s.scopes.head!
   let coreCtx : Core.Context := {
-    fileName       := ctx.fileName
-    fileMap        := ctx.fileMap
-    currRecDepth   := ctx.currRecDepth
-    maxRecDepth    := s.maxRecDepth
-    ref            := ctx.ref
-    currNamespace  := scope.currNamespace
-    openDecls      := scope.openDecls
-    initHeartbeats := heartbeats
-    currMacroScope := ctx.currMacroScope
-    options        := scope.opts
-  }
+    fileName           := ctx.fileName
+    fileMap            := ctx.fileMap
+    currRecDepth       := ctx.currRecDepth
+    maxRecDepth        := s.maxRecDepth
+    ref                := ctx.ref
+    currNamespace      := scope.currNamespace
+    openDecls          := scope.openDecls
+    initHeartbeats     := heartbeats
+    currMacroScope     := ctx.currMacroScope
+    options            := scope.opts
+    cancelTk?          := ctx.cancelTk?
+    suppressElabErrors := ctx.suppressElabErrors }
   let x : EIO _ _ := x.run coreCtx {
     env
     ngen := s.ngen
@@ -215,6 +239,11 @@ instance : MonadLog CommandElabM where
   getFileName := return (← read).fileName
   hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
+    if (← read).suppressElabErrors then
+      -- discard elaboration errors on parse error
+      -- NOTE: unlike `CoreM`'s `logMessage`, we do not currently have any command-level errors that
+      -- we want to allowlist
+      return
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
@@ -267,11 +296,29 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   }
   return InfoTree.context ctx tree
 
+/--
+Disables incremental command reuse *and* reporting for `act` if `cond` is true by setting
+`Context.snap?` to `none`.
+-/
+def withoutCommandIncrementality (cond : Bool) (act : CommandElabM α) : CommandElabM α := do
+  let opts ← getOptions
+  withReader (fun ctx => { ctx with snap? := ctx.snap?.filter fun snap => Id.run do
+    if let some old := snap.old? then
+      if cond && opts.getBool `trace.Elab.reuse then
+        dbg_trace "reuse stopped: guard failed at {old.stx}"
+    return !cond
+  }) act
+
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) <| elabFn.value stx)
+      (do
+        -- prevent unsupported commands from accidentally accessing `Context.snap?` (e.g. by nested
+        -- supported commands)
+        withoutCommandIncrementality (!(← isIncrementalElab elabFn.declName)) do
+        withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) do
+         elabFn.value stx)
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /-- Elaborate `x` with `stx` on the macro stack -/
@@ -298,7 +345,10 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
       if k == nullKind then
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
-        args.forM elabCommand
+        -- TODO: support incrementality at least for some cases such as expansions of
+        -- `set_option in` or `def a.b`
+        withoutCommandIncrementality true do
+          args.forM elabCommand
       else withTraceNode `Elab.command (fun _ => return stx) (tag :=
         -- special case: show actual declaration kind for `declaration` commands
         (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do
@@ -321,11 +371,19 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
 
 builtin_initialize registerTraceClass `Elab.input
 
+/-- Option for showing elaboration errors from partial syntax errors. -/
+register_builtin_option showPartialSyntaxErrors : Bool := {
+  defValue := false
+  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
+}
+
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
+  withReader ({ · with suppressElabErrors :=
+    stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   try
@@ -462,7 +520,12 @@ def runTermElabM (elabFn : Array Expr → TermElabM α) : CommandElabM α := do
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs
 
-@[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
+/--
+Catches and logs exceptions occurring in `x`. Unlike `try catch` in `CommandElabM`, this function
+catches interrupt exceptions as well and thus is intended for use at the top level of elaboration.
+Interrupt and abort exceptions are caught but not logged.
+-/
+@[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
 private def liftAttrM {α} (x : AttrM α) : CommandElabM α := do
@@ -528,6 +591,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
       ref := ← getRef
       tacticCache? := none
       snap? := none
+      cancelTk? := (← read).cancelTk?
     } |>.run {
       env := ← getEnv
       maxRecDepth := ← getMaxRecDepth
@@ -537,7 +601,7 @@ def liftCommandElabM (cmd : CommandElabM α) : CoreM α := do
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
     env := commandState.env
   }
-  if let some err := commandState.messages.msgs.toArray.find? (·.severity matches .error) then
+  if let some err := commandState.messages.toArray.find? (·.severity matches .error) then
     throwError err.data
   pure a
 

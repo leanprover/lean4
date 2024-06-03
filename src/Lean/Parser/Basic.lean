@@ -558,6 +558,8 @@ partial def whitespace : ParserFn := fun c s =>
     let curr := input.get' i h
     if curr == '\t' then
       s.mkUnexpectedError (pushMissing := false) "tabs are not allowed; please configure your editor to expand them"
+    else if curr == '\r' then
+      s.mkUnexpectedError (pushMissing := false) "isolated carriage returns are not allowed"
     else if curr.isWhitespace then whitespace c (s.next' input i h)
     else if curr == '-' then
       let i    := input.next' i h
@@ -621,9 +623,8 @@ def hexDigitFn : ParserFn := fun c s =>
 /--
 Parses the whitespace after the `\` when there is a string gap.
 Raises an error if the whitespace does not contain exactly one newline character.
-Processes `\r\n` as a newline.
 -/
-partial def stringGapFn (seenNewline afterCR : Bool) : ParserFn := fun c s =>
+partial def stringGapFn (seenNewline : Bool) : ParserFn := fun c s =>
   let i := s.pos
   if h : c.input.atEnd i then s -- let strLitFnAux handle the EOI error if !seenNewline
   else
@@ -633,13 +634,9 @@ partial def stringGapFn (seenNewline afterCR : Bool) : ParserFn := fun c s =>
         -- Having more than one newline in a string gap is visually confusing
         s.mkUnexpectedError "unexpected additional newline in string gap"
       else
-        stringGapFn true false c (s.next' c.input i h)
-    else if curr == '\r' then
-      stringGapFn seenNewline true c (s.next' c.input i h)
-    else if afterCR then
-      s.mkUnexpectedError "expecting newline after carriage return"
+        stringGapFn true c (s.next' c.input i h)
     else if curr.isWhitespace then
-      stringGapFn seenNewline false c (s.next' c.input i h)
+      stringGapFn seenNewline c (s.next' c.input i h)
     else if seenNewline then
       s
     else
@@ -663,8 +660,8 @@ def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn :
       andthenFn hexDigitFn hexDigitFn c (s.next' input i h)
     else if curr == 'u' then
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next' input i h)
-    else if inString && (curr == '\n' || curr == '\r') then
-      stringGapFn false false c s
+    else if inString && curr == '\n' then
+      stringGapFn false c s
     else
       s.mkUnexpectedError "invalid escape sequence"
 

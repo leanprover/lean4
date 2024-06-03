@@ -1,0 +1,31 @@
+name: Restart by label
+on:
+  pull_request_target:
+    types:
+      - unlabeled
+      - labeled
+jobs:
+  restart-on-label:
+    runs-on: ubuntu-latest
+    if: contains(github.event.label.name, 'merge-ci') || contains(github.event.label.name, 'release-ci')
+    steps:
+    - run: |
+        # Finding latest CI workflow run on current pull request
+        # (unfortunately cannot search by PR number, only base branch,
+        # and that is't even unique given PRs from forks, but the risk
+        # of confusion is low and the danger is mild)
+        run_id=$(gh run list -e pull_request -b "$head_ref" --workflow 'CI' --limit 1 \
+          --limit 1 --json databaseId --jq '.[0].databaseId')
+        echo "Run id: ${run_id}"
+        gh run view "$run_id"
+        echo "Cancelling (just in case)"
+        gh run cancel "$run_id" || echo "(failed)"
+        echo "Waiting for 10s"
+        sleep 10
+        echo "Rerunning"
+        gh run rerun "$run_id"
+      shell: bash
+      env:
+        head_ref: ${{ github.head_ref }}
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}

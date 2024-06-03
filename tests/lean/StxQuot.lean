@@ -67,7 +67,7 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
   | `(match $e:term with $alts:matchAlt*) => `(match $e:term with $alts:matchAlt*)
   | _ => unreachable!
 
-open Parser.Term
+open Parser.Term in
 #eval run do
   match ← `(structInstField|a := b) with
   | `(Parser.Term.structInstField| $lhs:ident := $rhs) => pure #[lhs.raw, rhs]
@@ -79,6 +79,8 @@ open Parser.Term
   | `({ $f:ident := $e $[: $a?]?}) => pure "1"
   | stx                    => pure "2"
 
+/-! Parser alias quotation -/
+#check sufficesDecl  -- should not be in scope
 #eval run `(sufficesDecl|x from x)
 
 #eval run do

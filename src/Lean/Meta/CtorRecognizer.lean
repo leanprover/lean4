@@ -14,19 +14,24 @@ private def getConstructorVal? (env : Environment) (ctorName : Name) : Option Co
   | some (.ctorInfo v) => v
   | _                  => none
 
-
 /--
-If `e` is a constructor application or a builtin literal defeq to a constructor application,
+If `e` is a constructor application,
 then return the corresponding `ConstructorVal`.
 -/
-def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
-  let e ← litToCtor e
+def isConstructorAppCore? (e : Expr) : MetaM (Option ConstructorVal) := do
   let .const n _ := e.getAppFn | return none
   let some v := getConstructorVal? (← getEnv) n | return none
   if v.numParams + v.numFields == e.getAppNumArgs then
     return some v
   else
     return none
+
+/--
+If `e` is a constructor application or a builtin literal defeq to a constructor application,
+then return the corresponding `ConstructorVal`.
+-/
+def isConstructorApp? (e : Expr) : MetaM (Option ConstructorVal) := do
+  isConstructorAppCore? (← litToCtor e)
 
 /--
 Similar to `isConstructorApp?`, but uses `whnf`.

@@ -178,9 +178,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             thms := thms.eraseCore (.fvar fvar.fvarId!)
           else
             let id := arg[1]
-            let declNames? ← try pure (some (← realizeGlobalConst id)) catch _ => pure none
-            if let some declNames := declNames? then
-              let declName ← ensureNonAmbiguous id declNames
+            if let .ok declName ← observing (realizeGlobalConstNoOverloadWithInfo id) then
               if (← Simp.isSimproc declName) then
                 simprocs := simprocs.erase declName
               else if ctx.config.autoUnfold then
@@ -338,7 +336,9 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
   for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
     match thm with
     | .decl declName post inv => -- global definitions in the environment
-      if env.contains declName && (inv || !simpOnlyBuiltins.contains declName) then
+      if env.contains declName
+         && (inv || !simpOnlyBuiltins.contains declName)
+         && !Match.isMatchEqnTheorem env declName then
         let decl : Term ← `($(mkIdent (← unresolveNameGlobal declName)):ident)
         let arg ← match post, inv with
           | true,  true  => `(Parser.Tactic.simpLemma| ← $decl:term)

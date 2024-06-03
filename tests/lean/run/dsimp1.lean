@@ -3,6 +3,11 @@ def Nat.isZero (x : Nat) : Bool :=
   | 0 => true
   | x+1 => false
 
+/--
+info: x : Nat
+⊢ (1 + x).isZero = false
+-/
+#guard_msgs in
 example (x : Nat) : (1 + id x.succ.pred).isZero = false := by
   dsimp
   trace_state

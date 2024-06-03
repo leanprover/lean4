@@ -7,6 +7,8 @@ The following example would cause the pretty printer to panic.
 -/
 
 set_option trace.compiler.simp true in
+/-- info: [0] -/
+#guard_msgs in
 #eval [0]
 
 

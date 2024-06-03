@@ -130,7 +130,7 @@ been defined yet.
 -/
 def Exception.isMaxRecDepth (ex : Exception) : Bool :=
   match ex with
-  | error _ (MessageData.ofFormat (Std.Format.text msg)) => msg == maxRecDepthErrorMessage
+  | error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) => msg == maxRecDepthErrorMessage
   | _ => false
 
 /--

@@ -71,7 +71,7 @@ abbrev OmegaM := StateRefT Cache OmegaM'
 
 /-- Run a computation in the `OmegaM` monad, starting with no recorded atoms. -/
 def OmegaM.run (m : OmegaM α) (cfg : OmegaConfig) : MetaM α :=
-  m.run' HashMap.empty |>.run' {} { cfg } |>.run
+  m.run' HashMap.empty |>.run' {} { cfg } |>.run'
 
 /-- Retrieve the user-specified configuration options. -/
 def cfg : OmegaM OmegaConfig := do pure (← read).cfg
@@ -150,7 +150,7 @@ partial def groundInt? (e : Expr) : Option Int :=
     | _, _ => none
   | _ => e.int?
 where op (f : Int → Int → Int) (x y : Expr) : Option Int :=
-  match groundNat? x, groundNat? y with
+  match groundInt? x, groundInt? y with
     | some x', some y' => some (f x' y')
     | _, _ => none
 
@@ -199,7 +199,7 @@ def analyzeAtom (e : Expr) : OmegaM (HashSet Expr) := do
       | some _ =>
         let b_pos := mkApp4 (.const ``LT.lt [0]) (.const ``Int []) (.const ``Int.instLTInt [])
           (toExpr (0 : Int)) b
-        let pow_pos := mkApp3 (.const ``Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
+        let pow_pos := mkApp3 (.const ``Lean.Omega.Int.pos_pow_of_pos []) b exp (← mkDecideProof b_pos)
         pure <| HashSet.empty.insert
           (mkApp3 (.const ``Int.emod_nonneg []) x k
               (mkApp3 (.const ``Int.ne_of_gt []) k (toExpr (0 : Int)) pow_pos)) |>.insert

@@ -41,4 +41,6 @@ else
   0;
 g n
 
+/-- info: 100 -/
+#guard_msgs in
 #eval f 10

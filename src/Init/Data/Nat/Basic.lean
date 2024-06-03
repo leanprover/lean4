@@ -1079,7 +1079,7 @@ theorem pred_mul (n m : Nat) : pred n * m = n * m - m := by
 set_option linter.missingDocs false in
 @[deprecated (since := "2024-06-01")] abbrev mul_pred_left := @pred_mul
 
-theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
+protected theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
   cases n with
   | zero   => simp
   | succ n =>
@@ -1092,7 +1092,7 @@ set_option linter.missingDocs false in
 @[deprecated (since := "2024-06-01")] abbrev mul_pred_right := @mul_pred
 
 theorem mul_sub_one (n m : Nat) : n * (m - 1) = n * m - n := by
-  rw [Nat.mul_comm, sub_one_mul , Nat.mul_comm]
+  rw [Nat.mul_comm, Nat.sub_one_mul , Nat.mul_comm]
 
 protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m * k := by
   induction m with

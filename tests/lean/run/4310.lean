@@ -23,3 +23,19 @@ mutual
   inductive Boo (α : Type u) where
   inductive Bla (β : Type u) where
 end
+
+macro "gen_mutual" : command =>
+  `(mutual
+    inductive Boo (α : Type u) where
+    inductive Bla (β : Type u) where
+   end)
+
+/--
+error: unknown universe level 'u✝'
+---
+error: unknown universe level 'u✝'
+---
+error: invalid mutually inductive types, parameter name mismatch 'β✝', expected 'α✝'
+-/
+#guard_msgs in
+gen_mutual

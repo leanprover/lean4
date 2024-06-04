@@ -740,7 +740,7 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
 
 /-- The sign extension is the same as zero extending when `msb = false`. -/
 theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
-    (x.signExtend v) = x.zeroExtend v := by
+    x.signExtend v = x.zeroExtend v := by
   ext i
   by_cases hv : i < v
   · simp only [signExtend, getLsb, getLsb_zeroExtend, hv, decide_True, Bool.true_and, toNat_ofInt,
@@ -756,7 +756,7 @@ The sign extension is a bitwise not, followed by a zero extend, followed by anot
 when `msb = true`. The double bitwise not ensures that the high bits are '1',
 and the lower bits are preserved. -/
 theorem signExtend_eq_not_zeroExtend_not_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
-    (x.signExtend v) = ~~~((~~~x).zeroExtend v) := by
+    x.signExtend v = ~~~((~~~x).zeroExtend v) := by
   apply BitVec.eq_of_toNat_eq
   simp only [signExtend, BitVec.toInt_eq_msb_cond, toNat_ofInt, toNat_not,
     toNat_truncate, hmsb, ↓reduceIte]

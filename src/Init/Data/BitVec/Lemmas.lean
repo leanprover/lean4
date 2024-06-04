@@ -642,8 +642,8 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     (shiftLeftZeroExtend x i).msb = x.msb := by
   simp [shiftLeftZeroExtend_eq, BitVec.msb]
 
-theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
-    (x <<< n) <<< m = x <<< (n + m) := by
+theorem shiftLeft_add {w : Nat} (x : BitVec w) (n m : Nat) :
+    x <<< (n + m) = (x <<< n) <<< m := by
   ext i
   simp only [getLsb_shiftLeft, Fin.is_lt, decide_True, Bool.true_and]
   rw [show i - (n + m) = (i - m - n) by omega]
@@ -652,6 +652,11 @@ theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
   cases h₄ : decide (i - m < n) <;>
   cases h₅ : decide (i < n + m) <;>
     simp at * <;> omega
+
+@[deprecated shiftLeft_add (since := "2024-06-02")]
+theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x <<< n) <<< m = x <<< (n + m) := by
+  rw [shiftLeft_add]
 
 /-! ### ushiftRight -/
 
@@ -802,10 +807,15 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   simp only [getLsb_append, cond_eq_if]
   split <;> simp [*]
 
-theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
-    (x >>> n) >>> m = x >>> (n + m) := by
+theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
+    x >>> (n + m) = (x >>> n) >>> m:= by
   ext i
   simp [Nat.add_assoc n m i]
+
+@[deprecated shiftRight_add (since := "2024-06-02")]
+theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
+    (x >>> n) >>> m = x >>> (n + m) := by
+  rw [shiftRight_add]
 
 /-! ### rev -/
 

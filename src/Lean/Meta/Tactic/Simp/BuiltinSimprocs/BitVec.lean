@@ -318,11 +318,12 @@ natural number literals.
   let i_add_j := toExpr (i + j)
   let expr ← mkAppM declName #[x, i_add_j]
   let proof ← mkAppM thmName #[x, aux.appArg!, e.appArg!]
+  let proof ← mkEqSymm proof -- we rewrite (x <<< i) <<< j ↦ x <<< (i + j) [the opposite direction]
   return .visit { expr, proof? := some proof }
 
 builtin_simproc reduceShiftLeftShiftLeft (((_ <<< _ : BitVec _) <<< _ : BitVec _)) :=
-  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_shiftLeft
+  reduceShiftShift ``HShiftLeft.hShiftLeft ``shiftLeft_add
 builtin_simproc reduceShiftRightShiftRight (((_ >>> _ : BitVec _) >>> _ : BitVec _)) :=
-  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_shiftRight
+  reduceShiftShift ``HShiftRight.hShiftRight ``shiftRight_add
 
 end BitVec

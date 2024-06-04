@@ -468,11 +468,11 @@ class Singleton (α : outParam <| Type u) (β : Type v) where
 export Singleton (singleton)
 
 /-- `insert x ∅ = {x}` -/
-class IsLawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
+class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
     Prop where
   /-- `insert x ∅ = {x}` -/
   insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
-export IsLawfulSingleton (insert_emptyc_eq)
+export LawfulSingleton (insert_emptyc_eq)
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where

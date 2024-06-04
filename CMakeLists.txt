@@ -30,12 +30,16 @@ if(NOT (DEFINED STAGE0_CMAKE_EXECUTABLE_SUFFIX))
     set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
+set(CADICAL_FLAGS "CXX=clang++")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  string(APPEND CADICAL_FLAGS " CXXFLAGS=-std=c++11")
+endif()
 ExternalProject_add(cadical
   PREFIX cadical
   GIT_REPOSITORY https://github.com/arminbiere/cadical
   GIT_TAG rel-1.9.5
   CONFIGURE_COMMAND ./configure
-  BUILD_COMMAND $(MAKE) cadical CXXFLAGS=-std=c++11
+  BUILD_COMMAND $(MAKE) cadical ${CADICAL_FLAGS}
   BUILD_IN_SOURCE ON
   INSTALL_COMMAND ls -R
 )

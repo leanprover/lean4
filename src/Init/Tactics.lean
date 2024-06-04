@@ -835,7 +835,7 @@ syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 /--
 `repeat tac` repeatedly applies `tac` to the main goal until it fails.
 That is, if `tac` produces multiple subgoals, only subgoals up to the first failure will be visited.
-The `Batteries` library provides `repeat'` which repeats separately in each subgoal.
+See also `repeat'` which repeats separately in each subgoal.
 -/
 syntax "repeat " tacticSeq : tactic
 macro_rules

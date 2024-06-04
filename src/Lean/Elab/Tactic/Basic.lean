@@ -201,6 +201,49 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              /-
+              If we have a macro, we can always support incrementality: we can assume that in the
+              old and new version, behavior is determined solely by the unfolding and can rely on
+              its incrementality guarantees. We only have to update `tacSnap?` to point to the old
+              unfolding.
+
+              Caveat 1: Apart from the unfolding itself, macro execution does have two additional
+              outputs: modifications to the next macro scope and to the traces. We check that the
+              next macro scope is unchanged below but choose to ignore the traces as they should not
+              have an effect on functional correctness of reuse and usually should not depend on the
+              nested tactics that we are trying to make incremental.
+
+              Caveat 2: As the default `ref` of a macro spans its entire syntax tree and is applied
+              to any token created from a quotation, the ref usually has to be changed to a less
+              variable source to achieve incrementality. See the implementation of tactic `have` for
+              an example.
+              -/
+              if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
+                if let some snap := (← readThe Term.Context).tacSnap? then
+                  let nextMacroScope := (← getThe Core.State).nextMacroScope
+                  let old? := do
+                    let old ← snap.old?
+                    -- If the kind is equal, we can assume the old version was a macro as well
+                    guard <| old.stx.isOfKind stx.getKind
+                    let state ← old.val.get.data.finished.get.state?
+                    guard <| state.term.meta.core.nextMacroScope == nextMacroScope
+                    return old.val.get
+                  Language.withAlwaysResolvedPromise fun promise => do
+                    -- Store new unfolding in the snapshot tree
+                    snap.new.resolve <| .mk {
+                      stx := stx'
+                      diagnostics := .empty
+                      finished := .pure { state? := (← Tactic.saveState) }
+                    } #[{ range? := stx'.getRange?, task := promise.result }]
+                    -- Update `tacSnap?` to old unfolding
+                    withTheReader Term.Context ({ · with tacSnap? := some {
+                      new := promise
+                      old? := do
+                        let old ← old?
+                        return ⟨old.data.stx, (← old.next.get? 0)⟩
+                    } }) do
+                      evalTactic stx'
+                  return
               evalTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
 

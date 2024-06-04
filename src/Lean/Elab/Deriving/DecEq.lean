@@ -182,8 +182,7 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
       fun x y =>
         if h : x.toCtorIdx = y.toCtorIdx then
           -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
-          -- Temporarily avoiding tactic `have` for bootstrapping
-          isTrue (by first | refine_lift have aux := congrArg $ofNatIdent h; ?_; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
+          isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
         else
           isFalse fun h => by subst h; contradiction
   )

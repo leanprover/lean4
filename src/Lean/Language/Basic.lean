@@ -162,7 +162,7 @@ Always resolving promises involved in the snapshot tree is important to avoid de
 language server.
 -/
 def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (act : IO.Promise α → m Unit) : m Unit := do
+    (act : IO.Promise α → m β) : m β := do
   let p ← IO.Promise.new
   try
     act p

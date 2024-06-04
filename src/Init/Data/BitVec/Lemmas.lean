@@ -728,15 +728,14 @@ theorem getLsb_sshiftRight (x : BitVec w) (s i : Nat) :
 
 /-! ### signExtend -/
 
-/-- Equation theorem for 'Int.sub' when both arguments are 'negSucc' -/
+/-- Equation theorem for `Int.sub` when both arguments are `Int.ofNat` -/
 private theorem Int.ofNat_sub_ofNat_of_lt {n m : Nat} (hlt : n < m) :
     (n : Int) - (m : Int) = -(↑(m - 1 - n) + 1) := by
   omega
 
-/-- Equation theorem for 'Int.mod' -/
+/-- Equation theorem for `Int.mod` -/
 private theorem Int.negSucc_emod (m : Nat) (n : Int) :
     -(m + 1) % n = Int.subNatNat (Int.natAbs n) ((m % Int.natAbs n) + 1) := rfl
-
 
 /-- The sign extension is the same as zero extending when `msb = false`. -/
 theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :

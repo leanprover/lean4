@@ -38,8 +38,8 @@ ExternalProject_add(cadical
   PREFIX cadical
   GIT_REPOSITORY https://github.com/arminbiere/cadical
   GIT_TAG rel-1.9.5
-  CONFIGURE_COMMAND ./configure
-  BUILD_COMMAND $(MAKE) cadical ${CADICAL_FLAGS}
+  CONFIGURE_COMMAND ./configure CXX=clang++
+  BUILD_COMMAND $(MAKE) cadical
   BUILD_IN_SOURCE ON
   INSTALL_COMMAND ls -R
 )

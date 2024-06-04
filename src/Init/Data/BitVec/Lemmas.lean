@@ -739,7 +739,7 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
 
 
 /-- The sign extension is the same as truncation when `msb = false`. -/
-theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
+theorem signExtend_eq_not_zeroExtend_not_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
     (x.signExtend v) = x.zeroExtend v := by
   ext i
   by_cases hv : i < v
@@ -755,8 +755,11 @@ theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hm
     apply getLsb_ge
     omega
 
-/-- To sign extend when the msb is true, we perform double negation to make the high bits true. -/
-theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
+/--
+The sign extension is a bitwise not, followed by a zero extend, followed by another bitwise not
+when `msb = true`. The double bitwise not ensures that the high bits are '1',
+and the lower bits are preserved. -/
+theorem signExtend_eq_not_zeroExtend_not_of_msb_true {x : BitVec w} {v : Nat} (hmsb : x.msb = true) :
     (x.signExtend v) = ~~~((~~~x).zeroExtend v) := by
   apply BitVec.eq_of_toNat_eq
   simp only [signExtend, BitVec.toInt_eq_msb_cond, toNat_ofInt, toNat_not,
@@ -776,9 +779,9 @@ theorem signExtend_eq_neg_truncate_neg_of_msb_true {x : BitVec w} {v : Nat} (hms
 @[simp] theorem getLsb_signExtend (x  : BitVec w) {v i : Nat} :
     (x.signExtend v).getLsb i = (decide (i < v) && if i < w then x.getLsb i else x.msb) := by
   rcases hmsb : x.msb with rfl | rfl
-  · rw [signExtend_eq_neg_truncate_neg_of_msb_false hmsb]
+  · rw [signExtend_eq_not_zeroExtend_not_of_msb_false hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
-  · rw [signExtend_eq_neg_truncate_neg_of_msb_true hmsb]
+  · rw [signExtend_eq_not_zeroExtend_not_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
 
 /-! ### append -/

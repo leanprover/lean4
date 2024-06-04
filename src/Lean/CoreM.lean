@@ -219,31 +219,31 @@ def saveState : CoreM SavedState := do
   return { toState := s, passedHearbeats := 0 }
 
 /--
-Incremental reuse primitive: if `reusableResult?` is `none`, runs `cont` with an action `save` that
-on execution returns the saved monadic state at this point including the heartbeats used by `cont`
-so far. If `reusableResult?` on the other hand is `some (a, state)`, restores full `state` including
-heartbeats used and returns `a`.
+Incremental reuse primitive: if `reusableResult?` is `none`, runs `act` and returns its result
+together with the saved monadic state after `act` including the heartbeats used by it. If
+`reusableResult?` on the other hand is `some (a, state)`, restores full `state` including heartbeats
+used and returns `(a, state)`.
 
 The intention is for steps that support incremental reuse to initially pass `none` as
-`reusableResult?` and call `save` as late as possible in `cont`. In a further run, if reuse is
-possible, `reusableResult?` should be set to the previous state and result, ensuring that the state
+`reusableResult?` and store the result and state in a snapshot. In a further run, if reuse is
+possible, `reusableResult?` should be set to the previous result and state, ensuring that the state
 after running `withRestoreOrSaveFull` is identical in both runs. Note however that necessarily this
-is only an approximation in the case of heartbeats as heartbeats used by `withRestoreOrSaveFull`, by
-the remainder of `cont` after calling `save`, as well as by reuse-handling code such as the one
-supplying `reusableResult?` are not accounted for.
+is only an approximation in the case of heartbeats as heartbeats used by `withRestoreOrSaveFull`
+itself after calling `act` as well as by reuse-handling code such as the one supplying
+`reusableResult?` are not accounted for.
 -/
 @[specialize] def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
-    (cont : (save : CoreM SavedState) → CoreM α) : CoreM α := do
+    (act : CoreM α) : CoreM (α × SavedState) := do
   if let some (val, state) := reusableResult? then
     set state.toState
     IO.addHeartbeats state.passedHearbeats.toUInt64
-    return val
+    return (val, state)
 
   let startHeartbeats ← IO.getNumHeartbeats
-  cont (do
-    let s ← get
-    let stopHeartbeats ← IO.getNumHeartbeats
-    return { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
+  let a ← act
+  let s ← get
+  let stopHeartbeats ← IO.getNumHeartbeats
+  return (a, { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
 
 /-- Restore backtrackable parts of the state. -/
 def SavedState.restore (b : SavedState) : CoreM Unit :=

@@ -17,7 +17,7 @@ def lean : String := "L∃∀N"
 #guard (0 |> lean.next |> lean.next |> lean.next |> lean.next |> lean.atEnd) = true
 
 -- get'
-#guard abc.get' 0 (by decide) = 'a'
+#guard "abc".get' 0 (by decide) = 'a'
 #guard lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'
 def getInBounds? (s : String) (p: String.Pos) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)

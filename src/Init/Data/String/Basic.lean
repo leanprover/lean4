@@ -263,14 +263,13 @@ Requires evidence, `h`, that `p` is within bounds
 instead of performing a runtime bounds check as in `get`.
 
 Examples:
-Given `def abc := "abc"` and `def lean := "L∃∀N"`,
-* `abc.get' 0 (by decide) = 'a'`
-* `lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+* `"abc".get' 0 (by decide) = 'a'`
+* Given `def lean := "L∃∀N"`, `lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 
 A typical pattern combines `get'` with a dependent if-else expression
 to avoid the overhead of an additional bounds check. For example:
 ```
-def getInBounds? (s : String) (p: String.Pos) : Option Char :=
+def getInBounds? (s : String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else some (s.get' p h)
 ```
 
@@ -297,7 +296,7 @@ Given `def abc := "abc"`,
 A typical pattern combines `next'` with a dependent if-else expression
 to avoid the overhead of an additional bounds check. For example:
 ```
-def next? (s: String) (p: String.Pos) : Option Char :=
+def next? (s: String) (p : String.Pos) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 ```
 -/

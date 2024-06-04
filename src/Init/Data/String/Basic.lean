@@ -264,7 +264,7 @@ instead of performing a runtime bounds check as in `get`.
 
 Examples:
 * `"abc".get' 0 (by decide) = 'a'`
-* Given `def lean := "L∃∀N"`, `lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
 
 A typical pattern combines `get'` with a dependent if-else expression
 to avoid the overhead of an additional bounds check. For example:

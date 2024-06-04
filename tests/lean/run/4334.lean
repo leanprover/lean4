@@ -1,7 +1,7 @@
 /-!
 # Fix for issue #4334
 
-Non-terminal "partial" `calc` could errorneously fail if there was mdata in the type.
+Non-terminal "partial" `calc` could erroneously fail if there was mdata in the type.
 -/
 
 /-!

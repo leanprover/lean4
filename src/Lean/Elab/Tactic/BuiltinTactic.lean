@@ -71,7 +71,7 @@ where
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
         if let some state := oldParsed.data.finished.get.state? then
-          reusableResult? := some (state, state)
+          reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
           oldNext? := oldParsed.next.get? 1 |>.map (⟨old.stx, ·⟩)
 
@@ -90,12 +90,11 @@ where
               {
                 range? := stxs |>.getRange?
                 task := next.result }]
-            let state ← withRestoreOrSaveFull reusableResult? fun save => do
+            let (_, state) ← withRestoreOrSaveFull reusableResult? do
               -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
               withTheReader Term.Context ({ · with
                   tacSnap? := some { old? := oldInner?, new := inner } }) do
                 evalTactic tac
-              save
             finished.resolve { state? := state }
 
         withTheReader Term.Context ({ · with tacSnap? := some {

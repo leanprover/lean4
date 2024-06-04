@@ -29,3 +29,12 @@ def h1 : (by dbg_trace "h 1 0"; exact Nat) := (by dbg_trace "h 1 1"; exact 0)
                            --^ sync
                            --^ insert: ".5"
 end
+
+/-! #4328 incorrect info tree restore led to linter false-positives. -/
+
+-- RESET
+def map' {α β} (f : α → β) : List α → List β :=
+  List.map f
+          --^ collectDiagnostics
+          --^ insert: "\n"
+          --^ collectDiagnostics

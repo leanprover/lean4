@@ -68,23 +68,24 @@ private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge :=
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
-/-- Return the condition of an `if` expression to case split. -/
-partial def findIfToSplit? (e : Expr) : Option Expr :=
+/-- Return the conditiong and decidable instance of an `if` expression to case split. -/
+private partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
   if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
     let cond := iteApp.getArg! 1 5
+    let dec := iteApp.getArg! 2 5
     -- Try to find a nested `if` in `cond`
-    findIfToSplit? cond |>.getD cond
+    findIfToSplit? cond |>.getD (cond, dec)
   else
     none
 
 def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := do
   let e ← instantiateMVars e
-  if let some cond := findIfToSplit? e then
+  if let some (cond, decInst) := findIfToSplit? e then
     let hName ← match hName? with
       | none       => mkFreshUserName `h
       | some hName => pure hName
-    trace[Meta.Tactic.splitIf] "splitting on {cond}"
-    return some (←  mvarId.byCases cond hName)
+    trace[Meta.Tactic.splitIf] "splitting on {decInst}"
+    return some (← mvarId.byCasesDec cond decInst hName)
   else
     return none
 

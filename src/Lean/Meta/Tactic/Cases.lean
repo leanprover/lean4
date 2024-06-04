@@ -323,6 +323,17 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
     throwError "'byCases' tactic failed, unexpected number of subgoals"
   return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
+/--
+Given `dec : Decidable p`, split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
+-/
+def _root_.Lean.MVarId.byCasesDec (mvarId : MVarId) (p : Expr) (dec : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
+  let mvarId ← mvarId.assert `hByCases (mkApp (mkConst ``Decidable) p) dec
+  let (fvarId, mvarId) ← mvarId.intro1
+  let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
+    throwError "'byCasesDec' tactic failed, unexpected number of subgoals"
+  -- We flip `s₁` and `s₂` because `isFalse` is the first contructor.
+  return ((← toByCasesSubgoal s₂), (← toByCasesSubgoal s₁))
+
 builtin_initialize registerTraceClass `Meta.Tactic.cases
 
 end Lean.Meta

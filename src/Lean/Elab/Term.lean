@@ -747,30 +747,35 @@ def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
-  for attr in attrs do
-    withRef attr.stx do withLogging do
-    let env ← getEnv
-    match getAttributeImpl env attr.name with
-    | Except.error errMsg => throwError errMsg
-    | Except.ok attrImpl  =>
-      let runAttr := attrImpl.add declName attr.stx attr.kind
-      let runAttr := do
-        -- not truly an elaborator, but a sensible target for go-to-definition
-        let elaborator := attrImpl.ref
-        if (← getInfoState).enabled && (← getEnv).contains elaborator then
-          withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
-            try runAttr
-            finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
-              -- Add an additional node over the leading identifier if there is one to make it look more function-like.
-              -- Do this last because we want user-created infos to take precedence
-              pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
-        else
-          runAttr
-      match applicationTime? with
-      | none => runAttr
-      | some applicationTime =>
-        if applicationTime == attrImpl.applicationTime then
-          runAttr
+  /-
+  Remark: if the declaration has syntax errors, `declName` may be `.anonymous` see issue #4309
+  In this case, we skip attribute application.
+  -/
+  unless declName == .anonymous do
+    for attr in attrs do
+      withRef attr.stx do withLogging do
+      let env ← getEnv
+      match getAttributeImpl env attr.name with
+      | Except.error errMsg => throwError errMsg
+      | Except.ok attrImpl  =>
+        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          -- not truly an elaborator, but a sensible target for go-to-definition
+          let elaborator := attrImpl.ref
+          if (← getInfoState).enabled && (← getEnv).contains elaborator then
+            withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
+              try runAttr
+              finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
+                -- Add an additional node over the leading identifier if there is one to make it look more function-like.
+                -- Do this last because we want user-created infos to take precedence
+                pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
+          else
+            runAttr
+        match applicationTime? with
+        | none => runAttr
+        | some applicationTime =>
+          if applicationTime == attrImpl.applicationTime then
+            runAttr
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=

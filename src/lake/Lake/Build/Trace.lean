@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.IO
+import Lean.Data.Json
 
-open System
+open System Lean
 
 namespace Lake
 
@@ -109,6 +110,16 @@ instance : ToString Hash := ⟨Hash.toString⟩
 
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
+
+@[inline] protected def toJson (self : Hash) : Json :=
+  toJson self.val
+
+instance : ToJson Hash := ⟨Hash.toJson⟩
+
+@[inline] protected def fromJson? (json : Json) : Except String Hash :=
+  (⟨·⟩) <$> fromJson? json
+
+instance : FromJson Hash := ⟨Hash.fromJson?⟩
 
 end Hash
 

@@ -68,7 +68,7 @@ private def discharge? (numIndices : Nat) (useDecide : Bool) : Simp.Discharge :=
 def mkDischarge? (useDecide := false) : MetaM Simp.Discharge :=
   return discharge? (← getLCtx).numIndices useDecide
 
-/-- Return the conditiong and decidable instance of an `if` expression to case split. -/
+/-- Return the condition and decidable instance of an `if` expression to case split. -/
 private partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
   if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
     let cond := iteApp.getArg! 1 5

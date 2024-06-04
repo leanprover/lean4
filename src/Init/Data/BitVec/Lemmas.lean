@@ -738,7 +738,7 @@ private theorem Int.negSucc_emod (m : Nat) (n : Int) :
     -(m + 1) % n = Int.subNatNat (Int.natAbs n) ((m % Int.natAbs n) + 1) := rfl
 
 
-/-- To sign extend when the msb is false, then sign extension is the same as truncation -/
+/-- The sign extension is the same as truncation when `msb = false`. -/
 theorem signExtend_eq_neg_truncate_neg_of_msb_false {x : BitVec w} {v : Nat} (hmsb : x.msb = false) :
     (x.signExtend v) = x.zeroExtend v := by
   ext i

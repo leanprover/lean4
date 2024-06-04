@@ -290,8 +290,7 @@ Requires evidence, `h`, that `p` is within bounds
 instead of performing a runtime bounds check as in `next`.
 
 Examples:
-Given `def abc := "abc"`,
-* `abc.get (abc.next' 0 (by decide)) = 'b'`
+* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
 
 A typical pattern combines `next'` with a dependent if-else expression
 to avoid the overhead of an additional bounds check. For example:

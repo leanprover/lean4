@@ -27,7 +27,7 @@ def getInBounds? (s : String) (p: String.Pos) : Option Char :=
 #guard "L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)
 
 -- next'
-#guard abc.get (abc.next' 0 (by decide)) = 'b'
+#guard let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'
 def next? (s: String) (p: String.Pos) : Option Char :=
   if h : s.atEnd p then none else s.get (s.next' p h)
 #guard next? abc ⟨1⟩ = some 'c'

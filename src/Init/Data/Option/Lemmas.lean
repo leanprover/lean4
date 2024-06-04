@@ -101,7 +101,7 @@ theorem ball_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) �
 @[simp] theorem bind_none (x : Option α) : x.bind (fun _ => none (α := β)) = none := by
   cases x <;> rfl
 
-@[simp] theorem bind_eq_some : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = some b := by
+theorem bind_eq_some : x.bind f = some b ↔ ∃ a, x = some a ∧ f a = some b := by
   cases x <;> simp
 
 @[simp] theorem bind_eq_none {o : Option α} {f : α → Option β} :
@@ -119,7 +119,7 @@ theorem bind_assoc (x : Option α) (f : α → Option β) (g : β → Option γ)
     (x.bind f).bind g = x.bind fun y => (f y).bind g := by cases x <;> rfl
 
 theorem join_eq_some : x.join = some a ↔ x = some (some a) := by
-  simp
+  simp [bind_eq_some]
 
 theorem join_ne_none : x.join ≠ none ↔ ∃ z, x = some (some z) := by
   simp only [ne_none_iff_exists', join_eq_some, iff_self]

@@ -109,16 +109,10 @@
   "t a n✝ : Nat\na✝ : t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 82, "character": 53}}
-{"rendered":
- "```lean\ncase nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)\n```",
- "goals":
- ["case nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)"]}
+{"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 82, "character": 54}}
-{"rendered":
- "```lean\ncase nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)\n```",
- "goals":
- ["case nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)"]}
+{"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 86, "character": 38}}
 {"rendered": "no goals", "goals": []}

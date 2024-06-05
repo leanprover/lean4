@@ -95,27 +95,39 @@ def cacheFileHash (file : FilePath) : IO Hash := do
   IO.FS.writeFile hashFile hash.toString
   return hash
 
+/-- The build log file format. -/
+structure BuildLog where
+  depHash : Hash
+  log : Log
+  deriving ToJson, FromJson
+
 /--
 Replays the JSON log in `logFile` (if it exists).
 If the log file is malformed, logs a warning.
 -/
-def replayBuildLog (logFile : FilePath) : LogIO PUnit := do
+def replayBuildLog (logFile : FilePath) (depTrace : BuildTrace) : LogIO PUnit := do
   match (← IO.FS.readFile logFile |>.toBaseIO) with
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
-    | .ok entries => Log.mk entries |>.replay
-    | .error e => logWarning s!"cached build log is corrupted: {e}"
+    | .ok {log, depHash : BuildLog} =>
+      if depTrace.hash == depHash then
+        log.replay
+    | .error e => logWarning s!"failed to read cached build log: {e}"
   | .error (.noFileOrDirectory ..) => pure ()
   | .error e => logWarning s!"failed to read cached build log: {e}"
 
 /-- Saves the log produce by `build` as JSON to `logFile`. -/
-def cacheBuildLog (logFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
+def cacheBuildLog
+  (logFile : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
+: JobM PUnit := do
   let iniPos ← getLogPos
   let errPos? ← try build; pure none catch errPos => pure (some errPos)
   let log := (← getLog).takeFrom iniPos
   unless log.isEmpty do
+    let log := {log, depHash := depTrace.hash : BuildLog}
     IO.FS.writeFile logFile (toJson log).pretty
-  if let some errPos := errPos? then throw errPos
+  if let some errPos := errPos? then
+    throw errPos
 
 /--
 Builds `file` using `build` unless it already exists and `depTrace` matches
@@ -133,10 +145,10 @@ def buildFileUnlessUpToDate
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let logFile := FilePath.mk <| file.toString ++ ".log.json"
-  let build := cacheBuildLog logFile build
+  let build := cacheBuildLog logFile depTrace build
   if (← buildUnlessUpToDate? file depTrace traceFile build) then
     updateAction .replay
-    replayBuildLog logFile
+    replayBuildLog logFile depTrace
     fetchFileTrace file
   else
     return .mk (← cacheFileHash file) (← getMTime file)

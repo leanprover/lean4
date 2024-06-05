@@ -191,7 +191,7 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let some u ← getDecLevel? typeMVar
-    | throwError s!"Cannot elab numeral. Universe level of expected type must be greater than 0."
+    | throwError s!"Expected type is{indentD (← inferType typeMVar)}\nbut universe level of expected type must be greater than 0."
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val))
   let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r

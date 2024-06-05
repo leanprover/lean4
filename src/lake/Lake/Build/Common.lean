@@ -112,9 +112,9 @@ def replayBuildLog (logFile : FilePath) (depTrace : BuildTrace) : LogIO PUnit :=
     | .ok {log, depHash : BuildLog} =>
       if depTrace.hash == depHash then
         log.replay
-    | .error e => logWarning s!"failed to read cached build log: {e}"
+    | .error e => logWarning s!"{logFile}: invalid build log: {e}"
   | .error (.noFileOrDirectory ..) => pure ()
-  | .error e => logWarning s!"failed to read cached build log: {e}"
+  | .error e => logWarning s!"{logFile}: read failed: {e}"
 
 /-- Saves the log produce by `build` as JSON to `logFile`. -/
 def cacheBuildLog

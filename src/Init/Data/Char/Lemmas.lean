@@ -22,7 +22,10 @@ protected theorem le_total (a b : Char) : a ≤ b ∨ b ≤ a := UInt32.le_total
 protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asymm h
 protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
-/-- `Char.size` now returns a `Nat`, rather than a `UInt32`. -/
+/--
+`Char.utf8Size` has been deprecated in favour of `Char.size`
+which now returns a `Nat` rather than a `UInt32`.
+-/
 @[deprecated Char.size (since := "2024-06-04")] abbrev utf8Size (c : Char) : UInt32 :=
   UInt32.ofNat' c.size (by have := c.size_le_four; unfold UInt32.size; omega)
 

@@ -30,8 +30,12 @@ structure SavedContext where
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
-  /-- Use typeclass resolution to synthesize value for metavariable. -/
-  | typeClass
+  /--
+  Use typeclass resolution to synthesize value for metavariable.
+  If `extraErrorMsg?` is `some msg`, `msg` contains additional information to include in error messages
+  regarding type class synthesis failure.
+  -/
+  | typeClass (extraErrorMsg? : Option MessageData)
   /-- Use coercion to synthesize value for the metavariable.
   if `f?` is `some f`, we produce an application type mismatch error message.
   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
@@ -43,9 +47,15 @@ inductive SyntheticMVarKind where
   | postponed (ctx : SavedContext)
   deriving Inhabited
 
+/--
+Convert an "extra" optional error message into a message `"\n{msg}"` (if `some msg`) and `MessageData.nil` (if `none`)
+-/
+def extraMsgToMsg (extraErrorMsg? : Option MessageData) : MessageData :=
+  if let some msg := extraErrorMsg? then m!"\n{msg}" else .nil
+
 instance : ToString SyntheticMVarKind where
   toString
-    | .typeClass    => "typeclass"
+    | .typeClass .. => "typeclass"
     | .coe ..       => "coe"
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
@@ -857,8 +867,12 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   Return `true` if the instance was synthesized successfully, and `false` if
   the instance contains unassigned metavariables that are blocking the type class
   resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+
+  If `extraErrorMsg?` is not none, it contains additional information that should be attached
+  to type class synthesis failures.
 -/
-def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) : TermElabM Bool := do
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool := do
+  let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
   let type ← instantiateMVars type
@@ -891,18 +905,18 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
-          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}"
-        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
+          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
-        throwError "failed to assign synthesized type class instance{indentExpr val}"
+        throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
     return true
   | .undef => return false -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}\n{useDiagnosticMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1603,11 +1617,11 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   If type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
   register metavariable as a pending one.
 -/
-def mkInstMVar (type : Expr) : TermElabM Expr := do
+def mkInstMVar (type : Expr) (extraErrorMsg? : Option MessageData := none) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId) do
-    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
   return mvar
 
 /--

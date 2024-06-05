@@ -143,9 +143,6 @@ where
     -- IR Extension (for constant evaluation)
     |>.insert ``IR.declMapExt
 
-instance : ToJson Hash := ⟨(toJson ·.val)⟩
-instance : FromJson Hash := ⟨((⟨·⟩) <$> fromJson? ·)⟩
-
 structure ConfigTrace where
   platform : String
   leanHash : String

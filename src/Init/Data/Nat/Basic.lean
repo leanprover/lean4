@@ -271,7 +271,7 @@ theorem not_add_one_le_zero (n : Nat) : ¬ n + 1 ≤ 0 := nofun
 
 theorem not_add_one_le_self : (n : Nat) → ¬ n + 1 ≤ n := Nat.not_succ_le_self
 
-theorem zero_lt_add_one (n : Nat) : 0 < n + 1 := Nat.zero_lt_succ n
+theorem add_one_pos (n : Nat) : 0 < n + 1 := Nat.zero_lt_succ n
 
 theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with

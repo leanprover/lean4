@@ -46,7 +46,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - We do this for the repositories:
     - [lean4checker](https://github.com/leanprover/lean4checker)
       - No dependencies
-      - Note: `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`

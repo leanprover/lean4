@@ -833,13 +833,40 @@ syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)?
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 
 /--
-`repeat tac` repeatedly applies `tac` to the main goal until it fails.
-That is, if `tac` produces multiple subgoals, only subgoals up to the first failure will be visited.
-The `Batteries` library provides `repeat'` which repeats separately in each subgoal.
+`repeat tac` repeatedly applies `tac` so long as it succeeds.
+The tactic `tac` may be a tactic sequence, and if `tac` fails at any point in its execution,
+`repeat` will revert any partial changes that `tac` made to the tactic state.
+
+The tactic `tac` should eventually fail, otherwise `repeat tac` will run indefinitely.
+
+See also:
+* `try tac` is like `repeat tac` but will apply `tac` at most once.
+* `repeat' tac` recursively applies `tac` to each goal.
+* `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
 syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
+
+/--
+`repeat' tac` recursively applies `tac` on all of the goals so long as it succeeds.
+That is to say, if `tac` produces multiple subgoals, then `repeat' tac` is applied to each of them.
+
+See also:
+* `repeat tac` simply repeatedly applies `tac`.
+* `repeat1' tac` is `repeat' tac` but requires that `tac` succeed for some goal at least once.
+-/
+syntax (name := repeat') "repeat' " tacticSeq : tactic
+
+/--
+`repeat1' tac` recursively applies to `tac` on all of the goals so long as it succeeds,
+but `repeat1' tac` fails if `tac` succeeds on none of the initial goals.
+
+See also:
+* `repeat tac` simply applies `tac` repeatedly.
+* `repeat' tac` is like `repeat1' tac` but it does not require that `tac` succeed at least once.
+-/
+syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 
 /--
 `trivial` tries different simple tactics (e.g., `rfl`, `contradiction`, ...)
@@ -1040,18 +1067,6 @@ h : β
 This can be used to simulate the `specialize` and `apply at` tactics of Coq.
 -/
 syntax (name := replace) "replace" haveDecl : tactic
-
-/--
-`repeat' tac` runs `tac` on all of the goals to produce a new list of goals,
-then runs `tac` again on all of those goals, and repeats until `tac` fails on all remaining goals.
--/
-syntax (name := repeat') "repeat' " tacticSeq : tactic
-
-/--
-`repeat1' tac` applies `tac` to main goal at least once. If the application succeeds,
-the tactic is applied recursively to the generated subgoals until it eventually fails.
--/
-syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic

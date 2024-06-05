@@ -1,4 +1,4 @@
-# Install Packages on OS X 10.9
+# Install Packages on OS X 14.5
 
 We assume that you are using [homebrew][homebrew] as a package manager.
 
@@ -22,7 +22,7 @@ brew install gcc
 ```
 To install clang++-3.5 via homebrew, please execute:
 ```bash
-brew install llvm --with-clang --with-asan
+brew install llvm
 ```
 To use compilers other than the default one (Apple's clang++), you
 need to use `-DCMAKE_CXX_COMPILER` option to specify the compiler

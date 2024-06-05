@@ -244,10 +244,10 @@ theorem toInt_eq_msb_cond (x : BitVec w) :
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
   split
-  case inl g =>
+  next g =>
     rw [Int.bmod_pos] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
-  case inr g =>
+  next g =>
     rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
 

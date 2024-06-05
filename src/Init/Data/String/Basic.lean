@@ -1142,9 +1142,9 @@ theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := rfl
 
 @[simp] theorem data_singleton (c : Char) : (singleton c).data = [c] := rfl
 
-@[simp] theorem append_nil (s : String) : s ++ "" = s := ext (List.append_nil _)
+@[simp] theorem append_empty (s : String) : s ++ "" = s := ext (List.append_nil _)
 
-@[simp] theorem nil_append (s : String) : "" ++ s = s := rfl
+@[simp] theorem empty_append (s : String) : "" ++ s = s := rfl
 
 theorem append_assoc (s₁ s₂ s₃ : String) : (s₁ ++ s₂) ++ s₃ = s₁ ++ (s₂ ++ s₃) :=
   ext (List.append_assoc ..)

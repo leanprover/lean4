@@ -11,6 +11,7 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
 import Lean.DocString
+import Lean.PrettyPrinter
 namespace Lean.Meta
 
 /--
@@ -142,7 +143,7 @@ instance : ToFormat SimpTheorem where
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .decl n post inv => do
-    let r ← mkConstWithLevelParams n;
+    let r := MessageData.ofConst (← mkConstWithLevelParams n)
     match post, inv with
     | true,  true  => return m!"← {r}"
     | true,  false => return r

@@ -70,4 +70,8 @@ def decLevel (u : Level) : MetaM Level := do
 def getDecLevel (type : Expr) : MetaM Level := do
   decLevel (← getLevel type)
 
+@[inherit_doc Lean.Meta.getDecLevel]
+def getDecLevel? (type : Expr) : MetaM (Option Level) := do
+  decLevel? (← getLevel type)
+
 end Lean.Meta

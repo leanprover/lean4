@@ -190,7 +190,8 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | some val => pure val
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
-  let u ← getDecLevel typeMVar
+  let some u ← getDecLevel? typeMVar
+    | throwError s!"Cannot elab numeral. Universe level of expected type must be greater than 0."
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val))
   let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
@@ -207,7 +208,8 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | none        => throwIllFormedSyntax
   | some (m, sign, e) =>
     let typeMVar ← mkFreshTypeMVarFor expectedType?
-    let u ← getDecLevel typeMVar
+    let some u ← getDecLevel? typeMVar
+      | throwError s!"Cannot elab scientific numeral. Universe level of expected type must be greater than 0."
     let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
     let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r

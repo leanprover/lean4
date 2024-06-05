@@ -82,7 +82,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR notes:
         - In addition to updating the `lean-toolchain` and `lakefile.lean`,
           in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
-          `git checkout toolchain/v4.6.0` to the appropriate tag,
+          `git checkout v4.6.0` to the appropriate tag,
           and then run `.github/workflows/mk_build_yml.sh`. Coordinate with
           a Mathlib maintainer to get this merged.
         - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably

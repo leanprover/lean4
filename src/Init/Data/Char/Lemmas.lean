@@ -23,7 +23,8 @@ protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asym
 protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
 /-- `Char.size` now returns a `Nat`, rather than a `UInt32`. -/
-@[deprecated Char.size (since := "2024-06-04")] abbrev utf8Size := Char.size
+@[deprecated Char.size (since := "2024-06-04")] abbrev utf8Size (c : Char) : UInt32 :=
+  UInt32.ofNat' c.size (by have := c.size_le_four; unfold UInt32.size; omega)
 
 set_option linter.deprecated false in
 @[deprecated Char.size_pos (since := "2024-06-04")]

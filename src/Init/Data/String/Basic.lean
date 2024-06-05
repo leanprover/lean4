@@ -308,6 +308,9 @@ def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
 theorem _root_.Char.size_pos (c : Char) : 0 < c.size := by
   repeat first | apply iteInduction (motive := (0 < ·)) <;> intros | decide
 
+theorem _root_.Char.size_le_four (c : Char) : c.size ≤ 4 := by
+  repeat first | apply iteInduction (motive := (· ≤ 4)) <;> intros | decide
+
 @[deprecated Char.size_pos (since := "2026-06-04")] abbrev one_le_csize := Char.size_pos
 
 @[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl

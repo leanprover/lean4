@@ -537,16 +537,11 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
       division, and modular remainder by constants."
     else
       let as ← atoms
-      return MessageData.lazy
-        (f := fun ppctxt => ppctxt.runMetaM do
-          let mask ← mentioned as p.constraints
-          let names ← varNames mask
-          return m!"a possible counterexample may satisfy the constraints\n" ++
-            m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
-        )
-        (hasSyntheticSorry := fun mvarctxt => as.any (fun a =>
-           instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
-        ))
+      return .ofLazyM (es := as) do
+        let mask ← mentioned as p.constraints
+        let names ← varNames mask
+        return m!"a possible counterexample may satisfy the constraints\n" ++
+          m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
   else
     -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"

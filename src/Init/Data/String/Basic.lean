@@ -456,6 +456,7 @@ instance : Inhabited String := ⟨""⟩
 
 instance : Append String := ⟨String.append⟩
 
+@[deprecated push (since := "2024-04-06")]
 def str : String → Char → String := push
 
 def pushn (s : String) (c : Char) (n : Nat) : String :=
@@ -1037,8 +1038,6 @@ theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := 
 
 @[simp] theorem default_eq : default = "" := rfl
 
-@[simp] theorem str_eq : str = push := rfl
-
 @[simp] theorem length_mk (s : List Char) : (String.mk s).length = s.length := rfl
 
 @[simp] theorem length_empty : "".length = 0 := rfl
@@ -1135,14 +1134,8 @@ theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 
 @[simp] theorem next'_eq (s : String) (p : Pos) (h) : next' s p h = next s p := rfl
 
-theorem posOfAux_eq (s c) : posOfAux s c = findAux s (· == c) := rfl
-
-theorem posOf_eq (s c) : posOf s c = find s (· == c) := rfl
-
-theorem revPosOfAux_eq (s c) : revPosOfAux s c = revFindAux s (· == c) := rfl
-
-theorem revPosOf_eq (s c) : revPosOf s c = revFind s (· == c) := rfl
-
+-- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
+-- so for proving can be unfolded.
 attribute [simp] toSubstring'
 
 theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := rfl
@@ -1162,7 +1155,7 @@ open String
 
 namespace Substring
 
-@[simp] theorem prev_zero (s : Substring) : s.prev 0 = 0 := by simp [prev, Pos.add_eq]
+@[simp] theorem prev_zero (s : Substring) : s.prev 0 = 0 := by simp [prev, Pos.add_eq, Pos.byteIdx_zero]
 
 @[simp] theorem prevn_zero (s : Substring) : ∀ n, s.prevn n 0 = 0
   | 0 => rfl

@@ -153,7 +153,8 @@ inductive ResolveSimpIdResult where
   Elaborate extra simp theorems provided to `simp`. `stx` is of the form `"[" simpTheorem,* "]"`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
   this option only makes sense for `simp_all` or `*` is used.
-  Try to recover from errors as much as possible so that users keep seeing the current goal.
+  When `recover := true`, try to recover from errors as much as possible so that users keep seeing
+  the current goal.
 -/
 def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
@@ -223,7 +224,11 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
             starArg := true
           else
             throwUnsupportedSyntax
-        catch ex => logException ex
+        catch ex =>
+          if (← read).recover then
+            logException ex
+          else
+            throw ex
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
 where
   isSimproc? (e : Expr) : MetaM (Option Name) := do

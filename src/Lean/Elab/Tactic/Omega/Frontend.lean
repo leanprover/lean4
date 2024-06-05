@@ -537,10 +537,16 @@ def formatErrorMessage (p : Problem) : OmegaM MessageData := do
       division, and modular remainder by constants."
     else
       let as ← atoms
-      let mask ← mentioned p.constraints
-      let names ← varNames mask
-      return m!"a possible counterexample may satisfy the constraints\n" ++
-        m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
+      return MessageData.lazy
+        (f := fun ppctxt => ppctxt.runMetaM do
+          let mask ← mentioned as p.constraints
+          let names ← varNames mask
+          return m!"a possible counterexample may satisfy the constraints\n" ++
+            m!"{prettyConstraints names p.constraints}\nwhere\n{prettyAtoms names as mask}"
+        )
+        (hasSyntheticSorry := fun mvarctxt => as.any (fun a =>
+           instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
+        ))
   else
     -- formatErrorMessage should not be used in this case
     return "it is trivially solvable"
@@ -593,8 +599,8 @@ where
         (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
       |> String.join
 
-  mentioned (constraints : HashMap Coeffs Fact) : OmegaM (Array Bool) := do
-    let initMask := Array.mkArray (← getThe State).atoms.size false
+  mentioned (atoms : Array Expr) (constraints : HashMap Coeffs Fact) : MetaM (Array Bool) := do
+    let initMask := Array.mkArray atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
       coeffs.enum.foldl (init := mask) fun mask (i, c) =>
         if c = 0 then mask else mask.set! i true

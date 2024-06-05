@@ -2196,15 +2196,15 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def Char.utf8Size (c : Char) : UInt32 :=
+def Char.size (c : Char) : Nat :=
   let v := c.val
-  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide)))
-    (UInt32.ofNatCore 1 (by decide))
-    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide)))
-      (UInt32.ofNatCore 2 (by decide))
-      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide)))
-        (UInt32.ofNatCore 3 (by decide))
-        (UInt32.ofNatCore 4 (by decide))))
+  ite (LE.le v (UInt32.ofNatCore 0x7F (by decide))) 1
+    (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
+      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide))) 3 4))
+
+/-- `Char.size` now returns a `Nat`, rather than a `UInt32`. -/
+-- We will deprecate this in a subsequent file.
+abbrev Char.utf8Size := Char.size
 
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
@@ -2433,10 +2433,6 @@ instance : Inhabited Substring where
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
-/-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def String.csize (c : Char) : Nat :=
-  c.utf8Size.toNat
-
 /--
 The UTF-8 byte length of this string.
 This is overridden by the compiler to be cached and O(1).
@@ -2447,7 +2443,7 @@ def String.utf8ByteSize : (@& String) → Nat
 where
   go : List Char → Nat
    | .nil       => 0
-   | .cons c cs => hAdd (go cs) (csize c)
+   | .cons c cs => hAdd (go cs) c.size
 
 instance : HAdd String.Pos String.Pos String.Pos where
   hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
@@ -2456,7 +2452,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
 
 instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx (String.csize c) }
+  hAdd p c := { byteIdx := hAdd p.byteIdx c.size }
 
 instance : HAdd String.Pos String String.Pos where
   hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }

@@ -305,15 +305,17 @@ def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c
 
-theorem one_le_csize (c : Char) : 1 ≤ csize c := by
-  repeat first | apply iteInduction (motive := (1 ≤ UInt32.toNat ·)) <;> intros | decide
+theorem _root_.Char.size_pos (c : Char) : 0 < c.size := by
+  repeat first | apply iteInduction (motive := (0 < ·)) <;> intros | decide
+
+@[deprecated Char.size_pos (since := "2026-06-04")] abbrev one_le_csize := Char.size_pos
 
 @[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl
 
-@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + csize c := rfl
+@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + c.size := rfl
 
 theorem lt_next (s : String) (i : Pos) : i.1 < (s.next i).1 :=
-  Nat.add_lt_add_left (one_le_csize _) _
+  Nat.add_lt_add_left (Char.size_pos _) _
 
 theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
@@ -323,7 +325,7 @@ theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
   | c::cs, i, p, h => by
     simp [utf8PrevAux]
     apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'
-    next => exact h' ▸ Nat.add_lt_add_left (one_le_csize _) _
+    next => exact h' ▸ Nat.add_lt_add_left (Char.size_pos _) _
     next => exact utf8PrevAux_lt_of_pos _ _ _ h
 
 theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 := by
@@ -476,7 +478,7 @@ decreasing_by
   focus
     rename_i i₀ j₀ _ eq h'
     rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
-      show (_ + csize _) - (_ + csize _) = _
+      show (_ + Char.size _) - (_ + Char.size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
       (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))

@@ -191,7 +191,7 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
   let some u ← getDecLevel? typeMVar
-    | throwError m!"Tried to elab numeric literal of type {indentD m!"{typeMVar} : {(← inferType typeMVar)}"}\nbut universe level of{indentD (← inferType typeMVar)}\nis expected to be greater than 0."
+    | throwError m!"Tried to elab numeric literal{indentD m!"{stx}"}\nof type {indentD m!"{typeMVar} : {(← inferType typeMVar)}"}\nbut universe level of{indentD (← inferType typeMVar)}\nis expected to be greater than 0."
   let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val))
   let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
@@ -209,7 +209,7 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
   | some (m, sign, e) =>
     let typeMVar ← mkFreshTypeMVarFor expectedType?
     let some u ← getDecLevel? typeMVar
-      | throwError m!"Tried to elab scientific literal of type {indentD m!"{typeMVar} : {(← inferType typeMVar)}"}\nbut universe level of{indentD (← inferType typeMVar)}\nis expected to be greater than 0."
+      | throwError m!"Tried to elab scientific literal{indentD m!"{stx}"}\nof type {indentD m!"{typeMVar} : {(← inferType typeMVar)}"}\nbut universe level of{indentD (← inferType typeMVar)}\nis expected to be greater than 0."
     let mvar ← mkInstMVar (mkApp (Lean.mkConst ``OfScientific [u]) typeMVar)
     let r := mkApp5 (Lean.mkConst ``OfScientific.ofScientific [u]) typeMVar mvar (mkRawNatLit m) (toExpr sign) (mkRawNatLit e)
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r

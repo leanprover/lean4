@@ -228,7 +228,6 @@ structure DynamicSnapshot where
   val  : Dynamic
   /-- Snapshot tree retrieved from `val` before erasure. -/
   tree : SnapshotTree
-deriving Nonempty
 
 instance : ToSnapshotTree DynamicSnapshot where
   toSnapshotTree s := s.tree
@@ -242,6 +241,9 @@ def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : Dynam
 def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
     Option α :=
   snap.val.get? α
+
+instance : Inhabited DynamicSnapshot where
+  default := .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
 /--
   Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree

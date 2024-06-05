@@ -31,6 +31,11 @@ set_option linter.deprecated false in
 theorem utf8Size_pos (c : Char) : 0 < c.utf8Size :=
   c.size_pos
 
+theorem size_eq (c : Char) : c.size = 1 ∨ c.size = 2 ∨ c.size = 3 ∨ c.size = 4 := by
+  have := c.size_pos
+  have := c.size_le_four
+  omega
+
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]
   rfl

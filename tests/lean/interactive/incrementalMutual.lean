@@ -38,3 +38,29 @@ def map' {α β} (f : α → β) : List α → List β :=
           --^ collectDiagnostics
           --^ insert: "\n"
           --^ collectDiagnostics
+
+/-! Reuse should work through the namespaced decl macro. -/
+-- RESET
+def ns.n : (by dbg_trace "ns 0"; exact Nat) := by
+  dbg_trace "ns 1"
+               --^ sync
+               --^ insert: ".5"
+  exact 0
+
+/-! Changing the namespace should prohibit def reuse. -/
+-- RESET
+def nt.n : (by dbg_trace "nt 0"; exact Nat) := by
+   --^ sync
+   --^ change: "t" "u"
+  dbg_trace "nt 1"
+  exact 0
+
+/-! Reuse should support `in`. -/
+-- RESET
+set_option trace.Elab.definition.body true in
+def so : Nat := by
+  dbg_trace "so 0"
+  dbg_trace "so 1"
+               --^ sync
+               --^ insert: ".5"
+  exact 0

@@ -461,7 +461,9 @@ def elabRunMeta : CommandElab := fun stx =>
   modifyScope fun scope => { scope with opts := options }
 
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
-  | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
+  | `($cmd₁ in%$tk $cmd₂) =>
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

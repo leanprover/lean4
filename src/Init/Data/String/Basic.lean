@@ -790,7 +790,7 @@ where
     else true
   termination_by stop1.1 - off1.1
   decreasing_by
-    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (c₁.size_pos) off1.1)
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.size_pos off1.1)
     decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/

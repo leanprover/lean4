@@ -2202,10 +2202,6 @@ def Char.size (c : Char) : Nat :=
     (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
       (ite (LE.le v (UInt32.ofNatCore 0xFFFF (by decide))) 3 4))
 
-/-- `Char.size` now returns a `Nat`, rather than a `UInt32`. -/
--- We will deprecate this in a subsequent file.
-abbrev Char.utf8Size := Char.size
-
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
 or `none`. In functional programming languages, this type is used to represent

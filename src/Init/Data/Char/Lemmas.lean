@@ -22,13 +22,18 @@ protected theorem le_total (a b : Char) : a ≤ b ∨ b ≤ a := UInt32.le_total
 protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asymm h
 protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
-theorem utf8Size_pos (c : Char) : 0 < c.utf8Size := by
-  simp only [utf8Size]
-  repeat (split; decide)
-  decide
+/-- `Char.size` now returns a `Nat`, rather than a `UInt32`. -/
+@[deprecated Char.size (since := "2024-06-04")] abbrev utf8Size := Char.size
+
+set_option linter.deprecated false in
+@[deprecated Char.size_pos (since := "2024-06-04")]
+theorem utf8Size_pos (c : Char) : 0 < c.utf8Size :=
+  c.size_pos
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
   rw [Char.ofNat, dif_pos]
   rfl
 
 end Char
+
+@[deprecated Char.size (since := "2024-06-04")] abbrev String.csize := Char.size

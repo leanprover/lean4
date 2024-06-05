@@ -726,18 +726,18 @@ theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
   simp [next, get, set, endPos, utf8ByteSize] at h ⊢
   rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
   let rec foo : ∀ cs a b₁ b₂,
-    csize (utf8GetAux cs a i) + b₁ = utf8ByteSize.go cs + b₂ →
-    csize (utf8GetAux (utf8SetAux c cs a i) a i) + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
+    (utf8GetAux cs a i).size + b₁ = utf8ByteSize.go cs + b₂ →
+    (utf8GetAux (utf8SetAux c cs a i) a i).size + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
   | [], _, _, _, h => h
   | c'::cs, a, b₁, b₂, h => by
     unfold utf8SetAux
-    apply iteInduction (motive := fun p => csize (utf8GetAux p a i) + b₁ = utf8ByteSize.go p + b₂) <;>
+    apply iteInduction (motive := fun p => (utf8GetAux p a i).size + b₁ = utf8ByteSize.go p + b₂) <;>
       intro h' <;> simp [utf8GetAux, h', utf8ByteSize.go] at h ⊢
     next =>
       rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
     next =>
       rw [Nat.add_assoc] at h ⊢
-      refine foo cs (a + c') b₁ (csize c' + b₂) h
+      refine foo cs (a + c') b₁ (c'.size + b₂) h
   exact foo s.1 0 _ _ h
 
 theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
@@ -790,7 +790,7 @@ where
     else true
   termination_by stop1.1 - off1.1
   decreasing_by
-    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (c₁.size_pos) off1.1)
     decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/

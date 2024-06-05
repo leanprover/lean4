@@ -51,9 +51,13 @@ instance [EqOfCmpWrt α (fun a => a) cmp] : EqOfCmp α cmp where
 theorem eq_of_compareOfLessAndEq [LT α] [DecidableEq α] {a a' : α}
 [Decidable (a < a')] (h : compareOfLessAndEq a a' = .eq) : a = a' := by
   unfold compareOfLessAndEq at h
-  split at h; case inl => exact False.elim h
-  split at h; case inr => exact False.elim h
-  assumption
+  split at h
+  next =>
+    exact False.elim h
+  next =>
+    split at h
+    next => assumption
+    next => exact False.elim h
 
 theorem compareOfLessAndEq_rfl [LT α] [DecidableEq α] {a : α}
 [Decidable (a < a)] (lt_irrefl : ¬ a < a) : compareOfLessAndEq a a = .eq := by

@@ -59,10 +59,10 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
 /--
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
-private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
+private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
   instMVar.withContext do
     try
-      synthesizeInstMVarCore instMVar
+      synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
     catch
       | ex@(.error ..) => logException ex; return true
       | _              => unreachable!
@@ -180,7 +180,7 @@ private def synthesizeSomeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
     | mvarId :: pendingMVars =>
       let some mvarDecl ← getSyntheticMVarDecl? mvarId | visit pendingMVars (mvarId :: pendingMVarsNew)
       match mvarDecl.kind with
-      | .typeClass =>
+      | .typeClass .. => -- TODO: use `errorMsg?` in `typeClass`.
         if (← withRef mvarDecl.stx <| synthesizeUsingDefaultPrio mvarId prio) then
           modify fun s => { s with pendingMVars := pendingMVars.reverse ++ pendingMVarsNew }
           return true
@@ -211,12 +211,13 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
   let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
   withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | .typeClass =>
+    | .typeClass extraErrorMsg? =>
+      let extraErrorMsg := extraMsgToMsg extraErrorMsg?
       unless ignoreStuckTC do
          mvarId.withContext do
           let mvarDecl ← getMVarDecl mvarId
           unless (← MonadLog.hasErrors) do
-            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
+            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}{extraErrorMsg}"
     | .coe header expectedType e f? =>
       mvarId.withContext do
         throwTypeMismatchError header expectedType (← inferType e) e f?
@@ -365,7 +366,7 @@ mutual
     let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return true -- The metavariable has already been synthesized
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | .typeClass => synthesizePendingInstMVar mvarId
+    | .typeClass extraErrorMsg? => synthesizePendingInstMVar mvarId extraErrorMsg?
     | .coe _header? expectedType e _f? => mvarId.withContext do
       if (← withDefault do isDefEq (← inferType e) expectedType) then
         -- Types may be defeq now due to mvar assignments, type class

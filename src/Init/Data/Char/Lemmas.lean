@@ -22,21 +22,9 @@ protected theorem le_total (a b : Char) : a ≤ b ∨ b ≤ a := UInt32.le_total
 protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asymm h
 protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
-/--
-`Char.utf8Size` has been deprecated in favour of `Char.size`
-which now returns a `Nat` rather than a `UInt32`.
--/
-@[deprecated Char.size (since := "2024-06-04")] abbrev utf8Size (c : Char) : UInt32 :=
-  UInt32.ofNat' c.size (by have := c.size_le_four; unfold UInt32.size; omega)
-
-set_option linter.deprecated false in
-@[deprecated Char.size_pos (since := "2024-06-04")]
-theorem utf8Size_pos (c : Char) : 0 < c.utf8Size :=
-  c.size_pos
-
-theorem size_eq (c : Char) : c.size = 1 ∨ c.size = 2 ∨ c.size = 3 ∨ c.size = 4 := by
-  have := c.size_pos
-  have := c.size_le_four
+theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
+  have := c.utf8Size_pos
+  have := c.utf8Size_le_four
   omega
 
 @[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
@@ -45,4 +33,4 @@ theorem size_eq (c : Char) : c.size = 1 ∨ c.size = 2 ∨ c.size = 3 ∨ c.size
 
 end Char
 
-@[deprecated Char.size (since := "2024-06-04")] abbrev String.csize := Char.size
+@[deprecated Char.utf8Size (since := "2024-06-04")] abbrev String.csize := Char.utf8Size

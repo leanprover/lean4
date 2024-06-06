@@ -2196,7 +2196,7 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
-def Char.size (c : Char) : Nat :=
+def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatCore 0x7F (by decide))) 1
     (ite (LE.le v (UInt32.ofNatCore 0x7FF (by decide))) 2
@@ -2439,7 +2439,7 @@ def String.utf8ByteSize : (@& String) → Nat
 where
   go : List Char → Nat
    | .nil       => 0
-   | .cons c cs => hAdd (go cs) c.size
+   | .cons c cs => hAdd (go cs) c.utf8Size
 
 instance : HAdd String.Pos String.Pos String.Pos where
   hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
@@ -2448,7 +2448,7 @@ instance : HSub String.Pos String.Pos String.Pos where
   hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
 
 instance : HAdd String.Pos Char String.Pos where
-  hAdd p c := { byteIdx := hAdd p.byteIdx c.size }
+  hAdd p c := { byteIdx := hAdd p.byteIdx c.utf8Size }
 
 instance : HAdd String.Pos String String.Pos where
   hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }

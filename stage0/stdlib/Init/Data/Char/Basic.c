@@ -14,9 +14,13 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
+uint8_t lean_uint32_to_uint8(uint32_t);
+LEAN_EXPORT uint32_t l_Char_ofUInt8(uint8_t);
 lean_object* lean_uint32_to_nat(uint32_t);
+uint32_t lean_uint8_to_uint32(uint8_t);
 LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
 LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t, uint32_t);
@@ -25,11 +29,13 @@ LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
 LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
 LEAN_EXPORT lean_object* l_Char_toUpper(uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_toUInt8(uint32_t);
 LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
 LEAN_EXPORT uint32_t l_Char_instInhabited;
 LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_ofUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_instLE;
 LEAN_EXPORT uint8_t l_Char_isDigit(uint32_t);
 LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
@@ -120,6 +126,44 @@ x_2 = lean_unbox_uint32(x_1);
 lean_dec(x_1);
 x_3 = l_Char_toNat(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Char_toUInt8(uint32_t x_1) {
+_start:
+{
+uint8_t x_2; 
+x_2 = lean_uint32_to_uint8(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Char_toUInt8___boxed(lean_object* x_1) {
+_start:
+{
+uint32_t x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = lean_unbox_uint32(x_1);
+lean_dec(x_1);
+x_3 = l_Char_toUInt8(x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint32_t l_Char_ofUInt8(uint8_t x_1) {
+_start:
+{
+uint32_t x_2; 
+x_2 = lean_uint8_to_uint32(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Char_ofUInt8___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; uint32_t x_3; lean_object* x_4; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Char_ofUInt8(x_2);
+x_4 = lean_box_uint32(x_3);
+return x_4;
 }
 }
 static uint32_t _init_l_Char_instInhabited() {

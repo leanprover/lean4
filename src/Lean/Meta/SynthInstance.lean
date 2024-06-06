@@ -837,6 +837,5 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.resume (inherited := true)
   registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthInstance.newAnswer
-  registerTraceClass `Meta.synthInstance.answer
 
 end Lean.Meta

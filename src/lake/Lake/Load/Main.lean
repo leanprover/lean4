@@ -86,7 +86,8 @@ Adds the facets defined in the package to the `Workspace`.
 -/
 def loadDepPackage
   (dep : MaterializedDep)
-  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+  (lakeOpts : NameMap String)
+  (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
   let name := dep.name.toString (escape := false)
   let (pkg, env?) ← loadPackageCore name {
@@ -128,6 +129,9 @@ def loadPackage (config : LoadConfig) : LogIO Package := do
 
 /-- The monad of the dependency resolver. -/
 abbrev ResolveT m := CallStackT Name <| StateT Workspace m
+
+@[inline] nonrec def ResolveT.run (ws : Workspace) (x : ResolveT m α) (stack : CallStack Name := {}) : m (α × Workspace) :=
+  x.run stack |>.run ws
 
 /-- Log dependency cycle and error. -/
 @[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
@@ -172,10 +176,7 @@ the root `R`, which would likely confuse the user.
   [Monad m] [MonadError m] (ws : Workspace)
   (f : Package → Dependency → ResolveT m Package)
 : m Workspace := do
-  let (root, ws) ←
-    StateT.run (s := ws) <|
-    ReaderT.run (r := []) <|
-    StateT.run' (s := {}) <|
+  let (root, ws) ← ResolveT.run ws <| StateT.run' (s := {}) <|
     recFetchAcyclic (·.name) go ws.root
   return {ws with root}
 where
@@ -216,6 +217,87 @@ in their Lake configuration file with
 "
 
 /--
+The monad of the manifest updater.
+It is equipped with and entry map entries for the updated manifest.
+-/
+abbrev UpdateT := StateT (NameMap PackageEntry)
+
+@[inline] nonrec def UpdateT.run (x : UpdateT m α) (init : NameMap PackageEntry := {}) : m (α × NameMap PackageEntry) :=
+  x.run init
+
+/--
+Reuse manifest versions of root packages that should not be updated.
+Also, move the packages directory if its location has changed.
+-/
+def reuseManifest (ws : Workspace) (toUpdate : NameSet) : UpdateT LogIO PUnit := do
+  let rootName := ws.root.name.toString (escape := false)
+  match (← Manifest.load ws.manifestFile |>.toBaseIO) with
+  | .ok manifest =>
+    -- Reuse manifest versions
+    unless toUpdate.isEmpty do
+      manifest.packages.forM fun entry => do
+        unless entry.inherited || toUpdate.contains entry.name do
+          store entry.name entry
+    -- Move packages directory
+    if let some oldRelPkgsDir := manifest.packagesDir? then
+      let oldPkgsDir := ws.dir / oldRelPkgsDir
+      if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
+        logInfo s!"workspace packages directory changed; \
+          renaming '{oldPkgsDir}' to '{ws.pkgsDir}'"
+        let doRename : IO Unit := do
+          createParentDirs ws.pkgsDir
+          IO.FS.rename oldPkgsDir ws.pkgsDir
+        if let .error e ← doRename.toBaseIO then
+          error s!"could not rename workspace packages directory: {e}"
+  | .error (.noFileOrDirectory ..) =>
+    logInfo s!"{rootName}: no previous manifest, creating one from scratch"
+  | .error e =>
+    unless toUpdate.isEmpty do
+      liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
+    logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
+
+/-- Update a single dependency. -/
+def updateDep
+  (pkg : Package) (dep : Dependency) (leanOpts : Options := {})
+: ResolveT (UpdateT LogIO) Package := do
+  let ws ← getThe Workspace
+  let inherited := pkg.name != ws.root.name
+  -- Materialize the dependency
+  let matDep ← id do
+    if let some entry ← fetch? dep.name then
+      entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
+    else
+      let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir pkg.relDir
+      store matDep.name matDep.manifestEntry
+      return matDep
+  -- Load the package
+  let depPkg ← loadDepPackage matDep dep.opts leanOpts true
+  if depPkg.name ≠ dep.name then
+    if dep.name = .mkSimple "std" then
+      let rev :=
+        match matDep.manifestEntry.src with
+        | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
+        | _ => ""
+      logError (stdMismatchError depPkg.name.toString rev)
+    if let .error e ← IO.FS.removeDirAll depPkg.dir |>.toBaseIO then -- cleanup
+      -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
+      logError s!"'{dep.name}' was downloaded incorrectly; \
+        you will need to manually delete '{depPkg.dir}': {e}"
+    error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+  -- Add the dependencies' locked dependencies to the manifest
+  match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
+  | .ok manifest =>
+    manifest.packages.forM fun entry => do
+      unless (← getThe (NameMap PackageEntry)).contains entry.name do
+        let entry := entry.setInherited.inDirectory depPkg.relDir
+        store entry.name entry
+  | .error (.noFileOrDirectory ..) =>
+    logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
+  | .error e =>
+    logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
+  return depPkg
+
+/--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
 
 Packages are updated to latest specific revision matching that in `require`
@@ -223,74 +305,14 @@ Packages are updated to latest specific revision matching that in `require`
 removed if the `require` is removed. If `tuUpdate` is empty, update/remove all
 root dependencies. Otherwise, only update the root dependencies specified.
 
-If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
+Package are always reconfigured when updated.
 -/
 def Workspace.updateAndMaterialize
-  (ws : Workspace) (leanOpts : Options := {})
-  (toUpdate : NameSet := {}) (reconfigure := true)
+  (ws : Workspace) (toUpdate : NameSet := {}) (leanOpts : Options := {})
 : LogIO Workspace := do
-  let (ws, entries) ← StateT.run (s := mkNameMap PackageEntry) do
-    -- Use manifest versions of root packages that should not be updated
-    let rootName := ws.root.name.toString (escape := false)
-    match (← Manifest.load ws.manifestFile |>.toBaseIO) with
-    | .ok manifest =>
-      unless toUpdate.isEmpty do
-        manifest.packages.forM fun entry => do
-          unless entry.inherited || toUpdate.contains entry.name do
-            modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
-      if let some oldRelPkgsDir := manifest.packagesDir? then
-        let oldPkgsDir := ws.dir / oldRelPkgsDir
-        if oldRelPkgsDir.normalize != ws.relPkgsDir.normalize && (← oldPkgsDir.pathExists) then
-          logInfo s!"workspace packages directory changed; \
-            renaming '{oldPkgsDir}' to '{ws.pkgsDir}'"
-          let doRename : IO Unit := do
-            createParentDirs ws.pkgsDir
-            IO.FS.rename oldPkgsDir ws.pkgsDir
-          if let .error e ← doRename.toBaseIO then
-            error s!"could not rename workspace packages directory: {e}"
-    | .error (.noFileOrDirectory ..) =>
-      logInfo s!"{rootName}: no previous manifest, creating one from scratch"
-    | .error e =>
-      unless toUpdate.isEmpty do
-        liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
-      logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
-    ws.resolveDeps fun pkg dep => do
-      let ws ← getThe Workspace
-      let inherited := pkg.name != ws.root.name
-      -- Materialize the dependency
-      let matDep ← id do
-        if let some entry ← fetch? dep.name then
-          entry.materialize ws.lakeEnv ws.dir ws.relPkgsDir
-        else
-          let matDep ← dep.materialize inherited ws.lakeEnv ws.dir ws.relPkgsDir pkg.relDir
-          store matDep.name matDep.manifestEntry
-          return matDep
-      -- Load the package
-      let depPkg ← loadDepPackage matDep dep.opts leanOpts reconfigure
-      if depPkg.name ≠ dep.name then
-        if dep.name = .mkSimple "std" then
-          let rev :=
-            match matDep.manifestEntry.src with
-            | .git (inputRev? := some rev) .. => s!" @ {repr rev}"
-            | _ => ""
-          logError (stdMismatchError depPkg.name.toString rev)
-        if let .error e ← IO.FS.removeDirAll depPkg.dir |>.toBaseIO then -- cleanup
-          -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on Windows
-          logError s!"'{dep.name}' was downloaded incorrectly; \
-            you will need to manually delete '{depPkg.dir}': {e}"
-        error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-      -- Add the dependencies' locked dependencies to the manifest
-      match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
-      | .ok manifest =>
-        manifest.packages.forM fun entry => do
-          unless (← getThe (NameMap PackageEntry)).contains entry.name do
-            let entry := entry.setInherited.inDirectory depPkg.relDir
-            store entry.name entry
-      | .error (.noFileOrDirectory ..) =>
-        logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
-      | .error e =>
-        logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
-      return depPkg
+  let (ws, entries) ← UpdateT.run do
+    reuseManifest ws toUpdate
+    ws.resolveDeps fun pkg dep => updateDep pkg dep leanOpts
   let manifestEntries := ws.packages.foldl (init := #[]) fun arr pkg =>
     match entries.find? pkg.name with
     | some entry => arr.push <|
@@ -376,15 +398,14 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   let leanOpts := config.leanOpts
   let ws ← loadWorkspaceRoot config
   if updateDeps then
-    ws.updateAndMaterialize leanOpts {} rc
+    ws.updateAndMaterialize {} leanOpts
   else if let some manifest ← Manifest.load? ws.manifestFile then
     ws.materializeDeps manifest leanOpts rc
   else
-    ws.updateAndMaterialize leanOpts {} rc
+    ws.updateAndMaterialize {} leanOpts
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
-  let rc := config.reconfigure
   let leanOpts := config.leanOpts
   let ws ← loadWorkspaceRoot config
-  discard <| ws.updateAndMaterialize leanOpts toUpdate rc
+  discard <| ws.updateAndMaterialize toUpdate leanOpts

@@ -229,7 +229,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM fun _ => Term.withAutoBoundImplicit <|
+    runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
     for binder in binders do
       let binders ← replaceBinderAnnotation binder

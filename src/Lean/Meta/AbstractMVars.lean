@@ -73,6 +73,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
   if !e.hasMVar then
     return e
   else
+    checkSystem "abstractExprMVars"
     match e with
     | e@(Expr.lit _)           => return e
     | e@(Expr.bvar _)          => return e

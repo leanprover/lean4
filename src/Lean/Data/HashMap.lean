@@ -15,9 +15,8 @@ def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β
   ⟨ data.val.uset i d h,
     by erw [Array.size_set]; apply data.property ⟩
 
-@[simp]
-theorem HashMapBucket.size_update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) :
-    (data.update i d h).val.size = data.val.size := by
+@[simp] theorem HashMapBucket.size_update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β)
+    (h : i.toNat < data.val.size) : (data.update i d h).val.size = data.val.size := by
   simp [update, Array.uset]
 
 structure HashMapImp (α : Type u) (β : Type v) where

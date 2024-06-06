@@ -437,6 +437,8 @@ def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do
   let (stx, _) ← delabCore e optionsPerPos Delaborator.delab
   return stx
 
-builtin_initialize registerTraceClass `PrettyPrinter.delab
+builtin_initialize
+  registerTraceClass `PrettyPrinter.delab
+  registerTraceClass `PrettyPrinter.delab.input
 
 end Lean.PrettyPrinter

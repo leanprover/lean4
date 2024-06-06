@@ -1,0 +1,14 @@
+[Meta.synthInstance] ✅ HAdd Nat Nat ?m.4
+  [Meta.synthInstance] new goal HAdd Nat Nat _tc.0
+    [Meta.synthInstance.instances] #[@instHAdd] 
+  [Meta.synthInstance] ✅ apply @instHAdd to HAdd Nat Nat ?m.5
+    [Meta.synthInstance.tryResolve] ✅ HAdd Nat Nat ?m.5 ≟ HAdd ?m.8 ?m.8 ?m.8 
+    [Meta.synthInstance] new goal Add Nat
+      [Meta.synthInstance.instances] #[instAddNat] 
+  [Meta.synthInstance] ✅ apply instAddNat to Add Nat
+    [Meta.synthInstance.tryResolve] ✅ Add Nat ≟ Add Nat 
+    [Meta.synthInstance.answer] ✅ Add Nat 
+  [Meta.synthInstance.resume] propagating Add Nat to subgoal Add Nat of HAdd Nat Nat Nat
+    [Meta.synthInstance] size: 1 
+    [Meta.synthInstance.answer] ✅ HAdd Nat Nat Nat 
+  [Meta.synthInstance] result instHAdd 

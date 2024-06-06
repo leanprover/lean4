@@ -686,7 +686,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get
-    let rec assignOutParams (result : Expr) : MetaM Bool := do
+    let assignOutParams (result : Expr) : MetaM Bool := do
       let resultType ← inferType result
       /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
          We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.

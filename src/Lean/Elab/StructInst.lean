@@ -957,6 +957,8 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
     else
       elabStructInstAux stx expectedType? sourceView
 
-builtin_initialize registerTraceClass `Elab.struct
+builtin_initialize
+  registerTraceClass `Elab.struct
+  registerTraceClass `Elab.struct.modifyOp
 
 end Lean.Elab.Term.StructInst

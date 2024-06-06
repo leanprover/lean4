@@ -993,5 +993,8 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
     runTermElabM fun vars => Term.elabMutualDef vars views
 
+builtin_initialize
+  registerTraceClass `Elab.definition.mkClosure
+
 end Command
 end Lean.Elab

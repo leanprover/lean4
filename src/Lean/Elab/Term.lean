@@ -1916,4 +1916,7 @@ def isIncrementalElab [Monad m] [MonadEnv m] [MonadLiftT IO m] (decl : Name) : m
 
 export Term (TermElabM)
 
+builtin_initialize
+  registerTraceClass `Elab.implicitForall
+
 end Lean.Elab

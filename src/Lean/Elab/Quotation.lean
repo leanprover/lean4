@@ -690,5 +690,6 @@ builtin_initialize
   registerTraceClass `Elab.match_syntax
   registerTraceClass `Elab.match_syntax.alt (inherited := true)
   registerTraceClass `Elab.match_syntax.result (inherited := true)
+  registerTraceClass `Elab.match_syntax.onMatch
 
 end Lean.Elab.Term.Quotation

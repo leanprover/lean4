@@ -3,82 +3,20 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
-import Lake.Util.EStateT
+import Lake.Config.Monad
 import Lake.Util.StoreInsts
-import Lake.Config.Workspace
 import Lake.Build.Topological
-import Lake.Build.Module
-import Lake.Build.Package
-import Lake.Build.Library
 import Lake.Load.Materialize
 import Lake.Load.Package
-import Lake.Load.Elab
-import Lake.Load.Toml
 
 open System Lean
 
-/-! # Loading a Workspace
-The main definitions for loading a workspace and resolving dependencies.
+/-! # Dependency Resolution
+
+This module contains definitions for resolving the dependencies of a package.
 -/
 
 namespace Lake
-
-/--
-Elaborate a dependency's Lean configuration file into a `Package`.
-The resulting package does not yet include any dependencies.
--/
-def loadLeanConfig (cfg : LoadConfig)
-: LogIO (Package × Environment) := do
-  let configEnv ← importConfigFile cfg
-  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv cfg.leanOpts
-  let pkg : Package := {
-    dir := cfg.pkgDir
-    relDir := cfg.relPkgDir
-    config := pkgConfig
-    relConfigFile := cfg.relConfigFile
-    remoteUrl? := cfg.remoteUrl?
-  }
-  return (← pkg.loadFromEnv configEnv cfg.leanOpts, configEnv)
-
-/--
-Return whether a configuration file with the given name
-and/or a supported extension exists.
--/
-def configFileExists (cfgFile : FilePath) : BaseIO Bool :=
-  if cfgFile.extension.isSome then
-    cfgFile.pathExists
-  else
-    let leanFile := cfgFile.addExtension "lean"
-    let tomlFile := cfgFile.addExtension "toml"
-    leanFile.pathExists <||> tomlFile.pathExists
-
-/-- Loads a Lake package configuration (either Lean or TOML). -/
-def loadPackageCore
-  (name : String) (cfg : LoadConfig)
-: LogIO (Package × Option Environment) := do
-  if let some ext := cfg.relConfigFile.extension then
-    unless (← cfg.configFile.pathExists) do
-      error s!"{name}: configuration file not found: {cfg.configFile}"
-    match ext with
-    | "lean" => (·.map id some) <$> loadLeanConfig cfg
-    | "toml" => ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir cfg.relConfigFile
-    | _ => error s!"{name}: configuration has unsupported file extension: {cfg.configFile}"
-  else
-    let relLeanFile := cfg.relConfigFile.addExtension "lean"
-    let relTomlFile := cfg.relConfigFile.addExtension "toml"
-    let leanFile := cfg.pkgDir / relLeanFile
-    let tomlFile := cfg.pkgDir / relTomlFile
-    let leanExists ← leanFile.pathExists
-    let tomlExists ← tomlFile.pathExists
-    if leanExists then
-      if tomlExists then
-        logInfo s!"{name}: {relLeanFile} and {relTomlFile} are both present; using {relLeanFile}"
-      (·.map id some) <$> loadLeanConfig {cfg with relConfigFile := relLeanFile}
-    else
-      if tomlExists then
-        ((·,none)) <$> loadTomlConfig cfg.pkgDir cfg.relPkgDir relTomlFile
-      else
-        error s!"{name}: no configuration file with a supported extension:\n{leanFile}\n{tomlFile}"
 
 /--
 Loads the package configuration of a materialized dependency.
@@ -103,29 +41,6 @@ def loadDepPackage
     return (pkg, ws)
   else
     return (pkg, ws)
-
-/--
-Load a `Workspace` for a Lake package by elaborating its configuration file.
-Does not resolve dependencies.
--/
-def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
-  Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackageCore "[root]" config
-  let ws : Workspace := {
-    root, lakeEnv := config.lakeEnv
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
-  }
-  if let some env := env? then
-    IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
-  else
-    return ws
-
-/-- Loads a Lake package as a single independent object (without dependencies). -/
-def loadPackage (config : LoadConfig) : LogIO Package := do
-  Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  (·.1) <$> loadPackageCore "[root]" config
 
 /-- The monad of the dependency resolver. -/
 abbrev ResolveT m := CallStackT Name <| StateT Workspace m
@@ -387,25 +302,3 @@ def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
-
-/--
-Load a `Workspace` for a Lake package by
-elaborating its configuration file and resolving its dependencies.
-If `updateDeps` is true, updates the manifest before resolving dependencies.
--/
-def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace := do
-  let rc := config.reconfigure
-  let leanOpts := config.leanOpts
-  let ws ← loadWorkspaceRoot config
-  if updateDeps then
-    ws.updateAndMaterialize {} leanOpts
-  else if let some manifest ← Manifest.load? ws.manifestFile then
-    ws.materializeDeps manifest leanOpts rc
-  else
-    ws.updateAndMaterialize {} leanOpts
-
-/-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
-def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
-  let leanOpts := config.leanOpts
-  let ws ← loadWorkspaceRoot config
-  discard <| ws.updateAndMaterialize toUpdate leanOpts

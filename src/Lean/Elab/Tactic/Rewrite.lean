@@ -15,7 +15,7 @@ open Meta
 def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
-    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
+    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config) (goals := ← getGoals)
     let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
@@ -26,7 +26,7 @@ def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Re
   let rwResult ← Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← fvarId.getDecl
-    (← getMainGoal).rewrite localDecl.type e symm (config := config)
+    (← getMainGoal).rewrite localDecl.type e symm (config := config) (goals := ← getGoals)
   let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
   replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 

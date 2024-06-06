@@ -1120,6 +1120,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           | some v => do
             trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
             let some v ← mkLambdaFVarsWithLetDeps args v | return false
+            let v := v.etaExpandedStrict?.getD v
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
                  a type incorrect term. See discussion at A2 -/

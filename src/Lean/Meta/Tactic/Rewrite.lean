@@ -57,7 +57,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             (synthAssignedInstances := !tactic.skipAssignedInstances.get (← getOptions))
           let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed eqPrf
-          let otherMVarIds := otherMVarIds.filter (fun mvarId => !newMVarIds.contains mvarId || goals.contains mvarId)
+          let otherMVarIds := otherMVarIds.filter (fun mvarId => !(newMVarIds.contains mvarId || goals.contains mvarId))
           let newMVarIds := newMVarIds ++ otherMVarIds
           pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVarIds.toList }
         match symm with

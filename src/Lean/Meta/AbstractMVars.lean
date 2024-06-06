@@ -24,6 +24,7 @@ structure State where
   paramNames     : Array Name := #[]
   fvars          : Array Expr  := #[]
   lmap           : HashMap LMVarId Level := {}
+  pending        : HashSet MVarId := {} -- mvars whose types we are processing
   emap           : HashMap MVarId Expr  := {}
   abstractLevels : Bool -- whether to abstract level mvars
 
@@ -69,6 +70,18 @@ private partial def abstractLevelMVars (u : Level) : M Level := do
           modify fun s => { s with nextParamIdx := s.nextParamIdx + 1, lmap := s.lmap.insert mvarId u, paramNames := s.paramNames.push paramId }
           return u
 
+/--
+Locks `mvarid` as pending, so that if we have cycles (which of course we should't have) this function
+still terminates. Panics if trying to lock a locked mvar.
+-/
+def withPending [Inhabited α] (mvarId : MVarId) (a : M α) : M α := do
+  if (← get).pending.contains mvarId then
+    return panic! "abstractExprMVars: mvarid occurs in its own type."
+  modify fun s => { s with pending := s.pending.insert mvarId }
+  let x ← a
+  modify fun s => { s with pending := s.pending.erase mvarId }
+  pure x
+
 partial def abstractExprMVars (e : Expr) : M Expr := do
   if !e.hasMVar then
     return e
@@ -98,7 +111,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
           | some e =>
             return e
           | none   =>
-            let type   ← abstractExprMVars decl.type
+            let type ← withPending mvarId <| abstractExprMVars decl.type
             let fvarId ← mkFreshFVarId
             let fvar := mkFVar fvarId;
             let userName ← if decl.userName.isAnonymous then

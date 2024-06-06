@@ -1,0 +1,5 @@
+PANIC at Lean.Meta.AbstractMVars.withPending Lean.Meta.AbstractMVars:79:11: abstractExprMVars: mvarid occurs in its own type.
+PANIC at Lean.Meta.whnfEasyCases Lean.Meta.WHNF:393:22: loose bvar in expression
+PANIC at Lean.Meta.whnfEasyCases Lean.Meta.WHNF:393:22: loose bvar in expression
+PANIC at Lean.Meta.whnfEasyCases Lean.Meta.WHNF:393:22: loose bvar in expression
+fun x_0 x_1 => x_1

@@ -112,7 +112,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      -- make sure `bkt` is used linearly in the follwing call to `replace`
+      -- make sure `bkt` is used linearly in the following call to `replace`
       let buckets' := buckets.update i .nil h
       (⟨size, buckets'.update i (bkt.replace a b) (by simpa [buckets'])⟩, true)
     else

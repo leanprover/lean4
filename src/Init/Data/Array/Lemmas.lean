@@ -14,7 +14,7 @@ import Init.TacticsExtra
 /-!
 ## Bootstrapping theorems about arrays
 
-This file contains some theorems about `Array` and `List` needed for `Std.List.Basic`.
+This file contains some theorems about `Array` and `List` needed for `Init.Data.List.Impl`.
 -/
 
 namespace Array

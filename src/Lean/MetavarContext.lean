@@ -1271,7 +1271,7 @@ private def mkLambda' (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) (etaRed
     match b with
     | .app b (.bvar 0) =>
       if !b.hasLooseBVar 0 then
-        b
+        b.lowerLooseBVars 1 1
       else
         mkLambda x bi t b
     | _ => mkLambda x bi t b

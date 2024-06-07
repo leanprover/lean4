@@ -317,21 +317,21 @@ theorem get?_append_right {l₁ l₂ : List α} {n : Nat} (h : l₁.length ≤ n
     (l₁ ++ l₂).get? n = l₂.get? (n - l₁.length) := by
   simp [getElem?_append_right, h]
 
-theorem getElem?_reverse' : ∀ {l : List α} {i j}, i + j + 1 = length l →
+theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     l.reverse[i]? = l[j]?
   | [], _, _, _ => rfl
   | a::l, i, 0, h => by simp [Nat.succ.injEq] at h; simp [h, getElem?_append_right, Nat.succ.injEq]
   | a::l, i, j+1, h => by
     have := Nat.succ.inj h; simp at this ⊢
-    rw [getElem?_append, getElem?_reverse' this]
+    rw [getElem?_append, getElem?_reverse' _ _ this]
     rw [length_reverse, ← this]; apply Nat.lt_add_of_pos_right (Nat.succ_pos _)
 
-theorem get?_reverse' {l : List α} {i j} (h : i + j + 1 = length l) : get? l.reverse i = get? l j := by
-  simp [getElem?_reverse' h]
+theorem get?_reverse' {l : List α} (i j) (h : i + j + 1 = length l) : get? l.reverse i = get? l j := by
+  simp [getElem?_reverse' _ _ h]
 
 theorem getElem?_reverse {l : List α} {i} (h : i < length l) :
     l.reverse[i]? = l[l.length - 1 - i]? :=
-  getElem?_reverse' <| by
+  getElem?_reverse' _ _ <| by
     rw [Nat.add_sub_of_le (Nat.le_sub_one_of_lt h),
       Nat.sub_add_cancel (Nat.lt_of_le_of_lt (Nat.zero_le _) h)]
 

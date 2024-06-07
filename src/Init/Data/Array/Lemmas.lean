@@ -517,10 +517,10 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
         simp only [H, getElem_eq_data_get, ← List.get?_eq_get, Nat.le_of_lt h₁, getElem?_eq_data_get?]
         split <;> rename_i h₂
         · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
-          exact (List.get?_reverse' _ _ (Eq.trans (by simp_arith) h)).symm
+          exact (List.get?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
         split <;> rename_i h₃
         · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
-          exact (List.get?_reverse' _ _ (Eq.trans (by simp_arith) h)).symm
+          exact (List.get?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
         simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
           Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
     · rw [H]; split <;> rename_i h₂

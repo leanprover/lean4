@@ -52,6 +52,8 @@ theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n)
     have h0 : some a = some a' := h 0
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
+@[deprecated (since := "2024-06-07")] abbrev ext := @ext_get?
+
 /--
 Returns the first element in the list.
 

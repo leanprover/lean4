@@ -533,7 +533,7 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
   split
   · match a with | ⟨[]⟩ | ⟨[_]⟩ => rfl
   · have := Nat.sub_add_cancel (Nat.le_of_not_le ‹_›)
-    refine List.ext <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
+    refine List.ext_get? <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
     split
     · rfl
     · rename_i h

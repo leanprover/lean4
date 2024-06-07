@@ -44,13 +44,13 @@ See also `get?` and `get!`.
 def getD (as : List α) (i : Nat) (fallback : α) : α :=
   (as.get? i).getD fallback
 
-@[ext] theorem ext : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
   | [], [], _ => rfl
   | a :: l₁, [], h => nomatch h 0
   | [], a' :: l₂, h => nomatch h 0
   | a :: l₁, a' :: l₂, h => by
     have h0 : some a = some a' := h 0
-    injection h0 with aa; simp only [aa, ext fun n => h (n+1)]
+    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
 /--
 Returns the first element in the list.

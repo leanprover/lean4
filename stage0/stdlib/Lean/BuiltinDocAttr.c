@@ -47,6 +47,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____l
 lean_object* l_Lean_mkStrLit(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__10;
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__14;
+LEAN_EXPORT lean_object* l_Lean_declareBuiltinDocStringAndRanges___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208_(lean_object*);
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
@@ -81,6 +82,7 @@ lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1
 static lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____closed__3;
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3___closed__1;
 static lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__16;
@@ -165,6 +167,7 @@ lean_dec(x_7);
 x_9 = l_Lean_instInhabitedDeclarationRanges;
 x_10 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3___closed__1;
 x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
+lean_dec(x_8);
 lean_ctor_set(x_5, 0, x_11);
 return x_5;
 }
@@ -182,6 +185,7 @@ lean_dec(x_12);
 x_15 = l_Lean_instInhabitedDeclarationRanges;
 x_16 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__3___closed__1;
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
+lean_dec(x_14);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_13);
@@ -278,6 +282,7 @@ lean_object* x_13; uint8_t x_14;
 x_13 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___closed__1;
 lean_inc(x_1);
 x_14 = l_Lean_TagDeclarationExtension_isTagged(x_13, x_8, x_1);
+lean_dec(x_8);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -294,8 +299,6 @@ x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
 x_19 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1(x_1, x_17, x_2, x_3, x_18);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_19;
 }
@@ -310,8 +313,6 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1(x_1, x_22, x_2, x_3, x_23);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_24;
 }
@@ -328,8 +329,6 @@ x_28 = lean_ctor_get(x_26, 1);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1(x_1, x_27, x_2, x_3, x_28);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_29;
 }
@@ -347,8 +346,6 @@ x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
 x_34 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___lambda__1(x_1, x_32, x_2, x_3, x_33);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_34;
 }
@@ -525,8 +522,6 @@ LEAN_EXPORT lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1(lea
 _start:
 {
 lean_object* x_6; lean_object* x_7; 
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_1);
 x_6 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1(x_1, x_3, x_4, x_5);
 x_7 = lean_ctor_get(x_6, 0);
@@ -534,8 +529,6 @@ lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
 {
 uint8_t x_8; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 x_8 = !lean_is_exclusive(x_6);
 if (x_8 == 0)
@@ -589,6 +582,7 @@ x_26 = lean_array_push(x_25, x_22);
 x_27 = lean_array_push(x_26, x_24);
 x_28 = l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__16;
 x_29 = l_Lean_mkAppN(x_28, x_27);
+lean_dec(x_27);
 x_30 = lean_ctor_get(x_19, 1);
 lean_inc(x_30);
 x_31 = l_Lean_mkNatLit(x_30);
@@ -604,6 +598,7 @@ x_36 = l_Lean_mkNatLit(x_35);
 x_37 = lean_array_push(x_25, x_34);
 x_38 = lean_array_push(x_37, x_36);
 x_39 = l_Lean_mkAppN(x_28, x_38);
+lean_dec(x_38);
 x_40 = lean_ctor_get(x_19, 3);
 lean_inc(x_40);
 lean_dec(x_19);
@@ -615,6 +610,7 @@ x_45 = lean_array_push(x_44, x_39);
 x_46 = lean_array_push(x_45, x_41);
 x_47 = l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__13;
 x_48 = l_Lean_mkAppN(x_47, x_46);
+lean_dec(x_46);
 x_49 = lean_ctor_get(x_15, 1);
 lean_inc(x_49);
 lean_dec(x_15);
@@ -630,6 +626,7 @@ x_54 = l_Lean_mkNatLit(x_53);
 x_55 = lean_array_push(x_25, x_52);
 x_56 = lean_array_push(x_55, x_54);
 x_57 = l_Lean_mkAppN(x_28, x_56);
+lean_dec(x_56);
 x_58 = lean_ctor_get(x_49, 1);
 lean_inc(x_58);
 x_59 = l_Lean_mkNatLit(x_58);
@@ -645,6 +642,7 @@ x_64 = l_Lean_mkNatLit(x_63);
 x_65 = lean_array_push(x_25, x_62);
 x_66 = lean_array_push(x_65, x_64);
 x_67 = l_Lean_mkAppN(x_28, x_66);
+lean_dec(x_66);
 x_68 = lean_ctor_get(x_49, 3);
 lean_inc(x_68);
 lean_dec(x_49);
@@ -654,17 +652,18 @@ x_71 = lean_array_push(x_70, x_59);
 x_72 = lean_array_push(x_71, x_67);
 x_73 = lean_array_push(x_72, x_69);
 x_74 = l_Lean_mkAppN(x_47, x_73);
+lean_dec(x_73);
 x_75 = lean_array_push(x_25, x_48);
 x_76 = lean_array_push(x_75, x_74);
 x_77 = l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__10;
 x_78 = l_Lean_mkAppN(x_77, x_76);
+lean_dec(x_76);
 x_79 = lean_array_push(x_25, x_18);
 x_80 = lean_array_push(x_79, x_78);
 x_81 = l_Lean_declareBuiltinDocStringAndRanges___lambda__1___closed__6;
 x_82 = l_Lean_mkAppN(x_81, x_80);
+lean_dec(x_80);
 x_83 = l_Lean_declareBuiltin(x_17, x_82, x_3, x_4, x_14);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_83;
 }
 }
@@ -731,6 +730,7 @@ lean_dec(x_6);
 x_9 = 0;
 lean_inc(x_1);
 x_10 = l_Lean_findDocString_x3f(x_8, x_1, x_9, x_7);
+lean_dec(x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
@@ -763,6 +763,7 @@ x_22 = lean_array_push(x_21, x_19);
 x_23 = lean_array_push(x_22, x_20);
 x_24 = l_Lean_declareBuiltinDocStringAndRanges___closed__5;
 x_25 = l_Lean_mkAppN(x_24, x_23);
+lean_dec(x_23);
 x_26 = l_Lean_declareBuiltin(x_18, x_25, x_2, x_3, x_15);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -779,8 +780,6 @@ return x_29;
 else
 {
 uint8_t x_30; 
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_30 = !lean_is_exclusive(x_26);
 if (x_30 == 0)
@@ -835,20 +834,41 @@ lean_dec(x_1);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_findDeclarationRanges_x3f___at_Lean_declareBuiltinDocStringAndRanges___spec__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_declareBuiltinDocStringAndRanges___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_declareBuiltinDocStringAndRanges___lambda__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_declareBuiltinDocStringAndRanges___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_declareBuiltinDocStringAndRanges(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____lambda__1(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; 
-lean_inc(x_5);
 lean_inc(x_4);
 x_7 = l_Lean_Attribute_Builtin_ensureNoArgs(x_2, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
@@ -858,12 +878,12 @@ x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = l_Lean_declareBuiltinDocStringAndRanges(x_1, x_4, x_5, x_8);
+lean_dec(x_4);
 return x_9;
 }
 else
 {
 uint8_t x_10; 
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 x_10 = !lean_is_exclusive(x_7);
@@ -1103,6 +1123,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_3);
 lean_dec(x_3);
 x_8 = l_Lean_initFn____x40_Lean_BuiltinDocAttr___hyg_208____lambda__1(x_1, x_2, x_7, x_4, x_5, x_6);
+lean_dec(x_5);
 return x_8;
 }
 }

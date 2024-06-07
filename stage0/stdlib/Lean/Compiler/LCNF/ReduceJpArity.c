@@ -1384,10 +1384,6 @@ x_123 = lean_ctor_get(x_1, 1);
 lean_dec(x_123);
 x_124 = lean_ctor_get(x_1, 0);
 lean_dec(x_124);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_99);
 x_125 = l_Lean_Compiler_LCNF_Code_inferType(x_99, x_3, x_4, x_5, x_6, x_114);
 if (lean_obj_tag(x_125) == 0)
@@ -1398,12 +1394,9 @@ lean_inc(x_126);
 x_127 = lean_ctor_get(x_125, 1);
 lean_inc(x_127);
 lean_dec(x_125);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_118);
 x_128 = l_Lean_Compiler_LCNF_mkForallParams(x_118, x_126, x_3, x_4, x_5, x_6, x_127);
+lean_dec(x_126);
 if (lean_obj_tag(x_128) == 0)
 {
 lean_object* x_129; lean_object* x_130; lean_object* x_131; lean_object* x_132; lean_object* x_133; lean_object* x_134; lean_object* x_135; lean_object* x_136; 
@@ -1548,10 +1541,6 @@ else
 {
 lean_object* x_154; 
 lean_dec(x_1);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_99);
 x_154 = l_Lean_Compiler_LCNF_Code_inferType(x_99, x_3, x_4, x_5, x_6, x_114);
 if (lean_obj_tag(x_154) == 0)
@@ -1562,12 +1551,9 @@ lean_inc(x_155);
 x_156 = lean_ctor_get(x_154, 1);
 lean_inc(x_156);
 lean_dec(x_154);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_118);
 x_157 = l_Lean_Compiler_LCNF_mkForallParams(x_118, x_155, x_3, x_4, x_5, x_6, x_156);
+lean_dec(x_155);
 if (lean_obj_tag(x_157) == 0)
 {
 lean_object* x_158; lean_object* x_159; lean_object* x_160; lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; 

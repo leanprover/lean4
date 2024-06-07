@@ -130,10 +130,6 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
 x_11 = l_Lean_Elab_Tactic_Conv_getLhs(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -214,6 +210,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 x_36 = l_Lean_Elab_Tactic_logUnassignedAndAbort(x_34, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_35);
+lean_dec(x_34);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; 
@@ -386,6 +383,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 x_65 = l_Lean_Elab_Tactic_logUnassignedAndAbort(x_63, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_64);
+lean_dec(x_63);
 if (lean_obj_tag(x_65) == 0)
 {
 lean_object* x_66; lean_object* x_67; 
@@ -577,6 +575,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 x_99 = l_Lean_Elab_Tactic_logUnassignedAndAbort(x_96, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_97);
+lean_dec(x_96);
 if (lean_obj_tag(x_99) == 0)
 {
 lean_object* x_100; lean_object* x_101; 
@@ -896,6 +895,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 x_156 = l_Lean_Elab_Tactic_logUnassignedAndAbort(x_153, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_154);
+lean_dec(x_153);
 if (lean_obj_tag(x_156) == 0)
 {
 lean_object* x_157; lean_object* x_158; 

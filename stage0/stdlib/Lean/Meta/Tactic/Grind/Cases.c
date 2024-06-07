@@ -169,7 +169,9 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Meta_Grind_cases_throwInductiveExpected(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_5);
 return x_10;
 }
 }
@@ -287,6 +289,7 @@ lean_dec(x_35);
 lean_inc(x_36);
 x_38 = l_Lean_Expr_app___override(x_28, x_36);
 x_39 = l_Lean_Expr_mvarId_x21(x_36);
+lean_dec(x_36);
 lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
@@ -363,7 +366,9 @@ lean_dec(x_30);
 x_51 = l_Std_Range_forIn_loop___at_Lean_Meta_Grind_cases___spec__1___closed__4;
 x_52 = l_Lean_Meta_throwTacticEx___rarg(x_4, x_1, x_51, x_10, x_11, x_12, x_13, x_50);
 lean_dec(x_13);
+lean_dec(x_12);
 lean_dec(x_11);
+lean_dec(x_10);
 x_53 = !lean_is_exclusive(x_52);
 if (x_53 == 0)
 {
@@ -530,6 +535,7 @@ lean_dec(x_34);
 lean_inc(x_35);
 x_37 = l_Lean_Expr_app___override(x_27, x_35);
 x_38 = l_Lean_Expr_mvarId_x21(x_35);
+lean_dec(x_35);
 x_39 = l_Std_Range_forIn_loop___at_Lean_Meta_Grind_cases___spec__1___lambda__1(x_37, x_33, x_25, x_38, x_9, x_10, x_11, x_12, x_36);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
@@ -555,7 +561,9 @@ lean_dec(x_29);
 x_43 = l_Std_Range_forIn_loop___at_Lean_Meta_Grind_cases___spec__1___closed__4;
 x_44 = l_Lean_Meta_throwTacticEx___rarg(x_3, x_2, x_43, x_9, x_10, x_11, x_12, x_42);
 lean_dec(x_12);
+lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_9);
 x_45 = !lean_is_exclusive(x_44);
 if (x_45 == 0)
 {
@@ -693,6 +701,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_mkAppN(x_13, x_5);
+lean_dec(x_5);
 x_16 = l_Lean_Expr_fvar___override(x_3);
 x_17 = l_Lean_Expr_app___override(x_15, x_16);
 lean_inc(x_10);
@@ -949,9 +958,6 @@ if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
 x_31 = l_Lean_Meta_Grind_cases_throwInductiveExpected___closed__3;
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_26);
 lean_inc(x_1);
@@ -982,6 +988,7 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 lean_dec(x_35);
 x_38 = l_Lean_mkAppN(x_36, x_33);
+lean_dec(x_33);
 lean_inc(x_2);
 x_39 = l_Lean_Expr_fvar___override(x_2);
 x_40 = l_Lean_Expr_app___override(x_38, x_39);
@@ -1297,7 +1304,9 @@ lean_inc(x_99);
 lean_dec(x_19);
 x_100 = l_Lean_Meta_Grind_cases_throwInductiveExpected(x_1, x_2, lean_box(0), x_15, x_3, x_4, x_5, x_6, x_99);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_100;
 }
 }
@@ -1340,7 +1349,9 @@ lean_dec(x_17);
 lean_dec(x_9);
 x_105 = l_Lean_Meta_Grind_cases_throwInductiveExpected(x_1, x_2, lean_box(0), x_15, x_3, x_4, x_5, x_6, x_16);
 lean_dec(x_6);
+lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_105;
 }
 }

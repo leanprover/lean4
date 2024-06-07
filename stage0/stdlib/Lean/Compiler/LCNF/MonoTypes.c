@@ -156,6 +156,7 @@ lean_object* l_Array_ofSubarray___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__29;
 lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_getRelevantCtorFields___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_toMonoType_visitApp___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__20;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -178,6 +179,7 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__1;
 static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_253____closed__19;
+lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_253____closed__13;
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__28;
 static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_getRelevantCtorFields___spec__1___closed__1() {
@@ -1890,7 +1892,6 @@ lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___lambda__3(lean_objec
 _start:
 {
 lean_object* x_6; 
-lean_dec(x_2);
 x_6 = l_Lean_getConstInfo___at___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___spec__1(x_1, x_3, x_4, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
@@ -2105,6 +2106,15 @@ _start:
 {
 lean_object* x_6; 
 x_6 = l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___lambda__2(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
+return x_6;
+}
+}
+lean_object* l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Compiler_LCNF_hasTrivialStructure_x3f___lambda__3(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 return x_6;
 }
@@ -2491,7 +2501,6 @@ lean_object* l_Lean_Compiler_LCNF_toMonoType_visitApp___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_8; 
-lean_dec(x_4);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_1);
@@ -2641,8 +2650,9 @@ lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(0u);
 x_45 = l_Array_toSubarray___rarg(x_3, x_44, x_43);
 x_46 = l_Array_ofSubarray___rarg(x_45);
-lean_inc(x_5);
+lean_dec(x_45);
 x_47 = l_Lean_Compiler_LCNF_instantiateForall_go(x_46, x_44, x_41, x_5, x_6, x_42);
+lean_dec(x_46);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
@@ -3088,6 +3098,15 @@ lean_dec(x_1);
 return x_10;
 }
 }
+lean_object* l_Lean_Compiler_LCNF_toMonoType_visitApp___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_Compiler_LCNF_toMonoType_visitApp___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
+return x_8;
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_MonoTypeExtState_mono___default() {
 _start:
 {
@@ -3168,7 +3187,6 @@ x_10 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_11 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
 x_12 = l_Lean_EnvExtension_getState___rarg(x_10, x_11, x_9);
 lean_dec(x_9);
-lean_inc(x_1);
 x_13 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -3372,7 +3390,6 @@ x_61 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_62 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
 x_63 = l_Lean_EnvExtension_getState___rarg(x_61, x_62, x_60);
 lean_dec(x_60);
-lean_inc(x_1);
 x_64 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_63, x_1);
 if (lean_obj_tag(x_64) == 0)
 {

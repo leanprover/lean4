@@ -915,6 +915,7 @@ x_7 = lean_ctor_get(x_5, 0);
 x_8 = lean_ctor_get(x_5, 1);
 x_9 = 0;
 x_10 = l_Lean_SourceInfo_fromRef(x_7, x_9);
+lean_dec(x_7);
 x_11 = l_Lean_Elab_Command_getCurrMacroScope(x_2, x_3, x_8);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
@@ -1810,6 +1811,7 @@ lean_inc(x_394);
 lean_dec(x_5);
 x_396 = 0;
 x_397 = l_Lean_SourceInfo_fromRef(x_394, x_396);
+lean_dec(x_394);
 x_398 = l_Lean_Elab_Command_getCurrMacroScope(x_2, x_3, x_395);
 x_399 = lean_ctor_get(x_398, 0);
 lean_inc(x_399);

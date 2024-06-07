@@ -257,6 +257,7 @@ LEAN_EXPORT lean_object* l_IO_FS_writeBinFile(lean_object*, lean_object*, lean_o
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_instEval___spec__1(lean_object*, lean_object*);
 static lean_object* l_IO_Process_output___closed__1;
+LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_TaskState_noConfusion___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__20;
 static lean_object* l___auto____x40_Init_System_IO___hyg_1716____closed__9;
@@ -7773,7 +7774,6 @@ LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2(lean_object* x_1, lean
 _start:
 {
 lean_object* x_4; 
-lean_dec(x_2);
 lean_inc(x_1);
 x_4 = l_System_FilePath_parent(x_1);
 if (lean_obj_tag(x_4) == 0)
@@ -7885,6 +7885,15 @@ lean_object* x_4;
 x_4 = l_IO_FS_createDirAll___lambda__1(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_IO_FS_createDirAll___lambda__2(x_1, x_2, x_3);
+lean_dec(x_2);
 return x_4;
 }
 }
@@ -12141,6 +12150,7 @@ x_12 = lean_ctor_get(x_2, 5);
 lean_inc(x_12);
 x_13 = 0;
 x_14 = l_Lean_SourceInfo_fromRef(x_12, x_13);
+lean_dec(x_12);
 x_15 = lean_ctor_get(x_2, 2);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_2, 1);
@@ -12221,6 +12231,7 @@ x_48 = lean_ctor_get(x_2, 5);
 lean_inc(x_48);
 x_49 = 0;
 x_50 = l_Lean_SourceInfo_fromRef(x_48, x_49);
+lean_dec(x_48);
 x_51 = lean_ctor_get(x_2, 2);
 lean_inc(x_51);
 x_52 = lean_ctor_get(x_2, 1);

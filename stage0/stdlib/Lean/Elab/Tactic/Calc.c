@@ -275,7 +275,6 @@ lean_dec(x_21);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
-lean_inc(x_18);
 x_25 = l_Lean_Elab_Term_getCalcRelation_x3f(x_18, x_6, x_7, x_8, x_9, x_22);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
@@ -327,7 +326,6 @@ lean_dec(x_25);
 x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
-lean_inc(x_2);
 x_37 = l_Lean_Elab_Term_getCalcRelation_x3f(x_2, x_6, x_7, x_8, x_9, x_35);
 x_38 = lean_ctor_get(x_37, 0);
 lean_inc(x_38);
@@ -397,7 +395,6 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-lean_inc(x_18);
 x_56 = l_Lean_Elab_Term_mkCalcTrans(x_12, x_18, x_54, x_50, x_6, x_7, x_8, x_9, x_55);
 if (lean_obj_tag(x_56) == 0)
 {
@@ -649,14 +646,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCalc___lambda__3(lean_object* x_
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
 x_11 = l_Lean_Elab_Tactic_getMainTarget(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -668,14 +657,6 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Expr_consumeMData(x_12);
 lean_dec(x_12);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
 x_15 = l_Lean_Elab_Tactic_getMainTag(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
@@ -786,14 +767,6 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_14, 1);
 lean_inc(x_17);
 lean_dec(x_14);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_18 = l_Lean_Elab_Tactic_getMainGoal(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_15);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -808,6 +781,14 @@ x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
 lean_dec(x_21);
 x_23 = l_Lean_Elab_Tactic_replaceMainGoal(x_17, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_22);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_23;
 }
 else

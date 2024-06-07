@@ -395,8 +395,6 @@ else
 {
 lean_object* x_9; uint8_t x_10; 
 x_9 = lean_array_fget(x_2, x_3);
-lean_inc(x_4);
-lean_inc(x_9);
 x_10 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_LetDecl_depOn(x_9, x_4);
 if (x_10 == 0)
 {
@@ -513,6 +511,7 @@ lean_dec(x_26);
 x_29 = l_Array_shrink___rarg(x_27, x_12);
 lean_dec(x_12);
 x_30 = l_Array_append___rarg(x_29, x_25);
+lean_dec(x_25);
 x_31 = lean_st_ref_set(x_3, x_30, x_28);
 lean_dec(x_3);
 x_32 = !lean_is_exclusive(x_31);
@@ -608,6 +607,7 @@ lean_dec(x_54);
 x_57 = l_Array_shrink___rarg(x_55, x_12);
 lean_dec(x_12);
 x_58 = l_Array_append___rarg(x_57, x_53);
+lean_dec(x_53);
 x_59 = lean_st_ref_set(x_3, x_58, x_56);
 lean_dec(x_3);
 x_60 = lean_ctor_get(x_59, 1);
@@ -806,8 +806,6 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = l_Lean_Compiler_LCNF_PullLetDecls_shouldPull___closed__1;
 x_10 = lean_ctor_get(x_2, 1);
 lean_inc(x_10);
-lean_inc(x_10);
-lean_inc(x_1);
 x_11 = l___private_Lean_Compiler_LCNF_DependsOn_0__Lean_Compiler_LCNF_LetDecl_depOn(x_1, x_10);
 if (x_11 == 0)
 {

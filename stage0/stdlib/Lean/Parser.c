@@ -7320,6 +7320,8 @@ lean_inc(x_184);
 lean_dec(x_1);
 x_185 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___closed__1;
 x_186 = l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg(x_185, x_184, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_186;
 }
 case 9:
@@ -8785,6 +8787,8 @@ lean_inc(x_180);
 lean_dec(x_1);
 x_181 = l_Lean_PrettyPrinter_Formatter_interpretParserDescr___closed__1;
 x_182 = l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg(x_181, x_180, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_182;
 }
 case 9:

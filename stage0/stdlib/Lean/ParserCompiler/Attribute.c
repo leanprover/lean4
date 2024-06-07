@@ -32,6 +32,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__5;
+LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__23;
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__7;
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__3;
@@ -131,6 +132,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAt
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__1___closed__1;
@@ -849,7 +851,6 @@ x_5 = lean_nat_dec_lt(x_4, x_3);
 if (x_5 == 0)
 {
 lean_dec(x_3);
-lean_dec(x_2);
 return x_1;
 }
 else
@@ -859,7 +860,6 @@ x_6 = lean_nat_dec_le(x_3, x_3);
 if (x_6 == 0)
 {
 lean_dec(x_3);
-lean_dec(x_2);
 return x_1;
 }
 else
@@ -869,7 +869,6 @@ x_7 = 0;
 x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
 x_9 = l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3(x_2, x_7, x_8, x_1);
-lean_dec(x_2);
 return x_9;
 }
 }
@@ -902,7 +901,6 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
-lean_inc(x_6);
 lean_inc(x_5);
 x_13 = l_Lean_Attribute_Builtin_getIdent(x_3, x_5, x_6, x_11);
 if (lean_obj_tag(x_13) == 0)
@@ -1002,7 +1000,6 @@ lean_dec(x_8);
 x_32 = lean_ctor_get(x_30, 0);
 lean_inc(x_32);
 lean_dec(x_30);
-lean_inc(x_6);
 lean_inc(x_5);
 x_33 = l_Lean_Attribute_Builtin_getIdent(x_3, x_5, x_6, x_31);
 if (lean_obj_tag(x_33) == 0)
@@ -1152,7 +1149,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_5 = lean_box(0);
-x_6 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1), 2, 1);
+x_6 = lean_alloc_closure((void*)(l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1___boxed), 2, 1);
 lean_closure_set(x_6, 0, x_5);
 x_7 = l_Lean_ParserCompiler_registerCombinatorAttribute___closed__2;
 x_8 = l_Lean_ParserCompiler_registerCombinatorAttribute___closed__1;
@@ -1293,6 +1290,15 @@ lean_dec(x_3);
 x_7 = l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_mkStateFromImportedEntries___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -1509,7 +1515,6 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_ctor_get(x_2, 2);
 x_10 = lean_eval_const(x_8, x_9, x_1);
-lean_dec(x_1);
 lean_dec(x_8);
 x_11 = l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3___rarg(x_10, x_2, x_3, x_7);
 return x_11;
@@ -1620,8 +1625,6 @@ x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg(x_22, x_3, x_4, x_9);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_23;
 }
 else
@@ -1634,8 +1637,7 @@ x_24 = lean_ctor_get(x_11, 0);
 lean_inc(x_24);
 lean_dec(x_11);
 x_25 = l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2___rarg(x_24, x_3, x_4, x_9);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec(x_24);
 return x_25;
 }
 }
@@ -1682,8 +1684,6 @@ x_41 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
 x_42 = l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg(x_41, x_3, x_4, x_27);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_42;
 }
 else
@@ -1695,8 +1695,7 @@ x_43 = lean_ctor_get(x_29, 0);
 lean_inc(x_43);
 lean_dec(x_29);
 x_44 = l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2___rarg(x_43, x_3, x_4, x_27);
-lean_dec(x_4);
-lean_dec(x_3);
+lean_dec(x_43);
 return x_44;
 }
 }
@@ -1706,7 +1705,7 @@ LEAN_EXPORT lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor(le
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___boxed), 5, 0);
 return x_2;
 }
 }
@@ -1747,7 +1746,18 @@ lean_object* x_5;
 x_5 = l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_6;
 }
 }
 lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);

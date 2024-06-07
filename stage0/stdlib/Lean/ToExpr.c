@@ -1919,6 +1919,7 @@ x_9 = lean_box(0);
 x_10 = l_Lean_Expr_const___override(x_8, x_9);
 x_11 = l_Array_reverse___rarg(x_3);
 x_12 = l_Lean_mkAppN(x_10, x_11);
+lean_dec(x_11);
 return x_12;
 }
 case 1:

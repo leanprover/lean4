@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache(lean_object*)
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_cache___default;
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_HasConstCache_containsUnsafe_cache___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
@@ -503,16 +504,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Expr_hash(x_2);
 x_6 = lean_hashmap_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
-lean_dec(x_3);
 x_8 = l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2(x_2, x_7);
 lean_dec(x_7);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -520,8 +517,6 @@ LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object* x_1, l
 _start:
 {
 lean_object* x_4; 
-lean_inc(x_2);
-lean_inc(x_3);
 x_4 = l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1(x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -799,6 +794,16 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

@@ -2242,6 +2242,7 @@ x_4 = lean_array_push(x_3, x_1);
 x_5 = lean_array_push(x_4, x_2);
 x_6 = l_Lean_Compiler_mkNatEq___closed__4;
 x_7 = l_Lean_mkAppN(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 }
@@ -2351,6 +2352,7 @@ x_4 = lean_array_push(x_3, x_1);
 x_5 = lean_array_push(x_4, x_2);
 x_6 = l_Lean_Compiler_mkNatLt___closed__5;
 x_7 = l_Lean_mkAppN(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 }
@@ -2429,6 +2431,7 @@ x_4 = lean_array_push(x_3, x_1);
 x_5 = lean_array_push(x_4, x_2);
 x_6 = l_Lean_Compiler_mkNatLe___closed__4;
 x_7 = l_Lean_mkAppN(x_6, x_5);
+lean_dec(x_5);
 return x_7;
 }
 }

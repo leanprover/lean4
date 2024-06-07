@@ -605,6 +605,7 @@ x_8 = l_Lean_replaceRef(x_1, x_7);
 x_9 = 0;
 x_10 = l_Lean_Syntax_getPos_x3f(x_8, x_9);
 x_11 = l_Lean_Syntax_getTailPos_x3f(x_8, x_9);
+lean_dec(x_8);
 if (lean_obj_tag(x_10) == 0)
 {
 if (lean_obj_tag(x_11) == 0)

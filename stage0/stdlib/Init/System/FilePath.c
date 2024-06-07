@@ -102,6 +102,7 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_System_FilePath_parent___spec__1___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_System_FilePath_pathSeparators___closed__3;
+LEAN_EXPORT lean_object* l_System_SearchPath_parse___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_instInhabitedFilePath;
 static lean_object* l_System_FilePath_exeExtension___closed__2;
 static lean_object* l_System_instHashableFilePath___closed__1;
@@ -1781,7 +1782,6 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_String_split___at_System_SearchPath_parse___spec__1(x_1);
-lean_dec(x_1);
 x_3 = lean_box(0);
 x_4 = l_List_mapTR_loop___at_System_SearchPath_parse___spec__3(x_2, x_3);
 return x_4;
@@ -1801,6 +1801,15 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_String_split___at_System_SearchPath_parse___spec__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_System_SearchPath_parse___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_System_SearchPath_parse(x_1);
 lean_dec(x_1);
 return x_2;
 }

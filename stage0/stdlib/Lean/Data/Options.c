@@ -33,6 +33,7 @@ static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Le
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerOption__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__7;
+LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__20;
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_77____closed__2;
@@ -755,7 +756,6 @@ LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__2(lean_object* x_1, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-lean_dec(x_3);
 x_5 = l_Lean_registerOption___lambda__1___closed__1;
 x_6 = lean_st_ref_get(x_5, x_4);
 x_7 = !lean_is_exclusive(x_6);
@@ -905,6 +905,15 @@ lean_object* x_6;
 x_6 = l_Lean_registerOption___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_registerOption___lambda__2(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls(lean_object* x_1) {
@@ -2511,6 +2520,7 @@ x_17 = lean_ctor_get(x_2, 5);
 lean_inc(x_17);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
+lean_dec(x_17);
 x_20 = lean_ctor_get(x_2, 2);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_2, 1);
@@ -2598,6 +2608,7 @@ block_93:
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_53 = l_Array_append___rarg(x_23, x_52);
+lean_dec(x_52);
 lean_inc(x_19);
 x_54 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_54, 0, x_19);
@@ -2891,6 +2902,7 @@ x_17 = lean_ctor_get(x_2, 5);
 lean_inc(x_17);
 x_18 = 0;
 x_19 = l_Lean_SourceInfo_fromRef(x_17, x_18);
+lean_dec(x_17);
 x_20 = lean_ctor_get(x_2, 2);
 lean_inc(x_20);
 x_21 = lean_ctor_get(x_2, 1);
@@ -2978,6 +2990,7 @@ block_93:
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
 x_53 = l_Array_append___rarg(x_23, x_52);
+lean_dec(x_52);
 lean_inc(x_19);
 x_54 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_54, 0, x_19);

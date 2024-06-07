@@ -25,6 +25,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
     (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
   mvarId.withContext do
     mvarId.checkNotAssigned `rewrite
+    let heqIn := heq
     let heqType ← instantiateMVars (← inferType heq)
     let (newMVars, binderInfos, heqType) ← forallMetaTelescopeReducing heqType
     let heq := mkAppN heq newMVars
@@ -56,7 +57,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
             (synthAssignedInstances := !tactic.skipAssignedInstances.get (← getOptions))
           let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
-          let otherMVarIds ← getMVarsNoDelayed heq
+          let otherMVarIds ← getMVarsNoDelayed heqIn
           let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)
           let newMVarIds := newMVarIds ++ otherMVarIds
           pure { eNew := eNew, eqProof := eqPrf, mvarIds := newMVarIds.toList }

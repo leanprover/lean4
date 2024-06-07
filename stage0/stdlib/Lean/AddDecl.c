@@ -109,11 +109,11 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lamb
 static double l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__4___closed__5;
 static lean_object* l_Lean_addDecl___lambda__3___closed__1;
 lean_object* l_Lean_setEnv___at_Lean_compileDecl___spec__14(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_addAndCompile(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at_Lean_addDecl___spec__6___lambda__2___closed__2;
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_addDecl___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_addDecl___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -474,7 +474,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_182; uint8_t x_183; 
 x_182 = 2;
-x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_182);
+x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; 
@@ -517,7 +517,7 @@ lean_dec(x_7);
 x_175 = lean_ctor_get(x_4, 2);
 lean_inc(x_175);
 x_176 = 1;
-x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_176);
+x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_176);
 if (x_177 == 0)
 {
 lean_dec(x_175);

@@ -322,7 +322,6 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__1;
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputedFields___spec__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_validateComputedFields___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_overrideConstructors___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -341,6 +340,7 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDeclsD___at_Lean_Elab_ComputedFields_mkComputedFieldOverrides___spec__2(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateForallAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_overrideComputedFields___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__2___closed__2;
 lean_object* l_Lean_addDecl(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10599,7 +10599,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_184; uint8_t x_185; 
 x_184 = 2;
-x_185 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_184);
+x_185 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_184);
 if (x_185 == 0)
 {
 lean_object* x_186; 
@@ -10644,7 +10644,7 @@ lean_dec(x_9);
 x_177 = lean_ctor_get(x_6, 2);
 lean_inc(x_177);
 x_178 = 1;
-x_179 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_178);
+x_179 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_178);
 if (x_179 == 0)
 {
 lean_dec(x_177);

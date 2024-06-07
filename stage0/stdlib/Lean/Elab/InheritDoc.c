@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4_(lean
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___lambda__1___closed__2;
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___lambda__1___closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__14;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__5___closed__1;
@@ -122,6 +121,7 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 static lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2___closed__4;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(uint8_t, uint8_t);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__2___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -130,10 +130,10 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritD
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__4___closed__1;
@@ -604,7 +604,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_182; uint8_t x_183; 
 x_182 = 2;
-x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_182);
+x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; 
@@ -647,7 +647,7 @@ lean_dec(x_7);
 x_175 = lean_ctor_get(x_4, 2);
 lean_inc(x_175);
 x_176 = 1;
-x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_176);
+x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_176);
 if (x_177 == 0)
 {
 lean_dec(x_175);
@@ -2786,7 +2786,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_153_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_162_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 

@@ -162,6 +162,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_DeclNam
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);
 uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
+uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_mkBaseNameCore_visit___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___spec__3___lambda__1___closed__2;
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__3___closed__1;
@@ -225,7 +226,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lambda__5___closed__3;
 lean_object* l_Lean_Meta_isProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4885,7 +4885,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_box(0);
-x_9 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_IR_IRType_beq___spec__1(x_8, x_7);
+x_9 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(x_8, x_7);
 lean_dec(x_7);
 if (x_9 == 0)
 {
@@ -4914,7 +4914,7 @@ x_15 = lean_ctor_get(x_6, 0);
 x_16 = l_Lean_Name_getRoot(x_15);
 lean_dec(x_15);
 lean_ctor_set(x_6, 0, x_16);
-x_17 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_IR_IRType_beq___spec__1(x_6, x_7);
+x_17 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(x_6, x_7);
 lean_dec(x_7);
 lean_dec(x_6);
 if (x_17 == 0)
@@ -4943,7 +4943,7 @@ x_23 = l_Lean_Name_getRoot(x_22);
 lean_dec(x_22);
 x_24 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
-x_25 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_158____at_Lean_IR_IRType_beq___spec__1(x_24, x_7);
+x_25 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_IR_IRType_beq___spec__1(x_24, x_7);
 lean_dec(x_7);
 lean_dec(x_24);
 if (x_25 == 0)

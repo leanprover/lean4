@@ -69,6 +69,7 @@ extern lean_object* l_Lean_MessageData_nil;
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_mkSimpDiagSummary___lambda__1(lean_object*);
 lean_object* l_Lean_MessageData_ofConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_mkSimpDiagSummary___closed__4;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__8___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,6 +94,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_S
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__8___lambda__1___closed__10;
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_originToKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_reportDiag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -125,12 +127,14 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_mkSimpDiagSummary___spec__8___lambda__1___closed__4;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_mkSimpDiagSummary___closed__3;
 static lean_object* l_Lean_Meta_Simp_mkSimpDiagSummary___closed__2;
 lean_object* l_Lean_isDiagnosticsEnabled(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Meta_Simp_reportDiag___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_reportDiag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_mkSimpDiagSummary(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
@@ -188,7 +192,6 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
-lean_inc(x_7);
 x_13 = l_Lean_Environment_contains(x_12, x_7);
 if (x_13 == 0)
 {
@@ -286,7 +289,6 @@ lean_dec(x_8);
 x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec(x_37);
-lean_inc(x_7);
 x_40 = l_Lean_Environment_contains(x_39, x_7);
 if (x_40 == 0)
 {
@@ -1743,12 +1745,7 @@ x_12 = lean_usize_dec_lt(x_5, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_6);
 lean_ctor_set(x_13, 1, x_11);
@@ -1765,13 +1762,9 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_16 = lean_ctor_get(x_6, 1);
 x_17 = lean_ctor_get(x_6, 0);
 lean_dec(x_17);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
 lean_inc(x_16);
-lean_inc(x_1);
 x_18 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(x_1, x_14, x_16, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_14);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -1780,12 +1773,7 @@ lean_inc(x_19);
 if (lean_obj_tag(x_19) == 0)
 {
 uint8_t x_20; 
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
 x_20 = !lean_is_exclusive(x_18);
 if (x_20 == 0)
 {
@@ -1838,12 +1826,7 @@ else
 uint8_t x_31; 
 lean_free_object(x_6);
 lean_dec(x_16);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
 x_31 = !lean_is_exclusive(x_18);
 if (x_31 == 0)
 {
@@ -1870,13 +1853,9 @@ lean_object* x_35; lean_object* x_36;
 x_35 = lean_ctor_get(x_6, 1);
 lean_inc(x_35);
 lean_dec(x_6);
-lean_inc(x_10);
-lean_inc(x_9);
-lean_inc(x_8);
-lean_inc(x_7);
 lean_inc(x_35);
-lean_inc(x_1);
 x_36 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(x_1, x_14, x_35, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_14);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -1885,12 +1864,7 @@ lean_inc(x_37);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
 x_38 = lean_ctor_get(x_36, 1);
 lean_inc(x_38);
 if (lean_is_exclusive(x_36)) {
@@ -1941,12 +1915,7 @@ else
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 lean_dec(x_35);
-lean_dec(x_10);
-lean_dec(x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_2);
-lean_dec(x_1);
 x_49 = lean_ctor_get(x_36, 0);
 lean_inc(x_49);
 x_50 = lean_ctor_get(x_36, 1);
@@ -2188,8 +2157,6 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
 x_9 = lean_ctor_get(x_2, 0);
-lean_inc(x_9);
-lean_dec(x_2);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -2198,12 +2165,7 @@ x_12 = lean_array_get_size(x_9);
 x_13 = lean_usize_of_nat(x_12);
 lean_dec(x_12);
 x_14 = 0;
-lean_inc(x_7);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
 x_15 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__3(x_1, x_10, x_9, x_13, x_14, x_11, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_9);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -2222,20 +2184,12 @@ lean_inc(x_19);
 lean_dec(x_16);
 x_20 = lean_box(0);
 x_21 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2___lambda__1(x_19, x_20, x_4, x_5, x_6, x_7, x_18);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_21;
 }
 else
 {
 uint8_t x_22; 
 lean_dec(x_16);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 x_22 = !lean_is_exclusive(x_15);
 if (x_22 == 0)
 {
@@ -2267,10 +2221,6 @@ return x_27;
 else
 {
 uint8_t x_28; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 x_28 = !lean_is_exclusive(x_15);
 if (x_28 == 0)
 {
@@ -2294,10 +2244,7 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; size_t x_36; size_t x_37; lean_object* x_38; 
-lean_dec(x_1);
 x_32 = lean_ctor_get(x_2, 0);
-lean_inc(x_32);
-lean_dec(x_2);
 x_33 = lean_box(0);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -2307,7 +2254,6 @@ x_36 = lean_usize_of_nat(x_35);
 lean_dec(x_35);
 x_37 = 0;
 x_38 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__4(x_33, x_32, x_36, x_37, x_34, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_32);
 if (lean_obj_tag(x_38) == 0)
 {
 lean_object* x_39; lean_object* x_40; 
@@ -2326,20 +2272,12 @@ lean_inc(x_42);
 lean_dec(x_39);
 x_43 = lean_box(0);
 x_44 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2___lambda__1(x_42, x_43, x_4, x_5, x_6, x_7, x_41);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 return x_44;
 }
 else
 {
 uint8_t x_45; 
 lean_dec(x_39);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 x_45 = !lean_is_exclusive(x_38);
 if (x_45 == 0)
 {
@@ -2371,10 +2309,6 @@ return x_50;
 else
 {
 uint8_t x_51; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
 x_51 = !lean_is_exclusive(x_38);
 if (x_51 == 0)
 {
@@ -2592,13 +2526,9 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 lean_inc(x_2);
 x_9 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(x_2, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_2);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 
@@ -2607,11 +2537,6 @@ lean_inc(x_10);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
 x_11 = !lean_is_exclusive(x_9);
 if (x_11 == 0)
 {
@@ -2649,8 +2574,6 @@ x_18 = lean_ctor_get(x_10, 0);
 lean_inc(x_18);
 lean_dec(x_10);
 x_19 = lean_ctor_get(x_1, 1);
-lean_inc(x_19);
-lean_dec(x_1);
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
@@ -2660,11 +2583,6 @@ x_23 = lean_usize_of_nat(x_22);
 lean_dec(x_22);
 x_24 = 0;
 x_25 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__5(x_20, x_19, x_23, x_24, x_21, x_3, x_4, x_5, x_6, x_17);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_19);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -2761,11 +2679,6 @@ return x_43;
 else
 {
 uint8_t x_44; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_1);
 x_44 = !lean_is_exclusive(x_9);
 if (x_44 == 0)
 {
@@ -2856,11 +2769,6 @@ return x_22;
 else
 {
 lean_object* x_23; lean_object* x_24; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
 x_23 = l_Lean_Meta_Simp_mkSimpDiagSummary___closed__5;
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
@@ -2878,7 +2786,12 @@ lean_dec(x_4);
 x_13 = lean_unbox_usize(x_5);
 lean_dec(x_5);
 x_14 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__3(x_1, x_2, x_3, x_12, x_13, x_6, x_7, x_8, x_9, x_10, x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_14;
 }
 }
@@ -2912,6 +2825,20 @@ lean_dec(x_2);
 return x_8;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+_start:
+{
+lean_object* x_9; 
+x_9 = l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_9;
+}
+}
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -2940,6 +2867,32 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; 
+x_8 = l_Lean_PersistentArray_forIn___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Meta_Simp_reportDiag___closed__1() {
@@ -3031,10 +2984,7 @@ lean_dec(x_8);
 if (x_9 == 0)
 {
 uint8_t x_10; 
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_10 = !lean_is_exclusive(x_7);
 if (x_10 == 0)
@@ -3106,11 +3056,8 @@ lean_inc(x_31);
 x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
 x_33 = l___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary(x_20, x_2, x_3, x_4, x_5, x_32);
+lean_dec(x_20);
 if (lean_obj_tag(x_33) == 0)
 {
 uint8_t x_34; 
@@ -3236,10 +3183,7 @@ lean_dec(x_35);
 lean_dec(x_31);
 lean_dec(x_27);
 lean_dec(x_23);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_105 = lean_box(0);
 lean_ctor_set(x_33, 0, x_105);
 return x_33;
@@ -3368,10 +3312,7 @@ lean_dec(x_106);
 lean_dec(x_31);
 lean_dec(x_27);
 lean_dec(x_23);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_176 = lean_box(0);
 x_177 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_177, 0, x_176);
@@ -3389,10 +3330,7 @@ uint8_t x_178;
 lean_dec(x_31);
 lean_dec(x_27);
 lean_dec(x_23);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_178 = !lean_is_exclusive(x_33);
 if (x_178 == 0)
 {
@@ -3419,10 +3357,7 @@ uint8_t x_182;
 lean_dec(x_27);
 lean_dec(x_23);
 lean_dec(x_20);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_182 = !lean_is_exclusive(x_30);
 if (x_182 == 0)
 {
@@ -3449,10 +3384,7 @@ uint8_t x_186;
 lean_dec(x_23);
 lean_dec(x_20);
 lean_dec(x_19);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_186 = !lean_is_exclusive(x_26);
 if (x_186 == 0)
 {
@@ -3480,10 +3412,7 @@ lean_dec(x_20);
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_17);
-lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 x_190 = !lean_is_exclusive(x_22);
 if (x_190 == 0)
 {
@@ -3504,6 +3433,17 @@ return x_193;
 }
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_reportDiag___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_Simp_reportDiag(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
 }
 }
 lean_object* initialize_Lean_Meta_Diagnostics(uint8_t builtin, lean_object*);

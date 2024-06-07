@@ -9002,7 +9002,6 @@ lean_dec(x_1);
 x_4 = l_Lean_Name_hash___override(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = l_Lean_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__4(x_3, x_5, x_2);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -9031,7 +9030,6 @@ else
 {
 uint8_t x_8; 
 lean_dec(x_5);
-lean_dec(x_2);
 x_8 = 1;
 return x_8;
 }
@@ -9043,7 +9041,6 @@ x_9 = lean_ctor_get(x_1, 0);
 lean_inc(x_9);
 lean_dec(x_1);
 x_10 = l_Lean_HashMapImp_contains___at_Lean_NameSSet_contains___spec__2(x_9, x_2);
-lean_dec(x_2);
 lean_dec(x_9);
 return x_10;
 }
@@ -9097,6 +9094,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_2);
+lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -9106,6 +9104,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_SMap_contains___at_Lean_NameSSet_contains___spec__1(x_1, x_2);
+lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -9115,6 +9114,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_NameSSet_contains(x_1, x_2);
+lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

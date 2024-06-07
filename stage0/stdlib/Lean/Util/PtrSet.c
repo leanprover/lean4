@@ -690,8 +690,6 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; size_t x_9; lean_object* x_10; uint8_t x_11; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_ptr_addr(x_2);
 x_6 = lean_usize_to_uint64(x_5);
@@ -699,10 +697,8 @@ x_7 = 11;
 x_8 = lean_uint64_mix_hash(x_6, x_7);
 x_9 = lean_hashset_mk_idx(x_4, x_8);
 x_10 = lean_array_uget(x_3, x_9);
-lean_dec(x_3);
 x_11 = l_List_elem___at_Lean_PtrSet_contains___spec__2___rarg(x_2, x_10);
 lean_dec(x_10);
-lean_dec(x_2);
 return x_11;
 }
 }
@@ -746,6 +742,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_HashSetImp_contains___at_Lean_PtrSet_contains___spec__1___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -755,6 +753,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_PtrSet_contains___rarg(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

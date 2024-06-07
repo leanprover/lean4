@@ -231,7 +231,6 @@ x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; 
-lean_dec(x_2);
 x_5 = 0;
 return x_5;
 }
@@ -316,6 +315,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_ImportCompletion_determinePartialHeaderCompletions___lambda__1(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
@@ -369,6 +369,7 @@ else
 uint8_t x_15; lean_object* x_16; 
 x_15 = 0;
 x_16 = l_Lean_Syntax_getTailPos_x3f(x_8, x_15);
+lean_dec(x_8);
 if (lean_obj_tag(x_16) == 0)
 {
 size_t x_17; size_t x_18; 
@@ -419,7 +420,6 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_3 = lean_unsigned_to_nat(1u);
 x_4 = l_Lean_Syntax_getArg(x_1, x_3);
-lean_dec(x_1);
 x_5 = l_Lean_Syntax_getArgs(x_4);
 lean_dec(x_4);
 x_6 = lean_array_get_size(x_5);
@@ -430,7 +430,6 @@ if (x_8 == 0)
 uint8_t x_9; 
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 x_9 = 0;
 return x_9;
 }
@@ -442,7 +441,6 @@ x_11 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
 x_12 = l_Array_anyMUnsafe_any___at_ImportCompletion_isImportNameCompletionRequest___spec__1(x_2, x_5, x_10, x_11);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_12;
 }
 }
@@ -467,6 +465,8 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_ImportCompletion_isImportNameCompletionRequest(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -498,6 +498,7 @@ x_12 = lean_ctor_get(x_8, 0);
 lean_inc(x_12);
 lean_dec(x_8);
 x_13 = l_Lean_Syntax_getTailPos_x3f(x_6, x_7);
+lean_dec(x_6);
 if (lean_obj_tag(x_13) == 0)
 {
 size_t x_14; size_t x_15; 
@@ -824,7 +825,6 @@ x_18 = lean_unsigned_to_nat(2u);
 x_19 = l_Lean_Syntax_getArg(x_14, x_18);
 lean_dec(x_14);
 x_20 = 0;
-lean_inc(x_19);
 x_21 = l_Lean_Syntax_getTailPos_x3f(x_19, x_20);
 if (lean_obj_tag(x_21) == 0)
 {
@@ -906,6 +906,7 @@ x_38 = l_Lean_Syntax_getArg(x_16, x_37);
 lean_dec(x_16);
 x_39 = 0;
 x_40 = l_Lean_Syntax_getTailPos_x3f(x_38, x_39);
+lean_dec(x_38);
 if (lean_obj_tag(x_40) == 0)
 {
 size_t x_41; size_t x_42; 
@@ -1121,7 +1122,6 @@ lean_inc(x_5);
 x_6 = lean_ctor_get(x_4, 1);
 lean_inc(x_6);
 lean_dec(x_4);
-lean_inc(x_5);
 x_7 = l_Lean_NameTrie_matchingToArray___rarg(x_3, x_5);
 x_8 = lean_array_get_size(x_7);
 x_9 = lean_usize_of_nat(x_8);
@@ -1389,6 +1389,7 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_ImportCompletion_isImportCompletionRequest(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
@@ -3511,8 +3512,6 @@ x_5 = l_ImportCompletion_AvailableImports_toImportTrie(x_4);
 x_6 = lean_ctor_get(x_3, 1);
 lean_inc(x_6);
 x_7 = l_Lean_FileMap_lspPosToUtf8Pos(x_1, x_6);
-lean_inc(x_7);
-lean_inc(x_2);
 x_8 = l_ImportCompletion_isImportNameCompletionRequest(x_2, x_7);
 if (x_8 == 0)
 {
@@ -3523,7 +3522,6 @@ if (x_9 == 0)
 lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; 
 x_10 = l_ImportCompletion_computePartialImportCompletions(x_2, x_7, x_5);
 lean_dec(x_7);
-lean_dec(x_2);
 x_11 = lean_array_get_size(x_10);
 x_12 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
@@ -3540,7 +3538,6 @@ else
 {
 lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; 
 lean_dec(x_7);
-lean_dec(x_2);
 x_18 = l_Lean_NameTrie_toArray___rarg(x_5);
 x_19 = lean_array_get_size(x_18);
 x_20 = lean_usize_of_nat(x_19);
@@ -3559,7 +3556,6 @@ else
 {
 lean_object* x_26; lean_object* x_27; size_t x_28; size_t x_29; lean_object* x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
 lean_dec(x_7);
-lean_dec(x_2);
 x_26 = l_Lean_NameTrie_toArray___rarg(x_5);
 x_27 = lean_array_get_size(x_26);
 x_28 = lean_usize_of_nat(x_27);
@@ -3605,6 +3601,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_ImportCompletion_find(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }
@@ -3651,7 +3648,6 @@ else
 {
 uint8_t x_15; 
 lean_dec(x_3);
-lean_dec(x_2);
 x_15 = !lean_is_exclusive(x_5);
 if (x_15 == 0)
 {
@@ -3678,6 +3674,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_ImportCompletion_computeCompletions(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }

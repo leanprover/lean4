@@ -116,6 +116,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_forEachExpr_x27_visit___spec__11___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit___at_Lean_Meta_forEachExpr_x27_visit___spec__4___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit___at_Lean_Meta_setMVarUserNamesAt___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -242,6 +243,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_visitLet_visit__
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda___at_Lean_Meta_setMVarUserNamesAt___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit___at_Lean_Meta_forEachExpr_x27_visit___spec__4(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___at_Lean_Meta_forEachExpr_x27_visit___spec__7(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___at_Lean_Meta_setMVarUserNamesAt___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -841,16 +843,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Expr_hash(x_2);
 x_6 = lean_hashmap_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
-lean_dec(x_3);
 x_8 = l_Lean_AssocList_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__2(x_2, x_7);
 lean_dec(x_7);
-lean_dec(x_2);
 return x_8;
 }
 }
@@ -1940,7 +1938,7 @@ lean_inc(x_5);
 x_10 = lean_apply_2(x_5, lean_box(0), x_9);
 lean_inc(x_1);
 lean_inc(x_6);
-x_11 = lean_alloc_closure((void*)(l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__1), 3, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_11, 0, x_6);
 lean_closure_set(x_11, 1, x_1);
 lean_inc(x_8);
@@ -1972,6 +1970,16 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_AssocList_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__2(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_HashMapImp_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
@@ -2084,6 +2092,16 @@ x_3 = l_Lean_AssocList_contains___at_Lean_Meta_forEachExpr_x27_visit___spec__13(
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Meta_forEachExpr_x27_visit___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -2691,6 +2709,7 @@ else
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_array_fget(x_4, x_1);
 x_16 = l_Lean_Meta_getFVarLocalDecl(x_15, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
@@ -2912,6 +2931,7 @@ else
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = l_Lean_Expr_mvarId_x21(x_27);
+lean_dec(x_27);
 lean_inc(x_32);
 x_33 = l_Lean_MVarId_getDecl(x_32, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_33) == 0)
@@ -3688,8 +3708,8 @@ if (x_13 == 0)
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_14 = lean_ctor_get(x_12, 0);
 x_15 = lean_ctor_get(x_12, 1);
-lean_inc(x_4);
 x_16 = l_Lean_HashMapImp_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__1(x_14, x_4);
+lean_dec(x_14);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_31; 
@@ -4262,8 +4282,8 @@ x_105 = lean_ctor_get(x_12, 1);
 lean_inc(x_105);
 lean_inc(x_104);
 lean_dec(x_12);
-lean_inc(x_4);
 x_106 = l_Lean_HashMapImp_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__1(x_104, x_4);
+lean_dec(x_104);
 if (lean_obj_tag(x_106) == 0)
 {
 lean_object* x_107; lean_object* x_108; lean_object* x_120; 
@@ -5569,6 +5589,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Array_append___rarg(x_22, x_19);
+lean_dec(x_19);
 x_25 = lean_st_ref_set(x_6, x_24, x_23);
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
@@ -5945,6 +5966,7 @@ x_40 = lean_ctor_get(x_38, 1);
 lean_inc(x_40);
 lean_dec(x_38);
 x_41 = l_Array_append___rarg(x_39, x_36);
+lean_dec(x_36);
 x_42 = lean_st_ref_set(x_19, x_41, x_40);
 x_43 = lean_ctor_get(x_42, 1);
 lean_inc(x_43);

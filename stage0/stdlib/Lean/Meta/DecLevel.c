@@ -18,6 +18,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Level_mvar___override(lean_object*);
 lean_object* l_Lean_Meta_mkFreshLevelMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738____closed__3;
+LEAN_EXPORT lean_object* l_Lean_Meta_decLevel_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738____closed__9;
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__4;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738____closed__6;
@@ -74,6 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at___private_Lean_Meta_DecLevel_0__Le
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738____closed__13;
 LEAN_EXPORT lean_object* l_Lean_assignLevelMVar___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_DecLevel___hyg_738____closed__12;
+LEAN_EXPORT lean_object* l_Lean_Meta_decLevel___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__6;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -698,10 +700,6 @@ switch (lean_obj_tag(x_1)) {
 case 1:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_8 = lean_ctor_get(x_1, 0);
 lean_inc(x_8);
 lean_dec(x_1);
@@ -721,10 +719,6 @@ x_12 = lean_ctor_get(x_1, 1);
 lean_inc(x_12);
 lean_dec(x_1);
 x_13 = 0;
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_14 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f(x_11, x_13, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -735,10 +729,6 @@ if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
 lean_dec(x_12);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_16 = !lean_is_exclusive(x_14);
 if (x_16 == 0)
 {
@@ -893,10 +883,6 @@ else
 {
 uint8_t x_50; 
 lean_dec(x_12);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_50 = !lean_is_exclusive(x_14);
 if (x_50 == 0)
 {
@@ -926,10 +912,6 @@ x_55 = lean_ctor_get(x_1, 1);
 lean_inc(x_55);
 lean_dec(x_1);
 x_56 = 0;
-lean_inc(x_6);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_57 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f(x_54, x_56, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_57) == 0)
 {
@@ -940,10 +922,6 @@ if (lean_obj_tag(x_58) == 0)
 {
 uint8_t x_59; 
 lean_dec(x_55);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_59 = !lean_is_exclusive(x_57);
 if (x_59 == 0)
 {
@@ -1098,10 +1076,6 @@ else
 {
 uint8_t x_93; 
 lean_dec(x_55);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_93 = !lean_is_exclusive(x_57);
 if (x_93 == 0)
 {
@@ -1141,7 +1115,6 @@ lean_dec(x_100);
 x_103 = lean_ctor_get(x_102, 6);
 lean_inc(x_103);
 lean_dec(x_102);
-lean_inc(x_97);
 x_104 = l_Lean_PersistentHashMap_find_x3f___at_Lean_getLevelMVarAssignment_x3f___spec__1(x_103, x_97);
 if (lean_obj_tag(x_104) == 0)
 {
@@ -1162,10 +1135,6 @@ if (x_2 == 0)
 uint8_t x_108; 
 lean_free_object(x_98);
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_108 = !lean_is_exclusive(x_105);
 if (x_108 == 0)
 {
@@ -1218,10 +1187,6 @@ lean_inc(x_123);
 lean_dec(x_120);
 x_124 = lean_box(0);
 x_125 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_117, x_97, x_124, x_2, x_3, x_4, x_5, x_6, x_123);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_125;
 }
 else
@@ -1262,10 +1227,6 @@ x_139 = lean_ctor_get(x_137, 1);
 lean_inc(x_139);
 lean_dec(x_137);
 x_140 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_117, x_97, x_138, x_2, x_3, x_4, x_5, x_6, x_139);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_138);
 return x_140;
 }
@@ -1303,10 +1264,6 @@ x_153 = lean_ctor_get(x_151, 1);
 lean_inc(x_153);
 lean_dec(x_151);
 x_154 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_117, x_97, x_152, x_2, x_3, x_4, x_5, x_6, x_153);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_152);
 return x_154;
 }
@@ -1335,10 +1292,6 @@ lean_inc(x_161);
 lean_dec(x_158);
 x_162 = lean_box(0);
 x_163 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_155, x_97, x_162, x_2, x_3, x_4, x_5, x_6, x_161);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_163;
 }
 else
@@ -1387,10 +1340,6 @@ x_178 = lean_ctor_get(x_176, 1);
 lean_inc(x_178);
 lean_dec(x_176);
 x_179 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_155, x_97, x_177, x_2, x_3, x_4, x_5, x_6, x_178);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_177);
 return x_179;
 }
@@ -1402,10 +1351,6 @@ else
 uint8_t x_180; 
 lean_free_object(x_98);
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_180 = !lean_is_exclusive(x_105);
 if (x_180 == 0)
 {
@@ -1435,10 +1380,6 @@ else
 uint8_t x_186; 
 lean_free_object(x_98);
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_186 = !lean_is_exclusive(x_105);
 if (x_186 == 0)
 {
@@ -1486,7 +1427,6 @@ lean_dec(x_192);
 x_195 = lean_ctor_get(x_194, 6);
 lean_inc(x_195);
 lean_dec(x_194);
-lean_inc(x_97);
 x_196 = l_Lean_PersistentHashMap_find_x3f___at_Lean_getLevelMVarAssignment_x3f___spec__1(x_195, x_97);
 if (lean_obj_tag(x_196) == 0)
 {
@@ -1506,10 +1446,6 @@ if (x_2 == 0)
 {
 lean_object* x_200; lean_object* x_201; lean_object* x_202; lean_object* x_203; 
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_200 = lean_ctor_get(x_197, 1);
 lean_inc(x_200);
 if (lean_is_exclusive(x_197)) {
@@ -1564,10 +1500,6 @@ lean_inc(x_213);
 lean_dec(x_210);
 x_214 = lean_box(0);
 x_215 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_206, x_97, x_214, x_2, x_3, x_4, x_5, x_6, x_213);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_215;
 }
 else
@@ -1621,10 +1553,6 @@ x_231 = lean_ctor_get(x_229, 1);
 lean_inc(x_231);
 lean_dec(x_229);
 x_232 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___lambda__1(x_206, x_97, x_230, x_2, x_3, x_4, x_5, x_6, x_231);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_230);
 return x_232;
 }
@@ -1634,10 +1562,6 @@ else
 {
 lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; 
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_233 = lean_ctor_get(x_197, 1);
 lean_inc(x_233);
 if (lean_is_exclusive(x_197)) {
@@ -1663,10 +1587,6 @@ else
 {
 lean_object* x_237; lean_object* x_238; lean_object* x_239; lean_object* x_240; 
 lean_dec(x_97);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 x_237 = lean_ctor_get(x_197, 0);
 lean_inc(x_237);
 x_238 = lean_ctor_get(x_197, 1);
@@ -1705,10 +1625,6 @@ goto _start;
 default: 
 {
 lean_object* x_243; lean_object* x_244; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 x_243 = lean_box(0);
 x_244 = lean_alloc_ctor(0, 2, 0);
@@ -1783,6 +1699,10 @@ uint8_t x_8; lean_object* x_9;
 x_8 = lean_unbox(x_2);
 lean_dec(x_2);
 x_9 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_9;
 }
 }
@@ -1800,7 +1720,6 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = 1;
-lean_inc(x_3);
 x_12 = l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f(x_1, x_11, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -1827,7 +1746,6 @@ x_19 = lean_ctor_get(x_16, 0);
 lean_dec(x_19);
 lean_ctor_set(x_16, 0, x_10);
 x_20 = lean_st_ref_set(x_3, x_16, x_17);
-lean_dec(x_3);
 x_21 = !lean_is_exclusive(x_20);
 if (x_21 == 0)
 {
@@ -1870,7 +1788,6 @@ lean_ctor_set(x_31, 2, x_28);
 lean_ctor_set(x_31, 3, x_29);
 lean_ctor_set(x_31, 4, x_30);
 x_32 = lean_st_ref_set(x_3, x_31, x_17);
-lean_dec(x_3);
 x_33 = lean_ctor_get(x_32, 1);
 lean_inc(x_33);
 if (lean_is_exclusive(x_32)) {
@@ -1896,7 +1813,6 @@ else
 {
 uint8_t x_37; 
 lean_dec(x_10);
-lean_dec(x_3);
 x_37 = !lean_is_exclusive(x_12);
 if (x_37 == 0)
 {
@@ -1952,7 +1868,6 @@ else
 {
 uint8_t x_47; 
 lean_dec(x_10);
-lean_dec(x_3);
 x_47 = !lean_is_exclusive(x_12);
 if (x_47 == 0)
 {
@@ -1972,6 +1887,18 @@ lean_ctor_set(x_50, 1, x_49);
 return x_50;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_decLevel_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_decLevel_x3f(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_decLevel___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2050,10 +1977,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_decLevel(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_7; 
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
-lean_inc(x_2);
 lean_inc(x_1);
 x_7 = l_Lean_Meta_decLevel_x3f(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
@@ -2077,19 +2000,11 @@ x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_throwError___at_Lean_Meta_decLevel___spec__1(x_14, x_2, x_3, x_4, x_5, x_9);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 return x_15;
 }
 else
 {
 uint8_t x_16; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_16 = !lean_is_exclusive(x_7);
 if (x_16 == 0)
@@ -2122,10 +2037,6 @@ return x_21;
 else
 {
 uint8_t x_22; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_22 = !lean_is_exclusive(x_7);
 if (x_22 == 0)
@@ -2160,6 +2071,18 @@ lean_dec(x_2);
 return x_7;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_decLevel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Meta_decLevel(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_getDecLevel(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -2178,6 +2101,10 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Meta_decLevel(x_8, x_2, x_3, x_4, x_5, x_9);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
 return x_10;
 }
 else

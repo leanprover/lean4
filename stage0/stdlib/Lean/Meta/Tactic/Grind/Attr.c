@@ -1322,7 +1322,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_
 _start:
 {
 lean_object* x_7; 
-lean_dec(x_2);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_1);
@@ -1650,6 +1649,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_3);
 lean_dec(x_3);
 x_8 = l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Attr___hyg_430____lambda__1(x_1, x_2, x_7, x_4, x_5, x_6);
+lean_dec(x_2);
 return x_8;
 }
 }

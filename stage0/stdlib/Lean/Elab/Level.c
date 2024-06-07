@@ -105,6 +105,7 @@ static lean_object* l_Lean_Elab_Level_elabLevel___closed__21;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_285____closed__6;
 LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__16;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4___boxed(lean_object*, lean_object*, lean_object*);
@@ -1018,7 +1019,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___closed__2;
 x_4 = l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(x_3, x_1, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -1045,7 +1045,6 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__1;
 x_6 = l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
-lean_dec(x_1);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -1516,6 +1515,7 @@ if (lean_obj_tag(x_33) == 0)
 lean_object* x_34; 
 lean_dec(x_29);
 x_34 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(x_2, x_30);
+lean_dec(x_2);
 return x_34;
 }
 else
@@ -1524,7 +1524,6 @@ lean_object* x_35; lean_object* x_36;
 x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
 lean_dec(x_33);
-lean_inc(x_35);
 x_36 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(x_35, x_2, x_30);
 lean_dec(x_2);
 if (lean_obj_tag(x_36) == 0)
@@ -1771,6 +1770,7 @@ if (lean_obj_tag(x_94) == 0)
 {
 lean_object* x_95; 
 x_95 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(x_2, x_3);
+lean_dec(x_2);
 return x_95;
 }
 else
@@ -1779,7 +1779,6 @@ lean_object* x_96; lean_object* x_97;
 x_96 = lean_ctor_get(x_94, 0);
 lean_inc(x_96);
 lean_dec(x_94);
-lean_inc(x_96);
 x_97 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(x_96, x_2, x_3);
 lean_dec(x_2);
 if (lean_obj_tag(x_97) == 0)
@@ -2337,6 +2336,7 @@ if (lean_obj_tag(x_240) == 0)
 lean_object* x_241; 
 lean_dec(x_236);
 x_241 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(x_218, x_237);
+lean_dec(x_218);
 return x_241;
 }
 else
@@ -2345,7 +2345,6 @@ lean_object* x_242; lean_object* x_243;
 x_242 = lean_ctor_get(x_240, 0);
 lean_inc(x_242);
 lean_dec(x_240);
-lean_inc(x_242);
 x_243 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(x_242, x_218, x_237);
 lean_dec(x_218);
 if (lean_obj_tag(x_243) == 0)
@@ -2585,6 +2584,7 @@ if (lean_obj_tag(x_293) == 0)
 {
 lean_object* x_294; 
 x_294 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(x_218, x_3);
+lean_dec(x_218);
 return x_294;
 }
 else
@@ -2593,7 +2593,6 @@ lean_object* x_295; lean_object* x_296;
 x_295 = lean_ctor_get(x_293, 0);
 lean_inc(x_295);
 lean_dec(x_293);
-lean_inc(x_295);
 x_296 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(x_295, x_218, x_3);
 lean_dec(x_218);
 if (lean_obj_tag(x_296) == 0)
@@ -2963,6 +2962,15 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2978,6 +2986,7 @@ _start:
 lean_object* x_4; 
 x_4 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at_Lean_Elab_Level_elabLevel___spec__3(x_1, x_2, x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }

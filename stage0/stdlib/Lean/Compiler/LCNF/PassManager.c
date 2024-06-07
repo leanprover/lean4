@@ -32,6 +32,7 @@ static lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAfter___elambda__1
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l___auto____x40_Lean_Compiler_LCNF_PassManager___hyg_139____closed__7;
 lean_object* l_Array_findIdx_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instInhabitedPass___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_instToStringPhase___closed__1;
@@ -1279,7 +1280,6 @@ x_8 = lean_usize_of_nat(x_7);
 lean_dec(x_7);
 x_9 = 0;
 x_10 = l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___spec__1(x_1, x_2, x_8, x_9, x_6, x_3, x_4, x_5);
-lean_dec(x_2);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
@@ -1299,15 +1299,11 @@ x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = l_Lean_MessageData_ofFormat(x_19);
 x_21 = l_Lean_throwError___at_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___spec__2(x_20, x_3, x_4, x_12);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_21;
 }
 else
 {
 uint8_t x_22; 
-lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_1);
 x_22 = !lean_is_exclusive(x_10);
 if (x_22 == 0)
@@ -1362,6 +1358,17 @@ x_5 = l_Lean_throwError___at_Lean_Compiler_LCNF_PassManager_findHighestOccurrenc
 lean_dec(x_3);
 lean_dec(x_2);
 return x_5;
+}
+}
+lean_object* l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_6;
 }
 }
 lean_object* l_Lean_Compiler_LCNF_PassInstaller_installAtEnd___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -1421,6 +1428,7 @@ lean_object* x_6;
 x_6 = l_Lean_Compiler_LCNF_PassInstaller_append___elambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_6;
 }
 }
@@ -1522,9 +1530,6 @@ lean_object* l_Lean_Compiler_LCNF_PassInstaller_withEachOccurrence___elambda__1(
 _start:
 {
 lean_object* x_7; 
-lean_inc(x_5);
-lean_inc(x_4);
-lean_inc(x_3);
 x_7 = l_Lean_Compiler_LCNF_PassManager_findHighestOccurrence(x_1, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {

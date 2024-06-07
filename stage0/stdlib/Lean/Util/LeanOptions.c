@@ -23,6 +23,7 @@ static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValu
 LEAN_EXPORT lean_object* l_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__4(lean_object*);
 static lean_object* l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptionValue____x40_Lean_Util_LeanOptions___hyg_42____closed__14;
 static lean_object* l_Lean_instFromJsonLeanOptionValue___closed__1;
+LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__1___boxed(lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_LeanOptions_fromOptions_x3f___spec__2(lean_object*, lean_object*, lean_object*);
@@ -1267,7 +1268,6 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_box(0);
 x_3 = l_Lean_RBNode_revFold___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__2(x_2, x_1);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -1870,6 +1870,15 @@ lean_dec(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_RBMap_toList___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Prod_repr___at___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538____spec__5___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1894,6 +1903,7 @@ _start:
 lean_object* x_3; 
 x_3 = l___private_Lean_Util_LeanOptions_0__Lean_reprLeanOptions____x40_Lean_Util_LeanOptions___hyg_538_(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

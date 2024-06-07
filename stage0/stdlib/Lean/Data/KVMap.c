@@ -46,6 +46,7 @@ static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lea
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_276____closed__34;
 static lean_object* l_Lean_instInhabitedDataValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_KVMap_find(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_KVMap_erase___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueDataValue___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_getNat(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_setNat(lean_object*, lean_object*, lean_object*);
@@ -2799,7 +2800,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_box(0);
 x_4 = l_List_filterTR_loop___at_Lean_KVMap_erase___spec__1(x_2, x_1, x_3);
-lean_dec(x_2);
 return x_4;
 }
 }
@@ -2810,6 +2810,15 @@ lean_object* x_4;
 x_4 = l_List_filterTR_loop___at_Lean_KVMap_erase___spec__1(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_KVMap_erase___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_KVMap_erase(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_KVMap_getString(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3579,6 +3588,7 @@ if (lean_obj_tag(x_7) == 0)
 lean_object* x_8; 
 lean_dec(x_1);
 x_8 = l_Lean_KVMap_erase(x_2, x_3);
+lean_dec(x_3);
 return x_8;
 }
 else
@@ -3610,6 +3620,7 @@ if (lean_obj_tag(x_16) == 0)
 lean_object* x_17; 
 lean_dec(x_1);
 x_17 = l_Lean_KVMap_erase(x_2, x_3);
+lean_dec(x_3);
 return x_17;
 }
 else

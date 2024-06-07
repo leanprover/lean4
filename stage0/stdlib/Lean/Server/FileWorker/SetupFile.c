@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__2(lean_obj
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupFile___lambda__1___closed__3;
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -34,6 +35,7 @@ static lean_object* l_Lean_Server_FileWorker_setupFile___lambda__1___closed__2;
 lean_object* l_String_trim(lean_object*);
 lean_object* l___private_Lean_Util_FileSetupInfo_0__Lean_fromJsonFileSetupInfo____x40_Lean_Util_FileSetupInfo___hyg_26_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile_processStderr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -585,8 +587,8 @@ lean_dec(x_9);
 x_11 = 0;
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_runLakeSetupFile___spec__1(x_10, x_11, x_4);
 x_13 = l_Array_append___rarg(x_8, x_12);
+lean_dec(x_12);
 x_14 = lean_ctor_get_uint8(x_1, sizeof(void*)*3);
-lean_dec(x_1);
 x_15 = lean_box(x_14);
 if (lean_obj_tag(x_15) == 2)
 {
@@ -626,6 +628,15 @@ lean_object* x_6;
 x_6 = l_Lean_Server_FileWorker_runLakeSetupFile___lambda__1(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_runLakeSetupFile___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Server_FileWorker_runLakeSetupFile(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_FileSetupResult_ofSuccess(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1657,7 +1668,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__2(lean_obj
 _start:
 {
 lean_object* x_7; 
-lean_dec(x_5);
 x_7 = l_Lean_determineLakePath(x_6);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -1679,7 +1689,6 @@ lean_dec(x_8);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
@@ -1746,7 +1755,6 @@ uint8_t x_26;
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_26 = !lean_is_exclusive(x_7);
 if (x_26 == 0)
 {
@@ -1861,6 +1869,7 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; 
 x_20 = lean_box(0);
 x_21 = l_Lean_Server_FileWorker_setupFile___lambda__2(x_1, x_16, x_2, x_3, x_20, x_4);
+lean_dec(x_1);
 return x_21;
 }
 else
@@ -1938,7 +1947,18 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_Server_FileWorker_setupFile___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
+lean_dec(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupFile___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Server_FileWorker_setupFile___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+lean_dec(x_1);
+return x_7;
 }
 }
 lean_object* initialize_Init_System_IO(uint8_t builtin, lean_object*);

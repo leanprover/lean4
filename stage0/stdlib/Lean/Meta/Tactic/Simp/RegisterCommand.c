@@ -1730,17 +1730,18 @@ x_16 = l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______ma
 lean_inc(x_13);
 x_17 = l_Lean_Name_append(x_16, x_13);
 x_18 = 0;
-lean_inc(x_11);
 x_19 = l_Lean_mkIdentFrom(x_11, x_17, x_18);
 lean_inc(x_13);
 x_20 = l_Lean_Meta_Simp_simpAttrNameToSimprocAttrName(x_13);
 x_21 = l_Lean_mkIdentFrom(x_11, x_20, x_18);
+lean_dec(x_11);
 x_22 = l_Lean_Syntax_getId(x_21);
 lean_inc(x_22);
 x_23 = l_Lean_Name_toString(x_22, x_14);
 lean_inc(x_22);
 x_24 = l_Lean_Name_append(x_16, x_22);
 x_25 = l_Lean_mkIdentFrom(x_21, x_24, x_18);
+lean_dec(x_21);
 x_26 = l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__3;
 x_27 = lean_string_append(x_26, x_23);
 x_28 = l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__4;
@@ -1807,6 +1808,7 @@ lean_dec(x_34);
 x_36 = lean_ctor_get(x_2, 5);
 lean_inc(x_36);
 x_37 = l_Lean_SourceInfo_fromRef(x_36, x_18);
+lean_dec(x_36);
 x_38 = lean_ctor_get(x_2, 2);
 lean_inc(x_38);
 x_39 = lean_ctor_get(x_2, 1);
@@ -2141,6 +2143,7 @@ block_243:
 {
 lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; lean_object* x_179; lean_object* x_180; lean_object* x_181; lean_object* x_182; lean_object* x_183; lean_object* x_184; lean_object* x_185; lean_object* x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; 
 x_175 = l_Array_append___rarg(x_41, x_174);
+lean_dec(x_174);
 lean_inc(x_37);
 x_176 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_176, 0, x_37);

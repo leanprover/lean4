@@ -30922,8 +30922,6 @@ x_4 = lean_nat_dec_lt(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-lean_dec(x_3);
-lean_dec(x_2);
 x_5 = l_Lean_Xml_Parser_Comment___closed__2;
 return x_5;
 }
@@ -30936,8 +30934,6 @@ lean_dec(x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; 
-lean_dec(x_3);
-lean_dec(x_2);
 x_8 = l_Lean_Xml_Parser_Comment___closed__2;
 return x_8;
 }
@@ -30945,9 +30941,7 @@ else
 {
 size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_usize_of_nat(x_2);
-lean_dec(x_2);
 x_10 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
 x_11 = l_Lean_Xml_Parser_Comment___closed__2;
 x_12 = l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_content___spec__3(x_1, x_9, x_10, x_11);
 return x_12;
@@ -31194,6 +31188,7 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Array_append___rarg(x_4, x_6);
+lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -31323,6 +31318,7 @@ lean_dec(x_7);
 x_14 = l_Array_append___rarg(x_9, x_4);
 x_15 = lean_array_get_size(x_14);
 x_16 = l_Array_filterMapM___at_Lean_Xml_Parser_content___spec__2(x_14, x_11, x_15);
+lean_dec(x_15);
 lean_dec(x_14);
 x_17 = lean_array_get_size(x_16);
 x_18 = lean_usize_of_nat(x_17);
@@ -31360,6 +31356,7 @@ lean_dec(x_7);
 x_25 = l_Array_append___rarg(x_9, x_4);
 x_26 = lean_array_get_size(x_25);
 x_27 = l_Array_filterMapM___at_Lean_Xml_Parser_content___spec__2(x_25, x_11, x_26);
+lean_dec(x_26);
 lean_dec(x_25);
 x_28 = lean_array_get_size(x_27);
 x_29 = lean_usize_of_nat(x_28);
@@ -31393,8 +31390,10 @@ lean_dec(x_10);
 x_36 = l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_content___spec__5(x_7, x_13, x_35, x_4);
 lean_dec(x_7);
 x_37 = l_Array_append___rarg(x_9, x_36);
+lean_dec(x_36);
 x_38 = lean_array_get_size(x_37);
 x_39 = l_Array_filterMapM___at_Lean_Xml_Parser_content___spec__2(x_37, x_11, x_38);
+lean_dec(x_38);
 lean_dec(x_37);
 x_40 = lean_array_get_size(x_39);
 x_41 = lean_usize_of_nat(x_40);
@@ -31824,6 +31823,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Array_filterMapM___at_Lean_Xml_Parser_content___spec__2(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }

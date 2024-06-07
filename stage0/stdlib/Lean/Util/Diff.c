@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Diff_Action_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_matchPrefix_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Diff_diff___spec__5___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Diff_diff___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Diff_matchSuffix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Diff_diff___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -1160,6 +1161,7 @@ lean_dec(x_10);
 x_12 = l_Subarray_drop___rarg(x_2, x_7);
 lean_dec(x_7);
 x_13 = l_Array_ofSubarray___rarg(x_12);
+lean_dec(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_11);
 lean_ctor_set(x_14, 1, x_13);
@@ -1189,6 +1191,7 @@ lean_dec(x_20);
 x_22 = l_Subarray_drop___rarg(x_2, x_18);
 lean_dec(x_18);
 x_23 = l_Array_ofSubarray___rarg(x_22);
+lean_dec(x_22);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_21);
 lean_ctor_set(x_24, 1, x_23);
@@ -1227,6 +1230,7 @@ lean_dec(x_30);
 x_37 = l_Subarray_drop___rarg(x_2, x_26);
 lean_dec(x_26);
 x_38 = l_Array_ofSubarray___rarg(x_37);
+lean_dec(x_37);
 x_39 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_39, 0, x_36);
 lean_ctor_set(x_39, 1, x_38);
@@ -2008,6 +2012,7 @@ x_23 = l_Std_Range_forIn_x27_loop___at_Lean_Diff_lcs___spec__2___rarg(x_1, x_2, 
 lean_dec(x_22);
 x_24 = lean_box(0);
 x_25 = l_Lean_HashMap_toList___rarg(x_23);
+lean_dec(x_23);
 x_26 = l_List_forIn_loop___at_Lean_Diff_lcs___spec__3___rarg(x_13, x_14, x_16, x_21, x_25, x_24);
 lean_dec(x_21);
 lean_dec(x_16);
@@ -2019,6 +2024,7 @@ lean_dec(x_13);
 lean_dec(x_2);
 lean_dec(x_1);
 x_27 = l_Array_append___rarg(x_7, x_15);
+lean_dec(x_15);
 return x_27;
 }
 else
@@ -2052,9 +2058,11 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_38 = l_Lean_Diff_lcs___rarg(x_1, x_2, x_36, x_37);
 x_39 = l_Array_append___rarg(x_7, x_38);
+lean_dec(x_38);
 x_40 = l_Lean_Diff_lcs___rarg___closed__2;
 x_41 = lean_array_push(x_40, x_31);
 x_42 = l_Array_append___rarg(x_39, x_41);
+lean_dec(x_41);
 x_43 = lean_ctor_get(x_34, 1);
 lean_inc(x_43);
 lean_dec(x_34);
@@ -2065,7 +2073,9 @@ lean_dec(x_35);
 x_46 = l_Subarray_drop___rarg(x_45, x_17);
 x_47 = l_Lean_Diff_lcs___rarg(x_1, x_2, x_44, x_46);
 x_48 = l_Array_append___rarg(x_42, x_47);
+lean_dec(x_47);
 x_49 = l_Array_append___rarg(x_48, x_15);
+lean_dec(x_15);
 return x_49;
 }
 }
@@ -2978,7 +2988,6 @@ x_18 = 0;
 x_19 = l_Lean_Diff_diff___rarg___closed__2;
 x_20 = l_Array_forInUnsafe_loop___at_Lean_Diff_diff___spec__3___rarg(x_1, x_3, x_4, x_5, x_6, x_10, x_15, x_17, x_18, x_19);
 lean_dec(x_15);
-lean_dec(x_3);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 0);
@@ -3071,7 +3080,6 @@ else
 size_t x_43; size_t x_44; lean_object* x_45; 
 lean_dec(x_10);
 lean_dec(x_5);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_43 = lean_usize_of_nat(x_6);
@@ -3086,7 +3094,6 @@ else
 lean_object* x_46; size_t x_47; size_t x_48; lean_object* x_49; 
 lean_dec(x_6);
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 x_46 = lean_array_get_size(x_5);
@@ -3102,7 +3109,7 @@ LEAN_EXPORT lean_object* l_Lean_Diff_diff(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Diff_diff___rarg), 5, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Diff_diff___rarg___boxed), 5, 0);
 return x_2;
 }
 }
@@ -3187,6 +3194,15 @@ lean_dec(x_1);
 x_5 = lean_unbox_usize(x_2);
 lean_dec(x_2);
 x_6 = l_Array_mapMUnsafe_map___at_Lean_Diff_diff___spec__7___rarg(x_4, x_5, x_3);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Diff_diff___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Diff_diff___rarg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
 return x_6;
 }
 }

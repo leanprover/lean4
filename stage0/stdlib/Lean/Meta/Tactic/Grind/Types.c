@@ -2037,6 +2037,7 @@ x_32 = lean_ctor_get(x_30, 1);
 lean_inc(x_32);
 lean_dec(x_30);
 x_33 = l_Lean_mkAppN(x_25, x_31);
+lean_dec(x_31);
 x_34 = l_Lean_Meta_transform_visit_visitPost___at_Lean_Meta_Grind_canon_canonRec___spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_33, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_32);
 return x_34;
 }
@@ -2158,6 +2159,7 @@ x_52 = lean_ctor_get(x_50, 1);
 lean_inc(x_52);
 lean_dec(x_50);
 x_53 = l_Lean_mkAppN(x_45, x_51);
+lean_dec(x_51);
 x_54 = l_Lean_Meta_transform_visit_visitPost___at_Lean_Meta_Grind_canon_canonRec___spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_53, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_52);
 return x_54;
 }
@@ -2256,6 +2258,7 @@ x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
 lean_dec(x_66);
 x_69 = l_Lean_mkAppN(x_7, x_67);
+lean_dec(x_67);
 x_70 = l_Lean_Meta_transform_visit_visitPost___at_Lean_Meta_Grind_canon_canonRec___spec__3(x_1, x_2, x_3, x_4, x_5, x_6, x_69, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_68);
 return x_70;
 }
@@ -2967,8 +2970,8 @@ if (x_19 == 0)
 lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_20 = lean_ctor_get(x_18, 0);
 x_21 = lean_ctor_get(x_18, 1);
-lean_inc(x_7);
 x_22 = l_Lean_HashMapImp_find_x3f___at_Lean_instantiateExprMVars___spec__1(x_20, x_7);
+lean_dec(x_20);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -3127,8 +3130,8 @@ x_50 = lean_ctor_get(x_18, 1);
 lean_inc(x_50);
 lean_inc(x_49);
 lean_dec(x_18);
-lean_inc(x_7);
 x_51 = l_Lean_HashMapImp_find_x3f___at_Lean_instantiateExprMVars___spec__1(x_49, x_7);
+lean_dec(x_49);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
@@ -3434,7 +3437,6 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_3);
 x_10 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_10, 0, x_1);
 x_11 = lean_alloc_ctor(0, 2, 0);
@@ -4007,6 +4009,7 @@ uint8_t x_9; lean_object* x_10;
 x_9 = lean_unbox(x_2);
 lean_dec(x_2);
 x_10 = l_Lean_Meta_Grind_canon_canonRec___lambda__1(x_1, x_9, x_3, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_3);
 return x_10;
 }
 }

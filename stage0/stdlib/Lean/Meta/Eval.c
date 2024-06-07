@@ -175,7 +175,6 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = lean_ctor_get(x_4, 2);
 x_12 = lean_eval_const(x_10, x_11, x_1);
-lean_dec(x_1);
 lean_dec(x_10);
 x_13 = l_Lean_ofExcept___at_Lean_Meta_evalExprCore___spec__2___rarg(x_12, x_2, x_3, x_4, x_5, x_9);
 return x_13;
@@ -193,7 +192,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_evalExprCore___rarg___lambda__1(lean_object
 _start:
 {
 lean_object* x_11; 
-lean_dec(x_5);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -253,6 +251,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
+lean_dec(x_3);
 return x_24;
 }
 else
@@ -878,6 +877,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_7;
 }
 }
@@ -888,6 +888,7 @@ uint8_t x_11; lean_object* x_12;
 x_11 = lean_unbox(x_4);
 lean_dec(x_4);
 x_12 = l_Lean_Meta_evalExprCore___rarg___lambda__1(x_1, x_2, x_3, x_11, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_5);
 return x_12;
 }
 }

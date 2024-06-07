@@ -1116,6 +1116,7 @@ x_7 = lean_array_push(x_6, x_3);
 x_8 = lean_array_push(x_7, x_5);
 x_9 = l_Lean_Position_instToExpr___lambda__1___closed__3;
 x_10 = l_Lean_mkAppN(x_9, x_8);
+lean_dec(x_8);
 return x_10;
 }
 }

@@ -41,6 +41,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUnexpand
 uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_linter_suspiciousUnexpanderPatterns;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_List_head_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___spec__4___closed__3;
@@ -114,6 +115,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_suspiciousUnexpa
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__5___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___spec__5___closed__2;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Builtin___hyg_6____closed__2;
 static lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___closed__19;
@@ -1463,7 +1465,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-lean_dec(x_3);
 x_7 = lean_unsigned_to_nat(1u);
 x_8 = l_Lean_Syntax_getArg(x_1, x_7);
 lean_inc(x_8);
@@ -1474,8 +1475,6 @@ lean_object* x_10; lean_object* x_11;
 lean_dec(x_8);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -1497,8 +1496,6 @@ lean_object* x_16; lean_object* x_17;
 lean_dec(x_13);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_16 = lean_box(0);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -1563,8 +1560,6 @@ if (lean_obj_tag(x_24) == 0)
 lean_object* x_25; lean_object* x_26; 
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_25 = lean_box(0);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
@@ -1586,8 +1581,6 @@ lean_object* x_31; lean_object* x_32;
 lean_dec(x_27);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_31 = lean_box(0);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
@@ -1606,8 +1599,6 @@ lean_object* x_36; lean_object* x_37;
 lean_dec(x_27);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
-lean_dec(x_1);
 x_36 = lean_box(0);
 x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
@@ -1619,7 +1610,6 @@ else
 lean_object* x_38; lean_object* x_39; uint8_t x_40; 
 x_38 = lean_unsigned_to_nat(5u);
 x_39 = l_Lean_Syntax_getArg(x_1, x_38);
-lean_dec(x_1);
 x_40 = l_Lean_Syntax_matchesNull(x_39, x_12);
 if (x_40 == 0)
 {
@@ -1627,7 +1617,6 @@ lean_object* x_41; lean_object* x_42;
 lean_dec(x_27);
 lean_dec(x_5);
 lean_dec(x_4);
-lean_dec(x_2);
 x_41 = lean_box(0);
 x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
@@ -1638,7 +1627,6 @@ else
 {
 lean_object* x_43; lean_object* x_44; uint8_t x_45; 
 x_43 = l_Lean_Syntax_getArg(x_2, x_7);
-lean_dec(x_2);
 x_44 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___closed__8;
 lean_inc(x_43);
 x_45 = l_Lean_Syntax_isOfKind(x_43, x_44);
@@ -2068,7 +2056,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-lean_dec(x_2);
 x_6 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__5___closed__2;
 lean_inc(x_1);
 x_7 = l_Lean_Syntax_isOfKind(x_1, x_6);
@@ -2155,6 +2142,8 @@ else
 lean_object* x_27; lean_object* x_28; 
 x_27 = lean_box(0);
 x_28 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4(x_11, x_1, x_27, x_3, x_4, x_5);
+lean_dec(x_1);
+lean_dec(x_11);
 return x_28;
 }
 }
@@ -2165,6 +2154,8 @@ lean_object* x_29; lean_object* x_30;
 lean_dec(x_16);
 x_29 = lean_box(0);
 x_30 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4(x_11, x_1, x_29, x_3, x_4, x_5);
+lean_dec(x_1);
+lean_dec(x_11);
 return x_30;
 }
 }
@@ -2366,6 +2357,26 @@ lean_object* x_6;
 x_6 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__3(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__5___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Linter_suspiciousUnexpanderPatterns___elambda__1___lambda__5(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_2);
 return x_6;
 }
 }

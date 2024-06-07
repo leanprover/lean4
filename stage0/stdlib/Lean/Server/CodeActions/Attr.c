@@ -91,6 +91,7 @@ static lean_object* l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____closed__3;
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1453____closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_809____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_84____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_301____closed__3;
@@ -1277,7 +1278,6 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions
 _start:
 {
 lean_object* x_6; uint8_t x_7; 
-lean_dec(x_2);
 x_6 = lean_st_ref_get(x_4, x_5);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -1363,7 +1363,6 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions
 _start:
 {
 lean_object* x_7; 
-lean_inc(x_5);
 lean_inc(x_4);
 x_7 = l_Lean_Attribute_Builtin_ensureNoArgs(x_2, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
@@ -1380,7 +1379,6 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 lean_dec(x_1);
 x_11 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_301____lambda__3___closed__2;
 x_12 = l_Lean_throwError___at_Lean_registerTagAttribute___spec__1(x_11, x_4, x_5, x_8);
-lean_dec(x_5);
 lean_dec(x_4);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -1406,7 +1404,6 @@ else
 lean_object* x_17; lean_object* x_18; 
 x_17 = lean_box(0);
 x_18 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_301____lambda__2(x_1, x_17, x_4, x_5, x_8);
-lean_dec(x_5);
 lean_dec(x_4);
 return x_18;
 }
@@ -1414,7 +1411,6 @@ return x_18;
 else
 {
 uint8_t x_19; 
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 x_19 = !lean_is_exclusive(x_7);
@@ -1711,6 +1707,7 @@ lean_object* x_6;
 x_6 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_301____lambda__2(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_6;
 }
 }
@@ -1721,6 +1718,7 @@ uint8_t x_7; lean_object* x_8;
 x_7 = lean_unbox(x_3);
 lean_dec(x_3);
 x_8 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_301____lambda__3(x_1, x_2, x_7, x_4, x_5, x_6);
+lean_dec(x_5);
 return x_8;
 }
 }
@@ -3298,7 +3296,6 @@ LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions
 _start:
 {
 lean_object* x_7; uint8_t x_8; 
-lean_dec(x_3);
 x_7 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____lambda__2___closed__2;
 lean_inc(x_1);
 x_8 = l_Lean_Syntax_isOfKind(x_1, x_7);
@@ -3593,6 +3590,15 @@ lean_object* x_7;
 x_7 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_3);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_1070____lambda__2(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
 return x_7;
 }
@@ -4094,6 +4100,7 @@ x_16 = lean_array_push(x_15, x_13);
 x_17 = lean_array_push(x_16, x_14);
 x_18 = l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin___closed__3;
 x_19 = l_Lean_mkAppN(x_18, x_17);
+lean_dec(x_17);
 x_20 = l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin___closed__22;
 x_21 = l_Lean_Name_append(x_1, x_20);
 x_22 = l___private_Lean_Server_CodeActions_Attr_0__Lean_CodeAction_addBuiltin___closed__40;

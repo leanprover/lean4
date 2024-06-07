@@ -110,6 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_logDecls(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_466____lambda__2___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_466____spec__2___closed__3;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_containsDecl_x27___spec__1(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
@@ -122,6 +123,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Log_format___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_logMessage___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_466____spec__2___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_sortDecls___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logMessageIfAux(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_LogEntry_fmt___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1178,7 +1180,6 @@ if (x_12 == 0)
 lean_object* x_13; 
 lean_dec(x_10);
 lean_dec(x_7);
-lean_dec(x_1);
 x_13 = lean_box(0);
 return x_13;
 }
@@ -1186,7 +1187,6 @@ else
 {
 lean_object* x_14; 
 x_14 = l_Array_binSearchAux___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___spec__1(x_3, x_1, x_7, x_11, x_10);
-lean_dec(x_1);
 return x_14;
 }
 }
@@ -1199,6 +1199,15 @@ x_6 = l_Array_binSearchAux___at___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_findAtSorted_x3f(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_466____spec__3(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2159,7 +2168,6 @@ lean_dec(x_1);
 x_4 = l_Lean_Name_hash___override(x_2);
 x_5 = lean_uint64_to_usize(x_4);
 x_6 = l_Lean_PersistentHashMap_findAux___at_Lean_IR_findEnvDecl___spec__2(x_3, x_5, x_2);
-lean_dec(x_2);
 return x_6;
 }
 }
@@ -2209,8 +2217,6 @@ LEAN_EXPORT lean_object* lean_ir_find_env_decl(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_2);
-lean_inc(x_1);
 x_3 = l_Lean_Environment_getModuleIdxFor_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
@@ -2220,6 +2226,7 @@ x_5 = l_Lean_IR_findEnvDecl___closed__2;
 x_6 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_4, x_5, x_1);
 lean_dec(x_1);
 x_7 = l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1(x_6, x_2);
+lean_dec(x_2);
 return x_7;
 }
 else
@@ -2287,6 +2294,15 @@ lean_dec(x_2);
 x_5 = l_Lean_PersistentHashMap_findAux___at_Lean_IR_findEnvDecl___spec__2(x_1, x_4, x_3);
 lean_dec(x_3);
 return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_PersistentHashMap_find_x3f___at_Lean_IR_findEnvDecl___spec__1(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_findDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2646,7 +2662,6 @@ if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 lean_dec(x_4);
-lean_dec(x_2);
 x_7 = lean_box(0);
 x_8 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
@@ -2661,7 +2676,6 @@ if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 lean_dec(x_4);
-lean_dec(x_2);
 x_10 = lean_box(0);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
@@ -2676,7 +2690,6 @@ x_13 = lean_usize_of_nat(x_4);
 lean_dec(x_4);
 x_14 = lean_box(0);
 x_15 = l_Array_foldlMUnsafe_fold___at_Lean_IR_addDecls___spec__1(x_1, x_12, x_13, x_14, x_2, x_3);
-lean_dec(x_2);
 return x_15;
 }
 }
@@ -2701,6 +2714,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_IR_addDecls(x_1, x_2, x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }

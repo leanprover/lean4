@@ -51,7 +51,9 @@ lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_ofList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading(lean_object*);
 lean_object* l_Lean_Omega_IntList_sub___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_smul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sdiv___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_toList___boxed(lean_object*);
 lean_object* l_Lean_Omega_IntList_add___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
@@ -154,11 +156,29 @@ x_3 = l_Lean_Omega_IntList_smul(x_1, x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_smul___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_Coeffs_smul(x_1, x_2);
+lean_dec(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sdiv(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Omega_IntList_sdiv(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sdiv___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Omega_Coeffs_sdiv(x_1, x_2);
+lean_dec(x_2);
 return x_3;
 }
 }

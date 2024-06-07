@@ -419,10 +419,10 @@ where the index is the position in the local context.
 -/
 private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : MetaM (Option Expr) := do
   if not (← hasLetDeclsInBetween) then
-    mkLambdaFVars xs v
+    mkLambdaFVars xs v (etaReduce := true)
   else
     let ys ← addLetDeps
-    mkLambdaFVars ys v
+    mkLambdaFVars ys v (etaReduce := true)
 
 where
   /-- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
@@ -1120,7 +1120,6 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
           | some v => do
             trace[Meta.isDefEq.assign.beforeMkLambda] "{mvar} {args} := {v}"
             let some v ← mkLambdaFVarsWithLetDeps args v | return false
-            let v := v.etaExpandedStrict?.getD v
             if args.any (fun arg => mvarDecl.lctx.containsFVar arg) then
               /- We need to type check `v` because abstraction using `mkLambdaFVars` may have produced
                  a type incorrect term. See discussion at A2 -/

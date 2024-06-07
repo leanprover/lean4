@@ -784,6 +784,18 @@ theorem signExtend_eq_not_zeroExtend_not_of_msb_true {x : BitVec w} {v : Nat} (h
   · rw [signExtend_eq_not_zeroExtend_not_of_msb_true hmsb]
     by_cases (i < v) <;> by_cases (i < w) <;> simp_all <;> omega
 
+/-- Sign extending to a width smaller than the starting width is a truncation. -/
+theorem signExtend_eq_truncate_of_lt (x : BitVec w) {v : Nat} (hv : v ≤ w):
+  x.signExtend v = x.truncate v := by
+  ext i
+  simp only [getLsb_signExtend, Fin.is_lt, decide_True, Bool.true_and, getLsb_zeroExtend,
+    ite_eq_left_iff, Nat.not_lt]
+  omega
+
+/-- Sign extending to the same bitwidth is a no op. -/
+theorem signExtend_eq (x : BitVec w) : x.signExtend w = x := by
+  rw [signExtend_eq_truncate_of_lt _ (Nat.le_refl _), truncate_eq]
+
 /-! ### append -/
 
 theorem append_def (x : BitVec v) (y : BitVec w) :

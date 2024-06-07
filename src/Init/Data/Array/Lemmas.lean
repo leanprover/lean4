@@ -506,20 +506,20 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
       (H : ∀ k, as.data.get? k = if i ≤ k ∧ k ≤ j then a.data.get? k else a.data.reverse.get? k)
       (k) : (reverse.loop as i ⟨j, hj⟩).data.get? k = a.data.reverse.get? k := by
     rw [reverse.loop]; dsimp; split <;> rename_i h₁
-    · have := reverse.termination h₁
+    · have p := reverse.termination h₁
       match j with | j+1 => ?_
-      simp at *
+      simp only [Nat.add_sub_cancel] at p ⊢
       rw [(go · (i+1) j)]
       · rwa [Nat.add_right_comm i]
       · simp [size_swap, h₂]
       · intro k
         rw [← getElem?_eq_data_get?, get?_swap]
-        simp [getElem?_eq_data_get?, getElem_eq_data_get, ← List.get?_eq_get, H, Nat.le_of_lt h₁]
+        simp only [H, getElem_eq_data_get, ← List.get?_eq_get, Nat.le_of_lt h₁, getElem?_eq_data_get?]
         split <;> rename_i h₂
-        · simp [← h₂, Nat.not_le.2 (Nat.lt_succ_self _)]
+        · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
           exact (List.get?_reverse' _ _ (Eq.trans (by simp_arith) h)).symm
         split <;> rename_i h₃
-        · simp [← h₃, Nat.not_le.2 (Nat.lt_succ_self _)]
+        · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
           exact (List.get?_reverse' _ _ (Eq.trans (by simp_arith) h)).symm
         simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
           Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
@@ -529,13 +529,17 @@ theorem size_eq_length_data (as : Array α) : as.size = as.data.length := rfl
         exact (List.get?_reverse' _ _ h).symm
       · rfl
     termination_by j - i
-  simp only [reverse]; split
+  simp only [reverse]
+  split
   · match a with | ⟨[]⟩ | ⟨[_]⟩ => rfl
   · have := Nat.sub_add_cancel (Nat.le_of_not_le ‹_›)
     refine List.ext <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
-    split; {rfl}; rename_i h
-    simp [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this] at h
-    rw [List.get?_eq_none.2 ‹_›, List.get?_eq_none.2 (a.data.length_reverse ▸ ‹_›)]
+    split
+    · rfl
+    · rename_i h
+      simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
+        true_and, Nat.not_lt] at h
+      rw [List.get?_eq_none.2 ‹_›, List.get?_eq_none.2 (a.data.length_reverse ▸ ‹_›)]
 
 /-! ### foldl / foldr -/
 

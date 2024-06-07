@@ -5,6 +5,7 @@ b 2.5
 t 0
 t 1
 t 2
+t 2
 {"version": 3,
  "uri": "file:///incrementalTactic.lean",
  "diagnostics":
@@ -54,3 +55,10 @@ t 2
    {"start": {"line": 3, "character": 9},
     "end": {"line": 3, "character": 16}}}]}
 s
+{ goals := #[{ type := Lean.Widget.TaggedText.tag
+                         { subexprPos := "/", diffStatus? := none }
+                         (Lean.Widget.TaggedText.text "True"),
+               isInserted? := some false,
+               isRemoved? := none,
+               hyps := #[] }] }
+

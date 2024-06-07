@@ -420,7 +420,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                         return { stx := (← oldCmd?), val := (← old.next[i]?) }
                     } }) do
                       elabCommand cmd
-                    reusedCmds := reusedCmds && oldCmd?.any (·.structRangeEqWithTraceReuse opts cmd)
+                    reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
               else
                 elabCommand stxNew
         | _ =>

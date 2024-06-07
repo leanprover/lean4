@@ -142,6 +142,7 @@ static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__11___closed__9
 static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__11___closed__8;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_68_(lean_object*, lean_object*);
 static lean_object* l_Array_mapIdxM_map___at_Lean_Elab_Tactic_Conv_evalPattern___spec__8___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -182,7 +183,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__2(lean_ob
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Elab_Tactic_Conv_evalPattern___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_66_(lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern_declRange__1___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -315,7 +315,7 @@ lean_inc(x_2);
 x_8 = l_Lean_Expr_toHeadIndex(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_Expr_toHeadIndex(x_1);
-x_10 = l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_66_(x_8, x_9);
+x_10 = l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_68_(x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
 if (x_10 == 0)

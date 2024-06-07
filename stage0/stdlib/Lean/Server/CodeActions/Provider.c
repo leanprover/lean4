@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__6;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_holeCodeActionProvider___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_CodeAction_findInfoTree_x3f___spec__2___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
@@ -35,6 +34,7 @@ lean_object* l_EStateM_instInhabited___rarg(lean_object*, lean_object*);
 uint8_t l_List_elem___at_Lean_NameHashSet_insert___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f_visit___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__12;
+uint8_t l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_holeCodeActionProvider(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -93,7 +93,6 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_CodeAction_findTactic_
 static lean_object* l___regBuiltin_Lean_CodeAction_holeCodeActionProvider__1___closed__3;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__3;
-lean_object* l_Lean_RBNode_find___at_Lean_CodeAction_CommandCodeActions_insert___spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_CodeAction_cmdCodeActionProvider__1___closed__1;
 static lean_object* l_Lean_CodeAction_holeCodeActionProvider___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_CodeAction_findTactic_x3f_go___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,6 +152,7 @@ static lean_object* l_Lean_CodeAction_findTactic_x3f_go___closed__1;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findTactic_x3f(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CodeAction_findInfoTree_x3f___lambda__1(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_stx(lean_object*);
@@ -3667,7 +3667,7 @@ return x_27;
 else
 {
 uint8_t x_28; 
-x_28 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_23, x_2);
+x_28 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_23, x_2);
 lean_dec(x_23);
 if (x_28 == 0)
 {
@@ -3744,7 +3744,7 @@ return x_40;
 else
 {
 uint8_t x_41; 
-x_41 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_91_(x_36, x_2);
+x_41 = l___private_Lean_Syntax_0__String_beqRange____x40_Lean_Syntax___hyg_95_(x_36, x_2);
 lean_dec(x_36);
 if (x_41 == 0)
 {
@@ -4368,7 +4368,7 @@ x_50 = lean_ctor_get(x_48, 1);
 lean_inc(x_50);
 lean_dec(x_48);
 x_51 = l_Lean_Syntax_getKind(x_50);
-x_52 = l_Lean_RBNode_find___at_Lean_CodeAction_CommandCodeActions_insert___spec__1(x_49, x_51);
+x_52 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_49, x_51);
 lean_dec(x_51);
 if (lean_obj_tag(x_52) == 0)
 {

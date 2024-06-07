@@ -59,11 +59,11 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_reportOutOfHeartbeats___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withHeartbeats___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___at_Lean_reportOutOfHeartbeats___spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getMaxHeartbeats(lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 static lean_object* l_Lean_logAt___at_Lean_reportOutOfHeartbeats___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_reportOutOfHeartbeats___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
@@ -569,7 +569,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_182; uint8_t x_183; 
 x_182 = 2;
-x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_182);
+x_183 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_182);
 if (x_183 == 0)
 {
 lean_object* x_184; 
@@ -612,7 +612,7 @@ lean_dec(x_7);
 x_175 = lean_ctor_get(x_4, 2);
 lean_inc(x_175);
 x_176 = 1;
-x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_176);
+x_177 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_176);
 if (x_177 == 0)
 {
 lean_dec(x_175);

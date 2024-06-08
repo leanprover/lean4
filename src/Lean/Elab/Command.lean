@@ -393,15 +393,15 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   return oldSnap
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
-                Language.withAlwaysResolvedPromises cmds.size fun promises => do
+                Language.withAlwaysResolvedPromises cmds.size fun cmdPromises => do
                   snap.new.resolve <| .ofTyped {
                     diagnostics := .empty
                     macroDecl := decl
                     newStx := stxNew
                     newNextMacroScope := nextMacroScope
                     hasTraces
-                    next := promises.zipWith cmds fun promise arg =>
-                      { range? := arg.getRange?, task := promise.result }
+                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
+                      { range? := cmd.getRange?, task := cmdPromise.result }
                     : MacroExpandedSnapshot
                   }
                   -- After the first command whose syntax tree changed, we must disable
@@ -410,16 +410,20 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   let opts ← getOptions
                   -- For each command, associate it with new promise and old snapshot, if any, and
                   -- elaborate recursively
-                  for cmd in cmds, promise in promises, i in [0:cmds.size] do
+                  for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
                     let oldCmd? := oldCmds?.bind (·[i]?)
                     withReader ({ · with snap? := some {
-                      new := promise
+                      new := cmdPromise
                       old? := do
                         guard reusedCmds
                         let old ← oldSnap?
                         return { stx := (← oldCmd?), val := (← old.next[i]?) }
                     } }) do
                       elabCommand cmd
+                      -- Resolve promise for commands not supporting incrementality; waiting for
+                      -- `withAlwaysResolvedPromises` to do this could block reporting by later
+                      -- commands
+                      cmdPromise.resolve default
                     reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
               else
                 elabCommand stxNew
@@ -440,6 +444,10 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   defValue := false
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
+
+builtin_initialize
+  registerTraceClass `Elab.info
+  registerTraceClass `Elab.snapshotTree
 
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
@@ -463,6 +471,12 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
+    if let some snap := (← read).snap? then
+      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
+      -- should be true iff the command supports incrementality
+      if (← IO.hasFinished snap.new.result) then
+        trace[Elab.snapshotTree]
+          Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

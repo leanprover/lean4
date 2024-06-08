@@ -202,6 +202,16 @@ abbrev SnapshotTree.element : SnapshotTree → Snapshot
 abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
   | mk _ children => children
 
+/-- Produces debug tree format of given snapshot tree, synchronously waiting on all children. -/
+partial def SnapshotTree.format : SnapshotTree → Format := go none
+where go range? s :=
+  let range := match range? with
+    | some range => f!"{range.start}..{range.stop}"
+    | none => ""
+  let children := Std.Format.prefixJoin .line <|
+    s.children.toList.map fun c => go c.range? c.get
+  .nestD f!"• {range}{children}"
+
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
   representation. -/

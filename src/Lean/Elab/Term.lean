@@ -333,7 +333,7 @@ instance : MonadBacktrack SavedState TermElabM where
 Manages reuse information for nested tactics by `split`ting given syntax into an outer and inner
 part. `act` is then run on the inner part but with reuse information adjusted as following:
 * If the old (from `tacSnap?`'s `SyntaxGuarded.stx`) and new (from `stx`) outer syntax are not
-  identical according to `Syntax.structRangeEq`, reuse is disabled.
+  identical according to `Syntax.eqWithInfo`, reuse is disabled.
 * Otherwise, the old syntax as stored in `tacSnap?` is updated to the old *inner* syntax.
 * In any case, we also use `withRef` on the inner syntax to avoid leakage of the outer syntax into
   `act` via this route.
@@ -349,7 +349,7 @@ def withNarrowedTacticReuse [Monad m] [MonadExceptOf Exception m] [MonadWithRead
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
     { tacSnap with old? := tacSnap.old?.bind fun old => do
       let (oldOuter, oldInner) := split old.stx
-      guard <| outer.structRangeEqWithTraceReuse opts oldOuter
+      guard <| outer.eqWithInfoAndTraceReuse opts oldOuter
       return { old with stx := oldInner }
     }
   }) do

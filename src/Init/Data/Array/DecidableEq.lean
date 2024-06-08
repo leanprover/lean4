@@ -27,17 +27,17 @@ decreasing_by decreasing_trivial_pre_omega
 theorem eq_of_isEqv [DecidableEq α] (a b : Array α) : Array.isEqv a b (fun x y => x = y) → a = b := by
   simp [Array.isEqv]
   split
-  case inr => intro; contradiction
-  case inl hsz =>
+  next hsz =>
    intro h
    have aux := eq_of_isEqvAux a b hsz 0 (Nat.zero_le ..) h
    exact ext a b hsz fun i h _ => aux i (Nat.zero_le ..) _
+  next => intro; contradiction
 
 theorem isEqvAux_self [DecidableEq α] (a : Array α) (i : Nat) : Array.isEqvAux a a rfl (fun x y => x = y) i = true := by
   unfold Array.isEqvAux
   split
-  case inl h => simp [h, isEqvAux_self a (i+1)]
-  case inr h => simp [h]
+  next h => simp [h, isEqvAux_self a (i+1)]
+  next h => simp [h]
 termination_by a.size - i
 decreasing_by decreasing_trivial_pre_omega
 

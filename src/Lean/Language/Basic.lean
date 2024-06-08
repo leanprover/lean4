@@ -162,7 +162,7 @@ Always resolving promises involved in the snapshot tree is important to avoid de
 language server.
 -/
 def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
-    (act : IO.Promise α → m Unit) : m Unit := do
+    (act : IO.Promise α → m β) : m β := do
   let p ← IO.Promise.new
   try
     act p
@@ -228,7 +228,6 @@ structure DynamicSnapshot where
   val  : Dynamic
   /-- Snapshot tree retrieved from `val` before erasure. -/
   tree : SnapshotTree
-deriving Nonempty
 
 instance : ToSnapshotTree DynamicSnapshot where
   toSnapshotTree s := s.tree
@@ -242,6 +241,9 @@ def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : Dynam
 def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
     Option α :=
   snap.val.get? α
+
+instance : Inhabited DynamicSnapshot where
+  default := .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
 /--
   Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree

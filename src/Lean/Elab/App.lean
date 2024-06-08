@@ -59,7 +59,7 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
     unless (← synthesizeInstMVarCore mvarId) do
-      registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+      registerSyntheticMVarWithCurrRef mvarId (.typeClass none)
       registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 
 /-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/

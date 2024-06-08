@@ -30,8 +30,12 @@ structure SavedContext where
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
-  /-- Use typeclass resolution to synthesize value for metavariable. -/
-  | typeClass
+  /--
+  Use typeclass resolution to synthesize value for metavariable.
+  If `extraErrorMsg?` is `some msg`, `msg` contains additional information to include in error messages
+  regarding type class synthesis failure.
+  -/
+  | typeClass (extraErrorMsg? : Option MessageData)
   /-- Use coercion to synthesize value for the metavariable.
   if `f?` is `some f`, we produce an application type mismatch error message.
   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
@@ -43,9 +47,15 @@ inductive SyntheticMVarKind where
   | postponed (ctx : SavedContext)
   deriving Inhabited
 
+/--
+Convert an "extra" optional error message into a message `"\n{msg}"` (if `some msg`) and `MessageData.nil` (if `none`)
+-/
+def extraMsgToMsg (extraErrorMsg? : Option MessageData) : MessageData :=
+  if let some msg := extraErrorMsg? then m!"\n{msg}" else .nil
+
 instance : ToString SyntheticMVarKind where
   toString
-    | .typeClass    => "typeclass"
+    | .typeClass .. => "typeclass"
     | .coe ..       => "coe"
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
@@ -306,14 +316,14 @@ def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElab
     setInfoState infoState
 
 @[specialize, inherit_doc Core.withRestoreOrSaveFull]
-def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
-    (cont : TermElabM SavedState → TermElabM α) : TermElabM α := do
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TermElabM α) :
+    TermElabM (α × SavedState) := do
   if let some (_, state) := reusableResult? then
     set state.elab
   let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.meta))
-  controlAt MetaM fun runInBase =>
-    Meta.withRestoreOrSaveFull reusableResult? fun restore =>
-      runInBase <| cont (return { meta := (← restore), «elab» := (← get) })
+  let (a, meta) ← controlAt MetaM fun runInBase => do
+    Meta.withRestoreOrSaveFull reusableResult? <| runInBase act
+  return (a, { meta, «elab» := (← get) })
 
 instance : MonadBacktrack SavedState TermElabM where
   saveState      := Term.saveState
@@ -747,30 +757,35 @@ def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
     (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
-  for attr in attrs do
-    withRef attr.stx do withLogging do
-    let env ← getEnv
-    match getAttributeImpl env attr.name with
-    | Except.error errMsg => throwError errMsg
-    | Except.ok attrImpl  =>
-      let runAttr := attrImpl.add declName attr.stx attr.kind
-      let runAttr := do
-        -- not truly an elaborator, but a sensible target for go-to-definition
-        let elaborator := attrImpl.ref
-        if (← getInfoState).enabled && (← getEnv).contains elaborator then
-          withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
-            try runAttr
-            finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
-              -- Add an additional node over the leading identifier if there is one to make it look more function-like.
-              -- Do this last because we want user-created infos to take precedence
-              pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
-        else
-          runAttr
-      match applicationTime? with
-      | none => runAttr
-      | some applicationTime =>
-        if applicationTime == attrImpl.applicationTime then
-          runAttr
+  /-
+  Remark: if the declaration has syntax errors, `declName` may be `.anonymous` see issue #4309
+  In this case, we skip attribute application.
+  -/
+  unless declName == .anonymous do
+    for attr in attrs do
+      withRef attr.stx do withLogging do
+      let env ← getEnv
+      match getAttributeImpl env attr.name with
+      | Except.error errMsg => throwError errMsg
+      | Except.ok attrImpl  =>
+        let runAttr := attrImpl.add declName attr.stx attr.kind
+        let runAttr := do
+          -- not truly an elaborator, but a sensible target for go-to-definition
+          let elaborator := attrImpl.ref
+          if (← getInfoState).enabled && (← getEnv).contains elaborator then
+            withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
+              try runAttr
+              finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
+                -- Add an additional node over the leading identifier if there is one to make it look more function-like.
+                -- Do this last because we want user-created infos to take precedence
+                pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
+          else
+            runAttr
+        match applicationTime? with
+        | none => runAttr
+        | some applicationTime =>
+          if applicationTime == attrImpl.applicationTime then
+            runAttr
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
@@ -852,8 +867,12 @@ def containsPendingMVar (e : Expr) : MetaM Bool := do
   Return `true` if the instance was synthesized successfully, and `false` if
   the instance contains unassigned metavariables that are blocking the type class
   resolution procedure. Throw an exception if resolution or assignment irrevocably fails.
+
+  If `extraErrorMsg?` is not none, it contains additional information that should be attached
+  to type class synthesis failures.
 -/
-def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) : TermElabM Bool := do
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool := do
+  let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
   let type ← instantiateMVars type
@@ -886,18 +905,18 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
-          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}"
-        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}"
+          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
-        throwError "failed to assign synthesized type class instance{indentExpr val}"
+        throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
     return true
   | .undef => return false -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then
       return false
     else
-      throwError "failed to synthesize{indentExpr type}\n{useDiagnosticMsg}"
+      throwError "failed to synthesize{indentExpr type}{extraErrorMsg}\n{useDiagnosticMsg}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
@@ -1598,11 +1617,11 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
   If type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
   register metavariable as a pending one.
 -/
-def mkInstMVar (type : Expr) : TermElabM Expr := do
+def mkInstMVar (type : Expr) (extraErrorMsg? : Option MessageData := none) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
-  unless (← synthesizeInstMVarCore mvarId) do
-    registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
+  unless (← synthesizeInstMVarCore mvarId (extraErrorMsg? := extraErrorMsg?)) do
+    registerSyntheticMVarWithCurrRef mvarId (.typeClass extraErrorMsg?)
   return mvar
 
 /--
@@ -1910,5 +1929,8 @@ def isIncrementalElab [Monad m] [MonadEnv m] [MonadLiftT IO m] (decl : Name) : m
   (return incrementalAttr.hasTag (← getEnv) decl)
 
 export Term (TermElabM)
+
+builtin_initialize
+  registerTraceClass `Elab.implicitForall
 
 end Lean.Elab

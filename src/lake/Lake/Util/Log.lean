@@ -541,6 +541,13 @@ Prints log entries of at least `minLv` to `out`.
 @[inline] def toBaseIO (self : LogIO α)
   (minLv := LogLevel.info) (ansiMode := AnsiMode.auto) (out := OutStream.stderr)
 : BaseIO (Option α) := do
-  self.replayLog? (logger := ← out.getLogger minLv ansiMode)
+  let logger ← out.getLogger minLv ansiMode
+  let (a?, log) ← self.run? {}
+  replay log logger
+  return a?
+where
+  -- avoid specialization of this call at each call site
+  replay (log : Log) (logger : MonadLog BaseIO) : BaseIO Unit :=
+    log.replay (logger := logger)
 
 end LogIO

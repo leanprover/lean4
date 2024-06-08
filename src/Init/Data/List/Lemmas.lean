@@ -755,8 +755,6 @@ theorem exists_cons_of_ne_nil : ∀ {l : List α}, l ≠ [] → ∃ b L, l = b :
 
 /-! ### length -/
 
-@[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
-
 theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
   | _::_, _ => Nat.zero_lt_succ _
 

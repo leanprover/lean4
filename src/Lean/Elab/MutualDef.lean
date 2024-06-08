@@ -141,17 +141,12 @@ private def elabHeaders (views : Array DefView)
     for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds,
         tacPromise in tacPromises, bodyPromise in bodyPromises do
       let mut reusableResult? := none
+      let mut oldBodySnap? := none
+      let mut oldTacSnap? := none
       if let some snap := view.headerSnap? then
         -- by the `DefView.headerSnap?` invariant, safe to reuse results at this point, so let's
         -- wait for them!
         if let some old := snap.old?.bind (·.val.get) then
-          let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
-          snap.new.resolve <| some { old with
-            tacStx?
-            tacSnap? := newTacTask?
-            bodyStx := view.value
-            bodySnap := mkBodyTask view.value bodyPromise
-          }
           -- Transition from `DefView.snap?` to `DefViewElabHeader.tacSnap?` invariant: if all
           -- headers and all previous bodies could be reused, then the state at the *start* of the
           -- top-level tactic block (if any) is unchanged
@@ -161,26 +156,18 @@ private def elabHeaders (views : Array DefView)
           -- we can reuse the result
           reuseBody := reuseBody &&
             view.value.structRangeEqWithTraceReuse (← getOptions) old.bodyStx
-          let header := { old.view, view with
-            -- We should only forward the promise if we are actually waiting on the corresponding
-            -- task; otherwise, diagnostics assigned to it will be lost
-            tacSnap? := guard newTacTask?.isSome *> some {
-              old? := do
-                guard reuseTac
-                some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
-              new := tacPromise
-            }
-            bodySnap? := some {
-              -- no syntax guard to store, we already did the necessary checks
-              old? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
-              new := bodyPromise
-            }
-          }
-          reusableResult? := some (header, old.state)
+          -- no syntax guard to store, we already did the necessary checks
+          oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
+          oldTacSnap? := do
+              guard reuseTac
+              some ⟨(← old.tacStx?), (← old.tacSnap?)⟩
+          let newHeader : DefViewElabHeader := { view, old.view with
+            bodySnap? := none, tacSnap? := none }  -- filled below
+          reusableResult? := some (newHeader, old.state)
         else
           reuseBody := false
 
-      let header ← withRestoreOrSaveFull reusableResult? fun save => do
+      let mut (newHeader, newState) ← withRestoreOrSaveFull reusableResult? do
         withRef view.headerRef do
         addDeclarationRanges declName view.ref  -- NOTE: this should be the full `ref`
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
@@ -219,29 +206,29 @@ private def elabHeaders (views : Array DefView)
               declName, shortDeclName, type, levelNames, binderIds
               numParams := xs.size
             }
-            let mut newHeader : DefViewElabHeader := { view, newHeader with
+            let newHeader : DefViewElabHeader := { view, newHeader with
               bodySnap? := none, tacSnap? := none }
-            if let some snap := view.headerSnap? then
-              let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
-              snap.new.resolve <| some {
-                diagnostics :=
-                  (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
-                view := newHeader.toDefViewElabHeaderData
-                state := (← save)
-                tacStx?
-                tacSnap? := newTacTask?
-                bodyStx := view.value
-                bodySnap := mkBodyTask view.value bodyPromise
-              }
-              newHeader := { newHeader with
-                -- We should only forward the promise if we are actually waiting on the
-                -- corresponding task; otherwise, diagnostics assigned to it will be lost
-                tacSnap? := guard newTacTask?.isSome *> some { old? := none, new := tacPromise }
-                bodySnap? := some { old? := none, new := bodyPromise }
-              }
             check headers newHeader
             return newHeader
-      headers := headers.push header
+      if let some snap := view.headerSnap? then
+        let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
+        snap.new.resolve <| some {
+          diagnostics :=
+            (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+          view := newHeader.toDefViewElabHeaderData
+          state := newState
+          tacStx?
+          tacSnap? := newTacTask?
+          bodyStx := view.value
+          bodySnap := mkBodyTask view.value bodyPromise
+        }
+        newHeader := { newHeader with
+          -- We should only forward the promise if we are actually waiting on the
+          -- corresponding task; otherwise, diagnostics assigned to it will be lost
+          tacSnap? := guard newTacTask?.isSome *> some { old? := oldTacSnap?, new := tacPromise }
+          bodySnap? := some { old? := oldBodySnap?, new := bodyPromise }
+        }
+      headers := headers.push newHeader
     return headers
 where
   getBodyTerm? (stx : Syntax) : Option Syntax :=
@@ -357,7 +344,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
               tacSnap.new.resolve oldTacSnap.val.get
           reusableResult? := some (old.value, old.state)
 
-    withRestoreOrSaveFull reusableResult? fun save => do
+    let (val, state) ← withRestoreOrSaveFull reusableResult? do
       withDeclName header.declName <| withLevelNames header.levelNames do
       let valStx ← liftMacroM <| declValToTerm header.value
       forallBoundedTelescope header.type header.numParams fun xs type => do
@@ -371,15 +358,15 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
         -- NOTE: without this `instantiatedMVars`, `mkLambdaFVars` may leave around a redex that
         -- leads to more section variables being included than necessary
         let val ← instantiateMVars val
-        let val ← mkLambdaFVars xs val
-        if let some snap := header.bodySnap? then
-          snap.new.resolve <| some {
-            diagnostics :=
-              (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
-            state := (← save)
-            value := val
-          }
-        return val
+        mkLambdaFVars xs val
+    if let some snap := header.bodySnap? then
+      snap.new.resolve <| some {
+        diagnostics :=
+          (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
+        state
+        value := val
+      }
+    return val
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do
@@ -1005,6 +992,9 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       -- no non-fatal diagnostics at this point
       snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
     runTermElabM fun vars => Term.elabMutualDef vars views
+
+builtin_initialize
+  registerTraceClass `Elab.definition.mkClosure
 
 end Command
 end Lean.Elab

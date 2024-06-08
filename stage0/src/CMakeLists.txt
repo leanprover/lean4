@@ -9,7 +9,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 9)
+set(LEAN_VERSION_MINOR 10)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -582,11 +582,11 @@ if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
   endif()
 
-  add_custom_target(lake ALL
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
-    VERBATIM)
+  #add_custom_target(lake ALL
+  #  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  #  DEPENDS leanshared
+  #  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
+  #  VERBATIM)
 endif()
 
 if(PREV_STAGE)

@@ -41,7 +41,7 @@ package_facet print_name pkg : Unit := Job.async do
   return ((), .nil)
 
 module_facet get_src mod : FilePath := do
-  inputFile mod.leanFile
+  inputTextFile mod.leanFile
 
 module_facet print_src mod : Unit := do
   (← fetch <| mod.facet `get_src).bindSync fun src trace => do

@@ -1233,7 +1233,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_51 = !lean_is_exclusive(x_20);
@@ -1507,6 +1506,7 @@ lean_object* x_15;
 x_15 = l_Lean_mkNoConfusionEnum_mkToCtorIdx___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_11);
 lean_dec(x_10);
+lean_dec(x_4);
 return x_15;
 }
 }

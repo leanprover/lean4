@@ -1321,6 +1321,8 @@ x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = l_Lean_Meta_Simp_registerSimproc(x_11, x_16, x_7, x_8, x_17);
+lean_dec(x_8);
+lean_dec(x_7);
 return x_18;
 }
 else
@@ -2420,6 +2422,7 @@ lean_inc(x_38);
 lean_dec(x_35);
 x_39 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__21;
 x_40 = l_Lean_mkAppN(x_39, x_32);
+lean_dec(x_32);
 x_41 = l_Lean_declareBuiltin(x_37, x_40, x_7, x_8, x_38);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -2435,6 +2438,7 @@ lean_inc(x_43);
 lean_dec(x_35);
 x_44 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__24;
 x_45 = l_Lean_mkAppN(x_44, x_32);
+lean_dec(x_32);
 x_46 = l_Lean_declareBuiltin(x_42, x_45, x_7, x_8, x_43);
 lean_dec(x_8);
 lean_dec(x_7);

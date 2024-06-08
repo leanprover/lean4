@@ -501,6 +501,7 @@ x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
 x_6 = l_ByteArray_toUInt64LE_x21(x_4);
+lean_dec(x_4);
 x_7 = lean_unbox_uint64(x_6);
 lean_dec(x_6);
 x_8 = lean_io_mono_ms_now(x_5);

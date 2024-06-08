@@ -5,6 +5,9 @@ Authors: Mac Malone
 -/
 namespace Lake
 
+/-- Ensure direct lifts are preferred over indirect ones. -/
+instance (priority := high) [MonadLift α β] : MonadLiftT α β := ⟨MonadLift.monadLift⟩
+
 instance [Pure m] : MonadLiftT Id m where
   monadLift act := pure act.run
 

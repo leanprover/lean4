@@ -445,8 +445,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_constructor___lambda__2(lean_object* x_1,
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_6);
-lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
@@ -498,7 +496,9 @@ lean_dec(x_3);
 x_22 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_23 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_22, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_23;
 }
 else
@@ -540,7 +540,9 @@ lean_dec(x_28);
 x_32 = lean_box(0);
 x_33 = l_Lean_MVarId_constructor___lambda__1(x_2, x_1, x_32, x_4, x_5, x_6, x_7, x_31);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_33;
 }
 else
@@ -618,7 +620,9 @@ lean_dec(x_3);
 x_44 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_45 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_44, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_45;
 }
 }
@@ -631,7 +635,9 @@ lean_dec(x_3);
 x_46 = l_Lean_MVarId_constructor___lambda__2___closed__4;
 x_47 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_46, x_4, x_5, x_6, x_7, x_13);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_47;
 }
 }
@@ -734,7 +740,9 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_MVarId_constructor___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 return x_9;
 }
@@ -831,7 +839,9 @@ x_23 = lean_ctor_get(x_1, 3);
 lean_inc(x_23);
 x_24 = l_Array_toSubarray___rarg(x_22, x_16, x_23);
 x_25 = l_Array_ofSubarray___rarg(x_24);
+lean_dec(x_24);
 x_26 = l_Lean_mkAppN(x_15, x_25);
+lean_dec(x_25);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -874,6 +884,7 @@ x_39 = lean_ctor_get(x_37, 0);
 lean_inc(x_39);
 lean_dec(x_37);
 x_40 = l_Lean_mkAppN(x_26, x_39);
+lean_dec(x_39);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -909,7 +920,9 @@ lean_dec(x_45);
 x_48 = l_Lean_MVarId_existsIntro___lambda__1___closed__6;
 x_49 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_48, x_8, x_9, x_10, x_11, x_47);
 lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 return x_49;
 }
 else
@@ -964,7 +977,9 @@ lean_dec(x_45);
 x_58 = l_Lean_MVarId_existsIntro___lambda__1___closed__6;
 x_59 = l_Lean_Meta_throwTacticEx___rarg(x_6, x_5, x_58, x_8, x_9, x_10, x_11, x_57);
 lean_dec(x_11);
+lean_dec(x_10);
 lean_dec(x_9);
+lean_dec(x_8);
 return x_59;
 }
 }
@@ -1171,8 +1186,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_existsIntro___lambda__2(lean_object* x_1,
 _start:
 {
 lean_object* x_9; 
-lean_inc(x_6);
-lean_inc(x_4);
 lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_4, x_5, x_6, x_7, x_8);
@@ -1224,7 +1237,9 @@ lean_dec(x_3);
 x_22 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_23 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_22, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_23;
 }
 else
@@ -1258,7 +1273,9 @@ lean_dec(x_3);
 x_30 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_31 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_30, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_31;
 }
 else
@@ -1276,7 +1293,9 @@ lean_dec(x_3);
 x_33 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_34 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_33, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_34;
 }
 else
@@ -1327,7 +1346,9 @@ lean_dec(x_3);
 x_46 = l_Lean_MVarId_existsIntro___lambda__2___closed__8;
 x_47 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_46, x_4, x_5, x_6, x_7, x_39);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 x_48 = !lean_is_exclusive(x_47);
 if (x_48 == 0)
 {
@@ -1361,7 +1382,9 @@ lean_dec(x_37);
 x_53 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_54 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_53, x_4, x_5, x_6, x_7, x_52);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_54;
 }
 }
@@ -1408,7 +1431,9 @@ lean_dec(x_3);
 x_59 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_60 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_59, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_60;
 }
 }
@@ -1424,7 +1449,9 @@ lean_dec(x_3);
 x_61 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_62 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_61, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_62;
 }
 }
@@ -1438,7 +1465,9 @@ lean_dec(x_3);
 x_63 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_64 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_63, x_4, x_5, x_6, x_7, x_19);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_64;
 }
 }
@@ -1452,7 +1481,9 @@ lean_dec(x_3);
 x_65 = l_Lean_MVarId_existsIntro___lambda__2___closed__4;
 x_66 = l_Lean_Meta_throwTacticEx___rarg(x_2, x_1, x_65, x_4, x_5, x_6, x_7, x_13);
 lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_4);
 return x_66;
 }
 }

@@ -699,7 +699,37 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "have " d:haveDecl : tactic => `(tactic| refine_lift have $d:haveDecl; ?_)
+syntax "have " haveDecl : tactic
+macro_rules
+  -- special case: when given a nested `by` block, move it outside of the `refine` to enable
+  -- incrementality
+  | `(tactic| have%$haveTk $id:haveId $bs* : $type := by%$byTk $tacs*) => do
+    /-
+    We want to create the syntax
+    ```
+    focus
+      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      case body => $tacs*
+    ```
+    However, we need to be very careful with the syntax infos involved:
+    * We want most infos up to `tacs` to be independent of changes inside it so that incrementality
+      is not prematurely disabled; we use the `have` and then the `by` token as the reference for
+      this. Note that if we did nothing, the reference would be the entire `have` input and so any
+      change to `tacs` would change every token synthesized below.
+    * For the single node of the `case` body, we *should not* change the ref as this makes sure the
+      entire tactic block is included in any "unsaved goals" message (which is emitted after
+      execution of all nested tactics so it is indeed safe for `evalCase` to ignore it for
+      incrementality).
+    * Even after setting the ref, we still need a `with_annotate_state` to show the correct tactic
+      state on `by` as the synthetic info derived from the ref is ignored for this purpose.
+    -/
+    let tac ← Lean.withRef byTk `(tactic| with_annotate_state $byTk ($tacs*))
+    let tac ← `(tacticSeq| $tac:tactic)
+    let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
+    Lean.withRef haveTk `(tactic| focus
+      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      $tac)
+  | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,

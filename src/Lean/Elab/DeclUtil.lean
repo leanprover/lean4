@@ -75,9 +75,11 @@ def sortDeclLevelParams (scopeParams : List Name) (allUserParams : List Name) (u
   match allUserParams.find? fun u => !usedParams.contains u && !scopeParams.elem u with
   | some u => throw s!"unused universe parameter '{u}'"
   | none   =>
+    -- Recall that `allUserParams` (like `scopeParams`) are in reverse order. That is, the last declared universe is the first element of the list.
+    -- The following `foldl` will reverse the elements and produce a list of universe levels using the user given order.
     let result := allUserParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) []
     let remaining := usedParams.filter (fun levelParam => !allUserParams.elem levelParam)
     let remaining := remaining.qsort Name.lt
-    pure $ result ++ remaining.toList
+    return result ++ remaining.toList
 
 end Lean.Elab

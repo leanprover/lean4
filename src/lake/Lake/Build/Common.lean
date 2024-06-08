@@ -182,9 +182,27 @@ trace (and/or `extraDepTrace`) has changed.
 
 /-! ## Common Builds -/
 
-/-- A build job for file that is expected to already exist (e.g., a source file). -/
-def inputFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
+/--
+A build job for binary file that is expected to already exist (e.g., a data blob).
+Any byte difference in the file will trigger a rebuild of dependents.
+-/
+def inputBinFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
+
+/--
+A build job for text file that is expected to already exist (e.g., a source file).
+Normalizes line endings (converts CRLF to LF) to produce platform-independent traces.
+-/
+def inputTextFile (path : FilePath) : SpawnM (BuildJob FilePath) :=
+  Job.async <| (path, ·) <$> computeTrace (TextFilePath.mk path)
+
+/--
+A build job for file that is expected to already exist.
+
+**Deprecated:** Use either `inputTextFile` or `inputBinFile`.
+`inputTextFile` normalizes line endings to produce platform-independent traces.
+-/
+@[deprecated] abbrev inputFile := @inputBinFile
 
 /--
 Build an object file from a source file job using `compiler`. The invocation is:

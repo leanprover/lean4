@@ -13,7 +13,7 @@ lean_lib FFI
 
 target ffi.o pkg : FilePath := do
   let oFile := pkg.buildDir / "c" / "ffi.o"
-  let srcJob ← inputFile <| pkg.dir / "c" / "ffi.cpp"
+  let srcJob ← inputTextFile <| pkg.dir / "c" / "ffi.cpp"
   let weakArgs := #["-I", (← getLeanIncludeDir).toString]
   buildO oFile srcJob weakArgs #["-fPIC"] "c++" getLeanTrace
 

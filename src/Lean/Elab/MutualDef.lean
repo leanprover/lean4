@@ -155,7 +155,7 @@ private def elabHeaders (views : Array DefView)
           -- headers and all previous bodies could be reused and this body syntax is unchanged, then
           -- we can reuse the result
           reuseBody := reuseBody &&
-            view.value.structRangeEqWithTraceReuse (← getOptions) old.bodyStx
+            view.value.eqWithInfoAndTraceReuse (← getOptions) old.bodyStx
           -- no syntax guard to store, we already did the necessary checks
           oldBodySnap? := guard reuseBody *> pure ⟨.missing, old.bodySnap⟩
           oldTacSnap? := do
@@ -977,7 +977,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
             -- blocking wait, `HeadersParsedSnapshot` (and hopefully others) should be quick
             let old ← old.val.get.toTyped? DefsParsedSnapshot
             let oldParsed ← old.defs[i]?
-            guard <| fullHeaderRef.structRangeEqWithTraceReuse opts oldParsed.fullHeaderRef
+            guard <| fullHeaderRef.eqWithInfoAndTraceReuse opts oldParsed.fullHeaderRef
             -- no syntax guard to store, we already did the necessary checks
             return ⟨.missing, oldParsed.headerProcessedSnap⟩
           new := headerPromise

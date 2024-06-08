@@ -66,7 +66,7 @@ theorem add_def (xs ys : IntList) :
   rfl
 
 @[simp] theorem add_get (xs ys : IntList) (i : Nat) : (xs + ys).get i = xs.get i + ys.get i := by
-  simp only [add_def, get, List.zipWithAll_get?, List.get?_eq_none]
+  simp only [add_def, get, List.get?_zipWithAll, List.get?_eq_none]
   cases xs.get? i <;> cases ys.get? i <;> simp
 
 @[simp] theorem add_nil (xs : IntList) : xs + [] = xs := by simp [add_def]
@@ -83,7 +83,7 @@ theorem mul_def (xs ys : IntList) : xs * ys = List.zipWith (· * ·) xs ys :=
   rfl
 
 @[simp] theorem mul_get (xs ys : IntList) (i : Nat) : (xs * ys).get i = xs.get i * ys.get i := by
-  simp only [mul_def, get, List.zipWith_get?]
+  simp only [mul_def, get, List.get?_zipWith]
   cases xs.get? i <;> cases ys.get? i <;> simp
 
 @[simp] theorem mul_nil_left : ([] : IntList) * ys = [] := rfl

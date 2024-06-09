@@ -737,7 +737,8 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 def levelMVarToParam (e : Expr) (except : LMVarId → Bool := fun _ => false) : TermElabM Expr := do
   let levelNames ← getLevelNames
   let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) except e `u 1
-  setLevelNames (levelNames ++ r.newParamNames.toList)
+  -- Recall that the most recent universe is the first element of the field `levelNames`.
+  setLevelNames (r.newParamNames.reverse.toList ++ levelNames)
   setMCtx r.mctx
   return r.expr
 

@@ -701,7 +701,7 @@ example (M : Comon_ (Mon_ C)) : Mon_ (Comon_ C) where
   mul := { hom := M.X.mul }
   mul_one := by
     ext
-    simp [foo.{v₁ + 1}] -- specifying the universe level explicitly works!
+    simp [foo.{_, v₁ + 1}] -- specifying the universe level explicitly works!
 
 theorem foo' {V} [Quiver V] {X Y x} :
     @Quiver.Hom.unop V _ X Y no_index (Opposite.op (unop := x)) = x := rfl

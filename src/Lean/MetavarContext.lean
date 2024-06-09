@@ -563,8 +563,12 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
         let wasMVar := f.isMVar
         let f ← instantiateExprMVars f
         if wasMVar && f.isLambda then
-          /- Some of the arguments in args are irrelevant after we beta reduce. -/
-          instantiateExprMVars (f.betaRev args.reverse)
+          /- Some of the arguments in `args` are irrelevant after we beta
+             reduce. Also, it may be a bug to not instantiate them, since they
+             may depend on free variables that are not in the context (see
+             issue #4375). So we pass `useZeta := true` to ensure that they are
+             instantiated. -/
+          instantiateExprMVars (f.betaRev args.reverse (useZeta := true))
         else
           instArgs f
       match f with

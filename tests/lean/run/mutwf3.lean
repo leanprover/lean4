@@ -28,10 +28,29 @@ mutual
     apply Nat.lt_succ_self
 end
 
-#eval f 5 'a' 'b'
+#guard f 5 'a' 'b' = 'a'
+
+/--
+info: @[irreducible] def Ex1.f.{u_1} : {α : Type u_1} → Nat → α → α → α :=
+fun {α} a a_1 a_2 => f._mutual (PSum.inl ⟨a, ⟨a_1, a_2⟩⟩)
+-/
+#guard_msgs in
 #print f
+
+/--
+info: @[irreducible] def Ex1.g.{u_1} : {α : Type u_1} → α → Nat → α → α × α :=
+fun {α} a a_1 a_2 => f._mutual (PSum.inr (PSum.inl ⟨a, ⟨a_1, a_2⟩⟩))
+-/
+#guard_msgs in
 #print g
+
+/--
+info: @[irreducible] def Ex1.h.{u_1} : {α : Type u_1} → α → α → Nat → α :=
+fun {α} a a_1 a_2 => f._mutual (PSum.inr (PSum.inr ⟨a, ⟨a_1, a_2⟩⟩))
+-/
+#guard_msgs in
 #print h
+
 #print f._mutual
 end Ex1
 

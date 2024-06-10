@@ -3,9 +3,11 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.Newline
+import Lake.Util.IO
+import Lean.Data.Json
 
-open System
+open System Lean
+
 namespace Lake
 
 --------------------------------------------------------------------------------
@@ -38,7 +40,7 @@ class NilTrace.{u} (t : Type u) where
 
 export NilTrace (nilTrace)
 
-instance [NilTrace t] : Inhabited t := ⟨nilTrace⟩
+instance inhabitedOfNilTrace [NilTrace t] : Inhabited t := ⟨nilTrace⟩
 
 class MixTrace.{u} (t : Type u) where
   /-- Combine two traces. The result should be dirty if either of the inputs is dirty. -/
@@ -109,6 +111,16 @@ instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
+@[inline] protected def toJson (self : Hash) : Json :=
+  toJson self.val
+
+instance : ToJson Hash := ⟨Hash.toJson⟩
+
+@[inline] protected def fromJson? (json : Json) : Except String Hash :=
+  (⟨·⟩) <$> fromJson? json
+
+instance : FromJson Hash := ⟨Hash.fromJson?⟩
+
 end Hash
 
 class ComputeHash (α : Type u) (m : outParam $ Type → Type v)  where
@@ -131,7 +143,7 @@ instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 
 def computeTextFileHash (file : FilePath) : IO Hash := do
   let text ← IO.FS.readFile file
-  let text := crlf2lf text
+  let text := text.crlfToLf
   return Hash.ofString text
 
 /--
@@ -255,7 +267,8 @@ If not, check if the info is newer than this trace's modification time.
   else
     self.checkAgainstTime info
 
-@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
+@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit := do
+  createParentDirs traceFile
   IO.FS.writeFile traceFile self.hash.toString
 
 end BuildTrace

@@ -821,7 +821,9 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
     | some r => reduce structNames r
     | none   => return e.updateProj! (← reduce structNames b)
   | .app f .. =>
-    match (← reduceProjOf? e structNames.contains) with
+    -- Recall that proposition fields are theorems. Thus, we must set transparency to .all
+    -- to ensure they are unfolded here
+    match (← withTransparency .all <| reduceProjOf? e structNames.contains) with
     | some r => reduce structNames r
     | none   =>
       let f := f.getAppFn
@@ -937,7 +939,7 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
 
      TODO: investigate whether this design decision may have unintended side effects or produce confusing behavior.
   -/
-  let { val := r, struct, instMVars } ← withSynthesize (mayPostpone := true) <| elabStruct struct expectedType?
+  let { val := r, struct, instMVars } ← withSynthesize (postpone := .yes) <| elabStruct struct expectedType?
   trace[Elab.struct] "before propagate {r}"
   DefaultFields.propagate struct
   synthesizeAppInstMVars instMVars r
@@ -955,6 +957,8 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
     else
       elabStructInstAux stx expectedType? sourceView
 
-builtin_initialize registerTraceClass `Elab.struct
+builtin_initialize
+  registerTraceClass `Elab.struct
+  registerTraceClass `Elab.struct.modifyOp
 
 end Lean.Elab.Term.StructInst

@@ -11,6 +11,9 @@ example : p 0 0 := by
   fail_if_success
     simp [foo 1] -- will not simplify
   simp [foo 0]
+
+/-- info: ⊢ p 0 0 -/
+#guard_msgs in
 example : p 0 0 ∧ p 1 1 := by
   simp [foo 1]
   trace_state

@@ -96,7 +96,7 @@ protected theorem le_antisymm {a b : Int} (h₁ : a ≤ b) (h₂ : b ≤ a) : a 
   have := Int.ofNat.inj <| Int.add_left_cancel <| this.trans (Int.add_zero _).symm
   rw [← hn, Nat.eq_zero_of_add_eq_zero_left this, ofNat_zero, Int.add_zero a]
 
-protected theorem lt_irrefl (a : Int) : ¬a < a := fun H =>
+@[simp] protected theorem lt_irrefl (a : Int) : ¬a < a := fun H =>
   let ⟨n, hn⟩ := lt.dest H
   have : (a+Nat.succ n) = a+0 := by
     rw [hn, Int.add_zero]
@@ -812,6 +812,20 @@ protected theorem sub_lt_sub_right {a b : Int} (h : a < b) (c : Int) : a - c < b
 
 protected theorem sub_lt_sub {a b c d : Int} (hab : a < b) (hcd : c < d) : a - d < b - c :=
   Int.add_lt_add hab (Int.neg_lt_neg hcd)
+
+protected theorem lt_of_sub_lt_sub_left {a b c : Int} (h : c - a < c - b) : b < a :=
+  Int.lt_of_neg_lt_neg <| Int.lt_of_add_lt_add_left h
+
+protected theorem lt_of_sub_lt_sub_right {a b c : Int} (h : a - c < b - c) : a < b :=
+  Int.lt_of_add_lt_add_right h
+
+@[simp] protected theorem sub_lt_sub_left_iff (a b c : Int) :
+    c - a < c - b ↔ b < a :=
+  ⟨Int.lt_of_sub_lt_sub_left, (Int.sub_lt_sub_left · c)⟩
+
+@[simp] protected theorem sub_lt_sub_right_iff (a b c : Int) :
+    a - c < b - c ↔ a < b :=
+  ⟨Int.lt_of_sub_lt_sub_right, (Int.sub_lt_sub_right · c)⟩
 
 protected theorem sub_lt_sub_of_le_of_lt {a b c d : Int}
   (hab : a ≤ b) (hcd : c < d) : a - d < b - c :=

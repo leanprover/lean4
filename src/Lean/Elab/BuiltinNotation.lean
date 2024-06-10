@@ -98,7 +98,7 @@ open Meta
       show Nat from 0
     ```
     -/
-    let type ← withSynthesize (mayPostpone := true) do
+    let type ← withSynthesize (postpone := .yes) do
       let type ← elabType type
       if let some expectedType := expectedType? then
         -- Recall that a similar approach is used when elaborating applications
@@ -205,7 +205,7 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   | _                                        => Macro.throwUnsupported
 
 @[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(sorryAx _ false)
+  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auot params
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
@@ -314,11 +314,11 @@ where
 
 @[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
   | `(($e : $type)), _ => do
-    let type ← withSynthesize (mayPostpone := true) <| elabType type
+    let type ← withSynthesize (postpone := .yes) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
   | `(($e :)), expectedType? => do
-    let e ← withSynthesize (mayPostpone := false) <| elabTerm e none
+    let e ← withSynthesize (postpone := .no) <| elabTerm e none
     ensureHasType expectedType? e
   | _, _ => throwUnsupportedSyntax
 
@@ -388,7 +388,7 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
                return (← mkEqRec motive h (← mkEqSymm heq), none)
          let motive ← mkMotive lhs expectedAbst
          if badMotive?.isSome || !(← isTypeCorrect motive) then
-           -- Before failing try tos use `subst`
+           -- Before failing try to use `subst`
            if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
              withLocalIdentFor heqStx heq fun heqStx => do
                let h ← instantiateMVars h
@@ -408,7 +408,13 @@ private def withLocalIdentFor (stx : Term) (e : Expr) (k : Term → TermElabM Ex
        | none =>
          let h ← elabTerm hStx none
          let hType ← inferType h
-         let hTypeAbst ← kabstract hType lhs
+         let mut hTypeAbst ← kabstract hType lhs
+         unless hTypeAbst.hasLooseBVars do
+           hTypeAbst ← kabstract hType rhs
+           unless hTypeAbst.hasLooseBVars do
+             throwError "invalid `▸` notation, the equality{indentExpr heq}\nhas type {indentExpr heqType}\nbut neither side of the equality is mentioned in the type{indentExpr hType}"
+           heq ← mkEqSymm heq
+           (lhs, rhs) := (rhs, lhs)
          let motive ← mkMotive lhs hTypeAbst
          unless (← isTypeCorrect motive) do
            throwError "invalid `▸` notation, failed to compute motive for the substitution"

@@ -15,6 +15,10 @@ def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β
   ⟨ data.val.uset i d h,
     by erw [Array.size_set]; apply data.property ⟩
 
+@[simp] theorem HashMapBucket.size_update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β)
+    (h : i.toNat < data.val.size) : (data.update i d h).val.size = data.val.size := by
+  simp [update, Array.uset]
+
 structure HashMapImp (α : Type u) (β : Type v) where
   size       : Nat
   buckets    : HashMapBucket α β
@@ -92,6 +96,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
      moveEntries (i+1) source target
   else target
 termination_by source.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨
@@ -107,7 +112,9 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      (⟨size, buckets.update i (bkt.replace a b) h⟩, true)
+      -- make sure `bkt` is used linearly in the following call to `replace`
+      let buckets' := buckets.update i .nil h
+      (⟨size, buckets'.update i (bkt.replace a b) (by simpa [buckets'])⟩, true)
     else
       let size'    := size + 1
       let buckets' := buckets.update i (AssocList.cons a b bkt) h
@@ -138,7 +145,9 @@ def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+      -- make sure `bkt` is used linearly in the following call to `erase`
+      let buckets' := buckets.update i .nil h
+      ⟨size - 1, buckets'.update i (bkt.erase a) (by simpa [buckets'])⟩
     else
       ⟨size, buckets⟩
 
@@ -248,6 +257,8 @@ def toArray (m : HashMap α β) : Array (α × β) :=
 def numBuckets (m : HashMap α β) : Nat :=
   m.val.buckets.val.size
 
+variable [BEq α] [Hashable α]
+
 /-- Builds a `HashMap` from a list of key-value pairs. Values of duplicated keys are replaced by their respective last occurrences. -/
 def ofList (l : List (α × β)) : HashMap α β :=
   l.foldl (init := HashMap.empty) (fun m p => m.insert p.fst p.snd)
@@ -259,6 +270,7 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
       match m.find? p.fst with
         | none   => m.insert p.fst p.snd
         | some v => m.insert p.fst $ f v p.snd)
+
 end Lean.HashMap
 
 /--

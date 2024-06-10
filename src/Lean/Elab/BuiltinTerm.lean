@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Diagnostics
 import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.Eval
@@ -189,8 +190,18 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
     | some val => pure val
     | none     => throwIllFormedSyntax
   let typeMVar ← mkFreshTypeMVarFor expectedType?
-  let u ← getDecLevel typeMVar
-  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val))
+  let u ← try
+    getDecLevel typeMVar
+  catch ex =>
+    match expectedType? with
+    | some expectedType =>
+      if (← isProp expectedType) then
+        throwError m!"numerals are data in Lean, but the expected type is a proposition{indentExpr expectedType} : Prop"
+      else
+        throwError m!"numerals are data in Lean, but the expected type is universe polymorphic and may be a proposition{indentExpr expectedType} : {← inferType expectedType}"
+    | none => throw ex
+  let extraMsg := m!"numerals are polymorphic in Lean, but the numeral `{val}` cannot be used in a context where the expected type is{indentExpr typeMVar}\ndue to the absence of the instance above"
+  let mvar ← mkInstMVar (mkApp2 (Lean.mkConst ``OfNat [u]) typeMVar (mkRawNatLit val)) extraMsg
   let r := mkApp3 (Lean.mkConst ``OfNat.ofNat [u]) typeMVar (mkRawNatLit val) mvar
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
@@ -313,8 +324,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
   let options ← Elab.elabSetOption stx[1] stx[3]
-  withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
-    elabTerm stx[5] expectedType?
+  withOptions (fun _ => options) do
+    try
+      elabTerm stx[5] expectedType?
+    finally
+      if stx[1].getId == `diagnostics then
+        reportDiag
 
 @[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with

@@ -13,7 +13,10 @@ import Lean.ParserCompiler
 namespace Lean
 
 def PPContext.runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
-  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace, openDecls := ppCtx.openDecls, fileName := "<PrettyPrinter>", fileMap := default }
+  Prod.fst <$> x.toIO { options := ppCtx.opts, currNamespace := ppCtx.currNamespace
+                        openDecls := ppCtx.openDecls
+                        fileName := "<PrettyPrinter>", fileMap := default
+                        diag     := getDiag ppCtx.opts }
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def PPContext.runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
@@ -48,7 +51,9 @@ def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (d
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts, fileName := "<PrettyPrinter>", fileMap := default } { env := env }
+  Prod.fst <$> ((withOptions (fun _ => opts) <| ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO
+    { fileName := "<PrettyPrinter>", fileMap := default }
+    { env := env }
 
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx
 
@@ -105,16 +110,14 @@ namespace MessageData
 open Lean PrettyPrinter Delaborator
 
 /--
-Turns a `MetaM FormatWithInfos` into a `MessageData` using `.ofPPFormat` and running the monadic value in the given context.
-Uses the `pp.tagAppFns` option to annotate constants with terminfo, which is necessary for seeing the type on mouse hover.
+Turns a `MetaM FormatWithInfos` into a `MessageData.lazy` which will run the monadic value.
+Uses the `pp.tagAppFns` option to annotate constants with terminfo,
+which is necessary for seeing the type on mouse hover.
 -/
-def ofFormatWithInfos
-    (fmt : MetaM FormatWithInfos)
-    (noContext : Unit → Format := fun _ => "<no context, could not generate MessageData>") : MessageData :=
-  .ofPPFormat
-  { pp := fun
-      | some ctx => ctx.runMetaM <| withOptions (pp.tagAppFns.set · true) fmt
-      | none => return noContext () }
+def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
+  .lazy fun ctx => ctx.runMetaM <|
+    withOptions (pp.tagAppFns.set · true) <|
+      .ofFormatWithInfos <$> fmt
 
 /-- Pretty print a const expression using `delabConst` and generate terminfo.
 This function avoids inserting `@` if the constant is for a function whose first
@@ -122,13 +125,13 @@ argument is implicit, which is what the default `toMessageData` for `Expr` does.
 Panics if `e` is not a constant. -/
 def ofConst (e : Expr) : MessageData :=
   if e.isConst then
-    .ofFormatWithInfos (PrettyPrinter.ppExprWithInfos (delab := delabConst) e) fun _ => f!"{e}"
+    .ofFormatWithInfosM (PrettyPrinter.ppExprWithInfos (delab := delabConst) e)
   else
     panic! "not a constant"
 
 /-- Generates `MessageData` for a declaration `c` as `c.{<levels>} <params> : <type>`, with terminfo. -/
 def signature (c : Name) : MessageData :=
-  .ofFormatWithInfos (PrettyPrinter.ppSignature c) fun _ => f!"{c}"
+  .ofFormatWithInfosM (PrettyPrinter.ppSignature c)
 
 end MessageData
 

@@ -9,9 +9,15 @@ assignees: ''
 
 ### Prerequisites
 
-* [ ] Put an X between the brackets on this line if you have done all of the following:
-    * Check that your issue is not already [filed](https://github.com/leanprover/lean4/issues).
-    * Reduce the issue to a minimal, self-contained, reproducible test case. Avoid dependencies to mathlib4 or std4.
+Please put an X between the brackets as you perform the following steps:
+
+* [ ] Check that your issue is not already filed:
+      https://github.com/leanprover/lean4/issues
+* [ ] Reduce the issue to a minimal, self-contained, reproducible test case.
+      Avoid dependencies to Mathlib or Batteries.
+* [ ] Test your test case against the latest nightly release, for example on
+      https://live.lean-lang.org/#project=lean-nightly
+      (You can also use the settings there to switch to “Lean nightly”)
 
 ### Description
 
@@ -33,8 +39,8 @@ assignees: ''
 
 ### Versions
 
-[Output of `#eval Lean.versionString` or of `lean --version` in the folder that the issue occured in]
-[OS version]
+[Output of `#eval Lean.versionString`]
+[OS version, if not using live.lean-lang.org.]
 
 ### Additional Information
 

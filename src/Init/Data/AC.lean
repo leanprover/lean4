@@ -146,8 +146,8 @@ theorem Context.evalList_mergeIdem (ctx : Context α) (h : ContextInformation.is
     | nil =>
       simp [mergeIdem, mergeIdem.loop]
       split
-      case inl h₂ => simp [evalList, h₂, h.1, EvalInformation.evalOp]
-      rfl
+      next h₂ => simp [evalList, h₂, h.1, EvalInformation.evalOp]
+      next => rfl
     | cons z zs =>
       by_cases h₂ : x = y
       case pos =>
@@ -191,11 +191,11 @@ theorem Context.evalList_insert
     . simp [evalList, h.1, EvalInformation.evalOp]
   | step y z zs ih =>
     simp [insert] at *; split
-    case inl => rfl
-    case inr =>
+    next => rfl
+    next =>
       split
-      case inl => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
-      case inr => simp_all [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      next => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      next => simp_all [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
 
 theorem Context.evalList_sort_congr
   (ctx : Context α)

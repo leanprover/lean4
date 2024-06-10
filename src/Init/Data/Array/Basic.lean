@@ -31,6 +31,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
   go (i : Nat) (acc : Array α) : Array α :=
     if h : i < n then go (i+1) (acc.push (f ⟨i, h⟩)) else acc
 termination_by n - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /-- The array `#[0, 1, ..., n - 1]`. -/
 def range (n : Nat) : Array Nat :=
@@ -43,7 +44,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-def isEmpty (a : Array α) : Bool :=
+@[simp] def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 def singleton (v : α) : Array α :=
@@ -52,7 +53,7 @@ def singleton (v : α) : Array α :=
 /-- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern "lean_array_uget"]
+@[extern "lean_array_uget", simp]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
   a[i.toNat]
 
@@ -306,6 +307,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
     else
       pure r
   termination_by as.size - i
+  decreasing_by simp_wf; decreasing_trivial_pre_omega
   map 0 (mkEmpty as.size)
 
 @[inline]
@@ -378,6 +380,7 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
       else
         pure false
       termination_by stop - j
+      decreasing_by simp_wf; decreasing_trivial_pre_omega
     loop start
   if h : stop ≤ as.size then
     any stop h
@@ -463,6 +466,7 @@ def findIdx? {α : Type u} (as : Array α) (p : α → Bool) : Option Nat :=
       if p as[j] then some j else loop (j + 1)
     else none
     termination_by as.size - j
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
@@ -557,6 +561,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
   else
     true
 termination_by a.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -661,6 +666,7 @@ def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) 
     else indexOfAux a v (i+1)
   else none
 termination_by a.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
@@ -703,6 +709,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
   else
     as
 termination_by as.size
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec go (i : Nat) (r : Array α) : Array α :=
@@ -715,6 +722,7 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
     else
       r
     termination_by as.size - i
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   go 0 #[]
 
 /-- Remove the element at a given index from an array without bounds checks, using a `Fin` index.
@@ -725,16 +733,15 @@ def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   if h : i.val + 1 < a.size then
     let a' := a.swap ⟨i.val + 1, h⟩ i
     let i' : Fin a'.size := ⟨i.val + 1, by simp [a', h]⟩
-    have : a'.size - i' < a.size - i := by
-      simp [a', Nat.sub_succ_lt_self _ _ i.isLt]
     a'.feraseIdx i'
   else
     a.pop
 termination_by a.size - i.val
+decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ i.isLt
 
 theorem size_feraseIdx (a : Array α) (i : Fin a.size) : (a.feraseIdx i).size = a.size - 1 := by
   induction a, i using Array.feraseIdx.induct with
-  | @case1 a i h a' _ _ ih =>
+  | @case1 a i h a' _ ih =>
     unfold feraseIdx
     simp [h, a', ih]
   | case2 a i h =>
@@ -763,6 +770,7 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
     else
       as
     termination_by j.1
+    decreasing_by simp_wf; decreasing_trivial_pre_omega
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
@@ -783,11 +791,11 @@ def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
   cases as; cases bs; simp at h; rw [h]
 
-theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+@[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
 theorem data_toArray (as : List α) : as.toArray.data = as := by
-  simp [List.toArray, toArrayAux_eq, Array.mkEmpty]
+  simp [List.toArray, Array.mkEmpty]
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'
@@ -816,6 +824,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
   else
     true
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 /-- Return true iff `as` is a prefix of `bs`.
 That is, `bs = as ++ t` for some `t : List α`.-/
@@ -837,6 +846,7 @@ private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
   else
     true
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
@@ -852,6 +862,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
   else
     cs
 termination_by as.size - i
+decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

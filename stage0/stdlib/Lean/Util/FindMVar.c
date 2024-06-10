@@ -17,6 +17,8 @@ LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object*, lean_object*, lean_
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_main(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -41,6 +43,7 @@ else
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -78,6 +81,7 @@ else
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
@@ -92,6 +96,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_10 = l_Lean_FindMVar_visit(x_1, x_8, x_3);
 x_11 = l_Lean_FindMVar_visit(x_1, x_9, x_10);
+lean_dec(x_10);
 return x_11;
 }
 case 6:
@@ -105,6 +110,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_14 = l_Lean_FindMVar_visit(x_1, x_12, x_3);
 x_15 = l_Lean_FindMVar_visit(x_1, x_13, x_14);
+lean_dec(x_14);
 return x_15;
 }
 case 7:
@@ -118,6 +124,7 @@ lean_dec(x_2);
 lean_inc(x_1);
 x_18 = l_Lean_FindMVar_visit(x_1, x_16, x_3);
 x_19 = l_Lean_FindMVar_visit(x_1, x_17, x_18);
+lean_dec(x_18);
 return x_19;
 }
 case 8:
@@ -134,7 +141,9 @@ lean_inc(x_1);
 x_23 = l_Lean_FindMVar_visit(x_1, x_20, x_3);
 lean_inc(x_1);
 x_24 = l_Lean_FindMVar_visit(x_1, x_21, x_23);
+lean_dec(x_23);
 x_25 = l_Lean_FindMVar_visit(x_1, x_22, x_24);
+lean_dec(x_24);
 return x_25;
 }
 case 10:
@@ -159,9 +168,28 @@ default:
 {
 lean_dec(x_2);
 lean_dec(x_1);
+lean_inc(x_3);
 return x_3;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindMVar_visit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindMVar_visit(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FindMVar_main___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_FindMVar_main(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Expr_findMVar_x3f(lean_object* x_1, lean_object* x_2) {

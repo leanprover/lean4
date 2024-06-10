@@ -228,20 +228,23 @@ private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
             throwThe Unit ()
   return (← (find e).run) matches .error _
 
-partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
+partial def mkEqnTypes (tryRefl : Bool) (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
   return eqnTypes
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
     trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
-    if (← tryURefl mvarId) then
-      saveEqn mvarId
-      return ()
+    if tryRefl then
+      if (← tryURefl mvarId) then
+        saveEqn mvarId
+        return ()
 
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
---  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
-/-    if let some mvarId ← funext? mvarId then
+
+    --  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it
+    --  if we want to apply `splitMatch` on the body of the lambda
+    /- if let some mvarId ← funext? mvarId then
         return (← go mvarId) -/
 
     if (← shouldUseSimpMatch (← mvarId.getType')) then

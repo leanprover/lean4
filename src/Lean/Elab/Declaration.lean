@@ -188,16 +188,28 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
   let v ← classInductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 
-@[builtin_command_elab declaration]
-def elabDeclaration : CommandElab := fun stx => do
-  match (← liftMacroM <| expandDeclNamespace? stx) with
+/--
+Macro that expands a declaration with a complex name into an explicit `namespace` block.
+Implementing this step as a macro means that reuse checking is handled by `elabCommand`.
+ -/
+@[builtin_macro Lean.Parser.Command.declaration]
+def expandNamespacedDeclaration : Macro := fun stx => do
+  match (← expandDeclNamespace? stx) with
   | some (ns, newStx) => do
-    let ns := mkIdentFrom stx ns
-    let newStx ← `(namespace $ns $(⟨newStx⟩) end $ns)
-    withMacroExpansion stx newStx <| elabCommand newStx
-  | none => do
-    let decl     := stx[1]
-    let declKind := decl.getKind
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    let declTk := stx[1][0]
+    let ns := mkIdentFrom declTk ns
+    withRef declTk `(namespace $ns $(⟨newStx⟩) end $ns)
+  | none => Macro.throwUnsupported
+
+@[builtin_command_elab declaration, builtin_incremental]
+def elabDeclaration : CommandElab := fun stx => do
+  let decl     := stx[1]
+  let declKind := decl.getKind
+  if isDefLike decl then
+    -- only case implementing incrementality currently
+    elabMutualDef #[stx]
+  else withoutCommandIncrementality true do
     if declKind == ``Lean.Parser.Command.«axiom» then
       let modifiers ← elabModifiers stx[0]
       elabAxiom modifiers decl
@@ -210,8 +222,6 @@ def elabDeclaration : CommandElab := fun stx => do
     else if declKind == ``Lean.Parser.Command.«structure» then
       let modifiers ← elabModifiers stx[0]
       elabStructure modifiers decl
-    else if isDefLike decl then
-      elabMutualDef #[stx]
     else
       throwError "unexpected declaration"
 
@@ -304,6 +314,10 @@ def expandMutualElement : Macro := fun stx => do
   let mut elemsNew := #[]
   let mut modified := false
   for elem in stx[1].getArgs do
+    -- Don't trigger the `expandNamespacedDecl` macro, the namespace is handled by the mutual def
+    -- elaborator directly instead
+    if elem.isOfKind ``Parser.Command.declaration then
+      continue
     match (← expandMacro? elem) with
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
     | none         => elemsNew := elemsNew.push elem
@@ -322,14 +336,16 @@ def expandMutualPreamble : Macro := fun stx =>
     let endCmd    ← `(end)
     return mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
-@[builtin_command_elab «mutual»]
+@[builtin_command_elab «mutual», builtin_incremental]
 def elabMutual : CommandElab := fun stx => do
-  if isMutualInductive stx then
-    elabMutualInductive stx[1].getArgs
-  else if isMutualDef stx then
+  if isMutualDef stx then
+    -- only case implementing incrementality currently
     elabMutualDef stx[1].getArgs
-  else
-    throwError "invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs"
+  else withoutCommandIncrementality true do
+    if isMutualInductive stx then
+      elabMutualInductive stx[1].getArgs
+    else
+      throwError "invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs"
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do

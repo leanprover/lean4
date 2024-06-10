@@ -29,4 +29,8 @@ do let f   := mkConst `f [];
    IO.println [t1, t2, t3, t5, t6, x₁, x₂, s₁, s₂, a₁, a₂, id₁, id₂, l₁, l₂];
    pure ()
 
+/--
+info: [f x, f y, f x, y.2, x.2, x.{1}, x, Type, Prop, Type -> Type, Prop -> Type, fun (x : Type) => x, fun (x : Nat) => x, let z : Nat := x; f y, let z : Nat := x; f x]
+-/
+#guard_msgs in
 #eval main

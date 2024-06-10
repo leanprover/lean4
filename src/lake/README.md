@@ -15,6 +15,7 @@ Each `lakefile.lean` includes a `package` declaration (akin to `main`) which def
 * [Package Configuration Options](#package-configuration-options)
   + [Layout](#layout)
   + [Build & Run](#build--run)
+  + [Test & Lint](#test--lint)
   + [Cloud Releases](#cloud-releases)
 * [Defining Build Targets](#defining-build-targets)
   + [Lean Libraries](#lean-libraries)
@@ -164,8 +165,10 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Layout
 
+These options control the top-level directory layout of the package and its build directory. Further paths specified by libraries, executables, and targets within the package are relative to these directories.
+
 * `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `.lake/packages`.
-* `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
+* `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory.
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `leanLibDir`: The build subdirectory to which Lake should output the package's binary Lean libraries (e.g., `.olean`, `.ilean` files). Defaults to `lib`.
 * `nativeLibDir`: The build subdirectory to which Lake should output the package's native libraries (e.g., `.a`, `.so`, `.dll` files). Defaults to `lib`.
@@ -173,6 +176,8 @@ Lake provides a large assortment of configuration options for packages.
 * `irDir`: The build subdirectory to which Lake should output the package's intermediary results (e.g., `.c`, `.o` files). Defaults to `ir`.
 
 ### Build & Run
+
+These options configure how code is built and run in the package. Libraries, executables, and other targets within a package can further add to parts of this configuration.
 
 * `platformIndependent`: Asserts whether Lake should assume Lean modules are platform-independent. That is, whether lake should include the platform and platform-dependent elements in a module's trace. See the docstring of `Lake.LeanConfig.platformIndependent` for more details. Defaults to `none`.
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
@@ -188,7 +193,20 @@ Lake provides a large assortment of configuration options for packages.
 * `weakLinkArgs`: An `Array` of additional arguments to pass to `leanc` when linking (e.g., binary executables or shared libraries) Unlike `moreLinkArgs`, these arguments do not affect the trace of the build result, so they can be changed without triggering a rebuild. They come *before* `moreLinkArgs`.
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names that the package should always build before anything else.
 
+### Test & Lint
+
+The CLI commands `lake test` and `lake lint` use definitions configured by the workspace's root package to perform testing and linting (this referred to as the test or lint *driver*). In Lean configuration files, these can be specified by applying the `@[test_driver]` or `@[lint_driver]` to a `script`, `lean_exe`, or `lean_lb`. They can also be configured (in Lean or TOML format) via the following options on the package.
+
+* `testDriver`: The name of the script, executable, or library to drive `lake test`.
+* `testDriverArgs`: An `Array` of arguments to pass to the package's test driver.
+* `lintDriver`: The name of the script or executable used by `lake lint`. Libraries cannot be lint drivers.
+* `lintDriverArgs`: An `Array` of arguments to pass to the package's lint driver.
+
+You can specify definition from a dependency as a package's test or lint driver by using the syntax `<pkg>/<name>`. An executable driver will be built and then run, a script driver will just be run, and a library driver will just be built. A script or executable driver is run with any arguments configured by package (e.g., via `testDriverArgs`) followed by any specified on the CLI (e.g., via `lake lint -- <args>...`).
+
 ### Cloud Releases
+
+These options define a cloud release for the package. See the section on [GitHub Release Builds](#github-release-builds) for more information.
 
 * `releaseRepo`: The URL of the GitHub repository to upload and download releases of this package.  If `none` (the default), for downloads, Lake uses the URL the package was download from (if it is a dependency) and for uploads, uses `gh`'s default.
 * `buildArchive`: The name of the build archive for the GitHub cloud release.
@@ -267,7 +285,7 @@ extern_lib «target-name» (pkg : NPackage _package.name) :=
   -- a build function that produces its static library
 ```
 
-The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `IndexBuildM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
+The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `FetchM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
 
 ### Custom Targets
 
@@ -280,7 +298,7 @@ target «target-name» (pkg : NPackage _package.name) : α :=
   -- a build function that produces a `BuildJob α`
 ```
 
-The `pkg` parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
+The `pkg` parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
 
 ## Defining New Facets
 
@@ -299,7 +317,7 @@ library_facet «facet-name» (lib : LeanLib) : α :=
   -- a build function that produces a `BuildJob α`
 ```
 
-In all of these, the object parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`.
+In all of these, the object parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`.
 
 ## Adding Dependencies
 

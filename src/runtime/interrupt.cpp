@@ -26,7 +26,7 @@ size_t get_max_heartbeat() { return g_max_heartbeat; }
 void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<size_t>(max) * 1000; }
 
 scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
-scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
+LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {

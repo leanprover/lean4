@@ -1,4 +1,5 @@
-testRunner = "b"
+testDriver = "b"
+lintDriver = "b"
 defaultTargets = ['A']
 
 name = "test"

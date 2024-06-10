@@ -11,14 +11,29 @@ import Lean.Eval
 import Lean.ResolveName
 import Lean.Elab.InfoTree.Types
 import Lean.MonadEnv
+import Lean.Elab.Exception
 
 namespace Lean
-namespace Core
+register_builtin_option diagnostics : Bool := {
+  defValue := false
+  group    := "diagnostics"
+  descr    := "collect diagnostic information"
+}
+
+register_builtin_option diagnostics.threshold : Nat := {
+  defValue := 20
+  group    := "diagnostics"
+  descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
+}
 
 register_builtin_option maxHeartbeats : Nat := {
   defValue := 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
+
+def useDiagnosticMsg := s!"use `set_option {diagnostics.name} true` to get diagnostic information"
+
+namespace Core
 
 builtin_initialize registerTraceClass `Kernel
 
@@ -67,11 +82,17 @@ structure Context where
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
   /--
-  If `catchRuntimeEx = false`, then given `try x catch ex => h ex`,
-  an runtime exception occurring in `x` is not handled by `h`.
-  Recall that runtime exceptions are `maxRecDepth` or `maxHeartbeats`.
+  If `diag := true`, different parts of the system collect diagnostics.
+  Use the `set_option diag true` to set it to true.
   -/
-  catchRuntimeEx : Bool := false
+  diag           : Bool := false
+  /-- If set, used to cancel elaboration from outside when results are not needed anymore. -/
+  cancelTk?      : Option IO.CancelToken := none
+  /--
+  If set (when `showPartialSyntaxErrors` is not set and parsing failed), suppresses most elaboration
+  errors; see also `logMessage` below.
+  -/
+  suppressElabErrors : Bool := false
   deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
@@ -104,7 +125,22 @@ instance : MonadOptions CoreM where
   getOptions := return (← read).options
 
 instance : MonadWithOptions CoreM where
-  withOptions f x := withReader (fun ctx => { ctx with options := f ctx.options }) x
+  withOptions f x := do
+    let options := f (← read).options
+    let diag := diagnostics.get options
+    if Kernel.isDiagnosticsEnabled (← getEnv) != diag then
+      modifyEnv fun env => Kernel.enableDiag env diag
+    withReader
+      (fun ctx =>
+        { ctx with
+          options
+          diag
+          maxRecDepth := maxRecDepth.get options })
+      x
+
+-- Helper function for ensuring fields that depend on `options` have the correct value.
+@[inline] private def withConsistentCtx (x : CoreM α) : CoreM α := do
+  withOptions id x
 
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
@@ -173,16 +209,45 @@ instance : MonadTrace CoreM where
   getTraceState := return (← get).traceState
   modifyTraceState f := modify fun s => { s with traceState := f s.traceState }
 
-/-- Restore backtrackable parts of the state. -/
-def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
+structure SavedState extends State where
+  /-- Number of heartbeats passed inside `withRestoreOrSaveFull`, not used otherwise. -/
+  passedHearbeats : Nat
+deriving Nonempty
+
+def saveState : CoreM SavedState := do
+  let s ← get
+  return { toState := s, passedHearbeats := 0 }
 
 /--
-Restores full state including sources for unique identifiers. Only intended for incremental reuse
-between elaboration runs, not for backtracking within a single run.
+Incremental reuse primitive: if `reusableResult?` is `none`, runs `act` and returns its result
+together with the saved monadic state after `act` including the heartbeats used by it. If
+`reusableResult?` on the other hand is `some (a, state)`, restores full `state` including heartbeats
+used and returns `(a, state)`.
+
+The intention is for steps that support incremental reuse to initially pass `none` as
+`reusableResult?` and store the result and state in a snapshot. In a further run, if reuse is
+possible, `reusableResult?` should be set to the previous result and state, ensuring that the state
+after running `withRestoreOrSaveFull` is identical in both runs. Note however that necessarily this
+is only an approximation in the case of heartbeats as heartbeats used by `withRestoreOrSaveFull`
+itself after calling `act` as well as by reuse-handling code such as the one supplying
+`reusableResult?` are not accounted for.
 -/
-def restoreFull (b : State) : CoreM Unit :=
-  set b
+@[specialize] def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState))
+    (act : CoreM α) : CoreM (α × SavedState) := do
+  if let some (val, state) := reusableResult? then
+    set state.toState
+    IO.addHeartbeats state.passedHearbeats.toUInt64
+    return (val, state)
+
+  let startHeartbeats ← IO.getNumHeartbeats
+  let a ← act
+  let s ← get
+  let stopHeartbeats ← IO.getNumHeartbeats
+  return (a, { toState := s, passedHearbeats := stopHeartbeats - startHeartbeats })
+
+/-- Restore backtrackable parts of the state. -/
+def SavedState.restore (b : SavedState) : CoreM Unit :=
+  modify fun s => { s with env := b.env, messages := b.messages, infoState := b.infoState }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -192,7 +257,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
   mkFreshNameImp n
 
 @[inline] def CoreM.run (x : CoreM α) (ctx : Context) (s : State) : EIO Exception (α × State) :=
-  (x ctx).run s
+  ((withConsistentCtx x) ctx).run s
 
 @[inline] def CoreM.run' (x : CoreM α) (ctx : Context) (s : State) : EIO Exception α :=
   Prod.fst <$> x.run ctx s
@@ -206,20 +271,36 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default } { env := env }
+    let (a, s) ← (withConsistentCtx x).toIO { fileName := "<CoreM>", fileMap := default, options := opts } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
+builtin_initialize interruptExceptionId : InternalExceptionId ← registerInternalExceptionId `interrupt
+
+/--
+Throws an internal interrupt exception if cancellation has been requested. The exception is not
+caught by `try catch` but is intended to be caught by `Command.withLoggingExceptions` at the top
+level of elaboration. In particular, we want to skip producing further incremental snapshots after
+the exception has been thrown.
+ -/
 @[inline] def checkInterrupted : CoreM Unit := do
-  if (← IO.checkCanceled) then
-    -- should never be visible to users!
-    throw <| Exception.error .missing "elaboration interrupted"
+  if let some tk := (← read).cancelTk? then
+    if (← tk.isSet) then
+      throw <| .internal interruptExceptionId
+
+register_builtin_option debug.moduleNameAtTimeout : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "include module name in deterministic timeout error messages.\nRemark: we set this option to false to increase the stability of our test suite"
+}
 
 def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : CoreM Unit := do
-  let msg := s!"(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
+  let includeModuleName := debug.moduleNameAtTimeout.get (← getOptions)
+  let atModuleName := if includeModuleName then s!" at `{moduleName}`" else ""
+  let msg := s!"(deterministic) timeout{atModuleName}, maximum number of heartbeats ({max/1000}) has been reached\nuse `set_option {optionName} <num>` to set the limit\n{useDiagnosticMsg}"
   throw <| Exception.error (← getRef) (MessageData.ofFormat (Std.Format.text msg))
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
@@ -253,11 +334,13 @@ def getMessageLog : CoreM MessageLog :=
   return (← get).messages
 
 /--
-Returns the current log and then resets its messages but does NOT reset `MessageLog.hadErrors`. Used
+Returns the current log and then resets its messages while adjusting `MessageLog.hadErrors`. Used
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun log => ({ log with msgs := {} }, log)
+  modifyGet fun s => (s.messages, { s with
+    messages.unreported := {}
+    messages.hadErrors  := s.messages.hasErrors })
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -265,6 +348,12 @@ instance : MonadLog CoreM where
   getFileName := return (← read).fileName
   hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
+    if (← read).suppressElabErrors then
+      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
+      -- parse error
+      unless msg.data.hasTag (· matches `Elab.synthPlaceholder | `Tactic.unsolvedGoals) do
+        return
+
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
@@ -296,7 +385,8 @@ export Core (CoreM mkFreshUserName checkSystem withCurrHeartbeats)
   We used a similar hack at `Exception.isMaxRecDepth` -/
 def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
   match ex with
-  | Exception.error _ (MessageData.ofFormat (Std.Format.text msg)) => "(deterministic) timeout".isPrefixOf msg
+  | Exception.error _ (MessageData.ofFormatWithInfos ⟨Std.Format.text msg, _⟩) =>
+    "(deterministic) timeout".isPrefixOf msg
   | _ => false
 
 /-- Creates the expression `d → b` -/
@@ -305,15 +395,6 @@ def mkArrow (d b : Expr) : CoreM Expr :=
 
 /-- Iterated `mkArrow`, creates the expression `a₁ → a₂ → … → aₙ → b`. Also see `arrowDomainsN`. -/
 def mkArrowN (ds : Array Expr) (e : Expr) : CoreM Expr := ds.foldrM mkArrow e
-
-def addDecl (decl : Declaration) : CoreM Unit := do
-  profileitM Exception "type checking" (← getOptions) do
-    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning "declaration uses 'sorry'"
-      match (← getEnv).addDecl decl with
-      | Except.ok    env => setEnv env
-      | Except.error ex  => throwKernelException ex
 
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
@@ -368,51 +449,67 @@ def compileDecls (decls : List Name) : CoreM Unit := do
   | Except.error ex =>
     throwKernelException ex
 
-def addAndCompile (decl : Declaration) : CoreM Unit := do
-  addDecl decl;
-  compileDecl decl
+def getDiag (opts : Options) : Bool :=
+  diagnostics.get opts
+
+/-- Return `true` if diagnostic information collection is enabled. -/
+def isDiagnosticsEnabled : CoreM Bool :=
+  return (← read).diag
 
 def ImportM.runCoreM (x : CoreM α) : ImportM α := do
   let ctx ← read
-  let (a, _) ← x.toIO { options := ctx.opts, fileName := "<ImportM>", fileMap := default } { env := ctx.env }
+  let (a, _) ← (withOptions (fun _ => ctx.opts) x).toIO { fileName := "<ImportM>", fileMap := default } { env := ctx.env }
   return a
 
-/-- Return `true` if the exception was generated by one our resource limits. -/
+/-- Return `true` if the exception was generated by one of our resource limits. -/
 def Exception.isRuntime (ex : Exception) : Bool :=
   ex.isMaxHeartbeat || ex.isMaxRecDepth
 
+/-- Returns `true` if the exception is an interrupt generated by `checkInterrupted`. -/
+def Exception.isInterrupt : Exception → Bool
+  | Exception.internal id _ => id == Core.interruptExceptionId
+  | _ => false
+
 /--
-Custom `try-catch` for all monads based on `CoreM`. We don't want to catch "runtime exceptions"
-in these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as `MonadAlwayExcept`.
+Custom `try-catch` for all monads based on `CoreM`. We usually don't want to catch "runtime
+exceptions" these monads, but on `CommandElabM`. See issues #2775 and #2744 as well as
+`MonadAlwaysExcept`. Also, we never want to catch interrupt exceptions inside the elaborator.
 -/
 @[inline] protected def Core.tryCatch (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
   try
     x
   catch ex =>
-    if ex.isRuntime && !(← read).catchRuntimeEx then
-      throw ex
+    if ex.isInterrupt || ex.isRuntime then
+
+      throw ex -- We should use `tryCatchRuntimeEx` for catching runtime exceptions
     else
       h ex
+
+@[inline] protected def Core.tryCatchRuntimeEx (x : CoreM α) (h : Exception → CoreM α) : CoreM α := do
+  try
+    x
+  catch ex =>
+    h ex
 
 instance : MonadExceptOf Exception CoreM where
   throw    := throw
   tryCatch := Core.tryCatch
 
-@[inline] def Core.withCatchingRuntimeEx (flag : Bool) (x : CoreM α) : CoreM α :=
-  withReader (fun ctx => { ctx with catchRuntimeEx := flag }) x
+class MonadRuntimeException (m : Type → Type) where
+  tryCatchRuntimeEx (body : m α) (handler : Exception → m α) : m α
+
+export MonadRuntimeException (tryCatchRuntimeEx)
+
+instance : MonadRuntimeException CoreM where
+  tryCatchRuntimeEx := Core.tryCatchRuntimeEx
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (ReaderT ρ m) where
+  tryCatchRuntimeEx := fun x c r => tryCatchRuntimeEx (x r) (fun e => (c e) r)
+
+@[inline] instance [MonadRuntimeException m] : MonadRuntimeException (StateRefT' ω σ m) where
+  tryCatchRuntimeEx := fun x c s => tryCatchRuntimeEx (x s) (fun e => c e s)
 
 @[inline] def mapCoreM [MonadControlT CoreM m] [Monad m] (f : forall {α}, CoreM α → CoreM α) {α} (x : m α) : m α :=
   controlAt CoreM fun runInBase => f <| runInBase x
-
-/--
-Execute `x` with `catchRuntimeEx = flag`. That is, given `try x catch ex => h ex`,
-if `x` throws a runtime exception, the handler `h` will be invoked if `flag = true`
-Recall that
--/
-@[inline] def withCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx true) x
-
-@[inline] def withoutCatchingRuntimeEx [MonadControlT CoreM m] [Monad m] (x : m α) : m α :=
-  mapCoreM (Core.withCatchingRuntimeEx false) x
 
 end Lean

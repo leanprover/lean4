@@ -21,12 +21,12 @@ open Meta
       throwErrorAt stx[2] "'split' tactic failed, select a single target to split"
     if simplifyTarget then
       liftMetaTactic fun mvarId => do
-       let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId
+       let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId "consider using `set_option trace.split.failures true`"
         return mvarIds
     else
       let fvarId ← getFVarId hyps[0]!
       liftMetaTactic fun mvarId => do
-        let some mvarIds ← splitLocalDecl? mvarId fvarId | Meta.throwTacticEx `split mvarId
+        let some mvarIds ← splitLocalDecl? mvarId fvarId | Meta.throwTacticEx `split mvarId "consider using `set_option trace.split.failures true`"
         return mvarIds
   | Location.wildcard =>
     liftMetaTactic fun mvarId => do
@@ -34,7 +34,7 @@ open Meta
       for fvarId in fvarIds do
         if let some mvarIds ← splitLocalDecl? mvarId fvarId then
           return mvarIds
-      let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId
+      let some mvarIds ← splitTarget? mvarId | Meta.throwTacticEx `split mvarId "consider using `set_option trace.split.failures true`"
       return mvarIds
 
 end Lean.Elab.Tactic

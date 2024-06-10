@@ -5,6 +5,7 @@ Authors: Scott Morrison
 -/
 prelude
 import Lean.CoreM
+import Lean.AddDecl
 import Lean.Util.FoldConsts
 
 /-!
@@ -56,7 +57,7 @@ def throwKernelException (ex : KernelException) : M Unit := do
 
 /-- Add a declaration, possibly throwing a `KernelException`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl d with
+  match (← get).env.addDecl {} d with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 

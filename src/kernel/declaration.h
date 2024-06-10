@@ -112,12 +112,13 @@ public:
 typedef list_ref<definition_val> definition_vals;
 
 /*
-structure theorem_val extends constant_val :=
-(value : task expr)
+structure TheoremVal extends ConstantVal where
+  value : Expr
+  all : List Name := [name]
 */
 class theorem_val : public object_ref {
 public:
-    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val);
+    theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all);
     theorem_val(theorem_val const & other):object_ref(other) {}
     theorem_val(theorem_val && other):object_ref(other) {}
     theorem_val & operator=(theorem_val const & other) { object_ref::operator=(other); return *this; }
@@ -223,10 +224,12 @@ inline optional<declaration> none_declaration() { return optional<declaration>()
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
+bool use_unsafe(environment const & env, expr const & e);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
                           reducibility_hints const & hints, definition_safety safety = definition_safety::safe);
 declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
                           definition_safety safety = definition_safety::safe);
+declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val);
 declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
 declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);

@@ -82,22 +82,34 @@ decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
 protected def mod : @& Nat → @& Nat → Nat
-  /- This case is not needed mathematically as the case below is equal to it; however, it makes
-  `0 % n = 0` true definitionally rather than just propositionally.
-  This property is desirable for `Fin n`, as it means `(ofNat 0 : Fin n).val = 0` by definition.
-  Primarily, this is valuable because mathlib in Lean3 assumed this was true definitionally, and so
-  keeping this definitional equality makes mathlib easier to port to mathlib4. -/
+  /-
+  Nat.modCore is defined by well-founded recursion and thus irreducible. Nevertheless it is
+  desireable if trivial `Nat.mod` calculations, namely
+  * `Nat.mod 0 m` for all `m`
+  * `Nat.mod n (m+n)` for concrete literals `n`
+  reduce definitionally.
+  This property is desirable for `Fin n` literals, as it means `(ofNat 0 : Fin n).val = 0` by
+  definition.
+   -/
   | 0, _ => 0
-  | x@(_ + 1), y => Nat.modCore x y
+  | n@(_ + 1), m =>
+    if m ≤ n -- NB: if n < m does not reduce as well as `m ≤ n`!
+    then Nat.modCore n m
+    else n
 
 instance instMod : Mod Nat := ⟨Nat.mod⟩
 
-protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
-  cases x with
-  | zero =>
+protected theorem modCore_eq_mod (n m : Nat) : Nat.modCore n m = n % m := by
+  show Nat.modCore n m = Nat.mod n m
+  match n, m with
+  | 0, _ =>
     rw [Nat.modCore]
     exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
-  | succ x => rfl
+  | (_ + 1), _ =>
+    rw [Nat.mod]; dsimp
+    refine iteInduction (fun _ => rfl) (fun h => ?false) -- cannot use `split` this early yet
+    rw [Nat.modCore]
+    exact if_neg fun ⟨_hlt, hle⟩ => h hle
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
   rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]

@@ -214,17 +214,28 @@ def addPanelWidgetLocal [Monad m] [MonadEnv m] (wi : WidgetInstance) : m Unit :=
 def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
   modifyEnv fun env => panelWidgetsExt.modifyState env fun st => st.erase h
 
-/-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
+/-- Construct a widget instance by finding a widget module
+in the current environment.
+
 `hash` must be `hash (toModule c).javascript`
-where `c` is some global constant annotated with `@[widget_module]`. -/
-def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
-    CoreM Unit := do
+where `c` is some global constant annotated with `@[widget_module]`,
+or the name of a builtin widget module. -/
+def WidgetInstance.ofHash (hash : UInt64) (props : StateM Server.RpcObjectStore Json) :
+    CoreM WidgetInstance := do
   let env ← getEnv
   let builtins ← builtinModulesRef.get
   let some id :=
     (builtins.find? hash |>.map (·.1)) <|> (moduleRegistry.getState env |>.find? hash |>.map (·.1))
     | throwError s!"No widget module with hash {hash} registered"
-  pushInfoLeaf <| .ofUserWidgetInfo { id, javascriptHash := hash, props, stx }
+  return { id, javascriptHash := hash, props }
+
+/-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
+
+`hash` must be as in `WidgetInstance.ofHash`. -/
+def savePanelWidgetInfo (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) :
+    CoreM Unit := do
+  let wi ← WidgetInstance.ofHash hash props
+  pushInfoLeaf <| .ofUserWidgetInfo { wi with stx }
 
 /-! ## `show_panel_widgets` command -/
 
@@ -346,12 +357,13 @@ structure UserWidgetDefinition where
 instance : ToModule UserWidgetDefinition where
   toModule uwd := { uwd with }
 
-private def widgetAttrImpl : AttributeImpl where
+@[deprecated (since := "2023-12-21")] private def widgetAttrImpl : AttributeImpl where
   name := `widget
   descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead."
   applicationTime := AttributeApplicationTime.afterCompilation
   add := widgetModuleAttrImpl.add
 
+set_option linter.deprecated false in
 builtin_initialize registerBuiltinAttribute widgetAttrImpl
 
 private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
@@ -364,14 +376,12 @@ opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadEr
 
 /-- Save a user-widget instance to the infotree.
     The given `widgetId` should be the declaration name of the widget definition. -/
-@[deprecated savePanelWidgetInfo] def saveWidgetInfo (widgetId : Name) (props : Json)
+@[deprecated savePanelWidgetInfo (since := "2023-12-21")] def saveWidgetInfo (widgetId : Name) (props : Json)
     (stx : Syntax) : CoreM Unit := do
   let uwd ← evalUserWidgetDefinition widgetId
   savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
 
 /-! ## Retrieving panel widget instances -/
-
-deriving instance Server.RpcEncodable for WidgetInstance
 
 /-- Retrieve all the `UserWidgetInfo`s that intersect a given line. -/
 def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List UserWidgetInfo :=
@@ -439,6 +449,6 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
 builtin_initialize
   Server.registerBuiltinRpcProcedure ``getWidgets _ _ getWidgets
 
-attribute [deprecated Module] UserWidgetDefinition
+attribute [deprecated Module (since := "2023-12-21")] UserWidgetDefinition
 
 end Lean.Widget

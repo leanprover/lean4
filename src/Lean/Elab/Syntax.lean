@@ -80,7 +80,7 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   markAsTrailingParser (prec?.getD 0)
   return true
 
-def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserName) := do
+def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserResolution) := do
   match ← Parser.resolveParserName stx with
   | [n@(.category cat)] =>
     addCategoryInfo stx cat
@@ -88,10 +88,12 @@ def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserName) 
   | [n@(.parser parser _)] =>
     addTermInfo' stx (Lean.mkConst parser)
     return n
+  | [n@(.alias _)] =>
+    return n
   | _::_::_ => throwErrorAt stx "ambiguous parser {stx}"
   | [] => return none
 
-def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserName := do
+def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserResolution := do
   match ← elabParserName? stx with
   | some n => return n
   | none => throwErrorAt stx "unknown parser {stx}"
@@ -194,12 +196,6 @@ where
   processNullaryOrCat (stx : Syntax) := do
     let ident := stx[0]
     let id := ident.getId.eraseMacroScopes
-    -- run when parser is neither a decl nor a cat
-    let default := do
-      if (← Parser.isParserAlias id) then
-        ensureNoPrec stx
-        return (← processAlias ident #[])
-      throwError "unknown parser declaration/category/alias '{id}'"
     match (← elabParserName? ident) with
     | some (.parser c (isDescr := true)) =>
       ensureNoPrec stx
@@ -209,14 +205,18 @@ where
     | some (.parser c (isDescr := false)) =>
       if (← Parser.getParserAliasInfo id).declName == c then
         -- prefer parser alias over base declaration because it has more metadata, #2249
-        return (← default)
+        ensureNoPrec stx
+        return (← processAlias ident #[])
       ensureNoPrec stx
       -- as usual, we assume that people using `Parser` know what they are doing
       let stackSz := 1
       return (← `(ParserDescr.parser $(quote c)), stackSz)
     | some (.category _) =>
       processParserCategory stx
-    | none => default
+    | some (.alias _) =>
+      ensureNoPrec stx
+      processAlias ident #[]
+    | none => throwError "unknown parser declaration/category/alias '{id}'"
 
   processSepBy (stx : Syntax) := do
     let p ← ensureUnaryOutput <$> withNestedParser do process stx[1]
@@ -441,5 +441,8 @@ def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
   | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
+
+builtin_initialize
+  registerTraceClass `Elab.defaultInstance
 
 end Lean.Elab.Command

@@ -69,15 +69,27 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
   | 0 => failure
   | m+1 => return ⟨m+1, Fin.ofNat v⟩
 
-/-- Return `some ⟨n, v⟩` if `e` is af `OfNat.ofNat` application encoding a `BitVec n` with value `v` -/
+/--
+Return `some ⟨n, v⟩` if `e` is:
+- an `OfNat.ofNat` application
+- a `BitVec.ofNat` application
+- a `BitVec.ofNatLt` application
+that encode a `BitVec n` with value `v`.
+-/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
-  if e.isAppOfArity' ``BitVec.ofNat 2 then
-    let n ← getNatValue? (e.getArg!' 0)
-    let v ← getNatValue? (e.getArg!' 1)
+  match_expr e with
+  | BitVec.ofNat nExpr vExpr =>
+    let n ← getNatValue? nExpr
+    let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
-  let (v, type) ← getOfNatValue? e ``BitVec
-  let n ← getNatValue? (← whnfD type.appArg!)
-  return ⟨n, BitVec.ofNat n v⟩
+  | BitVec.ofNatLt nExpr vExpr _ =>
+    let n ← getNatValue? nExpr
+    let v ← getNatValue? vExpr
+    return ⟨n, BitVec.ofNat n v⟩
+  | _ =>
+    let (v, type) ← getOfNatValue? e ``BitVec
+    let n ← getNatValue? (← whnfD type.appArg!)
+    return ⟨n, BitVec.ofNat n v⟩
 
 /-- Return `some n` if `e` is an `OfNat.ofNat`-application encoding the `UInt8` with value `n`. -/
 def getUInt8Value? (e : Expr) : MetaM (Option UInt8) := OptionT.run do
@@ -99,6 +111,8 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt64
   return UInt64.ofNat n
 
+-- TODO: extensibility
+
 /--
 If `e` is a literal value, ensure it is encoded using the standard representation.
 Otherwise, just return `e`.
@@ -116,6 +130,23 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
   return e
+
+/--
+Returns `true` if `e` is a literal value.
+-/
+def isLitValue (e : Expr) : MetaM Bool := do
+  let e ← instantiateMVars e
+  if (← getNatValue? e).isSome then return true
+  if (← getIntValue? e).isSome then return true
+  if (← getFinValue? e).isSome then return true
+  if (← getBitVecValue? e).isSome then return true
+  if (getStringValue? e).isSome then return true
+  if (← getCharValue? e).isSome then return true
+  if (← getUInt8Value? e).isSome then return true
+  if (← getUInt16Value? e).isSome then return true
+  if (← getUInt32Value? e).isSome then return true
+  if (← getUInt64Value? e).isSome then return true
+  return false
 
 /--
 If `e` is a `Nat`, `Int`, or `Fin` literal value, converts it into a constructor application.

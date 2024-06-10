@@ -11,8 +11,8 @@ namespace Lake
 The build function definition for a Lean executable.
 -/
 
-protected def LeanExe.recBuildExe
-(self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
+def LeanExe.recBuildExe (self : LeanExe) : FetchM (BuildJob FilePath) :=
+  withRegisterJob s!"{self.name}" do
   let imports ← self.root.transImports.fetch
   let mut linkJobs := #[← self.root.o.fetch]
   for mod in imports do for facet in mod.nativeFacets self.supportInterpreter do

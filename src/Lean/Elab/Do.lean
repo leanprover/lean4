@@ -688,27 +688,15 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getHaveIdLhsVar (optIdent : Syntax) : Var :=
-  if optIdent.getKind == hygieneInfoKind then
-    HygieneInfo.mkIdent optIdent[0] `this
-  else
-    optIdent
-
-def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) := do
-  -- doHave := leading_parser "have " >> Term.haveDecl
-  -- haveDecl := leading_parser haveIdDecl <|> letPatDecl <|> haveEqnsDecl
-  let arg := doHave[1][0]
-  if arg.getKind == ``Parser.Term.haveIdDecl then
-    -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
-    -- haveIdLhs := (binderIdent <|> hygieneInfo) >> many letIdBinder >> optType
-    return #[getHaveIdLhsVar arg[0]]
-  else if arg.getKind == ``Parser.Term.letPatDecl then
-    getLetPatDeclVars arg
-  else if arg.getKind == ``Parser.Term.haveEqnsDecl then
-    -- haveEqnsDecl := leading_parser haveIdLhs >> matchAlts
-    return #[getHaveIdLhsVar arg[0]]
-  else
-    throwError "unexpected kind of have declaration"
+def getDoHaveVars : Syntax → TermElabM (Array Var)
+  -- NOTE: `hygieneInfo` case should come first as `id` will match anything else
+  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? := $_val)
+  | `(doElem| have $info:hygieneInfo $_params* $[$_:typeSpec]? $_eqns:matchAlts) =>
+    return #[HygieneInfo.mkIdent info `this]
+  | `(doElem| have $id $_params* $[$_:typeSpec]? := $_val)
+  | `(doElem| have $id $_params* $[$_:typeSpec]? $_eqns:matchAlts) => return #[id]
+  | `(doElem| have $pat:letPatDecl) => getLetPatDeclVars pat
+  | _ => throwError "unexpected kind of have declaration"
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`

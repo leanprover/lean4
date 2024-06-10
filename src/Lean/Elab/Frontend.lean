@@ -16,6 +16,7 @@ structure State where
   parserState  : Parser.ModuleParserState
   cmdPos       : String.Pos
   commands     : Array Syntax := #[]
+deriving Nonempty
 
 structure Context where
   inputCtx : Parser.InputContext
@@ -34,6 +35,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     fileMap      := ctx.inputCtx.fileMap
     tacticCache? := none
     snap?        := none
+    cancelTk?    := none
   }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
@@ -44,15 +46,6 @@ def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
     let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
     Command.elabCommandTopLevel stx
     let mut msgs := (← get).messages
-    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check
-    -- in general
-    if !Language.Lean.showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors &&
-        stx.hasMissing then
-      -- discard elaboration errors, except for a few important and unlikely misleading ones, on
-      -- parse error
-      msgs := ⟨msgs.msgs.filter fun msg =>
-        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder ||
-          tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
     modify ({ · with messages := initMsgs ++ msgs })
 
 def updateCmdPos : FrontendM Unit := do
@@ -92,14 +85,52 @@ def IO.processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Mo
   let (_, s) ← (Frontend.processCommands.run { inputCtx := inputCtx }).run { commandState := commandState, parserState := parserState, cmdPos := parserState.pos }
   pure s
 
+structure IncrementalState extends State where
+  inputCtx    : Parser.InputContext
+  initialSnap : Language.Lean.CommandParsedSnapshot
+deriving Nonempty
+
+open Language in
+/--
+Variant of `IO.processCommands` that uses the new Lean language processor implementation for
+potential incremental reuse. Pass in result of a previous invocation done with the same state
+(but usually different input context) to allow for reuse.
+-/
+-- `IO.processCommands` can be reimplemented on top of this as soon as the additional tasks speed up
+-- things instead of slowing them down
+partial def IO.processCommandsIncrementally (inputCtx : Parser.InputContext)
+    (parserState : Parser.ModuleParserState) (commandState : Command.State)
+    (old? : Option IncrementalState) :
+    BaseIO IncrementalState := do
+  let task ← Language.Lean.processCommands inputCtx parserState commandState
+    (old?.map fun old => (old.inputCtx, old.initialSnap))
+  go task.get task #[]
+where
+  go initialSnap t commands :=
+    let snap := t.get
+    let commands := commands.push snap.data.stx
+    if let some next := snap.nextCmdSnap? then
+      go initialSnap next commands
+    else
+      -- Opting into reuse also enables incremental reporting, so make sure to collect messages from
+      -- all snapshots
+      let messages := toSnapshotTree initialSnap
+        |>.getAll.map (·.diagnostics.msgLog)
+        |>.foldl (· ++ ·) {}
+      let trees := toSnapshotTree initialSnap
+        |>.getAll.map (·.infoTree?) |>.filterMap id |>.toPArray'
+      return {
+        commandState := { snap.data.finishedSnap.get.cmdState with messages, infoState.trees := trees }
+        parserState := snap.data.parserState
+        cmdPos := snap.data.parserState.pos
+        inputCtx, initialSnap, commands
+      }
+
 def process (input : String) (env : Environment) (opts : Options) (fileName : Option String := none) : IO (Environment × MessageLog) := do
   let fileName   := fileName.getD "<input>"
   let inputCtx   := Parser.mkInputContext input fileName
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
-
-builtin_initialize
-  registerTraceClass `Elab.info
 
 @[export lean_run_frontend]
 def runFrontend
@@ -113,8 +144,7 @@ def runFrontend
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
-  -- TODO: replace with `#lang` processing
-  if /- Lean #lang? -/ true then
+  if true then
     -- Temporarily keep alive old cmdline driver for the Lean language so that we don't pay the
     -- overhead of passing the environment between snapshots until we actually make good use of it
     -- outside the server
@@ -154,9 +184,9 @@ def runFrontend
 
     return (s.commandState.env, !s.commandState.messages.hasErrors)
 
-  let ctx := { inputCtx with mainModuleName, opts, trustLevel }
+  let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts jsonOutput
   if let some ileanFileName := ileanFileName? then

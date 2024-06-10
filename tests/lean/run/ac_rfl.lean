@@ -5,6 +5,7 @@ example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_rfl
 example (x y z : Nat) : (x + y) * (0 + z) = 1 * z * (y + 0 + x) := by ac_rfl
 
 theorem ex₁ (x y z : Nat) : max (0 + (max x (max z (max (0 + 0) ((max 1 0) + 0 + 0) * y)))) y = max (max x y) z := by ac_rfl
+
 #print ex₁
 
 example (x y : Nat) : 1 + 0 + 0 = 0 + 1 := by ac_rfl

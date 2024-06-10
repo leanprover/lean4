@@ -25,7 +25,15 @@ git commit -m "initial commit"
 GIT_REV=`git rev-parse HEAD`
 popd
 
+LATEST_VER=v1.0.0
 LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
+
+# Test an update produces the expected manifest of the latest version
+test_update() {
+  $LAKE update
+  sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
+  diff --strip-trailing-cr lake-manifest-$LATEST_VER.json lake-manifest.json
+}
 
 # ---
 # Test manifest manually upgrades from unsupported versions
@@ -33,37 +41,28 @@ LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test loading of a V4 manifest fails
 cp lake-manifest-v4.json lake-manifest.json
-($LAKE resolve-deps 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
+($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
 
 # Test package update fails as well
-($LAKE update bar 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
+($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible manifest version '0.4.0'"
 
-# Test bare update produces the expected V7 manifest
-$LAKE update
-sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
+# Test bare update works
+test_update
 rm -rf .lake
 
 # ---
 # Test manifest automatically upgrades from supported versions
 # ---
 
-# Test successful loading of a V5 manifest
-cp lake-manifest-v5.json lake-manifest.json
-sed_i "s/253735aaee71d8bb0f29ae5cfc3ce086a4b9e64f/$GIT_REV/g" lake-manifest.json
-$LAKE resolve-deps
+# Test successful load & update of a supported manifest version
+test_manifest() {
+  cp lake-manifest-$1.json lake-manifest.json
+  sed_i "s/$LOCKED_REV/$GIT_REV/g" lake-manifest.json
+  $LAKE resolve-deps
+  test_update
+}
 
-# Test update produces the expected V7 manifest
-$LAKE update
-sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
-
-# Test successful loading of a V6 manifest
-cp lake-manifest-v6.json lake-manifest.json
-sed_i "s/dab525a78710d185f3d23622b143bdd837e44ab0/$GIT_REV/g" lake-manifest.json
-$LAKE resolve-deps
-
-# Test update produces the expected V7 manifest
-$LAKE update
-sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
+test_manifest v5
+test_manifest v6
+test_manifest v7
+test_manifest v1.0.0

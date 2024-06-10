@@ -123,7 +123,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl Declaration.quotDecl with
+  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
@@ -229,7 +229,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
-    runTermElabM fun _ => Term.withAutoBoundImplicit <|
+    runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
       Term.elabBinders binders fun _ => pure ()
     for binder in binders do
       let binders ← replaceBinderAnnotation binder
@@ -461,7 +461,9 @@ def elabRunMeta : CommandElab := fun stx =>
   modifyScope fun scope => { scope with opts := options }
 
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
-  | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
+  | `($cmd₁ in%$tk $cmd₂) =>
+    -- Limit ref variability for incrementality; see Note [Incremental Macros]
+    withRef tk `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

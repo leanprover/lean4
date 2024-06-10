@@ -71,8 +71,10 @@ definition_val::definition_val(name const & n, names const & lparams, expr const
 
 definition_safety definition_val::get_safety() const { return static_cast<definition_safety>(lean_definition_val_get_safety(to_obj_arg())); }
 
-theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
+extern "C" object * lean_mk_theorem_val(object * n, object * lparams, object * type, object * value, object * all);
+
+theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val, names const & all):
+    object_ref(lean_mk_theorem_val(n.to_obj_arg(), lparams.to_obj_arg(), type.to_obj_arg(), val.to_obj_arg(), all.to_obj_arg())) {
 }
 
 extern "C" object * lean_mk_opaque_val(object * n, object * lparams, object * type, object * value, uint8 is_unsafe, object * all);
@@ -203,6 +205,10 @@ declaration mk_definition(name const & n, names const & params, expr const & t, 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
                           expr const & v, definition_safety safety) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, safety)));
+}
+
+declaration mk_theorem(name const & n, names const & lparams, expr const & type, expr const & val) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, lparams, type, val, names(n))));
 }
 
 declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v, bool is_unsafe) {

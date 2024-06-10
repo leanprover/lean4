@@ -53,5 +53,37 @@ withReader
     { ctx with options := opts })
   (tryCatch (tryFinally x printTraces) (fun _ => IO.println "ERROR"))
 
+/--
+info: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+ERROR
+[module] message
+  [module] hello
+               world
+  [bughunt] at test2
+-/
+#guard_msgs in
 #eval run (tst3 true)
+
+/--
+info: [module] message
+  [module] hello
+               world
+  [bughunt] at test2
+  [module] hello world
+[module] hello
+             world
+[bughunt] at end of tst3
+[module] message
+  [module] hello
+               world
+  [bughunt] at test2
+  [module] hello world
+[module] hello
+             world
+[bughunt] at end of tst3
+-/
+#guard_msgs in
 #eval run (tst3 false)

@@ -1,8 +1,6 @@
 namespace List
 
-theorem cons_eq_append (a : α) (as : List α) : a :: as = [a] ++ as := rfl
-
-@[simp] theorem filter_append {as bs : List α} {p : α → Bool} :
+@[simp] theorem filter_append' {as bs : List α} {p : α → Bool} :
   filter p (as ++ bs) = filter p as ++ filter p bs :=
   match as with
   | []      => by simp

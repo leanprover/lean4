@@ -80,6 +80,51 @@ def Key.format : Key → Format
 
 instance : ToFormat Key := ⟨Key.format⟩
 
+/--
+Helper function for converting an entry (i.e., `Array Key`) to the discrimination tree into
+`MessageData` that is more user-friendly. We use this function to implement diagnostic information.
+-/
+partial def keysAsPattern (keys : Array Key) : CoreM MessageData := do
+  go (parenIfNonAtomic := false) |>.run' keys.toList
+where
+  next? : StateRefT (List Key) CoreM (Option Key) := do
+    let key :: keys ← get | return none
+    set keys
+    return some key
+
+  mkApp (f : MessageData) (args : Array MessageData) (parenIfNonAtomic : Bool) : CoreM MessageData := do
+    if args.isEmpty then
+      return f
+    else
+      let mut r := f
+      for arg in args do
+        r := r ++ m!" {arg}"
+      if parenIfNonAtomic then
+        return m!"({r})"
+      else
+        return r
+
+  go (parenIfNonAtomic := true) : StateRefT (List Key) CoreM MessageData := do
+    let some key ← next? | return .nil
+    match key with
+    | .const declName nargs =>
+      mkApp m!"{← mkConstWithLevelParams declName}" (← goN nargs) parenIfNonAtomic
+    | .fvar fvarId nargs =>
+      mkApp m!"{mkFVar fvarId}" (← goN nargs) parenIfNonAtomic
+    | .proj _ i nargs =>
+      mkApp m!"{← go}.{i+1}" (← goN nargs) parenIfNonAtomic
+    | .arrow => return "<arrow>"
+    | .star => return "_"
+    | .other => return "<other>"
+    | .lit (.natVal v) => return m!"{v}"
+    | .lit (.strVal v) => return m!"{v}"
+
+  goN (num : Nat) : StateRefT (List Key) CoreM (Array MessageData) := do
+    let mut r := #[]
+    for _ in [: num] do
+      r := r.push (← go)
+    return r
+
 def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
@@ -633,6 +678,55 @@ where
       go e.appFn! (numExtra + 1) result
     else
       return result
+
+/--
+Return the root symbol for `e`, and the number of arguments after `reduceDT`.
+-/
+def getMatchKeyRootFor (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Nat) := do
+  let e ← reduceDT e (root := true) config
+  let numArgs := e.getAppNumArgs
+  let key := match e.getAppFn with
+    | .lit v         => .lit v
+    | .fvar fvarId   => .fvar fvarId numArgs
+    | .mvar _        => .other
+    | .proj s i _ .. => .proj s i numArgs
+    | .forallE ..    => .arrow
+    | .const c _     =>
+      -- This method is used by the simplifier only, we do **not** support
+      -- (← getConfig).isDefEqStuckEx
+      .const c numArgs
+    | _ => .other
+  return (key, numArgs)
+
+/--
+Get all results under key `k`.
+-/
+private partial def getAllValuesForKey (d : DiscrTree α) (k : Key) (result : Array α) : Array α :=
+  match d.root.find? k with
+  | none      => result
+  | some trie => go trie result
+where
+  go (trie : Trie α) (result : Array α) : Array α := Id.run do
+    match trie with
+    | .node vs cs =>
+      let mut result := result ++ vs
+      for (_, trie) in cs do
+        result := go trie result
+      return result
+
+/--
+A liberal version of `getMatch` which only takes the root symbol of `e` into account.
+We use this method to simulate Lean 3's indexing.
+
+The natural number in the result is the number of arguments in `e` after `reduceDT`.
+-/
+def getMatchLiberal (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α × Nat) := do
+  withReducible do
+    let result := getStarResult d
+    let (k, numArgs) ← getMatchKeyRootFor e config
+    match k with
+    | .star  => return (result, numArgs)
+    | _      => return (getAllValuesForKey d k result, numArgs)
 
 partial def getUnify (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
   withReducible do

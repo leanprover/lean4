@@ -19,7 +19,20 @@ def overlap : Nat → Nat
   | n+1 => overlap n
 
 example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
-  simp only [overlap]
+  simp (config := { contextual := true }) only [overlap]
+  guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
+  sorry
+
+example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
+  -- The following tactic should because the default discharger only uses assumptions available
+  -- when `simp` was invoked unless `contextual := true`
+  fail_if_success simp only [overlap]
+  guard_target =ₛ (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n
+  sorry
+
+example : (if (n = 0 → False) then overlap (n+1) else overlap (n+1)) = overlap n  := by
+  -- assumption is not a well-behaved discharger, and the following should still work as expected
+  simp (discharger := assumption) only [overlap]
   guard_target =ₛ (if (n = 0 → False) then overlap n else overlap (n+1)) = overlap n
   sorry
 

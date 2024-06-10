@@ -72,7 +72,7 @@ satisfy `p`, using the proof to apply `f`.
 
 /-- Map a monadic function which returns `Unit` over an `Option`. -/
 @[inline] protected def forM [Pure m] : Option α → (α → m PUnit) → m PUnit
-  | none  , _ => pure ()
+  | none  , _ => pure ⟨⟩
   | some a, f => f a
 
 instance : ForM m (Option α) α :=

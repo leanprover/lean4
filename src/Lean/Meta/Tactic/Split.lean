@@ -80,6 +80,17 @@ where
       k hs rfls
 
 /--
+Internal exception for discriminant generalization failures due to type errors.
+-/
+builtin_initialize discrGenExId : InternalExceptionId ←
+  registerInternalExceptionId `discrGeneralizationFailure
+
+def isDiscrGenException (ex : Exception) : Bool :=
+  match ex with
+  | .internal id => id == discrGenExId
+  | _ => false
+
+/--
   This method makes sure each discriminant is a free variable.
   Return the tuple `(discrsNew, discrEqs, mvarId)`. `discrsNew` in an array representing the new discriminants, `discrEqs` is an array of auxiliary equality hypotheses
   that connect the new discriminants to the original terms they represent.
@@ -125,7 +136,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
           let some matcherApp ← matchMatcherApp? e | return .continue
           for matcherDiscr in matcherApp.discrs, discr in discrs do
             unless matcherDiscr == discr do
-              trace[Meta.Tactic.split] "discr mismatch {matcherDiscr} != {discr}"
+              trace[split.debug] "discr mismatch {matcherDiscr} != {discr}"
               return .continue
           let matcherApp := { matcherApp with discrs := discrVars }
           foundRef.set true
@@ -135,7 +146,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
             let altNumParams := matcherApp.altNumParams[i]!
             let altNew ← lambdaTelescope alt fun xs body => do
               if xs.size < altNumParams || xs.size < numDiscrEqs then
-                throwError "'applyMatchSplitter' failed, unexpected `match` alternative"
+                throwError "internal error in `split` tactic: encountered an unexpected `match` expression alternative\nthis error typically occurs when the `match` expression has been constructed using meta-programming."
               let body ← mkLambdaFVars xs[altNumParams:] (← mkNewTarget body)
               let ys  := xs[:altNumParams - numDiscrEqs]
               if numDiscrEqs == 0 then
@@ -150,13 +161,13 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
         transform (← instantiateMVars e) pre
       let targetNew ← mkNewTarget (← mvarId.getType)
       unless (← foundRef.get) do
-        throwError "'applyMatchSplitter' failed, did not find discriminants"
+        throwError "internal error in `split` tactic: failed to find match-expression discriminants\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
       let targetNew ← mkForallFVars (discrVars ++ eqs) targetNew
       unless (← isTypeCorrect targetNew) do
-        throwError "'applyMatchSplitter' failed, failed to generalize target"
+        throw <| Exception.internal discrGenExId
       return (targetNew, rfls)
     let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
-    trace[Meta.Tactic.split] "targetNew:\n{mvarNew.mvarId!}"
+    trace[split.debug] "targetNew:\n{mvarNew.mvarId!}"
     mvarId.assign (mkAppN (mkAppN mvarNew discrs) rfls)
     let (discrs', mvarId') ← mvarNew.mvarId!.introNP discrs.size
     let (discrEqs, mvarId') ← mvarId'.introNP discrs.size
@@ -188,7 +199,7 @@ where
           withLocalDeclD altEqDecl.userName (← mkHEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkHEqTrans eq altEqNew))
         | _, _ =>
-          throwError "'applyMatchSplitter' failed, unexpected discriminant equalities"
+          throwError "internal error in `split` tactic: encountered unexpected auxiliary equalities created to generalize `match`-expression discriminant\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
       else
         k altEqsNew subst
     go 0 #[] #[]
@@ -208,21 +219,21 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
   return mvarId
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
-  let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
+  let some info ← getMatcherInfo? matcherDeclName | throwError "internal error in `split` tactic: `{matcherDeclName}` is not an auxiliary declaration used to encode `match`-expressions\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
   let matchEqns ← Match.getEquationsFor matcherDeclName
   -- splitterPre does not have the correct universe elimination level, but this is fine, we only use it to compute the `motiveType`,
   -- and we only care about the `motiveType` arguments, and not the resulting `Sort u`.
   let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
-  trace[Meta.Tactic.split] "applyMatchSplitter\n{mvarId}"
+  trace[split.debug] "applyMatchSplitter\n{mvarId}"
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
-  trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
+  trace[split.debug] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
-  mvarId.withContext do trace[Meta.Tactic.split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
-  trace[Meta.Tactic.split] "after generalize\n{mvarId}"
+  mvarId.withContext do trace[split.debug] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
+  trace[split.debug] "after generalize\n{mvarId}"
   let numEqs := discrs.size
   let (discrFVarIdsNew, mvarId) ← mvarId.introN discrs.size
-  trace[Meta.Tactic.split] "after introN\n{mvarId}"
+  trace[split.debug] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
   let mvarType ← mvarId.getType
   let elimUniv ← mvarId.withContext <| getLevel mvarType
@@ -230,40 +241,43 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     pure <| us.set! uElimPos elimUniv
   else
     unless elimUniv.isZero do
-      throwError "match-splitter can only eliminate into `Prop`"
+      throwError "`split` tactic failed to split a match-expression: the splitter auxiliary theorem `{matchEqns.splitterName}` can only eliminate into `Prop`"
     pure us
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   mvarId.withContext do
     let motive ← mkLambdaFVars discrsNew mvarType
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
-    trace[Meta.Tactic.split] "after check splitter"
+    trace[split.debug] "after check splitter"
     let mvarIds ← mvarId.apply splitter
     unless mvarIds.length == matchEqns.size do
-      throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."
+      throwError "internal error in `split` tactic: unexpected number of goals created after applying splitter auxiliary theorem `{matchEqns.splitterName}` for `{matcherDeclName}`"
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]!
       let (_, mvarId) ← mvarId.introN numParams
-      trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
+      trace[split.debug] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
-        trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"
+        trace[split.debug] "after unifyEqs\n{mvarId}"
         let mvarId ← substDiscrEqs mvarId fvarSubst discrEqs
         return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 
+def mkDiscrGenErrorMsg (e : Expr) : MessageData :=
+  m!"`split` tactic failed to generalize discriminant(s) at{indentExpr e}\nresulting expression was not type correct\npossible solution: generalize discriminant(s) manually before using `split`"
+
+def throwDiscrGenError (e : Expr) : MetaM α :=
+  throwError (mkDiscrGenErrorMsg e)
+
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
-  try
-    let some app ← matchMatcherApp? e | throwError "match application expected"
-    let matchEqns ← Match.getEquationsFor app.matcherName
-    let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
-    let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]!
-      return (i+1, mvarId::mvarIds)
-    return mvarIds.reverse
-  catch ex =>
-    throwNestedTacticEx `splitMatch ex
+  let some app ← matchMatcherApp? e | throwError "internal error in `split` tactic: match application expected{indentExpr e}\nthis error typically occurs when the `split` tactic internal functions have been used in a new meta-program"
+  let matchEqns ← Match.getEquationsFor app.matcherName
+  let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
+  let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
+    let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]!
+    return (i+1, mvarId::mvarIds)
+  return mvarIds.reverse
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) (splitIte := true) (exceptionSet : ExprSet := {}) : Option Expr :=
@@ -307,10 +321,14 @@ partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (L
       else
         try
           splitMatch mvarId e
-        catch _ =>
+        catch ex =>
+          if isDiscrGenException ex then
+            trace[split.failure] mkDiscrGenErrorMsg e
+          else
+            trace[split.failure] "`split` tactic failed at{indentExpr e}\n{ex.toMessageData}"
           go (badCases.insert e)
     else
-      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      trace[split.debug] "did not find term to split\n{MessageData.ofGoal mvarId}"
       return none
   go {}
 
@@ -320,14 +338,38 @@ def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MV
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else
-        let (fvarIds, mvarId) ← mvarId.revert #[fvarId]
-        let num := fvarIds.size
-        let mvarIds ← splitMatch mvarId e
-        let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.introNP num).2
-        return some mvarIds
+        let result? ← commitWhenSome? do try
+          let (fvarIds, mvarId) ← mvarId.revert #[fvarId]
+          let num := fvarIds.size
+          let mvarIds ← splitMatch mvarId e
+          let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.introNP num).2
+          return some mvarIds
+        catch ex =>
+          if isDiscrGenException ex then
+            return none
+          else
+            throw ex
+        if result?.isSome then
+          return result?
+        -- Generalization failed, if `fvarId` is a let-decl or has forward dependencies, we try to `assert` a copy and try again
+        let localDecl ← fvarId.getDecl
+        if (← pure localDecl.isLet <||> exprDependsOn (← mvarId.getType) fvarId <||> fvarId.hasForwardDeps) then
+          try
+            let mvarId ← mvarId.assert localDecl.userName localDecl.type localDecl.toExpr
+            let mvarIds ← splitMatch mvarId e
+            let mvarIds ← mvarIds.mapM fun mvarId => return (← mvarId.intro1P).2
+            return some mvarIds
+          catch ex =>
+            if isDiscrGenException ex then
+              throwDiscrGenError e
+            else
+              throw ex
+        throwDiscrGenError e
     else
       return none
 
-builtin_initialize registerTraceClass `Meta.Tactic.split
+builtin_initialize
+  registerTraceClass `split.debug
+  registerTraceClass `split.failure
 
 end Lean.Meta

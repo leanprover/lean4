@@ -1030,8 +1030,17 @@ extern "C" LEAN_EXPORT void lean_io_cancel_core(b_obj_arg t) {
     g_task_manager->cancel(lean_to_task(t));
 }
 
-extern "C" LEAN_EXPORT bool lean_io_has_finished_core(b_obj_arg t) {
-    return lean_to_task(t)->m_value != nullptr;
+extern "C" LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_obj_arg t) {
+    lean_task_object * o = lean_to_task(t);
+    if (o->m_imp) {
+        if (o->m_imp->m_closure) {
+            return 0; // waiting (waiting/queued)
+        } else {
+            return 1; // running (running/promised)
+        }
+    } else {
+        return 2; // finished
+    }
 }
 
 extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
@@ -1614,8 +1623,12 @@ extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
     return lean_mk_string_from_bytes(s, strlen(s));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_string_from_utf8(b_obj_arg a) {
     return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
+}
+
+extern "C" LEAN_EXPORT uint8 lean_string_validate_utf8(b_obj_arg a) {
+    return validate_utf8(lean_sarray_cptr(a), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
@@ -1741,38 +1754,38 @@ extern "C" LEAN_EXPORT obj_res lean_string_data(obj_arg s) {
 
 static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uint32 & result) {
     unsigned c = static_cast<unsigned char>(str[i]);
-    /* zero continuation (0 to 127) */
+    /* zero continuation (0 to 0x7F) */
     if ((c & 0x80) == 0) {
         result = c;
         return true;
     }
 
-    /* one continuation (128 to 2047) */
+    /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         result = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (result >= 128) {
+        if (result >= 0x80) {
             return true;
         }
     }
 
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
     if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (result >= 2048 && (result < 55296 || result > 57343)) {
+        if (result >= 0x800 && (result < 0xD800 || result > 0xDFFF)) {
             return true;
         }
     }
 
-    /* three continuations (65536 to 1114111) */
+    /* three continuations (0x10000 to 0x10FFFF) */
     if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (result >= 65536 && result <= 1114111) {
+        if (result >= 0x10000 && result <= 0x10FFFF) {
             return true;
         }
     }
@@ -1810,32 +1823,32 @@ extern "C" LEAN_EXPORT uint32 lean_string_utf8_get(b_obj_arg s, b_obj_arg i0) {
 }
 
 extern "C" LEAN_EXPORT uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c) {
-    /* one continuation (128 to 2047) */
+    /* one continuation (0x80 to 0x7FF) */
     if ((c & 0xe0) == 0xc0 && i + 1 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         uint32_t result = ((c & 0x1f) << 6) | (c1 & 0x3f);
-        if (result >= 128) {
+        if (result >= 0x80) {
             return result;
         }
     }
 
-    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    /* two continuations (0x800 to 0xD7FF and 0xE000 to 0xFFFF) */
     if ((c & 0xf0) == 0xe0 && i + 2 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         uint32_t result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
-        if (result >= 2048 && (result < 55296 || result > 57343)) {
+        if (result >= 0x800 && (result < 0xD800 || result > 0xDFFF)) {
             return result;
         }
     }
 
-    /* three continuations (65536 to 1114111) */
+    /* three continuations (0x10000 to 0x10FFFF) */
     if ((c & 0xf8) == 0xf0 && i + 3 < size) {
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         uint32_t result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
-        if (result >= 65536 && result <= 1114111) {
+        if (result >= 0x10000 && result <= 0x10FFFF) {
             return result;
         }
     }
@@ -1920,6 +1933,19 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_next_fast_cold(size_t i, unsigne
 
 static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
+}
+
+extern "C" LEAN_EXPORT uint8 lean_string_is_valid_pos(b_obj_arg s, b_obj_arg i0) {
+    if (!lean_is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return false;
+    }
+    usize i = lean_unbox(i0);
+    usize sz = lean_string_size(s) - 1;
+    if (i > sz) return false;
+    if (i == sz) return true;
+    char const * str = lean_string_cstr(s);
+    return is_utf8_first_byte(str[i]);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {

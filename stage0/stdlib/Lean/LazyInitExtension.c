@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2___boxed
 LEAN_EXPORT lean_object* l_Lean_registerLazyInitExtension___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerLazyInitExtension___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -191,7 +192,7 @@ x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
 lean_dec(x_1);
 lean_inc(x_5);
-x_7 = lean_alloc_closure((void*)(l_Lean_LazyInitExtension_get___rarg___lambda__1), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_7, 0, x_5);
 lean_closure_set(x_7, 1, x_2);
 x_8 = lean_apply_1(x_6, x_7);
@@ -270,6 +271,15 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_LazyInitExtension_get___rarg), 3, 0);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_LazyInitExtension_get___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

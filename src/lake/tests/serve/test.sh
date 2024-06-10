@@ -25,7 +25,7 @@ echo "does not compile" > lakefile.lean
 # ---
 
 MSGS="$INIT_REQ$INITD_NOT$SD_REQ$EXIT_NOT"
-echo -n "$MSGS" | ${LAKE:-../../.lake/build/bin/lake} serve >/dev/null
+echo -n "$MSGS" | ${LAKE:-../../.lake/build/bin/lake} serve > serve.log
 echo "tested 49"
 
 # ---
@@ -34,12 +34,9 @@ echo "tested 49"
 # ---
 
 # Test that `lake setup-file` produces the error from `LAKE_INVALID_CONFIG`
-set -x
-# NOTE: For some reason, using `!` here does not work on macOS
-(LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep foo
-set +x
+(LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep --color foo
 
 # Test that `lake serve` produces the `Invalid Lake configuration message`.
 MSGS="$INIT_REQ$INITD_NOT$OPEN_REQ"
-grep -q "Invalid Lake configuration" < <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | $LAKE serve)
+grep -q "Invalid Lake configuration" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
 echo "tested 116"

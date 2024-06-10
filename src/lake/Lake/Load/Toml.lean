@@ -175,12 +175,19 @@ protected def PackageConfig.decodeToml (t : Table) (ref := Syntax.missing) : Exc
   let releaseRepo ← t.tryDecode? `releaseRepo
   let buildArchive? ← t.tryDecode? `buildArchive
   let preferReleaseBuild ← t.tryDecodeD `preferReleaseBuild false
+  let testRunner ← t.tryDecodeD `testRunner ""
+  let testDriver ← t.tryDecodeD `testDriver ""
+  let testDriver := if ¬testRunner.isEmpty ∧ testDriver.isEmpty then testRunner else testDriver
+  let testDriverArgs ← t.tryDecodeD `testDriverArgs #[]
+  let lintDriver ← t.tryDecodeD `lintDriver ""
+  let lintDriverArgs ← t.tryDecodeD `lintDriverArgs #[]
   let toLeanConfig ← tryDecode <| LeanConfig.decodeToml t
   let toWorkspaceConfig ← tryDecode <| WorkspaceConfig.decodeToml t
   return {
     name, precompileModules, moreGlobalServerArgs,
     srcDir, buildDir, leanLibDir, nativeLibDir, binDir, irDir,
     releaseRepo, buildArchive?, preferReleaseBuild
+    testDriver, testDriverArgs, lintDriver, lintDriverArgs
     toLeanConfig, toWorkspaceConfig
   }
 
@@ -259,20 +266,17 @@ def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
       let leanLibConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_lib #[]
       let leanExeConfigs ← mkRBArray (·.name) <$> table.tryDecodeD `lean_exe #[]
       let defaultTargets ← table.tryDecodeD `defaultTargets #[]
-      let testRunner ← table.tryDecodeD `testRunner .anonymous
       let depConfigs ← table.tryDecodeD `require #[]
       return {
         dir, relDir, relConfigFile
         config, depConfigs, leanLibConfigs, leanExeConfigs
-        defaultTargets, testRunner
+        defaultTargets
       }
     if errs.isEmpty then
       return pkg
     else
-      errs.forM fun {ref, msg} =>
+      errorWithLog <| errs.forM fun {ref, msg} =>
         let pos := ictx.fileMap.toPosition <| ref.getPos?.getD 0
         logError <| mkErrorStringWithPos ictx.fileName pos msg
-      failure
   | .error log =>
-    log.forM fun msg => do logError (← msg.toString)
-    failure
+    errorWithLog <| log.forM fun msg => do logError (← msg.toString)

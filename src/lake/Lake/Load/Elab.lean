@@ -133,7 +133,8 @@ where
     |>.insert ``externLibAttr
     |>.insert ``targetAttr
     |>.insert ``defaultTargetAttr
-    |>.insert ``testRunnerAttr
+    |>.insert ``testDriverAttr
+    |>.insert ``lintDriverAttr
     |>.insert ``moduleFacetAttr
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr
@@ -141,9 +142,6 @@ where
     |>.insert `Lean.docStringExt
     -- IR Extension (for constant evaluation)
     |>.insert ``IR.declMapExt
-
-instance : ToJson Hash := ⟨(toJson ·.val)⟩
-instance : FromJson Hash := ⟨((⟨·⟩) <$> fromJson? ·)⟩
 
 structure ConfigTrace where
   platform : String
@@ -229,11 +227,10 @@ def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
       Lean.writeModule env olean
       h.unlock
       return env
-    | .error e =>
+    | .error e => errorWithLog do
       logError <| toString e
       h.unlock
       IO.FS.removeFile traceFile
-      failure
   let validateTrace h : LogIO Environment := id do
     if cfg.reconfigure then
       elabConfig (← acquireTrace h) cfg.lakeOpts

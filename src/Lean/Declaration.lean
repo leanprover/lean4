@@ -135,6 +135,11 @@ structure TheoremVal extends ConstantVal where
   all : List Name := [name]
   deriving Inhabited, BEq
 
+@[export lean_mk_theorem_val]
+def mkTheoremValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (all : List Name) : TheoremVal := {
+  name, levelParams, type, value, all
+}
+
 /-- Value for an opaque constant declaration `opaque x : t := e` -/
 structure OpaqueVal extends ConstantVal where
   value : Expr

@@ -40,7 +40,7 @@ theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
     apply Nat.lt_trans h₂
     decide
 
-theorem isValidChar_of_isValidChar_Nat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
   match h with
   | Or.inl h        => Or.inl h
   | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
@@ -51,6 +51,13 @@ theorem isValidChar_zero : isValidChar 0 :=
 /-- Underlying unicode code point as a `Nat`. -/
 @[inline] def toNat (c : Char) : Nat :=
   c.val.toNat
+
+/-- Convert a character into a `UInt8`, by truncating (reducing modulo 256) if necessary. -/
+@[inline] def toUInt8 (c : Char) : UInt8 :=
+  c.val.toUInt8
+
+/-- The numbers from 0 to 256 are all valid UTF-8 characters, so we can embed one in the other. -/
+def ofUInt8 (n : UInt8) : Char := ⟨n.toUInt32, .inl (Nat.lt_trans n.1.2 (by decide))⟩
 
 instance : Inhabited Char where
   default := 'A'

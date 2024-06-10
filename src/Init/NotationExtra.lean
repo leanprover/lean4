@@ -87,6 +87,7 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 end
 
+namespace Lean
 -- first step of a `calc` block
 syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
@@ -136,6 +137,7 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
 @[inherit_doc «calc»]
 macro tk:"calc" steps:calcSteps : conv =>
   `(conv| tactic => calc%$tk $steps)
+end Lean
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
@@ -361,6 +363,7 @@ macro_rules
   | `(letI $_:ident $_* : $_ := $_; $_) => Lean.Macro.throwUnsupported -- handled by elab
 
 
+namespace Lean
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
@@ -368,12 +371,11 @@ syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+syntax (name := solveTactic) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
 
-namespace Lean
 /-! # `repeat` and `while` notation -/
 
 inductive Loop where

@@ -1,6 +1,10 @@
 name = "test"
-testRunner = "b"
+testDriver = "b"
+lintDriver = "b"
 defaultTargets = ["A"]
+
+[leanOptions]
+pp.unicode.fun = true
 
 [[require]]
 name = "foo"

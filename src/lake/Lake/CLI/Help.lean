@@ -18,11 +18,16 @@ COMMANDS:
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
   exe <exe> <args>...   build an exe and run it in Lake's environment
-  test                  run the workspace's test script or executable
+  test                  test the package using the configured test driver
+  check-test            check if there is a properly configured test driver
+  lint                  lint the package using the configured lint driver
+  check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   env <cmd> <args>...   execute a command in Lake's environment
   lean <file>           elaborate a Lean file in Lake's context
   update                update dependencies and save them to the manifest
+  pack                  pack build artifacts into an archive for distribution
+  unpack                unpack build artifacts from an distributed archive
   upload <tag>          upload build artifacts to a GitHub release
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
@@ -43,6 +48,10 @@ OPTIONS:
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
+  --wfail               fail build if warnings are logged
+  --iofail              fail build if any I/O or other info is logged
+  --ansi, --no-ansi     toggle the use of ANSI escape codes to prettify output
+  --no-build            exit immediately if a build target is not up-to-date
 
 See `lake help <command>` for more information on a specific command."
 
@@ -138,13 +147,84 @@ of the same package, the version materialized is undefined.
 A bare `lake update` will upgrade all dependencies."
 
 def helpTest :=
-"Run the workspace's test script or executable
+"Test the workspace's root package using its configured test driver
 
 USAGE:
   lake test [-- <args>...]
 
-Looks for a script or executable tagged `@[test_runner]` in the workspace's
-root package and executes it with `args`. "
+A test driver can be configured by either setting the 'testDriver'
+package configuration option or by tagging a script, executable, or library
+`@[test_driver]`. A definition in a dependency can be used as a test driver
+by using the `<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script test driver will be run with the  package configuration's
+`testDriverArgs` plus the CLI `args`. An executable test driver will be
+built and then run like a script. A library test driver will just be built.
+"
+
+def helpCheckTest :=
+"Check if there is a properly configured test driver
+
+USAGE:
+  lake check-test
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured test driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpLint :=
+"Lint the workspace's root package using its configured lint driver
+
+USAGE:
+  lake lint [-- <args>...]
+
+A lint driver can be configured by either setting the `lintDriver` package
+configuration option by tagging a script or executable `@[lint_driver]`.
+A definition in dependency can be used as a test driver by using the
+`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+
+A script lint driver will be run with the  package configuration's
+`lintDriverArgs` plus the CLI `args`. An executable lint driver will be
+built and then run like a script.
+"
+
+def helpCheckLint :=
+"Check if there is a properly configured lint driver
+
+USAGE:
+  lake check-lint
+
+Exits with code 0 if the workspace's root package has a properly
+configured lint driver. Errors (with code 1) otherwise.
+
+Does NOT verify that the configured lint driver actually exists in the
+package or its dependencies. It merely verifies that one is specified.
+"
+
+def helpPack :=
+"Pack build artifacts into a archive for distribution
+
+USAGE:
+  lake pack [<file.tgz>]
+
+Packs the root package's `buildDir` into a gzip tar archive using `tar`.
+If a path for the archive is not specified, creates a archive in the package's
+Lake directory (`.lake`) named according to its `buildArchive` setting.
+
+Does NOT build any artifacts. It just packs the existing ones."
+
+def helpUnpack :=
+"Unpack build artifacts from a distributed archive
+
+USAGE:
+  lake unpack [<file.tgz>]
+
+Unpack build artifacts from the gzip tar archive `file.tgz` into the root
+package's `buildDir`. If a path for the archive is not specified, uses the
+the package's `buildArchive` in its Lake directory (`.lake`)."
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release
@@ -296,8 +376,13 @@ def help : (cmd : String) → String
 | "init"                => helpInit
 | "build"               => helpBuild
 | "update" | "upgrade"  => helpUpdate
+| "pack"                => helpPack
+| "unpack"              => helpUnpack
 | "upload"              => helpUpload
 | "test"                => helpTest
+| "check-test"          => helpCheckTest
+| "lint"                => helpLint
+| "check-lint"          => helpCheckLint
 | "clean"               => helpClean
 | "script"              => helpScriptCli
 | "scripts"             => helpScriptList

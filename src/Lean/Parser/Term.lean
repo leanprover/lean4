@@ -542,8 +542,11 @@ It is often used when building macros.
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
+def haveId := leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent) <|> hygieneInfo
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := ((ppSpace >> binderIdent) <|> hygieneInfo) >> many (ppSpace >> letIdBinder) >> optType
+def haveIdLhs    :=
+  haveId >> many (ppSpace >> letIdBinder) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
@@ -786,7 +789,7 @@ def isIdent (stx : Syntax) : Bool :=
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
-/-- `x@e` or `x:h@e` matches the pattern `e` and binds its value to the identifier `x`.
+/-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>
@@ -807,6 +810,10 @@ It is especially useful for avoiding parentheses with repeated applications.
 Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
 You can also view `h ▸ e` as a "type casting" operation
 where you change the type of `e` by using `h`.
+
+The macro tries both orientations of `h`. If the context provides an
+expected type, it rewrites the expeced type, else it rewrites the type of e`.
+
 See the Chapter "Quantifiers and Equality" in the manual
 "Theorem Proving in Lean" for additional information.
 -/
@@ -870,7 +877,7 @@ def matchExprElseAlt (rhsParser : Parser) := leading_parser "| " >> ppIndent (ho
 def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
-    >> (ppLine >> checkColGe "irrelevant" >> matchExprElseAlt rhsParser)
+    >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 

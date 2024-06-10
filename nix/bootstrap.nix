@@ -176,7 +176,7 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+          ctest --output-junit test-results.xml --output-on-failure -E 'leancomptest_(doc_example|foreign)|leanlaketest_init' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           mkdir $out
@@ -186,7 +186,7 @@ rec {
       update-stage0 =
         let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree ]; }; in
         writeShellScriptBin "update-stage0" ''
-          CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/update-stage0"}
+          CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';
       update-stage0-commit = writeShellScriptBin "update-stage0-commit" ''
         set -euo pipefail

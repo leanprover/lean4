@@ -148,6 +148,8 @@ git = \"https://github.com/leanprover-community/mathlib4.git\"
 name = {repr libRoot}
 "
 
+def readmeFileContents (pkgName : String) := s!"# {pkgName}"
+
 def mathToolchainUrl : String :=
   "https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain"
 
@@ -248,7 +250,8 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (lang : Config
           "no known toolchain name for the current Elan/Lean/Lake"
   else
     if tmp = .math then
-      download "lean-toolchain" mathToolchainUrl toolchainFile
+      logInfo "downloading mathlib `lean-toolchain` file"
+      download mathToolchainUrl toolchainFile
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 
@@ -265,6 +268,11 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (lang : Config
         repo.checkoutBranch upstreamBranch
     else
       logWarning "failed to initialize git repository"
+
+  -- Initialize a README.md file if none exists.
+  let readmeFile := dir / "README.md"
+  unless (← readmeFile.pathExists) do
+    IO.FS.writeFile readmeFile (readmeFileContents name)
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then

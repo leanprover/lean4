@@ -929,6 +929,60 @@ partial def check
 
 end CheckAssignmentQuick
 
+/-- `typeOccursCheck` implementation using unsafe (i.e., pointer equality) features. -/
+private unsafe def typeOccursCheckImp (mctx : MetavarContext) (mvarId : MVarId) (v : Expr) : Bool :=
+  if v.hasExprMVar then
+    visit v |>.run' mkPtrSet
+  else
+    true
+where
+  alreadyVisited (e : Expr) : StateM (PtrSet Expr) Bool := do
+    if (← get).contains e then
+      return true
+    else
+      modify fun s => s.insert e
+      return false
+  occursCheck (type : Expr) : Bool :=
+    let go : StateM MetavarContext Bool := do
+      Lean.occursCheck mvarId type
+    -- Remark: it is ok to discard the the "updated" `MetavarContext` because
+    -- this function assumes all assigned metavariables have already been
+    -- instantiated.
+    go.run' mctx
+  visitMVar (mvarId' : MVarId) : Bool :=
+    if let some mvarDecl := mctx.findDecl? mvarId' then
+      occursCheck mvarDecl.type
+    else
+      false
+  visit (e : Expr) : StateM (PtrSet Expr) Bool := do
+    if !e.hasExprMVar then
+      return true
+    else if (← alreadyVisited e) then
+      return true
+    else match e with
+      | .mdata _ b       => visit b
+      | .proj _ _ s      => visit s
+      | .app f a         => visit f <&&> visit a
+      | .lam _ d b _     => visit d <&&> visit b
+      | .forallE _ d b _ => visit d <&&> visit b
+      | .letE _ t v b _  => visit t <&&> visit v <&&> visit b
+      | .mvar mvarId'    => return visitMVar mvarId'
+      | .bvar .. | .sort .. | .const .. | .fvar ..
+      | .lit .. => return true
+
+/--
+Check whether there are invalid occurrences of `mvarId` in the type of other metavariables in `v`.
+For example, suppose we have
+```
+?m_1 : Nat
+?m_2 : Fin ?m_1
+```
+The assignment `?m_1 := (?m_2).1` should not be accepted.
+See issue #4405 for additional examples.
+-/
+private def typeOccursCheck (mctx : MetavarContext) (mvarId : MVarId) (v : Expr) : Bool :=
+  unsafe typeOccursCheckImp mctx mvarId v
+
 /--
   Auxiliary function for handling constraints of the form `?m a₁ ... aₙ =?= v`.
   It will check whether we can perform the assignment
@@ -951,11 +1005,15 @@ def checkAssignment (mvarId : MVarId) (fvars : Array Expr) (v : Expr) : MetaM (O
     let hasCtxLocals := fvars.any fun fvar => mvarDecl.lctx.containsFVar fvar
     let ctx ← read
     let mctx ← getMCtx
-    if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
-      pure (some v)
+    let v ← if CheckAssignmentQuick.check hasCtxLocals mctx ctx.lctx mvarDecl mvarId fvars v then
+      pure v
+    else if let some v ← CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals (← instantiateMVars v) then
+      pure v
     else
-      let v ← instantiateMVars v
-      CheckAssignment.checkAssignmentAux mvarId fvars hasCtxLocals v
+      return none
+    unless typeOccursCheck (← getMCtx) mvarId v do
+      return none
+    return some v
 
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
   match v with

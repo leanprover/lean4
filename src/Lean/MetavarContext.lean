@@ -341,6 +341,10 @@ class MonadMCtx (m : Type → Type) where
   getMCtx    : m MetavarContext
   modifyMCtx : (MetavarContext → MetavarContext) → m Unit
 
+instance : MonadMCtx (StateM MetavarContext) where
+  getMCtx := get
+  modifyMCtx := modify
+
 export MonadMCtx (getMCtx modifyMCtx)
 
 @[always_inline]

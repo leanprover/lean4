@@ -1374,4 +1374,63 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
   · simp
   · rw [← rotateRight_mod_eq_rotateRight, getLsb_rotateRight_of_le (Nat.mod_lt _ (by omega))]
 
+/- ## twoPow -/
+
+@[simp]
+theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp [twoPow, toNat_shiftLeft]
+    have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
+    rw [Nat.mod_eq_of_lt h1]
+    rw [Nat.shiftLeft_eq, Nat.one_mul]
+
+@[simp]
+theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
+  rcases w with rfl | w
+  · simp only [twoPow, BitVec.reduceOfNat, Nat.zero_le, getLsb_ge, Bool.false_eq,
+    Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
+    omega
+  · simp only [twoPow, getLsb_shiftLeft, getLsb_ofNat]
+    by_cases hj : j < i
+    · simp only [hj, decide_True, Bool.not_true, Bool.and_false, Bool.false_and, Bool.false_eq,
+      Bool.and_eq_false_imp, decide_eq_true_eq, decide_eq_false_iff_not]
+      omega
+    · by_cases hi : Nat.testBit 1 (j - i)
+      · obtain hi' := Nat.testBit_one_eq_true_iff_self_eq_zero.mp hi
+        have hij : j = i := by omega
+        simp_all
+      · have hij : i ≠ j := by
+          intro h; subst h
+          simp at hi
+        simp_all
+
+theorem and_twoPow_eq_getLsb (x : BitVec w) (i : Nat) :
+    x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
+  ext j
+  simp only [getLsb_and, getLsb_twoPow]
+  by_cases hj : i = j <;> by_cases hx : x.getLsb i <;> simp_all
+
+@[simp]
+theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
+    x * (twoPow w i) = x <<< i := by
+  apply eq_of_toNat_eq
+  simp only [toNat_mul, toNat_twoPow, toNat_shiftLeft, Nat.shiftLeft_eq]
+  by_cases hi : i < w
+  · have hpow : 2^i < 2^w := Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    rw [Nat.mod_eq_of_lt hpow]
+  · have hpow : 2 ^ i % 2 ^ w = 0 := by
+      rw [Nat.mod_eq_zero_of_dvd]
+      apply Nat.pow_dvd_pow 2 (by omega)
+    simp [Nat.mul_mod, hpow]
+
+theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
+  rcases w with rfl | w
+  · simp [Nat.mod_one]
+  · simp [twoPow, toNat_shiftLeft]
+    have hone : 1 < 2 ^ (w + 1) := by
+      rw [show 1 = 2^0 by simp[Nat.pow_zero]]
+      exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
+    simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
+
 end BitVec

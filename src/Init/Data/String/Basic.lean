@@ -1141,14 +1141,14 @@ theorem add_eq (p₁ p₂ : Pos) : p₁ + p₂ = ⟨p₁.byteIdx + p₂.byteIdx�
 
 theorem sub_eq (p₁ p₂ : Pos) : p₁ - p₂ = ⟨p₁.byteIdx - p₂.byteIdx⟩ := rfl
 
-@[simp] theorem addChar_byteIdx (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + csize c := rfl
+@[simp] theorem addChar_byteIdx (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + c.utf8Size := rfl
 
-theorem addChar_eq (p : Pos) (c : Char) : p + c = ⟨p.byteIdx + csize c⟩ := rfl
+theorem addChar_eq (p : Pos) (c : Char) : p + c = ⟨p.byteIdx + c.utf8Size⟩ := rfl
 
-theorem zero_addChar_byteIdx (c : Char) : ((0 : Pos) + c).byteIdx = csize c := by
+theorem zero_addChar_byteIdx (c : Char) : ((0 : Pos) + c).byteIdx = c.utf8Size := by
   simp only [addChar_byteIdx, byteIdx_zero, Nat.zero_add]
 
-theorem zero_addChar_eq (c : Char) : (0 : Pos) + c = ⟨csize c⟩ := by rw [← zero_addChar_byteIdx]
+theorem zero_addChar_eq (c : Char) : (0 : Pos) + c = ⟨c.utf8Size⟩ := by rw [← zero_addChar_byteIdx]
 
 theorem addChar_right_comm (p : Pos) (c₁ c₂ : Char) : p + c₁ + c₂ = p + c₂ + c₁ := by
   apply ext

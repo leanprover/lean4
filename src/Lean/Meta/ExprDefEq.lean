@@ -929,6 +929,29 @@ partial def check
 
 end CheckAssignmentQuick
 
+/--
+Auxiliary function used at `typeOccursCheckImp`.
+Given `type`, it tries to eliminate "dependencies". For example, suppose we are trying to
+perform the assignment `?m := f (?n a b)` where
+```
+?n : let k := g ?m; A -> h k ?m -> C
+```
+If we just perform occurs check `?m` at the type of `?n`, we get a failure, but
+we claim these occurrences are ok because the type `?n a b : C`.
+In the example above, `typeOccursCheckImp` invokes this function with `n := 2`.
+Note that we avoid using `whnf` and `inferType` at `typeOccursCheckImp` to minimize the
+performance impact of this extra check.
+
+See test `typeOccursCheckIssue.lean` for an example where this refinement is needed.
+The test is derived from a Mathlib file.
+-/
+private partial def skipAtMostNumBinders (type : Expr) (n : Nat) : Expr :=
+  match type, n with
+  | .forallE _ _ b _, n+1 => skipAtMostNumBinders b n
+  | .mdata _ b,       n   => skipAtMostNumBinders b n
+  | .letE _ _ v b _,  n   => skipAtMostNumBinders (b.instantiate1 v) n
+  | type,             _   => type
+
 /-- `typeOccursCheck` implementation using unsafe (i.e., pointer equality) features. -/
 private unsafe def typeOccursCheckImp (mctx : MetavarContext) (mvarId : MVarId) (v : Expr) : Bool :=
   if v.hasExprMVar then
@@ -949,11 +972,19 @@ where
     -- this function assumes all assigned metavariables have already been
     -- instantiated.
     go.run' mctx
-  visitMVar (mvarId' : MVarId) : Bool :=
+  visitMVar (mvarId' : MVarId) (numArgs : Nat := 0) : Bool :=
     if let some mvarDecl := mctx.findDecl? mvarId' then
-      occursCheck mvarDecl.type
+      occursCheck (skipAtMostNumBinders mvarDecl.type numArgs)
     else
       false
+  visitApp (e : Expr) : StateM (PtrSet Expr) Bool :=
+    e.withApp fun f args => do
+      unless (← args.allM visit) do
+        return false
+      if f.isMVar then
+        return visitMVar f.mvarId! args.size
+      else
+        visit f
   visit (e : Expr) : StateM (PtrSet Expr) Bool := do
     if !e.hasExprMVar then
       return true
@@ -962,7 +993,7 @@ where
     else match e with
       | .mdata _ b       => visit b
       | .proj _ _ s      => visit s
-      | .app f a         => visit f <&&> visit a
+      | .app ..          => visitApp e
       | .lam _ d b _     => visit d <&&> visit b
       | .forallE _ d b _ => visit d <&&> visit b
       | .letE _ t v b _  => visit t <&&> visit v <&&> visit b

@@ -12,6 +12,9 @@ defaultTargets = ["Init", "Lean", "Lake"]
 # The root of all the compiler output directories
 buildDir = "${CMAKE_BINARY_DIR}"
 
+# The directory of Lean source files (i.e., `src`)
+srcDir = "${LEAN_SOURCE_DIR}"
+
 # Destination C files and other intermediate representations
 irDir = "lib/temp"
 
@@ -26,14 +29,15 @@ name = "Init"
 
 [[lean_lib]]
 name = "Lean"
-roots = [
+globs = [
+  # Library root
   "Lean",
   # Deliberate orphan file so `import Lean` does not induce an LLVM dependency
   "Lean.Compiler.IR.EmitLLVM",
   # New compiler orphan file used in tests
-  "Lean.Compiler.LCNF.Probing"]
+  "Lean.Compiler.LCNF.Probing",
+]
 
 [[lean_lib]]
 name = "Lake"
 srcDir = "lake"
-roots = ["Lake", "Lake.Main"]

@@ -223,9 +223,12 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   | ``Parser.Tactic.quot => addNamedQuotInfo stx `tactic
   | ``Parser.Tactic.quotSeq => addNamedQuotInfo stx `tactic.seq
   | .str kind "quot" => addNamedQuotInfo stx kind
-  | ``dynamicQuot => match ← elabParserName stx[1] with
+  | ``dynamicQuot =>
+    let id := stx[1]
+    match (← elabParserName id) with
     | .parser n _ => return n
     | .category c => return c
+    | .alias _    => return (← Parser.getSyntaxKindOfParserAlias? id.getId.eraseMacroScopes).get!
   | k => throwError "unexpected quotation kind {k}"
 
 def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
@@ -687,5 +690,6 @@ builtin_initialize
   registerTraceClass `Elab.match_syntax
   registerTraceClass `Elab.match_syntax.alt (inherited := true)
   registerTraceClass `Elab.match_syntax.result (inherited := true)
+  registerTraceClass `Elab.match_syntax.onMatch
 
 end Lean.Elab.Term.Quotation

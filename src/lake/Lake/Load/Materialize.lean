@@ -113,7 +113,7 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := none
-      manifestEntry := .path dep.name inherited defaultConfigFile none relPkgDir
+      manifestEntry := mkEntry <| .path relPkgDir
       configDep := dep
     }
   | .git url inputRev? subDir? => do
@@ -127,9 +127,11 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := Git.filterUrl? url
-      manifestEntry := .git dep.name inherited defaultConfigFile none url rev inputRev? subDir?
+      manifestEntry := mkEntry <| .git url rev inputRev? subDir?
       configDep := dep
     }
+where
+  mkEntry src : PackageEntry := {name := dep.name, inherited, src}
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
@@ -137,7 +139,7 @@ Materializes a manifest package entry, cloning and/or checking it out as necessa
 def PackageEntry.materialize (manifestEntry : PackageEntry)
 (configDep : Dependency) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
 : LogIO MaterializedDep :=
-  match manifestEntry with
+  match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
     return {
       relPkgDir
@@ -145,8 +147,8 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
       manifestEntry
       configDep
     }
-  | .git name (url := url) (rev := rev) (subDir? := subDir?) .. => do
-    let sname := name.toString (escape := false)
+  | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
+    let sname := manifestEntry.name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
@@ -161,10 +163,10 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
         if (← repo.hasDiff) then
           logWarning s!"{sname}: repository '{repo.dir}' has local changes"
       else
-        let url := pkgUrlMap.find? name |>.getD url
+        let url := pkgUrlMap.find? manifestEntry.name |>.getD url
         updateGitRepo sname repo url rev
     else
-      let url := pkgUrlMap.find? name |>.getD url
+      let url := pkgUrlMap.find? manifestEntry.name |>.getD url
       cloneGitPkg sname repo url rev
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {

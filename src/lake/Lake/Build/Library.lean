@@ -45,7 +45,7 @@ protected def LeanLib.recBuildLean
 (self : LeanLib) : FetchM (BuildJob Unit) := do
   let mods ← self.modules.fetch
   mods.foldlM (init := BuildJob.nil) fun job mod => do
-    job.mix <| ← mod.leanArts.fetch
+    return job.mix <| ← mod.leanArts.fetch
 
 /-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
 def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
@@ -53,8 +53,12 @@ def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
 
 @[specialize] protected def LeanLib.recBuildStatic
 (self : LeanLib) (shouldExport : Bool) : FetchM (BuildJob FilePath) := do
-  let exports := if shouldExport then "w/ exports" else "w/o exports"
-  withRegisterJob s!"Building {self.staticLibFileName} ({exports})" do
+  let suffix :=
+    if (← getIsVerbose) then
+      if shouldExport then " (with exports)" else " (without exports)"
+    else
+      ""
+  withRegisterJob s!"{self.name}:static{suffix}" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets shouldExport |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -74,7 +78,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
 
 protected def LeanLib.recBuildShared
 (self : LeanLib) : FetchM (BuildJob FilePath) := do
-  withRegisterJob s!"Linking {self.sharedLibFileName}" do
+  withRegisterJob s!"{self.name}:shared" do
   let mods ← self.modules.fetch
   let oJobs ← mods.concatMapM fun mod =>
     mod.nativeFacets true |>.mapM fun facet => fetch <| mod.facet facet.name
@@ -91,7 +95,7 @@ def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
 /-- Build the `extraDepTargets` for the library and its package. -/
 def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (BuildJob Unit) := do
   self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
-    job.mix <| ← self.pkg.fetchTargetJob target
+    return job.mix <| ← self.pkg.fetchTargetJob target
 
 /-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=

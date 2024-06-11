@@ -32,16 +32,18 @@ def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
   let mut job := BuildJob.nil
   -- Build dependencies' extra dep targets
   for dep in self.deps do
-    job ← job.mix <| ← dep.extraDep.fetch
+    job := job.mix <| ← dep.extraDep.fetch
   -- Fetch pre-built release if desired and this package is a dependency
   if self.name ≠ (← getWorkspace).root.name ∧ self.preferReleaseBuild then
-    job ← job.add <| ← (← self.release.fetch).attempt.bindSync fun success t => do
-      unless success do
-        logWarning "fetching cloud release failed; falling back to local build"
-      return ((), t)
+    job := job.add <| ←
+      withRegisterJob s!"{self.name}:optRelease" do
+        (← self.optRelease.fetch).bindSync fun success t => do
+          unless success do
+            logWarning "failed to fetch cloud release; falling back to local build"
+          return ((), t)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
-    job ← job.mix <| ← self.fetchTargetJob target
+    job := job.mix <| ← self.fetchTargetJob target
   return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
@@ -49,31 +51,42 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
   mkFacetJobConfig Package.recBuildExtraDepTargets
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
-def Package.fetchRelease (self : Package) : SpawnM (BuildJob Unit) :=
-  withRegisterJob s!"Fetching {self.name} cloud release" <| Job.async do
+def Package.fetchOptRelease (self : Package) : FetchM (BuildJob Bool) := Job.async do
   let repo := GitRepo.mk self.dir
   let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
   let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?)
-    | error <| s!"{self.name}: wanted prebuilt release, " ++
-      "but package's repository URL was not known; it may need to set `releaseRepo?`"
+    | logInfo s!"{self.name}: wanted prebuilt release, \
+        but repository URL not known; the package may need to set 'releaseRepo'"
+      updateAction .fetch
+      return (false, .nil)
   let some tag ← repo.findTag?
-    | error <| s!"{self.name}: wanted prebuilt release, " ++
-      "but could not find an associated tag for the package's revision"
+    | logInfo s!"{self.name}: wanted prebuilt release, but no tag found for revision"
+      updateAction .fetch
+      return (false, .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
-  let logName := s!"{self.name}/{tag}/{self.buildArchive}"
   let depTrace := Hash.ofString url
   let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-  let upToDate ← buildUnlessUpToDate? self.buildArchiveFile depTrace traceFile do
-    logVerbose s!"downloading {logName}"
+  let upToDate ← buildUnlessUpToDate? (action := .fetch) self.buildArchiveFile depTrace traceFile do
+    logVerbose s!"downloading {url}"
     download url self.buildArchiveFile
   unless upToDate && (← self.buildDir.pathExists) do
-    logVerbose s!"unpacking {logName}"
+    updateAction .fetch
+    logVerbose s!"unpacking {self.name}:{tag}:{self.buildArchive}"
     untar self.buildArchiveFile self.buildDir
-  return ((), .nil)
+  return (true, .nil)
+
+/-- The `PackageFacetConfig` for the builtin `optReleaseFacet`. -/
+def Package.optReleaseFacetConfig : PackageFacetConfig optReleaseFacet :=
+  mkFacetJobConfig (·.fetchOptRelease)
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
-  mkFacetJobConfig (·.fetchRelease)
+  mkFacetJobConfig fun pkg =>
+    withRegisterJob s!"{pkg.name}:release" do
+      (← pkg.optRelease.fetch).bindSync fun success t => do
+        unless success do
+          error "failed to fetch cloud release"
+        return ((), t)
 
 /-- Perform a build job after first checking for a cloud release for the package. -/
 def Package.afterReleaseAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
@@ -98,4 +111,5 @@ def initPackageFacetConfigs : DNameMap PackageFacetConfig :=
   DNameMap.empty
   |>.insert depsFacet depsFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+  |>.insert optReleaseFacet optReleaseFacetConfig
   |>.insert releaseFacet releaseFacetConfig

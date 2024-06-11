@@ -1,5 +1,5 @@
 @[irreducible] def f (x : Nat) := x + 1
-
+set_option allowUnsafeReducibility true
 /--
 error: type mismatch
   rfl

@@ -34,7 +34,6 @@ macro (name := hydrateOpaqueType)
   let unsafeMk := mkIdent `unsafeMk
   let get := mkIdent `get
   let unsafeGet := mkIdent `unsafeGet
-  let get_mk := mkIdent `get_mk
   `(
   namespace $oty
   unsafe def $unsafeMk : $ty $args* → $oty $args* := unsafeCast
@@ -46,7 +45,5 @@ macro (name := hydrateOpaqueType)
   instance : Coe ($oty $args*) ($ty $args*) := ⟨$get⟩
 
   instance [Inhabited ($ty $args*)] : Inhabited ($oty $args*) := ⟨$mk default⟩
-
-  @[simp] axiom $get_mk $[{$args}]* {x : $ty $args*} : $get ($mk x) = x
   end $oty
   )

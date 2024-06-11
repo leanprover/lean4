@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.List.BasicAux
+import Lean.AddDecl
 import Lean.Meta.AppBuilder
 import Lean.Meta.Instances
 
@@ -513,5 +514,9 @@ def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf
+  registerTraceClass `Meta.sizeOf.minor
+  registerTraceClass `Meta.sizeOf.minor.step
+  registerTraceClass `Meta.sizeOf.aux
+  registerTraceClass `Meta.sizeOf.loop
 
 end Lean.Meta

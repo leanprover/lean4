@@ -40,18 +40,19 @@ StxQuot.lean:19:15-19:16: error: unexpected token ']'; expected term
 "(Term.match\n \"match\"\n []\n []\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [[`a._@.UnhygienicMain._hyg.1]] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [[(«term_+_» `a._@.UnhygienicMain._hyg.1 \"+\" (num \"1\"))]]\n    \"=>\"\n    («term_+_» `b._@.UnhygienicMain._hyg.1 \"+\" (num \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
 "1"
+StxQuot.lean:83:7-83:19: error: unknown identifier 'sufficesDecl'
 "(Term.sufficesDecl\n (hygieneInfo `_@.UnhygienicMain._hyg.1)\n `x._@.UnhygienicMain._hyg.1\n (Term.fromTerm \"from\" `x._@.UnhygienicMain._hyg.1))"
 "#[(num \"1\"), [(num \"2\") (num \"3\")], (num \"4\")]"
 "#[(num \"2\")]"
-StxQuot.lean:95:39-95:44: error: unexpected antiquotation splice
+StxQuot.lean:97:39-97:44: error: unexpected antiquotation splice
 fun x => sorryAx (?m x) true : (x : ?m) → ?m x
 "#[(some 1), (some 2)]"
-StxQuot.lean:102:13-102:14: error: unknown identifier 'x' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
+StxQuot.lean:104:13-104:14: error: unknown identifier 'x' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "`id._@.UnhygienicMain._hyg.1"
 "`pure._@.UnhygienicMain._hyg.1"
 "(termFoo_ \"foo\" <missing>)"
 "(Term.fun \"fun\" (Term.basicFun [`x._@.UnhygienicMain._hyg.1] [] \"=>\" `x._@.UnhygienicMain._hyg.1))"
-StxQuot.lean:108:22-108:23: error: unknown identifier 'y' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
+StxQuot.lean:110:22-110:23: error: unknown identifier 'y' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [`x._@.UnhygienicMain._hyg.1 `y._@.UnhygienicMain._hyg.1]\n  []\n  \"=>\"\n  (Term.app `x._@.UnhygienicMain._hyg.1 [`y._@.UnhygienicMain._hyg.1])))"
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [(Term.anonymousCtor \"⟨\" [`x._@.UnhygienicMain._hyg.1 \",\" `y._@.UnhygienicMain._hyg.1] \"⟩\")]\n  []\n  \"=>\"\n  `x._@.UnhygienicMain._hyg.1))"
 "1"

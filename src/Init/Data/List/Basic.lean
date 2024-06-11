@@ -69,6 +69,8 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
+@[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
+
 /-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
 def reverseAux : List α → List α → List α
   | [],   r => r

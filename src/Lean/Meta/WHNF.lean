@@ -712,11 +712,11 @@ mutual
     | _ => return none
 
   /--
-    Auxiliary method for unfolding a class projection. when transparency is set to `TransparencyMode.instances`.
+    Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
     Recall that class instance projections are not marked with `[reducible]` because we want them to be
     in "reducible canonical form".
   -/
-  partial def unfoldProjInstWhenIntances? (e : Expr) : MetaM (Option Expr) := do
+  partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
     if (← getTransparency) != TransparencyMode.instances then
       return none
     else
@@ -726,7 +726,7 @@ mutual
   partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
     match e with
     | .app f _ =>
-      matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenIntances? e) fun fInfo fLvls => do
+      matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
         if fInfo.levelParams.length != fLvls.length then
           return none
         else

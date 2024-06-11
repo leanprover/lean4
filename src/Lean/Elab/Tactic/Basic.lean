@@ -34,10 +34,6 @@ structure Context where
   -/
   recover    : Bool := true
 
-structure SavedState where
-  term   : Term.SavedState
-  tactic : State
-
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
@@ -100,6 +96,16 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   b.term.restore restoreInfo
   set b.tactic
 
+@[specialize, inherit_doc Core.withRestoreOrSaveFull]
+def withRestoreOrSaveFull (reusableResult? : Option (α × SavedState)) (act : TacticM α) :
+    TacticM (α × SavedState) := do
+  if let some (_, state) := reusableResult? then
+    set state.tactic
+  let reusableResult? := reusableResult?.map (fun (val, state) => (val, state.term))
+  let (a, term) ← controlAt TermElabM fun runInBase => do
+    Term.withRestoreOrSaveFull reusableResult? <| runInBase act
+  return (a, { term, tactic := (← get) })
+
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
@@ -146,7 +152,10 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
     | .node _ k _    =>
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
-        stx.getArgs.forM evalTactic
+        -- We could support incrementality here by allocating `n` new snapshot bundles but the
+        -- practical value is not clear
+        Term.withoutTacticIncrementality true do
+          stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
@@ -192,6 +201,37 @@ where
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
+              -- Support incrementality; see also Note [Incremental Macros]
+              if evalFns.isEmpty && ms.isEmpty then  -- Only try incrementality in one branch
+                if let some snap := (← readThe Term.Context).tacSnap? then
+                  let nextMacroScope := (← getThe Core.State).nextMacroScope
+                  let traceState ← getTraceState
+                  let old? := do
+                    let old ← snap.old?
+                    -- If the kind is equal, we can assume the old version was a macro as well
+                    guard <| old.stx.isOfKind stx.getKind
+                    let state ← old.val.get.data.finished.get.state?
+                    guard <| state.term.meta.core.nextMacroScope == nextMacroScope
+                    -- check absence of traces; see Note [Incremental Macros]
+                    guard <| state.term.meta.core.traceState.traces.size == 0
+                    guard <| traceState.traces.size == 0
+                    return old.val.get
+                  Language.withAlwaysResolvedPromise fun promise => do
+                    -- Store new unfolding in the snapshot tree
+                    snap.new.resolve <| .mk {
+                      stx := stx'
+                      diagnostics := .empty
+                      finished := .pure { state? := (← Tactic.saveState) }
+                    } #[{ range? := stx'.getRange?, task := promise.result }]
+                    -- Update `tacSnap?` to old unfolding
+                    withTheReader Term.Context ({ · with tacSnap? := some {
+                      new := promise
+                      old? := do
+                        let old ← old?
+                        return ⟨old.data.stx, (← old.next.get? 0)⟩
+                    } }) do
+                      evalTactic stx'
+                  return
               evalTactic stx'
         catch ex => handleEx s failures ex (expandEval s ms evalFns)
 
@@ -200,7 +240,11 @@ where
       | []              => throwExs failures
       | evalFn::evalFns => do
         try
-          withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
+          -- prevent unsupported tactics from accidentally accessing `Term.Context.tacSnap?`
+          Term.withoutTacticIncrementality (!(← isIncrementalElab evalFn.declName)) do
+          withReader ({ · with elaborator := evalFn.declName }) do
+          withTacticInfoContext stx do
+            evalFn.value stx
         catch ex => handleEx s failures ex (eval s evalFns)
 
 def throwNoGoalsToBeSolved : TacticM α :=
@@ -231,15 +275,15 @@ def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   /- Important: we must define `closeUsingOrAdmit` before we define
      the instance `MonadExcept` for `TacticM` since it backtracks the state including error messages. -/
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
-  try
-    focusAndDone tac
-  catch ex =>
-    if (← read).recover then
-      logException ex
-      admitGoal mvarId
-      setGoals mvarIds
-    else
-      throw ex
+  tryCatchRuntimeEx
+    (focusAndDone tac)
+    fun ex => do
+      if (← read).recover then
+        logException ex
+        admitGoal mvarId
+        setGoals mvarIds
+      else
+        throw ex
 
 instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState

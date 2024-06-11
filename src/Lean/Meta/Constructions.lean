@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.AuxRecursor
+import Lean.AddDecl
 import Lean.Meta.AppBuilder
 
 namespace Lean

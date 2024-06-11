@@ -542,8 +542,11 @@ It is often used when building macros.
 @[builtin_term_parser] def «let_tmp» := leading_parser:leadPrec
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
+def haveId := leading_parser (withAnonymousAntiquot := false)
+  (ppSpace >> binderIdent) <|> hygieneInfo
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := ((ppSpace >> binderIdent) <|> hygieneInfo) >> many (ppSpace >> letIdBinder) >> optType
+def haveIdLhs    :=
+  haveId >> many (ppSpace >> letIdBinder) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
@@ -786,7 +789,7 @@ def isIdent (stx : Syntax) : Bool :=
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
-/-- `x@e` or `x:h@e` matches the pattern `e` and binds its value to the identifier `x`.
+/-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>

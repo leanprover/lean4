@@ -10,7 +10,7 @@ unsafe def processInput (input : String) (initializers := false)  :
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header {} messages inputCtx
   let s ← IO.processCommands inputCtx parserState (Command.mkState env messages {}) <&> Frontend.State.commandState
-  pure (s.env, s.messages.msgs.toList)
+  pure (s.env, s.messages.toList)
 
 open System in
 def findLean (mod : Name) : IO FilePath := do

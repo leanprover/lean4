@@ -3,18 +3,16 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Util.Newline
+import Lake.Util.IO
+import Lean.Data.Json
 
-open System
+open System Lean
+
 namespace Lake
 
 --------------------------------------------------------------------------------
 /-! # Utilities -/
 --------------------------------------------------------------------------------
-
-/-- Creates any missing parent directories of `path`. -/
-@[inline] def createParentDirs (path : FilePath) : IO Unit := do
-  if let some dir := path.parent then IO.FS.createDirAll dir
 
 class CheckExists.{u} (i : Type u) where
   /-- Check whether there already exists an artifact for the given target info. -/
@@ -113,6 +111,16 @@ instance : ToString Hash := ⟨Hash.toString⟩
 @[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
+@[inline] protected def toJson (self : Hash) : Json :=
+  toJson self.val
+
+instance : ToJson Hash := ⟨Hash.toJson⟩
+
+@[inline] protected def fromJson? (json : Json) : Except String Hash :=
+  (⟨·⟩) <$> fromJson? json
+
+instance : FromJson Hash := ⟨Hash.fromJson?⟩
+
 end Hash
 
 class ComputeHash (α : Type u) (m : outParam $ Type → Type v)  where
@@ -135,7 +143,7 @@ instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 
 def computeTextFileHash (file : FilePath) : IO Hash := do
   let text ← IO.FS.readFile file
-  let text := crlf2lf text
+  let text := text.crlfToLf
   return Hash.ofString text
 
 /--

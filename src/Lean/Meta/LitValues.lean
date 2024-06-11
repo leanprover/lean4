@@ -99,6 +99,8 @@ def getUInt64Value? (e : Expr) : MetaM (Option UInt64) := OptionT.run do
   let (n, _) ← getOfNatValue? e ``UInt64
   return UInt64.ofNat n
 
+-- TODO: extensibility
+
 /--
 If `e` is a literal value, ensure it is encoded using the standard representation.
 Otherwise, just return `e`.
@@ -116,6 +118,23 @@ def normLitValue (e : Expr) : MetaM Expr := do
   if let some n ← getUInt32Value? e then return toExpr n
   if let some n ← getUInt64Value? e then return toExpr n
   return e
+
+/--
+Returns `true` if `e` is a literal value.
+-/
+def isLitValue (e : Expr) : MetaM Bool := do
+  let e ← instantiateMVars e
+  if (← getNatValue? e).isSome then return true
+  if (← getIntValue? e).isSome then return true
+  if (← getFinValue? e).isSome then return true
+  if (← getBitVecValue? e).isSome then return true
+  if (getStringValue? e).isSome then return true
+  if (← getCharValue? e).isSome then return true
+  if (← getUInt8Value? e).isSome then return true
+  if (← getUInt16Value? e).isSome then return true
+  if (← getUInt32Value? e).isSome then return true
+  if (← getUInt64Value? e).isSome then return true
+  return false
 
 /--
 If `e` is a `Nat`, `Int`, or `Fin` literal value, converts it into a constructor application.

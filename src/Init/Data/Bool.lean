@@ -227,6 +227,8 @@ instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 @[simp] theorem bne_left_inj  : ∀ (x y z : Bool), (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_right_inj : ∀ (x y z : Bool), (x != z) = (y != z) ↔ x = y := by decide
 
+theorem eq_not_of_ne : ∀ {x y : Bool}, x ≠ y → x = !y := by decide
+
 /-! ### coercision related normal forms -/
 
 theorem beq_eq_decide_eq [BEq α] [LawfulBEq α] [DecidableEq α] (a b : α) :
@@ -360,7 +362,8 @@ def toNat (b:Bool) : Nat := cond b 1 0
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
 
-@[deprecated toNat_le] abbrev toNat_le_one := toNat_le
+@[deprecated toNat_le (since := "2024-02-23")]
+abbrev toNat_le_one := toNat_le
 
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   Nat.lt_succ_of_le (toNat_le _)

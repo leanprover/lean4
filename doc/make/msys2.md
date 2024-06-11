@@ -38,10 +38,9 @@ cmake --version
 Then follow the [generic build instructions](index.md) in the MSYS2
 MinGW shell, using:
 ```
-cmake ../.. -G "Unix Makefiles"  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+cmake --preset release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 ```
-instead of `cmake ../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
-for script tasks and it will use the clang compiler instead of gcc, which is required.
+instead of `cmake --preset release`. This will use the clang compiler instead of gcc, which is required with msys2.
 
 ## Install lean
 

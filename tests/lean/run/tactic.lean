@@ -20,4 +20,6 @@ print result
 
 set_option trace.Meta.Tactic true
 
+/-- info: [Meta.Tactic] fun {p q} a a_1 => a -/
+#guard_msgs in
 #eval tst1

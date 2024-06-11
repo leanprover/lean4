@@ -1,0 +1,83 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 10,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "release",
+      "displayName": "Default development optimized build config",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release"
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug build config",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug"
+    },
+    {
+      "name": "sanitize",
+      "displayName": "Sanitize build config",
+      "cacheVariables": {
+        "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined",
+        "LEANC_EXTRA_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "SMALL_ALLOCATOR": "OFF",
+        "BSYMBOLIC": "OFF"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/sanitize"
+    },
+    {
+      "name": "sandebug",
+      "inherits": ["debug", "sanitize"],
+      "displayName": "Sanitize+debug build config",
+      "binaryDir": "${sourceDir}/build/sandebug"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize"
+    },
+    {
+      "name": "sandebug",
+      "configurePreset": "sandebug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {"outputOnFailure": true, "shortProgress": true}
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "inherits": "release"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize",
+      "inherits": "release"
+    },
+    {
+      "name": "sandebug",
+      "configurePreset": "sandebug",
+      "inherits": "release"
+    }
+  ]
+}

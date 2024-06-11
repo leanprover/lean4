@@ -639,6 +639,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
+/* addHeartbeats (count : Int64) : BaseIO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_add_heartbeats(int64_t count, obj_arg /* w */) {
+    add_heartbeats(count);
+    return io_result_mk_ok(box(0));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
     // HACK(WN): getenv doesn't seem to work in Emscripten even though it should
@@ -1066,8 +1072,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_cancel(b_obj_arg t, obj_arg) {
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_has_finished(b_obj_arg t, obj_arg) {
-    return io_result_mk_ok(box(lean_io_has_finished_core(t)));
+extern "C" LEAN_EXPORT obj_res lean_io_get_task_state(b_obj_arg t, obj_arg) {
+    return io_result_mk_ok(box(lean_io_get_task_state_core(t)));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_wait(obj_arg t, obj_arg) {

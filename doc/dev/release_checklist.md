@@ -46,17 +46,16 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - We do this for the repositories:
     - [lean4checker](https://github.com/leanprover/lean4checker)
       - No dependencies
-      - Note: `lean4checker` uses a different version tagging scheme: use `toolchain/v4.6.0` rather than `v4.6.0`.
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`
-    - [Std](https://github.com/leanprover-community/std4)
+    - [Batteries](https://github.com/leanprover-community/batteries)
       - No dependencies
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`
     - [ProofWidgets4](https://github.com/leanprover-community/ProofWidgets4)
-      - Dependencies: `Std`
+      - Dependencies: `Batteries`
       - Note on versions and branches:
         - `ProofWidgets` uses a sequential version tagging scheme, e.g. `v0.0.29`,
           which does not refer to the toolchain being used.
@@ -65,7 +64,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR
       - Create and push the tag, following the version convention of the repository
     - [Aesop](https://github.com/leanprover-community/aesop)
-      - Dependencies: `Std`
+      - Dependencies: `Batteries`
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
@@ -79,13 +78,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Create and push the tag
       - There is no `stable` branch; skip this step
     - [Mathlib](https://github.com/leanprover-community/mathlib4)
-      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Std`, `doc-gen4`, `import-graph`
+      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Batteries`, `doc-gen4`, `import-graph`
       - Toolchain bump PR notes:
         - In addition to updating the `lean-toolchain` and `lakefile.lean`,
-          in `.github/workflows/build.yml.in` in the `lean4checker` section update the line
-          `git checkout toolchain/v4.6.0` to the appropriate tag,
-          and then run `.github/workflows/mk_build_yml.sh`. Coordinate with
-          a Mathlib maintainer to get this merged.
+          in `.github/workflows/lean4checker.yml` update the line
+          `git checkout v4.6.0` to the appropriate tag. 
         - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
         - Create and push the tag
         - Create a new branch from the tag, push it, and open a pull request against `stable`.
@@ -123,8 +120,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 
 - Decide which nightly release you want to turn into a release candidate.
   We will use `nightly-2024-02-29` in this example.
-- It is essential that Std and Mathlib already have reviewed branches compatible with this nightly.
-  - Check that both Std and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
+- It is essential that Batteries and Mathlib already have reviewed branches compatible with this nightly.
+  - Check that both Batteries and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
     in their `lean-toolchain`.
   - The steps required to reach that state are beyond the scope of this checklist, but see below!
 - Create the release branch from this nightly tag:
@@ -182,7 +179,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - We do this for the same list of repositories as for stable releases, see above.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
-  - For Std/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
+  - For Batteries/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
     `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release
     (create it if not), and then on the `nightly-testing` branch `git reset --hard master`, and force push.
 - Make an announcement!
@@ -204,7 +201,7 @@ In particular, updating the downstream repositories is significantly more work
 # Preparing `bump/v4.7.0` branches
 
 While not part of the release process per se,
-this is a brief summary of the work that goes into updating Std/Aesop/Mathlib to new versions.
+this is a brief summary of the work that goes into updating Batteries/Aesop/Mathlib to new versions.
 
 Please read https://leanprover-community.github.io/contribute/tags_and_branches.html
 

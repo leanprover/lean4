@@ -8,5 +8,5 @@ end MyMod
 
 def myMod1 : MyMod := ⟨0⟩
 
-#eval myMod1.a
-#eval myMod1.b
+#guard myMod1.a == 0
+#guard myMod1.b == 1

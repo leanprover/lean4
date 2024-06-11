@@ -468,11 +468,11 @@ class Singleton (α : outParam <| Type u) (β : Type v) where
 export Singleton (singleton)
 
 /-- `insert x ∅ = {x}` -/
-class IsLawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
+class LawfulSingleton (α : Type u) (β : Type v) [EmptyCollection β] [Insert α β] [Singleton α β] :
     Prop where
   /-- `insert x ∅ = {x}` -/
   insert_emptyc_eq (x : α) : (insert x ∅ : β) = singleton x
-export IsLawfulSingleton (insert_emptyc_eq)
+export LawfulSingleton (insert_emptyc_eq)
 
 /-- Type class used to implement the notation `{ a ∈ c | p a }` -/
 class Sep (α : outParam <| Type u) (γ : Type v) where
@@ -1113,9 +1113,6 @@ protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
   exact rfl
-
-instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} where
-  default := ⟨a, h⟩
 
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
   fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>

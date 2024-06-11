@@ -14,6 +14,8 @@ import Init.RCases
 # Lemmas about integer division needed to bootstrap `omega`.
 -/
 
+-- Remove after the next stage0 update
+set_option allowUnsafeReducibility true
 
 open Nat (succ)
 
@@ -142,12 +144,14 @@ theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => show -ofNat _ = _ by simp
 
+unseal Nat.div in
 @[simp] protected theorem div_zero : ∀ a : Int, div a 0 = 0
   | ofNat _ => show ofNat _ = _ by simp
   | -[_+1] => rfl
 
 @[simp] theorem zero_fdiv (b : Int) : fdiv 0 b = 0 := by cases b <;> rfl
 
+unseal Nat.div in
 @[simp] protected theorem fdiv_zero : ∀ a : Int, fdiv a 0 = 0
   | 0      => rfl
   | succ _ => rfl
@@ -178,7 +182,7 @@ theorem fdiv_eq_div {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = div a
 
 @[simp] theorem mod_zero : ∀ a : Int, mod a 0 = a
   | ofNat _ => congrArg ofNat <| Nat.mod_zero _
-  | -[_+1] => rfl
+  | -[_+1] => congrArg (fun n => -ofNat n) <| Nat.mod_zero _
 
 @[simp] theorem zero_fmod (b : Int) : fmod 0 b = 0 := by cases b <;> rfl
 
@@ -225,7 +229,9 @@ theorem mod_add_div : ∀ a b : Int, mod a b + b * (a.div b) = a
   | ofNat m, -[n+1] => by
     show (m % succ n + -↑(succ n) * -↑(m / succ n) : Int) = m
     rw [Int.neg_mul_neg]; exact congrArg ofNat (Nat.mod_add_div ..)
-  | -[_+1], 0 => rfl
+  | -[m+1], 0 => by
+    show -(↑((succ m) % 0) : Int) + 0 * -↑(succ m / 0) = -↑(succ m)
+    rw [Nat.mod_zero, Int.zero_mul, Int.add_zero]
   | -[m+1], ofNat n => by
     show -(↑((succ m) % n) : Int) + ↑n * -↑(succ m / n) = -↑(succ m)
     rw [Int.mul_neg, ← Int.neg_add]
@@ -413,6 +419,9 @@ theorem negSucc_emod (m : Nat) {b : Int} (bpos : 0 < b) : -[m+1] % b = b - 1 - m
   rw [Int.sub_sub, Int.add_comm]
   match b, eq_succ_of_zero_lt bpos with
   | _, ⟨n, rfl⟩ => rfl
+
+theorem emod_negSucc (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
 
 theorem ofNat_mod_ofNat (m n : Nat) : (m % n : Int) = ↑(m % n) := rfl
 
@@ -763,11 +772,13 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
   | (n:Nat) => congrArg ofNat (Nat.div_one _)
   | -[n+1] => by simp [Int.div, neg_ofNat_succ]; rfl
 
+unseal Nat.div in
 @[simp] protected theorem div_neg : ∀ a b : Int, a.div (-b) = -(a.div b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
   | ofNat m, -[n+1] | -[m+1], succ n => (Int.neg_neg _).symm
   | ofNat m, succ n | -[m+1], 0 | -[m+1], -[n+1] => rfl
 
+unseal Nat.div in
 @[simp] protected theorem neg_div : ∀ a b : Int, (-a).div b = -(a.div b)
   | 0, n => by simp [Int.neg_zero]
   | succ m, (n:Nat) | -[m+1], 0 | -[m+1], -[n+1] => rfl
@@ -936,6 +947,7 @@ theorem fdiv_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : 0 ≤ a.fdiv b :
   match a, b, eq_ofNat_of_zero_le Ha, eq_ofNat_of_zero_le Hb with
   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => ofNat_fdiv .. ▸ ofNat_zero_le _
 
+unseal Nat.div in
 theorem fdiv_nonpos : ∀ {a b : Int}, 0 ≤ a → b ≤ 0 → a.fdiv b ≤ 0
   | 0, 0, _, _ | 0, -[_+1], _, _ | succ _, 0, _, _ | succ _, -[_+1], _, _ => ⟨_⟩
 
@@ -1063,9 +1075,9 @@ theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmo
 theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
   rw [bmod_def x n]
   split
-  case inl p =>
+  next p =>
     simp only [emod_add_bmod_congr]
-  case inr p =>
+  next p =>
     rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
     simp
 
@@ -1076,9 +1088,9 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
   rw [bmod_def x n]
   split
-  case inl p =>
+  next p =>
     simp
-  case inr p =>
+  next p =>
     rw [Int.sub_mul, Int.sub_eq_add_neg, ← Int.mul_neg]
     simp
 

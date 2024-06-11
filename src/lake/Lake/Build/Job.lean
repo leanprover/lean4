@@ -3,32 +3,167 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Trace
+import Lake.Util.Task
 import Lake.Build.Basic
 
 open System
 
 namespace Lake
 
+/-- Information on what this job did. -/
+inductive JobAction
+/-- No information about this job's action is available. -/
+| unknown
+/-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
+| replay
+/-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
+| fetch
+/-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
+| build
+deriving Inhabited, Repr, DecidableEq, Ord
+
+instance : LT JobAction := ltOfOrd
+instance : LE JobAction := leOfOrd
+instance : Min JobAction := minOfLe
+instance : Max JobAction := maxOfLe
+
+@[inline] def JobAction.merge (a b : JobAction) : JobAction :=
+  max a b
+
+def JobAction.verb (failed : Bool) : JobAction → String
+| .unknown => if failed then "Running" else "Ran"
+| .replay => if failed then "Replaying" else "Replayed"
+| .fetch => if failed then "Fetching" else "Fetched"
+| .build => if failed then "Building" else "Built"
+
+/-- Mutable state of a Lake job. -/
+structure JobState where
+  /-- The job's log. -/
+  log : Log := {}
+  /-- Tracks whether this job performed any significant build action. -/
+  action : JobAction := .unknown
+  deriving Inhabited
+
+/--
+Resets the job state after a checkpoint (e.g., registering the job).
+Preserves state that downstream jobs want to depend on while resetting
+job-local state that should not be inherited by downstream jobs.
+-/
+@[inline] def JobState.renew (_ : JobState) : JobState where
+  log := {}
+  action := .unknown
+
+def JobState.merge (a b : JobState) : JobState where
+  log := a.log ++ b.log
+  action := a.action.merge b.action
+
+@[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) :=
+  {s with log := f s.log}
+
+/-- The result of a Lake job. -/
+abbrev JobResult α := EResult Log.Pos JobState α
+
+/-- The `Task` of a Lake job. -/
+abbrev JobTask α := BaseIOTask (JobResult α)
+
+/--
+The monad of asynchronous Lake jobs.
+
+While this can be lifted into `FetchM`, job action should generally
+be wrapped into an asynchronous job (e.g., via `Job.async`) instead of being
+run directly in `FetchM`.
+-/
+abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
+
+instance [Pure m] : MonadLift LakeM (BuildT m) where
+  monadLift x := fun ctx => pure <| x.run ctx.toContext
+
+instance : MonadStateOf Log JobM where
+  get := (·.log) <$> get
+  set log := modify fun s => {s with log}
+  modifyGet f := modifyGet fun s => let (a, log) := f s.log; (a, {s with log})
+
+instance : MonadStateOf JobState JobM := inferInstance
+
+instance : MonadLog JobM := .ofMonadState
+instance : MonadError JobM := ELog.monadError
+instance : Alternative JobM := ELog.alternative
+instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
+
+/-- Record that this job is trying to perform some action. -/
+@[inline] def updateAction (action : JobAction) : JobM PUnit :=
+  modify fun s => {s with action := s.action.merge action}
+
+/-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
+abbrev SpawnM := BuildT BaseIO
+
+/-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
+@[deprecated SpawnM] abbrev SchedulerM := SpawnM
+
+/-- A Lake job. -/
+structure Job (α : Type u)  where
+  task : JobTask α
+  caption : String
+  deriving Inhabited
+
+structure BundledJob where
+  {type : Type u}
+  job : Job type
+  deriving Inhabited
+
+instance : CoeOut (Job α) BundledJob := ⟨.mk⟩
+
+hydrate_opaque_type OpaqueJob BundledJob
+
+abbrev OpaqueJob.type (job : OpaqueJob) : Type :=
+  job.get.type
+
+abbrev OpaqueJob.toJob (job : OpaqueJob) : Job job.type :=
+  job.get.job
+
+abbrev OpaqueJob.task (job : OpaqueJob) : JobTask job.type :=
+  job.toJob.task
+
+abbrev OpaqueJob.caption (job : OpaqueJob) : String :=
+  job.toJob.caption
+
+instance : CoeDep OpaqueJob job (Job job.type) := ⟨job.toJob⟩
+
 namespace Job
 
-@[inline] protected def pure (a : α) : Job α :=
-  {task := Task.pure (.ok a {})}
+@[inline] def ofTask (task : JobTask α) (caption := "") : Job α :=
+  {task, caption}
+
+@[inline] protected def error (log : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.error 0 {log}), caption}
+
+@[inline] protected def pure (a : α) (log : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.ok a {log}), caption}
 
 instance : Pure Job := ⟨Job.pure⟩
 instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 
-@[inline] protected def nop : Job Unit :=
-  pure ()
+@[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
+  .pure () log caption
 
-@[inline] protected def error (l : Log) : Job α :=
-  {task := Task.pure (.error 0 l)}
+/-- Sets the job's caption. -/
+@[inline] def setCaption (caption : String) (job : Job α) : Job α :=
+  {job with caption}
+
+/-- Sets the job's caption if the job's current caption is empty. -/
+@[inline] def setCaption? (caption : String) (job : Job α) : Job α :=
+  if job.caption.isEmpty then {job with caption} else job
 
 @[inline] def mapResult
   (f : JobResult α → JobResult β) (self : Job α)
   (prio := Task.Priority.default) (sync := false)
 : Job β :=
-  {task := self.task.map f prio sync}
+  {self with task := self.task.map f prio sync}
+
+@[inline] def bindTask [Monad m]
+  (f : JobTask α → m (JobTask β)) (self : Job α)
+: m (Job β) :=
+  return {self with task := ← f self.task}
 
 @[inline] protected def map
   (f : α → β) (self : Job α)
@@ -38,26 +173,21 @@ instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
 
 instance : Functor Job where map := Job.map
 
-@[inline] def clearLog (self : Job α) : Job α :=
+/--
+Resets the job's state after a checkpoint (e.g., registering the job).
+Preserves information that downstream jobs want to depend on while resetting
+job-local information that should not be inherited by downstream jobs.
+-/
+def renew (self : Job α) : Job α :=
   self.mapResult (sync := true) fun
-  | .ok a _ => .ok a {}
-  | .error .. => .error 0 {}
-
-@[inline] def attempt (self : Job α) : Job Bool :=
-  self.mapResult (sync := true) fun
-  | .error n l => .ok false (l.shrink n)
-  | .ok _ l => .ok true l
-
-@[inline] def attempt? (self : Job α) : Job (Option α) :=
-  self.mapResult (sync := true) fun
-  | .error n l => .ok none (l.shrink n)
-  | .ok a l => .ok (some a) l
+  | .ok a s => .ok a s.renew
+  | .error _ s => .error 0 s.renew
 
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
   (act : JobM α) (prio := Task.Priority.default)
-: SpawnM (Job α) := fun ctx => Job.mk <$> do
-  BaseIO.asTask (act ctx {}) prio
+: SpawnM (Job α) := fun ctx => .ofTask <$> do
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {}
 
 /-- Wait a the job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -76,8 +206,8 @@ Logs the job's log and throws if there was an error.
 -/
 @[inline] protected def await (self : Job α) : LogIO α := do
   match (← self.wait) with
-  | .error n l => l.replay; throw n
-  | .ok a l => l.replay; pure a
+  | .error n {log, ..} => log.replay; throw n
+  | .ok a {log, ..} => log.replay; pure a
 
 /--
 `let c ← a.bindSync b` asynchronously performs the action `b`
@@ -86,11 +216,10 @@ after the job `a` completes.
 @[inline] protected def bindSync
   (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := fun ctx => Job.mk <$> do
-  BaseIO.mapTask (t := self.task) (prio := prio) (sync := sync) fun r=>
-    match r with
-    | EResult.ok a l => f a ctx l
-    | EResult.error n l => return .error n l
+: SpawnM (Job β) := fun ctx => self.bindTask fun task => do
+  BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
+    | EResult.ok a s => (withLoggedIO (f a)) ctx s
+    | EResult.error n s => return .error n s
 
 /--
 `let c ← a.bindAsync b` asynchronously performs the action `b`
@@ -99,14 +228,13 @@ after the job `a` completes and then merges into the job produced by `b`.
 @[inline] protected def bindAsync
   (self : Job α) (f : α → SpawnM (Job β))
   (prio := Task.Priority.default) (sync := false)
-: SpawnM (Job β) := fun ctx => Job.mk <$> do
-  BaseIO.bindTask self.task (prio := prio) (sync := sync) fun
-    | .ok a l => do
+: SpawnM (Job β) := fun ctx => self.bindTask fun task => do
+  BaseIO.bindTask task (prio := prio) (sync := sync) fun
+    | .ok a sa => do
       let job ← f a ctx
-      if l.isEmpty then return job.task else
       return job.task.map (prio := prio) (sync := true) fun
-      | EResult.ok a l' => .ok a (l ++ l')
-      | EResult.error n l' => .error (l.size + n) (l ++ l')
+      | EResult.ok a sb => .ok a (sa.merge sb)
+      | EResult.error n sb => .error ⟨sa.log.size + n.val⟩ (sa.merge sb)
     | .error n l => return Task.pure (.error n l)
 
 /--
@@ -116,25 +244,14 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 @[inline] def zipWith
   (f : α → β → γ) (x : Job α) (y : Job β)
   (prio := Task.Priority.default) (sync := false)
-: BaseIO (Job γ) := Job.mk <$> do
-  BaseIO.bindTask x.task (prio := prio) (sync := true) fun rx =>
-  BaseIO.bindTask y.task (prio := prio) (sync := sync) fun ry =>
+: Job γ := Job.ofTask $
+  x.task.bind (prio := prio) (sync := true) fun rx =>
+  y.task.map (prio := prio) (sync := sync) fun ry =>
   match rx, ry with
-  | .ok a la, .ok b lb => return Task.pure (EResult.ok (f a b) (la ++ lb))
-  | rx, ry => return Task.pure (EResult.error 0 (rx.state ++ ry.state))
+  | .ok a sa, .ok b sb => .ok (f a b) (sa.merge sb)
+  | rx, ry => .error 0 (rx.state.merge ry.state)
 
 end Job
-
-/-- Register the produced job for the CLI progress UI.  -/
-@[inline] def withRegisterJob
-  [Monad m] [MonadReaderOf BuildContext m] [MonadLiftT BaseIO m]
-  (caption : String) (x : m (Job α))
-: m (Job α) := do
-  let job ← x
-  let ctx ← read
-  liftM (m := BaseIO) do
-  ctx.registeredJobs.modify (·.push (caption, discard job))
-  return job.clearLog
 
 /-- A Lake build job. -/
 abbrev BuildJob α := Job (α × BuildTrace)
@@ -157,16 +274,6 @@ namespace BuildJob
   mk <| pure (a, nilTrace)
 
 instance : Pure BuildJob := ⟨BuildJob.pure⟩
-
-@[inline] def attempt (self : BuildJob α) : BuildJob Bool :=
-  {task := self.toJob.task.map fun
-    | .error _ l => .ok (false, nilTrace) l
-    | .ok (_, t) l => .ok (true, t) l}
-
-@[inline] def attempt? (self : BuildJob α) : BuildJob (Option α) :=
-  {task := self.toJob.task.map fun
-    | .error _ l => .ok (none, nilTrace) l
-    | .ok (a, t) l => .ok (some a, t) l}
 
 @[inline] protected def map (f : α → β) (self : BuildJob α) : BuildJob β :=
   mk <| (fun (a,t) => (f a,t)) <$> self.toJob
@@ -192,25 +299,25 @@ instance : Functor BuildJob where
 @[inline] protected def wait? (self : BuildJob α) : BaseIO (Option α) :=
   (·.map (·.1)) <$> self.toJob.wait?
 
-def add (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob α) :=
-  mk <$> t1.toJob.zipWith (fun a _ => a) t2.toJob
+def add (t1 : BuildJob α) (t2 : BuildJob β) : BuildJob α :=
+  mk <| t1.toJob.zipWith (fun a _ => a) t2.toJob
 
-def mix (t1 : BuildJob α) (t2 : BuildJob β) : BaseIO (BuildJob Unit) :=
-  mk <$> t1.toJob.zipWith (fun (_,t) (_,t') => ((), mixTrace t t')) t2.toJob
+def mix (t1 : BuildJob α) (t2 : BuildJob β) : BuildJob Unit :=
+  mk <| t1.toJob.zipWith (fun (_,t) (_,t') => ((), mixTrace t t')) t2.toJob
 
-def mixList (jobs : List (BuildJob α)) : BaseIO (BuildJob Unit) := ofJob <$> do
-  jobs.foldrM (·.toJob.zipWith (fun (_,t') t => mixTrace t t') ·) (pure nilTrace)
+def mixList (jobs : List (BuildJob α)) : Id (BuildJob Unit) := ofJob $
+  jobs.foldr (·.toJob.zipWith (fun (_,t') t => mixTrace t t') ·) (pure nilTrace)
 
-def mixArray (jobs : Array (BuildJob α)) : BaseIO (BuildJob Unit) := ofJob <$> do
-  jobs.foldlM (·.zipWith (fun t (_,t') => mixTrace t t') ·.toJob) (pure nilTrace)
+def mixArray (jobs : Array (BuildJob α)) : Id (BuildJob Unit) := ofJob $
+  jobs.foldl (·.zipWith (fun t (_,t') => mixTrace t t') ·.toJob) (pure nilTrace)
 
-protected def zipWith
+def zipWith
   (f : α → β → γ) (t1 : BuildJob α) (t2 : BuildJob β)
-: BaseIO (BuildJob γ) :=
-  mk <$> t1.toJob.zipWith (fun (a,t) (b,t') => (f a b, mixTrace t t'))  t2.toJob
+: BuildJob γ :=
+  mk <| t1.toJob.zipWith (fun (a,t) (b,t') => (f a b, mixTrace t t')) t2.toJob
 
-def collectList (jobs : List (BuildJob α)) : BaseIO (BuildJob (List α)) :=
-  jobs.foldrM (BuildJob.zipWith List.cons) (pure [])
+def collectList (jobs : List (BuildJob α)) : Id (BuildJob (List α)) :=
+  return jobs.foldr (zipWith List.cons) (pure [])
 
-def collectArray (jobs : Array (BuildJob α)) : BaseIO (BuildJob (Array α)) :=
-  jobs.foldlM (BuildJob.zipWith Array.push) (pure #[])
+def collectArray (jobs : Array (BuildJob α)) : Id (BuildJob (Array α)) :=
+  return jobs.foldl (zipWith Array.push) (pure #[])

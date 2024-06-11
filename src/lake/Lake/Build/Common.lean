@@ -24,13 +24,23 @@ and will be rebuilt on different host platforms.
 -/
 def platformTrace := pureHash System.Platform.target
 
-/-- Check if the `info` is up-to-date by comparing `depTrace` with `traceFile`. -/
+/--
+Checks if the `info` is up-to-date by comparing `depTrace` with `traceFile`.
+If old mode is enabled (e.g., `--old`), uses the modification time of `oldTrace`
+as the point of comparison instead.
+-/
 @[specialize] def BuildTrace.checkUpToDate
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (traceFile : FilePath)
+  (oldTrace := depTrace)
 : JobM Bool := do
   if (← getIsOldMode) then
-    depTrace.checkAgainstTime info
+    if (← oldTrace.checkAgainstTime info) then
+      return true
+    else if let some hash ← Hash.load? traceFile then
+      depTrace.checkAgainstHash info hash
+    else
+      return false
   else
     depTrace.checkAgainstFile info traceFile
 
@@ -42,12 +52,14 @@ Returns whether `info` was already up-to-date.
 @[inline] def buildUnlessUpToDate?
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
+  (action : JobAction := .build) (oldTrace := depTrace)
 : JobM Bool := do
-  if (← depTrace.checkUpToDate info traceFile) then
+  if (← depTrace.checkUpToDate info traceFile oldTrace) then
     return true
   else if (← getNoBuild) then
     IO.Process.exit noBuildCode.toUInt8
   else
+    updateAction action
     build
     depTrace.writeToFile traceFile
     return false
@@ -59,8 +71,9 @@ of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
 @[inline] def buildUnlessUpToDate
   [CheckExists ι] [GetMTime ι] (info : ι)
   (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit)
+  (action : JobAction := .build) (oldTrace := depTrace)
 : JobM PUnit := do
-  discard <| buildUnlessUpToDate? info depTrace traceFile build
+  discard <| buildUnlessUpToDate? info depTrace traceFile build action oldTrace
 
 /-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
 def fetchFileTrace (file : FilePath) : JobM BuildTrace := do
@@ -82,27 +95,39 @@ def cacheFileHash (file : FilePath) : IO Hash := do
   IO.FS.writeFile hashFile hash.toString
   return hash
 
+/-- The build log file format. -/
+structure BuildLog where
+  depHash : Hash
+  log : Log
+  deriving ToJson, FromJson
+
 /--
 Replays the JSON log in `logFile` (if it exists).
 If the log file is malformed, logs a warning.
 -/
-def replayBuildLog (logFile : FilePath) : LogIO PUnit := do
+def replayBuildLog (logFile : FilePath) (depTrace : BuildTrace) : LogIO PUnit := do
   match (← IO.FS.readFile logFile |>.toBaseIO) with
   | .ok contents =>
     match Json.parse contents >>= fromJson? with
-    | .ok entries => Log.mk entries |>.replay
-    | .error e => logWarning s!"cached build log is corrupted: {e}"
+    | .ok {log, depHash : BuildLog} =>
+      if depTrace.hash == depHash then
+        log.replay
+    | .error e => logWarning s!"{logFile}: invalid build log: {e}"
   | .error (.noFileOrDirectory ..) => pure ()
-  | .error e => logWarning s!"failed to read cached build log: {e}"
+  | .error e => logWarning s!"{logFile}: read failed: {e}"
 
 /-- Saves the log produce by `build` as JSON to `logFile`. -/
-def cacheBuildLog (logFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  let iniSz ← getLogSize
-  build
-  let log ← getLog
-  let log := log.entries.extract iniSz log.entries.size
+def cacheBuildLog
+  (logFile : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
+: JobM PUnit := do
+  let iniPos ← getLogPos
+  let errPos? ← try build; pure none catch errPos => pure (some errPos)
+  let log := (← getLog).takeFrom iniPos
   unless log.isEmpty do
+    let log := {log, depHash := depTrace.hash : BuildLog}
     IO.FS.writeFile logFile (toJson log).pretty
+  if let some errPos := errPos? then
+    throw errPos
 
 /--
 Builds `file` using `build` unless it already exists and `depTrace` matches
@@ -115,14 +140,15 @@ For example, given `file := "foo.c"`, compares `depTrace` with that in
 `foo.c.trace` with the hash cache in `foo.c.hash` and the log cache in
 `foo.c.log.json`.
 -/
-def buildFileUnlessUpToDate (
-  file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
+def buildFileUnlessUpToDate
+  (file : FilePath) (depTrace : BuildTrace) (build : JobM PUnit)
 : JobM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   let logFile := FilePath.mk <| file.toString ++ ".log.json"
-  let build := cacheBuildLog logFile build
+  let build := cacheBuildLog logFile depTrace build
   if (← buildUnlessUpToDate? file depTrace traceFile build) then
-    replayBuildLog logFile
+    updateAction .replay
+    replayBuildLog logFile depTrace
     fetchFileTrace file
   else
     return .mk (← cacheFileHash file) (← getMTime file)

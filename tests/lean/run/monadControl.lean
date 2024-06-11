@@ -16,6 +16,13 @@ let a ← f'' "hello" do {
 modifyThe Nat Nat.succ;
 pure a
 
+/--
+info: started
+hello
+ended
+((Except.error "ERROR", "world"), 1011)
+-/
+#guard_msgs in
 #eval (((tst.run true).run "world").run 1000).run 11
 
 @[inline] def g {α} (s : String) (x : Nat → IO α) : IO α := do
@@ -33,4 +40,11 @@ let a ← g' "hello" fun x => do { let s ← getThe Nat; let ctx ← read; modif
 modifyThe Nat Nat.succ;
 pure a
 
+/--
+info: started
+hello
+ended
+((Except.ok (1015, true), "world"), 1016)
+-/
+#guard_msgs in
 #eval (((tst2.run true).run "world").run 1000).run 10

@@ -7,6 +7,11 @@ theorem ex2 : a + b < b + 1 + a + c := by
 theorem ex3 : a + (fun x => x) b < b + 1 + a + c := by
   simp_arith
 
+/--
+info: a b c : Nat
+⊢ (fun x => x) b ≤ b + c
+-/
+#guard_msgs in
 theorem ex4 : a + (fun x => x) b < b + 1 + a + c := by
   simp_arith (config := { beta := false })
   trace_state

@@ -1,145 +1,23 @@
 # Lean 4 releases
 
+This file contains release notes for each stable release.
+Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
+of each version.
+During development, drafts of future release notes appear in [`releases_drafts`](https://github.com/leanprover/lean4/tree/master/script).
+
 We intend to provide regular "minor version" releases of the Lean language at approximately monthly intervals.
 There is not yet a strong guarantee of backwards compatibility between versions,
 only an expectation that breaking changes will be documented in this file.
 
-This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
-Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
-of each version.
-
-v4.8.0 (development in progress)
+v4.9.0
 ---------
 
-* **Executables configured with `supportInterpreter := true` on Windows should now be run via `lake exe` to function properly.**
+Development in progress.
 
-  The way Lean is built on Windows has changed (see PR [#3601](https://github.com/leanprover/lean4/pull/3601)). As a result, Lake now dynamically links executables with `supportInterpreter := true` on Windows to `libleanshared.dll` and `libInit_shared.dll`. Therefore, such executables will not run unless those shared libraries are co-located with the executables or part of `PATH`. Running the executable via `lake exe` will ensure these libraries are part of `PATH`.
+v4.8.0
+---------
 
-  In a related change, the signature of the `nativeFacets` Lake configuration options has changed from a static `Array` to a function `(shouldExport : Bool) → Array`. See its docstring or Lake's [README](src/lake/README.md) for further details on the changed option.
-
-* Lean now generates an error if the type of a theorem is **not** a proposition.
-
-* Importing two different files containing proofs of the same theorem is no longer considered an error. This feature is particularly useful for theorems that are automatically generated on demand (e.g., equational theorems).
-
-* Functional induction principles.
-
-  Derived from the definition of a (possibly mutually) recursive function, a **functional induction principle** is created that is tailored to proofs about that function.
-
-  For example from:
-  ```
-  def ackermann : Nat → Nat → Nat
-    | 0, m => m + 1
-    | n+1, 0 => ackermann n 1
-    | n+1, m+1 => ackermann n (ackermann (n + 1) m)
-  ```
-  we get
-  ```
-  ackermann.induct (motive : Nat → Nat → Prop) (case1 : ∀ (m : Nat), motive 0 m)
-    (case2 : ∀ (n : Nat), motive n 1 → motive (Nat.succ n) 0)
-    (case3 : ∀ (n m : Nat), motive (n + 1) m → motive n (ackermann (n + 1) m) → motive (Nat.succ n) (Nat.succ m))
-    (x x : Nat) : motive x x
-  ```
-
-  It can be used in the `induction` tactic using the `using` syntax:
-  ```
-  induction n, m using ackermann.induct
-  ```
-
-* The termination checker now recognizes more recursion patterns without an
-  explicit `termination_by`. In particular the idiom of counting up to an upper
-  bound, as in
-  ```
-  def Array.sum (arr : Array Nat) (i acc : Nat) : Nat :=
-    if _ : i < arr.size then
-      Array.sum arr (i+1) (acc + arr[i])
-    else
-      acc
-  ```
-  is recognized without having to say `termination_by arr.size - i`.
-
-* Shorter instances names. There is a new algorithm for generating names for anonymous instances.
-  Across Std and Mathlib, the median ratio between lengths of new names and of old names is about 72%.
-  With the old algorithm, the longest name was 1660 characters, and now the longest name is 202 characters.
-  The new algorithm's 95th percentile name length is 67 characters, versus 278 for the old algorithm.
-  While the new algorithm produces names that are 1.2% less unique,
-  it avoids cross-project collisions by adding a module-based suffix
-  when it does not refer to declarations from the same "project" (modules that share the same root).
-  PR [#3089](https://github.com/leanprover/lean4/pull/3089).
-
-* Attribute `@[pp_using_anonymous_constructor]` to make structures pretty print like `⟨x, y, z⟩`
-  rather than `{a := x, b := y, c := z}`.
-  This attribute is applied to `Sigma`, `PSigma`, `PProd`, `Subtype`, `And`, and `Fin`.
-
-* Now structure instances pretty print with parent structures' fields inlined.
-  That is, if `B` extends `A`, then `{ toA := { x := 1 }, y := 2 }` now pretty prints as `{ x := 1, y := 2 }`.
-  Setting option `pp.structureInstances.flatten` to false turns this off.
-
-* Option `pp.structureProjections` is renamed to `pp.fieldNotation`, and there is now a suboption `pp.fieldNotation.generalized`
-  to enable pretty printing function applications using generalized field notation (defaults to true).
-  Field notation can be disabled on a function-by-function basis using the `@[pp_nodot]` attribute.
-
-* Added options `pp.mvars` (default: true) and `pp.mvars.withType` (default: false).
-  When `pp.mvars` is false, expression metavariables pretty print as `?_` and universe metavariables pretty print as `_`.
-  When `pp.mvars.withType` is true, expression metavariables pretty print with a type ascription.
-  These can be set when using `#guard_msgs` to make tests not depend on the particular names of metavariables.
-  [#3798](https://github.com/leanprover/lean4/pull/3798) and
-  [#3978](https://github.com/leanprover/lean4/pull/3978).
-
-* Hovers for terms in `match` expressions in the Infoview now reliably show the correct term.
-
-* Added `@[induction_eliminator]` and `@[cases_eliminator]` attributes to be able to define custom eliminators
-  for the `induction` and `cases` tactics, replacing the `@[eliminator]` attribute.
-  Gives custom eliminators for `Nat` so that `induction` and `cases` put goal states into terms of `0` and `n + 1`
-  rather than `Nat.zero` and `Nat.succ n`.
-  Added option `tactic.customEliminators` to control whether to use custom eliminators.
-  Added a hack for `rcases`/`rintro`/`obtain` to use the custom eliminator for `Nat`.
-  [#3629](https://github.com/leanprover/lean4/pull/3629),
-  [#3655](https://github.com/leanprover/lean4/pull/3655), and
-  [#3747](https://github.com/leanprover/lean4/pull/3747).
-
-* The `#guard_msgs` command now has options to change whitespace normalization and sensitivity to message ordering.
-  For example, `#guard_msgs (whitespace := lax) in cmd` collapses whitespace before checking messages,
-  and `#guard_msgs (ordering := sorted) in cmd` sorts the messages in lexicographic order before checking.
-  PR [#3883](https://github.com/leanprover/lean4/pull/3883).
-
-* The `#guard_msgs` command now supports showing a diff between the expected and actual outputs. This feature is currently
-  disabled by default, but can be enabled with `set_option guard_msgs.diff true`. Depending on user feedback, this option
-  may default to `true` in a future version of Lean.
-
-Breaking changes:
-
-* Automatically generated equational theorems are now named using suffix `.eq_<idx>` instead of `._eq_<idx>`, and `.def` instead of `._unfold`. Example:
-```
-def fact : Nat → Nat
-  | 0 => 1
-  | n+1 => (n+1) * fact n
-
-theorem ex : fact 0 = 1 := by unfold fact; decide
-
-#check fact.eq_1
--- fact.eq_1 : fact 0 = 1
-
-#check fact.eq_2
--- fact.eq_2 (n : Nat) : fact (Nat.succ n) = (n + 1) * fact n
-
-#check fact.def
-/-
-fact.def :
-  ∀ (x : Nat),
-    fact x =
-      match x with
-      | 0 => 1
-      | Nat.succ n => (n + 1) * fact n
--/
-```
-
-* The coercion from `String` to `Name` was removed. Previously, it was `Name.mkSimple`, which does not separate strings at dots, but experience showed that this is not always the desired coercion. For the previous behavior, manually insert a call to `Name.mkSimple`.
-
-* The `Subarray` fields `as`, `h₁` and `h₂` have been renamed to `array`, `start_le_stop`, and `stop_le_array_size`, respectively. This more closely follows standard Lean conventions. Deprecated aliases for the field projections were added; these will be removed in a future release.
-
-* The change to the instance name algorithm (described above) can break projects that made use of the auto-generated names.
-
-* `Option.toMonad` has been renamed to `Option.getM` and the unneeded `[Monad m]` instance argument has been removed.
+Release candidate, release notes will be copied from branch `releases/v4.8.0` once completed.
 
 v4.7.0
 ---------

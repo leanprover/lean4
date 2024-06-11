@@ -133,7 +133,8 @@ where
     |>.insert ``externLibAttr
     |>.insert ``targetAttr
     |>.insert ``defaultTargetAttr
-    |>.insert ``testRunnerAttr
+    |>.insert ``testDriverAttr
+    |>.insert ``lintDriverAttr
     |>.insert ``moduleFacetAttr
     |>.insert ``packageFacetAttr
     |>.insert ``libraryFacetAttr
@@ -141,9 +142,6 @@ where
     |>.insert `Lean.docStringExt
     -- IR Extension (for constant evaluation)
     |>.insert ``IR.declMapExt
-
-instance : ToJson Hash := ⟨(toJson ·.val)⟩
-instance : FromJson Hash := ⟨((⟨·⟩) <$> fromJson? ·)⟩
 
 structure ConfigTrace where
   platform : String

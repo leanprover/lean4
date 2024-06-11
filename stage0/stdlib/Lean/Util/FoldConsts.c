@@ -647,6 +647,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_ConstantInfo_type(x_1);
 x_3 = l_Lean_Expr_getUsedConstantsAsSet(x_2);
+lean_inc(x_1);
 x_4 = l_Lean_ConstantInfo_value_x3f(x_1);
 if (lean_obj_tag(x_4) == 0)
 {

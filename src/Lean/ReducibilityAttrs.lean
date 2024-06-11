@@ -16,6 +16,11 @@ inductive ReducibilityStatus where
   | reducible | semireducible | irreducible
   deriving Inhabited, Repr, BEq
 
+def ReducibilityStatus.toAttrString : ReducibilityStatus → String
+  | .reducible => "[reducible]"
+  | .irreducible => "[irreducible]"
+  | .semireducible => "[semireducible]"
+
 builtin_initialize reducibilityCoreExt : PersistentEnvExtension (Name × ReducibilityStatus) (Name × ReducibilityStatus) (NameMap ReducibilityStatus) ←
   registerPersistentEnvExtension {
     name            := `reducibilityCore
@@ -48,7 +53,7 @@ def getReducibilityStatusCore (env : Environment) (declName : Name) : Reducibili
     | none => .semireducible
   | none => (reducibilityCoreExt.getState env).find? declName |>.getD .semireducible
 
-def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
+private def setReducibilityStatusCore (env : Environment) (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) (currNamespace : Name) : Environment :=
   if attrKind matches .global then
     match env.getModuleIdxFor? declName with
     | some _ =>
@@ -65,15 +70,75 @@ def setReducibilityStatusCore (env : Environment) (declName : Name) (status : Re
 private def setReducibilityStatusImp (env : Environment) (declName : Name) (status : ReducibilityStatus) : Environment :=
   setReducibilityStatusCore env declName status .global .anonymous
 
+/-
+TODO: it would be great if we could distinguish between the following two situations
+
+1-
+```
+@[reducible] def foo := ...
+```
+
+2-
+```
+def foo := ...
+...
+attribute [reducible] foo
+```
+
+Reason: the second one is problematic if user has add simp theorems or TC instances that include `foo`.
+Recall that the discrimination trees unfold `[reducible]` declarations while indexing new entries.
+-/
+
+register_builtin_option allowUnsafeReducibility : Bool := {
+  defValue := false
+  descr    := "enables users to modify the reducibility settings for declarations even when such changes are deemed potentially hazardous. For example, `simp` and type class resolution maintain term indices where reducible declarations are expanded."
+}
+
+private def validate (declName : Name) (status : ReducibilityStatus) (attrKind : AttributeKind) : CoreM Unit := do
+  let suffix := "use `set_option allowUnsafeReducibility true` to override reducibility status validation"
+  unless allowUnsafeReducibility.get (← getOptions) do
+    match (← getConstInfo declName) with
+    | .defnInfo _ =>
+      let statusOld := getReducibilityStatusCore (← getEnv) declName
+      match attrKind with
+      | .scoped =>
+        throwError "failed to set reducibility status for `{declName}`, the `scoped` modifier is not recommended for this kind of attribute\n{suffix}"
+      | .global =>
+        if (← getEnv).getModuleIdxFor? declName matches some _ then
+          throwError "failed to set reducibility status, `{declName}` has not been defined in this file, consider using the `local` modifier\n{suffix}"
+        match status with
+        | .reducible =>
+          unless statusOld matches .semireducible do
+            throwError "failed to set `[reducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`\n{suffix}"
+        | .irreducible =>
+          unless statusOld matches .semireducible do
+            throwError "failed to set `[irreducible]`, `{declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`\n{suffix}"
+        | .semireducible =>
+          throwError "failed to set `[semireducible]` for `{declName}`, declarations are `[semireducible]` by default\n{suffix}"
+      | .local =>
+        match status with
+        | .reducible =>
+          throwError "failed to set `[local reducible]` for `{declName}`, recall that `[reducible]` affects the term indexing datastructures used by `simp` and type class resolution\n{suffix}"
+        | .irreducible =>
+          unless statusOld matches .semireducible do
+            throwError "failed to set `[local irreducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected\n{suffix}"
+        | .semireducible =>
+          unless statusOld matches .irreducible do
+            throwError "failed to set `[local semireducible]`, `{declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected\n{suffix}"
+    | _ => throwError "failed to set reducibility status, `{declName}` is not a definition\n{suffix}"
+
+private def addAttr (status : ReducibilityStatus) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+  Attribute.Builtin.ensureNoArgs stx
+  validate declName status attrKind
+  let ns ← getCurrNamespace
+  modifyEnv fun env => setReducibilityStatusCore env declName status attrKind ns
+
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `irreducible
     descr           := "irreducible declaration"
-    add             := fun declName stx attrKind => do
-      Attribute.Builtin.ensureNoArgs stx
-      let ns ← getCurrNamespace
-      modifyEnv fun env => setReducibilityStatusCore env declName .irreducible attrKind ns
+    add             := addAttr .irreducible
     applicationTime := .afterTypeChecking
  }
 
@@ -82,10 +147,7 @@ builtin_initialize
     ref             := by exact decl_name%
     name            := `reducible
     descr           := "reducible declaration"
-    add             := fun declName stx attrKind => do
-      Attribute.Builtin.ensureNoArgs stx
-      let ns ← getCurrNamespace
-      modifyEnv fun env => setReducibilityStatusCore env declName .reducible attrKind ns
+    add             := addAttr .reducible
     applicationTime := .afterTypeChecking
  }
 
@@ -94,10 +156,7 @@ builtin_initialize
     ref             := by exact decl_name%
     name            := `semireducible
     descr           := "semireducible declaration"
-    add             := fun declName stx attrKind => do
-      Attribute.Builtin.ensureNoArgs stx
-      let ns ← getCurrNamespace
-      modifyEnv fun env => setReducibilityStatusCore env declName .reducible attrKind ns
+    add             := addAttr .semireducible
     applicationTime := .afterTypeChecking
  }
 
@@ -124,5 +183,10 @@ def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getReducibilityStatus declName) with
   | .irreducible => return true
   | _ => return false
+
+/-- Set the given declaration as `[irreducible]` -/
+def setIrreducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
+  setReducibilityStatus declName ReducibilityStatus.irreducible
+
 
 end Lean

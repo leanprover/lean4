@@ -12,6 +12,7 @@ namespace lean {
 void init_thread_heap();
 void * alloc(size_t sz);
 void dealloc(void * o, size_t sz);
+void add_heartbeats(uint64_t count);
 uint64_t get_num_heartbeats();
 void initialize_alloc();
 void finalize_alloc();

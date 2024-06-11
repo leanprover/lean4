@@ -28,15 +28,25 @@ inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
   /-- An interactive goal display. -/
   | goal : InteractiveGoal → MsgEmbed
-  /-- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
-  the user to expand sub-traces interactively. -/
+  /-- A widget instance.
+
+  `alt` is a fallback rendering of the widget
+  that can be shown in standard, non-interactive LSP diagnostics,
+  as well as when user widgets are not supported by the client. -/
+  | widget (wi : Widget.WidgetInstance) (alt : TaggedText MsgEmbed)
+  /-- Some messages (in particular, traces) are too costly to print eagerly.
+  Instead, we allow the user to expand sub-traces interactively. -/
   | trace (indent : Nat) (cls : Name) (msg : TaggedText MsgEmbed) (collapsed : Bool)
       (children : StrictOrLazy (Array (TaggedText MsgEmbed)) (WithRpcRef LazyTraceChildren))
   deriving Inhabited, RpcEncodable
 
-/-- The `message` field is the text of a message possibly containing interactive *embeds* of type
-`MsgEmbed`. We maintain the invariant that embeds are stored in `.tag`s with empty `.text` subtrees,
-i.e. `.tag embed (.text "")`, because a `MsgEmbed` display involve more than just text. -/
+/-- The `message` field is the text of a message
+possibly containing interactive *embeds* of type `MsgEmbed`.
+We maintain the invariant that embeds are stored in `.tag`s with empty `.text` subtrees,
+i.e., `.tag embed (.text "")`.
+
+Client-side display algorithms render tags in a custom way,
+ignoring the nested text. -/
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
 
 deriving instance RpcEncodable for Lsp.DiagnosticWith
@@ -44,14 +54,15 @@ deriving instance RpcEncodable for Lsp.DiagnosticWith
 namespace InteractiveDiagnostic
 open MsgEmbed
 
-def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
+partial def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
   { diag with message := prettyTt diag.message }
 where
   prettyTt (tt : TaggedText MsgEmbed) : String :=
     let tt : TaggedText MsgEmbed := tt.rewrite fun
-      | .expr tt,  _ => .text tt.stripTags
-      | .goal g,   _ => .text (toString g.pretty)
-      | .trace .., _ => .text "(trace)"
+      | .expr tt,      _ => .text tt.stripTags
+      | .goal g,       _ => .text (toString g.pretty)
+      | .widget _ alt, _ => .text $ prettyTt alt
+      | .trace ..,     _ => .text "(trace)"
     tt.stripTags
 
 /-- Compares interactive diagnostics modulo `TaggedText` tags and traces. -/
@@ -87,6 +98,8 @@ private inductive EmbedFmt
   | code (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
   /-- Nested text is ignored. -/
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
+  /-- Nested text is ignored. -/
+  | widget (wi : WidgetInstance) (alt : Format)
   /-- Nested text is ignored. -/
   | trace (cls : Name) (msg : Format) (collapsed : Bool)
     (children : StrictOrLazy (Array Format) (Array MessageData))
@@ -128,22 +141,23 @@ where
   }
 
   go (nCtx : NamingContext) : Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,         ofFormat fmt             => withIgnoreTags fmt
-  | none,      ofPPFormat fmt           => (·.fmt) <$> fmt.pp none
-  | some ctx,  ofPPFormat fmt           => do
-    let ⟨fmt, infos⟩ ← fmt.pp (mkPPContext nCtx ctx)
+  | none,     ofFormatWithInfos ⟨fmt, _⟩ => withIgnoreTags fmt
+  | some ctx, ofFormatWithInfos ⟨fmt, infos⟩ => do
     let t ← pushEmbed <| EmbedFmt.code (mkContextInfo nCtx ctx) infos
     return Format.tag t fmt
-  | none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
-  | some ctx,  ofGoal mvarId            =>
-    return .tag (← pushEmbed (.goal (mkContextInfo nCtx ctx) ctx.lctx mvarId)) "\n"
-  | _,         withContext ctx d        => go nCtx ctx d
-  | ctx,       withNamingContext nCtx d => go nCtx ctx d
-  | ctx,       tagged _ d               => go nCtx ctx d
-  | ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
-  | ctx,       compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
-  | ctx,       group d                  => Format.group <$> go nCtx ctx d
-  | ctx,       .trace data header children => do
+  | none,     ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
+  | some ctx, ofGoal mvarId            =>
+    return .tag (← pushEmbed (.goal (mkContextInfo nCtx ctx) ctx.lctx mvarId)) default
+  | ctx,       ofWidget wi d            => do
+    let t ← pushEmbed <| EmbedFmt.widget wi (← go nCtx ctx d)
+    return Format.tag t default
+  | _,        withContext ctx d        => go nCtx ctx d
+  | ctx,      withNamingContext nCtx d => go nCtx ctx d
+  | ctx,      tagged _ d               => go nCtx ctx d
+  | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d
+  | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
+  | ctx,      group d                  => Format.group <$> go nCtx ctx d
+  | ctx,      .trace data header children => do
     let mut header := (← go nCtx ctx header).nest 4
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"
@@ -161,7 +175,12 @@ where
       else
         pure (.strict (← children.mapM (go nCtx ctx)))
     let e := .trace data.cls header data.collapsed nodes
-    return .tag (← pushEmbed e) ".\n"
+    return .tag (← pushEmbed e) default
+  | ctx?,     ofLazy f _          => do
+    let dyn ← f (ctx?.map (mkPPContext nCtx))
+    let some msg := dyn.get? MessageData
+      | throw <| IO.userError "MessageData.ofLazy: expected MessageData in Dynamic"
+    go nCtx ctx? msg
 
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
@@ -185,6 +204,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
         | .goal ctx lctx g =>
           ctx.runMetaM lctx do
             return .tag (.goal (← goalToInteractive g)) default
+        | .widget wi alt =>
+          return .tag (.widget wi (← fmtToTT alt col)) default
         | .trace cls msg collapsed children => do
           let col := col + tt.stripTags.length - 2
           let children ←

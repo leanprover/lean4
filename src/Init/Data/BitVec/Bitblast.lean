@@ -159,4 +159,80 @@ theorem add_eq_adc (w : Nat) (x y : BitVec w) : x + y = (adc x y false).snd := b
 theorem allOnes_sub_eq_not (x : BitVec w) : allOnes w - x = ~~~x := by
   rw [← add_not_self x, BitVec.add_comm, add_sub_cancel]
 
+/-! ### Negation -/
+
+theorem bit_not_testBit (x : BitVec w) (i : Fin w) :
+  getLsb (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) i.val = !(getLsb x i.val) := by
+  apply iunfoldr_getLsb (fun _ => ()) i (by simp)
+
+theorem bit_not_add_self (x : BitVec w) :
+  ((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd + x  = -1 := by
+  simp only [add_eq_adc]
+  apply iunfoldr_replace_snd (fun _ => false) (-1) false rfl
+  intro i; simp only [ BitVec.not, adcb, testBit_toNat]
+  rw [iunfoldr_replace_snd (fun _ => ()) (((iunfoldr (fun i c => (c, !(x.getLsb i)))) ()).snd)]
+  <;> simp [bit_not_testBit, negOne_eq_allOnes, getLsb_allOnes]
+
+theorem bit_not_eq_not (x : BitVec w) :
+  ((iunfoldr (fun i c => (c, !(x.getLsb i)))) ()).snd = ~~~ x := by
+  simp [←allOnes_sub_eq_not, BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), ←negOne_eq_allOnes]
+
+theorem bit_neg_eq_neg (x : BitVec w) : -x = (adc (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) (BitVec.ofNat w 1) false).snd:= by
+  simp only [← add_eq_adc]
+  rw [iunfoldr_replace_snd ((fun _ => ())) (((iunfoldr (fun (i : Fin w) c => (c, !(x.getLsb i)))) ()).snd) _ rfl]
+  · rw [BitVec.eq_sub_iff_add_eq.mpr (bit_not_add_self x), sub_toAdd, BitVec.add_comm _ (-x)]
+    simp [← sub_toAdd, BitVec.sub_add_cancel]
+  · simp [bit_not_testBit x _]
+
+/-! ### Inequalities (le / lt) -/
+
+theorem ult_eq_not_carry (x y : BitVec w) : x.ult y = !carry w x (~~~y) true := by
+  simp only [BitVec.ult, carry, toNat_mod_cancel, toNat_not, toNat_true, ge_iff_le, ← decide_not,
+    Nat.not_le, decide_eq_decide]
+  rw [Nat.mod_eq_of_lt (by omega)]
+  omega
+
+theorem ule_eq_not_ult (x y : BitVec w) : x.ule y = !y.ult x := by
+  simp [BitVec.ule, BitVec.ult, ← decide_not]
+
+theorem ule_eq_carry (x y : BitVec w) : x.ule y = carry w y (~~~x) true := by
+  simp [ule_eq_not_ult, ult_eq_not_carry]
+
+/-- If two bitvectors have the same `msb`, then signed and unsigned comparisons coincide -/
+theorem slt_eq_ult_of_msb_eq {x y : BitVec w} (h : x.msb = y.msb) :
+    x.slt y = x.ult y := by
+  simp only [BitVec.slt, toInt_eq_msb_cond, BitVec.ult, decide_eq_decide, h]
+  cases y.msb <;> simp
+
+/-- If two bitvectors have different `msb`s, then unsigned comparison is determined by this bit -/
+theorem ult_eq_msb_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
+    x.ult y = y.msb := by
+  simp only [BitVec.ult, msb_eq_decide, ne_eq, decide_eq_decide] at *
+  omega
+
+/-- If two bitvectors have different `msb`s, then signed and unsigned comparisons are opposites -/
+theorem slt_eq_not_ult_of_msb_neq {x y : BitVec w} (h : x.msb ≠ y.msb) :
+    x.slt y = !x.ult y := by
+  simp only [BitVec.slt, toInt_eq_msb_cond, Bool.eq_not_of_ne h, ult_eq_msb_of_msb_neq h]
+  cases y.msb <;> (simp; omega)
+
+theorem slt_eq_ult (x y : BitVec w) :
+    x.slt y = (x.msb != y.msb).xor (x.ult y) := by
+  by_cases h : x.msb = y.msb
+  · simp [h, slt_eq_ult_of_msb_eq]
+  · have h' : x.msb != y.msb := by simp_all
+    simp [slt_eq_not_ult_of_msb_neq h, h']
+
+theorem slt_eq_not_carry (x y : BitVec w) :
+    x.slt y = (x.msb == y.msb).xor (carry w x (~~~y) true) := by
+  simp only [slt_eq_ult, bne, ult_eq_not_carry]
+  cases x.msb == y.msb <;> simp
+
+theorem sle_eq_not_slt (x y : BitVec w) : x.sle y = !y.slt x := by
+  simp only [BitVec.sle, BitVec.slt, ← decide_not, decide_eq_decide]; omega
+
+theorem sle_eq_carry (x y : BitVec w) :
+    x.sle y = !((x.msb == y.msb).xor (carry w y (~~~x) true)) := by
+  rw [sle_eq_not_slt, slt_eq_not_carry, beq_comm]
+
 end BitVec

@@ -89,8 +89,10 @@ def LeanConfig.addDeclFields (cfg : LeanConfig) (fs : Array DeclField) : Array D
 @[inline] def mkDeclValWhere? (fields : Array DeclField) : Option (TSyntax ``declValWhere) :=
   if fields.isEmpty then none else Unhygienic.run `(declValWhere|where $fields*)
 
-def PackageConfig.mkSyntax (cfg : PackageConfig) : PackageDecl := Unhygienic.run do
-  let declVal? := mkDeclValWhere? <|Array.empty
+def PackageConfig.mkSyntax (cfg : PackageConfig)
+  (testDriver := cfg.testDriver) (lintDriver := cfg.lintDriver)
+  : PackageDecl := Unhygienic.run do
+  let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `precompileModules cfg.precompileModules false
     |> addDeclFieldD `moreGlobalServerArgs cfg.moreGlobalServerArgs #[]
     |> addDeclFieldD `srcDir cfg.srcDir "."
@@ -102,6 +104,10 @@ def PackageConfig.mkSyntax (cfg : PackageConfig) : PackageDecl := Unhygienic.run
     |> addDeclField? `releaseRepo (cfg.releaseRepo <|> cfg.releaseRepo?)
     |> addDeclFieldD `buildArchive (cfg.buildArchive?.getD cfg.buildArchive) (defaultBuildArchive cfg.name)
     |> addDeclFieldD `preferReleaseBuild cfg.preferReleaseBuild false
+    |> addDeclFieldD `testDriver testDriver ""
+    |> addDeclFieldD `testDriverArgs cfg.testDriverArgs #[]
+    |> addDeclFieldD `lintDriver lintDriver ""
+    |> addDeclFieldD `lintDriverArgs cfg.lintDriverArgs #[]
     |> cfg.toWorkspaceConfig.addDeclFields
     |> cfg.toLeanConfig.addDeclFields
   `(packageDecl|package $(mkIdent cfg.name) $[$declVal?]?)
@@ -145,7 +151,7 @@ protected def LeanLibConfig.mkSyntax
   `(leanLibDecl|$[$attrs?:attributes]? lean_lib $(mkIdent cfg.name) $[$declVal?]?)
 
 protected def LeanExeConfig.mkSyntax
-  (cfg : LeanExeConfig) (defaultTarget := false) (testRunner := false)
+  (cfg : LeanExeConfig) (defaultTarget := false)
 : LeanExeDecl := Unhygienic.run do
   let declVal? := mkDeclValWhere? <| Array.empty
     |> addDeclFieldD `srcDir cfg.srcDir "."
@@ -153,11 +159,7 @@ protected def LeanExeConfig.mkSyntax
     |> addDeclFieldD `exeName cfg.exeName (cfg.name.toStringWithSep "-" (escape := false))
     |> addDeclFieldD `supportInterpreter cfg.supportInterpreter false
     |> cfg.toLeanConfig.addDeclFields
-  let attrs? ← id do
-    let mut attrs := #[]
-    if testRunner then attrs := attrs.push <| ← `(Term.attrInstance|test_runner)
-    if defaultTarget then attrs := attrs.push <| ← `(Term.attrInstance|default_target)
-    if attrs.isEmpty then pure none else some <$> `(Term.attributes|@[$attrs,*])
+    let attrs? ← if defaultTarget then some <$> `(Term.attributes|@[default_target]) else pure none
   `(leanExeDecl|$[$attrs?:attributes]? lean_exe $(mkIdent cfg.name) $[$declVal?]?)
 
 protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic.run do
@@ -175,14 +177,13 @@ protected def Dependency.mkSyntax (cfg : Dependency) : RequireDecl := Unhygienic
 
 /-- Create a Lean module that encodes the declarative configuration of the package. -/
 def Package.mkLeanConfig (pkg : Package) : TSyntax ``module := Unhygienic.run do
-  let testRunner := pkg.testRunner
   let defaultTargets := pkg.defaultTargets.foldl NameSet.insert NameSet.empty
-  let pkgConfig := pkg.config.mkSyntax
+  let pkgConfig := pkg.config.mkSyntax pkg.testDriver pkg.lintDriver
   let requires := pkg.depConfigs.map (·.mkSyntax)
   let leanLibs := pkg.leanLibConfigs.toArray.map fun cfg =>
     cfg.mkSyntax (defaultTargets.contains cfg.name)
   let leanExes := pkg.leanExeConfigs.toArray.map fun cfg =>
-    cfg.mkSyntax (defaultTargets.contains cfg.name) (cfg.name == testRunner)
+    cfg.mkSyntax (defaultTargets.contains cfg.name)
   `(module|
   import $(mkIdent `Lake)
   open $(mkIdent `System) $(mkIdent `Lake) $(mkIdent `DSL)

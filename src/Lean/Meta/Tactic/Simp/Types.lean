@@ -111,6 +111,13 @@ structure Diagnostics where
   triedThmCounter : PHashMap Origin Nat := {}
   /-- Number of times each congr theorem has been tried. -/
   congrThmCounter : PHashMap Name Nat := {}
+  /--
+  When using `Simp.Config.index := false`, and `set_option diagnostics true`,
+  for every theorem used by `simp`, we check whether the theorem would be
+  also applied if `index := true`, and we store it here if it would not have
+  been tried.
+  -/
+  thmsWithBadKeys : PArray SimpTheorem := {}
   deriving Inhabited
 
 structure State where
@@ -123,6 +130,7 @@ structure State where
 structure Stats where
   usedTheorems : UsedSimps := {}
   diag : Diagnostics := {}
+  deriving Inhabited
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 
@@ -324,14 +332,14 @@ Save current cache, reset it, execute `x`, and then restore original cache.
   withReader (fun r => { MethodsRef.toMethods r with discharge?, wellBehavedDischarge }.toMethodsRef) x
 
 def recordTriedSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := triedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter, triedThmCounter := triedThmCounter.insert thmId cNew, congrThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.triedThmCounter.find? thmId then c + 1 else 1
+    { s with triedThmCounter := s.triedThmCounter.insert thmId cNew }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := usedThmCounter.find? thmId then c + 1 else 1
-    { usedThmCounter := usedThmCounter.insert thmId cNew, triedThmCounter, congrThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.usedThmCounter.find? thmId then c + 1 else 1
+    { s with usedThmCounter := s.usedThmCounter.insert thmId cNew }
   /-
   If `thmId` is an equational theorem (e.g., `foo.eq_1`), we should record `foo` instead.
   See issue #3547.
@@ -352,9 +360,17 @@ def recordSimpTheorem (thmId : Origin) : SimpM Unit := do
     { s with usedTheorems := s.usedTheorems.insert thmId n }
 
 def recordCongrTheorem (declName : Name) : SimpM Unit := do
-  modifyDiag fun { usedThmCounter, triedThmCounter, congrThmCounter } =>
-    let cNew := if let some c := congrThmCounter.find? declName then c + 1 else 1
-    { congrThmCounter := congrThmCounter.insert declName cNew, triedThmCounter, usedThmCounter }
+  modifyDiag fun s =>
+    let cNew := if let some c := s.congrThmCounter.find? declName then c + 1 else 1
+    { s with congrThmCounter := s.congrThmCounter.insert declName cNew }
+
+def recordTheoremWithBadKeys (thm : SimpTheorem) : SimpM Unit := do
+  modifyDiag fun s =>
+    -- check whether it is already there
+    if unsafe s.thmsWithBadKeys.any fun thm' => ptrEq thm thm' then
+      s
+    else
+      { s with thmsWithBadKeys := s.thmsWithBadKeys.push thm }
 
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with
@@ -506,7 +522,11 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
         i := i + 1
         continue
     match kind with
-    | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
+    | CongrArgKind.fixed =>
+      let argNew ← dsimp arg
+      if arg != argNew then
+        simplified := true
+      argsNew := argsNew.push argNew
     | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
     | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
     | CongrArgKind.eq =>
@@ -542,19 +562,26 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
     equal using `TransparencyMode.reducible` (`Nat.pred` is not reducible).
     Thus, we decided to return here only if the auto generated congruence theorem does not introduce casts.
   -/
-  if !hasProof && !hasCast then return some { expr := mkAppN f argsNew }
+  if !hasProof && !hasCast then
+    return some { expr := mkAppN f argsNew }
   let mut proof := cgrThm.proof
   let mut type  := cgrThm.type
   let mut j := 0 -- index at argResults
   let mut subst := #[]
-  for arg in args, kind in cgrThm.argKinds do
+  for arg in args, argNew in argsNew, kind in cgrThm.argKinds do
     proof := mkApp proof arg
-    subst := subst.push arg
     type := type.bindingBody!
     match kind with
-    | CongrArgKind.fixed => pure ()
-    | CongrArgKind.cast  => pure ()
+    | CongrArgKind.fixed =>
+      /-
+      We use `argNew` here because `dsimp` may have simplified the fixed argument.
+      See issue #4339
+      -/
+      subst := subst.push argNew
+    | CongrArgKind.cast  =>
+      subst := subst.push arg
     | CongrArgKind.subsingletonInst =>
+      subst := subst.push arg
       let clsNew := type.bindingDomain!.instantiateRev subst
       let instNew ← if (← isDefEq (← inferType arg) clsNew) then
         pure arg
@@ -568,6 +595,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
       subst := subst.push instNew
       type := type.bindingBody!
     | CongrArgKind.eq =>
+      subst := subst.push arg
       let argResult := argResults[j]!
       let argProof ← argResult.getProof' arg
       j := j + 1

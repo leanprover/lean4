@@ -368,7 +368,7 @@ for new reflexive relations.
 Remark: `rfl` is an extensible tactic. We later add `macro_rules` to try different
 reflexivity theorems (e.g., `Iff.rfl`).
 -/
-macro "rfl" : tactic => `(tactic| fail "The rfl tactic failed. Possible reasons:
+macro "rfl" : tactic => `(tactic| case' _ => fail "The rfl tactic failed. Possible reasons:
 - The goal is not a reflexive relation (neither `=` nor a relation with a @[refl] lemma).
 - The arguments of the relation are not equal.
 Try using the reflexivitiy lemma for your relation explicitly, e.g. `exact Eq.rfl`.")
@@ -699,7 +699,37 @@ The `have` tactic is for adding hypotheses to the local context of the main goal
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "have " d:haveDecl : tactic => `(tactic| refine_lift have $d:haveDecl; ?_)
+syntax "have " haveDecl : tactic
+macro_rules
+  -- special case: when given a nested `by` block, move it outside of the `refine` to enable
+  -- incrementality
+  | `(tactic| have%$haveTk $id:haveId $bs* : $type := by%$byTk $tacs*) => do
+    /-
+    We want to create the syntax
+    ```
+    focus
+      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      case body => $tacs*
+    ```
+    However, we need to be very careful with the syntax infos involved:
+    * We want most infos up to `tacs` to be independent of changes inside it so that incrementality
+      is not prematurely disabled; we use the `have` and then the `by` token as the reference for
+      this. Note that if we did nothing, the reference would be the entire `have` input and so any
+      change to `tacs` would change every token synthesized below.
+    * For the single node of the `case` body, we *should not* change the ref as this makes sure the
+      entire tactic block is included in any "unsaved goals" message (which is emitted after
+      execution of all nested tactics so it is indeed safe for `evalCase` to ignore it for
+      incrementality).
+    * Even after setting the ref, we still need a `with_annotate_state` to show the correct tactic
+      state on `by` as the synthetic info derived from the ref is ignored for this purpose.
+    -/
+    let tac ← Lean.withRef byTk `(tactic| with_annotate_state $byTk ($tacs*))
+    let tac ← `(tacticSeq| $tac:tactic)
+    let tac ← Lean.withRef byTk `(tactic| case body => $(.mk tac):tacticSeq)
+    Lean.withRef haveTk `(tactic| focus
+      refine no_implicit_lambda% (have $id:haveId $bs* : $type := ?body; ?_)
+      $tac)
+  | `(tactic| have $d:haveDecl) => `(tactic| refine_lift have $d:haveDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -833,13 +863,40 @@ syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)?
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 
 /--
-`repeat tac` repeatedly applies `tac` to the main goal until it fails.
-That is, if `tac` produces multiple subgoals, only subgoals up to the first failure will be visited.
-The `Std` library provides `repeat'` which repeats separately in each subgoal.
+`repeat tac` repeatedly applies `tac` so long as it succeeds.
+The tactic `tac` may be a tactic sequence, and if `tac` fails at any point in its execution,
+`repeat` will revert any partial changes that `tac` made to the tactic state.
+
+The tactic `tac` should eventually fail, otherwise `repeat tac` will run indefinitely.
+
+See also:
+* `try tac` is like `repeat tac` but will apply `tac` at most once.
+* `repeat' tac` recursively applies `tac` to each goal.
+* `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
 syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
+
+/--
+`repeat' tac` recursively applies `tac` on all of the goals so long as it succeeds.
+That is to say, if `tac` produces multiple subgoals, then `repeat' tac` is applied to each of them.
+
+See also:
+* `repeat tac` simply repeatedly applies `tac`.
+* `repeat1' tac` is `repeat' tac` but requires that `tac` succeed for some goal at least once.
+-/
+syntax (name := repeat') "repeat' " tacticSeq : tactic
+
+/--
+`repeat1' tac` recursively applies to `tac` on all of the goals so long as it succeeds,
+but `repeat1' tac` fails if `tac` succeeds on none of the initial goals.
+
+See also:
+* `repeat tac` simply applies `tac` repeatedly.
+* `repeat' tac` is like `repeat1' tac` but it does not require that `tac` succeed at least once.
+-/
+syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 
 /--
 `trivial` tries different simple tactics (e.g., `rfl`, `contradiction`, ...)
@@ -1040,18 +1097,6 @@ h : β
 This can be used to simulate the `specialize` and `apply at` tactics of Coq.
 -/
 syntax (name := replace) "replace" haveDecl : tactic
-
-/--
-`repeat' tac` runs `tac` on all of the goals to produce a new list of goals,
-then runs `tac` again on all of those goals, and repeats until `tac` fails on all remaining goals.
--/
-syntax (name := repeat') "repeat' " tacticSeq : tactic
-
-/--
-`repeat1' tac` applies `tac` to main goal at least once. If the application succeeds,
-the tactic is applied recursively to the generated subgoals until it eventually fails.
--/
-syntax (name := repeat1') "repeat1' " tacticSeq : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -1266,7 +1311,7 @@ Optional arguments passed via a configuration argument as `solve_by_elim (config
   but it is often useful to change to `.reducible`,
   so semireducible definitions will not be unfolded when trying to apply a lemma.
 
-See also the doc-comment for `Std.Tactic.BacktrackConfig` for the options
+See also the doc-comment for `Lean.Meta.Tactic.Backtrack.BacktrackConfig` for the options
 `proc`, `suspend`, and `discharge` which allow further customization of `solve_by_elim`.
 Both `apply_assumption` and `apply_rules` are implemented via these hooks.
 -/
@@ -1424,6 +1469,16 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+/--
+Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.
+-/
+syntax (name := grind_norm) "grind_norm" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+/--
+Simplification procedures tagged with the `grind_norm_proc` attribute are used by the `grind` tactic normalizer/pre-processor.
+-/
+syntax (name := grind_norm_proc) "grind_norm_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
 
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/

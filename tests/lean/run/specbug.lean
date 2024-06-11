@@ -14,8 +14,8 @@ def h (x : Bool) (xs : List Nat) : List Bool :=
 
 theorem ex1 : h true [1] = h false [1] := rfl
 
-#eval h true [1]
-#eval h false [1]
+#guard h true [1] == [false]
+#guard h false [1] == [false]
 
 theorem ex2 : (h true [1] == h false [1]) = true :=
   by native_decide
@@ -34,5 +34,5 @@ def h2 (x : Bool) (xs : List Nat) : List String :=
     let a := f2 "a"
     xs.map fun x => g2 a y
 
-#eval h2 true [1]
-#eval h2 false [1]
+#guard h2 true [1] == ["a"]
+#guard h2 false [1] == ["a"]

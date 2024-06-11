@@ -31,8 +31,16 @@ example : [10, true, 20.1].nth #0 = (10:Nat) := rfl
 example : [10, true, 20.1].nth #1 = true     := rfl
 example : [10, true, 20.1].nth #2 = (20.1:Float) := rfl
 
+/-- info: 10 -/
+#guard_msgs in
 #eval [10, true, 20.1].nth #0
+
+/-- info: true -/
+#guard_msgs in
 #eval [10, true, 20.1].nth #1
+
+/-- info: 20.100000 -/
+#guard_msgs in
 #eval [10, true, 20.1].nth #2
 
 def HListPatternMatch (l : HList [Nat, String]) :=
@@ -41,9 +49,9 @@ def HListPatternMatch (l : HList [Nat, String]) :=
   | [2, "1"] => true
   | _ => false
 
-#eval HListPatternMatch [1, "2"]
-#eval HListPatternMatch [2, "1"]
-#eval HListPatternMatch [3, "1"]
+#guard HListPatternMatch [1, "2"]
+#guard HListPatternMatch [2, "1"]
+#guard !HListPatternMatch [3, "1"]
 
 example : HListPatternMatch [1, "2"] := rfl
 example : HListPatternMatch [2, "1"] := rfl
@@ -61,11 +69,14 @@ instance [Repr α] (αs : List Type) [Repr (HList αs)] : Repr (HList (α :: αs
 
 def xs : HList [Nat, String, Bool] := [0, "hello", true]
 
+/-- info: 0 :: "hello" :: true :: [] -/
+#guard_msgs in
 #eval xs
--- 0 :: "hello" :: true :: []
 
 def ys : HList (([Nat] : List Type) ++ ([String, Bool] : List Type)) := 0 :: "hello" :: true :: []
 
+/-- info: 0 :: "hello" :: true :: [] -/
+#guard_msgs in
 #eval ys
 
 example : xs = ys :=

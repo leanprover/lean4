@@ -5,7 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
-import Lake.Build.Basic
+import Lake.Util.IO
 
 /-! # Common Build Actions
 Low level actions to build common Lean artifacts via the Lean toolchain.
@@ -22,7 +22,7 @@ def compileLeanModule
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
   (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
-: JobM Unit := do
+: LogIO Unit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
   if let some oleanFile := oleanFile? then
@@ -40,8 +40,7 @@ def compileLeanModule
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
   args := args.push "--json"
-  show LogIO _ from do
-  let iniSz ← getLogSize
+  withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
@@ -66,13 +65,12 @@ def compileLeanModule
   unless out.stderr.isEmpty do
     logInfo s!"stderr:\n{out.stderr}"
   if out.exitCode ≠ 0 then
-    logError s!"Lean exited with code {out.exitCode}"
-    throw iniSz
+    error s!"Lean exited with code {out.exitCode}"
 
 def compileO
   (oFile srcFile : FilePath)
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs oFile
   proc {
     cmd := compiler.toString
@@ -82,7 +80,7 @@ def compileO
 def compileStaticLib
   (libFile : FilePath) (oFiles : Array FilePath)
   (ar : FilePath := "ar")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := ar.toString
@@ -92,7 +90,7 @@ def compileStaticLib
 def compileSharedLib
   (libFile : FilePath) (linkArgs : Array String)
   (linker : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs libFile
   proc {
     cmd := linker.toString
@@ -102,7 +100,7 @@ def compileSharedLib
 def compileExe
   (binFile : FilePath) (linkFiles : Array FilePath)
   (linkArgs : Array String := #[]) (linker : FilePath := "cc")
-: JobM Unit := do
+: LogIO Unit := do
   createParentDirs binFile
   proc {
     cmd := linker.toString
@@ -117,7 +115,7 @@ def download  (url : String) (file : FilePath) : LogIO PUnit := do
     createParentDirs file
   proc (quiet := true) {
     cmd := "curl"
-    args := #["-f", "-o", file.toString, "-L", url]
+    args := #["-s", "-S", "-f", "-o", file.toString, "-L", url]
   }
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/

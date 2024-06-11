@@ -198,4 +198,35 @@ def removeLeadingSpaces (s : String) : String :=
   let n := findLeadingSpacesSize s
   if n == 0 then s else removeNumLeadingSpaces n s
 
+/--
+Replaces each `\r\n` with `\n` to normalize line endings,
+but does not validate that there are no isolated `\r` characters.
+It is an optimized version of `String.replace text "\r\n" "\n"`.
+-/
+def crlfToLf (text : String) : String :=
+  go "" 0 0
+where
+  go (acc : String) (accStop pos : String.Pos) : String :=
+    if h : text.atEnd pos then
+      -- note: if accStop = 0 then acc is empty
+      if accStop = 0 then text else acc ++ text.extract accStop pos
+    else
+      let c := text.get' pos h
+      let pos' := text.next' pos h
+      if h' : ¬ text.atEnd pos' ∧ c == '\r' ∧ text.get pos' == '\n' then
+        let acc := acc ++ text.extract accStop pos
+        go acc pos' (text.next' pos' h'.1)
+      else
+        go acc accStop pos'
+  termination_by text.utf8ByteSize - pos.byteIdx
+  decreasing_by
+    decreasing_with
+      show text.utf8ByteSize - (text.next (text.next pos)).byteIdx < text.utf8ByteSize - pos.byteIdx
+      have k := Nat.gt_of_not_le <| mt decide_eq_true h
+      exact Nat.sub_lt_sub_left k (Nat.lt_trans (String.lt_next text pos) (String.lt_next _ _))
+    decreasing_with
+      show text.utf8ByteSize - (text.next pos).byteIdx < text.utf8ByteSize - pos.byteIdx
+      have k := Nat.gt_of_not_le <| mt decide_eq_true h
+      exact Nat.sub_lt_sub_left k (String.lt_next _ _)
+
 end String

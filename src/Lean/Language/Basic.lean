@@ -17,8 +17,13 @@ set_option linter.missingDocs true
 
 namespace Lean.Language
 
-/-- `MessageLog` with interactive diagnostics. -/
+/--
+`MessageLog` with interactive diagnostics.
+
+Can be created using `Diagnostics.empty` or `Diagnostics.ofMessageLog`.
+-/
 structure Snapshot.Diagnostics where
+  private mk ::
   /-- Non-interactive message log. -/
   msgLog : MessageLog
   /--
@@ -133,8 +138,7 @@ checking if we can reuse `old?` if set or else redoing the corresponding elabora
 case, we derive new bundles for nested snapshots, if any, and finally `resolve` `new` to the result.
 
 Note that failing to `resolve` a created promise will block the language server indefinitely!
-Corresponding `IO.Promise.new` calls should come with a "definitely resolved in ..." comment
-explaining how this is avoided in each case.
+We use `withAlwaysResolvedPromise`/`withAlwaysResolvedPromises` to ensure this doesn't happen.
 
 In the future, the 1-element history `old?` may be replaced with a global cache indexed by strong
 hashes but the promise will still need to be passed through the elaborator.
@@ -150,6 +154,36 @@ structure SnapshotBundle (α : Type) where
   report its result even before the current elaborator invocation has finished.
   -/
   new  : IO.Promise α
+
+/--
+Runs `act` with a newly created promise and finally resolves it to `default` if not done by `act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
+-/
+def withAlwaysResolvedPromise [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (act : IO.Promise α → m β) : m β := do
+  let p ← IO.Promise.new
+  try
+    act p
+  finally
+    p.resolve default
+
+/--
+Runs `act` with `count` newly created promises and finally resolves them to `default` if not done by
+`act`.
+
+Always resolving promises involved in the snapshot tree is important to avoid deadlocking the
+language server.
+-/
+def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
+    (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
+  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  try
+    act ps
+  finally
+    for p in ps do
+      p.resolve default
 
 /--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
@@ -194,7 +228,6 @@ structure DynamicSnapshot where
   val  : Dynamic
   /-- Snapshot tree retrieved from `val` before erasure. -/
   tree : SnapshotTree
-deriving Nonempty
 
 instance : ToSnapshotTree DynamicSnapshot where
   toSnapshotTree s := s.tree
@@ -208,6 +241,9 @@ def DynamicSnapshot.ofTyped [TypeName α] [ToSnapshotTree α] (val : α) : Dynam
 def DynamicSnapshot.toTyped? (α : Type) [TypeName α] (snap : DynamicSnapshot) :
     Option α :=
   snap.val.get? α
+
+instance : Inhabited DynamicSnapshot where
+  default := .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
 /--
   Runs a tree of snapshots to conclusion, incrementally performing `f` on each snapshot in tree
@@ -245,17 +281,8 @@ def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
   s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
 
-/-- Metadata that does not change during the lifetime of the language processing process. -/
-structure ModuleProcessingContext where
-  /-- Module name of the file being processed. -/
-  mainModuleName : Name
-  /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
-  opts : Options
-  /-- Kernel trust level. -/
-  trustLevel : UInt32 := 0
-
 /-- Context of an input processing invocation. -/
-structure ProcessingContext extends ModuleProcessingContext, Parser.InputContext
+structure ProcessingContext extends Parser.InputContext
 
 /-- Monad transformer holding all relevant data for processing. -/
 abbrev ProcessingT m := ReaderT ProcessingContext m
@@ -296,10 +323,10 @@ end Language
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap)
-    (ctx : ModuleProcessingContext) : BaseIO (Parser.InputContext → BaseIO InitSnap) := do
+def Language.mkIncrementalProcessor (process : Option InitSnap → ProcessingM InitSnap) :
+    BaseIO (Parser.InputContext → BaseIO InitSnap) := do
   let oldRef ← IO.mkRef none
   return fun ictx => do
-    let snap ← process (← oldRef.get) { ctx, ictx with }
+    let snap ← process (← oldRef.get) { ictx with }
     oldRef.set (some snap)
     return snap

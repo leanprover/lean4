@@ -118,7 +118,19 @@ structure State where
   levelNames        : List Name       := []
   syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
   pendingMVars      : List MVarId := {}
+  /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
   mvarErrorInfos    : List MVarErrorInfo := []
+  /--
+    `mvarArgNames` stores the argument names associated to metavariables.
+    These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
+    For example when elaborating `List _`, the argument name of the placeholder will be `α`.
+
+    While elaborating an application, `mvarArgNames` is set for each metavariable argument, using the available argument name.
+    This may happen before or after the `mvarErrorInfos` is set for the same metavariable.
+
+    We used to store the argument names in `mvarErrorInfos`, updating the `MVarErrorInfos` to add the argument name when it is available,
+    but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
+  -/
   mvarArgNames      : MVarIdMap Name := {}
   letRecsToLift     : List LetRecToLift := []
   deriving Inhabited

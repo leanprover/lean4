@@ -123,8 +123,8 @@ jobs:
             const level = ${{ steps.set-level.outputs.check-level }};
             console.log(`level: ${level}`);
             // use large runners outside PRs where available (original repo)
-            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
-            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
+            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }};
+            let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {
                 // portable release build: use channel with older glibc (2.27)
@@ -143,7 +143,7 @@ jobs:
               },
               {
                 "name": "Linux release",
-                "os": "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",

@@ -1333,10 +1333,14 @@ theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b:
   | [] => rfl
   | x::xs => by simp
 
-@[simp] theorem get_dropLast : ∀ (xs : List α) (i : Fin xs.dropLast.length),
-    xs.dropLast.get i = xs.get ⟨i, Nat.lt_of_lt_of_le i.isLt (length_dropLast .. ▸ Nat.pred_le _)⟩
-  | _::_::_, ⟨0, _⟩ => rfl
-  | _::_::_, ⟨i+1, _⟩ => get_dropLast _ ⟨i, _⟩
+@[simp] theorem getElem_dropLast : ∀ (xs : List α) (i : Nat) (h : i < xs.dropLast.length),
+    xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
+  | _::_::_, 0, _ => rfl
+  | _::_::_, i+1, _ => getElem_dropLast _ i _
+
+theorem get_dropLast (xs : List α) (i : Fin xs.dropLast.length) :
+    xs.dropLast.get i = xs.get ⟨i, Nat.lt_of_lt_of_le i.isLt (length_dropLast .. ▸ Nat.pred_le _)⟩ := by
+  simp
 
 /-! ### nth element -/
 
@@ -1353,8 +1357,14 @@ theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l
   | [], _, _ => rfl
   | _ :: l, _+1, h => get!_len_le (l := l) <| Nat.le_of_succ_le_succ h
 
+theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n : Nat, l[n]? = some a :=
+  let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+
 theorem get?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ n, l.get? n = some a :=
   let ⟨⟨n, _⟩, e⟩ := get_of_mem h; ⟨n, e ▸ get?_eq_get _⟩
+
+theorem getElem?_mem {l : List α} {n : Nat} {a : α} (e : l[n]? = some a) : a ∈ l :=
+  let ⟨_, e⟩ := getElem?_eq_some.1 e; e ▸ getElem_mem ..
 
 theorem get?_mem {l : List α} {n a} (e : l.get? n = some a) : a ∈ l :=
   let ⟨_, e⟩ := get?_eq_some.1 e; e ▸ get_mem ..

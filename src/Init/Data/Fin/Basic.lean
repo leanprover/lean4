@@ -66,7 +66,24 @@ protected def mul : Fin n → Fin n → Fin n
 
 /-- Subtraction modulo `n` -/
 protected def sub : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
+  /-
+  The definition of `Fin.sub` has been updated to improve performance.
+  The right-hand-side of the following `match` was originally
+  ```
+  ⟨(a + (n - b)) % n, mlt h⟩
+  ```
+  This caused significant performance issues when testing definitional equality,
+  such as `x =?= x - 1` where `x : Fin n` and `n` is a big number,
+  as Lean spent a long time reducing
+  ```
+  ((n - 1) + x.val) % n
+  ```
+  For example, this was an issue for `Fin 2^64` (i.e., `UInt64`).
+  This change improves performance by leveraging the fact that `Nat.add` is defined
+  using recursion on the second argument.
+  See issue #4413.
+  -/
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨((n - b) + a) % n, mlt h⟩
 
 /-!
 Remark: land/lor can be defined without using (% n), but

@@ -459,6 +459,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
+  withTheReader Simp.Context (fun ctx => { ctx with inDSimp := true }) do
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do

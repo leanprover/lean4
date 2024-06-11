@@ -1049,12 +1049,14 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNa
 
 @[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
   (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := rfl
-@[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := rfl
+@[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := by
+  simp [Fin.sub_def]; rfl
 
-@[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) :=
-  rfl
-@[simp] theorem sub_ofFin (x : BitVec n) (y : Fin (2^n)) : x - .ofFin y = .ofFin (x.toFin - y) :=
-  rfl
+@[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) := by
+  simp [Fin.sub_def]; rfl
+@[simp] theorem sub_ofFin (x : BitVec n) (y : Fin (2^n)) : x - .ofFin y = .ofFin (x.toFin - y) := by
+  simp [Fin.sub_def]; rfl
+
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
 theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n (x + (2^n - y % 2^n)) := by

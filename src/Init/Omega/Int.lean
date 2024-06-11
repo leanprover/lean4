@@ -186,6 +186,7 @@ protected theorem le_of_not_lt {i j : Fin n} (h : ¬ i < j) : j ≤ i := Fin.not
 theorem ofNat_val_add {x y : Fin n} :
     (((x + y : Fin n)) : Int) = ((x : Int) + (y : Int)) % n := rfl
 
+unseal Fin.sub in
 theorem ofNat_val_sub {x y : Fin n} :
     (((x - y : Fin n)) : Int) = ((x : Int) + ((n - y : Nat) : Int)) % n := rfl
 

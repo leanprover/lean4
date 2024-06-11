@@ -24,6 +24,7 @@ theorem mod_def (a m : Fin n) : a % m = Fin.mk (a % m) (Nat.lt_of_le_of_lt (Nat.
 
 theorem mul_def (a b : Fin n) : a * b = Fin.mk ((a * b) % n) (Nat.mod_lt _ a.size_pos) := rfl
 
+unseal Fin.sub in
 theorem sub_def (a b : Fin n) : a - b = Fin.mk ((a + (n - b)) % n) (Nat.mod_lt _ a.size_pos) := rfl
 
 theorem size_pos' : ∀ [Nonempty (Fin n)], 0 < n | ⟨i⟩ => i.size_pos
@@ -763,7 +764,7 @@ theorem addCases_right {m n : Nat} {motive : Fin (m + n) → Sort _} {left right
 /-! ### sub -/
 
 protected theorem coe_sub (a b : Fin n) : ((a - b : Fin n) : Nat) = (a + (n - b)) % n := by
-  cases a; cases b; rfl
+  cases a; cases b; simp [sub_def]
 
 @[simp] theorem ofNat'_sub (x : Nat) (lt : 0 < n) (y : Fin n) :
     Fin.ofNat' x lt - y = Fin.ofNat' (x + (n - y.val)) lt := by

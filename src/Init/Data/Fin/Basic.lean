@@ -65,7 +65,7 @@ protected def mul : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a * b) % n, mlt h⟩
 
 /-- Subtraction modulo `n` -/
-protected def sub : Fin n → Fin n → Fin n
+@[irreducible] protected def sub : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
 
 /-!

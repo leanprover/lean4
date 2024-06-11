@@ -1900,6 +1900,10 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/-- Shorthand for `isDefEq (mkMVar mvarId) val` -/
+def _root_.Lean.MVarId.checkedAssign (mvarId : MVarId) (val : Expr) : MetaM Bool :=
+  isDefEq (mkMVar mvarId) val
+
 /--
   Eta expand the given expression.
   Example:

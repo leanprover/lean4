@@ -137,6 +137,7 @@ structure State where
     We used to store the argument names in `mvarErrorInfos`, updating the `MVarErrorInfos` to add the argument name when it is available,
     but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
   -/
+  mvarErrorInfos      : List MVarErrorInfo := []
   mvarArgNames        : MVarIdMap Name := {}
   letRecsToLift       : List LetRecToLift := []
   deriving Inhabited
@@ -706,26 +707,11 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
 where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
-  addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
-    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
-    | none => return msg
-    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
-
-  appendExtra (msg : MessageData) : MessageData :=
-    match extraMsg? with
+  addArgName (msg : MessageData) (extra : String := "") : MessageData :=
+    match mvarErrorInfo.argName? with
     | none => msg
-    | some extraMsg => msg ++ extraMsg
+    | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
-/-- Log the error associated to a `LevelMVarErrorInfo` -/
-def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
-  match levelMVarErrorInfo.kind with
-  | .hole =>
-    let msg := m! "don't know how to synthesize universe level placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
-    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
-  | .ofConst constName levelName =>
-    let msg := m! "don't know how to synthesize universe level parameter {levelName} of '{constName}'"
-    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
-where
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg

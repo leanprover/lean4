@@ -158,7 +158,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange_
 lean_object* lean_environment_find(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___closed__2;
-lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Meta_registerCoercion___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_RCases_0__Lean_Elab_Tactic_RCases_reprRCasesPatt____x40_Lean_Elab_Tactic_RCases___hyg_933_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_generalizeExceptFVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -414,6 +413,7 @@ lean_object* l_Lean_MVarId_assign___at_Lean_Elab_Term_exprToSyntax___spec__1(lea
 static lean_object* l_Lean_Elab_Tactic_RCases___aux__Lean__Elab__Tactic__RCases______macroRules__Lean__Elab__Tactic__RCases__termList_u03a3__1___closed__5;
 static lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_parse___closed__8;
 extern lean_object* l_Lean_instInhabitedFVarId;
+lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkSimpCongrTheorem___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_rcasesContinue(lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_RCases_evalRCases_declRange___closed__5;
@@ -4455,7 +4455,7 @@ if (lean_is_exclusive(x_4)) {
  x_16 = lean_box(0);
 }
 lean_inc(x_14);
-x_17 = l_Lean_mkConstWithLevelParams___at_Lean_Meta_registerCoercion___spec__1(x_14, x_6, x_7, x_8, x_9, x_10);
+x_17 = l_Lean_mkConstWithLevelParams___at_Lean_Meta_mkSimpCongrTheorem___spec__1(x_14, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 

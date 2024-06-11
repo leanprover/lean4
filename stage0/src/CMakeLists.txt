@@ -315,12 +315,6 @@ endif()
 string(APPEND TOOLCHAIN_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
-# in local builds, link executables and not just dynlibs against C++ stdlib as well,
-# which is required for e.g. asan
-if(NOT LEAN_STANDALONE)
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
-endif()
-
 # flags for user binaries = flags for toolchain binaries + Lake
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${TOOLCHAIN_STATIC_LINKER_FLAGS} -lLake")
 
@@ -577,7 +571,11 @@ else()
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lInit_shared -lleanshared")
 endif()
 
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+if(${STAGE} GREATER 0 AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
+    message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
+  endif()
+
   add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
@@ -587,7 +585,7 @@ endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0
-    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/lib/update-stage0'
+    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 

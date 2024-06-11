@@ -68,7 +68,6 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_removeLamda___at_Lean_Tactic_FunIn
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_buildInductionBody___spec__17(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__6(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Tactic_FunInd_buildInductionBody___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Tactic_FunInd_buildInductionBody___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecursor___spec__6___rarg___lambda__13___closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_collectIHs___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -92,6 +91,7 @@ LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__17___boxed(le
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Tactic_FunInd_buildInductionBody___spec__31___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_substVarAfter___spec__4(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_removeLamda___at_Lean_Tactic_FunInd_foldCalls___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -317,7 +317,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Tactic_FunInd_build
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__2___closed__4;
-lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MatcherApp_transform___at_Lean_Tactic_FunInd_buildInductionBody___spec__26___lambda__5___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Tactic_FunInd_deriveUnpackedInduction___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Structural_eqnInfoExt;
@@ -369,6 +368,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecu
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_findRecursor_err___rarg___closed__9;
 lean_object* l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(lean_object*, lean_object*);
+lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__14___closed__5;
 static lean_object* l_Lean_Tactic_FunInd_isPProdProj___closed__1;
@@ -540,6 +540,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_deriveUnaryInduction___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__17(lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_collectIHs___lambda__7___closed__2;
+lean_object* l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_foldCalls___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_collectIHs(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -551,7 +552,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Tactic_FunInd_findRecu
 LEAN_EXPORT lean_object* l_Lean_hasConst___at_Lean_Tactic_FunInd_deriveUnaryInduction___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Tactic_FunInd_unpackMutualInduction___lambda__6___closed__3;
-lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Tactic_FunInd_foldCalls___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Tactic_FunInd_buildInductionBody___lambda__18(lean_object*, lean_object*, lean_object*, lean_object*, size_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -8296,7 +8296,7 @@ lean_closure_set(x_12, 1, x_2);
 lean_closure_set(x_12, 2, x_4);
 lean_closure_set(x_12, 3, x_5);
 x_13 = l_Lean_Tactic_FunInd_collectIHs___lambda__10___closed__1;
-x_14 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_3, x_13, x_12, x_6, x_7, x_8, x_9, x_10);
+x_14 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_3, x_13, x_12, x_6, x_7, x_8, x_9, x_10);
 return x_14;
 }
 }
@@ -36421,7 +36421,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_12 = l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(x_3, x_10, x_11, x_5, x_6, x_7, x_8, x_9);
+x_12 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_3, x_10, x_11, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -36436,7 +36436,7 @@ lean_closure_set(x_15, 0, x_1);
 lean_closure_set(x_15, 1, x_2);
 lean_closure_set(x_15, 2, x_4);
 lean_closure_set(x_15, 3, x_13);
-x_16 = l_Lean_Meta_lambdaTelescope___at_Lean_PrettyPrinter_Delaborator_returnsPi___spec__1___rarg(x_13, x_15, x_11, x_5, x_6, x_7, x_8, x_14);
+x_16 = l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1___rarg(x_13, x_15, x_11, x_5, x_6, x_7, x_8, x_14);
 return x_16;
 }
 else
@@ -39503,7 +39503,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_33 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_31, x_32, x_4, x_5, x_6, x_7, x_26);
+x_33 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_31, x_32, x_4, x_5, x_6, x_7, x_26);
 x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
@@ -43169,7 +43169,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_26 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_generalizedFieldInfo___spec__3___rarg(x_18, x_24, x_25, x_5, x_6, x_7, x_8, x_23);
+x_26 = l_Lean_Meta_forallBoundedTelescope___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__5___rarg(x_18, x_24, x_25, x_5, x_6, x_7, x_8, x_23);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; 
@@ -43212,7 +43212,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_39 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_37, x_38, x_5, x_6, x_7, x_8, x_32);
+x_39 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_37, x_38, x_5, x_6, x_7, x_8, x_32);
 x_40 = lean_ctor_get(x_39, 1);
 lean_inc(x_40);
 lean_dec(x_39);

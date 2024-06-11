@@ -65,7 +65,6 @@ static lean_object* l_Lean_Widget_elabWidgetInstanceSpec___closed__13;
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean_Widget_WidgetInstance_fromJsonRpcEncodablePacket____x40_Lean_Widget_UserWidget___hyg_3900_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_174____lambda__2___boxed(lean_object*);
-lean_object* l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__15;
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__18;
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_widgetAttrImpl___closed__11;
@@ -306,6 +305,7 @@ static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_Lean_Widge
 static lean_object* l_Lean_Widget_eraseWidgetSpec___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Widget_widgetCmd;
 lean_object* l_Lean_declareBuiltin(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_log___at_Lean_Meta_reportDiag___spec__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetLocal___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_232____closed__5;
@@ -6280,14 +6280,14 @@ if (x_9 == 0)
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
-x_11 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
+x_11 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_10, x_2, x_3, x_4, x_5, x_6);
 return x_11;
 }
 else
 {
 uint8_t x_12; lean_object* x_13; 
 x_12 = 2;
-x_13 = l_Lean_log___at___private_Lean_Meta_Instances_0__Lean_Meta_computeSynthOrder___spec__6(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
+x_13 = l_Lean_log___at_Lean_Meta_reportDiag___spec__1(x_1, x_12, x_2, x_3, x_4, x_5, x_6);
 return x_13;
 }
 }

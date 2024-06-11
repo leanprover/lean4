@@ -311,7 +311,6 @@ static lean_object* l_IO_tacticNonempty__list____x40_Init_System_IO___hyg_1202__
 LEAN_EXPORT lean_object* l_IO_sleep(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readToEnd_loop(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_removeDirAll___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_Process_getCurrentDir___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_2240_(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_timeit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -412,7 +411,6 @@ static lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init
 LEAN_EXPORT lean_object* l_IO_FS_instReprDirEntry;
 LEAN_EXPORT lean_object* l_IO_FS_Mode_noConfusion___rarg___lambda__1(lean_object*);
 static lean_object* l_IO_FS_instBEqFileType___closed__1;
-lean_object* lean_io_process_set_current_dir(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Mode_noConfusion___rarg___closed__1;
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__17;
 lean_object* lean_io_prim_handle_get_line(lean_object*, lean_object*);
@@ -489,7 +487,6 @@ LEAN_EXPORT lean_object* l_IO_FS_Handle_putStr___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_IO_bindTask___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdin___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_bindTask___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_IO_Process_setCurrentDir___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_mapTasks___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_instEvalBaseIO___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -701,7 +698,6 @@ lean_object* lean_io_create_dir(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_putStrLn___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2746____closed__4;
 LEAN_EXPORT lean_object* l_EIO_catchExceptions(lean_object*, lean_object*);
-lean_object* lean_io_process_get_current_dir(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_instLTSystemTime;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2495____closed__5;
 LEAN_EXPORT lean_object* l_Lean_instEvalOfRepr___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -7321,23 +7317,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_IO_FS_removeDirAll(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_IO_Process_getCurrentDir___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_io_process_get_current_dir(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_IO_Process_setCurrentDir___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_io_process_set_current_dir(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }

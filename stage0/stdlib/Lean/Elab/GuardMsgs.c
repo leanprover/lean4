@@ -121,7 +121,6 @@ static lean_object* l_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___lambda__2_
 LEAN_EXPORT lean_object* l_Lean_Diff_lcs___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Elab_Tactic_GuardMsgs_WhitespaceMode_apply___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_GuardMsgs_MessageOrdering_toCtorIdx___boxed(lean_object*);
-lean_object* l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___spec__1___rarg___closed__1;
 static lean_object* l_Lean_getDocStringText___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__54___closed__2;
@@ -190,6 +189,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_GuardMsgs_elabG
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMsgs_parseGuardMsgsSpec___spec__2___lambda__8___closed__6;
 static lean_object* l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed__6;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___spec__36___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_GuardMsgs_guardMsgsCodeAction___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_GuardMsgs_elabGuardMsgs___lambda__1___closed__7;
@@ -508,7 +508,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed__3;
 x_3 = l_initFn____x40_Lean_Elab_GuardMsgs___hyg_7____closed__6;
-x_4 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_7____spec__1(x_2, x_3, x_2, x_1);
+x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_2, x_1);
 return x_4;
 }
 }

@@ -24,7 +24,6 @@ Author: Jared Roesch
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <limits.h> // NOLINT
 #endif
 
 #include "runtime/object.h"
@@ -56,24 +55,6 @@ static void win_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
 
 lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
-}
-
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
-    char path[MAX_PATH];
-    DWORD sz = GetCurrentDirectory(MAX_PATH, path);
-    if (sz != 0) {
-        return io_result_mk_ok(lean_mk_string_from_bytes(path, sz));
-    } else {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    }
-}
-
-extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
-    if (SetCurrentDirectory(string_cstr(path))) {
-        return io_result_mk_ok(box(0));
-    } else {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    }
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
@@ -270,23 +251,6 @@ void initialize_process() {
 void finalize_process() {}
 
 #else
-
-extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
-    char path[PATH_MAX];
-    if (getcwd(path, PATH_MAX)) {
-        return io_result_mk_ok(mk_string(path));
-    } else {
-        return io_result_mk_error(decode_io_error(errno, nullptr));
-    }
-}
-
-extern "C" LEAN_EXPORT obj_res lean_io_process_set_current_dir(b_obj_arg path, obj_arg) {
-    if (!chdir(string_cstr(path))) {
-        return io_result_mk_ok(box(0));
-    } else {
-        return io_result_mk_error(decode_io_error(errno, path));
-    }
-}
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT

@@ -1045,10 +1045,10 @@ theorem ofInt_add {n} (x y : Int) : BitVec.ofInt n (x + y) =
 
 /-! ### sub/neg -/
 
-theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNat)) := by rfl
+theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n ((2^n - y.toNat) + x.toNat) := by rfl
 
 @[simp, bv_toNat] theorem toNat_sub {n} (x y : BitVec n) :
-  (x - y).toNat = ((x.toNat + (2^n - y.toNat)) % 2^n) := rfl
+  (x - y).toNat = (((2^n - y.toNat) + x.toNat) % 2^n) := rfl
 @[simp] theorem toFin_sub (x y : BitVec n) : (x - y).toFin = toFin x - toFin y := rfl
 
 @[simp] theorem ofFin_sub (x : Fin (2^n)) (y : BitVec n) : .ofFin x - y = .ofFin (x - y.toFin) :=
@@ -1057,7 +1057,7 @@ theorem sub_def {n} (x y : BitVec n) : x - y = .ofNat n (x.toNat + (2^n - y.toNa
   rfl
 -- Remark: we don't use `[simp]` here because simproc` subsumes it for literals.
 -- If `x` and `n` are not literals, applying this theorem eagerly may not be a good idea.
-theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n (x + (2^n - y % 2^n)) := by
+theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = .ofNat n ((2^n - y % 2^n) + x) := by
   apply eq_of_toNat_eq ; simp [BitVec.ofNat]
 
 @[simp] protected theorem sub_zero (x : BitVec n) : x - 0#n = x := by apply eq_of_toNat_eq ; simp
@@ -1065,7 +1065,7 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp] protected theorem sub_self (x : BitVec n) : x - x = 0#n := by
   apply eq_of_toNat_eq
   simp only [toNat_sub]
-  rw [Nat.add_sub_of_le]
+  rw [Nat.add_comm, Nat.add_sub_of_le]
   · simp
   · exact Nat.le_of_lt x.isLt
 
@@ -1079,14 +1079,15 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 theorem sub_toAdd {n} (x y : BitVec n) : x - y = x + - y := by
   apply eq_of_toNat_eq
   simp
+  rw [Nat.add_comm]
 
 @[simp] theorem neg_zero (n:Nat) : -BitVec.ofNat n 0 = BitVec.ofNat n 0 := by apply eq_of_toNat_eq ; simp
 
 theorem add_sub_cancel (x y : BitVec w) : x + y - y = x := by
   apply eq_of_toNat_eq
   have y_toNat_le := Nat.le_of_lt y.isLt
-  rw [toNat_sub, toNat_add, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
-    Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
+  rw [toNat_sub, toNat_add, Nat.add_comm, Nat.mod_add_mod, Nat.add_assoc, ← Nat.add_sub_assoc y_toNat_le,
+      Nat.add_sub_cancel_left, Nat.add_mod_right, toNat_mod_cancel]
 
 theorem sub_add_cancel (x y : BitVec w) : x - y + y = x := by
   rw [sub_toAdd, BitVec.add_assoc, BitVec.add_comm _ y,

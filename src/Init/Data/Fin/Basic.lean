@@ -66,7 +66,7 @@ protected def mul : Fin n → Fin n → Fin n
 
 /-- Subtraction modulo `n` -/
 protected def sub : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨((n - b) + a) % n, mlt h⟩
 
 /-!
 Remark: land/lor can be defined without using (% n), but

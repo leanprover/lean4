@@ -325,12 +325,6 @@ jobs:
           # open nix-shell once for initial setup
           true
         if: runner.os == 'Linux'
-      - name: Set up core dumps
-        run: |
-          mkdir -p $PWD/coredumps
-          # store in current directory, for easy uploading together with binary
-          echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
-        if: runner.os == 'Linux'
       - name: Set up NPROC
         run: |
           echo "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)" >> $GITHUB_ENV
@@ -338,7 +332,6 @@ jobs:
         run: |
           mkdir build
           cd build
-          ulimit -c unlimited # coredumps
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
@@ -396,7 +389,6 @@ jobs:
       - name: Test
         id: test
         run: |
-          ulimit -c unlimited # coredumps
           ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
@@ -410,12 +402,10 @@ jobs:
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
-          ulimit -c unlimited # coredumps
           make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          ulimit -c unlimited # coredumps
           make -C build -j$NPROC stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
@@ -427,34 +417,11 @@ jobs:
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && needs.configure.outputs.check-level >= 1
       - name: CCache stats
         run: ccache -s
-      - name: Show stacktrace for coredumps
-        if: ${{ failure() && runner.os == 'Linux' }}
-        run: |
-          for c in coredumps/*; do
-            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
-            echo bt | $GDB/bin/gdb -q $progbin $c || true
-          done
-      # has not been used in a long while, would need to be adapted to new
-      # shared libs
-      #- name: Upload coredumps
-      #  uses: actions/upload-artifact@v3
-      #  if: ${{ failure() && runner.os == 'Linux' }}
-      #  with:
-      #    name: coredumps-${{ matrix.name }}
-      #    path: |
-      #      ./coredumps
-      #      ./build/stage0/bin/lean
-      #      ./build/stage0/lib/lean/libleanshared.so
-      #      ./build/stage1/bin/lean
-      #      ./build/stage1/lib/lean/libleanshared.so
-      #      ./build/stage2/bin/lean
-      #      ./build/stage2/lib/lean/libleanshared.so
 
   # This job collects results from all the matrix jobs
   # This can be made the “required” job, instead of listing each

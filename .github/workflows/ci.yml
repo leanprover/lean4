@@ -320,10 +320,10 @@ jobs:
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
+      # open nix-shell once for initial setup
       - name: Setup
         run: |
-          # open nix-shell once for initial setup
-          true
+          ccache --zero-stats
         if: runner.os == 'Linux'
       - name: Set up NPROC
         run: |
@@ -358,7 +358,7 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j$NPROC
+          \time -v make -j$NPROC
           make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true

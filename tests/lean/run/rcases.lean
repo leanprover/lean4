@@ -209,3 +209,14 @@ example (b c : Nat) : True := by
   obtain h : b = c ^ 2 := test_sorry
   subst h
   trivial
+
+example : True := by
+  rcases ((?m : Nat), ?m + (?_ : Nat)), ((?m, (?_ : Nat)), ((?k : Nat), ?k)) with ⟨_ | _, _ | _⟩
+  · exact trivial
+  · exact trivial
+  · exact trivial
+  · exact trivial
+  · exact Nat.zero
+  · exact Nat.zero
+  · exact Nat.zero
+  · exact Nat.zero

@@ -242,7 +242,6 @@ def processConstructors (ref : Syntax) (params : Nat) (altVarNames : Array AltVa
 
 open Elab Tactic
 
--- TODO(Mario): this belongs in core
 /-- Like `Lean.Meta.subst`, but preserves the `FVarSubst`. -/
 def subst' (goal : MVarId) (hFVarId : FVarId)
     (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
@@ -458,7 +457,8 @@ def rcases (tgts : Array (Option Ident × Syntax))
   let (vs, hs, g) ← generalizeExceptFVar g args
   let toTag := tgts.filterMap (·.1) |>.zip hs
   let gs ← rcasesContinue g {} #[] #[] (pats.zip vs).toList (finish (toTag := toTag))
-  pure gs.toList
+  let placeholderMVarIds ← args.mapM (getMVarsNoDelayed ·.expr)
+  pure (gs ++ placeholderMVarIds.flatten).toList
 
 /--
 The `obtain` tactic in the no-target case. Given a type `T`, create a goal `|- T` and

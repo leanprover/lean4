@@ -167,6 +167,14 @@ theorem get_append {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length) :
     (l₁ ++ l₂).get ⟨n, length_append .. ▸ Nat.lt_add_right _ h⟩ = l₁.get ⟨n, h⟩ := by
   simp [getElem_append, h]
 
+@[deprecated getElem_append_left (since := "2024-06-12")]
+theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
+  simp [getElem_append_left, h, h']
+
+@[deprecated getElem_append_right (since := "2024-06-12")]
+theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
+  simp [getElem_append_right, h, h', h'']
+
 /-! ### map -/
 
 @[simp] theorem map_nil {f : α → β} : map f [] = [] := rfl

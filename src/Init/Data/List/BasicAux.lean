@@ -193,7 +193,7 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
-theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
+theorem getElem_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
@@ -201,7 +201,7 @@ theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).
     | zero => rfl
     | succ i => apply ih
 
-theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
+theorem getElem_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs)[i]'h' = bs[i - as.length]'h'' := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>

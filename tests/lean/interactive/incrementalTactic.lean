@@ -71,3 +71,12 @@ def dup_goals : True := by
 --^ goals
 -- (note that request positions are computed relative to the original document, so the checks above
 -- will point at a `show` at run time)
+
+/-!
+A tactic mvar may sometimes escape the term elaboration it was created from and should not break
+incremental reporting in this case.
+-/
+-- RESET
+def tacInTermInTac : True := by
+  · rw [show 0 = 0 by rfl]
+--^ collectDiagnostics

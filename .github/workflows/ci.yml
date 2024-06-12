@@ -122,8 +122,7 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             console.log(`level: ${level}`);
-            // use large runners outside PRs where available (original repo)
-            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }};
+            // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {

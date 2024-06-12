@@ -13,6 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # see ci.yml
   configure:
     runs-on: ubuntu-latest
     outputs:
@@ -23,7 +24,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }};
+            let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {
                 "name": "Nix Linux",

@@ -347,7 +347,10 @@ mutual
               -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
               withTacticInfoContext tacticCode[0] do
                 withNarrowedArgTacticReuse (argIdx := 1) (evalTactic ·) tacticCode
-            synthesizeSyntheticMVars (postpone := .no)
+            -- Pending tactic mvars may escape from `evalTactic` to here (#4436), so make sure
+            -- incrementality is disabled so they cannot be confused for top-level tactic blocks
+            withoutTacticIncrementality true do
+              synthesizeSyntheticMVars (postpone := .no)
           unless remainingGoals.isEmpty do
             if report then
               reportUnsolvedGoals remainingGoals

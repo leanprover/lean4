@@ -105,7 +105,7 @@ theorem get_take' (L : List α) {j i} :
     get L ⟨i.1, Nat.lt_of_lt_of_le i.2 (length_take_le' _ _)⟩ := by
   let ⟨i, hi⟩ := i; rw [length_take, Nat.lt_min] at hi; rw [get_take L _ hi.1]
 
-theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
+theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l[m]? := by
   induction n generalizing l m with
   | zero =>
     exact absurd h (Nat.not_lt_of_le m.zero_le)
@@ -114,8 +114,11 @@ theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.
     | nil => simp only [take_nil]
     | cons hd tl =>
       cases m
-      · simp only [get?, take]
-      · simpa only using hn (Nat.lt_of_succ_lt_succ h)
+      · simp
+      · simpa using hn (Nat.lt_of_succ_lt_succ h)
+
+theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
+  simp [getElem?_take, h]
 
 theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n).get? m = none :=

@@ -88,6 +88,12 @@ theorem take_append {l₁ l₂ : List α} (i : Nat) :
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
+theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
+    L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
+  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
+
+/-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
+length `> i`. Version designed to rewrite from the big list to the small list. -/
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
     get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ :=
   get_of_eq (take_append_drop j L).symm _ ▸ get_append ..

@@ -122,7 +122,7 @@ theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx :
 
 end Pos
 
-@[simp] theorem get!_eq_get (s : String) (p : Pos) : get! s p = get s p := rfl
+--@[simp] theorem get!_eq_get (s : String) (p : Pos) : get! s p = get s p := rfl
 
 theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
 

@@ -8,7 +8,6 @@ import Init.Data.List.Basic
 import Init.Data.Char.Basic
 import Init.Data.Option.Basic
 import Init.Data.String.Extern
-import Init.Data.String.Iterator
 
 universe u
 
@@ -47,26 +46,6 @@ Examples:
 -/
 def modify (s : String) (i : Pos) (f : Char → Char) : String :=
   s.set i <| f <| s.get i
-
-/--
-Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
-
-Examples:
-* `"abc".front = 'a'`
-* `"".front = (default : Char)`
--/
-def front (s : String) : Char :=
-  get s 0
-
-/--
-Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
-
-Examples:
-* `"abc".back = 'c'`
-* `"".back = (default : Char)`
--/
-def back (s : String) : Char :=
-  get s (prev s s.endPos)
 
 theorem one_le_csize (c : Char) : 1 ≤ csize c := by
   repeat first | apply iteInduction (motive := (1 ≤ UInt32.toNat ·)) <;> intros | decide
@@ -251,47 +230,6 @@ termination_by s.endPos.1 - i.1
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
-@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
-  if h : i < stopPos then
-    have := Nat.sub_lt_sub_left h (lt_next s i)
-    foldlAux f s stopPos (s.next i) (f a (s.get i))
-  else a
-termination_by stopPos.1 - i.1
-
-@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  foldlAux f s s.endPos 0 init
-
-@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
-  if h : begPos < i then
-    have := String.prev_lt_of_pos s i <| mt (congrArg String.Pos.byteIdx) <|
-      Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
-    let i := s.prev i
-    let a := f (s.get i) a
-    foldrAux f a s i begPos
-  else a
-termination_by i.1
-
-@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
-  foldrAux f init s s.endPos 0
-
-@[specialize] def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) (i : Pos) : Bool :=
-  if h : i < stopPos then
-    if p (s.get i) then true
-    else
-      have := Nat.sub_lt_sub_left h (lt_next s i)
-      anyAux s stopPos p (s.next i)
-  else false
-termination_by stopPos.1 - i.1
-
-@[inline] def any (s : String) (p : Char → Bool) : Bool :=
-  anyAux s s.endPos p 0
-
-@[inline] def all (s : String) (p : Char → Bool) : Bool :=
-  !s.any (fun c => !p c)
-
-def contains (s : String) (c : Char) : Bool :=
-s.any (fun a => a == c)
-
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
   | c::cs, i, p, h => by
@@ -344,15 +282,6 @@ termination_by s.endPos.1 - i.1
 
 @[inline] def map (f : Char → Char) (s : String) : String :=
   mapAux f 0 s
-
-def isNat (s : String) : Bool :=
-  !s.isEmpty && s.all (·.isDigit)
-
-def toNat? (s : String) : Option Nat :=
-  if s.isNat then
-    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
-  else
-    none
 
 /--
 Return `true` iff the substring of byte size `sz` starting at position `off1` in `s1` is equal to that starting at `off2` in `s2.`.

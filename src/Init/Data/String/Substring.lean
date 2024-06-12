@@ -62,6 +62,9 @@ def prevn : Substring → Nat → String.Pos → String.Pos
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
+@[inline] def back (s : Substring) : Char :=
+  get s (prev s s.stopPos)
+
 /-- Return the offset into `s` of the first occurrence of `c` in `s`,
 or `s.bsize` if `c` doesn't occur. -/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
@@ -111,17 +114,43 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
       termination_by s.bsize - i.1
     loop 0 0 0 []
 
+@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : String.Pos) (i : String.Pos) (a : α) : α :=
+  if h : i < stopPos then
+    have := Nat.sub_lt_sub_left h (String.lt_next s i)
+    foldlAux f s stopPos (s.next i) (f a (s.get i))
+  else a
+termination_by stopPos.1 - i.1
+
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with
-  | ⟨s, b, e⟩ => String.foldlAux f s e b init
+  | ⟨s, b, e⟩ => foldlAux f s e b init
+
+@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : String.Pos) : α :=
+  if h : begPos < i then
+    have := String.prev_lt_of_pos s i <| mt (congrArg String.Pos.byteIdx) <|
+      Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
+    let i := s.prev i
+    let a := f (s.get i) a
+    foldrAux f a s i begPos
+  else a
+termination_by i.1
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : Substring) : α :=
   match s with
-  | ⟨s, b, e⟩ => String.foldrAux f init s e b
+  | ⟨s, b, e⟩ => foldrAux f init s e b
+
+@[specialize] def anyAux (s : String) (stopPos : String.Pos) (p : Char → Bool) (i : String.Pos) : Bool :=
+  if h : i < stopPos then
+    if p (s.get i) then true
+    else
+      have := Nat.sub_lt_sub_left h (String.lt_next s i)
+      anyAux s stopPos p (s.next i)
+  else false
+termination_by stopPos.1 - i.1
 
 @[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
   match s with
-  | ⟨s, b, e⟩ => String.anyAux s e p b
+  | ⟨s, b, e⟩ => anyAux s e p b
 
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
   !s.any (fun c => !p c)

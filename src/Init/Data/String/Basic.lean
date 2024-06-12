@@ -14,7 +14,35 @@ import Init.Data.String.Substring
 
 universe u
 
+instance : Coe String Substring where
+  coe := fun s : String => s.toSubstring
+
 namespace String
+
+def a (s : String) (p : Char → Bool) := (s : Substring).split p
+def b (s : String) (p : Char → Bool) := Substring.split s p
+-- Nor working: def c (s : String) (p : Char → Bool) := split s p
+
+/--
+Returns the first character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".front = 'a'`
+* `"".front = (default : Char)`
+-/
+def front (s : String) : Char :=
+  Substring.front s
+
+/--
+Returns the last character in `s`. If `s = ""`, returns `(default : Char)`.
+
+Examples:
+* `"abc".back = 'c'`
+* `"".back = (default : Char)`
+-/
+def back (s : String) : Char :=
+  Substring.back s
+  -- get s (prev s s.endPos)
 
 @[inline] def find (s : String) (p : Char → Bool) : Pos :=
   s.toSubstring.find p
@@ -25,7 +53,20 @@ def revFind (s : String) (p : Char → Bool) : Option Pos :=
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   s.toSubstring.split p
 
--- find revFind split
+@[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
+  s.toSubstring.foldl f init
+
+@[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
+  s.toSubstring.foldr f init
+
+@[inline] def any (s : String) (p : Char → Bool) : Bool :=
+  s.toSubstring.any p
+
+@[inline] def all (s : String) (p : Char → Bool) : Bool :=
+  s.toSubstring.all p
+
+def contains (s : String) (c : Char) : Bool :=
+  s.toSubstring.contains c
 
 def drop (s : String) (n : Nat) : String :=
   (s.toSubstring.drop n).toString
@@ -109,5 +150,14 @@ def findAux (s : String) (p : Char → Bool) (stopPos : String.Pos) (pos : Strin
       findAux s p stopPos (s.next pos)
   else pos
 termination_by stopPos.1 - pos.1
+
+def isNat (s : String) : Bool :=
+  !s.isEmpty && s.all (·.isDigit)
+
+def toNat? (s : String) : Option Nat :=
+  if s.isNat then
+    some <| s.foldl (fun n c => n*10 + (c.toNat - '0'.toNat)) 0
+  else
+    none
 
 end String

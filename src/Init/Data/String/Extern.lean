@@ -119,10 +119,10 @@ Examples:
 Positions can also be invalid if a byte index points into the middle of a multi-byte UTF-8 character. For example,
 `"L∃∀N".get! ⟨2⟩` panics.
 -/
-@[extern "lean_string_utf8_get_bang"]
-def get! (s : @& String) (p : @& Pos) : Char :=
-  match s with
-  | ⟨s⟩ => utf8GetAux s 0 p
+-- @[extern "lean_string_utf8_get_bang"]
+-- def get! (s : @& String) (p : @& Pos) : Char :=
+--   match s with
+--   | ⟨s⟩ => utf8GetAux s 0 p
 
 def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    _, _ => []

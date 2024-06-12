@@ -143,7 +143,7 @@ jobs:
               },
               {
                 "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-4x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
@@ -155,7 +155,7 @@ jobs:
               },
               {
                 "name": "Linux",
-                "os": "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
                 "check-stage3": level >= 2,
                 "test-speedcenter": level >= 2,
                 "check-level": 1,
@@ -358,7 +358,7 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          \time -v make -j$NPROC
+          time make -j$NPROC
       - name: Install
         run: |
           make -C build install
@@ -391,7 +391,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2

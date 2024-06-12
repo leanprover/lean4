@@ -363,8 +363,8 @@ theorem ext_get {l₁ l₂ : List α} (hl : length l₁ = length l₂)
     (h : ∀ n h₁ h₂, get l₁ ⟨n, h₁⟩ = get l₂ ⟨n, h₂⟩) : l₁ = l₂ :=
   ext_getElem hl (by simp_all)
 
-@[simp] theorem getElem_map (f : α → β) {l n} {h : n < (map f l).length} :
-    (map f l)[n] = f (get l ⟨n, length_map l f ▸ h⟩) :=
+@[simp] theorem getElem_map (f : α → β) {l} {n : Nat} {h : n < (map f l).length} :
+    (map f l)[n] = f (l[n]'(length_map l f ▸ h)) :=
   Option.some.inj <| by rw [← getElem?_eq_getElem, getElem?_map, getElem?_eq_getElem]; rfl
 
 theorem get_map (f : α → β) {l n} :

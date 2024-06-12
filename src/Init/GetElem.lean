@@ -141,11 +141,15 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 
 instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
 
-@[simp] theorem cons_getElem_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
+@[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[simp] theorem cons_getElem_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
+@[deprecated (since := "2024-6-12")] abbrev cons_getElem_zero := @getElem_cons_zero
+
+@[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
+
+@[deprecated (since := "2024-6-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with

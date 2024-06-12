@@ -67,7 +67,7 @@ as the point of comparison instead.
     return false
 
 /--
-Checks wether `info` is up-to-date, and runs `build` to recreate it if not.
+Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
 If rebuilt, saves the new `depTrace` and build log to `traceFile`.
 Returns whether `info` was already up-to-date.
 
@@ -107,7 +107,7 @@ then `depTrace` / `oldTrace`. No log will be replayed.
     return false
 
 /--
-Checks wether `info` is up-to-date, and runs `build` to recreate it if not.
+Checks whether `info` is up-to-date, and runs `build` to recreate it if not.
 If rebuilt, saves the new `depTrace` and build log to `traceFile`.
 
 See `buildUnlessUpToDate?` for more details on how Lake determines whether
@@ -119,7 +119,6 @@ See `buildUnlessUpToDate?` for more details on how Lake determines whether
   (action : JobAction := .build) (oldTrace := depTrace.mtime)
 : JobM PUnit := do
   discard <| buildUnlessUpToDate? info depTrace traceFile build action oldTrace
-
 
 /-- Computes the hash of a file and saves it to a `.hash` file. -/
 def cacheFileHash (file : FilePath) : IO Unit := do
@@ -138,7 +137,7 @@ def clearFileHash (file : FilePath) : IO Unit := do
 
 /--
 Fetches the hash of a file that may already be cached in a `.hash` file.
-If the `.hash` file does not exist or ash files are not trusted
+If the `.hash` file does not exist or hash files are not trusted
 (e.g., with `--rehash`), creates it with a newly computed hash.
 -/
 def fetchFileHash (file : FilePath) : JobM Hash := do
@@ -152,7 +151,7 @@ def fetchFileHash (file : FilePath) : JobM Hash := do
   return hash
 
 /--
-Fetches the trace of a file that may have its hash already cached
+Fetches the trace of a file that may have already have its hash cached
 in a `.hash` file. If no such `.hash` file exists, recomputes and creates it.
 -/
 def fetchFileTrace (file : FilePath) : JobM BuildTrace := do

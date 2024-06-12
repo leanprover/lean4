@@ -22,7 +22,7 @@ jobs:
       matrix:
         include:
           - name: Nix Linux
-            os: ubuntu-latest
+            os: nscloud-ubuntu-22.04-amd64-8x16
           #- name: Nix macOS
           #  os: macos-latest
       # complete all jobs

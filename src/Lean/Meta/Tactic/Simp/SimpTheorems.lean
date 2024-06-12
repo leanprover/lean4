@@ -466,8 +466,9 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
   if let some eqns ← getEqnsFor? declName then
     let mut d := d
-    for eqn in eqns do
-      d ← SimpTheorems.addConst d eqn
+    for h : i in [:eqns.size] do
+      let eqn := eqns[i]
+      d ← SimpTheorems.addConst d eqn (prio := 999 - i)
     /-
     Even if a function has equation theorems,
     we also store it in the `toUnfold` set in the following two cases:

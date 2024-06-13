@@ -10,8 +10,15 @@ import Lake.Load.Config
 import Lake.Build.Trace
 import Lake.Util.Log
 
+/-! # Lean Configuration Elaborator
+
+This module contains the definitions to elaborate a Lake configuration file.
+-/
+
+
+open System Lean
+
 namespace Lake
-open Lean System
 
 deriving instance BEq, Hashable for Import
 

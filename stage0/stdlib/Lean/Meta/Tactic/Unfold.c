@@ -232,8 +232,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_9);
-lean_inc(x_8);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_isRflTheorem(x_1, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)

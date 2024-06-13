@@ -22,4 +22,15 @@ protected theorem le_total (a b : Char) : a ≤ b ∨ b ≤ a := UInt32.le_total
 protected theorem lt_asymm {a b : Char} (h : a < b) : ¬ b < a := UInt32.lt_asymm h
 protected theorem ne_of_lt {a b : Char} (h : a < b) : a ≠ b := Char.ne_of_val_ne (UInt32.ne_of_lt h)
 
+theorem utf8Size_eq (c : Char) : c.utf8Size = 1 ∨ c.utf8Size = 2 ∨ c.utf8Size = 3 ∨ c.utf8Size = 4 := by
+  have := c.utf8Size_pos
+  have := c.utf8Size_le_four
+  omega
+
+@[simp] theorem ofNat_toNat (c : Char) : Char.ofNat c.toNat = c := by
+  rw [Char.ofNat, dif_pos]
+  rfl
+
 end Char
+
+@[deprecated Char.utf8Size (since := "2024-06-04")] abbrev String.csize := Char.utf8Size

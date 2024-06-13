@@ -712,6 +712,7 @@ x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Array_toSubarray___rarg(x_12, x_13, x_14);
 x_16 = l_Array_ofSubarray___rarg(x_15);
+lean_dec(x_15);
 lean_inc(x_11);
 x_17 = l_Lean_Syntax_setArgs(x_11, x_16);
 x_18 = lean_alloc_ctor(5, 1, 0);

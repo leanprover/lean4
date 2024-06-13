@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___boxed(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
@@ -115,7 +116,6 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Xml_instToStringAttributes___closed__1;
 x_3 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_2, x_1);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -126,6 +126,15 @@ lean_object* x_3;
 x_3 = l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Xml_instToStringAttributes(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Xml_instInhabitedContent___closed__1() {

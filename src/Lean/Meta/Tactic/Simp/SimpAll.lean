@@ -152,4 +152,7 @@ def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray := 
         throwError "simp_all made no progress"
     return (r, { s with })
 
+builtin_initialize
+  registerTraceClass `Meta.Tactic.simp.all
+
 end Lean.Meta

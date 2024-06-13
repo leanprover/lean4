@@ -1,12 +1,13 @@
 /-
 Copyright (c) 2016 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Leonardo de Moura
+Author: Leonardo de Moura, Mario Carneiro
 -/
 prelude
 import Init.Data.List.Basic
 import Init.Data.Char.Basic
 import Init.Data.Option.Basic
+
 universe u
 
 def List.asString (s : List Char) : String :=
@@ -256,7 +257,26 @@ def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
 /--
-Similar to `get` but runtime does not perform bounds check.
+Returns the character at position `p` of a string.
+If `p` is not a valid position, returns `(default : Char)`.
+
+Requires evidence, `h`, that `p` is within bounds
+instead of performing a runtime bounds check as in `get`.
+
+Examples:
+* `"abc".get' 0 (by decide) = 'a'`
+* `let lean := "L∃∀N"; lean.get' (0 |> lean.next |> lean.next) (by decide) = '∀'`
+
+A typical pattern combines `get'` with a dependent if-else expression
+to avoid the overhead of an additional bounds check. For example:
+```
+def getInBounds? (s : String) (p : String.Pos) : Option Char :=
+  if h : s.atEnd p then none else some (s.get' p h)
+```
+
+Even with evidence of `¬ s.atEnd p`,
+`p` may be invalid if a byte index points into the middle of a multi-byte UTF-8 character.
+For example, `"L∃∀N".get' ⟨2⟩ (by decide) = (default : Char)`.
 -/
 @[extern "lean_string_utf8_get_fast"]
 def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
@@ -264,22 +284,41 @@ def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   | ⟨s⟩ => utf8GetAux s 0 p
 
 /--
-Similar to `next` but runtime does not perform bounds check.
+Returns the next position in a string after position `p`.
+If `p` is not a valid position, the result is unspecified.
+
+Requires evidence, `h`, that `p` is within bounds
+instead of performing a runtime bounds check as in `next`.
+
+Examples:
+* `let abc := "abc"; abc.get (abc.next' 0 (by decide)) = 'b'`
+
+A typical pattern combines `next'` with a dependent if-else expression
+to avoid the overhead of an additional bounds check. For example:
+```
+def next? (s: String) (p : String.Pos) : Option Char :=
+  if h : s.atEnd p then none else s.get (s.next' p h)
+```
 -/
 @[extern "lean_string_utf8_next_fast"]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c
 
-theorem one_le_csize (c : Char) : 1 ≤ csize c := by
-  repeat first | apply iteInduction (motive := (1 ≤ UInt32.toNat ·)) <;> intros | decide
+theorem _root_.Char.utf8Size_pos (c : Char) : 0 < c.utf8Size := by
+  repeat first | apply iteInduction (motive := (0 < ·)) <;> intros | decide
+
+theorem _root_.Char.utf8Size_le_four (c : Char) : c.utf8Size ≤ 4 := by
+  repeat first | apply iteInduction (motive := (· ≤ 4)) <;> intros | decide
+
+@[deprecated Char.utf8Size_pos (since := "2026-06-04")] abbrev one_le_csize := Char.utf8Size_pos
 
 @[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl
 
-@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + csize c := rfl
+@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + c.utf8Size := rfl
 
 theorem lt_next (s : String) (i : Pos) : i.1 < (s.next i).1 :=
-  Nat.add_lt_add_left (one_le_csize _) _
+  Nat.add_lt_add_left (Char.utf8Size_pos _) _
 
 theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
@@ -289,7 +328,7 @@ theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
   | c::cs, i, p, h => by
     simp [utf8PrevAux]
     apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'
-    next => exact h' ▸ Nat.add_lt_add_left (one_le_csize _) _
+    next => exact h' ▸ Nat.add_lt_add_left (Char.utf8Size_pos _) _
     next => exact utf8PrevAux_lt_of_pos _ _ _ h
 
 theorem prev_lt_of_pos (s : String) (i : Pos) (h : i ≠ 0) : (s.prev i).1 < i.1 := by
@@ -305,6 +344,15 @@ def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
   else pos
 termination_by stopPos.1 - pos.1
 
+/--
+Returns the position of the first occurrence of a character, `c`, in `s`.
+If `s` does not contain `c`, returns `s.endPos`.
+
+Examples:
+* `"abba".posOf 'a' = ⟨0⟩`
+* `"abba".posOf 'z' = ⟨4⟩`
+* `"L∃∀N".posOf '∀' = ⟨4⟩`
+-/
 @[inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
 
@@ -317,6 +365,15 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
     else revPosOfAux s c pos
 termination_by pos.1
 
+/--
+Returns the position of the last occurrence of a character, `c`, in `s`.
+If `s` does not contain `c`, returns `none`.
+
+Examples:
+* `"abba".posOf 'a' = some ⟨3⟩`
+* `"abba".posOf 'z' = none`
+* `"L∃∀N".posOf '∀' = some ⟨4⟩`
+-/
 def revPosOf (s : String) (c : Char) : Option Pos :=
   revPosOfAux s c s.endPos
 
@@ -424,7 +481,7 @@ decreasing_by
   focus
     rename_i i₀ j₀ _ eq h'
     rw [show (s.next i₀ - sep.next j₀).1 = (i₀ - j₀).1 by
-      show (_ + csize _) - (_ + csize _) = _
+      show (_ + Char.utf8Size _) - (_ + Char.utf8Size _) = _
       rw [(beq_iff_eq ..).1 eq, Nat.add_sub_add_right]; rfl]
     right; exact Nat.sub_lt_sub_left
       (Nat.lt_of_le_of_lt (Nat.le_add_right ..) (Nat.gt_of_not_le (mt decide_eq_true h')))
@@ -455,6 +512,7 @@ instance : Inhabited String := ⟨""⟩
 
 instance : Append String := ⟨String.append⟩
 
+@[deprecated push (since := "2024-04-06")]
 def str : String → Char → String := push
 
 def pushn (s : String) (c : Char) (n : Nat) : String :=
@@ -671,18 +729,18 @@ theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
   simp [next, get, set, endPos, utf8ByteSize] at h ⊢
   rw [Nat.add_comm i.1, Nat.add_assoc] at h ⊢
   let rec foo : ∀ cs a b₁ b₂,
-    csize (utf8GetAux cs a i) + b₁ = utf8ByteSize.go cs + b₂ →
-    csize (utf8GetAux (utf8SetAux c cs a i) a i) + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
+    (utf8GetAux cs a i).utf8Size + b₁ = utf8ByteSize.go cs + b₂ →
+    (utf8GetAux (utf8SetAux c cs a i) a i).utf8Size + b₁ = utf8ByteSize.go (utf8SetAux c cs a i) + b₂
   | [], _, _, _, h => h
   | c'::cs, a, b₁, b₂, h => by
     unfold utf8SetAux
-    apply iteInduction (motive := fun p => csize (utf8GetAux p a i) + b₁ = utf8ByteSize.go p + b₂) <;>
+    apply iteInduction (motive := fun p => (utf8GetAux p a i).utf8Size + b₁ = utf8ByteSize.go p + b₂) <;>
       intro h' <;> simp [utf8GetAux, h', utf8ByteSize.go] at h ⊢
     next =>
       rw [Nat.add_assoc, Nat.add_left_comm] at h ⊢; rw [Nat.add_left_cancel h]
     next =>
       rw [Nat.add_assoc] at h ⊢
-      refine foo cs (a + c') b₁ (csize c' + b₂) h
+      refine foo cs (a + c') b₁ (c'.utf8Size + b₂) h
   exact foo s.1 0 _ _ h
 
 theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
@@ -735,7 +793,7 @@ where
     else true
   termination_by stop1.1 - off1.1
   decreasing_by
-    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
     decreasing_tactic
 
 /-- Return true iff `p` is a prefix of `s` -/
@@ -1018,5 +1076,145 @@ def decapitalize (s : String) :=
 
 end String
 
-protected def Char.toString (c : Char) : String :=
+namespace Char
+
+protected def toString (c : Char) : String :=
   String.singleton c
+
+@[simp] theorem length_toString (c : Char) : c.toString.length = 1 := rfl
+
+end Char
+
+namespace String
+
+theorem ext {s₁ s₂ : String} (h : s₁.data = s₂.data) : s₁ = s₂ :=
+  show ⟨s₁.data⟩ = (⟨s₂.data⟩ : String) from h ▸ rfl
+
+theorem ext_iff {s₁ s₂ : String} : s₁ = s₂ ↔ s₁.data = s₂.data := ⟨fun h => h ▸ rfl, ext⟩
+
+@[simp] theorem default_eq : default = "" := rfl
+
+@[simp] theorem length_mk (s : List Char) : (String.mk s).length = s.length := rfl
+
+@[simp] theorem length_empty : "".length = 0 := rfl
+
+@[simp] theorem length_singleton (c : Char) : (String.singleton c).length = 1 := rfl
+
+@[simp] theorem length_push (c : Char) : (String.push s c).length = s.length + 1 := by
+  rw [push, length_mk, List.length_append, List.length_singleton, Nat.succ.injEq]
+  rfl
+
+@[simp] theorem length_pushn (c : Char) (n : Nat) : (pushn s c n).length = s.length + n := by
+  unfold pushn; induction n <;> simp [Nat.repeat, Nat.add_assoc, *]
+
+@[simp] theorem length_append (s t : String) : (s ++ t).length = s.length + t.length := by
+  simp only [length, append, List.length_append]
+
+@[simp] theorem data_push (s : String) (c : Char) : (s.push c).data = s.data ++ [c] := rfl
+
+@[simp] theorem data_append (s t : String) : (s ++ t).data = s.data ++ t.data := rfl
+
+attribute [simp] toList -- prefer `String.data` over `String.toList` in lemmas
+
+theorem lt_iff (s t : String) : s < t ↔ s.data < t.data := .rfl
+
+namespace Pos
+
+@[simp] theorem byteIdx_zero : (0 : Pos).byteIdx = 0 := rfl
+
+theorem byteIdx_mk (n : Nat) : byteIdx ⟨n⟩ = n := rfl
+
+@[simp] theorem mk_zero : ⟨0⟩ = (0 : Pos) := rfl
+
+@[simp] theorem mk_byteIdx (p : Pos) : ⟨p.byteIdx⟩ = p := rfl
+
+theorem ext {i₁ i₂ : Pos} (h : i₁.byteIdx = i₂.byteIdx) : i₁ = i₂ :=
+  show ⟨i₁.byteIdx⟩ = (⟨i₂.byteIdx⟩ : Pos) from h ▸ rfl
+
+theorem ext_iff {i₁ i₂ : Pos} : i₁ = i₂ ↔ i₁.byteIdx = i₂.byteIdx := ⟨fun h => h ▸ rfl, ext⟩
+
+@[simp] theorem add_byteIdx (p₁ p₂ : Pos) : (p₁ + p₂).byteIdx = p₁.byteIdx + p₂.byteIdx := rfl
+
+theorem add_eq (p₁ p₂ : Pos) : p₁ + p₂ = ⟨p₁.byteIdx + p₂.byteIdx⟩ := rfl
+
+@[simp] theorem sub_byteIdx (p₁ p₂ : Pos) : (p₁ - p₂).byteIdx = p₁.byteIdx - p₂.byteIdx := rfl
+
+theorem sub_eq (p₁ p₂ : Pos) : p₁ - p₂ = ⟨p₁.byteIdx - p₂.byteIdx⟩ := rfl
+
+@[simp] theorem addChar_byteIdx (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + c.utf8Size := rfl
+
+theorem addChar_eq (p : Pos) (c : Char) : p + c = ⟨p.byteIdx + c.utf8Size⟩ := rfl
+
+theorem zero_addChar_byteIdx (c : Char) : ((0 : Pos) + c).byteIdx = c.utf8Size := by
+  simp only [addChar_byteIdx, byteIdx_zero, Nat.zero_add]
+
+theorem zero_addChar_eq (c : Char) : (0 : Pos) + c = ⟨c.utf8Size⟩ := by rw [← zero_addChar_byteIdx]
+
+theorem addChar_right_comm (p : Pos) (c₁ c₂ : Char) : p + c₁ + c₂ = p + c₂ + c₁ := by
+  apply ext
+  repeat rw [pos_add_char]
+  apply Nat.add_right_comm
+
+theorem ne_of_lt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₁ ≠ i₂ := mt ext_iff.1 (Nat.ne_of_lt h)
+
+theorem ne_of_gt {i₁ i₂ : Pos} (h : i₁ < i₂) : i₂ ≠ i₁ := (ne_of_lt h).symm
+
+@[simp] theorem addString_byteIdx (p : Pos) (s : String) :
+    (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
+
+theorem addString_eq (p : Pos) (s : String) : p + s = ⟨p.byteIdx + s.utf8ByteSize⟩ := rfl
+
+theorem zero_addString_byteIdx (s : String) : ((0 : Pos) + s).byteIdx = s.utf8ByteSize := by
+  simp only [addString_byteIdx, byteIdx_zero, Nat.zero_add]
+
+theorem zero_addString_eq (s : String) : (0 : Pos) + s = ⟨s.utf8ByteSize⟩ := by
+  rw [← zero_addString_byteIdx]
+
+theorem le_iff {i₁ i₂ : Pos} : i₁ ≤ i₂ ↔ i₁.byteIdx ≤ i₂.byteIdx := .rfl
+
+@[simp] theorem mk_le_mk {i₁ i₂ : Nat} : Pos.mk i₁ ≤ Pos.mk i₂ ↔ i₁ ≤ i₂ := .rfl
+
+theorem lt_iff {i₁ i₂ : Pos} : i₁ < i₂ ↔ i₁.byteIdx < i₂.byteIdx := .rfl
+
+@[simp] theorem mk_lt_mk {i₁ i₂ : Nat} : Pos.mk i₁ < Pos.mk i₂ ↔ i₁ < i₂ := .rfl
+
+end Pos
+
+@[simp] theorem get!_eq_get (s : String) (p : Pos) : get! s p = get s p := rfl
+
+theorem lt_next' (s : String) (p : Pos) : p < next s p := lt_next ..
+
+@[simp] theorem prev_zero (s : String) : prev s 0 = 0 := rfl
+
+@[simp] theorem get'_eq (s : String) (p : Pos) (h) : get' s p h = get s p := rfl
+
+@[simp] theorem next'_eq (s : String) (p : Pos) (h) : next' s p h = next s p := rfl
+
+-- `toSubstring'` is just a synonym for `toSubstring` without the `@[inline]` attribute
+-- so for proving can be unfolded.
+attribute [simp] toSubstring'
+
+theorem singleton_eq (c : Char) : singleton c = ⟨[c]⟩ := rfl
+
+@[simp] theorem data_singleton (c : Char) : (singleton c).data = [c] := rfl
+
+@[simp] theorem append_empty (s : String) : s ++ "" = s := ext (List.append_nil _)
+
+@[simp] theorem empty_append (s : String) : "" ++ s = s := rfl
+
+theorem append_assoc (s₁ s₂ s₃ : String) : (s₁ ++ s₂) ++ s₃ = s₁ ++ (s₂ ++ s₃) :=
+  ext (List.append_assoc ..)
+
+end String
+
+open String
+
+namespace Substring
+
+@[simp] theorem prev_zero (s : Substring) : s.prev 0 = 0 := by simp [prev, Pos.add_eq, Pos.byteIdx_zero]
+
+@[simp] theorem prevn_zero (s : Substring) : ∀ n, s.prevn n 0 = 0
+  | 0 => rfl
+  | n+1 => by simp [prevn, prevn_zero s n]
+
+end Substring

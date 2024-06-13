@@ -42,6 +42,7 @@
 	    lean-packages.llvmPackages.llvm  # llvm-symbolizer for asan/lsan
 	    # TODO: only add when proven to not affect the flakification
 	    #pkgs.python3
+      tree  # for CI
 	  ];
 	  # https://github.com/NixOS/nixpkgs/issues/60919
 	  hardeningDisable = [ "all" ];

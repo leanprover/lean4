@@ -27,7 +27,7 @@ def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
-@[inline] def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
+def find? (m : NameMap α) (n : Name) : Option α := RBMap.find? m n
 
 instance : ForIn m (NameMap α) (Name × α) :=
   inferInstanceAs (ForIn _ (RBMap ..) ..)

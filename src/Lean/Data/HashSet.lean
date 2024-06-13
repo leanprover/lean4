@@ -16,6 +16,10 @@ def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d 
   ⟨ data.val.uset i d h,
     by erw [Array.size_set]; apply data.property ⟩
 
+@[simp] theorem HashSetBucket.size_update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) :
+    (data.update i d h).val.size = data.val.size := by
+  simp [update, Array.uset]
+
 structure HashSetImp (α : Type u) where
   size       : Nat
   buckets    : HashSetBucket α
@@ -100,7 +104,10 @@ def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a
-    then ⟨size, buckets.update i (bkt.replace a a) h⟩
+    then
+      -- make sure `bkt` is used linearly in the following call to `replace`
+      let buckets' := buckets.update i .nil h
+      ⟨size, buckets'.update i (bkt.replace a a) (by simpa [buckets'])⟩
     else
       let size'    := size + 1
       let buckets' := buckets.update i (a :: bkt) h
@@ -114,7 +121,9 @@ def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
-      ⟨size - 1, buckets.update i (bkt.erase a) h⟩
+      -- make sure `bkt` is used linearly in the following call to `erase`
+      let buckets' := buckets.update i .nil h
+      ⟨size - 1, buckets'.update i (bkt.erase a) (by simpa [buckets'])⟩
     else
       ⟨size, buckets⟩
 

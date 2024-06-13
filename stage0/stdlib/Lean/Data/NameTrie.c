@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionNameTrie(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedNameTrie(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_toArray___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToStringNamePart(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_NameTrie_0__Lean_toKey_loop___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,6 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_foldMatchingM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_insert_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldMatchingM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldM___spec__1(lean_object*, lean_object*, lean_object*);
@@ -56,12 +58,14 @@ static lean_object* l_Lean_NameTrie_empty___closed__1;
 LEAN_EXPORT lean_object* l_Lean_NameTrie_foldMatchingM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_insert___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_matchingToArray___spec__2___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_forMatchingM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_find_x3f___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_find___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_toArray___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_NameTrie_toArray___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NamePart_lt___boxed(lean_object*, lean_object*);
@@ -77,6 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_Name
 LEAN_EXPORT lean_object* l_Lean_NameTrie_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_toArray___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PrefixTreeNode_find_x3f_loop___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NamePart_cmp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_NameTrie_forM___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
@@ -479,7 +484,6 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l___private_Lean_Data_NameTrie_0__Lean_toKey(x_3);
-lean_dec(x_3);
 x_7 = l_Lean_NameTrie_insert___rarg___closed__1;
 lean_inc(x_4);
 x_8 = l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldMatchingM___spec__1___rarg(x_1, x_7, x_4, x_5, x_6, x_2, x_4);
@@ -490,8 +494,17 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_foldMatchingM(lean_object* x_1, lean_ob
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Lean_NameTrie_foldMatchingM___rarg), 5, 0);
+x_4 = lean_alloc_closure((void*)(l_Lean_NameTrie_foldMatchingM___rarg___boxed), 5, 0);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_foldMatchingM___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_NameTrie_foldMatchingM___rarg(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_foldM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -657,7 +670,6 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = l___private_Lean_Data_NameTrie_0__Lean_toKey(x_3);
-lean_dec(x_3);
 x_6 = lean_alloc_closure((void*)(l_Lean_NameTrie_forMatchingM___rarg___lambda__1___boxed), 3, 1);
 lean_closure_set(x_6, 0, x_4);
 x_7 = l_Lean_NameTrie_insert___rarg___closed__1;
@@ -670,7 +682,7 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM(lean_object* x_1, lean_obj
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_NameTrie_forMatchingM___rarg), 4, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_NameTrie_forMatchingM___rarg___boxed), 4, 0);
 return x_3;
 }
 }
@@ -681,6 +693,15 @@ lean_object* x_4;
 x_4 = l_Lean_NameTrie_forMatchingM___rarg___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_forMatchingM___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_NameTrie_forMatchingM___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_forM___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -854,7 +875,6 @@ _start:
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_7 = l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_matchingToArray___spec__2___rarg(x_3, x_5, x_6);
 return x_7;
@@ -878,6 +898,7 @@ lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_1);
+lean_inc(x_2);
 return x_2;
 }
 else
@@ -897,7 +918,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_Name
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg___boxed), 6, 0);
 return x_2;
 }
 }
@@ -931,7 +952,6 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_3 = l___private_Lean_Data_NameTrie_0__Lean_toKey(x_2);
-lean_dec(x_2);
 x_4 = l_Lean_NameTrie_insert___rarg___closed__1;
 x_5 = l_Lean_NameTrie_matchingToArray___rarg___closed__1;
 x_6 = l_Lean_NameTrie_matchingToArray___rarg___closed__2;
@@ -943,8 +963,26 @@ LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_NameTrie_matchingToArray___rarg), 2, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_NameTrie_matchingToArray___rarg___boxed), 2, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_matchingToArray___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_NameTrie_matchingToArray___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_NameTrie_matchingToArray___rarg(x_1, x_2);
+lean_dec(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_NameTrie_toArray___spec__3___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1036,7 +1074,6 @@ _start:
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_7; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_7 = l_Lean_PrefixTreeNode_foldMatchingM_fold___at_Lean_NameTrie_toArray___spec__2___rarg(x_3, x_5, x_6);
 return x_7;
@@ -1060,6 +1097,7 @@ lean_dec(x_9);
 lean_dec(x_6);
 lean_dec(x_3);
 lean_dec(x_1);
+lean_inc(x_2);
 return x_2;
 }
 else
@@ -1079,7 +1117,7 @@ LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_Name
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg___boxed), 6, 0);
 return x_2;
 }
 }
@@ -1101,6 +1139,15 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_NameTrie_toArray___rarg), 1, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_PrefixTreeNode_foldMatchingM_find___at_Lean_NameTrie_toArray___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_2);
+return x_7;
 }
 }
 lean_object* initialize_Lean_Data_PrefixTree(uint8_t builtin, lean_object*);

@@ -132,9 +132,6 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   let s ← IO.processCommands inputCtx { : Parser.ModuleParserState } (Command.mkState env {} opts)
   pure (s.commandState.env, s.commandState.messages)
 
-builtin_initialize
-  registerTraceClass `Elab.info
-
 @[export lean_run_frontend]
 def runFrontend
     (input : String)

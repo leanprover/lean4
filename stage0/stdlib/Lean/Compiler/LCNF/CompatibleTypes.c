@@ -94,6 +94,8 @@ x_13 = lean_ctor_get(x_2, 0);
 lean_inc(x_13);
 lean_dec(x_2);
 x_14 = l_Lean_Level_isEquiv(x_12, x_13);
+lean_dec(x_13);
+lean_dec(x_12);
 return x_14;
 }
 else
@@ -135,6 +137,8 @@ else
 {
 uint8_t x_22; 
 x_22 = l_List_isEqv___at_Lean_Compiler_LCNF_eqvTypes___spec__1(x_17, x_19);
+lean_dec(x_19);
+lean_dec(x_17);
 return x_22;
 }
 }
@@ -437,7 +441,6 @@ lean_object* l_Lean_Compiler_LCNF_InferType_compatibleTypesFull___lambda__1(lean
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_6);
 x_13 = l_Lean_mkFreshFVarId___at_Lean_Compiler_LCNF_InferType_withLocalDecl___spec__1(x_7, x_8, x_9, x_10, x_11, x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
@@ -449,10 +452,8 @@ x_16 = l_Lean_Expr_fvar___override(x_14);
 x_17 = 0;
 x_18 = l_Lean_LocalContext_mkLocalDecl(x_7, x_14, x_1, x_2, x_3, x_17);
 x_19 = lean_expr_instantiate1(x_4, x_16);
-lean_dec(x_4);
 x_20 = lean_expr_instantiate1(x_5, x_16);
 lean_dec(x_16);
-lean_dec(x_5);
 x_21 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull(x_19, x_20, x_18, x_8, x_9, x_10, x_11, x_15);
 return x_21;
 }
@@ -520,6 +521,8 @@ x_19 = lean_ctor_get(x_2, 0);
 lean_inc(x_19);
 lean_dec(x_2);
 x_20 = l_Lean_Level_isEquiv(x_18, x_19);
+lean_dec(x_19);
+lean_dec(x_18);
 x_21 = lean_box(x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -775,6 +778,8 @@ else
 {
 uint8_t x_70; lean_object* x_71; lean_object* x_72; 
 x_70 = l_List_isEqv___at_Lean_Compiler_LCNF_eqvTypes___spec__1(x_63, x_65);
+lean_dec(x_65);
+lean_dec(x_63);
 x_71 = lean_box(x_70);
 x_72 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_72, 0, x_71);
@@ -1379,6 +1384,8 @@ lean_inc(x_185);
 lean_dec(x_174);
 x_186 = lean_box(0);
 x_187 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull___lambda__1(x_168, x_169, x_171, x_170, x_173, x_186, x_3, x_4, x_5, x_6, x_7, x_185);
+lean_dec(x_173);
+lean_dec(x_170);
 return x_187;
 }
 }
@@ -1701,6 +1708,8 @@ lean_inc(x_248);
 lean_dec(x_237);
 x_249 = lean_box(0);
 x_250 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull___lambda__1(x_231, x_232, x_234, x_233, x_236, x_249, x_3, x_4, x_5, x_6, x_7, x_248);
+lean_dec(x_236);
+lean_dec(x_233);
 return x_250;
 }
 }
@@ -2221,6 +2230,9 @@ uint8_t x_13; lean_object* x_14;
 x_13 = lean_unbox(x_3);
 lean_dec(x_3);
 x_14 = l_Lean_Compiler_LCNF_InferType_compatibleTypesFull___lambda__1(x_1, x_2, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
 return x_14;
 }
 }

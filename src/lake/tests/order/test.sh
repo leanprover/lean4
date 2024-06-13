@@ -14,8 +14,9 @@ $LAKE update
 $LAKE build +A -v | grep --color 222000
 $LAKE build +A.B -v | grep --color 333000
 $LAKE build +A.B.C -v | grep --color 333000
-$LAKE build +X -v | grep --color 555000
+$LAKE build +X -v | grep --color 888000
 $LAKE build +Y -v | grep --color 666000
+$LAKE build +Z -v | grep --color 666000
 $LAKE exe Y | grep --color root
 
 # Tests that `lake update` does not reorder packages in the manifest

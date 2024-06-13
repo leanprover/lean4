@@ -177,7 +177,13 @@ differences:
 * If we have nested recursion (`foo n (foo m acc))`), then we need to infer the argument `m` of the
   nested call `ih.fst.snd acc`. To do so reliably, we replace the `ih` with the “new `ih`”, which
   will have type `motive m acc`, and since `motive` is a FVar we can then read off the arguments
-  off this nicely..
+  off this nicely.
+
+* There exist inductive types where the `.brecOn` only supports motives producing `Type u`, but
+  not `Sort u`, but our induction principles produce `Prop`. We recognize this case and, rather
+  hazardously, replace `.brecOn` with `.binductionOn` (and thus `.below ` with `.ibelow` and
+  `PProd` with `And`). This assumes that these definitions are highly analogous.
+
 -/
 
 
@@ -197,16 +203,36 @@ def removeLamda {n} [MonadLiftT MetaM n] [MonadError n] [MonadNameGenerator n] [
   let b := b.instantiate1 (.fvar x)
   k x b
 
-/-- Structural recursion only: recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`. -/
+/-- `PProd.fst` or `And.left` -/
+def mkFst (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  match_expr t with
+  | PProd _ _ => mkAppM ``PProd.fst #[e]
+  | And _ _ => mkAppM ``And.left #[e]
+  | _ => throwError "Cannot project out of{indentExpr e}\nof Type{indentExpr t}"
+
+/-- `PProd.snd` or `And.right` -/
+def mkSnd (e : Expr) : MetaM Expr := do
+  let t ← whnf (← inferType e)
+  match_expr t with
+  | PProd _ _ => mkAppM ``PProd.snd #[e]
+  | And _ _ => mkAppM ``And.right #[e]
+  | _ => throwError "Cannot project out of{indentExpr e}\nof Type{indentExpr t}"
+
+/--
+Structural recursion only:
+Recognizes `oldIH.fst.snd a₁ a₂` and returns `newIH.fst.snd`.
+Possibly switching from `PProd.fst` to `And.left` if needed
+ -/
 partial def isPProdProj (oldIH newIH : FVarId) (e : Expr) : MetaM (Option Expr) := do
   if e.isAppOfArity ``PProd.fst 3 then
     if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkAppM ``PProd.fst #[e'])
+      return some (← mkFst e')
     else
       return none
   else if e.isAppOfArity ``PProd.snd 3 then
     if let some e' ← isPProdProj oldIH newIH e.appArg! then
-      return some (← mkAppM ``PProd.snd #[e'])
+      return some (← mkSnd e')
     else
       return none
   else if e.isFVarOf oldIH then
@@ -247,8 +273,8 @@ partial def foldCalls (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Exp
     if let some (e', args) ← isPProdProjWithArgs oldIH newIH e then
       let t ← whnf (← inferType e')
       let e' ← forallTelescopeReducing t fun xs t' => do
-        unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
+        unless t'.getAppFn.eta.isFVar do -- we expect an application of the `motive` FVar here
+          throwError m!"Unexpected type {t} of {e'}: Reduced to application of {t'.getAppFn}"
         mkLambdaFVars xs (fn.beta t'.getAppArgs)
       let args' ← args.mapM (foldCalls is_wf fn oldIH newIH)
       let e' := e'.beta args'
@@ -348,8 +374,8 @@ partial def collectIHs (is_wf : Bool) (fn : Expr) (oldIH newIH : FVarId) (e : Ex
       let ihs ← args.concatMapM (collectIHs is_wf fn oldIH newIH)
       let t ← whnf (← inferType e')
       let arity ← forallTelescopeReducing t fun xs t' => do
-        unless t'.getAppFn.isFVar do -- we expect an application of the `motive` FVar here
-          throwError m!"Unexpected type {t} of {e}: Reduced to application of {t'.getAppFn}"
+        unless t'.getAppFn.eta.isFVar do -- we expect an application of the `motive` FVar here
+          throwError m!"Unexpected type {t} of {e'}: Reduced to application of {t'.getAppFn}"
         pure xs.size
       let e' := mkAppN e' args'[:arity]
       let eTyp ← inferType e'
@@ -665,6 +691,23 @@ def abstractIndependentMVars (mvars : Array MVarId) (x : FVarId) (e : Expr) : Me
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
 
+/-
+Given a `brecOn` recursor, figures out which universe parameter has the motive.
+Returns `none` if the the motive type is not of the form `… → Sort u`.
+-/
+def motiveUniverseParamPos (declName : Name) : MetaM (Option Nat) := do
+  let info ← getConstInfo declName
+  forallTelescopeReducing info.type fun _ type => do
+    let motive  := type.getAppFn
+    unless motive.isFVar do
+      throwError "unexpected eliminator resulting type{indentExpr type}"
+    let motiveType ← inferType motive
+    forallTelescopeReducing motiveType fun _ motiveResultType => do
+      match motiveResultType with
+      | .sort (.param p) => return info.levelParams.toArray.indexOf? p
+      | .sort _ => return none
+      | _ => throwError "motive result type must be a sort{indentExpr motiveType}"
+
 /--
 This function looks that the body of a recursive function and looks for either users of
 `fix`, `fixF` or a `.brecOn`, and abstracts over the differences between them. It passes
@@ -707,12 +750,24 @@ def findRecursor {α} (name : Name) (varNames : Array Name) (e : Expr)
         let varyingParams := params.filter fun x => targets.contains x || extraArgs.contains x
         unless params == fixedParams ++ varyingParams do
           throwError "functional induction: unexpected order of fixed and varying parameters:{indentExpr e}"
-        -- we assume the motive's universe parameter is the first
         unless 1 ≤ f.constLevels!.length do
           throwError "functional induction: unexpected recursor: {f} has no universe parameters"
-        let us := f.constLevels!.set 0 levelZero
+        let value ←
+          match (← motiveUniverseParamPos f.constName!) with
+          | .some motiveUnivParam =>
+            let us := f.constLevels!.set motiveUnivParam levelZero
+            pure <| mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
+          | .none =>
+            -- The `brecOn` does not support motives to any `Sort u`, so likely just `Type u`.
+            -- Let's use `binductionOn` instead
+            -- This code assumpes that `brecOn` has `u` first, and that the remaining universe
+            -- parameters correspond
+            let us := f.constLevels!.drop 1
+            let bInductionName ← match f.constName with
+              | .str indDeclName _ => pure <| mkBInductionOnName indDeclName
+              | _ => throwError "Unexpected brecOn name {f.constName}"
+            pure <| mkAppN (.const bInductionName us) (args[:elimInfo.motivePos])
 
-        let value := mkAppN (.const f.constName us) (args[:elimInfo.motivePos])
         k false fixedParams varyingParams targets.size body
           (fun newMotive => do
             -- We may have to reorder the parameters for motive before passing it to brec

@@ -623,6 +623,7 @@ if (x_22 == 0)
 lean_object* x_23; lean_object* x_24; 
 x_23 = lean_ctor_get(x_21, 0);
 x_24 = l_Lean_mkAppN(x_1, x_23);
+lean_dec(x_23);
 lean_ctor_set(x_21, 0, x_24);
 return x_21;
 }
@@ -635,6 +636,7 @@ lean_inc(x_26);
 lean_inc(x_25);
 lean_dec(x_21);
 x_27 = l_Lean_mkAppN(x_1, x_25);
+lean_dec(x_25);
 x_28 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
@@ -869,6 +871,7 @@ else
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_15 = lean_array_uget(x_1, x_3);
 x_16 = l_Lean_Expr_fvarId_x21(x_15);
+lean_dec(x_15);
 lean_inc(x_8);
 lean_inc(x_16);
 x_17 = l_Lean_FVarId_getDecl(x_16, x_8, x_9, x_10, x_11, x_12);
@@ -1463,8 +1466,8 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 x_25 = lean_ctor_get(x_23, 0);
 x_26 = lean_ctor_get(x_23, 1);
-lean_inc(x_1);
 x_27 = l_Lean_HashMapImp_find_x3f___at_Lean_instantiateExprMVars___spec__1(x_25, x_1);
+lean_dec(x_25);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; 
@@ -1950,8 +1953,8 @@ x_119 = lean_ctor_get(x_23, 1);
 lean_inc(x_119);
 lean_inc(x_118);
 lean_dec(x_23);
-lean_inc(x_1);
 x_120 = l_Lean_HashMapImp_find_x3f___at_Lean_instantiateExprMVars___spec__1(x_118, x_1);
+lean_dec(x_118);
 if (lean_obj_tag(x_120) == 0)
 {
 lean_object* x_121; 

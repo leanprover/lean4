@@ -187,7 +187,7 @@ theorem ofNat_val_add {x y : Fin n} :
     (((x + y : Fin n)) : Int) = ((x : Int) + (y : Int)) % n := rfl
 
 theorem ofNat_val_sub {x y : Fin n} :
-    (((x - y : Fin n)) : Int) = ((x : Int) + ((n - y : Nat) : Int)) % n := rfl
+    (((x - y : Fin n)) : Int) = (((n - y : Nat) + (x : Int) : Int)) % n := rfl
 
 theorem ofNat_val_mul {x y : Fin n} :
     (((x * y : Fin n)) : Int) = ((x : Int) * (y : Int)) % n := rfl

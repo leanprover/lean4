@@ -28,6 +28,7 @@ lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, 
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__11;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__39;
+lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__29;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__15;
@@ -87,6 +88,7 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__8;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__27;
 lean_object* l_Lean_Compiler_LCNF_getCasesInfo_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_CasesInfo_numAlts___boxed(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -512,8 +514,6 @@ x_11 = l_Lean_isAuxRecursorWithSuffix(x_9, x_1, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; 
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_12 = lean_box(0);
 lean_ctor_set(x_5, 0, x_12);
@@ -525,8 +525,6 @@ lean_object* x_13; lean_object* x_14;
 lean_free_object(x_5);
 x_13 = lean_box(0);
 x_14 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_13, x_2, x_3, x_8);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_14;
 }
@@ -548,8 +546,6 @@ x_19 = l_Lean_isAuxRecursorWithSuffix(x_17, x_1, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(0, 2, 0);
@@ -562,8 +558,6 @@ else
 lean_object* x_22; lean_object* x_23; 
 x_22 = lean_box(0);
 x_23 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___lambda__1(x_1, x_22, x_2, x_3, x_16);
-lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_23;
 }
@@ -600,6 +594,16 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__1___closed__1() {
@@ -813,8 +817,6 @@ lean_object* l_Lean_Compiler_LCNF_getCasesInfo_x3f(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_5; 
-lean_inc(x_3);
-lean_inc(x_2);
 lean_inc(x_1);
 x_5 = l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LCNF_getCasesOnInductiveVal_x3f(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
@@ -1189,7 +1191,6 @@ if (lean_obj_tag(x_8) == 0)
 uint8_t x_9; 
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_9 = !lean_is_exclusive(x_7);
 if (x_9 == 0)
 {
@@ -1232,7 +1233,6 @@ x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
 x_21 = lean_unsigned_to_nat(0u);
 x_22 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_21);
-lean_dec(x_1);
 x_23 = lean_nat_dec_eq(x_20, x_22);
 lean_dec(x_22);
 lean_dec(x_20);
@@ -1263,7 +1263,6 @@ x_27 = lean_ctor_get(x_26, 1);
 lean_inc(x_27);
 x_28 = lean_unsigned_to_nat(0u);
 x_29 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_28);
-lean_dec(x_1);
 x_30 = lean_nat_dec_eq(x_27, x_29);
 lean_dec(x_29);
 lean_dec(x_27);
@@ -1307,7 +1306,6 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 x_38 = lean_unsigned_to_nat(0u);
 x_39 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_1, x_38);
-lean_dec(x_1);
 x_40 = lean_nat_dec_eq(x_37, x_39);
 lean_dec(x_39);
 lean_dec(x_37);
@@ -1344,7 +1342,6 @@ else
 uint8_t x_45; 
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_45 = !lean_is_exclusive(x_7);
 if (x_45 == 0)
 {
@@ -1371,13 +1368,21 @@ lean_object* x_49; lean_object* x_50;
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_49 = lean_box(0);
 x_50 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_50, 0, x_49);
 lean_ctor_set(x_50, 1, x_4);
 return x_50;
 }
+}
+}
+lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Compiler_LCNF_isCasesApp_x3f(x_1, x_2, x_3, x_4);
+lean_dec(x_1);
+return x_5;
 }
 }
 lean_object* l_Lean_Compiler_LCNF_getCtorArity_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

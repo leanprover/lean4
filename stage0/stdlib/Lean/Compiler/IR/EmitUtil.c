@@ -80,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collect(lean_object*, lean_o
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectMaps_collectParams___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_usesModuleFrom___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_IR_CollectMaps_collectJP___spec__3(lean_object*, lean_object*);
@@ -214,7 +215,6 @@ lean_dec(x_4);
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_IR_AltCore_body(x_8);
 lean_dec(x_8);
-lean_inc(x_5);
 x_10 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_9, x_5, x_6);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -231,7 +231,6 @@ goto _start;
 else
 {
 lean_object* x_16; 
-lean_dec(x_5);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_4);
 lean_ctor_set(x_16, 1, x_6);
@@ -299,7 +298,6 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_1, 3);
 lean_inc(x_18);
 lean_dec(x_1);
-lean_inc(x_2);
 x_19 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_17, x_2, x_3);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
@@ -323,7 +321,6 @@ goto _start;
 else
 {
 uint8_t x_25; 
-lean_dec(x_2);
 x_25 = !lean_is_exclusive(x_1);
 if (x_25 == 0)
 {
@@ -365,7 +362,6 @@ goto _start;
 else
 {
 uint8_t x_34; 
-lean_dec(x_2);
 x_34 = !lean_is_exclusive(x_1);
 if (x_34 == 0)
 {
@@ -406,7 +402,6 @@ if (x_43 == 0)
 lean_object* x_44; lean_object* x_45; 
 lean_dec(x_41);
 lean_dec(x_40);
-lean_dec(x_2);
 x_44 = lean_box(0);
 x_45 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_45, 0, x_44);
@@ -422,7 +417,6 @@ if (x_46 == 0)
 lean_object* x_47; lean_object* x_48; 
 lean_dec(x_41);
 lean_dec(x_40);
-lean_dec(x_2);
 x_47 = lean_box(0);
 x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_47);
@@ -457,7 +451,6 @@ goto _start;
 else
 {
 uint8_t x_56; 
-lean_dec(x_2);
 x_56 = !lean_is_exclusive(x_1);
 if (x_56 == 0)
 {
@@ -499,7 +492,6 @@ goto _start;
 else
 {
 lean_object* x_65; lean_object* x_66; 
-lean_dec(x_2);
 lean_dec(x_1);
 x_65 = lean_box(0);
 x_66 = lean_alloc_ctor(0, 2, 0);
@@ -520,8 +512,18 @@ lean_dec(x_2);
 x_8 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_9 = l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectUsedDecls_collectFnBody___spec__1(x_1, x_7, x_8, x_4, x_5, x_6);
+lean_dec(x_5);
 lean_dec(x_1);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -570,6 +572,7 @@ x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_5, x_2, x_7);
+lean_dec(x_2);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
 {

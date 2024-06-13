@@ -2857,6 +2857,7 @@ x_15 = lean_ctor_get(x_2, 5);
 lean_inc(x_15);
 x_16 = 0;
 x_17 = l_Lean_SourceInfo_fromRef(x_15, x_16);
+lean_dec(x_15);
 x_18 = lean_ctor_get(x_2, 2);
 lean_inc(x_18);
 x_19 = lean_ctor_get(x_2, 1);
@@ -3570,6 +3571,7 @@ lean_inc(x_314);
 lean_dec(x_14);
 x_315 = l_Array_mkArray1___rarg(x_314);
 x_316 = l_Array_append___rarg(x_21, x_315);
+lean_dec(x_315);
 lean_inc(x_17);
 x_317 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_317, 0, x_17);
@@ -3612,6 +3614,7 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Tactic_checkConfigElab(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
 lean_dec(x_1);
 return x_5;
 }

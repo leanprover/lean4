@@ -12,7 +12,8 @@ open Lean Parser
 
 /-! # TOML Loader
 
-Load a package from a TOML Lake configuration file.
+This module contains the main definitions to load a package from a
+Lake configuration file written in TOML.
 -/
 
 namespace Lake
@@ -255,6 +256,10 @@ instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.
 
 /-! ## Root Loader -/
 
+/--
+Load a `Package` from a TOML Lake configuration file.
+The resulting package does not yet include any dependencies.
+-/
 def loadTomlConfig (dir relDir relConfigFile : FilePath) : LogIO Package := do
   let configFile := dir / relConfigFile
   let input ← IO.FS.readFile configFile

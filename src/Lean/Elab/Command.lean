@@ -338,6 +338,26 @@ instance : MonadRecDepth CommandElabM where
 
 builtin_initialize registerTraceClass `Elab.command
 
+open Language in
+/-- Snapshot after macro expansion of a command. -/
+structure MacroExpandedSnapshot extends Snapshot where
+  /-- The declaration name of the macro. -/
+  macroDecl : Name
+  /-- The expanded syntax tree. -/
+  newStx    : Syntax
+  /-- `State.nextMacroScope` after expansion. -/
+  newNextMacroScope : Nat
+  /-- Whether any traces were present after expansion. -/
+  hasTraces : Bool
+  /--
+  Follow-up elaboration snapshots, one per command if `newStx` is a sequence of commands.
+  -/
+  next : Array (SnapshotTask DynamicSnapshot)
+deriving TypeName
+open Language in
+instance : ToSnapshotTree MacroExpandedSnapshot where
+  toSnapshotTree s := ⟨s.toSnapshot, s.next.map (·.map (sync := true) toSnapshotTree)⟩
+
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     match stx with
@@ -345,8 +365,8 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
       if k == nullKind then
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones
-        -- TODO: support incrementality at least for some cases such as expansions of
-        -- `set_option in` or `def a.b`
+        -- Incrementality is currently limited to the common case where the sequence is the direct
+        -- output of a macro, see below.
         withoutCommandIncrementality true do
           args.forM elabCommand
       else withTraceNode `Elab.command (fun _ => return stx) (tag :=
@@ -358,7 +378,55 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
           withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
             let stxNew ← liftMacroM <| liftExcept stxNew?
             withMacroExpansion stx stxNew do
-              elabCommand stxNew
+              -- Support incrementality; see also Note [Incremental Macros]
+              if let some snap := (←read).snap? then
+                -- Unpack nested commands; see `MacroExpandedSnapshot.next`
+                let cmds := if stxNew.isOfKind nullKind then stxNew.getArgs else #[stxNew]
+                let nextMacroScope := (← get).nextMacroScope
+                let hasTraces := (← getTraceState).traces.size > 0
+                let oldSnap? := do
+                  let oldSnap ← snap.old?
+                  let oldSnap ← oldSnap.val.get.toTyped? MacroExpandedSnapshot
+                  guard <| oldSnap.macroDecl == decl && oldSnap.newNextMacroScope == nextMacroScope
+                  -- check absence of traces; see Note [Incremental Macros]
+                  guard <| !oldSnap.hasTraces && !hasTraces
+                  return oldSnap
+                let oldCmds? := oldSnap?.map fun old =>
+                  if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
+                Language.withAlwaysResolvedPromises cmds.size fun cmdPromises => do
+                  snap.new.resolve <| .ofTyped {
+                    diagnostics := .empty
+                    macroDecl := decl
+                    newStx := stxNew
+                    newNextMacroScope := nextMacroScope
+                    hasTraces
+                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
+                      { range? := cmd.getRange?, task := cmdPromise.result }
+                    : MacroExpandedSnapshot
+                  }
+                  -- After the first command whose syntax tree changed, we must disable
+                  -- incremental reuse
+                  let mut reusedCmds := true
+                  let opts ← getOptions
+                  -- For each command, associate it with new promise and old snapshot, if any, and
+                  -- elaborate recursively
+                  for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                    let oldCmd? := oldCmds?.bind (·[i]?)
+                    withReader ({ · with snap? := some {
+                      new := cmdPromise
+                      old? := do
+                        guard reusedCmds
+                        let old ← oldSnap?
+                        return { stx := (← oldCmd?), val := (← old.next[i]?) }
+                    } }) do
+                      elabCommand cmd
+                      -- Resolve promise for commands not supporting incrementality; waiting for
+                      -- `withAlwaysResolvedPromises` to do this could block reporting by later
+                      -- commands
+                      cmdPromise.resolve default
+                    reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
+              else
+                elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
           | []      =>
@@ -376,6 +444,10 @@ register_builtin_option showPartialSyntaxErrors : Bool := {
   defValue := false
   descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
+
+builtin_initialize
+  registerTraceClass `Elab.info
+  registerTraceClass `Elab.snapshotTree
 
 /--
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
@@ -399,6 +471,12 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
     let mut msgs := (← get).messages
     for tree in (← getInfoTrees) do
       trace[Elab.info] (← tree.format)
+    if let some snap := (← read).snap? then
+      -- We can assume that the root command snapshot is not involved in parallelism yet, so this
+      -- should be true iff the command supports incrementality
+      if (← IO.hasFinished snap.new.result) then
+        trace[Elab.snapshotTree]
+          Language.ToSnapshotTree.toSnapshotTree snap.new.result.get |>.format
     modify fun st => { st with
       messages := initMsgs ++ msgs
       infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }

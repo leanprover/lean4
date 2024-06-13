@@ -1075,9 +1075,9 @@ theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmo
 theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
   rw [bmod_def x n]
   split
-  case inl p =>
+  next p =>
     simp only [emod_add_bmod_congr]
-  case inr p =>
+  next p =>
     rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
     simp
 
@@ -1088,9 +1088,9 @@ theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
   rw [bmod_def x n]
   split
-  case inl p =>
+  next p =>
     simp
-  case inr p =>
+  next p =>
     rw [Int.sub_mul, Int.sub_eq_add_neg, ← Int.mul_neg]
     simp
 

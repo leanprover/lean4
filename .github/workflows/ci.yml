@@ -122,9 +122,8 @@ jobs:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
             console.log(`level: ${level}`);
-            // use large runners outside PRs where available (original repo)
-            // disabled for now as this mostly just speeds up the test suite which is not a bottleneck
-            // let large = ${{ github.event_name != 'pull_request' && github.repository == 'leanprover/lean4' }} ? "-large" : "";
+            // use large runners where available (original repo)
+            let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {
                 // portable release build: use channel with older glibc (2.27)
@@ -143,7 +142,7 @@ jobs:
               },
               {
                 "name": "Linux release",
-                "os": "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
@@ -155,7 +154,7 @@ jobs:
               },
               {
                 "name": "Linux",
-                "os": "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "check-stage3": level >= 2,
                 "test-speedcenter": level >= 2,
                 "check-level": 1,
@@ -281,16 +280,8 @@ jobs:
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
-        with:
-          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
+        uses: DeterminateSystems/nix-installer-action@main
         if: runner.os == 'Linux' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
@@ -303,6 +294,20 @@ jobs:
         run: |
           brew install ccache tree zstd coreutils gmp
         if: runner.os == 'macOS'
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
+      # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
+      # master (as the workflow files themselves are always taken from the merge)
+      # (needs to be after "Install *" to use the right shell)
+      - name: CI Merge Checkout
+        run: |
+          git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
+          git checkout FETCH_HEAD flake.nix flake.lock
+        if: github.event_name == 'pull_request'
+      # (needs to be after "Checkout" so files don't get overriden)
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:
@@ -322,16 +327,10 @@ jobs:
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3
+      # open nix-shell once for initial setup
       - name: Setup
         run: |
-          # open nix-shell once for initial setup
-          true
-        if: runner.os == 'Linux'
-      - name: Set up core dumps
-        run: |
-          mkdir -p $PWD/coredumps
-          # store in current directory, for easy uploading together with binary
-          echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
+          ccache --zero-stats
         if: runner.os == 'Linux'
       - name: Set up NPROC
         run: |
@@ -340,7 +339,6 @@ jobs:
         run: |
           mkdir build
           cd build
-          ulimit -c unlimited # coredumps
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
@@ -367,8 +365,12 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. --preset ${{ matrix.CMAKE_PRESET || 'release' }} -B . ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j$NPROC cadical
-          make install
+
+          time make -j$NPROC cadical
+          exit 1
+      - name: Install
+        run: |
+          make -C build install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
       - name: List Install Tree
@@ -398,8 +400,7 @@ jobs:
       - name: Test
         id: test
         run: |
-          ulimit -c unlimited # coredumps
-          ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
+          time ctest --preset ${{ matrix.CMAKE_PRESET || 'release' }} --test-dir build/stage1 -j$NPROC --output-junit test-results.xml ${{ matrix.CTEST_OPTIONS }}
         if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.check-level >= 1
       - name: Test Summary
         uses: test-summary/action@v2
@@ -412,51 +413,28 @@ jobs:
         if: (!matrix.cross) && steps.test.conclusion != 'skipped'
       - name: Build Stage 2
         run: |
-          ulimit -c unlimited # coredumps
           make -C build -j$NPROC stage2
         if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
-          ulimit -c unlimited # coredumps
           make -C build -j$NPROC stage3
         if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
-          echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
+          # Necessary for some timing metrics but does not work on Namespace runners
+          # and we just want to test that the benchmarks run at all here
+          #echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
           cd tests/bench
           nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
-          ulimit -c unlimited # coredumps
           # clean rebuild in case of Makefile changes
           make -C build update-stage0 && rm -rf build/stage* && make -C build -j$NPROC
         if: matrix.name == 'Linux' && needs.configure.outputs.check-level >= 1
       - name: CCache stats
         run: ccache -s
-      - name: Show stacktrace for coredumps
-        if: ${{ failure() && runner.os == 'Linux' }}
-        run: |
-          for c in coredumps/*; do
-            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
-            echo bt | $GDB/bin/gdb -q $progbin $c || true
-          done
-      # has not been used in a long while, would need to be adapted to new
-      # shared libs
-      #- name: Upload coredumps
-      #  uses: actions/upload-artifact@v3
-      #  if: ${{ failure() && runner.os == 'Linux' }}
-      #  with:
-      #    name: coredumps-${{ matrix.name }}
-      #    path: |
-      #      ./coredumps
-      #      ./build/stage0/bin/lean
-      #      ./build/stage0/lib/lean/libleanshared.so
-      #      ./build/stage1/bin/lean
-      #      ./build/stage1/lib/lean/libleanshared.so
-      #      ./build/stage2/bin/lean
-      #      ./build/stage2/lib/lean/libleanshared.so
 
   # This job collects results from all the matrix jobs
   # This can be made the “required” job, instead of listing each

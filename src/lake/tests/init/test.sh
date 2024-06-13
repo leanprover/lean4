@@ -71,13 +71,13 @@ rm -rf hello
 
 # Test math template
 
-$LAKE new qed math
+$LAKE new qed math || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^require.*/{N;d;}' qed/lakefile.lean
 $LAKE -d qed build Qed
 test -f qed/.lake/build/lib/Qed.olean
 rm -rf qed
-$LAKE new qed math.toml
+$LAKE new qed math.toml || true # ignore toolchain download errors
 # Remove the require, since we do not wish to download mathlib during tests
 sed_i '/^\[\[require\]\]/{N;N;N;d;}' qed/lakefile.toml
 $LAKE -d qed build Qed
@@ -124,7 +124,7 @@ $LAKE -d 123-hello exe 123-hello
 # the unicode name is improperly encoded on windows for non-Lake reasons
 if [ "$OSTYPE" != "msys" ]; then
   $LAKE new «A.B».«C.D»
-  $LAKE -d A-B-C-D exe a.b-c.d
+  $LAKE -d A-B-C-D exe a-b-c-d
 fi
 
 # Test creating packages with keyword names

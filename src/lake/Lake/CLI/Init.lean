@@ -151,8 +151,12 @@ name = {repr libRoot}
 
 def readmeFileContents (pkgName : String) := s!"# {pkgName}"
 
-def mathToolchainUrl : String :=
+def mathToolchainBlobUrl : String :=
   "https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain"
+
+def mathToolchainUrl : String :=
+  "https://github.com/leanprover-community/mathlib4/blob/master/lean-toolchain"
+
 
 /-- Lake package template identifier. -/
 inductive InitTemplate
@@ -194,10 +198,9 @@ def InitTemplate.configFileContents  (tmp : InitTemplate) (lang : ConfigLang) (p
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) : LogIO PUnit := do
-  let configFile :=  dir / match lang with
-    | .lean => defaultLeanConfigFile | .toml => defaultTomlConfigFile
+  let configFile :=  dir / defaultConfigFile.addExtension lang.fileExtension
   if (← configFile.pathExists) then
-    error  "package already initialized"
+    error "package already initialized"
 
   -- determine the name to use for the root
   -- use upper camel case unless the specific module name already exists
@@ -234,6 +237,25 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
       else
         IO.FS.writeFile mainFile <| mainFileContents root
 
+  -- Initialize a README.md file if none exists.
+  let readmeFile := dir / "README.md"
+  unless (← readmeFile.pathExists) do
+    IO.FS.writeFile readmeFile (readmeFileContents <| dotlessName name)
+
+  -- initialize a `.git` repository if none already
+  unless (← FilePath.isDir <| dir / ".git") do
+    let repo := GitRepo.mk dir
+    try
+      repo.quietInit
+      unless upstreamBranch = "master" do
+        repo.checkoutBranch upstreamBranch
+    else
+      logWarning "failed to initialize git repository"
+
+  -- update `.gitignore` with additional entries for Lake
+  let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append
+  h.putStr gitignoreContents
+
   /-
   Write the detected toolchain to file (if there is one) for `elan`.
   See [lean4#2518][1] for details on the design considerations taken here.
@@ -251,28 +273,14 @@ def initPkg (dir : FilePath) (name : Name) (tmp : InitTemplate) (lang : ConfigLa
   else
     if tmp = .math then
       logInfo "downloading mathlib `lean-toolchain` file"
-      download mathToolchainUrl toolchainFile
+      try
+        download mathToolchainBlobUrl toolchainFile
+      catch errPos =>
+        logError "failed to download mathlib 'lean-toolchain' file; \
+          you can manually copy it from:\n  {mathToolchainUrl}"
+        throw errPos
     else
       IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
-
-  -- update `.gitignore` with additional entries for Lake
-  let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append
-  h.putStr gitignoreContents
-
-  -- initialize a `.git` repository if none already
-  unless (← FilePath.isDir <| dir / ".git") do
-    let repo := GitRepo.mk dir
-    try
-      repo.quietInit
-      unless upstreamBranch = "master" do
-        repo.checkoutBranch upstreamBranch
-    else
-      logWarning "failed to initialize git repository"
-
-  -- Initialize a README.md file if none exists.
-  let readmeFile := dir / "README.md"
-  unless (← readmeFile.pathExists) do
-    IO.FS.writeFile readmeFile (readmeFileContents <| dotlessName name)
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
@@ -281,14 +289,14 @@ def validatePkgName (pkgName : String) : LogIO PUnit := do
     error "reserved package name"
 
 def init (name : String) (tmp : InitTemplate) (lang : ConfigLang) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
-  let name ← do
+  let name ← id do
     if name == "." then
       let path ← IO.FS.realPath cwd
       match path.fileName with
-      | some dirName => pure dirName
+      | some dirName => return dirName
       | none => error s!"illegal package name: could not derive one from '{path}'"
     else
-      pure name
+      return name
   let name := name.trim
   validatePkgName name
   IO.FS.createDirAll cwd

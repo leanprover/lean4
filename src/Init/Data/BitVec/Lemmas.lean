@@ -1377,14 +1377,13 @@ theorem getLsb_rotateRight {x : BitVec w} {r i : Nat} :
 
 /- ## twoPow -/
 
-@[simp]
+@[simp, bv_toNat]
 theorem toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
   rcases w with rfl | w
   · simp [Nat.mod_one]
   · simp [twoPow, toNat_shiftLeft]
     have h1 : 1 < 2 ^ (w + 1) := Nat.one_lt_two_pow (by omega)
-    rw [Nat.mod_eq_of_lt h1]
-    rw [Nat.shiftLeft_eq, Nat.one_mul]
+    rw [Nat.mod_eq_of_lt h1, Nat.shiftLeft_eq, Nat.one_mul]
 
 @[simp]
 theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j)) := by
@@ -1424,14 +1423,5 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       rw [Nat.mod_eq_zero_of_dvd]
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
-
-theorem BitVec.toNat_twoPow (w : Nat) (i : Nat) : (twoPow w i).toNat = 2^i % 2^w := by
-  rcases w with rfl | w
-  · simp [Nat.mod_one]
-  · simp [twoPow, toNat_shiftLeft]
-    have hone : 1 < 2 ^ (w + 1) := by
-      rw [show 1 = 2^0 by simp[Nat.pow_zero]]
-      exact Nat.pow_lt_pow_of_lt (by omega) (by omega)
-    simp [Nat.mod_eq_of_lt hone, Nat.shiftLeft_eq]
 
 end BitVec

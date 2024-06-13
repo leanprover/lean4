@@ -304,7 +304,7 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch origin ${{ github.sha }}
+          git fetch --depth=1 origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overriden)

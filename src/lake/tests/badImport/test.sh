@@ -13,7 +13,7 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # https://github.com/leanprover/lean4/issues/3809
 
 # Test importing a nmissing module from outside the workspace
-($LAKE build +X 2>&1 && exit 1 || true) | grep --color -F "X.lean:1:0: unknown package 'Y'"
+($LAKE build +X 2>&1 && exit 1 || true) | grep --color -F "X.lean:1:0: unknown module prefix 'Y'"
 $LAKE setup-file ./X.lean Y # Lake ignores the file (the server will error)
 # Test importing onself
 ($LAKE build +Lib.A 2>&1 && exit 1 || true) | grep --color -F "A.lean: module imports itself"

@@ -317,7 +317,7 @@ jobs:
       # master (as the workflow files themselves are always taken from the merge)
       - name: CI Merge Checkout
         run: |
-          git fetch ${{ github.event.pull_request.merge_commit_sha }}
+          git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
       - name: Cache

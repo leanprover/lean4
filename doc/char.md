@@ -9,5 +9,3 @@ Syntactically, character literals are enclosed in single quotes.
 ```
 
 Characters are ordered and can be decidably compared using the relational operators `=`, `<`, `≤`, `>`, `≥`.
-
-Type `Char` is not empty.

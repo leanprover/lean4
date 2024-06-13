@@ -15,15 +15,18 @@ import Init.Data.List.Control
 namespace Lean
 open System
 
+/--
+Executes `f` with the corresponding module name for each `.lean` file contained in `dir`.
+
+For example, if `dir` contains `A/B/C.lean`, `f` is called with `A.B.C`.
+-/
 partial def forEachModuleInDir [Monad m] [MonadLiftT IO m]
-    (dir : FilePath) (f : Lean.Name → m PUnit) (ext := "lean") : m PUnit := do
+    (dir : FilePath) (f : Lean.Name → m PUnit) : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
       let n := Lean.Name.mkSimple entry.fileName
-      let r := FilePath.withExtension entry.fileName ext
-      if (← liftM (m := IO) r.pathExists) then f n
       forEachModuleInDir entry.path (f <| n ++ ·)
-    else if entry.path.extension == some ext then
+    else if entry.path.extension == some "lean" then
       f <| Lean.Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
 
 def realPathNormalized (p : FilePath) : IO FilePath :=

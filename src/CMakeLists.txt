@@ -615,6 +615,10 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
+if (${STAGE} GREATER 0)
+  install(FILES "${CMAKE_BINARY_DIR}/../cadical/build/cadical${CMAKE_EXECUTABLE_SUFFIX}" USE_SOURCE_PERMISSIONS DESTINATION bin)
+endif()
+
 add_subdirectory(shell)
 
 add_custom_target(clean-stdlib

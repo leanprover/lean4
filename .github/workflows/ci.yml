@@ -281,6 +281,19 @@ jobs:
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
+      # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
+      # master (as the workflow files themselves are always taken from the merge)
+      - name: CI Merge Checkout
+        shell: bash -euxo pipefail {0}
+        run: |
+          git fetch ${{ github.event.pull_request.merge_commit_sha }}
+          git checkout FETCH_HEAD flake.nix flake.lock
+        if: github.event_name == 'pull_request'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -303,18 +316,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib ccache
         if: matrix.cmultilib
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          # the default is to use a virtual merge commit between the PR and master: just use the PR
-          ref: ${{ github.event.pull_request.head.sha }}
-      # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
-      # master (as the workflow files themselves are always taken from the merge)
-      - name: CI Merge Checkout
-        run: |
-          git fetch ${{ github.event.pull_request.merge_commit_sha }}
-          git checkout FETCH_HEAD flake.nix flake.lock
-        if: github.event_name == 'pull_request'
       - name: Cache
         uses: actions/cache@v3
         with:

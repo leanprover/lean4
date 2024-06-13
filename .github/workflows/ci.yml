@@ -293,6 +293,7 @@ jobs:
           sparse-checkout: |
             flake.nix
             flake.lock
+          sparse-checkout-cone-mode: false
       - name: Install Nix
         uses: cachix/install-nix-action@v18
         with:

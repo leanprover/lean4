@@ -111,16 +111,10 @@ partial def findOLean (mod : Name) : IO FilePath := do
     return fname
   else
     let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
-    let mut msg := s!"unknown package '{pkg}'"
-    let rec maybeThisOne dir := do
-      if ← (dir / pkg).isDir then
-        return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
-      if let some dir := dir.parent then
-        maybeThisOne dir
-      else
-       return none
-    if let some msg' ← maybeThisOne (← IO.currentDir) then
-      msg := msg ++ msg'
+    let mut msg := s!"unknown module prefix '{pkg}'
+
+No directory '{pkg}' or file '{pkg}.lean' in the search path entries:
+{"\n".intercalate <| sp.map (·.toString)}"
     throw <| IO.userError msg
 
 /-- Infer module name of source file name. -/

@@ -92,19 +92,27 @@ theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) 
     L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
   getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
 
-set_option linter.deprecated false in
+/-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
+length `> i`. Version designed to rewrite from the small list to the big list. -/
+theorem getElem_take' (L : List α) {j i : Nat} {h : i < (L.take j).length} :
+    (L.take j)[i] =
+    L[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
+  rw [length_take, Nat.lt_min] at h; rw [getElem_take L _ h.1]
+
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
+@[deprecated getElem_take (since := "2024-06-12")]
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
-    get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ :=
-  get_of_eq (take_append_drop j L).symm _ ▸ get_append ..
+    get L ⟨i, hi⟩ = get (L.take j) ⟨i, length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩⟩ := by
+  simp [getElem_take _ hi hj]
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
+@[deprecated getElem_take (since := "2024-06-12")]
 theorem get_take' (L : List α) {j i} :
     get (L.take j) i =
     get L ⟨i.1, Nat.lt_of_lt_of_le i.2 (length_take_le' _ _)⟩ := by
-  let ⟨i, hi⟩ := i; rw [length_take, Nat.lt_min] at hi; rw [get_take L _ hi.1]
+  simp [getElem_take']
 
 theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l[m]? := by
   induction n generalizing l m with
@@ -118,6 +126,7 @@ theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l
       · simp
       · simpa using hn (Nat.lt_of_succ_lt_succ h)
 
+@[deprecated getElem?_take (since := "2024-06-12")]
 theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
   simp [getElem?_take, h]
 
@@ -125,6 +134,7 @@ theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n)[m]? = none :=
   getElem?_eq_none.mpr <| Nat.le_trans (length_take_le _ _) h
 
+@[deprecated getElem?_take_eq_none (since := "2024-06-12")]
 theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
     (l.take n).get? m = none := by
   simp [getElem?_take_eq_none h]
@@ -135,13 +145,14 @@ theorem getElem?_take_eq_if {l : List α} {n m : Nat} :
   · next h => exact getElem?_take h
   · next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
+@[deprecated getElem?_take_eq_if (since := "2024-06-12")]
 theorem get?_take_eq_if {l : List α} {n m : Nat} :
     (l.take n).get? m = if m < n then l.get? m else none := by
   simp [getElem?_take_eq_if]
 
 @[simp]
-theorem nth_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1)).get? n = l.get? n :=
-  get?_take (Nat.lt_succ_self n)
+theorem get?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? :=
+  getElem?_take (Nat.lt_succ_self n)
 
 theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ l[n]?.toList := by
   induction l generalizing n with
@@ -280,6 +291,7 @@ theorem getElem_drop (L : List α) {i j : Nat} (h : i + j < L.length) :
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
+@[deprecated getElem_drop (since := "2024-06-12")]
 theorem get_drop (L : List α) {i j : Nat} (h : i + j < L.length) :
     get L ⟨i + j, h⟩ = get (L.drop i) ⟨j, lt_length_drop L h⟩ := by
   simp [getElem_drop]
@@ -294,11 +306,12 @@ theorem getElem_drop' (L : List α) {i : Nat} {j : Nat} {h : j < (L.drop i).leng
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
+@[deprecated getElem_drop' (since := "2024-06-12")]
 theorem get_drop' (L : List α) {i j} :
     get (L.drop i) j = get L ⟨i + j, by
       rw [Nat.add_comm]
       exact Nat.add_lt_of_lt_sub (length_drop i L ▸ j.2)⟩ := by
-  rw [get_drop]
+  simp [getElem_drop']
 
 @[simp]
 theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := by
@@ -311,6 +324,7 @@ theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := 
     rw [Nat.add_comm] at h
     apply Nat.lt_sub_of_add_lt h
 
+@[deprecated getElem?_drop (since := "2024-06-12")]
 theorem get?_drop (L : List α) (i j : Nat) : get? (L.drop i) j = get? L (i + j) := by
   simp
 
@@ -366,12 +380,21 @@ theorem reverse_take {α} {xs : List α} (n : Nat) (h : n ≤ xs.length) :
     rfl
 
 @[simp]
-theorem get_cons_drop : ∀ (l : List α) i, get l i :: drop (i + 1) l = drop i l
-  | _::_, ⟨0, _⟩ => rfl
-  | _::_, ⟨i+1, _⟩ => get_cons_drop _ ⟨i, _⟩
+theorem getElem_cons_drop : ∀ (l : List α) (i : Nat) (h : i < l.length),
+    l[i] :: drop (i + 1) l = drop i l
+  | _::_, 0, _ => rfl
+  | _::_, i+1, _ => getElem_cons_drop _ i _
 
-theorem drop_eq_get_cons {n} {l : List α} (h) : drop n l = get l ⟨n, h⟩ :: drop (n + 1) l :=
-  (get_cons_drop _ ⟨n, h⟩).symm
+@[deprecated getElem_cons_drop (since := "2024-06-12")]
+theorem get_cons_drop (l : List α) (i) : get l i :: drop (i + 1) l = drop i l := by
+  simp
+
+theorem drop_eq_getElem_cons {n} {l : List α} (h) : drop n l = l[n] :: drop (n + 1) l :=
+  (getElem_cons_drop _ n h).symm
+
+@[deprecated drop_eq_getElem_cons (since := "2024-06-12")]
+theorem drop_eq_get_cons {n} {l : List α} (h) : drop n l = get l ⟨n, h⟩ :: drop (n + 1) l := by
+  simp [drop_eq_getElem_cons]
 
 theorem drop_eq_nil_of_eq_nil : ∀ {as : List α} {i}, as = [] → as.drop i = []
   | _, _, rfl => drop_nil

@@ -37,7 +37,7 @@ attribute [simp] data_toArray uset
 theorem getElem_eq_data_getElem (a : Array α) (h : i < a.size) : a[i] = a.data[i] := by
   by_cases i < a.size <;> (try simp [*]) <;> rfl
 
-@[deprecated (since := "2024-06-12")]
+@[deprecated getElem_eq_data_getElem (since := "2024-06-12")]
 theorem getElem_eq_data_get (a : Array α) (h : i < a.size) : a[i] = a.data.get ⟨i, h⟩ := by
   simp [getElem_eq_data_getElem]
 

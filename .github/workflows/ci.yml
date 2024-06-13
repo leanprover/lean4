@@ -2,19 +2,20 @@ name: CI
 on:
   push:
     branches:
-      - "master"
+      - 'master'
     tags:
-      - "*"
+      - '*'
   pull_request:
   merge_group:
   schedule:
-    - cron: "0 7 * * *" # 8AM CET/11PM PT
+    - cron: '0 7 * * *'  # 8AM CET/11PM PT
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
+
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
@@ -443,10 +444,10 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
-      - if: contains(needs.*.result, 'failure')
-        uses: actions/github-script@v7
-        with:
-          script: |
+    - if: contains(needs.*.result, 'failure')
+      uses: actions/github-script@v7
+      with:
+        script: |
             core.setFailed('Some jobs failed')
 
   # This job creates releases from tags

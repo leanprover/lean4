@@ -92,6 +92,7 @@ theorem getElem_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) 
     L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
   getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append ..
 
+set_option linter.deprecated false in
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
 theorem get_take (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
@@ -134,14 +135,14 @@ theorem get?_take_eq_if {l : List α} {n m : Nat} :
 theorem nth_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1)).get? n = l.get? n :=
   get?_take (Nat.lt_succ_self n)
 
-theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ (l.get? n).toList := by
+theorem take_succ {l : List α} {n : Nat} : l.take (n + 1) = l.take n ++ l[n]?.toList := by
   induction l generalizing n with
   | nil =>
-    simp only [Option.toList, get?, take_nil, append_nil]
+    simp only [take_nil, Option.toList, getElem?_nil, append_nil]
   | cons hd tl hl =>
     cases n
-    · simp only [Option.toList, get?, eq_self_iff_true, take, nil_append]
-    · simp only [hl, cons_append, get?, eq_self_iff_true, take]
+    · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
+    · simp only [take, hl, getElem?_cons_succ, cons_append]
 
 @[simp]
 theorem take_eq_nil_iff {l : List α} {k : Nat} : l.take k = [] ↔ l = [] ∨ k = 0 := by

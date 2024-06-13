@@ -1397,8 +1397,11 @@ theorem get?_mem {l : List α} {n a} (e : l.get? n = some a) : a ∈ l :=
 theorem Fin.exists_iff (p : Fin n → Prop) : (∃ i, p i) ↔ ∃ i h, p ⟨i, h⟩ :=
   ⟨fun ⟨i, h⟩ => ⟨i.1, i.2, h⟩, fun ⟨i, hi, h⟩ => ⟨⟨i, hi⟩, h⟩⟩
 
+theorem mem_iff_getElem? {a} {l : List α} : a ∈ l ↔ ∃ n : Nat, l[n]? = some a := by
+  simp [getElem?_eq_some, mem_iff_getElem]
+
 theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a := by
-  simp [get?_eq_some, getElem?_eq_some, Fin.exists_iff, mem_iff_get]
+  simp [getElem?_eq_some, Fin.exists_iff, mem_iff_get]
 
 theorem get?_zero (l : List α) : l.get? 0 = l.head? := by cases l <;> rfl
 

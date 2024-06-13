@@ -288,12 +288,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       # Do check out some CI-relevant files from virtual merge commit to accommodate CI changes on
       # master (as the workflow files themselves are always taken from the merge)
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            flake.nix
-            flake.lock
-          sparse-checkout-cone-mode: false
+      - name: CI Merge Checkout
+        run: |
+          git fetch ${{ github.event.pull_request.merge_commit_sha }}
+          git checkout FETCH_HEAD flake.nix flake.lock
+        if: github.event_name == 'pull_request'
       - name: Install Nix
         uses: cachix/install-nix-action@v18
         with:

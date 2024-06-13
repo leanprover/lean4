@@ -304,7 +304,7 @@ jobs:
       # (needs to be after "Install *" to use the right shell)
       - name: CI Merge Checkout
         run: |
-          git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
+          git fetch origin ${{ github.sha }}
           git checkout FETCH_HEAD flake.nix flake.lock
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overriden)
@@ -323,7 +323,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-v3-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v3-${{ github.event.pull_request.head.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
             ${{ matrix.name }}-build-v3

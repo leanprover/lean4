@@ -142,7 +142,7 @@ jobs:
               },
               {
                 "name": "Linux release",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "release": true,
                 "check-level": 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
@@ -154,7 +154,7 @@ jobs:
               },
               {
                 "name": "Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "check-stage3": level >= 2,
                 "test-speedcenter": level >= 2,
                 "check-level": 1,

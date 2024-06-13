@@ -28,7 +28,7 @@ jobs:
             let matrix = [
               {
                 "name": "Nix Linux",
-                "os": large ? "nscloud-ubuntu-22.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-22.04-amd64-8x8" : "ubuntu-latest",
               }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`);

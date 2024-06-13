@@ -121,15 +121,23 @@ theorem getElem?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l
 theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
   simp [getElem?_take, h]
 
+theorem getElem?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
+    (l.take n)[m]? = none :=
+  getElem?_eq_none.mpr <| Nat.le_trans (length_take_le _ _) h
+
 theorem get?_take_eq_none {l : List α} {n m : Nat} (h : n ≤ m) :
-    (l.take n).get? m = none :=
-  get?_eq_none.mpr <| Nat.le_trans (length_take_le _ _) h
+    (l.take n).get? m = none := by
+  simp [getElem?_take_eq_none h]
+
+theorem getElem?_take_eq_if {l : List α} {n m : Nat} :
+    (l.take n)[m]? = if m < n then l[m]? else none := by
+  split
+  · next h => exact getElem?_take h
+  · next h => exact getElem?_take_eq_none (Nat.le_of_not_lt h)
 
 theorem get?_take_eq_if {l : List α} {n m : Nat} :
     (l.take n).get? m = if m < n then l.get? m else none := by
-  split
-  · next h => exact get?_take h
-  · next h => exact get?_take_eq_none (Nat.le_of_not_lt h)
+  simp [getElem?_take_eq_if]
 
 @[simp]
 theorem nth_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1)).get? n = l.get? n :=

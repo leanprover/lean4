@@ -456,7 +456,7 @@ theorem swapAt!_def (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
 
 @[simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
     a.pop[i] = a[i]'(Nat.lt_of_lt_of_le (a.size_pop ▸ hi) (Nat.sub_le _ _)) :=
-  List.get_dropLast ..
+  List.getElem_dropLast ..
 
 theorem eq_empty_of_size_eq_zero {as : Array α} (h : as.size = 0) : as = #[] := by
   apply ext

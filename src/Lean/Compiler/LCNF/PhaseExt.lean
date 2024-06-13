@@ -21,7 +21,7 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-abbrev DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+abbrev DeclExt := PersistentEnvExtension (Array Decl) Decl DeclExtState
 
 def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt := do
   registerPersistentEnvExtension {
@@ -34,8 +34,8 @@ def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt := do
       sortDecls decls
   }
 
-builtin_initialize baseExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
-builtin_initialize monoExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
+builtin_initialize baseExt : DeclExt ← mkDeclExt
+builtin_initialize monoExt : DeclExt ← mkDeclExt
 
 def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with

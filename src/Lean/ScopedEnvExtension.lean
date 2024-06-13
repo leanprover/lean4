@@ -99,7 +99,7 @@ open ScopedEnvExtension
 
 structure ScopedEnvExtension (α : Type) (β : Type) (σ : Type) where
   descr : Descr α β σ
-  ext   : PersistentEnvExtension (Entry α) (Entry β) (StateStack α β σ)
+  ext   : PersistentEnvExtension (Array (Entry α)) (Entry β) (StateStack α β σ)
   deriving Inhabited
 
 builtin_initialize scopedEnvExtensionsRef : IO.Ref (Array (ScopedEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]

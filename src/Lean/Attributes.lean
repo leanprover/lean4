@@ -131,12 +131,12 @@ def Attribute.Builtin.getPrio (stx : Syntax) : AttrM Nat := do
   is tagged in the environment `env`. -/
 structure TagAttribute where
   attr : AttributeImpl
-  ext  : PersistentEnvExtension Name Name NameSet
+  ext  : PersistentEnvExtension (Array Name) Name NameSet
   deriving Inhabited
 
 def registerTagAttribute (name : Name) (descr : String)
     (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO TagAttribute := do
-  let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
+  let ext : PersistentEnvExtension (Array Name) Name NameSet ← registerPersistentEnvExtension {
     name            := ref
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
@@ -177,7 +177,7 @@ end TagAttribute
   contains the attribute `pAttr` with parameter `p`. -/
 structure ParametricAttribute (α : Type) where
   attr : AttributeImpl
-  ext  : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+  ext  : PersistentEnvExtension (Array (Name × α)) (Name × α) (NameMap α)
   deriving Inhabited
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
@@ -186,7 +186,7 @@ structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
 def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do
-  let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+  let ext : PersistentEnvExtension (Array (Name × α)) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := impl.ref
     mkInitial       := pure {}
     addImportedFn   := fun s => impl.afterImport s *> pure {}
@@ -236,14 +236,14 @@ end ParametricAttribute
   Note that whenever we register an `EnumAttributes`, we create `n` attributes, but only one environment extension. -/
 structure EnumAttributes (α : Type) where
   attrs : List AttributeImpl
-  ext   : PersistentEnvExtension (Name × α) (Name × α) (NameMap α)
+  ext   : PersistentEnvExtension (Array (Name × α)) (Name × α) (NameMap α)
   deriving Inhabited
 
 def registerEnumAttributes [Inhabited α] (attrDescrs : List (Name × String × α))
     (validate : Name → α → AttrM Unit := fun _ _ => pure ())
     (applicationTime := AttributeApplicationTime.afterTypeChecking)
     (ref : Name := by exact decl_name%) : IO (EnumAttributes α) := do
-  let ext : PersistentEnvExtension (Name × α) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+  let ext : PersistentEnvExtension (Array (Name × α)) (Name × α) (NameMap α) ← registerPersistentEnvExtension {
     name            := ref
     mkInitial       := pure {}
     addImportedFn   := fun _ _ => pure {}
@@ -320,7 +320,7 @@ structure AttributeExtensionState where
   map        : PersistentHashMap Name AttributeImpl
   deriving Inhabited
 
-abbrev AttributeExtension := PersistentEnvExtension AttributeExtensionOLeanEntry (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
+abbrev AttributeExtension := PersistentEnvExtension (Array AttributeExtensionOLeanEntry) (AttributeExtensionOLeanEntry × AttributeImpl) AttributeExtensionState
 
 private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
   let map ← attributeMapRef.get

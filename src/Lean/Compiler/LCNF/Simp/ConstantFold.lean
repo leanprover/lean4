@@ -397,7 +397,7 @@ structure FolderOleanEntry where
 structure FolderEntry extends FolderOleanEntry where
   folder : Folder
 
-builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEntry (List FolderOleanEntry × SMap Name Folder) ←
+builtin_initialize folderExt : PersistentEnvExtension (Array FolderOleanEntry) FolderEntry (List FolderOleanEntry × SMap Name Folder) ←
   registerPersistentEnvExtension {
     mkInitial := return ([], builtinFolders)
     addImportedFn := fun entriesArray => do

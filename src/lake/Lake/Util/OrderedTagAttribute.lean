@@ -10,7 +10,7 @@ namespace Lake
 
 structure OrderedTagAttribute where
   attr : AttributeImpl
-  ext  : PersistentEnvExtension Name Name (Array Name)
+  ext  : PersistentEnvExtension (Array Name) Name (Array Name)
   deriving Inhabited
 
 def registerOrderedTagAttribute (name : Name) (descr : String)

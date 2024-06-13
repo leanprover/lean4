@@ -1,0 +1,52 @@
+#!/bin/bash
+# Must be run in a copy of the `lean4` repository, and you'll need to login with `gh auth` first.
+
+check_rate_limit() {
+  remaining=$(gh api rate_limit | jq '.resources.search.remaining')
+  if [[ $remaining -le 1 ]]; then
+    echo "API rate limit exceeded, retrying after a short wait..."
+    sleep $1 # Wait for the specified time before retrying
+    return 1
+  else
+    return 0
+  fi
+}
+
+perform_search() {
+  local search_term=$1
+  local retries=5
+  local wait_time=10
+
+  for ((i=0; i<retries; i++)); do
+    check_rate_limit $wait_time
+    if [[ $? -eq 0 ]]; then
+      gh search code --filename lean-toolchain -L 1000 "$search_term" | wc -l
+      return
+    fi
+    wait_time=$((wait_time * 2)) # Exponential backoff
+  done
+
+  echo "Failed to perform search after multiple attempts due to API rate limit."
+  exit 1
+}
+
+for v in $(gh release list | cut -f1) nightly stable
+do
+  sleep 10 # Don't exceed API rate limits!
+  echo -n $v" "
+  count=$(perform_search "leanprover/lean4:$v")
+  
+  # Check if version number begins with a 'v'
+  if [[ $v == v* ]]; then
+    sleep 10 # Don't exceed API rate limits for the second search!
+    # Remove the leading 'v'
+    v_no_v=${v:1}
+    count_no_v=$(perform_search "leanprover/lean4:$v_no_v")
+    # Sum the two counts
+    total_count=$(($count + $count_no_v))
+    echo $total_count
+  else
+    echo $count
+  fi
+done | awk '{ printf "%-12s %s\n", $1, $2 }'
+

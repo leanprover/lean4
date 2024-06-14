@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/option_ref.h"
+#include <lean/option_ref.h>
+#include <lean/version.h>
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -19,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/num.h"
-#include <lean/version.h>
 #include "githash.h" // NOLINT
 
 namespace lean {

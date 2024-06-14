@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <lean/exception.h>
 #include <lean/object.h>
-#include "util/string_ref.h"
+#include <lean/string_ref.h>
 
 namespace lean {
 extern "C" object* lean_io_error_to_string(object * err);

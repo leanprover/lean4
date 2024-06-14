@@ -6,8 +6,8 @@ Authors: Leonardo de Moura
 */
 #include <string>
 #include <lean/sstream.h>
-#include "util/object_ref.h"
-#include "util/option_ref.h"
+#include <lean/object_ref.h>
+#include <lean/option_ref.h>
 #include "util/io.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"

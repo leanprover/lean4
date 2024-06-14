@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include <iterator>
 #include <lean/debug.h>
 #include <lean/optional.h>
+#include <lean/buffer.h>
 #include "util/rc.h"
-#include "util/buffer.h"
 
 namespace lean {
 /**

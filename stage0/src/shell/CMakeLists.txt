@@ -186,7 +186,7 @@ add_test(NAME leanpkgtest_user_ext
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
-           leanpkg build | grep 'world, hello, test'")
+           leanmake | grep 'world, hello, test'")
 
 add_test(NAME leanpkgtest_user_attr
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr"
@@ -194,7 +194,7 @@ add_test(NAME leanpkgtest_user_attr
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
-           leanpkg build")
+           leanmake")
 
 add_test(NAME leanpkgtest_user_opt
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_opt"
@@ -202,7 +202,7 @@ add_test(NAME leanpkgtest_user_opt
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
-           leanpkg build")
+           leanmake")
 
 add_test(NAME leanpkgtest_prv
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/prv"
@@ -210,4 +210,4 @@ add_test(NAME leanpkgtest_prv
            set -eu
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
-           leanpkg build 2>&1 | grep 'error: field.*private'")
+           leanmake 2>&1 | grep 'error: field.*private'")

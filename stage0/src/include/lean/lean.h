@@ -1686,6 +1686,21 @@ lean_obj_res lean_st_ref_swap(b_lean_obj_arg, lean_obj_arg, lean_obj_arg);
 /* pointer address unsafe primitive  */
 static inline size_t lean_ptr_addr(b_lean_obj_arg a) { return (size_t)a; }
 
+/* Name primitives */
+uint8_t lean_name_eq(b_lean_obj_arg n1, b_lean_obj_arg n2);
+
+static inline uint64_t lean_name_hash_ptr(b_lean_obj_arg n) {
+    assert(!lean_is_scalar(n));
+    return lean_ctor_get_uint64(n, sizeof(lean_object*)*2);
+}
+
+static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
+    if (lean_is_scalar(n))
+        return 1723;
+    else
+        return lean_name_hash_ptr(n);
+}
+
 #ifdef __cplusplus
 }
 #endif

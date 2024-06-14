@@ -11,8 +11,8 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <limits>
 #include <lean/hash.h>
+#include <lean/buffer.h>
 #include "util/list_fn.h"
-#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/expr_sets.h"

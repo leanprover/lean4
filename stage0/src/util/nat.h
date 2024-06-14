@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/object_ref.h"
+#include <lean/object_ref.h>
 
 namespace lean {
 /* Wrapper for manipulating Lean runtime nat values in C++. */

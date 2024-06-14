@@ -12,8 +12,8 @@ namespace Lean
 instance : Coe String Name := ⟨Name.mkSimple⟩
 
 namespace Name
-
-@[export lean_name_hash] def hashEx : Name → UInt64 :=
+-- Remark: we export the `Name.hash` to make sure it matches the hash implemented in C++
+@[export lean_name_hash_exported] def hashEx : Name → UInt64 :=
   Name.hash
 
 def getPrefix : Name → Name

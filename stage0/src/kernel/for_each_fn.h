@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include <functional>
-#include "util/buffer.h"
+#include <lean/buffer.h>
 #include "kernel/expr.h"
 #include "kernel/expr_sets.h"
 

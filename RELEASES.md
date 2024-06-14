@@ -248,6 +248,10 @@ v4.9.0
 * [#4351](https://github.com/leanprover/lean4/pull/4351) fixes `LogIO`-to-`CliM`-lifting performance issues.
 * [#4343](https://github.com/leanprover/lean4/pull/4343) make Lake store the dependency trace for a build in
   the cached build long and then verifies that it matches the trace of the current build before replaying the log.
+* [#4402](https://github.com/leanprover/lean4/pull/4402) moves the cached log into the trace file (no more `.log.json`).
+  This means logs are no longer cached on fatal errors and this ensures that an out-of-date log is not associated with an up-to-date trace.
+  Separately, `.hash` file generation was changed to be more reliable as well.
+  The `.hash` files are deleted as part of the build and always regenerate with `--rehash`.
 * **Other fixes or improvements**
   * [#4056](https://github.com/leanprover/lean4/pull/4056) cleans up tests
   * [#4244](https://github.com/leanprover/lean4/pull/4244) fixes `noRelease` test when Lean repo is tagged

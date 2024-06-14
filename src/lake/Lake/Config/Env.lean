@@ -25,6 +25,8 @@ structure Env where
   lean : LeanInstall
   /-- The Elan installation (if any) of the environment. -/
   elan? : Option ElanInstall
+  /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
+  reservoirApiUrl : String
   /-- Overrides the detected Lean's githash as the string Lake uses for Lean traces. -/
   githashOverride : String
   /-- A name-to-URL mapping of URL overrides for the named packages. -/
@@ -48,6 +50,7 @@ def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstal
   return {
     lake, lean, elan?,
     pkgUrlMap := ← computePkgUrlMap
+    reservoirApiUrl := (← IO.getEnv "LAKE_RESERVOIR_API_URL").getD "https://reservoir.lean-lang.org/api"
     githashOverride := (← IO.getEnv "LEAN_GITHASH").getD ""
     initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",

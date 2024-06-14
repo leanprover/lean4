@@ -1,0 +1,5 @@
+name = "test"
+
+[[require]]
+name = "doc-gen4"
+scope = "leanprover"

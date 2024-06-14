@@ -1,2 +1,2 @@
-4448.lean:11:10: warning: `hi_self` has been deprecated
-4448.lean:11:19: warning: `hi` has been deprecated
+4448.lean:11:11-11:18: warning: `hi_self` has been deprecated
+4448.lean:11:20-11:22: warning: `hi` has been deprecated

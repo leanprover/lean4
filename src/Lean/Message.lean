@@ -403,11 +403,13 @@ def indentExpr (e : Expr) : MessageData :=
   indentD e
 
 class AddMessageContext (m : Type → Type) where
-  /-- Without context, a `MessageData` object may be be missing information
-      (e.g. hover info) for pretty printing, or may print an error. Hence,
-      `addMessageContext` should be called on all constructed `MessageData`
-      (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or
-      `CoreM`). -/
+  /-- 
+  Without context, a `MessageData` object may be be missing information
+  (e.g. hover info) for pretty printing, or may print an error. Hence,
+  `addMessageContext` should be called on all constructed `MessageData`
+  (e.g. via `m!`) before taking it out of context (e.g. leaving `MetaM` or
+  `CoreM`).
+  -/
   addMessageContext : MessageData → m MessageData
 
 export AddMessageContext (addMessageContext)

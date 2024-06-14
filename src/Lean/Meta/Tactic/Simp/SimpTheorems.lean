@@ -468,7 +468,23 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
     let mut d := d
     for h : i in [:eqns.size] do
       let eqn := eqns[i]
-      d ← SimpTheorems.addConst d eqn (prio := 999 - i)
+      /-
+      We assign priorities to the equational lemmas so that more specific ones
+      are tried first before a possible catch-all with possible side-conditions.
+
+      We assign very low priorities to match the simplifiers behavior when unfolding
+      a definition, which happens in `simpLoop`’ `visitPreContinue` after applying
+      rewrite rules.
+
+      Definitions with more than 100 equational theorems will use priority 1 for all
+      but the last (a heuristic, not perfect).
+      -/
+      let prio := if eqns.size > 100 then
+        if i + 1 = eqns.size then 0 else 1
+      else
+        100 - i
+      -- We assign very low priority to equational le
+      d ← SimpTheorems.addConst d eqn (prio := prio)
     /-
     Even if a function has equation theorems,
     we also store it in the `toUnfold` set in the following two cases:

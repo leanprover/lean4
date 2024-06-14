@@ -112,3 +112,7 @@ FOREACH(T ${LEANTESTS})
              COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
+
+add_test(NAME leanpkgtest
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/b"
+         COMMAND bash -c "PATH=${LEAN_BIN}:$PATH leanpkg build")

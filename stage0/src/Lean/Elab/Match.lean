@@ -709,12 +709,16 @@ builtin_initialize
 def ignoreUnusedAlts (opts : Options) : Bool :=
   opts.get `match.ignoreUnusedAlts false
 
-def reportMatcherResultErrors (result : MatcherResult) : TermElabM Unit := do
-  -- TODO: improve error messages
+def reportMatcherResultErrors (altLHSS : List AltLHS) (result : MatcherResult) : TermElabM Unit := do
   unless result.counterExamples.isEmpty do
     throwError! "missing cases:\n{Meta.Match.counterExamplesToMessageData result.counterExamples}"
   unless ignoreUnusedAlts (← getOptions) || result.unusedAltIdxs.isEmpty do
-    throwError! "unused alternatives: {result.unusedAltIdxs.map fun idx => s!"#{idx+1}"}"
+    let mut i := 0
+    for alt in altLHSS do
+      if result.unusedAltIdxs.contains i then
+        withRef alt.ref do
+          logError "redundant alternative"
+      i := i + 1
 
 private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
@@ -760,7 +764,7 @@ private def elabMatchAux (discrStxs : Array Syntax) (altViews : Array MatchAltVi
   let matcherName ← mkAuxName `match
   let matcherResult ← mkMatcher matcherName matchType numDiscrs altLHSS
   let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-  reportMatcherResultErrors matcherResult
+  reportMatcherResultErrors altLHSS matcherResult
   let r := mkApp matcherResult.matcher motive
   let r := mkAppN r discrs
   let r := mkAppN r rhss

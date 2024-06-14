@@ -53,6 +53,23 @@ section Utils
 
   instance : Coe IO.Error TaskError := ⟨TaskError.ioError⟩
 
+  structure CancelToken where
+    ref : IO.Ref Bool
+    deriving Inhabited
+
+  namespace CancelToken
+    def new : IO CancelToken :=
+      CancelToken.mk <$> IO.mkRef false
+
+    def check [MonadExceptOf TaskError m] [MonadLiftT (ST RealWorld) m] [Monad m] (tk : CancelToken) : m Unit := do
+      let c ← tk.ref.get
+      if c = true then
+        throw TaskError.aborted
+
+    def set (tk : CancelToken) : IO Unit :=
+      tk.ref.set true
+  end CancelToken
+
   /-- A document editable in the sense that we track the environment
   and parser state after each command so that edits can be applied
   without recompiling code appearing earlier in the file. -/
@@ -62,6 +79,7 @@ section Utils
     headerSnap : Snapshot
     /- Subsequent snapshots occur after each command. -/
     cmdSnaps   : AsyncList TaskError Snapshot
+    cancelTk   : CancelToken
     deriving Inhabited
 end Utils
 
@@ -86,11 +104,11 @@ section ServerM
     (←read).pendingRequestsRef.modify map
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) : ExceptT TaskError ServerM Snapshot := do
+  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken) : ExceptT TaskError ServerM Snapshot := do
+    cancelTk.check
     let st ← read
     let maybeSnap ← compileNextCmd m.text.source parentSnap
-    if ←IO.checkCanceled then
-      throw TaskError.aborted
+    cancelTk.check
     let sendDiagnostics (msgLog : MessageLog) : IO Unit := do
       let diagnostics ← msgLog.msgs.mapM (msgToDiagnostic m.text)
       st.hOut.writeLspNotification {
@@ -113,23 +131,29 @@ section ServerM
         the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
         because we cannot guarantee that no further diagnostics are emitted after clearing
         them. -/
-      sendDiagnostics snap.msgLog
+      sendDiagnostics <| snap.msgLog.add {
+        fileName := "<ignored>"
+        pos      := m.text.toPosition snap.endPos
+        severity := MessageSeverity.information
+        data     := "processing..."
+      }
       snap
     | Sum.inr msgLog =>
       sendDiagnostics msgLog
       throw TaskError.eof
 
   /-- Elaborates all commands after `initSnap`, emitting the diagnostics. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) : ServerM (AsyncList TaskError Snapshot) := do
+  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) : ServerM (AsyncList TaskError Snapshot) := do
     -- TODO(MH): check for interrupt with increased precision
-    AsyncList.unfoldAsync (nextCmdSnap m . (←read)) initSnap (some fun _ => pure TaskError.aborted)
+    AsyncList.unfoldAsync (nextCmdSnap m .  cancelTk (←read)) initSnap (some fun _ => pure TaskError.aborted)
 
   /-- Compiles the contents of a Lean file. -/
   def compileDocument (m : DocumentMeta) : ServerM Unit := do
     let headerSnap@⟨_, _, _, SnapshotData.headerData env msgLog opts⟩ ← Snapshots.compileHeader m.text.source
       | throwServerError "Internal server error: invalid header snapshot"
-    let cmdSnaps ← unfoldCmdSnaps m headerSnap
-    (←read).docRef.set ⟨m, headerSnap, cmdSnaps⟩
+    let cancelTk ← CancelToken.new
+    let cmdSnaps ← unfoldCmdSnaps m headerSnap cancelTk
+    (←read).docRef.set ⟨m, headerSnap, cmdSnaps, cancelTk⟩
 
   /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
       updates editable doc state. -/
@@ -150,12 +174,14 @@ section ServerM
       throwServerError "Internal server error: elab task was aborted while still in use."
     | some (TaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
+      oldDoc.cancelTk.set
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap
-        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps⟩
+        let cancelTk ← CancelToken.new
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk
+        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
            within the syntactic range of that last snap but still modifies it by appending tokens.
@@ -171,9 +197,10 @@ section ServerM
         if newLastStx != lastSnap.stx then
           validSnaps ← validSnaps.dropLast
           lastSnap ← preLastSnap
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap
+        let cancelTk ← CancelToken.new
+        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
-        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps⟩
+        st.docRef.set ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩
 end ServerM
 
 section NotificationHandling

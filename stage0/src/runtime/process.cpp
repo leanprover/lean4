@@ -9,6 +9,7 @@ Author: Jared Roesch
 #include <iostream>
 #include <iomanip>
 #include <utility>
+#include <system_error>
 
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
@@ -79,7 +80,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
         HANDLE readh;
         HANDLE writeh;
         if (!CreatePipe(&readh, &writeh, saAttr, 0))
-            throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
+            throw std::system_error(GetLastError(), std::system_category());
         *ours = io_wrap_handle(in ? from_win_handle(writeh, "w") : from_win_handle(readh, "r"));
         *theirs = in ? readh : writeh;
         // Ensure the write handle to the pipe for STDIN is not inherited.
@@ -95,7 +96,7 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
                                  FILE_ATTRIBUTE_NORMAL,
                                  NULL);
         if (hNul == INVALID_HANDLE_VALUE)
-            throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
+            throw std::system_error(GetLastError(), std::system_category());
         *theirs = hNul;
         return;
     }
@@ -182,7 +183,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     }
 
     if (!bSuccess) {
-        throw 0xc0de; // TODO(WN): translate Win32 errors or report them directly
+        throw std::system_error(GetLastError(), std::system_category());
     }
 
     // Close handle to primary thread, we don't need it.
@@ -331,6 +332,8 @@ void finalize_process() {}
 
 #endif
 
+extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
+
 extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
     object_ref args(args_);
     object_ref stdio_cfg = cnstr_get_ref(args, 0);
@@ -351,6 +354,9 @@ extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
                 cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4));
     } catch (int err) {
         return lean_io_result_mk_error(decode_io_error(err, nullptr));
+    } catch (std::system_error const & err) {
+        // TODO: decode
+        return lean_io_result_mk_error(lean_mk_io_error_other_error(err.code().value(), mk_string(err.code().message())));
     }
 }
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Simp
-// Imports: Init Lean.Meta.Tactic.Simp.Basic
+// Imports: Init Lean.Meta.Tactic.Simp.SimpLemmas Lean.Meta.Tactic.Simp.Types Lean.Meta.Tactic.Simp.Main
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +14,9 @@
 extern "C" {
 #endif
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Simp_Basic(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_SimpLemmas(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Types(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Simp_Main(lean_object*);
 static bool _G_initialized = false;
 lean_object* initialize_Lean_Meta_Tactic_Simp(lean_object* w) {
 lean_object * res;
@@ -23,7 +25,13 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Simp_Basic(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Simp_SimpLemmas(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_Types(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Simp_Main(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

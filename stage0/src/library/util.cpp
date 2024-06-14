@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/num.h"
-#include "version.h"
+#include <lean/version.h>
 #include "githash.h" // NOLINT
 
 namespace lean {

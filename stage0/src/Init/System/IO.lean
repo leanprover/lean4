@@ -93,7 +93,7 @@ def sleep (ms : UInt32) : IO Unit :=
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
   computation.
   Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
-  to the task is dropped. `act` should manually check for cancellation via `IO.checkInterrupt` if it wants to react
+  to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
 constant asTask (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))

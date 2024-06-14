@@ -205,7 +205,7 @@ instance : Inhabited (DiscrTree α) where
   Remark: if users have problems with the solution above, we may provide a `noIndexing` annotation,
   and `ignoreArg` would return true for any term of the form `noIndexing t`.
 -/
-private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
+private def ignoreArg (a : Expr) (i : Nat) (infos : Array BinderInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos.get ⟨i, h⟩
     if info.isInstImplicit then
@@ -217,7 +217,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
   else
     isProof a
 
-private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
+private partial def pushArgsAux (infos : Array BinderInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
   | i, .app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
@@ -357,6 +357,24 @@ where
 def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
   if root then reduceUntilBadKey e config else reduce e config
 
+/--
+Collect the binder infos for each argument supplied to `f`.
+Handles the case where `f` is "overapplied" in the sense that the effective arity of `f` is greater
+than its type would suggest due to type arguments being specialized to function types.
+-/
+private def getBinderInfos (f : Expr) (args : Array Expr) : MetaM (Array BinderInfo) := do
+  let mut infos : Array BinderInfo := Array.mkEmpty args.size
+  let mut fnType ← inferType f
+  let mut j := 0
+  for i in [0:args.size] do
+    unless fnType matches .forallE .. do
+      fnType ← whnfD (fnType.instantiateRevRange j i args)
+      j := i
+    let .forallE _ _ b binderInfo := fnType | break
+    infos := infos.push binderInfo
+    fnType := b
+  return infos
+
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
 /--
@@ -383,12 +401,12 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
   else
     let e ← reduceDT e root config
     let fn := e.getAppFn
-    let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
-      let info ← getFunInfoNArgs fn nargs
+    let push (k : Key) (args : Array Expr) (todo : Array Expr) : MetaM (Key × Array Expr) := do
+      let info ← getBinderInfos fn args
       let todo ← if noIndexAtArgs then
-        pure <| pushWildcards nargs todo
+        pure <| pushWildcards args.size todo
       else
-        pushArgsAux info.paramInfo (nargs-1) e todo
+        pushArgsAux info (args.size - 1) e todo
       return (k, todo)
     match fn with
     | .lit v     =>
@@ -399,8 +417,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
           return (.lit v, todo)
         if (← shouldAddAsStar c e) then
           return (.star, todo)
-      let nargs := e.getAppNumArgs
-      push (.const c nargs) nargs todo
+      let args := e.getAppArgs
+      push (.const c args.size) args todo
     | .proj s i a =>
       /-
       If `s` is a class, then `a` is an instance. Thus, we annotate `a` with `no_index` since we do not
@@ -409,11 +427,11 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
       TODO: add better support for projections that are functions
       -/
       let a := if isClass (← getEnv) s then mkNoindexAnnotation a else a
-      let nargs := e.getAppNumArgs
-      push (.proj s i nargs) nargs (todo.push a)
+      let args := e.getAppArgs
+      push (.proj s i args.size) args (todo.push a)
     | .fvar fvarId   =>
-      let nargs := e.getAppNumArgs
-      push (.fvar fvarId nargs) nargs todo
+      let args := e.getAppArgs
+      push (.fvar fvarId args.size) args todo
     | .mvar mvarId   =>
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs

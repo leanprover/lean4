@@ -925,6 +925,30 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab proj] def elabProj : TermElab := elabAtom
 @[builtinTermElab arrayRef] def elabArrayRef : TermElab := elabAtom
 
+@[builtinTermElab binrel] def elabBinRel : TermElab :=  fun stx expectedType? => do
+  match (← resolveId? stx[1]) with
+  | some f =>
+    let (lhs, rhs) ← withSynthesize (mayPostpone := true) do
+      let mut lhs ← elabTerm stx[2] none
+      let mut rhs ← elabTerm stx[3] none
+      if lhs.isAppOfArity `OfNat.ofNat 3 then
+        lhs ← ensureHasType (← inferType rhs) lhs
+      else if rhs.isAppOfArity `OfNat.ofNat 3 then
+        rhs ← ensureHasType (← inferType lhs) rhs
+      return (lhs, rhs)
+    let lhsType ← inferType lhs
+    let rhsType ← inferType rhs
+    let (lhs, rhs) ←
+      try
+        pure (lhs, ← withRef stx[3] do ensureHasType lhsType rhs)
+      catch ex =>
+        try
+          pure (← withRef stx[2] do ensureHasType rhsType lhs, rhs)
+        catch _ =>
+          throw ex
+    elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
+  | none   => throwUnknownConstant stx[1].getId
+
 builtin_initialize
   registerTraceClass `Elab.app
 

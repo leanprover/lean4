@@ -233,9 +233,7 @@ def eraseNamedArg (binderName : Name) : M Unit :=
 private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
   modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := argName }
+    registerMVarArgName arg.mvarId! argName
 
 /--
   Elaborate the given `Arg` and add it to the result. See `addNewArg`.
@@ -833,9 +831,7 @@ private def elabArg (arg : Arg) (argExpectedType : Expr) : M Expr := do
 /-- Save information for producing error messages. -/
 def saveArgInfo (arg : Expr) (binderName : Name) : M Unit := do
   if arg.isMVar then
-    let mvarId := arg.mvarId!
-    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
-      registerMVarErrorInfo { mvarErrorInfo with argName? := binderName }
+    registerMVarArgName arg.mvarId! binderName
 
 /-- Create an implicit argument using the given `BinderInfo`. -/
 def mkImplicitArg (argExpectedType : Expr) (bi : BinderInfo) : M Expr := do

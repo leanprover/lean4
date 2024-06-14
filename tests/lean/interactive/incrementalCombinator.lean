@@ -41,3 +41,21 @@ def spaceHave : True := by
               --^ insert: " "
               --^ collectDiagnostics
     dbg_trace "sh"
+
+-- RESET
+def next : True := by
+  next =>
+    dbg_trace "n 0"
+    dbg_trace "n 1"
+                --^ sync
+                --^ insert: ".5"
+
+-- RESET
+def if : True := by
+  if h : True then
+    dbg_trace "i 0"
+    dbg_trace "i 1"
+                --^ sync
+                --^ insert: ".5"
+  else
+    skip

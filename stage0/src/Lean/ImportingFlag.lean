@@ -7,6 +7,22 @@ namespace Lean
 
 private builtin_initialize importingRef : IO.Ref Bool ← IO.mkRef false
 
+private builtin_initialize runInitializersRef : IO.Ref Bool ← IO.mkRef false
+/--
+  By default the `initialize` code is not executed when importing .olean files.
+  When this flag is set to `true`, the initializers are executed.
+  This method is meant to be used by the Lean frontend only.
+
+  Remark: it is not safe to run `initialize` code when using multiple threads.
+  Remark: The Lean frontend executes this method at startup time.
+-/
+@[export lean_enable_initializer_execution]
+def enableInitializersExecution : IO Unit :=
+  runInitializersRef.set true
+
+def isInitializerExecutionEnabled : IO Bool :=
+  runInitializersRef.get
+
 /- We say Lean is "initializing" when it is executing `builtin_initialize` declarations and importing modules.
    Recall that Lean excutes `initialize` declarations while importing modules. -/
 def initializing : IO Bool :=
@@ -29,5 +45,6 @@ def withImporting (x : IO α) : IO α :=
     x
   finally
     importingRef.set false
+    runInitializersRef.set false
 
 end Lean

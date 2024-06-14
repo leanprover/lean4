@@ -379,6 +379,8 @@ void check_optarg(char const * option_name) {
     }
 }
 
+extern "C" object * lean_enable_initializer_execution(object * w);
+
 int main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
@@ -412,7 +414,7 @@ int main(int argc, char ** argv) {
     bool only_deps = false;
     bool stats = false;
     // 0 = don't run server, 1 = watchdog, 2 = worker
-    int run_server = 0; 
+    int run_server = 0;
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
@@ -429,6 +431,7 @@ int main(int argc, char ** argv) {
         std::cerr << "error: " << ex.what() << std::endl;
         return 1;
     }
+    consume_io_result(lean_enable_initializer_execution(io_mk_world()));
 
     options opts = get_default_options();
     optional<std::string> server_in;
@@ -578,7 +581,7 @@ int main(int argc, char ** argv) {
             return run_server_watchdog(forwarded_args);
         else if (run_server == 2)
             return run_server_worker();
-            
+
         if (use_stdin) {
             if (argc - optind != 0) {
                 mod_fn = argv[optind++];

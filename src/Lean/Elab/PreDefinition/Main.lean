@@ -60,7 +60,7 @@ private def getLMVarsAtPreDefValue (preDef : PreDefinition) : Array LMVarId :=
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
   let pendingLMVarIds := getLMVarsAtPreDefValue preDef
-  if (← logUnassignedUsingErrorInfos pendingMVarIds pendingLMVarIds) then
+  if (← logUnassignedUsingErrorInfos pendingMVarIds (pendingLMVarIds := pendingLMVarIds)) then
     let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then
       return preDef

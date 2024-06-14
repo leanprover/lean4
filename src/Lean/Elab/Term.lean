@@ -739,7 +739,7 @@ where
   TODO: try to fill "all" holes using synthetic "sorry's"
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
-def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (pendingLMVarIds : Array LMVarId := #[]) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) (pendingLMVarIds : Array LMVarId := #[]) : TermElabM Bool := do
   if pendingMVarIds.isEmpty && pendingLMVarIds.isEmpty then
     return false
   else

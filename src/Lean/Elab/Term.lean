@@ -627,10 +627,8 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := {
-    options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit,
-    levelMVarErrorInfos := (← getlevelMVarErrorInfos) }
-  match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
+  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
+  match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames), levelMVarErrorInfos := (← getlevelMVarErrorInfos) } with
   | .ok a newS  =>
     setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; setLevelMVarErrorInfos newS.levelMVarErrorInfos
     pure a

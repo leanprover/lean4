@@ -13,7 +13,7 @@ namespace CollectLevelMVars
 structure State where
   visitedLevel : LevelSet      := {}
   visitedExpr  : ExprSet       := {}
-  result       : LMVarIdSet    := {}
+  result       : Array LMVarId := #[]
 
 instance : Inhabited State := ⟨{}⟩
 
@@ -28,7 +28,7 @@ mutual
     | .succ v    => visitLevel v
     | .max u v   => visitLevel v ∘ visitLevel u
     | .imax u v  => visitLevel v ∘ visitLevel u
-    | .mvar n    => fun s => { s with result := s.result.insert n }
+    | .mvar n    => fun s => { s with result := s.result.push n }
     | _          => id
 end
 

@@ -16,6 +16,78 @@ so these are in a separate file to minimize imports.
 
 namespace List
 
+theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
+  induction as generalizing n with
+  | nil  => simp [length, lengthTRAux]
+  | cons a as ih =>
+    simp [length, lengthTRAux, ← ih, Nat.succ_add]
+    rfl
+
+@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
+  apply funext; intro α; apply funext; intro as
+  simp [lengthTR, ← length_add_eq_lengthTRAux]
+
+/-- Tail-recursive version of `List.append`. -/
+def appendTR (as bs : List α) : List α :=
+  reverseAux as.reverse bs
+
+theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
+  induction as generalizing bs cs with
+  | nil => rfl
+  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
+
+@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
+  apply funext; intro α; apply funext; intro as; apply funext; intro bs
+  simp [appendTR, reverse]
+  induction as with
+  | nil  => rfl
+  | cons a as ih =>
+    rw [reverseAux, reverseAux_reverseAux]
+    simp [List.append, ih, reverseAux]
+
+/-- Tail-recursive version of `List.map`. -/
+@[inline] def mapTR (f : α → β) (as : List α) : List β :=
+  loop as []
+where
+  @[specialize] loop : List α → List β → List β
+  | [],    bs => bs.reverse
+  | a::as, bs => loop as (f a :: bs)
+
+theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
+    mapTR.loop f as bs = bs.reverse ++ map f as := by
+  induction as generalizing bs with
+  | nil => simp [mapTR.loop, map]
+  | cons a as ih =>
+    simp only [mapTR.loop, map]
+    rw [ih (f a :: bs), reverse_cons, append_assoc]
+    rfl
+
+@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
+  funext fun α => funext fun β => funext fun f => funext fun as => by
+    simp [mapTR, mapTR_loop_eq]
+
+/-- Tail-recursive version of `List.filter`. -/
+@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
+  loop as []
+where
+  @[specialize] loop : List α → List α → List α
+  | [],    rs => rs.reverse
+  | a::as, rs => match p a with
+     | true  => loop as (a::rs)
+     | false => loop as rs
+
+theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
+    filterTR.loop p as bs = bs.reverse ++ filter p as := by
+  induction as generalizing bs with
+  | nil => simp [filterTR.loop, filter]
+  | cons a as ih =>
+    simp only [filterTR.loop, filter]
+    split <;> simp_all
+
+@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
+  apply funext; intro α; apply funext; intro p; apply funext; intro as
+  simp [filterTR, filterTR_loop_eq]
+
 /-- Tail recursive version of `erase`. -/
 @[inline] def setTR (l : List α) (n : Nat) (a : α) : List α := go l n #[] where
   /-- Auxiliary for `setTR`: `setTR.go l a xs n acc = acc.toList ++ set xs a`,
@@ -31,7 +103,7 @@ namespace List
     setTR.go l a xs n acc = acc.data ++ xs.set n a
   | [], _ => fun h => by simp [setTR.go, set, h]
   | x::xs, 0 => by simp [setTR.go, set]
-  | x::xs, n+1 => fun h => by simp [setTR.go, set]; rw [go _ xs]; {simp}; simp [h]
+  | x::xs, n+1 => fun h => by simp only [setTR.go, set]; rw [go _ xs] <;> simp [h]
   exact (go #[] _ _ rfl).symm
 
 /-- Tail recursive version of `erase`. -/
@@ -49,9 +121,10 @@ namespace List
   intro xs; induction xs with intro acc h
   | nil => simp [List.erase, eraseTR.go, h]
   | cons x xs IH =>
-    simp [List.erase, eraseTR.go]
-    cases x == a <;> simp
-    · rw [IH]; simp; simp; exact h
+    simp only [eraseTR.go, Array.toListAppend_eq, List.erase]
+    cases x == a
+    · rw [IH] <;> simp_all
+    · simp
 
 /-- Tail recursive version of `eraseIdx`. -/
 @[inline] def eraseIdxTR (l : List α) (n : Nat) : List α := go l n #[] where
@@ -72,7 +145,7 @@ namespace List
     match n with
     | 0 => simp [eraseIdx, eraseIdxTR.go]
     | n+1 =>
-      simp [eraseIdx, eraseIdxTR.go]
+      simp only [eraseIdxTR.go, eraseIdx]
       rw [IH]; simp; simp; exact h
 
 /-- Tail recursive version of `bind`. -/
@@ -108,7 +181,9 @@ namespace List
   funext α β f l
   let rec go : ∀ as acc, filterMapTR.go f as acc = acc.data ++ as.filterMap f
     | [], acc => by simp [filterMapTR.go, filterMap]
-    | a::as, acc => by simp [filterMapTR.go, filterMap, go as]; split <;> simp [*]
+    | a::as, acc => by
+      simp only [filterMapTR.go, go as, Array.push_data, append_assoc, singleton_append, filterMap]
+      split <;> simp [*]
   exact (go l #[]).symm
 
 /-- Tail recursive version of `replace`. -/
@@ -127,8 +202,10 @@ namespace List
   intro xs; induction xs with intro acc
   | nil => simp [replace, replaceTR.go]
   | cons x xs IH =>
-    simp [replace, replaceTR.go]; split <;> simp [*]
-    · intro h; rw [IH]; simp; simp; exact h
+    simp only [replaceTR.go, Array.toListAppend_eq, replace]
+    split
+    · simp [*]
+    · intro h; rw [IH] <;> simp_all
 
 /-- Tail recursive version of `take`. -/
 @[inline] def takeTR (n : Nat) (l : List α) : List α := go l n #[] where
@@ -146,8 +223,9 @@ namespace List
   intro xs; induction xs generalizing n with intro acc
   | nil => cases n <;> simp [take, takeTR.go]
   | cons x xs IH =>
-    cases n with simp [take, takeTR.go]
-    | succ n => intro h; rw [IH]; simp; simp; exact h
+    cases n with simp only [take, takeTR.go]
+    | zero => simp
+    | succ n => intro h; rw [IH] <;> simp_all
 
 /-- Tail recursive version of `takeWhile`. -/
 @[inline] def takeWhileTR (p : α → Bool) (l : List α) : List α := go l #[] where
@@ -165,8 +243,10 @@ namespace List
   intro xs; induction xs with intro acc
   | nil => simp [takeWhile, takeWhileTR.go]
   | cons x xs IH =>
-    simp [takeWhile, takeWhileTR.go]; split <;> simp [*]
-    · intro h; rw [IH]; simp; simp; exact h
+    simp only [takeWhileTR.go, Array.toList_eq, takeWhile]
+    split
+    · intro h; rw [IH] <;> simp_all
+    · simp [*]
 
 /-- Tail recursive version of `foldr`. -/
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init

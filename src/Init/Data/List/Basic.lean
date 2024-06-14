@@ -6,48 +6,20 @@ Author: Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
-import Init.Data.Nat.Div
+import Init.Data.List.Notation
+
+/-!
+# Basic operations on `List`.
+
+We define
+* basic operations on `List`,
+* tail-recursive versions along with `@[csimp]` lemmas,
+* the minimal lemmas which are required for setting up `Init.Data.Array.Basic`.
+-/
 
 set_option linter.missingDocs true -- keep it documented
+
 open Decidable List
-
-/--
-The syntax `[a, b, c]` is shorthand for `a :: b :: c :: []`, or
-`List.cons a (List.cons b (List.cons c List.nil))`. It allows conveniently constructing
-list literals.
-
-For lists of length at least 64, an alternative desugaring strategy is used
-which uses let bindings as intermediates as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
-Note that this changes the order of evaluation, although it should not be observable
-unless you use side effecting operations like `dbg_trace`.
--/
-syntax "[" withoutPosition(term,*,?) "]"  : term
-
-/--
-Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
-The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
-It uses binary partitioning to construct a tree of intermediate let bindings as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
--/
-syntax "%[" withoutPosition(term,*,? " | " term) "]" : term
-
-namespace Lean
-
-macro_rules
-  | `([ $elems,* ]) => do
-    -- NOTE: we do not have `TSepArray.getElems` yet at this point
-    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
-      match i, skip with
-      | 0,   _     => pure result
-      | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
-    let size := elems.elemsAndSeps.size
-    if size < 64 then
-      expandListLit size (size % 2 == 0) (← ``(List.nil))
-    else
-      `(%[ $elems,* | List.nil ])
-end Lean
 
 universe u v w
 
@@ -56,17 +28,6 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 namespace List
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
-
-theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
-  induction as generalizing n with
-  | nil  => simp [length, lengthTRAux]
-  | cons a as ih =>
-    simp [length, lengthTRAux, ← ih, Nat.succ_add]
-    rfl
-
-@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
-  apply funext; intro α; apply funext; intro as
-  simp [lengthTR, ← length_add_eq_lengthTRAux]
 
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
@@ -111,19 +72,6 @@ it simply walks the linked list and reverses all the node pointers.
 def reverse (as : List α) : List α :=
   reverseAux as []
 
-theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
-  induction as generalizing bs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih]
-
-theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs) := by
-  induction as generalizing bs cs with
-  | nil => rfl
-  | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
-
-@[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
-  simp only [reverse]; rw [reverseAux_reverseAux_nil]; rfl
-
 /--
 `O(|xs|)`: append two lists. `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
 It takes time proportional to the first list.
@@ -131,19 +79,6 @@ It takes time proportional to the first list.
 protected def append : (xs ys : List α) → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs
-
-/-- Tail-recursive version of `List.append`. -/
-def appendTR (as bs : List α) : List α :=
-  reverseAux as.reverse bs
-
-@[csimp] theorem append_eq_appendTR : @List.append = @appendTR := by
-  apply funext; intro α; apply funext; intro as; apply funext; intro bs
-  simp [appendTR, reverse]
-  induction as with
-  | nil  => rfl
-  | cons a as ih =>
-    rw [reverseAux, reverseAux_reverseAux]
-    simp [List.append, ih, reverseAux]
 
 instance : Append (List α) := ⟨List.append⟩
 
@@ -166,10 +101,10 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
 
 @[simp] theorem append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
 
-theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
+@[simp] theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
   induction as <;> simp [concat, *]
 
-theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
+@[simp] theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
@@ -177,9 +112,7 @@ theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) 
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
-  induction as with
-  | nil => simp
-  | cons a as ih => simp [ih]
+  simp
 
 theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
   induction as generalizing bs with
@@ -236,27 +169,6 @@ def isEmpty : List α → Bool
   | []    => []
   | a::as => f a :: map f as
 
-/-- Tail-recursive version of `List.map`. -/
-@[inline] def mapTR (f : α → β) (as : List α) : List β :=
-  loop as []
-where
-  @[specialize] loop : List α → List β → List β
-  | [],    bs => bs.reverse
-  | a::as, bs => loop as (f a :: bs)
-
-theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
-    mapTR.loop f as bs = bs.reverse ++ map f as := by
-  induction as generalizing bs with
-  | nil => simp [mapTR.loop, map]
-  | cons a as ih =>
-    simp [mapTR.loop, map]
-    rw [ih (f a :: bs), reverse_cons, append_assoc]
-    rfl
-
-@[csimp] theorem map_eq_mapTR : @map = @mapTR :=
-  funext fun α => funext fun β => funext fun f => funext fun as => by
-    simp [mapTR, mapTR_loop_eq]
-
 /--
 `O(|join L|)`. `join L` concatenates all the lists in `L` into one list.
 * `join [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
@@ -293,30 +205,6 @@ def filter (p : α → Bool) : List α → List α
   | a::as => match p a with
     | true => a :: filter p as
     | false => filter p as
-
-/-- Tail-recursive version of `List.filter`. -/
-@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
-  loop as []
-where
-  @[specialize] loop : List α → List α → List α
-  | [],    rs => rs.reverse
-  | a::as, rs => match p a with
-     | true  => loop as (a::rs)
-     | false => loop as rs
-
-theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
-    filterTR.loop p as bs = bs.reverse ++ filter p as := by
-  induction as generalizing bs with
-  | nil => simp [filterTR.loop, filter]
-  | cons a as ih =>
-    simp [filterTR.loop, filter]
-    split
-    next => rw [ih, reverse_cons, append_assoc]; simp
-    next => rw [ih]
-
-@[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
-  apply funext; intro α; apply funext; intro p; apply funext; intro as
-  simp [filterTR, filterTR_loop_eq]
 
 /--
 `O(|l|)`. `partition p l` calls `p` on each element of `l`, partitioning the list into two lists

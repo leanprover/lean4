@@ -178,7 +178,7 @@ rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree ]; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree Lake.cTree ]; }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/lib/update-stage0"}
         '';

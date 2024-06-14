@@ -3,5 +3,9 @@ import Lean
 @[deprecated]
 theorem hi : True := .intro
 
+set_option linter.deprecated false in
+@[deprecated]
+theorem hi_self : hi = hi := rfl
+
 example : True := by
-  simp [hi, hi]
+  simp [← hi_self, hi]

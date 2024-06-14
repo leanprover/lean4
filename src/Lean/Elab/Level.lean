@@ -9,7 +9,9 @@ import Lean.Parser.Level
 import Lean.Elab.Exception
 import Lean.Elab.AutoBound
 
-namespace Lean.Elab.Level
+namespace Lean.Elab
+
+namespace Term
 
 /-- We can associate an error context to level metavariables.
 There are two kinds of errors -/
@@ -28,6 +30,10 @@ structure LevelMVarErrorInfo where
   /-- The syntax associated to the error -/
   ref          : Syntax
 
+end Term
+
+namespace Level
+
 structure Context where
   options           : Options
   ref               : Syntax
@@ -37,7 +43,7 @@ structure State where
   ngen                : NameGenerator
   mctx                : MetavarContext
   levelNames          : List Name
-  levelMVarErrorInfos : List LevelMVarErrorInfo := []
+  levelMVarErrorInfos : List Term.LevelMVarErrorInfo := []
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 

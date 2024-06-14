@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Util.CollectLevelMVars
 
 namespace Lean.Elab
 open Meta
@@ -53,9 +54,13 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
   let (_, s) ← (collectMVarsAtPreDef preDef).run {}
   pure s.result
 
+private def getLMVarsAtPreDefValue (preDef : PreDefinition) : Array LMVarId :=
+  (preDef.value.collectLevelMVars {}).result
+
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
-  if (← logUnassignedUsingErrorInfos pendingMVarIds) then
+  let pendingLMVarIds := getLMVarsAtPreDefValue preDef
+  if (← logUnassignedUsingErrorInfos pendingMVarIds pendingLMVarIds) then
     let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then
       return preDef

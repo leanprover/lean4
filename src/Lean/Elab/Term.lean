@@ -115,11 +115,17 @@ structure LetRecToLift where
   State of the `TermElabM` monad.
 -/
 structure State where
-  levelNames        : List Name       := []
-  syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
-  pendingMVars      : List MVarId := {}
+  levelNames          : List Name       := []
+  /--
+    Error contexts associated to level metavariables.
+    These are used for throwing errors when level metavariables
+    cannot be fully instantiated
+  -/
+  levelMVarErrorInfos : List LevelMVarErrorInfo := []
+  syntheticMVars      : MVarIdMap SyntheticMVarDecl := {}
+  pendingMVars        : List MVarId := {}
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
-  mvarErrorInfos    : List MVarErrorInfo := []
+  mvarErrorInfos      : List MVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -131,8 +137,8 @@ structure State where
     We used to store the argument names in `mvarErrorInfos`, updating the `MVarErrorInfos` to add the argument name when it is available,
     but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
   -/
-  mvarArgNames      : MVarIdMap Name := {}
-  letRecsToLift     : List LetRecToLift := []
+  mvarArgNames        : MVarIdMap Name := {}
+  letRecsToLift       : List LetRecToLift := []
   deriving Inhabited
 
 /--
@@ -458,6 +464,12 @@ def getLevelNames : TermElabM (List Name) :=
   return (← get).levelNames
 
 /--
+  Return the error contexts associated to level metavariables.
+-/
+def getlevelMVarErrorInfos : TermElabM (List LevelMVarErrorInfo) :=
+  return (← get).levelMVarErrorInfos
+
+/--
   Given a free variable `fvar`, return its declaration.
   This function panics if `fvar` is not a free variable.
 -/
@@ -529,7 +541,11 @@ def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
-  modify fun s => { s with levelNames := levelNames }
+  modify fun s => { s with levelNames }
+
+/-- Update the error contexts associated to level metavariables. -/
+def setLevelMVarErrorInfos (levelMVarErrorInfos : List LevelMVarErrorInfo) : TermElabM Unit :=
+  modify fun s => { s with levelMVarErrorInfos }
 
 /-- Execute `x` using `levelNames` as the universe level parameter names. See `getLevelNames`. -/
 def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α := do
@@ -605,15 +621,19 @@ def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-open Level (LevelElabM)
+open Level (LevelElabM) in
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
   let mctx ← getMCtx
   let ngen ← getNGen
-  let lvlCtx : Level.Context := { options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit }
+  let lvlCtx : Level.Context := {
+    options := (← getOptions), ref := (← getRef), autoBoundImplicit := ctx.autoBoundImplicit,
+    levelMVarErrorInfos := (← getlevelMVarErrorInfos) }
   match (x lvlCtx).run { ngen := ngen, mctx := mctx, levelNames := (← getLevelNames) } with
-  | .ok a newS  => setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; pure a
+  | .ok a newS  =>
+    setMCtx newS.mctx; setNGen newS.ngen; setLevelNames newS.levelNames; setLevelMVarErrorInfos newS.levelMVarErrorInfos
+    pure a
   | .error ex _ => throw ex
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
@@ -627,6 +647,9 @@ def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α)
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
     withPushMacroExpansionStack beforeStx afterStx x
+
+def registerLevelMVarOfConstErrorInfo (mvarId : LMVarId) (ref : Syntax) (constantName levelName : Name) : TermElabM Unit :=
+  modify fun s => { s with levelMVarErrorInfos := { mvarId, ref, kind := .ofConst constantName levelName } :: s.levelMVarErrorInfos }
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -668,6 +691,7 @@ def throwMVarError (m : MessageData) : TermElabM α := do
   else
     throwError m
 
+/-- Log the error associated to a `MVarErrorInfo` -/
 def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
@@ -694,15 +718,31 @@ where
     | none => msg
     | some extraMsg => msg ++ extraMsg
 
+/-- Log the error associated to a `LevelMVarErrorInfo` -/
+def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
+  match levelMVarErrorInfo.kind with
+  | .hole =>
+    let msg := m! "don't know how to synthesize universe level placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
+    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
+  | .ofConst constName levelName =>
+    let msg := m! "don't know how to synthesize universe level parameter {levelName} of '{constName}'"
+    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
+where
+  appendExtra (msg : MessageData) : MessageData :=
+    match extraMsg? with
+    | none => msg
+    | some extraMsg => msg ++ extraMsg
+
+
 /--
-  Try to log errors for the unassigned metavariables `pendingMVarIds`.
+  Try to log errors for the unassigned metavariables `pendingMVarIds` and `pendingLMVarIds`.
 
   Return `true` if there were "unfilled holes", and we should "abort" declaration.
   TODO: try to fill "all" holes using synthetic "sorry's"
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
-def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
-  if pendingMVarIds.isEmpty then
+def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (pendingLMVarIds : Array LMVarId := #[]) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
+  if pendingMVarIds.isEmpty && pendingLMVarIds.isEmpty then
     return false
   else
     let hasOtherErrors ← MonadLog.hasErrors
@@ -725,6 +765,22 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     for error in errors do
       error.mvarId.withContext do
         error.logError extraMsg?
+
+    let mut levelErrors : Array LevelMVarErrorInfo := #[]
+    let mut alreadyVisitedLevels : LMVarIdSet := {}
+    for levelMVarErrorInfo in (← get).levelMVarErrorInfos do
+      let mvarId := levelMVarErrorInfo.mvarId
+      unless alreadyVisitedLevels.contains mvarId do
+        alreadyVisitedLevels := alreadyVisitedLevels.insert mvarId
+        let lmvarDeps := (← instantiateLevelMVars (.mvar mvarId)).collectMVars
+        if pendingLMVarIds.any lmvarDeps.contains then do
+          unless hasOtherErrors do
+            levelErrors := levelErrors.push levelMVarErrorInfo
+          hasNewErrors := true
+
+    for error in levelErrors do
+      error.logError extraMsg?
+
     return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
@@ -1785,8 +1841,11 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
   else
-    let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
-    let us ← mkFreshLevelMVars numMissingLevels
+    let missingLevels := cinfo.levelParams.drop explicitLevels.length
+    let us ← missingLevels.mapM fun levelName => do
+      let u ← mkFreshLevelMVar
+      registerLevelMVarOfConstErrorInfo u.mvarId! (← getRef) constName levelName
+      pure u
     return Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do

@@ -11,15 +11,33 @@ import Lean.Elab.AutoBound
 
 namespace Lean.Elab.Level
 
+/-- We can associate an error context to level metavariables.
+There are two kinds of errors -/
+inductive LevelMVarErrorKind where
+  /-- Metavariable for a universe level parameter of a constant that hasn't been given explicitly -/
+  | ofConst (constantName levelName : Name)
+  /-- Metavariable for an explicit hole provided by the user (`_`) -/
+  | hole
+
+/-- We can associate an error context to level metavariables -/
+structure LevelMVarErrorInfo where
+  /-- The metavariable that the error is about -/
+  mvarId       : LMVarId
+  /-- The kind of error context -/
+  kind         : LevelMVarErrorKind
+  /-- The syntax associated to the error -/
+  ref          : Syntax
+
 structure Context where
   options           : Options
   ref               : Syntax
   autoBoundImplicit : Bool
 
 structure State where
-  ngen       : NameGenerator
-  mctx       : MetavarContext
-  levelNames : List Name
+  ngen                : NameGenerator
+  mctx                : MetavarContext
+  levelNames          : List Name
+  levelMVarErrorInfos : List LevelMVarErrorInfo := []
 
 abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 
@@ -39,9 +57,9 @@ instance : MonadNameGenerator LevelElabM where
   getNGen := return (← get).ngen
   setNGen ngen := modify fun s => { s with ngen := ngen }
 
-def mkFreshLevelMVar : LevelElabM Level := do
+def mkFreshLevelMVar (ref : Syntax) : LevelElabM Level := do
   let mvarId ← mkFreshLMVarId
-  modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
+  modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId, levelMVarErrorInfos := { mvarId, ref, kind := .hole } :: s.levelMVarErrorInfos }
   return mkLevelMVar mvarId
 
 register_builtin_option maxUniverseOffset : Nat := {
@@ -67,7 +85,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
     args[:args.size - 1].foldrM (init := ← elabLevel args.back) fun stx lvl =>
       return mkLevelIMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.hole then
-    mkFreshLevelMVar
+    mkFreshLevelMVar stx
   else if kind == numLitKind then
     match stx.isNatLit? with
     | some val => checkUniverseOffset val; return Level.ofNat val

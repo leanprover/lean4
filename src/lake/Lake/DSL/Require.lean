@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Parser.Command
+import Lake.Config.Dependency
 import Lake.DSL.Extensions
 import Lake.DSL.DeclUtil
 
@@ -20,24 +21,25 @@ syntax depSpec :=
   ident " from " (fromGit <|> fromPath) (" with " term)?
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment) : MacroM Command := do
+  let depTy := mkCIdent ``Dependency
   match stx with
   | `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $opts?]?) =>
     let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
     let path ← match path? with | some path => `(some $path) | none => `(none)
     let opts := opts?.getD <| ← `({})
-    `($[$doc?:docComment]? @[package_dep] def $name : Dependency := {
+    `($[$doc?:docComment]? @[package_dep] def $name : $depTy := {
       name := $(quote name.getId),
       src := Source.git $url $rev $path,
       opts := $opts
     })
   | `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
     let opts := opts?.getD <| ← `({})
-    `($[$doc?:docComment]? @[package_dep] def $name : Dependency := {
+    `($[$doc?:docComment]? @[package_dep] def $name : $depTy := {
       name :=  $(quote name.getId),
       src := Source.path $path,
       opts := $opts
     })
-  | _ => Macro.throwUnsupported
+  | _ => Macro.throwErrorAt stx "ill-formed require syntax"
 
 /--
 Adds a new package dependency to the workspace. Has two forms:
@@ -56,7 +58,7 @@ normal computation is supported within them (though parentheses made be
 required to disambiguate the syntax).
 -/
 scoped macro (name := requireDecl)
-doc?:(docComment)? "require " spec:depSpec : command =>
+doc?:(docComment)? kw:"require " spec:depSpec : command => withRef kw do
   expandDepSpec spec doc?
 
 @[inherit_doc requireDecl] abbrev RequireDecl := TSyntax ``requireDecl

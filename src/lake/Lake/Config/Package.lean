@@ -19,15 +19,6 @@ open System Lean
 
 namespace Lake
 
-/--
-First tries to convert a string into a legal name.
-If that fails, defaults to making it a simple name (e.g., `Lean.Name.mkSimple`).
-Currently used for package and target names taken from the CLI.
--/
-def stringToLegalOrSimpleName (s : String) : Name :=
-  if s.toName.isAnonymous then Lean.Name.mkSimple s else s.toName
-
-
 /-- The default `buildArchive` configuration for a package with `name`. -/
 @[inline] def defaultBuildArchive (name : Name) : String :=
   s!"{name.toString false}-{System.Platform.target}.tar.gz"

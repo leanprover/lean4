@@ -119,6 +119,18 @@ def ofFormatWithInfosM (fmt : MetaM FormatWithInfos) : MessageData :=
     withOptions (pp.tagAppFns.set · true) <|
       .ofFormatWithInfos <$> fmt
 
+/--
+Turns a `MetaM MessageData` into a `MessageData.lazy` which will run the monadic value.
+The optional array of expressions is used to set the `hasSyntheticSorry` fields, and should
+comprise the expressions that are included in the message data.
+-/
+def ofLazyM (f : MetaM MessageData) (es : Array Expr := #[]) : MessageData :=
+  .lazy
+    (f := fun ppctxt => ppctxt.runMetaM f)
+    (hasSyntheticSorry := fun mvarctxt => es.any (fun a =>
+        instantiateMVarsCore mvarctxt a |>.1.hasSyntheticSorry
+    ))
+
 /-- Pretty print a const expression using `delabConst` and generate terminfo.
 This function avoids inserting `@` if the constant is for a function whose first
 argument is implicit, which is what the default `toMessageData` for `Expr` does.

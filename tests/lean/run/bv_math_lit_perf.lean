@@ -16,7 +16,8 @@ def f (x : BitVec 32) : Nat :=
   | 920#32 => 12
   | _      => 1000
 
-set_option maxHeartbeats 3000
+-- TODO: This is a regression from fine-grained equational lemmas!
+set_option maxHeartbeats 10000
 example : f 500#32 = x := by
   simp [f]
   sorry

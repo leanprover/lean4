@@ -75,6 +75,9 @@ private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array 
           break
       unless hasFVarDiscr do
         return Expr.FindStep.visit
+      -- Hack: if `declNames` is empty, skip this check. To be revisited:
+      if declNames.isEmpty then
+          return Expr.FindStep.found
       -- At least one alternative must contain a `declNames` application with loose bound variables.
       for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
         let alt := args[i]!

@@ -30,13 +30,15 @@ instance : Coe String DataEntry where
 
 namespace DataEntry
 
-@[simp] def isOf (e : DataEntry) (t : DataType) : Prop :=
+def isOf (e : DataEntry) (t : DataType) : Prop :=
   match e, t with
   | EInt _,    TInt    => True
   | EFloat _,  TFloat  => True
   | EString _, TString => True
   | NULL,      _       => True
   | _,         _       => False
+
+attribute [simp] isOf.eq_def
 
 end DataEntry
 

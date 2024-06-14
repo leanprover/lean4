@@ -50,16 +50,13 @@ info: nonrecfun.eq_def :
 #guard_msgs in
 #check nonrecfun.eq_def
 
-/--
-info: nonrecfun.eq_1 :
-  ∀ (x : Bool),
-    nonrecfun x =
-      match x with
-      | false => 0
-      | true => 0
--/
+/-- info: nonrecfun.eq_1 : nonrecfun false = 0 -/
 #guard_msgs in
 #check nonrecfun.eq_1
+
+/-- info: nonrecfun.eq_2 : nonrecfun true = 0 -/
+#guard_msgs in
+#check nonrecfun.eq_2
 
 def fact : Nat → Nat
   | 0 => 1
@@ -130,3 +127,10 @@ info: find.eq_def (as : Array Int) (i : Nat) (v : Int) :
 -/
 #guard_msgs in
 #check find.eq_def
+
+/--
+info: find.eq_1 (as : Array Int) (i : Nat) (v : Int) :
+  find as i v = if x : i < as.size then if as[i] = v then i else find as (i + 1) v else i
+-/
+#guard_msgs in
+#check find.eq_1

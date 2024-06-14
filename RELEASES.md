@@ -31,15 +31,27 @@ v4.9.0
   * [#4364](https://github.com/leanprover/lean4/pull/4364) adds incrementality for careful command macros such as `set_option in theorem`, `theorem foo.bar`, and `lemma`.
   * [#4395](https://github.com/leanprover/lean4/pull/4395) adds conservative fix for whitespace handling to avoid incremental reuse leading to goals in front of the text cursor being shown.
   * [#4407](https://github.com/leanprover/lean4/pull/4407) fixes non-incremental commands in macros blocking further incremental reporting.
-  * [#4436](https://github.com/leanprover/lean4/pull/4436) fixes for incremental reporting when there are nested tactics in terms.
+  * [#4436](https://github.com/leanprover/lean4/pull/4436) fixes incremental reporting when there are nested tactics in terms.
 * **Functional induction**
   * [#4135](https://github.com/leanprover/lean4/pull/4135) ensures that the names used for functional induction are reserved.
   * [#4327](https://github.com/leanprover/lean4/pull/4327) adds support for structural recursion on reflexive types.
-    For example, for structural recursion on types such as
+    For example,
     ```lean4
     inductive Many (α : Type u) where
       | none : Many α
       | more : α → (Unit → Many α) → Many α
+
+    def Many.map {α β : Type u} (f : α → β) : Many α → Many β
+      | .none => .none
+      | .more x xs => .more (f x) (fun _ => (xs ()).map f)
+
+    #check Many.map.induct
+    /-
+    Many.map.induct {α β : Type u} (f : α → β) (motive : Many α → Prop)
+      (case1 : motive Many.none)
+      (case2 : ∀ (x : α) (xs : Unit → Many α), motive (xs ()) → motive (Many.more x xs)) :
+      ∀ (a : Many α), motive a
+    -/
     ```
 * [#3903](https://github.com/leanprover/lean4/pull/3903) makes the Lean frontend normalize all line endings to LF before processing.
   This lets Lean be insensitive to CRLF vs LF line endings, improving the cross-platform experience and making Lake hashes be faithful to what Lean processes.
@@ -95,15 +107,6 @@ v4.9.0
   * [#4345](https://github.com/leanprover/lean4/pull/4345) fixes `simp` so that it does not use the forward version of a user-specified backward theorem.
   * [#4352](https://github.com/leanprover/lean4/pull/4352) adds missing `dsimp` simplifications for fixed parameters of generated congruence theorems.
   * [#4362](https://github.com/leanprover/lean4/pull/4362) improves trace messages for `simp` so that constants are hoverable.
-* `grind` tactic
-  * [0a515e](https://github.com/leanprover/lean4/commit/0a515e2ec939519dafb4b99daa81d6bf3c411404) adds `grind_norm` and `grind_norm_proc` attributes.
-  * [#4164](https://github.com/leanprover/lean4/pull/4164) adds `@[grind_norm]` theorems.
-  * [#4170](https://github.com/leanprover/lean4/pull/4170) creates `grind` preprocessor skeleton.
-  * [#4221](https://github.com/leanprover/lean4/pull/4221) improves `grind` preprocessor.
-  * [#4235](https://github.com/leanprover/lean4/pull/4235) and [d6709e](https://github.com/leanprover/lean4/commit/d6709eb1576c5d40fc80462637dc041f970e4d9f)
-    add special `cases` tactic to `grind` along with `@[grind_cases]` attribute to mark types that this `cases` tactic should automatically apply to.
-  * [#4243](https://github.com/leanprover/lean4/pull/4243) adds special `injection?` tactic to `grind`.
-  * [#4249](https://github.com/leanprover/lean4/pull/4249) adds `grind` core module.
 * **Elaboration**
   * [#4046](https://github.com/leanprover/lean4/pull/4046) makes subst notation (`he ▸ h`) try rewriting in both directions even when there is no expected type available.
   * [#3328](https://github.com/leanprover/lean4/pull/3328) adds support for identifiers in autoparams (for example, `rfl` in `(h : x = y := by exact rfl)`).
@@ -117,6 +120,15 @@ v4.9.0
   * [#4169](https://github.com/leanprover/lean4/pull/4169) adds `Lean.MVarId.ensureNoMVar` to ensure the goal's target contains no expression metavariables.
   * [#4180](https://github.com/leanprover/lean4/pull/4180) adds `cleanupAnnotations` parameter to `forallTelescope` methods.
   * [#4307](https://github.com/leanprover/lean4/pull/4307) adds support for parser aliases in syntax quotations.
+* Work toward implementing `grind` tactic
+  * [0a515e](https://github.com/leanprover/lean4/commit/0a515e2ec939519dafb4b99daa81d6bf3c411404)
+    and [#4164](https://github.com/leanprover/lean4/pull/4164)
+    add `grind_norm` and `grind_norm_proc` attributes and `@[grind_norm]` theorems.
+  * [#4170](https://github.com/leanprover/lean4/pull/4170), [#4221](https://github.com/leanprover/lean4/pull/4221),
+    and [#4249](https://github.com/leanprover/lean4/pull/4249) create `grind` preprocessor and core module.
+  * [#4235](https://github.com/leanprover/lean4/pull/4235) and [d6709e](https://github.com/leanprover/lean4/commit/d6709eb1576c5d40fc80462637dc041f970e4d9f)
+    add special `cases` tactic to `grind` along with `@[grind_cases]` attribute to mark types that this `cases` tactic should automatically apply to.
+  * [#4243](https://github.com/leanprover/lean4/pull/4243) adds special `injection?` tactic to `grind`.
 * **Other fixes or improvements**
   * [#4065](https://github.com/leanprover/lean4/pull/4065) fixes a bug in the `Nat.reduceLeDiff` simproc.
   * [#3969](https://github.com/leanprover/lean4/pull/3969) makes deprecation warnings activate even for generalized field notation ("dot notation").
@@ -204,10 +216,10 @@ v4.9.0
 * **Typeclass resolution**
   * [#4119](https://github.com/leanprover/lean4/pull/4119) fixes multiple issues with TC caching interacting with `synthPendingDepth`, adds `maxSynthPendingDepth` option with default value `1`.
   * [#4210](https://github.com/leanprover/lean4/pull/4210) ensures local instance cache does not contain multiple copies of the same instance.
-  * [#4216](https://github.com/leanprover/lean4/pull/4216) fix handling of metavariables, to avoid needing to set `backward.synthInstance.canonInstances` to `false`.
+  * [#4216](https://github.com/leanprover/lean4/pull/4216) fix handling of metavariables, to avoid needing to set the option `backward.synthInstance.canonInstances` to `false`.
 * **Other fixes or improvements**
   * [#4080](https://github.com/leanprover/lean4/pull/4080) fixes propagation of state for `Lean.Elab.Command.liftCoreM` and `Lean.Elab.Command.liftTermElabM`.
-  * [#3944](https://github.com/leanprover/lean4/pull/3944) makes the `Repr` deriving handler be consistent between `structure` and `inductive` about how types and proofs are erased.
+  * [#3944](https://github.com/leanprover/lean4/pull/3944) makes the `Repr` deriving handler be consistent between `structure` and `inductive` for how types and proofs are erased.
   * [#4113](https://github.com/leanprover/lean4/pull/4113) propagates `maxHeartbeats` to kernel to control "(kernel) deterministic timeout" error.
   * [#4125](https://github.com/leanprover/lean4/pull/4125) reverts [#3970](https://github.com/leanprover/lean4/pull/3970) (monadic generalization of `FindExpr`).
   * [#4128](https://github.com/leanprover/lean4/pull/4128) catches stack overflow in auto-bound implicits feature.
@@ -243,7 +255,7 @@ v4.9.0
   required fields and semantic changes to existing fields). Minor version
   increments (after `0.x`) indicate backwards-compatible extensions (e.g.,
   adding optional fields, removing fields). This change is backwards
-  compatible. Lake will still successfully read old manifest with numeric
+  compatible. Lake will still successfully read old manifests with numeric
   versions. It will treat the numeric version `N` as semantic version
   `0.N.0`. Lake will also accept manifest versions with `-` suffixes
   (e.g., `x.y.z-foo`) and then ignore the suffix.
@@ -280,7 +292,7 @@ v4.9.0
 * [#4361](https://github.com/leanprover/lean4/pull/4361) adds installing elan to `pr-release` CI step.
 
 ### Breaking changes
-While most changes could be considered to be a breaking change, this section makes special note changes to APIs.
+While most changes could be considered to be a breaking change, this section makes special note of API changes.
 
 * `Nat.zero_or` and `Nat.or_zero` have been swapped ([#4094](https://github.com/leanprover/lean4/pull/4094)).
 * `IsLawfulSingleton` is now `LawfulSingleton` ([#4350](https://github.com/leanprover/lean4/pull/4350)).
@@ -288,9 +300,9 @@ While most changes could be considered to be a breaking change, this section mak
 * These are no longer simp lemmas:
   `List.length_pos` ([#4172](https://github.com/leanprover/lean4/pull/4172)),
   `Option.bind_eq_some` ([#4314](https://github.com/leanprover/lean4/pull/4314)).
-* Types in `let` and `have` (both the expressions and tactics) may fail to elaborate due to restrictions on what sorts of elaboration problems may be postponed ([#4096](https://github.com/leanprover/lean4/pull/4096)).
+* Types in `let` and `have` (both the expressions and tactics) may fail to elaborate due to new restrictions on what sorts of elaboration problems may be postponed ([#4096](https://github.com/leanprover/lean4/pull/4096)).
   In particular, tactics embedded in the type will no longer make use of the type of `value` in expressions such as `let x : type := value; body`.
-* Now functions defined by well-founded recursion are marked with `@[irreducible]` by default [#4061](https://github.com/leanprover/lean4/pull/4061).
+* Now functions defined by well-founded recursion are marked with `@[irreducible]` by default ([#4061](https://github.com/leanprover/lean4/pull/4061)).
   Existing proofs that hold by definitional equality (e.g. `rfl`) can be
   rewritten to explictly unfold the function definition (using `simp`,
   `unfold`, `rw`), or the recursive function can be temporarily made

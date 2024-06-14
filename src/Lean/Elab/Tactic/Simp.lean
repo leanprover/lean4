@@ -204,7 +204,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simp.SimprocsAr
                 arg[0][0].getKind == ``Parser.Tactic.simpPost
             let inv  := !arg[1].isNone
             let term := arg[2]
-            match (← withRef arg do resolveSimpIdTheorem? term) with
+            match (← withRef term do resolveSimpIdTheorem? term) with
             | .expr e  =>
               let name ← mkFreshId
               thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind

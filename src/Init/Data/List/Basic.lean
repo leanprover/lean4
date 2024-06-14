@@ -55,6 +55,8 @@ variable {α : Type u} {β : Type v} {γ : Type w}
 
 namespace List
 
+instance : EmptyCollection (List α) := ⟨List.nil⟩
+
 theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.lengthTRAux n := by
   induction as generalizing n with
   | nil  => simp [length, lengthTRAux]
@@ -70,6 +72,28 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
   rfl
 
 @[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
+
+@[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
+  induction as with
+  | nil => rfl
+  | cons _ xs ih => simp [concat, ih]
+
+@[simp] theorem length_set (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
+  induction as generalizing i with
+  | nil => rfl
+  | cons x xs ih =>
+    cases i with
+    | zero => rfl
+    | succ i => simp [set, ih]
+
+theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.concat b) : as = bs ∧ a = b := by
+  match as, bs with
+  | [], [] => simp [concat] at h; simp [h]
+  | [_], [] => simp [concat] at h
+  | _::_::_, [] => simp [concat] at h
+  | [], [_] => simp [concat] at h
+  | [], _::_::_ => simp [concat] at h
+  | _::_, _::_ => simp [concat] at h; simp [h]; apply of_concat_eq_concat h.2
 
 /-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
 def reverseAux : List α → List α → List α
@@ -98,7 +122,7 @@ theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as b
   | cons a as ih => simp [reverseAux, ih (a::bs), ih [a]]
 
 @[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
-  simp [reverse]; rw [reverseAux_reverseAux_nil]; rfl
+  simp only [reverse]; rw [reverseAux_reverseAux_nil]; rfl
 
 /--
 `O(|xs|)`: append two lists. `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
@@ -135,12 +159,21 @@ instance : Std.LawfulIdentity (α := List α) (· ++ ·) [] where
 
 @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := rfl
 
+@[simp] theorem length_append (as bs : List α) : (as ++ bs).length = as.length + bs.length := by
+  induction as with
+  | nil => simp
+  | cons _ as ih => simp [ih, Nat.succ_add]
+
 @[simp] theorem append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
+
+theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
+  induction as <;> simp [concat, *]
 
 theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
   | nil => rfl
   | cons a as ih => simp [ih]
+
 instance : Std.Associative (α := List α) (· ++ ·) := ⟨append_assoc⟩
 
 theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
@@ -148,7 +181,20 @@ theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as 
   | nil => simp
   | cons a as ih => simp [ih]
 
-instance : EmptyCollection (List α) := ⟨List.nil⟩
+theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
+  induction as generalizing bs with
+  | nil => simp [reverseAux]
+  | cons a as ih =>
+    simp [reverseAux]
+    rw [ih (a :: bs), ih [a], append_assoc]
+    rfl
+
+@[simp] theorem reverse_nil : reverse ([] : List α) = [] :=
+  rfl
+
+@[simp] theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
+  simp [reverse, reverseAux]
+  rw [← reverseAux_eq_append]
 
 /--
 `O(|l|)`. `erase l a` removes the first occurrence of `a` from `l`.
@@ -197,26 +243,6 @@ where
   @[specialize] loop : List α → List β → List β
   | [],    bs => bs.reverse
   | a::as, bs => loop as (f a :: bs)
-
-theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
-  induction as generalizing bs with
-  | nil => simp [reverseAux]
-  | cons a as ih =>
-    simp [reverseAux]
-    rw [ih (a :: bs), ih [a], append_assoc]
-    rfl
-
-@[simp] theorem reverse_nil : reverse ([] : List α) = [] :=
-  rfl
-
-@[simp] theorem reverse_cons (a : α) (as : List α) : reverse (a :: as) = reverse as ++ [a] := by
-  simp [reverse, reverseAux]
-  rw [← reverseAux_eq_append]
-
-@[simp] theorem reverse_append (as bs : List α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
-  induction as generalizing bs with
-  | nil => simp
-  | cons a as ih => simp [ih]; rw [append_assoc]
 
 theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
     mapTR.loop f as bs = bs.reverse ++ map f as := by
@@ -518,6 +544,12 @@ def drop : Nat → List α → List α
 @[simp] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
 
+theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
+  match as, i with
+  | [],    i   => simp
+  | _::_,  0   => simp at h
+  | _::as, i+1 => simp at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
+
 /--
 `O(min n |xs|)`. Returns the first `n` elements of `xs`, or the whole list if `n` is too large.
 * `take 0 [a, b, c, d, e] = []`
@@ -719,7 +751,7 @@ inductive lt [LT α] : List α → List α → Prop where
 
 instance [LT α] : LT (List α) := ⟨List.lt⟩
 
-instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLt [LT α] [h : DecidableRel (α := α) (· < ·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse nofun
   | [],    _::_  => isTrue (List.lt.nil _ _)
   | _::_, []     => isFalse nofun
@@ -813,6 +845,9 @@ theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
   apply funext; intro α; apply funext; intro n; apply funext; intro a
   exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
+@[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
+  induction n <;> simp_all
+
 /--
 Removes the last element of the list.
 * `dropLast [] = []`
@@ -824,43 +859,12 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
-  induction n <;> simp_all
-
-@[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
-  induction as with
-  | nil => rfl
-  | cons _ xs ih => simp [concat, ih]
-
-@[simp] theorem length_set (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
-  induction as generalizing i with
-  | nil => rfl
-  | cons x xs ih =>
-    cases i with
-    | zero => rfl
-    | succ i => simp [set, ih]
-
 @[simp] theorem length_dropLast_cons (a : α) (as : List α) : (a :: as).dropLast.length = as.length := by
   match as with
   | []       => rfl
   | b::bs =>
     have ih := length_dropLast_cons b bs
     simp[dropLast, ih]
-
-@[simp] theorem length_append (as bs : List α) : (as ++ bs).length = as.length + bs.length := by
-  induction as with
-  | nil => simp
-  | cons _ as ih => simp [ih, Nat.succ_add]
-
-@[simp] theorem length_map (as : List α) (f : α → β) : (as.map f).length = as.length := by
-  induction as with
-  | nil => simp [List.map]
-  | cons _ as ih => simp [List.map, ih]
-
-@[simp] theorem length_reverse (as : List α) : (as.reverse).length = as.length := by
-  induction as with
-  | nil => rfl
-  | cons a as ih => simp [ih]
 
 /--
 Returns the largest element of the list, if it is not empty.
@@ -924,23 +928,5 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
     induction as with
     | nil => rfl
     | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
-
-theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.concat b) : as = bs ∧ a = b := by
-  match as, bs with
-  | [], [] => simp [concat] at h; simp [h]
-  | [_], [] => simp [concat] at h
-  | _::_::_, [] => simp [concat] at h
-  | [], [_] => simp [concat] at h
-  | [], _::_::_ => simp [concat] at h
-  | _::_, _::_ => simp [concat] at h; simp [h]; apply of_concat_eq_concat h.2
-
-theorem concat_eq_append (as : List α) (a : α) : as.concat a = as ++ [a] := by
-  induction as <;> simp [concat, *]
-
-theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
-  match as, i with
-  | [],    i   => simp
-  | _::_,  0   => simp at h
-  | _::as, i+1 => simp at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
 
 end List

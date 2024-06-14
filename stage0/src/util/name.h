@@ -40,8 +40,12 @@ inline bool is_id_rest(char const * begin, char const * end) {
                       reinterpret_cast<unsigned char const *>(end));
 }
 
-extern "C" uint64_t lean_name_hash_exported(b_lean_obj_arg n);
+extern "C" uint64_t lean_name_hash_exported(lean_obj_arg n);
 
+inline uint64_t lean_name_hash_exported_b(b_lean_obj_arg n) {
+    lean_inc(n);
+    return lean_name_hash_exported(n);
+}
 
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 /** \brief Hierarchical names. */
@@ -95,7 +99,7 @@ public:
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
     static uint64_t hash(b_obj_arg n) {
-       lean_assert(lean_name_hash(n) == lean_name_hash_exported(n));
+       lean_assert(lean_name_hash(n) == lean_name_hash_exported_b(n));
        return lean_name_hash(n);
     }
     uint64_t hash() const { return hash(raw()); }

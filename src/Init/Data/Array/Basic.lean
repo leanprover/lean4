@@ -481,7 +481,7 @@ def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
   Id.run <| as.allM p start stop
 
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any fun b => a == b
+  as.any (· == a)
 
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a

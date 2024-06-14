@@ -2632,7 +2632,7 @@ lean_inc(x_6);
 lean_dec(x_3);
 lean_inc(x_1);
 lean_inc(x_2);
-x_7 = lean_apply_2(x_1, x_2, x_5);
+x_7 = lean_apply_2(x_1, x_5, x_2);
 x_8 = lean_unbox(x_7);
 lean_dec(x_7);
 if (x_8 == 0)

@@ -20,7 +20,7 @@ abbrev Visitor := State → State
 
 mutual
   partial def visit (e : Expr) : Visitor := fun s =>
-    if !e.hasMVar || s.visitedExpr.contains e then s
+    if !e.hasExprMVar || s.visitedExpr.contains e then s
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor

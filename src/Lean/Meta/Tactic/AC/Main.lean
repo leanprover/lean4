@@ -101,11 +101,10 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
 where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]!
-    let zero := mkLevelZeroEx ()
-    let plift := mkApp (mkConst ``PLift [zero])
-    let pliftUp := mkApp2 (mkConst ``PLift.up [zero])
-    let noneE tp   := mkApp  (mkConst ``Option.none [zero]) (plift tp)
-    let someE tp v := mkApp2 (mkConst ``Option.some [zero]) (plift tp) (pliftUp tp v)
+    let plift := mkApp (mkConst ``PLift [.zero])
+    let pliftUp := mkApp2 (mkConst ``PLift.up [.zero])
+    let noneE tp   := mkApp  (mkConst ``Option.none [.zero]) (plift tp)
+    let someE tp v := mkApp2 (mkConst ``Option.some [.zero]) (plift tp) (pliftUp tp v)
     let vars ← vars.mapM fun x => do
       let isNeutral :=
         let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x

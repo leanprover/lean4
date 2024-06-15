@@ -646,8 +646,8 @@ def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermEl
   withMacroExpansionInfo beforeStx afterStx do
     withPushMacroExpansionStack beforeStx afterStx x
 
-def registerLevelMVarOfConstErrorInfo (mvarId : LMVarId) (ref : Syntax) (constantName levelName : Name) : TermElabM Unit :=
-  modify fun s => { s with levelMVarErrorInfos := { mvarId, ref, kind := .ofConst constantName levelName } :: s.levelMVarErrorInfos }
+def registerLevelMVarOfConstErrorInfo (mvarId : LMVarId) (ref : Syntax) (levelName : Name) (const : Expr) : TermElabM Unit :=
+  modify fun s => { s with levelMVarErrorInfos := { mvarId, ref, kind := .ofConst levelName const } :: s.levelMVarErrorInfos }
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.
@@ -706,11 +706,20 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
 where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
-  addArgName (msg : MessageData) (extra : String := "") : MessageData :=
-    match mvarErrorInfo.argName? with
+match mvarErrorInfo.argName? with
     | none => msg
     | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
+/-- Log the error associated to a `LevelMVarErrorInfo` -/
+def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
+  match levelMVarErrorInfo.kind with
+  | .hole =>
+    let msg := m! "don't know how to synthesize universe level placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
+    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
+  | .ofConst constName levelName =>
+    let msg := m! "don't know how to synthesize universe level parameter {levelName} of '{constName}'"
+    logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
+where
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
@@ -1825,11 +1834,11 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     throwError "too many explicit universe levels for '{constName}'"
   else
     let missingLevels := cinfo.levelParams.drop explicitLevels.length
-    let us ← missingLevels.reverse.mapM fun levelName => do
-      let u ← mkFreshLevelMVar
-      registerLevelMVarOfConstErrorInfo u.mvarId! (← getRef) constName levelName
-      pure u
-    return Lean.mkConst constName (explicitLevels ++ us.reverse)
+    let us ← mkFreshLevelMVars missingLevels.length
+    let const := Lean.mkConst constName (explicitLevels ++ us)
+    for u in us, levelName in missingLevels do
+      registerLevelMVarOfConstErrorInfo u.mvarId! (← getRef) levelName const
+    return const
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do

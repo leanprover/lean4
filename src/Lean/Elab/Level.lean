@@ -17,7 +17,7 @@ namespace Term
 There are two kinds of errors -/
 inductive LevelMVarErrorKind where
   /-- Metavariable for a universe level parameter of a constant that hasn't been given explicitly -/
-  | ofConst (constantName levelName : Name)
+  | ofConst (levelName : Name) (const : Expr)
   /-- Metavariable for an explicit hole provided by the user (`_`) -/
   | hole
 

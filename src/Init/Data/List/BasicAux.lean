@@ -44,13 +44,15 @@ See also `get?` and `get!`.
 def getD (as : List α) (i : Nat) (fallback : α) : α :=
   (as.get? i).getD fallback
 
-@[ext] theorem ext : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
   | [], [], _ => rfl
   | a :: l₁, [], h => nomatch h 0
   | [], a' :: l₂, h => nomatch h 0
   | a :: l₁, a' :: l₂, h => by
     have h0 : some a = some a' := h 0
-    injection h0 with aa; simp only [aa, ext fun n => h (n+1)]
+    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
+
+@[deprecated (since := "2024-06-07")] abbrev ext := @ext_get?
 
 /--
 Returns the first element in the list.
@@ -191,7 +193,7 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     let e := xs.drop n
     e ++ b
 
-theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
+theorem getElem_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs)[i] = as[i] := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
@@ -199,7 +201,7 @@ theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).
     | zero => rfl
     | succ i => apply ih
 
-theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
+theorem getElem_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs)[i]'h' = bs[i - as.length]'h'' := by
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>

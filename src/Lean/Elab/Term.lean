@@ -1840,11 +1840,11 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
     throwError "too many explicit universe levels for '{constName}'"
   else
     let missingLevels := cinfo.levelParams.drop explicitLevels.length
-    let us ← missingLevels.mapM fun levelName => do
+    let us ← missingLevels.reverse.mapM fun levelName => do
       let u ← mkFreshLevelMVar
       registerLevelMVarOfConstErrorInfo u.mvarId! (← getRef) constName levelName
       pure u
-    return Lean.mkConst constName (explicitLevels ++ us)
+    return Lean.mkConst constName (explicitLevels ++ us.reverse)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do

@@ -115,17 +115,17 @@ structure LetRecToLift where
   State of the `TermElabM` monad.
 -/
 structure State where
-  levelNames          : List Name       := []
+  levelNames        : List Name       := []
   /--
     Error contexts associated to level metavariables.
     These are used for throwing errors when level metavariables
     cannot be fully instantiated
   -/
   levelMVarErrorInfos : List LevelMVarErrorInfo := []
-  syntheticMVars      : MVarIdMap SyntheticMVarDecl := {}
-  pendingMVars        : List MVarId := {}
+  syntheticMVars    : MVarIdMap SyntheticMVarDecl := {}
+  pendingMVars      : List MVarId := {}
   /-- List of errors associated to a metavariable that are shown to the user if the metavariable could not be fully instantiated -/
-  mvarErrorInfos      : List MVarErrorInfo := []
+  mvarErrorInfos    : List MVarErrorInfo := []
   /--
     `mvarArgNames` stores the argument names associated to metavariables.
     These are used in combination with `mvarErrorInfos` for throwing errors about metavariables that could not be fully instantiated.
@@ -137,9 +137,8 @@ structure State where
     We used to store the argument names in `mvarErrorInfos`, updating the `MVarErrorInfos` to add the argument name when it is available,
     but this doesn't work if the argument name is available _before_ the `mvarErrorInfos` is set for that metavariable.
   -/
-  mvarErrorInfos      : List MVarErrorInfo := []
-  mvarArgNames        : MVarIdMap Name := {}
-  letRecsToLift       : List LetRecToLift := []
+  mvarArgNames      : MVarIdMap Name := {}
+  letRecsToLift     : List LetRecToLift := []
   deriving Inhabited
 
 /--

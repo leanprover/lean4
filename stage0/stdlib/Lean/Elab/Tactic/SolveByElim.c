@@ -3709,7 +3709,7 @@ x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
 lean_inc(x_1);
-x_6 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__4(x_1, x_4);
+x_6 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Lean_Elab_Tactic_SolveByElim_parseArgs___spec__4(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;

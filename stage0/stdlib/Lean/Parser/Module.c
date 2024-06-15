@@ -193,7 +193,6 @@ static lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_import_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Module_import___closed__4;
-lean_object* l_String_csize(uint32_t);
 static lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__6;
 static lean_object* l___regBuiltin_Lean_Parser_Module_header_formatter__1___closed__2;
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
@@ -294,6 +293,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_header_formatter___closed__8;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* l_Char_utf8Size(uint32_t);
 static lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_mkErrorMessage___lambda__2___closed__4;
 lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
 static lean_object* l_Lean_Parser_parseHeader___closed__5;
@@ -2956,7 +2956,7 @@ _start:
 {
 uint32_t x_1; lean_object* x_2; 
 x_1 = 32;
-x_2 = l_String_csize(x_1);
+x_2 = l_Char_utf8Size(x_1);
 return x_2;
 }
 }

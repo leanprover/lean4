@@ -99,7 +99,6 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__20;
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_removeNumLeadingSpaces_consumeSpaces(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_validateUTF8___boxed(lean_object*);
-lean_object* l_String_csize(uint32_t);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__12;
 LEAN_EXPORT lean_object* l_String_toNat_x21___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_fromUTF8_x21___boxed(lean_object*);
@@ -144,6 +143,7 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 LEAN_EXPORT lean_object* l_String_validateUTF8_loop___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static uint8_t l_String_crlfToLf_go___closed__1;
+lean_object* l_Char_utf8Size(uint32_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__6;
 lean_object* lean_byte_array_size(lean_object*);
@@ -685,7 +685,7 @@ lean_inc(x_8);
 lean_dec(x_6);
 x_9 = lean_unbox_uint32(x_8);
 lean_dec(x_8);
-x_10 = l_String_csize(x_9);
+x_10 = l_Char_utf8Size(x_9);
 x_11 = lean_nat_add(x_2, x_10);
 lean_dec(x_10);
 lean_dec(x_2);
@@ -719,7 +719,7 @@ _start:
 {
 uint32_t x_1; lean_object* x_2; 
 x_1 = 65;
-x_2 = l_String_csize(x_1);
+x_2 = l_Char_utf8Size(x_1);
 return x_2;
 }
 }
@@ -758,7 +758,7 @@ x_12 = lean_ctor_get(x_6, 0);
 lean_inc(x_12);
 lean_dec(x_6);
 x_13 = lean_unbox_uint32(x_12);
-x_14 = l_String_csize(x_13);
+x_14 = l_Char_utf8Size(x_13);
 x_15 = lean_nat_add(x_2, x_14);
 lean_dec(x_14);
 lean_dec(x_2);

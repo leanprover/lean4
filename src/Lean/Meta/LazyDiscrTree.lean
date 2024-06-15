@@ -801,23 +801,10 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, meta := {} }
 
-def matchPrefix (s : String) (pre : String) :=
-  s.startsWith pre && (s |>.drop pre.length |>.all Char.isDigit)
-
-def isInternalDetail : Name → Bool
-  | .str p s     =>
-    s.startsWith "_"
-      || matchPrefix s "eq_"
-      || matchPrefix s "match_"
-      || matchPrefix s "proof_"
-      || p.isInternalOrNum
-  | .num _ _     => true
-  | p            => p.isInternalOrNum
-
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
   || declName == ``sorryAx
-  || isInternalDetail declName
+  || declName.isInternalDetail
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 

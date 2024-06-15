@@ -427,6 +427,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_Mutua
 LEAN_EXPORT lean_object* l_Lean_Elab_withSaveInfoContext___at_Lean_Elab_Term_elabMutualDef___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders_mkTacTask___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Core_withRestoreOrSaveFull___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_eqWithInfoAndTraceReuse(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_setUserName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabMutualDef___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_contains___at_Lean_Meta_setMVarUserNamesAt___spec__1(lean_object*, lean_object*);
@@ -972,7 +973,6 @@ static lean_object* l_Lean_Elab_Term_checkForHiddenUnivLevels_visitLevel___lambd
 LEAN_EXPORT lean_object* l_Lean_getDocStringText___at_Lean_Elab_Command_elabMutualDef___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_iotaTR(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabMutualDef___spec__6(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_structRangeEqWithTraceReuse(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders_mkTacTask___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalDecl_binderInfo(lean_object*);
@@ -9474,7 +9474,7 @@ else
 lean_object* x_120; lean_object* x_121; uint8_t x_122; 
 x_120 = lean_ctor_get(x_15, 6);
 lean_inc(x_120);
-x_121 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_107, x_120, x_112);
+x_121 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_107, x_120, x_112);
 lean_dec(x_107);
 x_122 = lean_unbox(x_121);
 lean_dec(x_121);
@@ -9727,7 +9727,7 @@ else
 lean_object* x_170; lean_object* x_171; uint8_t x_172; 
 x_170 = lean_ctor_get(x_15, 6);
 lean_inc(x_170);
-x_171 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_156, x_170, x_161);
+x_171 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_156, x_170, x_161);
 lean_dec(x_156);
 x_172 = lean_unbox(x_171);
 lean_dec(x_171);
@@ -9988,7 +9988,7 @@ else
 lean_object* x_219; lean_object* x_220; uint8_t x_221; 
 x_219 = lean_ctor_get(x_15, 6);
 lean_inc(x_219);
-x_220 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_205, x_219, x_210);
+x_220 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_205, x_219, x_210);
 lean_dec(x_205);
 x_221 = lean_unbox(x_220);
 lean_dec(x_220);
@@ -10323,7 +10323,7 @@ else
 lean_object* x_286; lean_object* x_287; uint8_t x_288; 
 x_286 = lean_ctor_get(x_15, 6);
 lean_inc(x_286);
-x_287 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_272, x_286, x_277);
+x_287 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_272, x_286, x_277);
 lean_dec(x_272);
 x_288 = lean_unbox(x_287);
 lean_dec(x_287);
@@ -10716,7 +10716,7 @@ else
 lean_object* x_363; lean_object* x_364; uint8_t x_365; 
 x_363 = lean_ctor_get(x_15, 6);
 lean_inc(x_363);
-x_364 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_349, x_363, x_354);
+x_364 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_349, x_363, x_354);
 lean_dec(x_349);
 x_365 = lean_unbox(x_364);
 lean_dec(x_364);
@@ -11159,7 +11159,7 @@ else
 lean_object* x_451; lean_object* x_452; uint8_t x_453; 
 x_451 = lean_ctor_get(x_15, 6);
 lean_inc(x_451);
-x_452 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_437, x_451, x_442);
+x_452 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_437, x_451, x_442);
 lean_dec(x_437);
 x_453 = lean_unbox(x_452);
 lean_dec(x_452);
@@ -11656,7 +11656,7 @@ else
 lean_object* x_551; lean_object* x_552; uint8_t x_553; 
 x_551 = lean_ctor_get(x_15, 6);
 lean_inc(x_551);
-x_552 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_537, x_551, x_542);
+x_552 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_537, x_551, x_542);
 lean_dec(x_537);
 x_553 = lean_unbox(x_552);
 lean_dec(x_552);
@@ -12186,7 +12186,7 @@ else
 lean_object* x_656; lean_object* x_657; uint8_t x_658; 
 x_656 = lean_ctor_get(x_15, 6);
 lean_inc(x_656);
-x_657 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_642, x_656, x_647);
+x_657 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_642, x_656, x_647);
 lean_dec(x_642);
 x_658 = lean_unbox(x_657);
 lean_dec(x_657);
@@ -12746,7 +12746,7 @@ else
 lean_object* x_768; lean_object* x_769; uint8_t x_770; 
 x_768 = lean_ctor_get(x_15, 6);
 lean_inc(x_768);
-x_769 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_754, x_768, x_759);
+x_769 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_754, x_768, x_759);
 lean_dec(x_754);
 x_770 = lean_unbox(x_769);
 lean_dec(x_769);
@@ -13332,7 +13332,7 @@ else
 lean_object* x_884; lean_object* x_885; uint8_t x_886; 
 x_884 = lean_ctor_get(x_15, 6);
 lean_inc(x_884);
-x_885 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_870, x_884, x_875);
+x_885 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_870, x_884, x_875);
 lean_dec(x_870);
 x_886 = lean_unbox(x_885);
 lean_dec(x_885);
@@ -46822,7 +46822,7 @@ if (x_76 == 0)
 lean_object* x_77; lean_object* x_78; lean_object* x_79; uint8_t x_80; 
 x_77 = lean_ctor_get(x_75, 0);
 x_78 = lean_ctor_get(x_75, 1);
-x_79 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_8, x_41, x_77);
+x_79 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_8, x_41, x_77);
 x_80 = lean_unbox(x_79);
 lean_dec(x_79);
 if (x_80 == 0)
@@ -46853,7 +46853,7 @@ x_84 = lean_ctor_get(x_75, 1);
 lean_inc(x_84);
 lean_inc(x_83);
 lean_dec(x_75);
-x_85 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_8, x_41, x_83);
+x_85 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_8, x_41, x_83);
 x_86 = lean_unbox(x_85);
 lean_dec(x_85);
 if (x_86 == 0)
@@ -46917,7 +46917,7 @@ if (lean_is_exclusive(x_95)) {
  lean_dec_ref(x_95);
  x_98 = lean_box(0);
 }
-x_99 = l_Lean_Syntax_structRangeEqWithTraceReuse(x_8, x_41, x_96);
+x_99 = l_Lean_Syntax_eqWithInfoAndTraceReuse(x_8, x_41, x_96);
 x_100 = lean_unbox(x_99);
 lean_dec(x_99);
 if (x_100 == 0)

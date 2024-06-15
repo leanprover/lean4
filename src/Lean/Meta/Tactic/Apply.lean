@@ -52,13 +52,9 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
   pure numArgs
 
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α := do
-  let explanation := MessageData.lazy
-    (f := fun ppctxt => ppctxt.runMetaM do
-        let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
-        return m!"{indentExpr eType}\nwith{indentExpr targetType}")
-    (hasSyntheticSorry := fun mvarctxt =>
-      (instantiateMVarsCore mvarctxt eType |>.1.hasSyntheticSorry) ||
-      (instantiateMVarsCore mvarctxt targetType |>.1.hasSyntheticSorry))
+  let explanation := MessageData.ofLazyM (es := #[eType, targetType]) do
+    let (eType, targetType) ← addPPExplicitToExposeDiff eType targetType
+    return m!"{indentExpr eType}\nwith{indentExpr targetType}"
   throwTacticEx `apply mvarId m!"failed to unify{explanation}"
 
 def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)

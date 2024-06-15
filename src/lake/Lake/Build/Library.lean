@@ -81,8 +81,7 @@ def LeanLib.staticExportFacetConfig : LibraryFacetConfig staticExportFacet :=
     let oJobs ← mods.concatMapM fun mod =>
       mod.nativeFacets (shouldExport := true) |>.mapM fun facet => fetch <| mod.facet facet.name
     let libFile := self.staticFatLibFile
-    let lib ← buildStaticLib libFile oJobs
-    return lib
+    buildStaticLib libFile oJobs
 
 /-- The `LibraryFacetConfig` for the builtin `staticFatFacet`. -/
 def LeanLib.staticFatFacetConfig : LibraryFacetConfig staticFatFacet :=

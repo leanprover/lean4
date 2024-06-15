@@ -6372,7 +6372,7 @@ lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_7 = lean_array_uget(x_3, x_4);
 lean_inc(x_1);
 lean_inc(x_2);
-x_8 = lean_apply_2(x_1, x_2, x_7);
+x_8 = lean_apply_2(x_1, x_7, x_2);
 x_9 = lean_unbox(x_8);
 lean_dec(x_8);
 if (x_9 == 0)

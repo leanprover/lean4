@@ -1773,7 +1773,7 @@ x_4 = lean_unsigned_to_nat(2u);
 x_5 = lean_nat_pow(x_4, x_1);
 x_6 = lean_nat_sub(x_5, x_3);
 lean_dec(x_5);
-x_7 = lean_nat_add(x_2, x_6);
+x_7 = lean_nat_add(x_6, x_2);
 lean_dec(x_6);
 x_8 = l_BitVec_ofNat(x_1, x_7);
 lean_dec(x_7);

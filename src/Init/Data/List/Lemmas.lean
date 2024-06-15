@@ -902,8 +902,7 @@ theorem replace_cons [BEq α] {a : α} :
 @[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 
 theorem elem_cons [BEq α] {a : α} :
-    (a::as).elem b = match b == a with | true => true | false => as.elem b :=
-  rfl
+    (a::as).elem b = match a == b with | true => true | false => as.elem b := rfl
 
 @[simp] theorem elem_cons_self [BEq α] [LawfulBEq α] {a : α} : (a::as).elem a = true := by
   simp [elem_cons]
@@ -1203,12 +1202,12 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = L ++ [b]
 @[simp] theorem contains_nil [BEq α] : ([] : List α).contains a = false := rfl
 
 @[simp] theorem contains_cons [BEq α] :
-    (a :: as : List α).contains x = (x == a || as.contains x) := by
+    (a :: as : List α).contains x = (a == x || as.contains x) := by
   simp only [contains, elem]
   split <;> simp_all
 
-theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (a == ·) := by
-  induction l with simp | cons b l => cases a == b <;> simp [*]
+theorem contains_eq_any_beq [BEq α] (l : List α) (a : α) : l.contains a = l.any (· == a) := by
+  induction l with simp | cons b l => cases b == a <;> simp [*]
 
 /-! ### zip -/
 

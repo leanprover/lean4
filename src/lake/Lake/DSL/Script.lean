@@ -37,9 +37,9 @@ scoped syntax (name := scriptDecl)
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? do $seq $[$wds?:whereDecls]?) => do
-  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$wds?:whereDecls]?)
-| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := $defn $[$wds?:whereDecls]?) => do
+| `($[$doc?]? $[$attrs?]? script%$kw $id:ident $[$args?]? do $seq $[$wds?:whereDecls]?) => do
+  `($[$doc?]? $[$attrs?]? script%$kw  $id:ident $[$args?]? := do $seq $[$wds?:whereDecls]?)
+| `($[$doc?]? $[$attrs?]? script%$kw  $id:ident $[$args?]? := $defn $[$wds?:whereDecls]?) => withRef kw do
   let args ← expandOptSimpleBinder args?
   let attrs := #[← `(Term.attrInstance| «script»)] ++ expandAttrs attrs?
   `($[$doc?]? @[$attrs,*] def $id : ScriptFn := fun $args => $defn $[$wds?:whereDecls]?)

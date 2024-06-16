@@ -879,6 +879,8 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
           unless sTypes.visitedLevel.contains u || allUserLevelNames.contains n do
             let parent ← withOptions (fun o => pp.universes.set o true) do addMessageContext m!"{indentExpr (← read)}"
             let body ← withOptions (fun o => pp.letVarTypes.setIfNotSet (pp.funBinderTypes.setIfNotSet o true) true) do addMessageContext m!"{indentExpr preDef.value}"
+            logError "invalid occurrence of universe level '{u}' at '{preDef.declName}', it does not occur at the declaration type, nor it is explicit universe level provided by the user, occurring at expression{parent}\nat declaration body{body}"
+            trace[Elab.definition] "invalid occurrence of universe level '{u}' at '{preDef.declName}', it does not occur at the declaration type, nor it is explicit universe level provided by the user, occurring at expression{parent}\nat declaration body{body}"
             throwError "invalid occurrence of universe level '{u}' at '{preDef.declName}', it does not occur at the declaration type, nor it is explicit universe level provided by the user, occurring at expression{parent}\nat declaration body{body}"
         | _ => pure ()
       let rec visit (e : Expr) : ReaderT Expr (MonadCacheT ExprStructEq Unit TermElabM) Unit := do

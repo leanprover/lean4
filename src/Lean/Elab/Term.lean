@@ -711,6 +711,11 @@ where
     | none => return msg
     | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
+  appendExtra (msg : MessageData) : MessageData :=
+    match extraMsg? with
+    | none => msg
+    | some extraMsg => msg ++ extraMsg
+
 /-- Log the error associated to a `LevelMVarErrorInfo` -/
 def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match levelMVarErrorInfo.kind with

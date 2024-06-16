@@ -58,8 +58,10 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then
+      throwError m! "Not aborting"
       return preDef
     else
+      throwError m! "ABORTING"
       throwAbortCommand
   else
     return preDef

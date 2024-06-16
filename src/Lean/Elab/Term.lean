@@ -725,6 +725,10 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
     for error in errors do
       error.mvarId.withContext do
         error.logError extraMsg?
+    if hasOtherErrors && hasNewErrors then
+      throwError m! "mvar assignment errors have been suppressed"
+    if !hasNewErrors then
+      throwError m! "no mvar assignment errors have been able to be thrown"
     return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/

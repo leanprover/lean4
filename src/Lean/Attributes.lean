@@ -332,7 +332,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
-    | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' (`AttributeImpl` expected")
+    | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' `AttributeImpl` expected")
 
 @[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl

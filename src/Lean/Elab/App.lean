@@ -1029,7 +1029,7 @@ private def findMethodAlias? (env : Environment) (structName fieldName : Name) :
   | _   => none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
-  throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
+  throwLValError e eType "invalid field notation, type is not of the form 'C ...' where C is a constant"
 
 private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM LValResolution := do
   if eType.isForall then
@@ -1326,7 +1326,7 @@ where
     try
       tryPostponeIfMVar resultTypeFn
       let .const declName .. := resultTypeFn.cleanupAnnotations
-        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
+        | throwError "invalid dotted identifier notation, expected type is not of the form '... → C ...' where C is a constant{indentExpr expectedType}"
       let idNew := declName ++ id.getId.eraseMacroScopes
       unless (← getEnv).contains idNew do
         throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"

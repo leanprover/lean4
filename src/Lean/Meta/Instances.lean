@@ -267,7 +267,7 @@ def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
         unless isClass (← getEnv) className do
           throwError "invalid default instance '{declName}', it has type '({className} ...)', but {className}' is not a type class"
         setEnv <| defaultInstanceExtension.addEntry (← getEnv) { className := className, instanceName := declName, priority := prio }
-      | _ => throwError "invalid default instance '{declName}', type must be of the form '(C ...)' where 'C' is a type class"
+      | _ => throwError "invalid default instance '{declName}', type must be of the form 'C ...' where 'C' is a type class"
 
 builtin_initialize
   registerBuiltinAttribute {

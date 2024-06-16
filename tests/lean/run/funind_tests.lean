@@ -791,7 +791,7 @@ def nonmutual : Nat → Bool
 #check nonmutual.mutual_induct
 
 /--
-error: invalid field notation, type is not of the form (C ...) where C is a constant
+error: invalid field notation, type is not of the form 'C ...' where C is a constant
   id
 has type
   ?_ → ?_

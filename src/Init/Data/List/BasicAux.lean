@@ -24,6 +24,11 @@ def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
+theorem get!_nil [Inhabited α] (n : Nat) : [].get! n = (default : α) := rfl
+theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
+    (a::l).get! (n+1) = get! l n := rfl
+theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
+
 /--
 Returns the `i`-th element in the list (zero-based).
 
@@ -34,6 +39,10 @@ def get? : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get? as n
   | _,     _   => none
+
+@[simp] theorem get?_nil : @get? α [] n = none := rfl
+@[simp] theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
+@[simp] theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
 
 /--
 Returns the `i`-th element in the list (zero-based).
@@ -74,6 +83,9 @@ def head? : List α → Option α
   | []   => none
   | a::_ => some a
 
+@[simp] theorem head?_nil : @head? α [] = none := rfl
+@[simp] theorem head?_cons : @head? α (a::l) = some a := rfl
+
 /--
 Returns the first element in the list.
 
@@ -84,11 +96,16 @@ def headD : (as : List α) → (fallback : α) → α
   | [],   fallback => fallback
   | a::_, _  => a
 
+@[simp 1100] theorem headD_nil : @headD α [] d = d := rfl
+@[simp 1100] theorem headD_cons : @headD α (a::l) d = a := rfl
+
 /--
 Returns the first element of a non-empty list.
 -/
 def head : (as : List α) → as ≠ [] → α
   | a::_, _ => a
+
+@[simp] theorem head_cons : @head α (a::l) h = a := rfl
 
 /--
 Drops the first element of the list.
@@ -100,6 +117,8 @@ def tail! : List α → List α
   | []    => panic! "empty list"
   | _::as => as
 
+@[simp] theorem tail!_cons : @tail! α (a::l) = l := rfl
+
 /--
 Drops the first element of the list.
 
@@ -109,6 +128,9 @@ Also see `tailD` and `tail!`.
 def tail? : List α → Option (List α)
   | []    => none
   | _::as => some as
+
+@[simp] theorem tail?_nil : @tail? α [] = none := rfl
+@[simp] theorem tail?_cons : @tail? α (a::l) = some l := rfl
 
 /--
 Drops the first element of the list.
@@ -120,6 +142,9 @@ def tailD (list fallback : List α) : List α :=
   match list with
   | [] => fallback
   | _ :: tl => tl
+
+@[simp 1100] theorem tailD_nil : @tailD α [] l' = l' := rfl
+@[simp 1100] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
 
 /--
 Returns the last element of a non-empty list.

@@ -29,6 +29,8 @@ namespace List
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
+@[simp] theorem empty_eq : (∅ : List α) = [] := rfl
+
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
@@ -60,6 +62,9 @@ theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.c
 def reverseAux : List α → List α → List α
   | [],   r => r
   | a::l, r => reverseAux l (a::r)
+
+@[simp] theorem reverseAux_nil : reverseAux [] r = r := rfl
+@[simp] theorem reverseAux_cons : reverseAux (a::l) r = reverseAux l (a::r) := rfl
 
 /--
 `O(|as|)`. Reverse of a list:
@@ -151,6 +156,10 @@ def eraseIdx : List α → Nat → List α
   | _::as, 0   => as
   | a::as, n+1 => a :: eraseIdx as n
 
+@[simp] theorem eraseIdx_nil : ([] : List α).eraseIdx i = [] := rfl
+@[simp] theorem eraseIdx_cons_zero : (a::as).eraseIdx 0 = as := rfl
+@[simp] theorem eraseIdx_cons_succ : (a::as).eraseIdx (i+1) = a :: as.eraseIdx i := rfl
+
 /--
 `O(1)`. `isEmpty l` is true if the list is empty.
 * `isEmpty [] = true`
@@ -161,6 +170,9 @@ def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
 
+@[simp] theorem isEmpty_nil : ([] : List α).isEmpty = true := rfl
+@[simp] theorem isEmpty_cons : (x :: xs : List α).isEmpty = false := rfl
+
 /--
 `O(|l|)`. `map f l` applies `f` to each element of the list.
 * `map f [a, b, c] = [f a, f b, f c]`
@@ -169,6 +181,9 @@ def isEmpty : List α → Bool
   | []    => []
   | a::as => f a :: map f as
 
+@[simp] theorem map_nil {f : α → β} : map f [] = [] := rfl
+@[simp] theorem map_cons (f : α → β) a l : map f (a :: l) = f a :: map f l := rfl
+
 /--
 `O(|join L|)`. `join L` concatenates all the lists in `L` into one list.
 * `join [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
@@ -176,6 +191,9 @@ def isEmpty : List α → Bool
 def join : List (List α) → List α
   | []      => []
   | a :: as => a ++ join as
+
+@[simp] theorem join_nil : List.join ([] : List (List α)) = [] := rfl
+@[simp] theorem join_cons : (l :: ls).join = l ++ ls.join := rfl
 
 /--
 `O(|l|)`. `filterMap f l` takes a function `f : α → Option β` and applies it to each element of `l`;
@@ -194,6 +212,13 @@ filterMap
     | none   => filterMap f as
     | some b => b :: filterMap f as
 
+@[simp] theorem filterMap_nil (f : α → Option β) : filterMap f [] = [] := rfl
+@[simp] theorem filterMap_cons (f : α → Option β) (a : α) (l : List α) :
+    filterMap f (a :: l) =
+      match f a with
+      | none => filterMap f l
+      | some b => b :: filterMap f l := rfl
+
 /--
 `O(|l|)`. `filter f l` returns the list of elements in `l` for which `f` returns true.
 ```
@@ -205,6 +230,8 @@ def filter (p : α → Bool) : List α → List α
   | a::as => match p a with
     | true => a :: filter p as
     | false => filter p as
+
+@[simp] theorem filter_nil (p : α → Bool) : filter p [] = [] := rfl
 
 /--
 `O(|l|)`. `partition p l` calls `p` on each element of `l`, partitioning the list into two lists
@@ -239,6 +266,8 @@ def dropWhile (p : α → Bool) : List α → List α
     | true  => dropWhile p l
     | false => a::l
 
+@[simp] theorem dropWhile_nil : ([] : List α).dropWhile p = [] := rfl
+
 /--
 `O(|l|)`. `find? p l` returns the first element for which `p` returns true,
 or `none` if no such element is found.
@@ -252,6 +281,10 @@ def find? (p : α → Bool) : List α → Option α
     | true  => some a
     | false => find? p as
 
+@[simp] theorem find?_nil : ([] : List α).find? p = none := rfl
+theorem find?_cons : (a::as).find? p = match p a with | true => some a | false => as.find? p :=
+  rfl
+
 /--
 `O(|l|)`. `findSome? f l` applies `f` to each element of `l`, and returns the first non-`none` result.
 
@@ -262,6 +295,11 @@ def findSome? (f : α → Option β) : List α → Option β
   | a::as => match f a with
     | some b => some b
     | none   => findSome? f as
+
+@[simp] theorem findSome?_nil : ([] : List α).findSome? f = none := rfl
+theorem findSome?_cons {f : α → Option β} :
+    (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
+  rfl
 
 /--
 `O(|l|)`. `replace l a b` replaces the first element in the list equal to `a` with `b`.
@@ -275,6 +313,11 @@ def replace [BEq α] : List α → α → α → List α
     | true  => c::as
     | false => a :: replace as b c
 
+@[simp] theorem replace_nil [BEq α] : ([] : List α).replace a b = [] := rfl
+theorem replace_cons [BEq α] {a : α} :
+    (a::as).replace b c = match a == b with | true => c::as | false => a :: replace as b c :=
+  rfl
+
 /--
 `O(|l|)`. `elem a l` or `l.contains a` is true if there is an element in `l` equal to `a`.
 
@@ -287,12 +330,19 @@ def elem [BEq α] (a : α) : List α → Bool
     | true  => true
     | false => elem a bs
 
+@[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
+theorem elem_cons [BEq α] {a : α} :
+    (a::as).elem b = match a == b with | true => true | false => as.elem b := rfl
+
 /-- `notElem a l` is `!(elem a l)`. -/
+@[deprecated (since := "2024-06-15")]
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
   !(as.elem a)
 
 @[inherit_doc elem] abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
+
+@[simp] theorem contains_nil [BEq α] : ([] : List α).contains a = false := rfl
 
 /--
 `a ∈ l` is a predicate which asserts that `a` is in the list `l`.
@@ -411,12 +461,17 @@ def lookup [BEq α] : α → List (α × β) → Option β
     | true  => some b
     | false => lookup a es
 
+@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
+theorem lookup_cons [BEq α] {k : α} :
+    ((k,b)::es).lookup a = match a == k with | true => some b | false => es.lookup a :=
+  rfl
+
 /-- `O(|xs|)`. Computes the "set difference" of lists,
 by filtering out all elements of `xs` which are also in `ys`.
 * `removeAll [1, 1, 5, 1, 2, 4, 5] [1, 2, 2] = [5, 4, 5]`
  -/
 def removeAll [BEq α] (xs ys : List α) : List α :=
-  xs.filter (fun x => ys.notElem x)
+  xs.filter (fun x => !ys.elem x)
 
 /--
 `O(min n |xs|)`. Removes the first `n` elements of `xs`.
@@ -431,6 +486,8 @@ def drop : Nat → List α → List α
 
 @[simp] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
+@[simp] theorem drop_zero (l : List α) : l.drop 0 = l := rfl
+@[simp] theorem drop_succ_cons : (a :: l).drop (n + 1) = l.drop n := rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -448,6 +505,10 @@ def take : Nat → List α → List α
   | 0,   _     => []
   | _+1, []    => []
   | n+1, a::as => a :: take n as
+
+@[simp] theorem take_nil : ([] : List α).take i = [] := by cases i <;> rfl
+@[simp] theorem take_zero (l : List α) : l.take 0 = [] := rfl
+@[simp] theorem take_cons_succ : (a::as).take (i+1) = a :: as.take i := rfl
 
 /--
 `O(|xs|)`. Returns the longest initial segment of `xs` for which `p` returns true.
@@ -468,6 +529,9 @@ def takeWhile (p : α → Bool) : (xs : List α) → List α
   | []     => init
   | a :: l => f a (foldr f init l)
 
+@[simp] theorem foldr_nil : [].foldr f b = b := rfl
+@[simp] theorem foldr_cons (l : List α) : (a :: l).foldr f b = f a (l.foldr f b) := rfl
+
 /--
 `O(|l|)`. Returns true if `p` is true for any element of `l`.
 * `any p [a, b, c] = p a || p b || p c`
@@ -477,6 +541,9 @@ Short-circuits upon encountering the first `true`.
 def any : List α -> (α → Bool) -> Bool
   | [], _ => false
   | h :: t, p => p h || any t p
+
+@[simp] theorem any_nil : [].any f = false := rfl
+@[simp] theorem any_cons : (a::l).any f = (f a || l.any f) := rfl
 
 /--
 `O(|l|)`. Returns true if `p` is true for every element of `l`.
@@ -488,17 +555,26 @@ def all : List α -> (α → Bool) -> Bool
   | [], _ => true
   | h :: t, p => p h && all t p
 
+@[simp] theorem all_nil : [].all f = true := rfl
+@[simp] theorem all_cons : (a::l).all f = (f a && l.all f) := rfl
+
 /--
 `O(|l|)`. Returns true if `true` is an element of the list of booleans `l`.
 * `or [a, b, c] = a || b || c`
 -/
-def or  (bs : List Bool) : Bool := bs.any id
+def or (bs : List Bool) : Bool := bs.any id
+
+@[simp] theorem or_nil : [].or = false := rfl
+@[simp] theorem or_cons : (a::l).or = (a || l.or) := rfl
 
 /--
 `O(|l|)`. Returns true if every element of `l` is the value `true`.
 * `and [a, b, c] = a && b && c`
 -/
 def and (bs : List Bool) : Bool := bs.all id
+
+@[simp] theorem and_nil : [].and = true := rfl
+@[simp] theorem and_cons : (a::l).and = (a && l.and) := rfl
 
 /--
 `O(min |xs| |ys|)`. Applies `f` to the two lists in parallel, stopping at the shorter list.
@@ -508,6 +584,11 @@ def and (bs : List Bool) : Bool := bs.all id
   | x::xs, y::ys => f x y :: zipWith f xs ys
   | _,     _     => []
 
+@[simp] theorem zipWith_nil_left {f : α → β → γ} : zipWith f [] l = [] := rfl
+@[simp] theorem zipWith_nil_right {f : α → β → γ} : zipWith f l [] = [] := by simp [zipWith]
+@[simp] theorem zipWith_cons_cons {f : α → β → γ} :
+    zipWith f (a :: as) (b :: bs) = f a b :: zipWith f as bs := rfl
+
 /--
 `O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.
 The longer list is truncated to match the shorter list.
@@ -515,6 +596,10 @@ The longer list is truncated to match the shorter list.
 -/
 def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
+
+@[simp] theorem zip_nil_left : zip ([] : List α) (l : List β)  = [] := rfl
+@[simp] theorem zip_nil_right : zip (l : List α) ([] : List β)  = [] := by simp [zip, zipWith]
+@[simp] theorem zip_cons_cons : zip (a :: as) (b :: bs) = (a, b) :: zip as bs := rfl
 
 /--
 `O(max |xs| |ys|)`.
@@ -545,6 +630,10 @@ def unzip : List (α × β) → List α × List β
   | []          => ([], [])
   | (a, b) :: t => match unzip t with | (al, bl) => (a::al, b::bl)
 
+@[simp] theorem unzip_nil : ([] : List (α × β)).unzip = ([], []) := rfl
+@[simp] theorem unzip_cons {h : α × β} :
+    (h :: t).unzip = match unzip t with | (al, bl) => (h.1::al, h.2::bl) := rfl
+
 /--
 `O(n)`. `range n` is the numbers from `0` to `n` exclusive, in increasing order.
 * `range 5 = [0, 1, 2, 3, 4]`
@@ -564,20 +653,8 @@ def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
-/-- Tail-recursive version of `iota`. -/
-def iotaTR (n : Nat) : List Nat :=
-  let rec go : Nat → List Nat → List Nat
-    | 0, r => r.reverse
-    | m@(n+1), r => go n (m::r)
-  go n []
-
-@[csimp]
-theorem iota_eq_iotaTR : @iota = @iotaTR :=
-  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
-    induction n generalizing r with
-    | zero => simp [iota, iotaTR.go]
-    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
-  funext fun n => by simp [iotaTR, aux]
+@[simp] theorem iota_zero : iota 0 = [] := rfl
+@[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
 
 /--
 `O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
@@ -587,11 +664,16 @@ def enumFrom : Nat → List α → List (Nat × α)
   | _, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
+@[simp] theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
+@[simp] theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
+
 /--
 `O(|l|)`. `enum l` pairs up each element with its index in the list.
 * `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
 -/
 def enum : List α → List (Nat × α) := enumFrom 0
+
+@[simp] theorem enum_nil : ([] : List α).enum = [] := rfl
 
 /--
 `O(|l|)`. `intersperse sep l` alternates `sep` and the elements of `l`:
@@ -604,6 +686,11 @@ def intersperse (sep : α) : List α → List α
   | []    => []
   | [x]   => [x]
   | x::xs => x :: sep :: intersperse sep xs
+
+@[simp] theorem intersperse_nil (sep : α) : ([] : List α).intersperse sep = [] := rfl
+@[simp] theorem intersperse_single (sep : α) : [x].intersperse sep = [x] := rfl
+@[simp] theorem intersperse_cons₂ (sep : α) :
+    (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
 
 /--
 `O(|xs|)`. `intercalate sep xs` alternates `sep` and the elements of `xs`:
@@ -621,6 +708,15 @@ to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
 @[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := join (map b a)
+
+@[simp] theorem bind_nil (f : α → List β) : List.bind [] f = [] := by simp [join, List.bind]
+@[simp] theorem bind_cons x xs (f : α → List β) :
+  List.bind (x :: xs) f = f x ++ List.bind xs f := by simp [join, List.bind]
+
+set_option linter.missingDocs false in
+@[deprecated bind_nil (since := "2024-06-15")] abbrev nil_bind := @bind_nil
+set_option linter.missingDocs false in
+@[deprecated bind_cons (since := "2024-06-15")] abbrev cons_bind := @bind_cons
 
 /-- `pure x = [x]` is the `pure` operation of the list monad. -/
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
@@ -673,6 +769,12 @@ def isPrefixOf [BEq α] : List α → List α → Bool
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
+@[simp] theorem isPrefixOf_nil_left [BEq α] : isPrefixOf ([] : List α) l = true := by
+  simp [isPrefixOf]
+@[simp] theorem isPrefixOf_cons_nil [BEq α] : isPrefixOf (a::as) ([] : List α) = false := rfl
+theorem isPrefixOf_cons₂ [BEq α] {a : α} :
+    isPrefixOf (a::as) (b::bs) = (a == b && isPrefixOf as bs) := rfl
+
 /-- `isPrefixOf? l₁ l₂` returns `some t` when `l₂ == l₁ ++ t`. -/
 def isPrefixOf? [BEq α] : List α → List α → Option (List α)
   | [], l₂ => some l₂
@@ -697,6 +799,11 @@ and they are pairwise related by `eqv`.
   | [],    [],    _   => true
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     _   => false
+
+@[simp] theorem isEqv_nil_nil : isEqv ([] : List α) [] eqv = true := rfl
+@[simp] theorem isEqv_nil_cons : isEqv ([] : List α) (a::as) eqv = false := rfl
+@[simp] theorem isEqv_cons_nil : isEqv (a::as : List α) [] eqv = false := rfl
+theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv) := rfl
 
 /--
 The equality relation on lists asserts that they have the same length
@@ -746,6 +853,11 @@ def dropLast {α} : List α → List α
   | []    => []
   | [_]   => []
   | a::as => a :: dropLast as
+
+@[simp] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
+@[simp] theorem dropLast_single : [x].dropLast = [] := rfl
+@[simp] theorem dropLast_cons₂ :
+    (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
 
 @[simp] theorem length_dropLast_cons (a : α) (as : List α) : (a :: as).dropLast.length = as.length := by
   match as with

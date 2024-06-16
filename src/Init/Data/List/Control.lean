@@ -151,6 +151,11 @@ protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w
     let s' ← f s a
     List.foldlM f s' as
 
+@[simp] theorem foldlM_nil [Monad m] (f : β → α → m β) (b) : [].foldlM f b = pure b := rfl
+@[simp] theorem foldlM_cons [Monad m] (f : β → α → m β) (b) (a) (l : List α) :
+    (a :: l).foldlM f b = f b a >>= l.foldlM f := by
+  simp [List.foldlM]
+
 /--
 Folds a monadic function over a list from right to left:
 ```
@@ -164,6 +169,8 @@ foldrM f x₀ [a, b, c] = do
 @[inline]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
   l.reverse.foldlM (fun s a => f a s) init
+
+@[simp] theorem foldrM_nil [Monad m] (f : α → β → m β) (b) : [].foldrM f b = pure b := rfl
 
 /--
 Maps `f` over the list and collects the results with `<|>`.

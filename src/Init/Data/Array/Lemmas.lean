@@ -139,7 +139,8 @@ where
       mapM.map f arr i r = (arr.data.drop i).foldlM (fun bs a => bs.push <$> f a) r := by
     unfold mapM.map; split
     · rw [← List.get_drop_eq_drop _ i ‹_›]
-      simp [aux (i+1), map_eq_pure_bind]; rfl
+      simp only [aux (i + 1), map_eq_pure_bind, data_length, List.foldlM_cons, bind_assoc, pure_bind]
+      rfl
     · rw [List.drop_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
   termination_by arr.size - i
   decreasing_by decreasing_trivial_pre_omega

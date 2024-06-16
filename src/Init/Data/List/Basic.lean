@@ -13,8 +13,33 @@ import Init.Data.List.Notation
 
 We define
 * basic operations on `List`,
-* tail-recursive versions along with `@[csimp]` lemmas,
+* simp lemmas for applying the operations on `.nil` and `.cons` arguments
+  (in the cases where the right hand side is simple to state; otherwise these are deferred to `Init.Data.List.Lemmas`),
 * the minimal lemmas which are required for setting up `Init.Data.Array.Basic`.
+
+In `Init.Data.List.Impl` we give tail-recursive versions of these operations
+along with `@[csimp]` lemmas,
+
+In `Init.Data.List.Lemmas` we develop the full API for these functions.
+
+The operations are organized as follow:
+* Equality: `beq`, `isEqv`.
+* Lexicographic ordering: `lt`, `le`, and instances.
+* Basic operations:
+  `map`, `filter`, `filterMap`, `foldr`, `append`, `join`, `pure`, `bind`, `replicate`, and `reverse`
+  (`length`, `get`, `set`, `foldl`, and `concat` have already been defined in `Init.Prelude`).
+* List membership: `isEmpty`, `elem`, `contains`, `mem` (and the `∈` notation),
+  and decidability for predicates quantifying over membership in a `List`.
+* Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
+  `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, and `isSuffixOf?`.
+* Manipulating elements: `replace`, `insert`, `erase`, `eraseIdx`, `find?`, `findSome?`, and `lookup`.
+* Logic: `any`, `all`, `or`, and `and`.
+* Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
+* Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
+* Minima and maxima: `minimum?` and `maximum?`
+* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`, `removeAll`
+  (currently these functions are mostly only used in meta code,
+  and do not have complete API suitable for verification)
 -/
 
 set_option linter.missingDocs true -- keep it documented
@@ -461,6 +486,29 @@ theorem mem_append_of_mem_right {b : α} {bs : List α} (as : List α) : b ∈ b
   | nil  => simp [h]
   | cons => apply Mem.tail; assumption
 
+instance decidableBEx (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x)
+  | [] => isFalse nofun
+  | x :: xs =>
+    if h₁ : p x then isTrue ⟨x, .head .., h₁⟩ else
+      match decidableBEx p xs with
+      | isTrue h₂ => isTrue <| let ⟨y, hm, hp⟩ := h₂; ⟨y, .tail _ hm, hp⟩
+      | isFalse h₂ => isFalse fun
+        | ⟨y, .tail _ h, hp⟩ => h₂ ⟨y, h, hp⟩
+        | ⟨_, .head .., hp⟩ => h₁ hp
+
+instance decidableBAll (p : α → Prop) [DecidablePred p] :
+    ∀ l : List α, Decidable (∀ x, x ∈ l → p x)
+  | [] => isTrue nofun
+  | x :: xs =>
+    if h₁ : p x then
+      match decidableBAll p xs with
+      | isTrue h₂ => isTrue fun
+        | y, .tail _ h => h₂ y h
+        | _, .head .. => h₁
+      | isFalse h₂ => isFalse fun H => h₂ fun y hm => H y (.tail _ hm)
+    else isFalse fun H => h₁ <| H x (.head ..)
+
 /-! ## Sublists -/
 
 /-! ### take -/
@@ -719,6 +767,26 @@ theorem findSome?_cons {f : α → Option β} :
     (a::as).findSome? f = match f a with | some b => some b | none => as.findSome? f :=
   rfl
 
+/-! ### lookup -/
+
+/--
+`O(|l|)`. `lookup a l` treats `l : List (α × β)` like an association list,
+and returns the first `β` value corresponding to an `α` value in the list equal to `a`.
+
+* `lookup 3 [(1, 2), (3, 4), (3, 5)] = some 4`
+* `lookup 2 [(1, 2), (3, 4), (3, 5)] = none`
+-/
+def lookup [BEq α] : α → List (α × β) → Option β
+  | _, []        => none
+  | a, (k,b)::es => match a == k with
+    | true  => some b
+    | false => lookup a es
+
+@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
+theorem lookup_cons [BEq α] {k : α} :
+    ((k,b)::es).lookup a = match a == k with | true => some b | false => es.lookup a :=
+  rfl
+
 /-! ## Logical operations -/
 
 /-! ### any -/
@@ -891,6 +959,40 @@ def enum : List α → List (Nat × α) := enumFrom 0
 
 @[simp] theorem enum_nil : ([] : List α).enum = [] := rfl
 
+/-! ## Minima and maxima -/
+
+/-! ### minimum? -/
+
+/--
+Returns the smallest element of the list, if it is not empty.
+* `[].minimum? = none`
+* `[4].minimum? = some 4`
+* `[1, 4, 2, 10, 6].minimum? = some 1`
+-/
+def minimum? [Min α] : List α → Option α
+  | []    => none
+  | a::as => some <| as.foldl min a
+
+/-! ### maximum? -/
+
+/--
+Returns the largest element of the list, if it is not empty.
+* `[].maximum? = none`
+* `[4].maximum? = some 4`
+* `[1, 4, 2, 10, 6].maximum? = some 10`
+-/
+def maximum? [Max α] : List α → Option α
+  | []    => none
+  | a::as => some <| as.foldl max a
+
+/-! ## Other list operations
+
+The functions are currently mostly used in meta code,
+and do not have sufficient API developed for verification work.
+-/
+
+/-! ### intersperse -/
+
 /--
 `O(|l|)`. `intersperse sep l` alternates `sep` and the elements of `l`:
 * `intersperse sep [] = []`
@@ -908,6 +1010,8 @@ def intersperse (sep : α) : List α → List α
 @[simp] theorem intersperse_cons₂ (sep : α) :
     (x::y::zs).intersperse sep = x::sep::((y::zs).intersperse sep) := rfl
 
+/-! ### intercalate -/
+
 /--
 `O(|xs|)`. `intercalate sep xs` alternates `sep` and the elements of `xs`:
 * `intercalate sep [] = []`
@@ -918,50 +1022,7 @@ def intersperse (sep : α) : List α → List α
 def intercalate (sep : List α) (xs : List (List α)) : List α :=
   join (intersperse sep xs)
 
-
-/--
-Returns the largest element of the list, if it is not empty.
-* `[].maximum? = none`
-* `[4].maximum? = some 4`
-* `[1, 4, 2, 10, 6].maximum? = some 10`
--/
-def maximum? [Max α] : List α → Option α
-  | []    => none
-  | a::as => some <| as.foldl max a
-
-/--
-Returns the smallest element of the list, if it is not empty.
-* `[].minimum? = none`
-* `[4].minimum? = some 4`
-* `[1, 4, 2, 10, 6].minimum? = some 1`
--/
-def minimum? [Min α] : List α → Option α
-  | []    => none
-  | a::as => some <| as.foldl min a
-
-instance decidableBEx (p : α → Prop) [DecidablePred p] :
-    ∀ l : List α, Decidable (Exists fun x => x ∈ l ∧ p x)
-  | [] => isFalse nofun
-  | x :: xs =>
-    if h₁ : p x then isTrue ⟨x, .head .., h₁⟩ else
-      match decidableBEx p xs with
-      | isTrue h₂ => isTrue <| let ⟨y, hm, hp⟩ := h₂; ⟨y, .tail _ hm, hp⟩
-      | isFalse h₂ => isFalse fun
-        | ⟨y, .tail _ h, hp⟩ => h₂ ⟨y, h, hp⟩
-        | ⟨_, .head .., hp⟩ => h₁ hp
-
-instance decidableBAll (p : α → Prop) [DecidablePred p] :
-    ∀ l : List α, Decidable (∀ x, x ∈ l → p x)
-  | [] => isTrue nofun
-  | x :: xs =>
-    if h₁ : p x then
-      match decidableBAll p xs with
-      | isTrue h₂ => isTrue fun
-        | y, .tail _ h => h₂ y h
-        | _, .head .. => h₁
-      | isFalse h₂ => isFalse fun H => h₂ fun y hm => H y (.tail _ hm)
-    else isFalse fun H => h₁ <| H x (.head ..)
-
+/-! ### eraseDups -/
 
 /-- `O(|l|^2)`. Erase duplicated elements in the list.
 Keeps the first occurrence of duplicated elements.
@@ -976,6 +1037,8 @@ where
     | true  => loop as bs
     | false => loop as (a::bs)
 
+/-! ### eraseReps -/
+
 /--
 `O(|l|)`. Erase repeated adjacent elements. Keeps the first occurrence of each run.
 * `eraseReps [1, 3, 2, 2, 2, 3, 5] = [1, 3, 2, 3, 5]`
@@ -989,6 +1052,8 @@ where
   | a, a'::as, rs => match a == a' with
     | true  => loop a as rs
     | false => loop a' as (a::rs)
+
+/-! ### span -/
 
 /--
 `O(|l|)`. `span p l` splits the list `l` into two parts, where the first part
@@ -1007,6 +1072,8 @@ where
     | true  => loop as (a::rs)
     | false => (rs.reverse, a::as)
 
+/-! ### groupBy -/
+
 /--
 `O(|l|)`. `groupBy R l` splits `l` into chains of elements
 such that adjacent elements are related by `R`.
@@ -1024,23 +1091,7 @@ where
     | false => loop as a [] ((ag::g).reverse::gs)
   | [], ag, g, gs => ((ag::g).reverse::gs).reverse
 
-/--
-`O(|l|)`. `lookup a l` treats `l : List (α × β)` like an association list,
-and returns the first `β` value corresponding to an `α` value in the list equal to `a`.
-
-* `lookup 3 [(1, 2), (3, 4), (3, 5)] = some 4`
-* `lookup 2 [(1, 2), (3, 4), (3, 5)] = none`
--/
-def lookup [BEq α] : α → List (α × β) → Option β
-  | _, []        => none
-  | a, (k,b)::es => match a == k with
-    | true  => some b
-    | false => lookup a es
-
-@[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
-theorem lookup_cons [BEq α] {k : α} :
-    ((k,b)::es).lookup a = match a == k with | true => some b | false => es.lookup a :=
-  rfl
+/-! ### removeAll -/
 
 /-- `O(|xs|)`. Computes the "set difference" of lists,
 by filtering out all elements of `xs` which are also in `ys`.

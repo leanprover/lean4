@@ -291,11 +291,6 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
   rw [Array.foldr_eq_foldr_data]
   simp [go]
 
-theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
-  | 0 => rfl
-  | n+1 => by rw [← replicateTR_loop_replicate_eq _ 1 n, replicate, replicate,
-    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
-
 /-- Tail recursive version of `dropLast`. -/
 @[inline] def dropLastTR (l : List α) : List α := l.toArray.pop.toList
 
@@ -352,5 +347,27 @@ theorem iota_eq_iotaTR : @iota = @iotaTR :=
     | zero => simp [iota, iotaTR.go]
     | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
   funext fun n => by simp [iotaTR, aux]
+
+/-- Tail-recursive version of `List.replicate`. -/
+def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
+  let rec loop : Nat → List α → List α
+    | 0, as => as
+    | n+1, as => loop n (a::as)
+  loop n []
+
+theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
+  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
+  induction n generalizing m with simp [replicateTR.loop]
+  | succ n ih => simp [Nat.succ_add]; exact ih (m+1)
+
+@[deprecated (since := "2024-06-15")]
+theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++ acc
+  | 0 => rfl
+  | n+1 => by rw [← replicateTR_loop_replicate_eq _ 1 n, replicate, replicate,
+    replicateTR.loop, replicateTR_loop_eq n, replicateTR_loop_eq n, append_assoc]; rfl
+
+@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
+  apply funext; intro α; apply funext; intro n; apply funext; intro a
+  exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
 end List

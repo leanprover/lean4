@@ -12,12 +12,10 @@ import Init.PropLemmas
 import Init.Control.Lawful.Basic
 import Init.Hints
 
-/-!
-# Theorems about `List` operations.
+/-! # Theorems about `List` operations.
 
 For each `List` operation, we would like theorems describing the following, when relevant:
 * if it is a "convenience" function, a `@[simp]` lemma reducing it to more basic operations
-
   (e.g. `List.partition_eq_filter_filter`), and otherwise:
 * any special cases of equational lemmas that require additional hypotheses
 * lemmas for special cases of the arguments (e.g. `List.map_id`)
@@ -89,7 +87,7 @@ theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
 theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
 
-/-! ## L[i] and L[i]? -/
+/-! ### L[i] and L[i]? -/
 
 @[simp] theorem get_cons_zero : get (a::l) (0 : Fin (l.length + 1)) = a := rfl
 
@@ -626,6 +624,17 @@ theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
 theorem filter_eq_nil {l} : filter p l = [] ↔ ∀ a, a ∈ l → ¬p a := by
   simp only [eq_nil_iff_forall_not_mem, mem_filter, not_and]
 
+@[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a ∧ q a) l
+  | [] => rfl
+  | a :: l => by by_cases hp : p a <;> by_cases hq : q a <;> simp [hp, hq, filter_filter _ l]
+
+theorem filter_map (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
+  induction l with
+  | nil => rfl
+  | cons a l IH => by_cases h : p (f a) <;> simp [*]
+
+@[deprecated (since := "2024-06-15")] abbrev map_filter := @filter_map
+
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂
   | [], l₂ => rfl
@@ -638,6 +647,73 @@ theorem filter_congr' {p q : α → Bool} :
     rw [forall_mem_cons] at h; by_cases pa : p a
     · simp [pa, h.1.1 pa, filter_congr' h.2]
     · simp [pa, mt h.1.2 pa, filter_congr' h.2]
+
+/-! ### filterMap -/
+
+theorem filterMap_cons_none {f : α → Option β} (a : α) (l : List α) (h : f a = none) :
+    filterMap f (a :: l) = filterMap f l := by simp only [filterMap, h]
+
+theorem filterMap_cons_some (f : α → Option β) (a : α) (l : List α) {b : β} (h : f a = some b) :
+    filterMap f (a :: l) = b :: filterMap f l := by simp only [filterMap, h]
+
+@[simp]
+theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
+  funext l; induction l <;> simp [*]
+
+@[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
+  erw [filterMap_eq_map, map_id]
+
+theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
+    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
+  induction l <;> simp; split <;> simp [*]
+
+@[simp]
+theorem filterMap_eq_filter (p : α → Bool) :
+    filterMap (Option.guard (p ·)) = filter p := by
+  funext l
+  induction l with
+  | nil => rfl
+  | cons a l IH => by_cases pa : p a <;> simp [Option.guard, pa, ← IH]
+
+theorem filterMap_filterMap (f : α → Option β) (g : β → Option γ) (l : List α) :
+    filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
+  induction l with
+  | nil => rfl
+  | cons a l IH => cases h : f a <;> simp [*]
+
+theorem map_filterMap (f : α → Option β) (g : β → γ) (l : List α) :
+    map g (filterMap f l) = filterMap (fun x => (f x).map g) l := by
+  simp only [← filterMap_eq_map, filterMap_filterMap, Option.map_eq_bind]
+
+@[simp]
+theorem filterMap_map (f : α → β) (g : β → Option γ) (l : List α) :
+    filterMap g (map f l) = filterMap (g ∘ f) l := by
+  rw [← filterMap_eq_map, filterMap_filterMap]; rfl
+
+theorem filter_filterMap (f : α → Option β) (p : β → Bool) (l : List α) :
+    filter p (filterMap f l) = filterMap (fun x => (f x).filter p) l := by
+  rw [← filterMap_eq_filter, filterMap_filterMap]
+  congr; funext x; cases f x <;> simp [Option.filter, Option.guard]
+
+theorem filterMap_filter (p : α → Bool) (f : α → Option β) (l : List α) :
+    filterMap f (filter p l) = filterMap (fun x => if p x then f x else none) l := by
+  rw [← filterMap_eq_filter, filterMap_filterMap]
+  congr; funext x; by_cases h : p x <;> simp [Option.guard, h]
+
+theorem map_filterMap_some_eq_filter_map_is_some (f : α → Option β) (l : List α) :
+    (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
+  induction l <;> simp; split <;> simp [*]
+
+@[simp] theorem mem_filterMap (f : α → Option β) (l : List α) {b : β} :
+    b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
+  induction l <;> simp; split <;> simp [*, eq_comm]
+
+@[simp] theorem filterMap_join (f : α → Option β) (L : List (List α)) :
+    filterMap f (join L) = join (map (filterMap f) L) := by
+  induction L <;> simp [*, filterMap_append]
+
+theorem map_filterMap_of_inv (f : α → Option β) (g : β → α) (H : ∀ x : α, (f x).map g = some x)
+    (l : List α) : map g (filterMap f l) = l := by simp only [map_filterMap, H, filterMap_some]
 
 /-! ### partition -/
 
@@ -979,6 +1055,18 @@ theorem drop_eq_nil_of_eq_nil : ∀ {as : List α} {i}, as = [] → as.drop i = 
 theorem ne_nil_of_drop_ne_nil {as : List α} {i : Nat} (h: as.drop i ≠ []) : as ≠ [] :=
   mt drop_eq_nil_of_eq_nil h
 
+@[deprecated drop_drop (since := "2024-06-15")]
+theorem drop_add (m n) (l : List α) : drop (m + n) l = drop m (drop n l) := by
+  simp [drop_drop]
+
+@[simp]
+theorem drop_left : ∀ l₁ l₂ : List α, drop (length l₁) (l₁ ++ l₂) = l₂
+  | [], _ => rfl
+  | _ :: l₁, l₂ => drop_left l₁ l₂
+
+theorem drop_left' {l₁ l₂ : List α} {n} (h : length l₁ = n) : drop n (l₁ ++ l₂) = l₂ := by
+  rw [← h]; apply drop_left
+
 /-! ### takeWhile and dropWhile -/
 
 theorem dropWhile_cons :
@@ -998,6 +1086,42 @@ theorem dropWhile_append {xs ys : List α} :
   | cons h t ih =>
     simp only [cons_append, dropWhile_cons]
     split <;> simp_all
+
+/-! ### dropLast
+
+`dropLast` is the specification for `Array.pop`, so theorems about `List.dropLast`
+are often used for theorems about `Array.pop`.
+-/
+
+@[simp] theorem length_dropLast : ∀ (xs : List α), xs.dropLast.length = xs.length - 1
+  | [] => rfl
+  | x::xs => by simp
+
+@[simp] theorem getElem_dropLast : ∀ (xs : List α) (i : Nat) (h : i < xs.dropLast.length),
+    xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
+  | _::_::_, 0, _ => rfl
+  | _::_::_, i+1, _ => getElem_dropLast _ i _
+
+@[deprecated getElem_dropLast (since := "2024-06-12")]
+theorem get_dropLast (xs : List α) (i : Fin xs.dropLast.length) :
+    xs.dropLast.get i = xs.get ⟨i, Nat.lt_of_lt_of_le i.isLt (length_dropLast .. ▸ Nat.pred_le _)⟩ := by
+  simp
+
+theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
+    {l : List α} (h : l ≠ []) : (x :: l).dropLast = x :: l.dropLast := by
+  simp [dropLast, h]
+
+@[simp] theorem dropLast_append_of_ne_nil {α : Type u} {l : List α} :
+    ∀ (l' : List α) (_ : l ≠ []), (l' ++ l).dropLast = l' ++ l.dropLast
+  | [], _ => by simp only [nil_append]
+  | a :: l', h => by
+    rw [cons_append, dropLast, dropLast_append_of_ne_nil l' h, cons_append]
+    simp [h]
+
+theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b::l₂) := by
+  simp only [ne_eq, not_false_eq_true, dropLast_append_of_ne_nil]
+
+@[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
 /-! ### foldlM and foldrM -/
 
@@ -1026,10 +1150,6 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
   induction l <;> simp [*, foldr]
 
 /-! ### foldl and foldr -/
-
--- As `List.foldl` is defined in `Init.Prelude`, we write the basic simplification lemmas here.
-@[simp] theorem foldl_nil : [].foldl f b = b := rfl
-@[simp] theorem foldl_cons (l : List α) (b : β) : (a :: l).foldl f b = l.foldl f (f b a) := rfl
 
 @[simp] theorem foldl_reverse (l : List α) (f : β → α → β) (b) :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
@@ -1102,13 +1222,6 @@ theorem mapM'_eq_mapM [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) 
 
 section erase
 variable [BEq α]
-
-@[simp] theorem erase_nil (a : α) : [].erase a = [] := rfl
-
-theorem erase_cons (a b : α) (l : List α) :
-    (b :: l).erase a = if b == a then l else b :: l.erase a :=
-  if h : b == a then by simp [List.erase, h]
-  else by simp [List.erase, h, (beq_eq_false_iff_ne _ _).2 h]
 
 @[simp] theorem erase_cons_head [LawfulBEq α] (a : α) (l : List α) : (a :: l).erase a = l := by
   simp [erase_cons]
@@ -1223,57 +1336,6 @@ theorem enum_cons : (a::as).enum = (0, a) :: as.enumFrom 1 := rfl
 
 @[simp] theorem isPrefixOf_cons₂_self [BEq α] [LawfulBEq α] {a : α} :
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons₂]
-
-/-! ### drop -/
-
-theorem drop_add : ∀ (m n) (l : List α), drop (m + n) l = drop m (drop n l)
-  | _, 0, _ => rfl
-  | _, _ + 1, [] => drop_nil.symm
-  | m, n + 1, _ :: _ => drop_add m n _
-
-@[simp]
-theorem drop_left : ∀ l₁ l₂ : List α, drop (length l₁) (l₁ ++ l₂) = l₂
-  | [], _ => rfl
-  | _ :: l₁, l₂ => drop_left l₁ l₂
-
-theorem drop_left' {l₁ l₂ : List α} {n} (h : length l₁ = n) : drop n (l₁ ++ l₂) = l₂ := by
-  rw [← h]; apply drop_left
-
-/-! ### dropLast
-
-`dropLast` is the specification for `Array.pop`, so theorems about `List.dropLast`
-are often used for theorems about `Array.pop`.
--/
-
-@[simp] theorem length_dropLast : ∀ (xs : List α), xs.dropLast.length = xs.length - 1
-  | [] => rfl
-  | x::xs => by simp
-
-@[simp] theorem getElem_dropLast : ∀ (xs : List α) (i : Nat) (h : i < xs.dropLast.length),
-    xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
-  | _::_::_, 0, _ => rfl
-  | _::_::_, i+1, _ => getElem_dropLast _ i _
-
-@[deprecated getElem_dropLast (since := "2024-06-12")]
-theorem get_dropLast (xs : List α) (i : Fin xs.dropLast.length) :
-    xs.dropLast.get i = xs.get ⟨i, Nat.lt_of_lt_of_le i.isLt (length_dropLast .. ▸ Nat.pred_le _)⟩ := by
-  simp
-
-theorem dropLast_cons_of_ne_nil {α : Type u} {x : α}
-    {l : List α} (h : l ≠ []) : (x :: l).dropLast = x :: l.dropLast := by
-  simp [dropLast, h]
-
-@[simp] theorem dropLast_append_of_ne_nil {α : Type u} {l : List α} :
-    ∀ (l' : List α) (_ : l ≠ []), (l' ++ l).dropLast = l' ++ l.dropLast
-  | [], _ => by simp only [nil_append]
-  | a :: l', h => by
-    rw [cons_append, dropLast, dropLast_append_of_ne_nil l' h, cons_append]
-    simp [h]
-
-theorem dropLast_append_cons : dropLast (l₁ ++ b::l₂) = l₁ ++ dropLast (b::l₂) := by
-  simp only [ne_eq, not_false_eq_true, dropLast_append_of_ne_nil]
-
-@[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
 /-! ### minimum? -/
 
@@ -1755,80 +1817,6 @@ theorem eq_or_mem_of_mem_insert {l : List α} (h : a ∈ l.insert b) : a = b ∨
     length (l.insert a) = length l + 1 := by rw [insert_of_not_mem h]; rfl
 
 end insert
-
-/-! ### filterMap -/
-
-theorem filterMap_cons_none {f : α → Option β} (a : α) (l : List α) (h : f a = none) :
-    filterMap f (a :: l) = filterMap f l := by simp only [filterMap, h]
-
-theorem filterMap_cons_some (f : α → Option β) (a : α) (l : List α) {b : β} (h : f a = some b) :
-    filterMap f (a :: l) = b :: filterMap f l := by simp only [filterMap, h]
-
-theorem filterMap_append {α β : Type _} (l l' : List α) (f : α → Option β) :
-    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
-  induction l <;> simp; split <;> simp [*]
-
-@[simp]
-theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
-  funext l; induction l <;> simp [*]
-
-@[simp]
-theorem filterMap_eq_filter (p : α → Bool) :
-    filterMap (Option.guard (p ·)) = filter p := by
-  funext l
-  induction l with
-  | nil => rfl
-  | cons a l IH => by_cases pa : p a <;> simp [Option.guard, pa, ← IH]
-
-theorem filterMap_filterMap (f : α → Option β) (g : β → Option γ) (l : List α) :
-    filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
-  induction l with
-  | nil => rfl
-  | cons a l IH => cases h : f a <;> simp [*]
-
-theorem map_filterMap (f : α → Option β) (g : β → γ) (l : List α) :
-    map g (filterMap f l) = filterMap (fun x => (f x).map g) l := by
-  simp only [← filterMap_eq_map, filterMap_filterMap, Option.map_eq_bind]
-
-@[simp]
-theorem filterMap_map (f : α → β) (g : β → Option γ) (l : List α) :
-    filterMap g (map f l) = filterMap (g ∘ f) l := by
-  rw [← filterMap_eq_map, filterMap_filterMap]; rfl
-
-theorem filter_filterMap (f : α → Option β) (p : β → Bool) (l : List α) :
-    filter p (filterMap f l) = filterMap (fun x => (f x).filter p) l := by
-  rw [← filterMap_eq_filter, filterMap_filterMap]
-  congr; funext x; cases f x <;> simp [Option.filter, Option.guard]
-
-theorem filterMap_filter (p : α → Bool) (f : α → Option β) (l : List α) :
-    filterMap f (filter p l) = filterMap (fun x => if p x then f x else none) l := by
-  rw [← filterMap_eq_filter, filterMap_filterMap]
-  congr; funext x; by_cases h : p x <;> simp [Option.guard, h]
-
-@[simp] theorem filterMap_some (l : List α) : filterMap some l = l := by
-  erw [filterMap_eq_map, map_id]
-
-theorem map_filterMap_some_eq_filter_map_is_some (f : α → Option β) (l : List α) :
-    (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
-  induction l <;> simp; split <;> simp [*]
-
-@[simp] theorem mem_filterMap (f : α → Option β) (l : List α) {b : β} :
-    b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
-  induction l <;> simp; split <;> simp [*, eq_comm]
-
-@[simp] theorem filterMap_join (f : α → Option β) (L : List (List α)) :
-    filterMap f (join L) = join (map (filterMap f) L) := by
-  induction L <;> simp [*, filterMap_append]
-
-theorem map_filterMap_of_inv (f : α → Option β) (g : β → α) (H : ∀ x : α, (f x).map g = some x)
-    (l : List α) : map g (filterMap f l) = l := by simp only [map_filterMap, H, filterMap_some]
-
-theorem map_filter (f : β → α) (l : List β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
-  rw [← filterMap_eq_map, filter_filterMap, filterMap_filter]; rfl
-
-@[simp] theorem filter_filter (q) : ∀ l, filter p (filter q l) = filter (fun a => p a ∧ q a) l
-  | [] => rfl
-  | a :: l => by by_cases hp : p a <;> by_cases hq : q a <;> simp [hp, hq, filter_filter _ l]
 
 /-! ### lt -/
 

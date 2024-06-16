@@ -621,7 +621,7 @@ def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
 
-open Level (LevelElabM) in
+open Level (LevelElabM)
 
 def liftLevelM (x : LevelElabM α) : TermElabM α := do
   let ctx ← read
@@ -706,9 +706,10 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
 where
   /-- Append the argument name (if available) to the message.
       Remark: if the argument name contains macro scopes we do not append it. -/
-match mvarErrorInfo.argName? with
-    | none => msg
-    | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+  addArgName (msg : MessageData) (extra : String := "") : TermElabM MessageData := do
+    match (← get).mvarArgNames.find? mvarErrorInfo.mvarId with
+    | none => return msg
+    | some argName => return if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
 
 /-- Log the error associated to a `LevelMVarErrorInfo` -/
 def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
@@ -724,7 +725,6 @@ where
     match extraMsg? with
     | none => msg
     | some extraMsg => msg ++ extraMsg
-
 
 /--
   Try to log errors for the unassigned metavariables `pendingMVarIds` and `pendingLMVarIds`.

@@ -13,9 +13,9 @@ univErrorMessages.lean:6:11-6:14: error: don't know how to synthesize implicit a
 context:
 ⊢ Type ?u
 univErrorMessages.lean:6:6-6:7: error: failed to infer 'let' declaration type
-univErrorMessages.lean:7:11-7:13: error: don't know how to synthesize universe level parameter u of 'List.nil'
-univErrorMessages.lean:6:11-6:14: error: don't know how to synthesize universe level parameter u of 'List.nil'
-univErrorMessages.lean:6:11-6:14: error: don't know how to synthesize universe level parameter u_1 of 'List.toArray'
+univErrorMessages.lean:7:11-7:13: error: don't know how to synthesize universe u of 'List.nil'
+univErrorMessages.lean:6:11-6:14: error: don't know how to synthesize universe u of 'List.nil'
+univErrorMessages.lean:6:11-6:14: error: don't know how to synthesize universe u_1 of 'List.toArray'
 univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize implicit argument
   @List.nil ?m
 context:
@@ -36,11 +36,11 @@ univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize implicit
   @List.toArray ?m []
 context:
 ⊢ Type ?u
-univErrorMessages.lean:12:26-12:28: error: don't know how to synthesize universe level parameter u of 'List.nil'
-univErrorMessages.lean:12:16-12:17: error: don't know how to synthesize universe level placeholder ?u
-univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize universe level parameter u of 'List.nil'
-univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize universe level parameter u_1 of 'List.toArray'
-univErrorMessages.lean:11:17-11:18: error: don't know how to synthesize universe level placeholder ?u
+univErrorMessages.lean:12:26-12:28: error: don't know how to synthesize universe u of 'List.nil'
+univErrorMessages.lean:12:16-12:17: error: don't know how to synthesize universe placeholder ?u
+univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize universe u of 'List.nil'
+univErrorMessages.lean:11:25-11:28: error: don't know how to synthesize universe u_1 of 'List.toArray'
+univErrorMessages.lean:11:17-11:18: error: don't know how to synthesize universe placeholder ?u
 univErrorMessages.lean:16:21-16:38: error: don't know how to synthesize implicit argument
   @id (Array ?m) { data := [] }
 context:
@@ -52,6 +52,6 @@ context:
 univErrorMessages.lean:16:16-16:17: error: don't know how to synthesize placeholder for argument 'α'
 context:
 ⊢ Type ?u
-univErrorMessages.lean:16:34-16:36: error: don't know how to synthesize universe level parameter u of 'List.nil'
-univErrorMessages.lean:16:21-16:23: error: don't know how to synthesize universe level parameter u of 'id'
-univErrorMessages.lean:16:10-16:15: error: don't know how to synthesize universe level parameter u of 'Array'
+univErrorMessages.lean:16:34-16:36: error: don't know how to synthesize universe u of 'List.nil'
+univErrorMessages.lean:16:21-16:23: error: don't know how to synthesize universe u of 'id'
+univErrorMessages.lean:16:10-16:15: error: don't know how to synthesize universe u of 'Array'

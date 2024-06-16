@@ -32,7 +32,7 @@ unsigned get_utf8_size(unsigned char c) {
         return 1; /* invalid */
 }
 
-size_t utf8_strlen(char const * str) {
+extern "C" size_t lean_utf8_strlen(char const * str) {
     size_t r = 0;
     while (*str != 0) {
         unsigned sz = get_utf8_size(*str);
@@ -42,7 +42,11 @@ size_t utf8_strlen(char const * str) {
     return r;
 }
 
-size_t utf8_strlen(char const * str, size_t sz) {
+size_t utf8_strlen(char const * str) {
+    return lean_utf8_strlen(str);
+}
+
+extern "C" size_t lean_utf8_n_strlen(char const * str, size_t sz) {
     size_t r = 0;
     size_t i = 0;
     while (i < sz) {
@@ -51,6 +55,10 @@ size_t utf8_strlen(char const * str, size_t sz) {
         i += d;
     }
     return r;
+}
+
+size_t utf8_strlen(char const * str, size_t sz) {
+    return lean_utf8_n_strlen(str, sz);
 }
 
 size_t utf8_strlen(std::string const & str) {

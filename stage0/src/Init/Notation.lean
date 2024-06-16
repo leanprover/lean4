@@ -320,6 +320,9 @@ macro "admit" : tactic => `(exact sorry)
 macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
+/- Optional configuration option for tactics -/
+syntax config := ("(" &"config" " := " term ")")
+
 syntax locationWildcard := "*"
 syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
 syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
@@ -361,8 +364,8 @@ syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
 syntax simpErase := "-" ident
 syntax simpStar  := "*"
-syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
-syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+syntax (name := simp) "simp " (config)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simpAll) "simp_all " (config)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
   Delta expand the given definition.

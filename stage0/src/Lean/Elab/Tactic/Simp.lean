@@ -4,39 +4,27 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Simp
+import Lean.Meta.Tactic.Replace
+import Lean.Elab.BuiltinNotation
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Location
-import Lean.Meta.Tactic.Replace
-import Lean.Elab.BuiltinNotation
+import Lean.Elab.Tactic.Config
 
 namespace Lean.Elab.Tactic
 open Meta
 
-unsafe def evalSimpConfigUnsafe (e : Expr) : TermElabM Meta.Simp.Config :=
-  Term.evalExpr Meta.Simp.Config ``Meta.Simp.Config e
-@[implementedBy evalSimpConfigUnsafe] constant evalSimpConfig (e : Expr) : TermElabM Meta.Simp.Config
-
-unsafe def evalSimpConfigCtxUnsafe (e : Expr) : TermElabM Meta.Simp.ConfigCtx :=
-  Term.evalExpr Meta.Simp.ConfigCtx ``Meta.Simp.ConfigCtx e
-@[implementedBy evalSimpConfigCtxUnsafe] constant evalSimpConfigCtx (e : Expr) : TermElabM Meta.Simp.ConfigCtx
+declare_config_elab elabSimpConfigCore    Meta.Simp.Config
+declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx
 
 /-
   `optConfig` is of the form `("(" "config" ":=" term ")")?`
   If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
 def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Config := do
-  if optConfig.isNone then
-    if ctx then
-      return { : Meta.Simp.ConfigCtx }.toConfig
-    else
-      return {}
+  if ctx then
+    return (← elabSimpConfigCtxCore optConfig).toConfig
   else
-    withoutModifyingState <| withLCtx {} {} <| Term.withSynthesize do
-      let c ← Term.elabTermEnsuringType optConfig[3] (Lean.mkConst (if ctx then ``Meta.Simp.ConfigCtx else ``Meta.Simp.Config))
-      if ctx then
-        return (← evalSimpConfigCtx (← instantiateMVars c)).toConfig
-      else
-        evalSimpConfig (← instantiateMVars c)
+    elabSimpConfigCore optConfig
 
 private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) (inv : Bool) : MetaM Meta.SimpLemmas := do
   if e.isConst then

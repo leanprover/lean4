@@ -14,7 +14,7 @@ inline lean_obj_res io_result_mk_ok(lean_obj_arg a) { return lean_io_result_mk_o
 inline lean_obj_res io_result_mk_error(lean_obj_arg e) { return lean_io_result_mk_error(e); }
 lean_obj_res io_result_mk_error(char const * msg);
 lean_obj_res io_result_mk_error(std::string const & msg);
-lean_obj_res decode_io_error(int errnum, b_lean_obj_arg fname);
+inline lean_obj_res decode_io_error(int errnum, b_lean_obj_arg fname) { return lean_decode_io_error(errnum, fname); }
 lean_obj_res io_wrap_handle(FILE * hfile);
 void initialize_io();
 void finalize_io();

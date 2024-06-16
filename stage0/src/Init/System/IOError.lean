@@ -53,7 +53,7 @@ inductive IO.Error where
   | userError (msg : String)
   deriving Inhabited
 
-@[export mk_io_user_error]
+@[export lean_mk_io_user_error]
 def IO.userError (s : String) : IO.Error :=
   IO.Error.userError s
 

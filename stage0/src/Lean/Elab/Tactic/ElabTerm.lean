@@ -101,7 +101,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
 @[builtinTactic «specialize»] def evalSpecialize : Tactic := fun stx => withMainContext do
   match stx with
   | `(tactic| specialize $e:term) =>
-    let (e, mvarIds') ← elabTermWithHoles e (← getMainTarget) `specialize (allowNaturalHoles := true)
+    let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
     let h := e.getAppFn
     if h.isFVar then
       let localDecl ← getLocalDecl h.fvarId!

@@ -30,7 +30,7 @@ lean_object* l_IO_Error_fopenErrorToString___boxed(lean_object*, lean_object*, l
 lean_object* l_IO_Error_otherErrorToString(lean_object*, uint32_t, lean_object*);
 lean_object* l_IO_Error_mkNoSuchThing___boxed(lean_object*, lean_object*);
 lean_object* l_IO_Error_fopenErrorToString(lean_object*, lean_object*, uint32_t, lean_object*);
-lean_object* mk_io_user_error(lean_object*);
+lean_object* lean_mk_io_user_error(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_IO_Error_toString___closed__7;
 lean_object* lean_mk_io_error_already_exists_file(lean_object*, uint32_t, lean_object*);
@@ -141,7 +141,7 @@ x_1 = l_IO_instInhabitedError___closed__3;
 return x_1;
 }
 }
-lean_object* mk_io_user_error(lean_object* x_1) {
+lean_object* lean_mk_io_user_error(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -154,7 +154,7 @@ static lean_object* _init_l_instCoeStringError___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(mk_io_user_error), 1, 0);
+x_1 = lean_alloc_closure((void*)(lean_mk_io_user_error), 1, 0);
 return x_1;
 }
 }

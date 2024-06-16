@@ -954,6 +954,8 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
+size_t lean_utf8_strlen(char const * str);
+size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
@@ -1656,6 +1658,8 @@ lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
 
+lean_obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname);
+
 static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }
 static inline bool lean_io_result_is_error(b_lean_obj_arg r) { return lean_ptr_tag(r) == 1; }
@@ -1675,6 +1679,33 @@ static inline lean_obj_res lean_io_result_mk_error(lean_obj_arg e) {
     lean_ctor_set(r, 1, lean_box(0));
     return r;
 }
+
+lean_obj_res lean_mk_io_error_already_exists(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_already_exists_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_eof(lean_obj_arg);
+lean_obj_res lean_mk_io_error_hardware_fault(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_illegal_operation(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_inappropriate_type(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_inappropriate_type_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_interrupted(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_invalid_argument(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_invalid_argument_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_file_or_directory(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_such_thing(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_such_thing_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_other_error(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_permission_denied(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_permission_denied_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_protocol_error(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_busy(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_exhausted(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_exhausted_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_vanished(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_time_expired(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_unsupported_operation(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
+
 
 /* ST Ref primitives */
 lean_obj_res lean_st_mk_ref(lean_obj_arg, lean_obj_arg);

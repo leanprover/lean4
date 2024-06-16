@@ -714,10 +714,10 @@ match mvarErrorInfo.argName? with
 def LevelMVarErrorInfo.logError (levelMVarErrorInfo : LevelMVarErrorInfo) (extraMsg? : Option MessageData) : TermElabM Unit := do
   match levelMVarErrorInfo.kind with
   | .hole =>
-    let msg := m! "don't know how to synthesize universe level placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
+    let msg := m! "don't know how to synthesize universe placeholder {Level.mvar levelMVarErrorInfo.mvarId}"
     logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
-  | .ofConst constName levelName =>
-    let msg := m! "don't know how to synthesize universe level parameter {levelName} of '{constName}'"
+  | .ofConst levelName const =>
+    let msg := m! "don't know how to synthesize universe {levelName} of '{const.constName!}'{indentD const}"
     logErrorAt levelMVarErrorInfo.ref (appendExtra msg)
 where
   appendExtra (msg : MessageData) : MessageData :=

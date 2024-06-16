@@ -37,7 +37,7 @@ endif
 ifeq "${USE_LAKE} ${STAGE}" "ON 1"
 
 Init:
-	lake build Init Lean Lake
+	${PREV_STAGE}/bin/lake build Init Lean Lake
 
 Lean: Init
 

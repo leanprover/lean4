@@ -55,7 +55,6 @@ private def getMVarsAtPreDef (preDef : PreDefinition) : MetaM (Array MVarId) := 
 
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
-  trace[Elab.definition] "{pendingMVarIds.map Expr.mvar}"
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
     let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then

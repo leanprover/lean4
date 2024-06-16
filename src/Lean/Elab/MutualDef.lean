@@ -868,6 +868,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
       -- If all universe level occurring in values also occur in types or explicitly provided universes, then everything is fine
       -- and we just return
       return ()
+    trace[Elab.definition] "checking univLevels {sValues.params}, {sTypes.params}, {allUserLevelNames}"
     let checkPreDef (preDef : PreDefinition) : TermElabM Unit :=
       -- Otherwise, we try to produce an error message containing the expression with the offending universe
       let rec visitLevel (u : Level) : ReaderT Expr TermElabM Unit := do
@@ -936,6 +937,7 @@ where
           for preDef in preDefs do
             trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
           checkForHiddenUnivLevels allUserLevelNames preDefs
+          trace[Elab.definition] "after univ levels"
           addPreDefinitions preDefs
           processDeriving headers
 

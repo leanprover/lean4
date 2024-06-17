@@ -28,7 +28,8 @@ The following operations are still missing `@[csimp]` replacements:
 
 The following operations are not recursive to begin with
 (or are defined in terms of recursive primitives):
-`isEmpty`, `isSuffixOf`, `isSuffixOf?`, `insert`, `zip`, `enum`, `minimum?`, `maximum?`, `removeAll`.
+`isEmpty`, `isSuffixOf`, `isSuffixOf?`, `rotateLeft`, `rotateRight`, `insert`, `zip`, `enum`,
+`minimum?`, `maximum?`, and `removeAll`.
 
 The following operations are given `@[csimp]` replacements below:
 `length`, `set`, `map`, `filter`, `filterMap`, `foldr`, `append`, `bind`, `join`, `replicate`,

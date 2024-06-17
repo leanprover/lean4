@@ -11,7 +11,7 @@ import Init.Data.Nat.Lemmas
 # Further lemmas about `List.take`, `List.drop`, `List.zip` and `List.zipWith`.
 
 These are in a separate file from most of the list lemmas
-as they required importing more lemmas about natural numbers.
+as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
 namespace List

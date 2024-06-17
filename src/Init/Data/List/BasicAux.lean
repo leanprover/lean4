@@ -5,7 +5,6 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Nat.Linear
-import Init.Ext
 
 universe u
 
@@ -33,58 +32,6 @@ theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
     (a::l).get! (n+1) = get! l n := rfl
 theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
 
-/-! ### get? -/
-
-/--
-Returns the `i`-th element in the list (zero-based).
-
-If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
-Also see `get`, `getD` and `get!`.
--/
-def get? : (as : List α) → (i : Nat) → Option α
-  | a::_,  0   => some a
-  | _::as, n+1 => get? as n
-  | _,     _   => none
-
-@[simp] theorem get?_nil : @get? α [] n = none := rfl
-@[simp] theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
-@[simp] theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
-
-/-! ### getD -/
-
-/--
-Returns the `i`-th element in the list (zero-based).
-
-If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
-See also `get?` and `get!`.
--/
-def getD (as : List α) (i : Nat) (fallback : α) : α :=
-  (as.get? i).getD fallback
-
-@[simp] theorem getD_nil : getD [] n d = d := rfl
-@[simp] theorem getD_cons_zero : getD (x :: xs) 0 d = x := rfl
-@[simp] theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := rfl
-
-theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
-  | [], [], _ => rfl
-  | a :: l₁, [], h => nomatch h 0
-  | [], a' :: l₂, h => nomatch h 0
-  | a :: l₁, a' :: l₂, h => by
-    have h0 : some a = some a' := h 0
-    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
-
-@[deprecated (since := "2024-06-07")] abbrev ext := @ext_get?
-
-/-! ### getLast -/
-
-/--
-Returns the last element of a non-empty list.
--/
-def getLast : ∀ (as : List α), as ≠ [] → α
-  | [],       h => absurd rfl h
-  | [a],      _ => a
-  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
-
 /-! ### getLast! -/
 
 /--
@@ -97,46 +44,7 @@ def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
   | a::as => getLast (a::as) (fun h => List.noConfusion h)
 
-/-! ### getLast? -/
-
-/--
-Returns the last element in the list.
-
-If the list is empty, this function returns `none`.
-Also see `getLastD` and `getLast!`.
--/
-def getLast? : List α → Option α
-  | []    => none
-  | a::as => some (getLast (a::as) (fun h => List.noConfusion h))
-
-@[simp] theorem getLast?_nil : @getLast? α [] = none := rfl
-
-/-! ### getLastD -/
-
-/--
-Returns the last element in the list.
-
-If the list is empty, this function returns `fallback`.
-Also see `getLast?` and `getLast!`.
--/
-def getLastD : (as : List α) → (fallback : α) → α
-  | [],   a₀ => a₀
-  | a::as, _ => getLast (a::as) (fun h => List.noConfusion h)
-
-@[simp] theorem getLastD_nil (a) : @getLastD α [] a = a := rfl
-@[simp] theorem getLastD_cons (a b l) : @getLastD α (b::l) a = getLastD l b := by cases l <;> rfl
-
 /-! ## Head and tail -/
-
-/-! ### head -/
-
-/--
-Returns the first element of a non-empty list.
--/
-def head : (as : List α) → as ≠ [] → α
-  | a::_, _ => a
-
-@[simp] theorem head_cons : @head α (a::l) h = a := rfl
 
 /-! ### head! -/
 
@@ -149,36 +57,6 @@ See `head` and `headD` for safer alternatives.
 def head! [Inhabited α] : List α → α
   | []   => panic! "empty list"
   | a::_ => a
-
-/-! ### head? -/
-
-/--
-Returns the first element in the list.
-
-If the list is empty, this function returns `none`.
-Also see `headD` and `head!`.
--/
-def head? : List α → Option α
-  | []   => none
-  | a::_ => some a
-
-@[simp] theorem head?_nil : @head? α [] = none := rfl
-@[simp] theorem head?_cons : @head? α (a::l) = some a := rfl
-
-/-! ### headD -/
-
-/--
-Returns the first element in the list.
-
-If the list is empty, this function returns `fallback`.
-Also see `head?` and `head!`.
--/
-def headD : (as : List α) → (fallback : α) → α
-  | [],   fallback => fallback
-  | a::_, _  => a
-
-@[simp 1100] theorem headD_nil : @headD α [] d = d := rfl
-@[simp 1100] theorem headD_cons : @headD α (a::l) d = a := rfl
 
 /-! ### tail! -/
 
@@ -194,81 +72,12 @@ def tail! : List α → List α
 
 @[simp] theorem tail!_cons : @tail! α (a::l) = l := rfl
 
-/-! ### tail? -/
-
-/--
-Drops the first element of the list.
-
-If the list is empty, this function returns `none`.
-Also see `tailD` and `tail!`.
--/
-def tail? : List α → Option (List α)
-  | []    => none
-  | _::as => some as
-
-@[simp] theorem tail?_nil : @tail? α [] = none := rfl
-@[simp] theorem tail?_cons : @tail? α (a::l) = some l := rfl
-
-/-! ### tailD -/
-
-/--
-Drops the first element of the list.
-
-If the list is empty, this function returns `fallback`.
-Also see `head?` and `head!`.
--/
-def tailD (list fallback : List α) : List α :=
-  match list with
-  | [] => fallback
-  | _ :: tl => tl
-
-@[simp 1100] theorem tailD_nil : @tailD α [] l' = l' := rfl
-@[simp 1100] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
-
-/-! ## Rotation -/
-
-/-! ### rotateLeft -/
-
-/--
-`O(n)`. Rotates the elements of `xs` to the left such that the element at
-`xs[i]` rotates to `xs[(i - n) % l.length]`.
-* `rotateLeft [1, 2, 3, 4, 5] 3 = [4, 5, 1, 2, 3]`
-* `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
-* `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
--/
-def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
-  let len := xs.length
-  if len ≤ 1 then
-    xs
-  else
-    let n := n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
-
-/-! ### rotateRight -/
-
-/--
-`O(n)`. Rotates the elements of `xs` to the right such that the element at
-`xs[i]` rotates to `xs[(i + n) % l.length]`.
-* `rotateRight [1, 2, 3, 4, 5] 3 = [3, 4, 5, 1, 2]`
-* `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
-* `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
--/
-def rotateRight (xs : List α) (n : Nat := 1) : List α :=
-  let len := xs.length
-  if len ≤ 1 then
-    xs
-  else
-    let n := len - n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
+/-! ### partitionM -/
 
 /--
 Monadic generalization of `List.partition`.
 
-This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic`.
+This uses `Array.toList` and which isn't imported by `Init.Data.List.Basic` or `Init.Data.List.Control`.
 ```
 def posOrNeg (x : Int) : Except String Bool :=
   if x > 0 then pure true
@@ -292,6 +101,8 @@ where
       go xs (acc₁.push x) acc₂
     else
       go xs acc₁ (acc₂.push x)
+
+/-! ### partitionMap -/
 
 /--
 Given a function `f : α → β ⊕ γ`, `partitionMap f l` maps the list by `f`

@@ -334,11 +334,9 @@ syntax (name := changeWith) "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
-syntax (name := rewriteSeq) "rewrite " rwRuleSeq (location)? : tactic
-syntax (name := erewriteSeq) "erewrite " rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
-syntax (name := rwSeq) "rw " rwRuleSeq (location)? : tactic
-syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
+syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
 
 def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
   -- We show the `rfl` state on `]`

@@ -24,7 +24,6 @@ def mkIBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName ibelowSuf
 
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
   auxRecExt.tag env declName
 
@@ -52,7 +51,6 @@ def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
-@[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=
   noConfusionExt.tag env n
 

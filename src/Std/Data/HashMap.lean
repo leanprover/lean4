@@ -12,7 +12,8 @@ def HashMapBucket (α : Type u) (β : Type v) :=
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
-    by erw [Array.size_set]; exact data.property ⟩
+    by conv => lhs; apply Array.size_set
+       apply data.property ⟩
 
 structure HashMapImp (α : Type u) (β : Type v) where
   size       : Nat

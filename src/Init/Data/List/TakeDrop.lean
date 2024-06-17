@@ -122,7 +122,7 @@ theorem take_eq_take :
   | _ :: xs, 0, 0 => by simp
   | x :: xs, m + 1, 0 => by simp [Nat.zero_min, succ_min_succ]
   | x :: xs, 0, n + 1 => by simp [Nat.zero_min, succ_min_succ]
-  | x :: xs, m + 1, n + 1 => by simp [succ_min_succ, take_eq_take]; omega
+  | x :: xs, m + 1, n + 1 => by simp [succ_min_succ, take_eq_take]
 
 theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.drop m).take n := by
   suffices take (m + n) (take m l ++ drop m l) = take m l ++ take n (drop m l) by

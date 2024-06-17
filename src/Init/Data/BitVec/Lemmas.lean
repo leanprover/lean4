@@ -1403,7 +1403,7 @@ theorem getLsb_twoPow (i j : Nat) : (twoPow w i).getLsb j = ((i < w) && (i = j))
           simp at hi
         simp_all
 
-theorem and_twoPow_eq_getLsb (x : BitVec w) (i : Nat) :
+theorem and_twoPow_eq (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsb i then twoPow w i else 0#w := by
   ext j
   simp only [getLsb_and, getLsb_twoPow]

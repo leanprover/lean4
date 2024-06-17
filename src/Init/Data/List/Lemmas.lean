@@ -735,7 +735,7 @@ theorem filter_length_eq_length {l} : (filter p l).length = l.length ↔ ∀ a �
   | cons a l ih =>
     simp only [filter_cons, length_cons, succ_eq_add_one, mem_cons, forall_eq_or_imp]
     split <;> rename_i h
-    · simp_all
+    · simp_all [Nat.add_one_inj] -- Why does the simproc not fire here?
     · have := Nat.ne_of_lt (Nat.lt_succ.mpr (length_filter_le p l))
       simp_all
 
